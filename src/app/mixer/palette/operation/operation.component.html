@@ -87,5 +87,21 @@ cdkDrag
 
       </div>
 
+
+      <div class="outputs">
+        <app-draftrendering class="draftrendering" 
+        *ngFor="let child_id of children" 
+        [id]="child_id" 
+        [dirty]="redrawchildren"
+        [fromOp]="true"
+        (connectionSelected)="connectionStarted(event, childid)"
+        (onDuplicateCalled)="designActionChange(event)"
+				(onDeleteCalled)="designActionChange(event)"
+        >
+        </app-draftrendering>
+      </div>
+
+
+
   </div>
 </div>  

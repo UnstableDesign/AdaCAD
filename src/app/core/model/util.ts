@@ -430,9 +430,13 @@ class Util {
 
 
     getAdjustedPointerPosition(p: Point, viewport:Bounds) : any {   
+
+
+      
+
       return {
-        x: p.x + viewport.topleft.x,
-        y: p.y + viewport.topleft.y
+        x: p.x,
+        y: p.y
       } 
     }
 

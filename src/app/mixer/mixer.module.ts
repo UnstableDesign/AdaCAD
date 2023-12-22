@@ -18,6 +18,7 @@ import { InletComponent } from './palette/operation/inlet/inlet.component';
 import { DesignComponent } from './design/design.component';
 import { QuickopComponent } from './quickop/quickop.component';
 import { SimulationModule } from '../simulation/simulation.module';
+import { DraftrenderingComponent } from './palette/draftrendering/draftrendering.component';
 
 
 
@@ -43,7 +44,8 @@ import { SimulationModule } from '../simulation/simulation.module';
         ParameterComponent,
         InletComponent,
         DesignComponent,
-        QuickopComponent
+        QuickopComponent,
+        DraftrenderingComponent
         ],
     exports: [
         MixerComponent

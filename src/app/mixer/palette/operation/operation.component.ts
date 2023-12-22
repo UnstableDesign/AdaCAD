@@ -121,8 +121,11 @@ export class OperationComponent implements OnInit {
 
    viewInit: boolean = false;
 
-
    hasInlets: boolean = false;
+
+   children: Array<number> = []; //a list of references to any drafts produced by this operation
+
+   redrawchildren: number = 0;
 
   constructor(
     private operations: OperationService, 
@@ -310,6 +313,12 @@ export class OperationComponent implements OnInit {
 
   visibilityChange(obj: any){
     this.onInputVisibilityChange.emit({id: this.id, ndx:  obj.inletid, ndx_in_inlets: obj.ndx_in_inlets, show: obj.show});
+  }
+
+  updateChildren(children: Array<number>){
+        this.children = children;
+        this.redrawchildren++;
+  
   }
 
   /**
@@ -504,12 +513,12 @@ export class OperationComponent implements OnInit {
 
 
 
-       const pointer:Point = $event.pointerPosition;
-       const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
-       const adj:Point = utilInstance.snapToGrid(relative, this.scale);
-       this.topleft = adj;  
-       this.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
-       this.onOperationMove.emit({id: this.id, point: adj});
+      //  const pointer:Point = $event.pointerPosition;
+      //  const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
+      //  const adj:Point = utilInstance.snapToGrid(relative, this.scale);
+      //  this.topleft = adj;  
+      //  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
+       // this.onOperationMove.emit({id: this.id, point: adj});
 
   }
 

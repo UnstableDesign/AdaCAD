@@ -1,0 +1,161 @@
+
+<div id="scale-{{id}}" class="subdraft-container" >
+
+  <div class="bottom-opts">
+
+    <div id="subdraft-details"> 
+
+      <button *ngIf="!exceeds_size"
+      mat-icon-button
+      class="is-small fa-solid"
+      [class.fa-chess-board] = 'use_colors'
+      [class.fa-rug] = '!use_colors'
+      matTooltip ="Toggle Material View"
+      (click)="toggleDraftRendering()">
+      </button>
+
+    
+
+      <button mat-icon-button
+      [matMenuTriggerFor]="subdraftOptions"
+      class="is-small fa-solid fa-ellipsis"
+      matTooltip ="View Options">
+      </button>
+
+      <mat-menu #subdraftOptions>
+      
+  
+      <button mat-icon-button *ngIf='hasParent'
+      matTooltip= "Show/Hide Draft"
+      class="fas"
+      [class.fa-eye-slash] = 'draft_visible'
+      [class.fa-eye] = '!draft_visible'
+      (click)="showhide()">
+      </button>
+  
+  
+      <button mat-icon-button
+      matTooltip= "Duplicate"
+      class="fa fa-clone"
+      name="duplicate"
+      (click)="designActionChange('duplicate')">
+      </button>
+      
+      <button mat-icon-button
+      class="fas fa-download"
+      (click)="saveAsBmp()"
+      matTooltip ="Download as Bitmap">
+
+      </button>
+      <button mat-icon-button
+      (click)="saveAsPrint()"
+      class="fa-solid fa-file-image"
+      matTooltip ="Download as Printable Image">
+      </button>
+
+  
+    
+      <button mat-icon-button *ngIf='!hasParent'
+      matTooltip= "Delete"
+      class="fas fa-times"
+      [name]="delete"
+      (click)="designActionChange('delete')">
+      </button>
+
+      
+    </mat-menu>
+
+
+
+    </div>
+
+    <div id="slider" *ngIf="!exceeds_size">
+      <mat-slider 
+      [(ngModel)]="draft_cell_size"
+      min="1" 
+      max="20" 
+      step="0.05" 
+      (valueChange)="zoomChange($event)"
+      >
+      <input matSliderThumb [(ngModel)]="draft_cell_size">
+        </mat-slider>
+    </div>
+
+    <button mat-icon-button *ngIf='!hasParent'
+    matTooltip= "Delete"
+    class="fas fa-times"
+    [name]="delete"
+    (click)="designActionChange('delete')">
+    </button>
+  </div>
+
+
+
+
+
+
+
+<div [class.hidden]="!draft_visible" class="subdraft-contents origin{{ws.selected_origin_option}}" >
+
+  <div id="local-zoom-{{id}}" class="local_zoom origin{{ws.selected_origin_option}}">
+
+    <div *ngIf="!exceeds_size" class="warp-systems-container origin{{ws.selected_origin_option}} ">
+
+        <div class="warp-systems-text origin{{ws.selected_origin_option}}" id="warp-systems-text">
+        
+          <div class="warp-system-col origin{{ws.selected_origin_option}}" 
+          *ngFor="let i of colShuttleMapping; let j = index;" >
+          </div>
+
+        </div>  
+
+        <canvas id="warp-systems-{{id}}" class="warp-systems">  </canvas>
+        <canvas id ="warp-materials-{{id}}" class="warp-materials">  </canvas>
+
+    </div>
+
+    <div class="drawdown-container origin{{ws.selected_origin_option}}" >
+        <canvas class="maindraft" id="{{id}}" >  </canvas>
+
+        
+        <div *ngIf="!exceeds_size" class="weft-systems-container origin{{ws.selected_origin_option}}">
+          <canvas id="weft-materials-{{id}}" class="weft-materials">  </canvas>
+          <canvas id="weft-systems-{{id}}" class="weft-systems" >  </canvas>
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="outlet_row">
+
+
+  <button 
+  id = "{{id}}-out" 
+  class="output"
+  [class.active]="selecting_connection"
+  matTooltip = "connect this draft to an operation"
+  (click)="connectionStarted($event)">
+  <i class="fa-sharp fa-solid fa-circle-down"></i>
+  </button>
+
+  <div class="single_line">
+    <div class="dims">{{warps}} x {{wefts}}</div>
+    <div >
+      <input matInput  [(ngModel)]="ud_name" 
+      [placeholder]="tree.getDraft(id).gen_name"  
+      (focusout)="nameFocusOut($event)"
+      (change)="updateName()">
+     </div>
+
+  </div>
+
+
+
+
+  <canvas #bitmapImage hidden></canvas>
+
+
+</div>
+
+

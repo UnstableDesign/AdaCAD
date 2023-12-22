@@ -223,3 +223,14 @@ button.is-primary.is-active{
     justify-content: space-between;
     width: 100%;
 }
+
+.outputs{
+    display: flex;
+    background-color: white;
+    flex-direction: row;
+    border: thin solid black
+}
+
+.draftrendering{
+    padding: 8px;
+}

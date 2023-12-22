@@ -1,10 +1,13 @@
-canvas{
-    position: absolute;
-  }
-
 
 #saver{
   z-index: -1;
+}
+
+#scrollable-container{
+  display: block;
+  position: relative;
+  left: 100px;
+
 }
 
 .sidenav_small{

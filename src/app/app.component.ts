@@ -30,6 +30,7 @@ import { FilebrowserComponent } from './core/filebrowser/filebrowser.component';
 import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { ExamplesComponent } from './core/modal/examples/examples.component';
 import { DesignmodesService } from './core/provider/designmodes.service';
+import { OperationComponent } from './mixer/palette/operation/operation.component';
 
 
 @Component({
@@ -727,13 +728,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
       const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
-      // let l: Loom = {
-      //   id: utilInstance.generateId(8),
-      //   treadling: [],
-      //   tieup: [],
-      //   threading: []
-      // }
-
       let ls: LoomSettings = {
         frames: this.ws.min_frames,
         treadles: this.ws.min_treadles,
@@ -822,6 +816,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
       switch (node.type){
         case 'draft':
+          if(!this.tree.hasParent(node.id))
           this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id), data.scale);
           break;
         case 'op':
@@ -829,7 +824,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
           this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).topleft, data.scale);
           break;
         case 'cxn':
-          this.mixer.loadConnection(node.id)
+         // this.mixer.loadConnection(node.id)
           break;
       }
     })
@@ -850,6 +845,10 @@ async processFileData(data: FileObj) : Promise<string|void>{
       (<DraftNode> node).loom = copyLoom(np.loom); 
       if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
     })
+
+   this.tree.getOpNodes().forEach(op => {
+    (<OperationComponent> op.component).updateChildren(this.tree.getNonCxnOutputs(op.id));
+   })
 
     // const dn = this.tree.getDraftNodes();
     // dn.forEach(node => {

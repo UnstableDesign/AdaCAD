@@ -487,7 +487,7 @@ export class DraftDetailComponent implements OnInit {
       const draft = this.tree.getDraft(node.id)
       const loom = this.tree.getLoom(node.id)
       const loom_settings = this.tree.getLoomSettings(node.id);
-      (<SubdraftComponent> node.component).drawDraft(draft);
+      (<SubdraftComponent> node.component).draft_rendering.drawDraft(draft);
       if(node.id == this.id){
         this.weaveRef.redraw(draft, loom, loom_settings, {
           drawdown: true, 

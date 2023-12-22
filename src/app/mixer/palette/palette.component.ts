@@ -322,7 +322,7 @@ handlePan(diff: Point){
 
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
     const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
-    const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsBmp());
+    const functions: Array<Promise<any>> = visible_drafts.map(el => el.draft_rendering.saveAsBmp());
     return Promise.all(functions).then(el =>
       console.log("Downloaded "+functions.length+" files")
     );
@@ -643,7 +643,6 @@ handlePan(diff: Point){
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
 
-    console.log("LOADING SUBDRAFT ", id)
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -966,19 +965,6 @@ handlePan(diff: Point){
     }
 
 
-  /**
-   * destorys the preview component
-   */
-  removePreview(){
-
-      const preview = this.tree.getPreview();
-
-      const ndx = this.vc.indexOf(this.tree.getPreview().ref);
-      this.vc.remove(ndx);
-
-      this.tree.unsetPreview();
-   
-  }
 
   /**
    * Called from mixer when it receives a change from the design mode tool or keyboard press
@@ -1527,28 +1513,36 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
   return this.tree.performGenerationOps([op_id])
   .then(draft_ids => {
 
+    const all_ops = this.tree.getOpNodes();
+    all_ops.forEach(op =>{
+      let children = this.tree.getNonCxnOutputs(op.id);
+      (<OperationComponent> op.component).updateChildren(children);
+
+    })
+
+
     const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
-      .map(el => (<SubdraftComponent> el.component).drawDraft((<DraftNode>el).draft));
+      .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
 
 
 
     //create any new subdrafts nodes
-    const new_drafts = this.tree.getDraftNodes()
-      .filter(el => el.component === null)
-      .map(el => {
-        return this.loadSubDraft(
-          el.id, 
-          (<DraftNode>el).draft, 
-          {
-            node_id: el.id,
-            type: el.type,
-            topleft: this.calculateInitialLocaiton(el.id),
-          }, null,this.zs.zoom);
-        });
+    // const new_drafts = this.tree.getDraftNodes()
+    //   .filter(el => el.component === null)
+    //   .map(el => {
+    //     return this.loadSubDraft(
+    //       el.id, 
+    //       (<DraftNode>el).draft, 
+    //       {
+    //         node_id: el.id,
+    //         type: el.type,
+    //         topleft: this.calculateInitialLocaiton(el.id),
+    //       }, null,this.zs.zoom);
+    //     });
       
 
-        return  Promise.all([Promise.all(fns), Promise.all(new_drafts)]);
+    //    return  Promise.all([Promise.all(fns), Promise.all(new_drafts)]);
         
        
   }).then(el => {
@@ -1558,17 +1552,17 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
       const from_node:Array<number> = this.tree.getInputs(cxn.id);
       const to_node:Array<number> = this.tree.getOutputs(cxn.id);
       if(from_node.length !== 1 || to_node.length !== 1) Promise.reject("connection has zero or more than one input or output");
-      loads.push(this.loadConnection(cxn.id));
+     // loads.push(this.loadConnection(cxn.id));
     })
 
     //update the positions of the connections
-    let all_cxns = this.tree.getConnections();
-    all_cxns.forEach(cxn => {
-      let to = this.tree.getOutputs(cxn.id);
-      to.forEach(id => {
-        cxn.updateToPosition(id, this.zs.zoom)
-      })
-    })
+    // let all_cxns = this.tree.getConnections();
+    // all_cxns.forEach(cxn => {
+    //   let to = this.tree.getOutputs(cxn.id);
+    //   to.forEach(id => {
+    //     cxn.updateToPosition(id, this.zs.zoom)
+    //   })
+    // })
 
     return Promise.all(loads);
 
@@ -1597,7 +1591,7 @@ updateDownstream(subdraft_id: number) {
 
     const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
-      .map(el => (<SubdraftComponent> el.component).drawDraft((<DraftNode>el).draft));
+      .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
 
 
 
@@ -2567,152 +2561,21 @@ pasteConnection(from: number, to: number, inlet: number){
 
     this.closeSnackBar();
 
-     if(obj === null) return;
-     this.updateSelectionPositions(obj.id);
+    if(obj === null) return;
+    this.updateSelectionPositions(obj.id);
 
+    this.addTimelineState();
+    this.tree.unsetPreview();
   
-      //creaet a subdraft of this intersection
-      if(this.tree.hasPreview()){
-
-        const preview_node = this.tree.getPreview();
-        const preview_draft = preview_node.draft;
-        let to_right = (<SubdraftComponent> preview_node.component).getTopleft();
-
-        this.createSubDraft(initDraftWithParams({wefts: wefts(preview_draft.drawdown), warps: warps(preview_draft.drawdown)}), -1)
-        .then(component => {
-          this.tree.setDraftPattern(component.id, preview_draft.drawdown);
-          //this.redrawDirtyDrafts();
-          // to_right.x += preview_node.component.bounds.width + this.zs.zoom *4;
-          // component.setPosition(to_right);
-          component.zndx = this.layers.createLayer();
-          this.removePreview();
-          const interlacement = utilInstance.resolvePointToAbsoluteNdx(component.topleft, this.zs.zoom);
-          this.viewport.addObj(component.id, interlacement);
-          this.addTimelineState();
-          this.tree.unsetPreview();
-        })
-        .catch(console.error);
-
-      } else{
-        this.addTimelineState();
-        this.tree.unsetPreview();
+    //get the reference to the draft that's moving
+    const moving = this.tree.getComponent(obj.id);
+    const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
+    this.viewport.updatePoint(moving.id, interlacement);
       
-        //get the reference to the draft that's moving
-        const moving = this.tree.getComponent(obj.id);
-        const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
-        this.viewport.updatePoint(moving.id, interlacement);
-      }
 
 
   }
 
-  /**
-   * merges a collection of subdraft components into the primary component, deletes the merged components
-   * @param primary the draft to merge into
-   * @returns true or false to describe if a merge took place. 
-   */
-  // mergeSubdrafts(primary: SubdraftComponent): boolean{
-
-  //   const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
-
-  //     if(isect.length == 0){
-  //       return false;
-  //     }   
-
-  //     const bounds: Bounds = utilInstance.getCombinedBounds(primary, isect);
-  //     const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
-
-  //     this.tree.setDraftOnly(primary.id, temp);
-  //     primary.setPosition(bounds.topleft);
-  //     //primary.drawDraft();
-  //     const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.zs.zoom);
-
-  //     this.viewport.updatePoint(primary.id, interlacement);
-
-
-  //   //remove the intersecting drafts from the view containier and from subrefts
-  //   isect.forEach(element => {
-  //     this.removeSubdraft(element.id);
-  //   });
-  //   return true;
-  // }
-
-  computeHeddleValue(p:Point, main: SubdraftComponent, isect: Array<SubdraftComponent>):boolean{
-    const a:boolean = main.resolveToValue(p);
-    //this may return an empty array, because the intersection might not have the point
-    const b_array:Array<SubdraftComponent> = isect.filter(el => el.hasPoint(p));
-
-    //should never have more than one value in barray
-    // if(b_array.length > 1) console.log("WARNING: Intersecting with Two Elements");
-
-    const val:boolean = b_array.reduce((acc:boolean, arr) => arr.resolveToValue(p), null);   
-    
-    return utilInstance.computeFilter(main.ink, a, val);
-  }
-
-
-
-  // getSubdraftsIntersectingSelection(selection: MarqueeComponent){
-
-  //   //find intersections between main and the others
-  //   const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-  //   const isect:Array<SubdraftComponent> = drafts.filter(sr => (utilInstance.doOverlap(
-  //     selection.bounds.topleft, 
-  //     {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
-  //     sr.getTopleft(), 
-  //     {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height}
-  //     ) ? sr : null));
-
-  //   return isect;
-  
-  // }
-
-
- /**
-   * get any subdrafts that intersect a given screen position
-   * @param p the x, y position of this cell 
-   * @returns 
-   */
-  // getIntersectingSubdraftsForPoint(p: any){
-
-  //   const primary_topleft = {x:  p.x, y: p.y };
-  //   const primary_bottomright = {x:  p.x + this.zs.zoom, y: p.y + this.zs.zoom};
-
-  //   const isect:Array<SubdraftComponent> = [];
-  //   const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-  //   drafts.forEach(sr => {
-  //     let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
-  //     const b: boolean = utilInstance.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
-  //     if(b) isect.push(sr);
-  //    });
-
-  //   return isect;
-  // }
-
-  /**
-   * get any subdrafts that intersect primary based on checks on their boundaries
-   * @param primary 
-   * @returns 
-   */
-  // getIntersectingSubdrafts(primary: SubdraftComponent){
-
-  //   const primary_draft = this.tree.getDraft(primary.id);
-  //   const drafts:Array<DraftNode> =  this.tree.getDraftNodes(); 
-  //   const to_check:Array<DraftNode> =  drafts.filter(sr => (sr.draft.id.toString() !== primary_draft.id.toString()));
-  //   const primary_bottomright = {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
-
-
-  //    const isect:Array<SubdraftComponent> = [];
-  //    to_check
-  //    .map(el => <SubdraftComponent> this.tree.getComponent(el.id))
-  //    .forEach(sr => {
-  //     let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
-  //     const b: boolean = utilInstance.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
-  //     if(b) isect.push(sr);
-  //    });
-
-  //   return isect;
-  // }
 
   getSelectionBounds(c1: any, c2: any): Bounds{
       let bottomright = {x: 0, y:0};
@@ -2743,36 +2606,6 @@ pasteConnection(from: number, to: number, inlet: number){
       return bounds;
   }
 
-      /**
-     * creates a draft in size bounds that contains all of the computed points of its intersections
-     * @param bounds the boundary of all the intersections
-     * @param primary the primary draft that we are checking for intersections
-     * @param isect an Array of the intersecting components
-     * @returns 
-     */
-       getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
-  
-        const primary_draft = this.tree.getDraft(primary.id);
-
-        const temp: Draft = initDraftWithParams({
-          id: primary_draft.id, 
-          gen_name: getDraftName(primary_draft), 
-          warps: Math.floor(bounds.width / this.zs.zoom), 
-          wefts: Math.floor(bounds.height / this.zs.zoom)});
-    
-        for(var i = 0; i < wefts(temp.drawdown); i++){
-          const top: number = bounds.topleft.y + (i * this.zs.zoom);
-          for(var j = 0; j < warps(temp.drawdown); j++){
-            const left: number = bounds.topleft.x + (j * this.zs.zoom);
-    
-            const p = {x: left, y: top};
-            const val = this.computeHeddleValue(p, primary, isect);
-            if(val != null) temp.drawdown[i][j] = setCellValue(temp.drawdown[i][j], val);
-            else setCellValue(temp.drawdown[i][j], null);
-          }
-        }
-        return temp;
-      }
 
 
 

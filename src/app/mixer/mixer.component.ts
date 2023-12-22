@@ -4,22 +4,18 @@ import { Auth } from '@angular/fire/auth';
 import { NgForm } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
-import * as htmlToImage from 'html-to-image';
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { DesignMode, Draft, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Point } from '../core/model/datatypes';
 import { defaults, loom_types } from '../core/model/defaults';
 import { warps, wefts } from '../core/model/drafts';
-import { copyLoom } from '../core/model/looms';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { FilesystemService } from '../core/provider/filesystem.service';
 import { NotesService } from '../core/provider/notes.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { DraftDetailComponent } from '../draftdetail/draftdetail.component';
 import { PaletteComponent } from './palette/palette.component';
-import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
@@ -56,34 +52,11 @@ export class MixerComponent  {
   @Input('hasFocus') hasFocus; 
   @Output() onDraftDetailOpen: any = new EventEmitter();
 
-
-  epi: number = 10;
-  units:string = 'cm';
-  frames:number =  8;
-  treadles:number = 10;
-  loomtype:string = "jacquard";
-  loomtypes:Array<DesignMode>  = [];
-  density_units:Array<DesignMode> = [];
-  warp_locked:boolean = false;
   origin_options: any = null;
   selected_origin: number = 0;
   show_viewer: boolean = false;
   show_details: boolean = false;
   loading: boolean = false;
-
-
-
-
-
-
-
- /**
-   * The weave Timeline object.
-   * @property {Timeline}
-   */
-
-  viewonly: boolean = false;
-
   manual_scroll: boolean = false;
 
   private unsubscribe$ = new Subject();
@@ -117,19 +90,7 @@ export class MixerComponent  {
     @Optional() private fbauth: Auth
     ) {
 
-
-      this.selected_origin = this.ws.selected_origin_option;
-
-      this.origin_options = this.ws.getOriginOptions();
-      this.epi = ws.epi;
-      this.units = ws.units;
-      this.frames = ws.min_frames;
-      this.treadles = ws.min_treadles;
-      this.loomtype = ws.type;
-      this.loomtypes = loom_types;
-     this.density_units = this.density_units;
-    //this.dialog.open(MixerInitComponent, {width: '600px'});
-
+   
     this.scrollingSubscription = this.scroll
           .scrolled()
           .subscribe((data: any) => {
@@ -427,39 +388,39 @@ zoomChange(e:any, source: string){
     }
 
 
-    printMixer(){
-      console.log("PRINT MIXER", "get bounding box of the elements and print")
-      var node = document.getElementById('scrollable-container');
-        htmlToImage.toPng(node, {width: 16380/2, height: 16380/2})
-        .then(function (dataUrl) {
+    // printMixer(){
+    //   console.log("PRINT MIXER", "get bounding box of the elements and print")
+    //   var node = document.getElementById('scrollable-container');
+    //     htmlToImage.toPng(node, {width: 16380/2, height: 16380/2})
+    //     .then(function (dataUrl) {
   
-          // var win = window.open('about:blank', "_new");
-          // win.document.open();
-          // win.document.write([
-          //     '<html>',
-          //     '   <head>',
-          //     '   </head>',
-          //     '   <body onload="window.print()" onafterprint="window.close()">',
-          //     '       <img src="' + dataUrl + '"/>',
-          //     '   </body>',
-          //     '</html>'
-          // ].join(''));
-          // win.document.close();
+    //       // var win = window.open('about:blank', "_new");
+    //       // win.document.open();
+    //       // win.document.write([
+    //       //     '<html>',
+    //       //     '   <head>',
+    //       //     '   </head>',
+    //       //     '   <body onload="window.print()" onafterprint="window.close()">',
+    //       //     '       <img src="' + dataUrl + '"/>',
+    //       //     '   </body>',
+    //       //     '</html>'
+    //       // ].join(''));
+    //       // win.document.close();
   
-          const link = document.createElement('a')
-          link.href= dataUrl;
-          link.download = "mixer.jpg"
-          link.click();
+    //       const link = document.createElement('a')
+    //       link.href= dataUrl;
+    //       link.download = "mixer.jpg"
+    //       link.click();
   
       
      
   
-        })
-        .catch(function (error) {
-          console.error('oops, something went wrong!', error);
-        });
+    //     })
+    //     .catch(function (error) {
+    //       console.error('oops, something went wrong!', error);
+    //     });
       
-    }
+    // }
 
   /**
    * this is called when a user pushes save from the topbar
@@ -473,7 +434,7 @@ zoomChange(e:any, source: string){
     switch(e.type){
       case 'jpg': 
 
-      this.printMixer();
+      //this.printMixer();
 
       break;
 
@@ -520,10 +481,7 @@ zoomChange(e:any, source: string){
 
   public notesChanged(e:any) {
     console.log(e);
-    //this.draft.notes = e;
   }
-
- 
 
 
   public toggleCollapsed(){
@@ -595,42 +553,7 @@ originChange(e:any){
 
 
 
-epiChange(f: NgForm) {
 
-
-  if(!f.value.epi){
-    f.value.epi = 1;
-    this.epi = f.value.epi;
-  } 
-  
-  //this.loom.overloadEpi(f.value.epi);
-  this.ws.epi = f.value.epi;
-
-
-
-}
-
-
-
-/**
- * when a user selects a new loom type, the software will pull all subdrafts and update their loom information 
- * @param e 
- * @returns 
- */
-// loomChange(e:any){
-
-//    this.ws.type = e.value.loomtype;
-//   if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
-//   else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
-  
-// }
-
-  unitChange(e:any){
-    
-      this.ws.units = e.value.units;
-
-
-  }
 
   showDraftDetails(id: number){
     this.onDraftDetailOpen.emit(id);
