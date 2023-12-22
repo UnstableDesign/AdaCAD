@@ -124,11 +124,10 @@ export class KeycodesDirective {
    */
     if(e.key =="d" && e.metaKey){
 
-      let dm: DesignMode = this.dm.getSelectedDesignMode('design_modes');
-      if(dm.value == 'select'){
-        this.dm.selectDesignMode('draw', 'design_modes');
-      }else if(dm.value == 'draw'){
-        this.dm.selectDesignMode('select', 'design_modes');
+      if(this.dm.cur_draft_edit_mode == 'select'){
+        this.dm.selectDraftEditingMode('draw');
+      }else if(this.dm.cur_draft_edit_mode == 'draw'){
+        this.dm.selectDraftEditingMode('select');
       }
       e.preventDefault()
     }

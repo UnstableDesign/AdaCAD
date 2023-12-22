@@ -105,6 +105,7 @@ export class AppComponent implements OnInit{
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
     });
+
   }
 
   ngAfterViewInit() {
@@ -727,7 +728,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
       const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
-      console.log("FOUND DRAFT NODE ", draft_node, data.draft_nodes)
       // let l: Loom = {
       //   id: utilInstance.generateId(8),
       //   treadling: [],
@@ -958,7 +958,7 @@ showDraftDetails(id: number){
   let draft = this.tree.getDraft(id);
   let loom_settings = this.tree.getLoomSettings(id);
   this.sim.loadNewDraft(draft, loom_settings)
-  this.dm.selectDesignMode('toggle','draw_modes')
+  this.dm.selectPencil('toggle');
 }
 
 

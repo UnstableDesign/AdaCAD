@@ -1,21 +1,8 @@
- <!--render each of the subdrafts as an SVG Element to take advantage of intersection-->
 
 <ng-container #vc>
-<div id="palette"  
-class="palette-container"
-[class.no-pointer]="!pointer_events" >
-</div>
-
 <!-- <div id="palette"  
 class="palette-container"
-[class.no-pointer]="!pointer_events" 
-[style.width.px]="viewport.getAbsoluteWidth()"  
-[style.height.px]="viewport.getAbsoluteHeight()">
+[class.no-pointer]="!pointer_events" >
 </div> -->
 
-<svg id="scratch_svg">
-    
-</svg>
-
-<canvas id="scratch" [style.z-index]="canvas_zndx" [class.no-pointer]="!pointer_events" [style.left.px]="viewport.vp.topleft.x" [style.top.px]="viewport.vp.topleft.y"></canvas>
 </ng-container>

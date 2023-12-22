@@ -16,7 +16,7 @@ import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
 import { NgForm } from '@angular/forms';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
-import {defaults} from '../../core/model/defaults'
+import {defaults, density_units, loom_types} from '../../core/model/defaults'
 import * as htmlToImage from 'html-to-image';
 
 @Component({
@@ -222,10 +222,8 @@ export class DraftviewerComponent implements OnInit {
    width: number;
    epi: number;
 
-   loomtypes:Array<DesignMode>  = [];
    selected_loom_type;
 
-   density_units: Array<DesignMode> = [];
    selected_units: 'cm' | 'in';
 
   /** VIEW OPTIONS */
@@ -241,6 +239,8 @@ export class DraftviewerComponent implements OnInit {
   id: number = -1;
 
   is_dirty: boolean = false;
+
+  selected_material_id: number = 0;
 
  
    /// ANGULAR FUNCTIONS
@@ -263,19 +263,12 @@ export class DraftviewerComponent implements OnInit {
 
     this.flag_recompute = false;
     this.flag_history = false;
-    this.loomtypes = dm.getOptionSet('loom_types');
-    this.density_units = dm.getOptionSet('density_units');
     this.cell_size = defaults.draft_detail_cell_size;
     this.system_codes = defaults.weft_system_codes;
 
   }
 
   ngOnInit() {
-
-
-     this.viewonly = false;
-
-
 
   }
 
@@ -421,22 +414,18 @@ export class DraftviewerComponent implements OnInit {
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
       
-      const editing_style = this.dm.getSelectedDesignMode('drawdown_editing_style').value;
-
+      const editing_style = this.dm.cur_draft_edit_source
 
       if (target && target.id =='treadling') {
-        if(this.viewonly) return;
         currentPos.i = this.render.visibleRows[currentPos.i];
         if(editing_style == "loom") this.drawOnTreadling(loom, loom_settings, currentPos);
       } else if (target && target.id === 'tieups') {
-        if(this.viewonly || loom_settings.type === "direct") return;
+        if(loom_settings.type === "direct") return;
         if(editing_style == "loom") this.drawOnTieups(loom, loom_settings, currentPos);
       } else if (target && target.id === ('threading')) {
-        if(this.viewonly) return;
         //currentPos.i = this.loom.frame_mapping[currentPos.i];
         if(editing_style == "loom")  this.drawOnThreading(loom, loom_settings, currentPos);
     } else{
-        if(this.viewonly) return;
         currentPos.i = this.render.visibleRows[currentPos.i];
         if(editing_style == "drawdown")  this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
       }
@@ -545,14 +534,13 @@ export class DraftviewerComponent implements OnInit {
 
       // Save temp pattern
       this.tempPattern = draft.drawdown.slice();
-      const selected: DesignMode = this.dm.getSelectedDesignMode('design_modes');
       
 
-      switch (selected.value) {
+      switch (this.dm.cur_draft_edit_mode) {
 
         case 'draw':
 
-          switch(this.dm.getSelectedDesignMode('draw_modes').value){
+          switch(this.dm.cur_pencil){
 
             case 'toggle':
               this.setPosAndDraw(event.target, event.shiftKey, currentPos);
@@ -624,7 +612,7 @@ export class DraftviewerComponent implements OnInit {
 
     
 
-    var offset = this.render.getCellDims(this.dm.getSelectedDesignMode('design_modes').value);
+    var offset = this.render.getCellDims(this.dm.cur_draft_edit_mode);
 
     // set up the point based on touched square.
     //var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
@@ -652,9 +640,9 @@ export class DraftviewerComponent implements OnInit {
     if(this.isSame(currentPos, this.lastPos)) return;
 
     // determine action based on brush type. invert inactive on move.
-    switch (this.dm.getSelectedDesignMode('design_modes').value) {
+    switch (this.dm.cur_draft_edit_mode) {
       case 'draw':
-        switch(this.dm.getSelectedDesignMode('draw_modes').value){
+        switch(this.dm.cur_pencil){
           case 'up':
           case 'down':
           case 'unset':
@@ -730,7 +718,7 @@ export class DraftviewerComponent implements OnInit {
 
 
     // remove subscription unless it is leave event with select.
-    if (!(event.type === 'mouseleave' && (this.dm.isSelected('select','design_modes') || this.dm.isSelected('copy','design_actions')))){
+    if (!(event.type === 'mouseleave' && (this.dm.isSelectedDraftEditingMode('select')))){
       this.removeSubscription();
       this.selection.onSelectStop();
     }
@@ -1191,9 +1179,8 @@ export class DraftviewerComponent implements OnInit {
 
     const weft = this.render.visibleRows[si];
     const draft = this.tree.getDraft(this.id);
-    if(this.dm.isSelected('material', 'draw_modes')){
-      const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
-      draft.rowShuttleMapping[weft] = parseInt(material_id);
+    if(this.dm.isSelectedPencil('material')){
+      draft.rowShuttleMapping[weft] = this.selected_material_id;
     }else{
       const len = this.ms.getShuttles().length;
       var shuttle_id = draft.rowShuttleMapping[weft];
@@ -1228,9 +1215,8 @@ export class DraftviewerComponent implements OnInit {
     const warp = col;
 
     const draft = this.tree.getDraft(this.id);
-    if(this.dm.isSelected('material', 'draw_modes')){
-      const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
-      draft.colShuttleMapping[warp] = parseInt(material_id);
+    if(this.dm.isSelectedPencil('material')){
+      draft.colShuttleMapping[warp] = this.selected_material_id;
     }else{
       const len = this.ms.getShuttles().length;
       var shuttle_id = draft.colShuttleMapping[warp];
@@ -1273,7 +1259,7 @@ export class DraftviewerComponent implements OnInit {
       this.markDirty();
 
       // Set the heddles based on the brush.
-      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
+      switch (this.dm.cur_pencil) {
         case 'up':
           val = true;
           draft.drawdown = setHeddle(draft.drawdown, currentPos.i,currentPos.j,val);
@@ -1343,7 +1329,7 @@ export class DraftviewerComponent implements OnInit {
 
 
 
-      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
+      switch (this.dm.cur_pencil) {
         case 'up':
             val = true;
           break;
@@ -1392,7 +1378,7 @@ export class DraftviewerComponent implements OnInit {
        // currentPos.i = this.translateThreadingRowForView(loom, loom_settings,currentPos.i)
 
 
-      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
+      switch (this.dm.cur_pencil) {
         case 'up':
           val = true;
           break;
@@ -1432,7 +1418,7 @@ export class DraftviewerComponent implements OnInit {
     var val = false;
 
     if(isInUserTreadlingRange(loom, loom_settings, currentPos)){
-      switch (this.dm.getSelectedDesignMode('draw_modes').value) {
+      switch (this.dm.cur_pencil) {
         case 'up':
           val = true;
           break;
@@ -2239,7 +2225,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const utils = getLoomUtilByType(loom_settings.type);
     loom = utils.insertIntoTreadling(loom, index, []);
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+    if(this.dm.isSelectedDraftEditSource('drawdown')){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.render.updateVisible(draft);
@@ -2282,7 +2268,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const utils = getLoomUtilByType(loom_settings.type);
 
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+    if(this.dm.isSelectedDraftEditSource('drawdown')){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.render.updateVisible(draft);
@@ -2325,7 +2311,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     loom = utils.deleteFromTreadling(loom, index);
 
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+    if(this.dm.isSelectedDraftEditSource('drawdown')){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.render.updateVisible(draft);
@@ -2366,7 +2352,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const utils = getLoomUtilByType(loom_settings.type);
     loom = utils.insertIntoThreading(loom, j, -1);
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+    if(this.dm.isSelectedDraftEditSource('drawdown')){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
@@ -2410,7 +2396,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const utils = getLoomUtilByType(loom_settings.type);
 
 
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+    if(this.dm.isSelectedDraftEditSource('drawdown')){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
@@ -2452,7 +2438,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       loom = utils.deleteFromThreading(loom, j);
   
     
-      if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+      if(this.dm.isSelectedDraftEditSource('drawdown')){
         this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
@@ -2824,7 +2810,10 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const loom_settings = this.tree.getLoomSettings(this.id);
     this.selected_loom_type =  e.value.loomtype;
 
-    if (loom_settings.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+    if (loom_settings.type === 'jacquard') this.dm.selectDraftEditSource('drawdown');
+    else{
+      this.dm.selectDraftEditSource('loom');
+    }
  
     let utils:LoomUtil = null;
   
@@ -3005,7 +2994,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   
     }
   
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+    if(this.dm.isSelectedDraftEditSource('drawdown')){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
           this.redraw(draft, loom, loom_settings, {
@@ -3097,7 +3086,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       }
     }
   
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value == 'drawdown'){
+    if(this.dm.isSelectedDraftEditingMode('drawdown')){
   
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
@@ -3218,11 +3207,10 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
   public checkForPaint(source: string, index: number, event: any){
     const draft = this.tree.getDraft(this.id);
-    if(this.dm.isSelected('material', 'draw_modes') && this.mouse_pressed){
-      
-      const material_id:string = this.dm.getSelectedDesignMode('draw_modes').children[0].value;
-      if(source == 'weft') draft.rowShuttleMapping[index] = parseInt(material_id);
-      if(source == 'warp') draft.colShuttleMapping[index] = parseInt(material_id);
+    if(this.dm.isSelectedPencil('material') && this.mouse_pressed){
+
+      if(source == 'weft') draft.rowShuttleMapping[index] = this.selected_material_id;
+      if(source == 'warp') draft.colShuttleMapping[index] = this.selected_material_id;
       this.onMaterialChange.emit();
 
     } 

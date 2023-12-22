@@ -35,7 +35,6 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { LoginComponent } from './login/login.component';
 import { AboutModal } from './modal/about/about.modal';
 import { InitModal } from './modal/init/init.modal';
-import { LoomModal } from './modal/loom/loom.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { ProfileComponent } from './profile/profile.component';
 import { AuthService } from './provider/auth.service';
@@ -95,7 +94,6 @@ import { KeycodesDirective } from './keycodes.directive';
         InitModal,
         AboutModal,
         MaterialModal,
-        LoomModal,
         LoginComponent,
         SignupComponent,
         ProfileComponent,
@@ -152,7 +150,6 @@ import { KeycodesDirective } from './keycodes.directive';
         InitModal,
         AboutModal,
         MaterialModal,
-        LoomModal,
         FilebrowserComponent,
         ExamplesComponent,
         KeycodesDirective

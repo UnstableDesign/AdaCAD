@@ -2,6 +2,7 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { compositionDependencies } from 'mathjs';
 import { DesignMode, Draft, Loom, LoomSettings } from '../../model/datatypes';
+import { density_units } from '../../model/defaults';
 import { initDraft, initDraftWithParams } from '../../model/drafts';
 import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';
@@ -36,8 +37,8 @@ export class BlankdraftModal implements OnInit {
     private dialogRef: MatDialogRef<BlankdraftModal>, 
     @Inject(MAT_DIALOG_DATA) private data: any) {
      
-      this.loom_types = this.dm.getOptionSet('loom_types');
-      this.units = this.dm.getOptionSet('density_units');
+      this.loom_types = this.loom_types;
+      this.units = density_units;
 
   }
 

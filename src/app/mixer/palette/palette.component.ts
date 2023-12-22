@@ -290,7 +290,6 @@ export class PaletteComponent implements OnInit{
  */
 handlePan(diff: Point){
   const div:HTMLElement = document.getElementById('scrollable-container');  
-  console.log("Offset ", diff, div.offsetParent.scrollLeft)
    div.offsetParent.scrollLeft += diff.x;
    div.offsetParent.scrollTop += diff.y;
 }
@@ -347,18 +346,6 @@ handlePan(diff: Point){
    */
   addTimelineState(){
     console.log("ADD TIMELINE");
-    // version: string,
-    // workspace: any,
-    // type: string,
-    // nodes: Array<NodeComponentProxy>,
-    // tree: Array<TreeNodeProxy>,
-    // drafts: Array<Draft>,
-    // looms: Array<Loom>,
-    // loom_settings: Array<LoomSettings>
-    // ops: Array<any>,
-    // notes: Array<Note>,
-    // materials: Array<Shuttle>,
-    // scale: number
 
 
    this.fs.saver.ada(
@@ -531,8 +518,7 @@ handlePan(diff: Point){
    * @param name - the mode to switchh to
    */
   changeDesignmode(name: string) {
-    this.dm.selectDesignMode(name, 'design_modes');
-    const mode = this.dm.getDesignMode(name, 'design_modes');
+    this.dm.selectMixerEditingMode(name);
     this.onDesignModeChange.emit(name);
   }
 
@@ -1050,7 +1036,7 @@ handlePan(diff: Point){
    */
   public designModeChanged(){
 
-    if(this.dm.getDesignMode('move', 'design_modes').selected){
+    if(this.dm.isSelectedMixerEditingMode('move')){
       this.unfreezePaletteObjects();
 
     }else{
@@ -1082,7 +1068,7 @@ handlePan(diff: Point){
    */
   private drawSelection(ndx: Interlacement){
 
-
+    //instantiate the canvas at this point
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     const bounds ={
@@ -1106,165 +1092,6 @@ handlePan(diff: Point){
 
   }
 
-  /**
-   * Takes an absolute index and returns it to an index relative to the viewport. 
-   * @param abs 
-   * @returns 
-   */
-  private getRelativeInterlacement(abs: Interlacement) : Interlacement {
-    const i_offset: number = Math.floor(this.viewport.getTopLeft().y / this.zs.zoom);
-    const j_offset: number = Math.floor(this.viewport.getTopLeft().x / this.zs.zoom);
-    const rel: Interlacement = {
-      i: abs.i - i_offset,
-      j: abs.j - j_offset,
-      si: -1
-    }
-
-    return rel;
-  }
-
-
-  /**
-   * sets the value of the scratchpad cell at ndx
-   * checks for self interselcting 
-   * @param ndx (i,j)
-   */
-  private setCell(ndx: Interlacement){
-
-    const rel: Interlacement = this.getRelativeInterlacement(ndx);
-    let c: Cell = this.scratch_pad[rel.i][rel.j];
-
-    const selected: string = this.dm.getSelectedDesignMode('draw_modes').value;
-
-    switch(selected){
-      case 'toggle':
-        const cur: boolean = getCellValue(c);
-        if(cur == null)  c = setCellValue(c, true);
-        else c = setCellValue(c, !cur)
-        break;
-      case 'down':
-        c = setCellValue(c, false)
-        break;
-      case 'up':
-        c = setCellValue(c, true)
-      break;
-      case 'unset':
-        c = setCellValue(c, null);
-      break;
-    }
-
-
-    //use the code below to use past scratchpad values, but this seems wrong
-    // console.log(c);
-    // const val: boolean = c.isSet(); //check for a previous value
-    // c.setHeddle(true);
-
-    // if(val){
-    //   const newval:boolean = this.computeCellValue(this.inks.getSelected(), c, val);
-    //   console.log("setting to", newval);
-    //   c.setHeddle(newval);
-    // } 
-  }
-
-  /**
-   * called by drawcell. Draws on screen based on the current ink
-   * @param ink 
-   * @param over 
-   * @param under 
-   * @returns 
-   */
-  private computeCellColor(ink: string, over: Cell, under: boolean): string{
-
-    const res: boolean = this.computeCellValue(ink, over, under);
-    if(ink === 'unset' && res == true) return "#cccccc"; 
-    if(res ===null) return "#fafafa";
-    if(res) return "#000000";
-    return "#ffffff";      
-  }
-
-  /**
-   * applies the filter betetween over and under and returns the result
-   * @param ink the ink with which to compute the transition
-   * @param over the value of the primary (top) cell
-   * @param under the value of the intersecting (bottom) cell 
-   * @returns 
-   */
-  private computeCellValue(ink: string, over: Cell, under: boolean): boolean{
-    
-    let res: boolean = utilInstance.computeFilter(ink, getCellValue(over), under);
-    return res;   
-  }
-
-  /**
-   * called when creating a subdraft from the drawing on the screen. Computes the resulting value based on
-   * all intersections with the drawing
-   * @param ndx the i,j location of the cell we are checking
-   * @param ink the currently selected ink
-   * @param over the Cell we are checking against
-   * @returns true/false or null
-   */
-  private getScratchpadProduct(ndx: Interlacement, ink: string, over: Cell): boolean{
-    
-    switch(ink){
-      case 'neq':
-      case 'and':
-      case 'or':
-
-        const p = {x: ndx.j *this.zs.zoom, y: ndx.i * this.zs.zoom};
-        // const isect = this.getIntersectingSubdraftsForPoint(p);
-  
-        // if(isect.length > 0){
-        //   const prev: boolean = isect[0].resolveToValue(p);
-        //   return this.computeCellValue(ink, over, prev);
-        // }else{
-        //   return this.computeCellValue(ink, over, null);
-        // }
-      break;
-
-      default: 
-        return this.computeCellValue(ink, over, null);
-      break;
-    }
-   return null; 
-  }
- 
-
-  /**
-   * draw the cell at position ndx
-   * @param ndx (i,j)
-   */
-  private drawCell(ndx: Interlacement){
-
-    const rel: Interlacement = this.getRelativeInterlacement(ndx);
-    const c: Cell = this.scratch_pad[rel.i][rel.j];
-    this.cx.fillStyle = "#cccccc";
-  
-    const selected_ink:string = this.inks.getSelected();
-
-    switch(selected_ink){
-      case 'neq':
-      case 'and':
-      case 'or':
-
-        const p = {x: ndx.j * this.zs.zoom, y: ndx.i * this.zs.zoom};
-        // const isect = this.getIntersectingSubdraftsForPoint(p);
-
-        // if(isect.length > 0){
-        //   const prev: boolean = isect[0].resolveToValue(p);
-        //   this.cx.fillStyle = this.computeCellColor(selected_ink, c, prev);
-        // }else{
-        //   this.cx.fillStyle =  this.computeCellColor(selected_ink, c, null);;
-        // }
-      break;
-
-      default: 
-        this.cx.fillStyle = this.computeCellColor(selected_ink, c, null);
-      break;
-
-    }
-
-      this.cx.fillRect(rel.j*this.zs.zoom, rel.i*this.zs.zoom, this.zs.zoom, this.zs.zoom);      
-  }
 
   /**
    * Deletes the subdraft that called this function.
@@ -1410,7 +1237,7 @@ handlePan(diff: Point){
   subdraftStarted(obj: any){
     if(obj === null) return;
 
-    if(this.dm.isSelected("move",  'design_modes')){
+    if(this.dm.isSelectedMixerEditingMode("move")){
   
       //get the reference to the draft that's moving
       const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
@@ -1434,10 +1261,8 @@ handlePan(diff: Point){
       //   this.tree.getPreviewComponent().setPosition(bounds.topleft);
       // }).catch(console.error);
       
-    }else if(this.dm.isSelected("marquee",  'design_modes')){
+    }else if(this.dm.isSelectedMixerEditingMode("marquee")){
       this.selectionStarted();
-    }else if(this.dm.isSelected("draw",  'design_modes')){
-      this.drawStarted();
     }
 
  }
@@ -1687,8 +1512,6 @@ connectionDragged(mouse: Point, shift: boolean){
  */
 calculateInitialLocaiton(id: number) : Point {
   
-  console.log("CALC INIT LOCATION")
-
   let new_tl =  this.viewport.getTopLeft(); 
   
 
@@ -1713,7 +1536,6 @@ calculateInitialLocaiton(id: number) : Point {
     }else{
 
       const container: HTMLElement = document.getElementById('scale-'+parent_id);
-      console.log("scale-", parent_id, container)
       const parent_height = container.offsetHeight * (this.zs.zoom/this.default_cell_size);  
       new_tl = {x: topleft.x, y: topleft.y + parent_height};
     }
@@ -2115,143 +1937,138 @@ pasteConnection(from: number, to: number, inlet: number){
  * brings the base canvas to view and begins to render the
  * @param mouse the absolute position of the mouse on screen
  */
-shapeStarted(mouse: Point){
+// shapeStarted(mouse: Point){
 
-  const rel:Point = {
-    x: mouse.x - this.viewport.getTopLeft().x,
-    y: mouse.y - this.viewport.getTopLeft().y
-  }
+//   const rel:Point = {
+//     x: mouse.x - this.viewport.getTopLeft().x,
+//     y: mouse.y - this.viewport.getTopLeft().y
+//   }
   
-  this.shape_bounds = {
-    topleft: rel,
-    width: this.zs.zoom,
-    height: this.zs.zoom
-  };
+//   this.shape_bounds = {
+//     topleft: rel,
+//     width: this.zs.zoom,
+//     height: this.zs.zoom
+//   };
 
 
-  this.shape_vtxs = [];
-  this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
-  this.cx.fillStyle = "#ff4081";
-  this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
+//   this.shape_vtxs = [];
+//   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
+//   this.cx.fillStyle = "#ff4081";
+//   this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
   
-  if(this.dm.isSelected('free', 'shapes')){
-    this.startSnackBar("CTRL+Click to end drawing", this.shape_bounds);
-  }else{
-    this.startSnackBar("Press SHIFT while dragging to constrain shape", this.shape_bounds);
-  }
+//   if(this.dm.isSelected('free', 'shapes')){
+//     this.startSnackBar("CTRL+Click to end drawing", this.shape_bounds);
+//   }else{
+//     this.startSnackBar("Press SHIFT while dragging to constrain shape", this.shape_bounds);
+//   }
  
 
-}
+// }
 
   /**
    * resizes and redraws the shape between the the current mouse and where the shape started
    * @param mouse the absolute position of the mouse on screen
    */
-shapeDragged(mouse: Point, shift: boolean){
+// shapeDragged(mouse: Point, shift: boolean){
 
-  const rel:Point = {
-    x: mouse.x - this.viewport.getTopLeft().x,
-    y: mouse.y - this.viewport.getTopLeft().y
-  }
+//   const rel:Point = {
+//     x: mouse.x - this.viewport.getTopLeft().x,
+//     y: mouse.y - this.viewport.getTopLeft().y
+//   }
 
-  this.shape_bounds.width =  (rel.x - this.shape_bounds.topleft.x);
-  this.shape_bounds.height =  (rel.y - this.shape_bounds.topleft.y);
+//   this.shape_bounds.width =  (rel.x - this.shape_bounds.topleft.x);
+//   this.shape_bounds.height =  (rel.y - this.shape_bounds.topleft.y);
 
-  if(shift){
-    const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
+//   if(shift){
+//     const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
     
-    //allow lines to snap to coords
-    if(this.dm.isSelected('line', 'shapes')){
-        if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
-          this.shape_bounds.height = max;
-          this.shape_bounds.width = this.zs.zoom;
-        }else if(Math.abs(this.shape_bounds.height) < Math.abs(this.shape_bounds.width/2)){
-          this.shape_bounds.width = max;
-          this.shape_bounds.height = this.zs.zoom;
-        }else{
-          this.shape_bounds.width = max;
-          this.shape_bounds.height = max;  
-        }
+//     //allow lines to snap to coords
+//     if(this.dm.isSelected('line', 'shapes')){
+//         if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
+//           this.shape_bounds.height = max;
+//           this.shape_bounds.width = this.zs.zoom;
+//         }else if(Math.abs(this.shape_bounds.height) < Math.abs(this.shape_bounds.width/2)){
+//           this.shape_bounds.width = max;
+//           this.shape_bounds.height = this.zs.zoom;
+//         }else{
+//           this.shape_bounds.width = max;
+//           this.shape_bounds.height = max;  
+//         }
         
-    }else{
-      this.shape_bounds.width = max;
-      this.shape_bounds.height = max;    
+//     }else{
+//       this.shape_bounds.width = max;
+//       this.shape_bounds.height = max;    
   
-    }
-  }
+//     }
+//   }
 
-  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  this.cx.beginPath();
-  this.cx.fillStyle = "#ff4081";
-  this.cx.strokeStyle = "#ff4081";
-  this.cx.setLineDash([]);
-  this.cx.lineWidth = this.zs.zoom;
+//   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+//   this.cx.beginPath();
+//   this.cx.fillStyle = "#ff4081";
+//   this.cx.strokeStyle = "#ff4081";
+//   this.cx.setLineDash([]);
+//   this.cx.lineWidth = this.zs.zoom;
 
-  if(this.dm.isSelected('line', 'shapes')){
-    this.cx.moveTo(this.shape_bounds.topleft.x+this.zs.zoom, this.shape_bounds.topleft.y+this.zs.zoom);
-    this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
-    this.cx.stroke();
-  }else if(this.dm.isSelected('fill_circle','shapes')){
-    this.shape_bounds.width = Math.abs(this.shape_bounds.width);
-    this.shape_bounds.height = Math.abs(this.shape_bounds.height);
-    this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
-    this.cx.fill();
-  }else if(this.dm.isSelected('stroke_circle','shapes')){
-    this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
-    this.cx.stroke();
-  }else if(this.dm.isSelected('fill_rect','shapes')){
-    this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
+//   if(this.dm.isSelected('line', 'shapes')){
+//     this.cx.moveTo(this.shape_bounds.topleft.x+this.zs.zoom, this.shape_bounds.topleft.y+this.zs.zoom);
+//     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+//     this.cx.stroke();
+//   }else if(this.dm.isSelected('fill_circle','shapes')){
+//     this.shape_bounds.width = Math.abs(this.shape_bounds.width);
+//     this.shape_bounds.height = Math.abs(this.shape_bounds.height);
+//     this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
+//     this.cx.fill();
+//   }else if(this.dm.isSelected('stroke_circle','shapes')){
+//     this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
+//     this.cx.stroke();
+//   }else if(this.dm.isSelected('fill_rect','shapes')){
+//     this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
   
-  }else if(this.dm.isSelected('stroke_rect','shapes')){
-    this.cx.strokeRect(this.shape_bounds.topleft.x + this.zs.zoom, this.shape_bounds.topleft.y+ this.zs.zoom,this.shape_bounds.width-this.zs.zoom,this.shape_bounds.height-this.zs.zoom);
+//   }else if(this.dm.isSelected('stroke_rect','shapes')){
+//     this.cx.strokeRect(this.shape_bounds.topleft.x + this.zs.zoom, this.shape_bounds.topleft.y+ this.zs.zoom,this.shape_bounds.width-this.zs.zoom,this.shape_bounds.height-this.zs.zoom);
 
-  }else{
+//   }else{
 
-    if(this.shape_vtxs.length > 1){
-      this.cx.moveTo(this.shape_vtxs[0].x, this.shape_vtxs[0].y);
+//     if(this.shape_vtxs.length > 1){
+//       this.cx.moveTo(this.shape_vtxs[0].x, this.shape_vtxs[0].y);
 
-      for(let i = 1; i < this.shape_vtxs.length; i++){
-        this.cx.lineTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
-        //this.cx.moveTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
-      }
+//       for(let i = 1; i < this.shape_vtxs.length; i++){
+//         this.cx.lineTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+//         //this.cx.moveTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+//       }
 
-    }else{
-      this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
-    }
+//     }else{
+//       this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
+//     }
 
-    this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
-    this.cx.stroke();
-    this.cx.fill();
+//     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+//     this.cx.stroke();
+//     this.cx.fill();
     
-  }
+//   }
 
-  if(this.dm.isSelected('free', 'shapes')){
-    this.updateSnackBar("CTRL+click to end drawing", this.shape_bounds);
-  }else{
-    this.updateSnackBar("Press SHIFT to contstrain shape", this.shape_bounds);
-  }
-}
+// }
 
 
 /**
  * clears the scratchpad for the new drawing event
  */
-drawStarted(){
+// drawStarted(){
 
 
-  this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
+//   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
   
-  this.scratch_pad = [];
-  for(let i = 0; i < this.canvas.height; i+=this.zs.zoom ){
-      const row = [];
-      for(let j = 0; j< this.canvas.width; j+=this.zs.zoom ){
-          row.push(createCell(null));
-      }
-    this.scratch_pad.push(row);
-    }
+//   this.scratch_pad = [];
+//   for(let i = 0; i < this.canvas.height; i+=this.zs.zoom ){
+//       const row = [];
+//       for(let j = 0; j< this.canvas.width; j+=this.zs.zoom ){
+//           row.push(createCell(null));
+//       }
+//     this.scratch_pad.push(row);
+//     }
 
-    this.startSnackBar("Drag to Draw", null);
-  }
+//     this.startSnackBar("Drag to Draw", null);
+//   }
 
 
   /**
@@ -2276,63 +2093,6 @@ drawStarted(){
     }
 
     return [{i: top, j: left, si: -1}, {i: bottom, j: right, si: -1}];
-
-  }
-
-  /**
-   * handles checks and actions to take when drawing event ends
-   * gets the boudary of drawn segment and creates a subdraft containing that drawing
-   * if the drawing sits on top of an existing subdraft, merge the drawing into that subdraft (extending the original if neccessary)
-   * @returns 
-   */
-  processDrawingEnd (): Promise<any> {
-
-
-    this.canvas_zndx = -1;
-
-    if(this.scratch_pad === undefined) return;
-    if(this.scratch_pad[0] === undefined) return;
-    
-    const corners: Array<Interlacement> = this.getScratchPadBounds();
-    const warps = corners[1].j - corners[0].j + 1;
-    const wefts = corners[1].i - corners[0].i + 1;
-
-
-    //there must be at least one cell selected
-    if(warps < 1 || wefts < 1){
-      this.scratch_pad = undefined;
-      return;
-    } 
-
-
-    const pattern: Array<Array<Cell>> = [];
-    for(let i = 0; i < wefts; i++ ){
-      pattern.push([]);
-      for(let j = 0; j< warps; j++){
-        const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
-        const b = this.getScratchpadProduct({i:i, j:j, si:-1}, this.inks.getSelected(),c);
-        pattern[i].push(createCell(b));
-      }
-    }
-
-    //if this drawing does not intersect with any existing subdrafts, 
-    return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
-    .then(sd => {
-      const pos = {
-        topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.zs.zoom), y: this.viewport.getTopLeft().y + (corners[0].i * this.zs.zoom)},
-        width: warps * this.zs.zoom,
-        height: wefts * this.zs.zoom
-      }
-  
-      sd.setPosition(pos.topleft);
-      //sd.setComponentSize(pos.width, pos.height);
-      sd.disableDrag();
-
-  
-    //  const had_merge = this.mergeSubdrafts(sd);
-      this.addTimelineState();
-    });
-   
 
   }
 
@@ -2394,7 +2154,7 @@ drawStarted(){
       
      
 
-      if(this.dm.getDesignMode("marquee",'design_modes').selected){
+      if(this.dm.isSelectedMixerEditingMode("marquee")){
           this.selectionStarted();
           this.moveSubscription = 
           fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
@@ -2429,12 +2189,12 @@ drawStarted(){
       // }else if(this.dm.isSelected("operation",'design_modes')){
         // this.processConnectionEnd();
         // this.changeDesignmode('move');
-      }else if(this.dm.isSelected("move", "design_modes")){
+      }else if(this.dm.isSelectedMixerEditingMode("move")){
 
        if(event.shiftKey) return;
         this.multiselect.clearSelections();
 
-      }else if(this.dm.isSelected("pan", 'design_modes')){
+      }else if(this.dm.isSelectedMixerEditingMode("pan")){
 
         this.panStarted({x: event.clientX, y: event.clientY});
         this.moveSubscription = 
@@ -2457,9 +2217,7 @@ drawStarted(){
     mouse.x = ndx.j * this.zs.zoom;
     mouse.y = ndx.i *this.zs.zoom;
 
-    if(this.dm.isSelected('free','shapes') && this.shape_vtxs.length > 0){
-     this.shapeDragged(mouse, shift);
-    }else if(this.selecting_connection){
+    if(this.selecting_connection){
       this.connectionDragged(mouse, shift);
     }
   }
@@ -2505,12 +2263,11 @@ drawStarted(){
 
     if(utilInstance.isSameNdx(this.last, ndx)) return;
 
-    if(this.dm.getDesignMode("marquee",'design_modes').selected){
-
+    if(this.dm.isSelectedMixerEditingMode("marquee")){
      this.drawSelection(ndx);
      const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
      this.selection.setPositionAndSize(bounds);
-    }else if(this.dm.getDesignMode("pan",'design_modes').selected){
+    }else if(this.dm.isSelectedMixerEditingMode("pan")){
       
       const diff = {
         x:  (this.last_point.x-event.clientX), 
@@ -2553,13 +2310,13 @@ drawStarted(){
 
       this.removeSubscription();   
 
-      if(this.dm.getDesignMode("marquee",'design_modes').selected){
+      if(this.dm.isSelectedMixerEditingMode("marquee")){
         if(this.selection.active) this.processSelection();
         this.closeSnackBar();
         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
         this.unfreezePaletteObjects();
-      }else if(this.dm.isSelected('pan', 'design_modes')){
+      }else if(this.dm.isSelectedMixerEditingMode('pan')){
         const div:HTMLElement = document.getElementById('scrollable-container');
         this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
 

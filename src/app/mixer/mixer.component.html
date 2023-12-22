@@ -41,7 +41,7 @@
 
       <button 
       mat-icon-button 
-      [color]="(dm.isSelected('marquee','design_modes' ))? 'accent' : 'primary'" 
+      [color]="(dm.cur_mixer_mode == 'marquee')? 'accent' : 'primary'" 
       matTooltip= "Select"
       (click)="toggleSelectMode()">
       <i class="fas fa-expand"></i>
@@ -74,16 +74,21 @@
     <button  mat-icon-button (click)="zoomOut()" color="primary" class="fas fa-search-minus"></button> 
     <button
     mat-icon-button 
-    [color]="(dm.isSelected('pan','design_modes' ))? 'accent' : 'primary'" 
+    [color]="(dm.cur_mixer_mode == 'pan')? 'accent' : 'primary'" 
     (click)="togglePanMode()"
     ><i class="fa-solid fa-hand"></i>
     </button>
       </div>
 </div>
+
+<app-mixerview
+(onZoomChange) ="zoomChangeExternal($event);"
+(onViewPortMove) ="setScroll($event);"
+></app-mixerview>
 </div>
 
   <app-palette  
-  class="palette mode-{{dm.getSelectedDesignMode('design_modes').value}}"
+  class="palette mode-{{dm.cur_mixer_mode}}"
   [style.width.px]='vp.getAbsoluteWidth()' 
   [style.height.px]='vp.getAbsoluteHeight()' 
   #palette  id="scrollable-container"

@@ -1,5 +1,5 @@
 <div id="selection-container" 
-[style.display]="dm.isSelected('draw','design_modes')? 'none' : 'flex'"
+[style.display]="dm.isSelectedDraftEditingMode('draw')? 'none' : 'flex'"
 >
 
 <div class="size-row" *ngIf="width !== -1">

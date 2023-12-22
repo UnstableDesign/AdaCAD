@@ -56,7 +56,7 @@
     position: relative;
     display: flex;
     flex-direction: row;
-    background-color: red;
+    background-color: #f0f0f0;
     overflow: scroll;
     height: 100%;
     width: 67%;
@@ -82,7 +82,7 @@
   }
 
   .main{
-    width: 67%;
+    width: 66%;
   }
 
   .hasFocus{

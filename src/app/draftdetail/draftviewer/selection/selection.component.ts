@@ -4,7 +4,7 @@ import { Interlacement } from '../../../core/model/datatypes';
 import { numFrames, numTreadles } from '../../../core/model/looms';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { RenderService } from '../../provider/render.service';
-import { defaults } from '../../../core/model/defaults';
+import { defaults, paste_options } from '../../../core/model/defaults';
 
 @Component({
   selector: 'app-selection',
@@ -58,7 +58,7 @@ export class SelectionComponent implements OnInit {
     public render: RenderService
     ) { 
 
-      this.design_actions = dm.getOptionSet('design_actions');
+   this.design_actions = paste_options;
 
     this.hide_parent = true;
     this.hide_actions = true;
@@ -151,7 +151,7 @@ export class SelectionComponent implements OnInit {
    * given the target of a mouse event, check if it is currently enabled (as indicated by the drawdown editing style)
    */
   isTargetEnabled(target: string):boolean{
-    const editing_mode = this.dm.getSelectedDesignMode('drawdown_editing_style').value;
+    const editing_mode = this.dm.cur_draft_edit_source;
     const loom_settings = this.tree.getLoomSettings(this.id);
     switch(target){
       case 'treadling':    

@@ -306,6 +306,7 @@ export class SubdraftComponent implements OnInit {
       outs.forEach((out, i) => {
 
         let child_container = <HTMLElement> document.getElementById("scale-"+out);
+        console.log("CHILD CONTAINER AT ", out, child_container)
         if(i < ndx) offlet_left += (child_container.offsetWidth * this.scale/this.default_cell + 10);
         total_width += (child_container.offsetWidth  * this.scale/this.default_cell + 10);
 

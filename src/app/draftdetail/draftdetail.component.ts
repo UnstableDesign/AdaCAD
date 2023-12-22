@@ -130,11 +130,6 @@ export class DraftDetailComponent implements OnInit {
 
 
     this.copy = [[createCell(false)]];
-    this.dm.selectDesignMode('draw', 'design_modes');
-    this.dm.selectDesignMode('toggle', 'draw_modes');
-
-
-
   }
 
   private onWindowScroll(data: CdkScrollable) {
@@ -609,10 +604,7 @@ openActions(){
  }
 
  select(){
-  var obj: any = {};
-   obj.name = "select";
-   obj.target = "design_modes";
-   this.dm.selectDesignMode(obj.name, obj.target);
+   this.dm.selectDraftEditingMode('select');
    //this.weaveRef.designModeChange(obj);
 }
 
@@ -625,10 +617,10 @@ swapEditingStyleClicked(){
   const loom_type = this.tree.getLoomSettings(this.id);
 
   if(loom_type.type !== 'jacquard'){
-    if(this.dm.getSelectedDesignMode('drawdown_editing_style').value === 'drawdown'){
-      this.dm.selectDesignMode('loom', 'drawdown_editing_style')
+    if(this.dm.isSelectedDraftEditSource('drawdown')){
+      this.dm.selectDraftEditSource('loom')
     }else{
-      this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+      this.dm.selectDraftEditSource('drawdown')
     }
     this.weaveRef.unsetSelection();
   }
@@ -637,13 +629,13 @@ swapEditingStyleClicked(){
 
 viewChange(e:any){
   console.log("ON VIEW CHANGE ", e)
-  if(e.checked){
-    this.weaveRef.viewChange('visual');
-    this.dm.selectDesignMode('visual', 'view_modes');
-  } else{
-    this.weaveRef.viewChange('pattern');
-    this.dm.selectDesignMode('pattern', 'view_modes');
-  }     
+  // if(e.checked){
+  //   this.weaveRef.viewChange('visual');
+  //   this.dm.selectDesignMode('visual', 'view_modes');
+  // } else{
+  //   this.weaveRef.viewChange('pattern');
+  //   this.dm.selectDesignMode('pattern', 'view_modes');
+  // }     
 
 }
 

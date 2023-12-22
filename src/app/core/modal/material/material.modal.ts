@@ -32,7 +32,6 @@ export class MaterialModal{
       ms.getShuttles().forEach((el, ndx) => {
         this.replacements.push((ndx+1%this.ms.getShuttles().length));
       });
-  	  this.types = dm.material_types;
 
   }
 

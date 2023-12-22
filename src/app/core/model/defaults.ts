@@ -28,7 +28,63 @@ export const defaults = {
             epi: 12,
             units: <'in'> 'in',
             type: 'frame'
-          }
-    
-
+          },
+      draft_edit_source: 'drawdown',
+      pencil: 'toggle',
+      draft_edit_mode: 'draw',
+      mixer_mode: 'move'
 }
+
+export const draft_view_modes = [
+  {value: 'draft', viewValue: 'Draft'}, //black and white individual cells
+  {value: 'structure', viewValue: 'Structure'}, //single color outlines of floats
+  {value: 'visual', viewValue: 'Visual Pattern'}];
+
+
+export const loom_types = [
+  {value: 'direct', viewValue: 'Direct Tieup Loom'},
+  {value: 'frame', viewValue: 'Shaft/Treadle Loom'},
+  {value: 'jacquard', viewValue: 'Jacquard'},
+];
+
+export const density_units = [
+  {value: 'in', viewValue: 'Ends per Inch'},
+  {value: 'cm', viewValue: 'Ends per 10cm '}
+];
+
+export const draft_edit_source = [
+  {value: 'drawdown', viewValue: 'Drawdown'},
+  {value: 'loom', viewValue: 'Loom Configuration'}
+];
+
+export const draft_pencil = [
+  {value: 'toggle', viewValue: 'Toggle Heddle', icon: "fas fa-adjust"},
+  {value: 'up', viewValue: 'Set Heddle Up', icon: "fas fa-square"},
+  {value: 'down', viewValue: 'Set Heddle Down', icon: "far fa-square"},
+  {value: 'unset', viewValue: 'Unset Heddle', icon: "far fa-times"},
+  {value: 'material', viewValue: 'Draw Material', icon: "fas fa-pen"}
+]
+
+export const draft_edit_mode = [
+  {value: 'draw', viewValue: 'Draw', icon: "fas fa-pen"},
+  {value: 'select', viewValue: 'Select', icon: "fas fa-expand"}
+]
+
+export const mixer_edit_mode = [
+  {value: 'pan', viewValue: 'Pan', icon: "fas fa-hand"},
+  {value: 'move', viewValue: 'Move', icon: "fas fa-arrows-alt"},
+  {value: 'select', viewValue: 'Select', icon: "fas fa-expand"},
+]
+
+export const paste_options = [
+  {value: 'toggle', viewValue: 'Invert Region', icon: "fas fa-adjust"},
+  {value: 'up', viewValue: 'Set Region Heddles Up', icon: "fas fa-square"},
+  {value: 'down', viewValue: 'Set Region Heddles Down', icon: "far fa-square"},
+  {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
+  {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
+  {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
+  {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
+  {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
+  {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
+  ];
+  

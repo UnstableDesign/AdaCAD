@@ -8,7 +8,7 @@ import * as htmlToImage from 'html-to-image';
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { DesignMode, Draft, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Point } from '../core/model/datatypes';
-import { defaults } from '../core/model/defaults';
+import { defaults, loom_types } from '../core/model/defaults';
 import { warps, wefts } from '../core/model/drafts';
 import { copyLoom } from '../core/model/looms';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -126,8 +126,8 @@ export class MixerComponent  {
       this.frames = ws.min_frames;
       this.treadles = ws.min_treadles;
       this.loomtype = ws.type;
-      this.loomtypes = dm.getOptionSet('loom_types');
-     this.density_units = dm.getOptionSet('density_units');
+      this.loomtypes = loom_types;
+     this.density_units = this.density_units;
     //this.dialog.open(MixerInitComponent, {width: '600px'});
 
     this.scrollingSubscription = this.scroll
@@ -398,10 +398,10 @@ zoomChange(e:any, source: string){
 
 
   togglePanMode(){
-    if(this.dm.isSelected('pan', "design_modes")){
-      this.dm.selectDesignMode('move', 'design_modes');
+    if(this.dm.isSelectedMixerEditingMode('pan')){
+      this.dm.selectMixerEditingMode('move');
     }else{
-      this.dm.selectDesignMode('pan', 'design_modes');
+      this.dm.selectMixerEditingMode('pan');
     }
     this.palette.designModeChanged();
     //this.show_viewer = true;
@@ -409,14 +409,13 @@ zoomChange(e:any, source: string){
   }
 
   toggleSelectMode(){
-    if(this.dm.isSelected('marquee', "design_modes")){
-      this.dm.selectDesignMode('move','design_modes');
+    if(this.dm.isSelectedMixerEditingMode('marquee')){
+      this.dm.selectMixerEditingMode('move');
 
     }else{
-      this.dm.selectDesignMode('marquee','design_modes');
+      this.dm.selectMixerEditingMode('marquee');
 
     }
-
     this.palette.designModeChanged();
   }
 
@@ -615,20 +614,13 @@ epiChange(f: NgForm) {
  * @param e 
  * @returns 
  */
-loomChange(e:any){
+// loomChange(e:any){
 
-   this.ws.type = e.value.loomtype;
-  if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
-  else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
+//    this.ws.type = e.value.loomtype;
+//   if(this.ws.type === 'jacquard') this.dm.selectDesignMode('drawdown', 'drawdown_editing_style')
+//   else this.dm.selectDesignMode('loom', 'drawdown_editing_style') 
   
-
-  // const dn: Array<DraftNode> = this.tree.getDraftNodes();
-  // dn.forEach(node => {
-  //   node.loom_settings.type = e.value.loomtype; 
-  // })
-
-
-}
+// }
 
   unitChange(e:any){
     
@@ -638,7 +630,6 @@ loomChange(e:any){
   }
 
   showDraftDetails(id: number){
-    this.dm.selectDesignMode('toggle','draw_modes')
     this.onDraftDetailOpen.emit(id);
   }
 

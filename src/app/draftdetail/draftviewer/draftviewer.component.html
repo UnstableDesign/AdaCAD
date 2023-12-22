@@ -77,7 +77,7 @@
             </span>
       
       
-            <span *ngIf="!viewonly" class="warp_insert" 
+            <span class="warp_insert" 
             (click)="insertCol(j + 1);">
             <i class="fa fa-plus-circle"></i></span>
             </div>
@@ -93,7 +93,7 @@
       </div>
       <div [class.hidden]="!isFrame" class="threading-tieup-container 
       origin{{ws.selected_origin_option}} 
-      editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}
+      editable-{{dm.cur_draft_edit_source}}
       loomtype-{{selected_loom_type}}"
       >
       <div id="threading-canvas">
@@ -105,7 +105,7 @@
         </div>
       </div>
 
-      <div class="drawdown-container origin{{ws.selected_origin_option}} editable-{{dm.getSelectedDesignMode('drawdown_editing_style').value}}" >
+      <div class="drawdown-container origin{{ws.selected_origin_option}} editable-{{dm.cur_draft_edit_source}}" >
         <div id="drawdown-canvas">
         <canvas id="drawdown" #drawdown  >  </canvas>
       </div>
@@ -149,17 +149,17 @@
                 </div>
 
                 <div class="weft_actions">
-                  <span *ngIf="!viewonly" class = "weft_insert" 
+                  <span class = "weft_insert" 
                   (click)="insertRow(j, i)">
                   <i class="fa fa-plus-circle"></i>
                   </span>
         
-                  <span *ngIf="!viewonly"class = "weft_clone" 
+                  <span class = "weft_clone" 
                   (click)="cloneRow(j, i);">
                   <i class="fa fa-clone"></i>
                   </span>
                   
-                  <span *ngIf="!viewonly"class="weft_delete" 
+                  <span class="weft_delete" 
                    (click)="deleteRow(i);">
                    <i class="fa fa-trash"></i>
                   </span>

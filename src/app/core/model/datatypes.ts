@@ -202,9 +202,7 @@ export interface ViewModes {
  export interface DesignMode{
   value: string;
   viewValue: string;
-  icon: string;
-  children: Array<DesignMode>;
-  selected: boolean;
+  icon?: string;
 }
 
 export interface Note{

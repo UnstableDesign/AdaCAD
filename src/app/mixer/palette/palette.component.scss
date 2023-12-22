@@ -1,23 +1,11 @@
 #palette{
-    width: 16384px; //max
-    height: 16384px;
+    position: relative;
     background:#f0f0f0;
     z-index: -1;
 }
 
 
 
-svg{
-    position: absolute;
-}
-
-
-canvas{
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    overflow: scroll;
-}
 
 .no-pointer{
     pointer-events: none;
