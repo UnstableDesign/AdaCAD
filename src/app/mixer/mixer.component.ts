@@ -530,7 +530,11 @@ zoomChange(e:any, source: string){
     this.collapsed = !this.collapsed;
   }
 
-  public createNote(){
+  public createNote(note){
+    this.palette.createNote(note);
+  }
+
+  public createNewNote(){
     this.palette.createNote(null);
   }
   /**
@@ -545,7 +549,6 @@ zoomChange(e:any, source: string){
   }
 
   public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
-    console.log("MIXER LOAD SUBDRAFT CALLED")
     this.palette.loadSubDraft(id, d, nodep, draftp, saved_scale);
   }
 

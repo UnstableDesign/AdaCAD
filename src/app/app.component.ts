@@ -447,7 +447,6 @@ export class AppComponent implements OnInit{
     
 
     this.processFileData(result.data).then(data => {
-     // this.palette.changeDesignmode('move');
       this.saveFile();
     }
 
@@ -677,6 +676,8 @@ prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>
    */
 async processFileData(data: FileObj) : Promise<string|void>{
 
+  console.log("DATA IS ", data)
+
   this.loading = true;
   let entry_mapping = [];
 
@@ -716,8 +717,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
       .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
       .map(tn => tn.entry);
     
-      console.log("SEED NODES ", seednodes)
-
     const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors}> = seednodes
     .map(sn =>  {
 
@@ -837,16 +836,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
 
   })
-  // ).then(el => {
-  //   return this.tree.nodes.forEach(node => {
-  //     if(!(node.component === null || node.component === undefined)) return;
-  //     switch (node.type){
-  //       case 'cxn':
-  //         this.palette.loadConnection(node.id)
-  //         break;
-  //     }
-  //   })
-  // })
   .then(el => {
 
     //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED

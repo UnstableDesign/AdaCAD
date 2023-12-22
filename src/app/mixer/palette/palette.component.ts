@@ -22,7 +22,6 @@ import { NoteComponent } from './note/note.component';
 import { OperationComponent } from './operation/operation.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
-import { child } from 'firebase/database';
 
 @Component({
   selector: 'app-palette',
@@ -66,19 +65,6 @@ export class PaletteComponent implements OnInit{
   selection = new MarqueeComponent();
 
   /**
-   * holds the data of events drawn on this component (that are not associated with a subdraft)
-   * @property {Array<Array<Cell>>}
-   */
-  scratch_pad: Array<Array<Cell>> = [];
-
-  /**
-   * HTML Canvas element that draws the selection and currently cells drawn on this component
-   * @property {Canvas}
-   */
-  canvas: HTMLCanvasElement;
-  cx: any;
-
-  /**
    * stores an i and j of the last user selected location within the component
    * @property {Point}
    */
@@ -97,36 +83,13 @@ export class PaletteComponent implements OnInit{
    */
    pointer_events: boolean;
 
-
-    /**
-   * a string to represent the current user defined scale for this component to be used in background grid css. 
-   * @property {striing}
-   */
-
-  scale_string: string;
-
-  /**
-   * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
-   */
-   canvas_zndx:number = -1;
-  
-  
-  /**
-   * stores the bounds of the shape being drawn
-   */
-   shape_bounds:Bounds;
-  
-  /**
-   * stores the vtx for freehand shapes
-   */
-   shape_vtxs:Array<Point>;
-  
-
   /**
    * trackable inputs to snackbar
    */
    snack_message:string;
    snack_bounds: Bounds;
+
+   shape_bounds: Bounds;
 
 
    /**
@@ -166,7 +129,6 @@ export class PaletteComponent implements OnInit{
     private ss: StateService,
     private zs: ZoomService,
     private multiselect: MultiselectService) { 
-    this.shape_vtxs = [];
     this.pointer_events = true;
   }
 
@@ -174,7 +136,6 @@ export class PaletteComponent implements OnInit{
  * Called when palette is initailized
  */
   ngOnInit(){
-    this.scale_string = this.default_cell_size+"px "+this.default_cell_size+"px";
     this.vc.clear();
     this.default_cell_size = defaults.mixer_cell_size; 
 
@@ -194,11 +155,7 @@ export class PaletteComponent implements OnInit{
     // div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
     // div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
 
-    this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
-    this.cx = this.canvas.getContext("2d");
     
-    this.canvas.width = this.viewport.getWidth();
-    this.canvas.height = this.viewport.getHeight();
 
     // this.cx.beginPath();
     // this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
@@ -436,14 +393,6 @@ handlePan(diff: Point){
    */
   rescale(prev_zoom: number){
 
-    //this.scale = scale;
-    const zoom_factor: number = this.zs.zoom / this.default_cell_size;
-   
-     const container: HTMLElement = document.getElementById('palette');
-     container.style.transformOrigin = 'top left';
-     container.style.transform = 'scale(' + zoom_factor + ')';
-  
-     
 
     //these subdrafts are all rendered independely of the canvas and need to indivdiually rescalled. This 
     //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
@@ -558,6 +507,7 @@ handlePan(diff: Point){
    * @returns the created note instance
    */
    createNote(note: Note):NoteComponent{
+
 
     let tl: Interlacement = null;
 
@@ -1068,27 +1018,27 @@ handlePan(diff: Point){
    */
   private drawSelection(ndx: Interlacement){
 
-    //instantiate the canvas at this point
-    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // //instantiate the canvas at this point
+    // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const bounds ={
-      left: this.selection.start.j*this.zs.zoom,
-      top: this.selection.start.i*this.zs.zoom,
-      right: ndx.j *this.zs.zoom,
-      bottom: ndx.i*this.zs.zoom
-    };
+    // const bounds ={
+    //   left: this.selection.start.j*this.zs.zoom,
+    //   top: this.selection.start.i*this.zs.zoom,
+    //   right: ndx.j *this.zs.zoom,
+    //   bottom: ndx.i*this.zs.zoom
+    // };
 
-    //will draw on outside of selection
-    this.cx.beginPath();
-    this.cx.strokeStyle = "#ff4081";
-    this.cx.lineWidth = 1;
-    this.cx.setLineDash([this.zs.zoom, 2]);
-    this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
-    this.cx.fillStyle = "#ff4081";
-    this.cx.font = "12px Arial";
-    const w = Math.round(this.selection.bounds.width /this.zs.zoom);
-    const h = Math.round(this.selection.bounds.height / this.zs.zoom);
-    this.cx.fillText(w.toString()+"x"+h.toString(),  bounds.left- this.viewport.getTopLeft().x, bounds.bottom+16-this.viewport.getTopLeft().y);
+    // //will draw on outside of selection
+    // this.cx.beginPath();
+    // this.cx.strokeStyle = "#ff4081";
+    // this.cx.lineWidth = 1;
+    // this.cx.setLineDash([this.zs.zoom, 2]);
+    // this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
+    // this.cx.fillStyle = "#ff4081";
+    // this.cx.font = "12px Arial";
+    // const w = Math.round(this.selection.bounds.width /this.zs.zoom);
+    // const h = Math.round(this.selection.bounds.height / this.zs.zoom);
+    // this.cx.fillText(w.toString()+"x"+h.toString(),  bounds.left- this.viewport.getTopLeft().x, bounds.bottom+16-this.viewport.getTopLeft().y);
 
   }
 
@@ -1493,7 +1443,6 @@ connectionDragged(mouse: Point, shift: boolean){
   const svg = document.getElementById('scratch_svg');
   svg.innerHTML = ' ' ;
 
-  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.changeDesignmode('move');
 
   if(!this.tree.hasOpenConnection()) return;
@@ -2071,30 +2020,6 @@ pasteConnection(from: number, to: number, inlet: number){
 //   }
 
 
-  /**
-   * gets the bounds of a drawing on the scratchpad, a drawing is represented by set cells
-   * @returns an object representing the bounds in the format of i, j (the row, column index of the pad)
-   */
-  getScratchPadBounds(): Array<Interlacement>{
-    let bottom: number = 0;
-    let right: number = 0;
-    let top: number = this.scratch_pad.length-1;
-    let left: number = this.scratch_pad[0].length-1;
-
-    for(let i = 0; i < this.scratch_pad.length; i++ ){
-      for(let j = 0; j<  this.scratch_pad[0].length; j++){
-        if((this.scratch_pad[i][j].is_set)){
-          if(i < top) top = i;
-          if(j < left) left = j;
-          if(i > bottom) bottom = i;
-          if(j > right) right = j;
-        } 
-      }
-    }
-
-    return [{i: top, j: left, si: -1}, {i: bottom, j: right, si: -1}];
-
-  }
 
   /**
    * update the viewport when the window is resized
@@ -2106,8 +2031,6 @@ pasteConnection(from: number, to: number, inlet: number){
       this.viewport.setWidth(event.target.innerWidth);
       this.viewport.setHeight(event.target.innerHeight);
 
-      this.canvas.width = this.viewport.getWidth();
-      this.canvas.height = this.viewport.getHeight();
     }
 
 
@@ -2313,7 +2236,6 @@ pasteConnection(from: number, to: number, inlet: number){
       if(this.dm.isSelectedMixerEditingMode("marquee")){
         if(this.selection.active) this.processSelection();
         this.closeSnackBar();
-        this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.changeDesignmode('move');
         this.unfreezePaletteObjects();
       }else if(this.dm.isSelectedMixerEditingMode('pan')){
@@ -2351,7 +2273,6 @@ pasteConnection(from: number, to: number, inlet: number){
       this.last = undefined;
       this.last_point = undefined;
       this.selection.active = false;
-      this.canvas_zndx = -1; 
   }
   
  
@@ -2860,35 +2781,33 @@ pasteConnection(from: number, to: number, inlet: number){
        * @param obj 
        * @returns 
        */
-  getPrintableCanvas(obj): HTMLCanvasElement{
+  // getPrintableCanvas(obj): HTMLCanvasElement{
 
-    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-    drafts.forEach(sd => {
-      sd.drawForPrint(this.canvas, this.cx, this.zs.zoom);
-    });
+  //   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  //   const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+  //   drafts.forEach(sd => {
+  //     sd.drawForPrint(this.canvas, this.cx, this.zs.zoom);
+  //   });
 
-    const ops: Array<OperationComponent> = this.tree.getOperations();
-    ops.forEach(op => {
-      op.drawForPrint(this.canvas, this.cx, this.zs.zoom);
-    });
+  //   const ops: Array<OperationComponent> = this.tree.getOperations();
+  //   ops.forEach(op => {
+  //     op.drawForPrint(this.canvas, this.cx, this.zs.zoom);
+  //   });
 
-    const cxns: Array<ConnectionComponent> = this.tree.getConnections();
-    cxns.forEach(cxn => {
-      cxn.drawForPrint(this.canvas, this.cx, this.zs.zoom);
-    });
+  //   const cxns: Array<ConnectionComponent> = this.tree.getConnections();
+  //   cxns.forEach(cxn => {
+  //     cxn.drawForPrint(this.canvas, this.cx, this.zs.zoom);
+  //   });
 
-    // this.note_components.forEach(note =>{
-    //   note.drawForPrint(this.canvas, this.cx, this.scale);
-    // })
+  //   // this.note_components.forEach(note =>{
+  //   //   note.drawForPrint(this.canvas, this.cx, this.scale);
+  //   // })
 
-    return this.canvas;
+  //   return this.canvas;
 
-  }
+  // }
 
-  clearCanvas(){
-    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
+
 
   // redrawOpenModals(){
   //   const comps = this.tree.getDrafts();

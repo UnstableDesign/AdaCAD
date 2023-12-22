@@ -7,7 +7,7 @@
                 mat-icon-button
                 matTooltip= "Edit Draft Cells"
                 [matMenuTriggerFor]="inks"
-                [class.is-active]="dm.isSelected('draw','design_modes') && !dm.isSelected('material', 'draw_modes')"        >
+                [class.is-active]="dm.isSelectedDraftEditingMode('draw') && !dm.isSelectedPencil('material')"        >
                 <i class="fas fa-edit"></i>
                 </button>
         
@@ -17,7 +17,7 @@
                         <button *ngIf="mode.value !== 'material'"
                     class="menu-button" 
                     mat-menu-item 
-                    [class.is-active]="dm.isSelected(mode.value,'draw_modes')"
+                    [class.is-active]="dm.isSelectedPencil(mode.value)"
                     [name] = "mode.value"
                     [disabled]= "viewonly"
                     (click)="drawModeChange(mode.value)">
@@ -34,7 +34,7 @@
                 color="primary"
                 matTooltip= "Set Colors"
                 [matMenuTriggerFor]="colors"
-                [class.is-active]="dm.isSelected('draw','design_modes') && dm.isSelected('material', 'draw_modes')"        >
+                [class.is-active]="dm.isSelectedDraftEditingMode('draw') && !dm.isSelectedPencil('material')"        >
                 <i class="fa-solid fa-paintbrush"></i>
                 </button>
         
@@ -58,7 +58,7 @@
                 mat-icon-button
                 color="primary"
                 matTooltip= "Select Region"
-                [class.is-active]="dm.isSelected('select','design_modes')"
+                [class.is-active]="dm.isSelectedDraftEditingMode('select')"
                 (click)="select()">
                 <i class="fas fa-expand"></i>
                 </button>
@@ -75,7 +75,7 @@
                     <mat-label>Editing Mode: </mat-label>
                     <mat-slide-toggle
                     (click)="swapEditingStyleClicked()">
-                    {{dm.getSelectedDesignMode('drawdown_editing_style').viewValue}}
+                    {{dm.cur_draft_edit_source}}
                     </mat-slide-toggle>
                     </div>
         

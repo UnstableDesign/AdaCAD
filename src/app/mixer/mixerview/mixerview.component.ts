@@ -66,26 +66,25 @@ export class MixerViewComponent implements OnInit {
 
   // this.zoom = data.zoom;
 
-  this.bounds = {
-    topleft:{x: 0, y:0},
-    width: 350,
-    height: 100
-  }
+//   this.bounds = {
+//     topleft:{x: 0, y:0},
+//     width: 350,
+//     height: 100
+//   }
 
 
-  const viewwindow = document.getElementById('mixerview');
-  console.log("MIXER ", viewwindow.offsetWidth)
-  this.width = viewwindow.offsetWidth;
-  this.height = viewwindow.offsetHeight;
+//   const viewwindow = document.getElementById('mixerview');
+//   this.width = viewwindow.offsetWidth;
+//   this.height = viewwindow.offsetHeight;
 
-  //ratio of the global space to the total width of the global div
-  this.factor = this.width / this.viewport.getAbsoluteWidth();
+//   //ratio of the global space to the total width of the global div
+//   this.factor = this.width / this.viewport.getAbsoluteWidth();
 
-  //each cell is rendered cell factor number pixels in the global view
-  //this does not change when zoomed
-  this.cell_factor = this.width / (this.viewport.getAbsoluteWidth() / this.data.default_cell_size);
+//   //each cell is rendered cell factor number pixels in the global view
+//   //this does not change when zoomed
+//   this.cell_factor = this.width / (this.viewport.getAbsoluteWidth() / this.data.default_cell_size);
  
- this.updateLocalDims();
+//  this.updateLocalDims();
   }
 
   getCx(obj: any) : number {
