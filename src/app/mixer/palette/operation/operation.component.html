@@ -1,5 +1,6 @@
 <div class="operation-container no-text-select selectable-{{!disable_drag}}"
 cdkDrag
+cdkDragBoundary=".palette"
 (mousedown)="mousedown($event)"
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
@@ -94,9 +95,9 @@ cdkDrag
         [id]="child_id" 
         [dirty]="redrawchildren"
         [fromOp]="true"
-        (connectionSelected)="connectionStarted(event, childid)"
-        (onDuplicateCalled)="designActionChange(event)"
-				(onDeleteCalled)="designActionChange(event)"
+        (connectionSelected)="connectionStarted($event)"
+        (onDuplicateCalled)="designActionChange($event)"
+				(onDeleteCalled)="designActionChange($event)"
         >
         </app-draftrendering>
       </div>

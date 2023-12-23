@@ -824,7 +824,10 @@ async processFileData(data: FileObj) : Promise<string|void>{
           this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).topleft, data.scale);
           break;
         case 'cxn':
-         // this.mixer.loadConnection(node.id)
+
+          //only load UI for connections that go from draft to operation
+          let froms = this.tree.getInputs(node.id);
+          if(froms.length > 0 && this.tree.getNode(froms[0]).type === 'draft')  this.mixer.loadConnection(node.id)
           break;
       }
     })

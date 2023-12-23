@@ -193,18 +193,27 @@ export class ConnectionComponent implements OnInit {
 
 
   /**
-   * if every connection goes from one node to another, the from node depends on the kind of object
+   * connections can come from a subdraft or an operation component 
    * @param from the id of the component this connection goes to
    */
   updateFromPosition(from: number, scale: number){
-    const from_comp =  <SubdraftComponent | OperationComponent> this.tree.getComponent(from);
+
+    const from_el = document.getElementById(from+"-out");
+    const rect = from_el.getBoundingClientRect();
+
+    console.log("RECT", rect)
+
+    this.b_from = 
+    {x: rect.x, 
+     y: rect.y};
+    // const from_comp =  <SubdraftComponent | OperationComponent> this.tree.getComponent(from);
   
-    if(from_comp === null){
-      console.error("no from component assigned yet on ", this.id);
-    }
+    // if(from_comp === null){
+    //   console.error("no from component assigned yet on ", this.id);
+    // }
     
-    if(this.tree.getType(from) === 'op') this.fromOpUpdate(<OperationComponent> from_comp);
-    else this.fromDraftUpdate(<SubdraftComponent> from_comp);
+    // if(this.tree.getType(from) === 'op') this.fromOpUpdate(<OperationComponent> from_comp);
+    // else this.fromDraftUpdate(<SubdraftComponent> from_comp);
 
 
     this.calculateBounds();
@@ -213,24 +222,23 @@ export class ConnectionComponent implements OnInit {
    }
 
    //TODO, add positing here
-  fromOpUpdate(op_comp: OperationComponent){
-      const scale = document.getElementById("scale-"+op_comp.id);
-      if(scale === null){
-        // console.log("draft not found on update")
-        // this.b_from = 
-        // {x: draft_comp.topleft.x+5, 
-        //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
-      }else{
-        this.b_from = 
-        {x: op_comp.topleft.x+5, 
-         y: (op_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
-      }
-      
-     
+  // fromOpUpdate(op_comp: OperationComponent){
+  //     const scale = document.getElementById("scale-"+op_comp.id);
+  //     if(scale === null){
+  //       // console.log("draft not found on update")
+  //       // this.b_from = 
+  //       // {x: draft_comp.topleft.x+5, 
+  //       //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
+  //     }else{
+  //       this.b_from = 
+  //       {x: op_comp.topleft.x+5, 
+  //        y: (op_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
+  //     }
    
-  }
+  // }
 
   fromDraftUpdate(draft_comp: SubdraftComponent){
+
 
     if(draft_comp.draft_visible){
       const scale = document.getElementById("scale-"+draft_comp.id);

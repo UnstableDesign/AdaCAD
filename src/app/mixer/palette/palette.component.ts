@@ -89,7 +89,10 @@ export class PaletteComponent implements OnInit{
    snack_message:string;
    snack_bounds: Bounds;
 
-   shape_bounds: Bounds;
+     /**
+   * stores the bounds of the shape being drawn
+   */
+   active_connection:Bounds;
 
 
    /**
@@ -398,14 +401,13 @@ handlePan(diff: Point){
     //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
     this.tree.nodes.forEach(node => {
         if(node.type !== "cxn"){
-          node.component.scale = this.zs.zoom;
+          if(node.component !== null) node.component.scale = this.zs.zoom;
         } 
       });
 
 
     this.tree.getConnections().forEach(sd => {
-
-      sd.rescale(this.zs.zoom);
+      if(sd !== null) sd.rescale(this.zs.zoom);
     });
 
     this.notes.getComponents().forEach(el => {
@@ -694,6 +696,7 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
     this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
     this.operationSubscriptions.push(op.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
+    this.operationSubscriptions.push(op.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.operationSubscriptions.push(op.onInputAdded.subscribe(this.connectionMade.bind(this)));
     this.operationSubscriptions.push(op.onInputVisibilityChange.subscribe(this.updateVisibility.bind(this)));
     this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
@@ -1210,6 +1213,8 @@ handlePan(diff: Point){
   */
  onConnectionStarted(obj: any){
 
+  console.log("ON CXN STARTED", obj)
+
   if(obj.type == 'stop'){
     this.selecting_connection = false;
     this.tree.unsetOpenConnection();
@@ -1229,29 +1234,28 @@ handlePan(diff: Point){
   const not_selected = all_drafts.filter(el => el.id !== obj.id);
   not_selected.forEach(node => {
     let comp = <SubdraftComponent>node.component;
-    comp.selecting_connection = false;
+    if(comp !== null) comp.selecting_connection = false;
   })
 
 
 
-  const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(obj.id);
+  //const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(obj.id);
 
   let adj: Point;
 
-  if(sd.draft_visible){
-    const from = document.getElementById('scale-'+obj.id);
-   adj = {
-    x: sd.topleft.x - this.viewport.getTopLeft().x + 8, 
-    y: (sd.topleft.y+from.offsetHeight*(this.zs.zoom/this.default_cell_size)) - this.viewport.getTopLeft().y}
-   }else{
-   adj = {
-    x: sd.topleft.x - this.viewport.getTopLeft().x + 10, 
-    y: (sd.topleft.y) - this.viewport.getTopLeft().y}
-   }
+    const from = document.getElementById(obj.id+'-out').getBoundingClientRect();
+
+  //  adj = {
+  //   x: sd.topleft.x - this.viewport.getTopLeft().x + 8, 
+  //   y: (sd.topleft.y+from.offsetHeight*(this.zs.zoom/this.default_cell_size)) - this.viewport.getTopLeft().y}
+  adj = {
+    x: from.x, 
+    y: from.y}
+
 
   this.unfreezePaletteObjects();
 
-  this.shape_bounds = {
+  this.active_connection = {
     topleft: adj,
     width: this.zs.zoom,
     height: this.zs.zoom
@@ -1397,22 +1401,24 @@ handlePan(diff: Point){
    */
 connectionDragged(mouse: Point, shift: boolean){
 
+  console.log('active', this.active_connection);
+
   //get the mouse position relative to the view frame
   const adj: Point = {x: mouse.x - this.viewport.getTopLeft().x, y: mouse.y - this.viewport.getTopLeft().y}
-  this.shape_bounds.width =  (adj.x - this.shape_bounds.topleft.x);
-  this.shape_bounds.height =  (adj.y - this.shape_bounds.topleft.y);
+  this.active_connection.width =  (adj.x - this.active_connection.topleft.x);
+  this.active_connection.height =  (adj.y - this.active_connection.topleft.y);
 
 
   const svg = document.getElementById('scratch_svg');
-  svg.style.top = (this.viewport.getTopLeft().y+this.shape_bounds.topleft.y)+"px";
-  svg.style.left = (this.viewport.getTopLeft().x+this.shape_bounds.topleft.x)+"px"
+  svg.style.top = (this.viewport.getTopLeft().y+this.active_connection.topleft.y)+"px";
+  svg.style.left = (this.viewport.getTopLeft().x+this.active_connection.topleft.x)+"px"
 
  
   svg.innerHTML = ' <path d="M 0 0 C 0 50,'
-  +(this.shape_bounds.width)+' '
-  +(this.shape_bounds.height-50)+', '
-  +(this.shape_bounds.width)+' '
-  +(this.shape_bounds.height)
+  +(this.active_connection.width)+' '
+  +(this.active_connection.height-50)+', '
+  +(this.active_connection.width)+' '
+  +(this.active_connection.height)
   +'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
 
  
@@ -1781,22 +1787,13 @@ inletLoaded(obj: any){
 }
 
 /**
- * called from an operation or inlet to allow for the inlighting of all upstream operations and drafts
+ * called from an operation or inlet to allow for the highlighting of all upstream operations and drafts
  * @param obj 
  */
 opCompLoaded(obj: any){
   //redraw the inlet
-  let opid = obj.id;
-
-  const cxns = this.tree.getInputsWithNdx(opid);
-
-  cxns.forEach((cxn, input_ndx) => {
-    const cxn_comp = <ConnectionComponent>this.tree.getComponent(cxn.tn.node.id)
-    cxn_comp.updateToPosition(opid,this.zs.zoom)
-  })
-
-
-
+  // let opid = obj.id;
+  // const cxns = this.tree.getInputsWithNdx(opid);
 
 
 }
@@ -2045,11 +2042,11 @@ pasteConnection(from: number, to: number, inlet: number){
         ops.forEach(op => {
           this.opCompLoaded(op);
   
-          let drafts = this.tree.getDraftOutputs(op.id);
-          drafts.forEach((draft, ndx) => {
-            let draftcomp = <SubdraftComponent> this.tree.getComponent(draft);
-            draftcomp.updatePositionFromParent(<OperationComponent>op.component, ndx)
-          })
+          // let drafts = this.tree.getDraftOutputs(op.id);
+          // drafts.forEach((draft, ndx) => {
+          //   let draftcomp = <SubdraftComponent> this.tree.getComponent(draft);
+          //   draftcomp.updatePositionFromParent(<OperationComponent>op.component, ndx)
+          // })
   
           }
         );
@@ -2334,7 +2331,7 @@ pasteConnection(from: number, to: number, inlet: number){
 
     this.tree.getOutputs(id).forEach(cxn => {
       const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-      comp.updateFromPosition(id, this.zs.zoom);
+      if(comp !== null) comp.updateFromPosition(id, this.zs.zoom);
    });
 
    if(!follow) return;
@@ -2346,7 +2343,7 @@ pasteConnection(from: number, to: number, inlet: number){
 
       outs.forEach((out, ndx) => {
         const out_comp = <SubdraftComponent> this.tree.getComponent(out);
-        if(this.tree.getType(out_comp.id) === 'draft') out_comp.updatePositionFromParent(moving, ndx);
+       // if(this.tree.getType(out_comp.id) === 'draft') out_comp.updatePositionFromParent(moving, ndx);
         this.updateAttachedComponents(out_comp.id, false);
       })
 
@@ -2358,7 +2355,7 @@ pasteConnection(from: number, to: number, inlet: number){
     if(this.tree.getType(moving.id) === "draft" && !this.tree.isSibling(moving.id)){
       ins.forEach(input => {
         const in_comp: OperationComponent = <OperationComponent> this.tree.getComponent(input);
-        in_comp.updatePositionFromChild(moving);
+       // in_comp.updatePositionFromChild(moving);
         this.updateAttachedComponents(in_comp.id, false);
       });
     }

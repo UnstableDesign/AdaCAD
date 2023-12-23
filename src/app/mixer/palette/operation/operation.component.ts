@@ -49,6 +49,7 @@ export class OperationComponent implements OnInit {
    @Input() zndx: number;
    @Output() onConnectionRemoved = new EventEmitter <any>();
    @Output() onConnectionMove = new EventEmitter <any>();
+   @Output() onConnectionStarted = new EventEmitter <any>();
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationMoveEnded = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
@@ -126,6 +127,8 @@ export class OperationComponent implements OnInit {
    children: Array<number> = []; //a list of references to any drafts produced by this operation
 
    redrawchildren: number = 0;
+
+   selecting_connection: boolean = false;
 
   constructor(
     private operations: OperationService, 
@@ -243,27 +246,6 @@ export class OperationComponent implements OnInit {
 
   }
 
-   /**
-   * updates this components position based on the child component's position
-   * */
-    updatePositionFromChild(child: SubdraftComponent){
-
-      if(child == undefined) return;
-       const container = <HTMLElement> document.getElementById("scale-"+this.id);
-       if(container !== null) this.setPosition({x: child.topleft.x, y: child.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
-  
-    }
-
-  /**
-   * set's the width to at least 200, but w if its large
-   */
-  // setWidth(w:number){
-  //   this.bounds.width = (w > 200) ? w : 200;
-  // }
-
-  // addOutput(dm: DraftMap){
-  //   this.outputs.push(dm);
-  // }
 
   disableDrag(){
     console.log("DIABLE DRAG CALLED ON ", this.id)
@@ -331,6 +313,11 @@ export class OperationComponent implements OnInit {
       const ilet = this.inletComps.find(el => el.inletid == id);
       if(ilet !== undefined) ilet.show_connection_name = -1;
     })
+  }
+
+  connectionStarted(event){
+    this.onConnectionStarted.emit(event);
+
   }
 
 
@@ -524,10 +511,24 @@ export class OperationComponent implements OnInit {
 
 
   dragEnd($event: any) {
+
+    let parent = document.getElementById('scrollable-container');
+    let subdraft_container = document.getElementById('scale-'+this.id);
+
+    let rect_palette = parent.getBoundingClientRect();
+    let rect_sd = subdraft_container.getBoundingClientRect(); 
+
+    this.topleft.x = rect_sd.x - rect_palette.x;
+    this.topleft.y = rect_sd.y - rect_palette.y;
+
+
+
     this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({id: this.id});
 
   }
+
+  
  
 
 }
