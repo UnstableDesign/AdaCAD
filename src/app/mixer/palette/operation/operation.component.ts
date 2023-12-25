@@ -182,6 +182,14 @@ export class OperationComponent implements OnInit {
     this.viewInit = true;
     this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
 
+    console.log("AFTER VIEW INIT ", this.topleft)
+    let op_container = document.getElementById('scale-'+this.id);
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top =  this.topleft.y+"px";
+    op_container.style.left =  this.topleft.x+"px";
+
+
+
 
     this.onOpLoaded.emit({id: this.id})
 
@@ -198,6 +206,13 @@ export class OperationComponent implements OnInit {
 
   setPosition(pos: Point){
     this.topleft =  {x: pos.x, y:pos.y};
+    let op_container = document.getElementById('scale-'+this.id);
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top =  this.topleft.y+"px";
+    op_container.style.left =  this.topleft.x+"px";
+
+
+
     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
   }
 
@@ -208,13 +223,13 @@ export class OperationComponent implements OnInit {
     const container: HTMLElement = document.getElementById('scale-'+this.id);
     if(container === null) return;
 
-    container.style.transformOrigin = 'top left';
-    container.style.transform = 'scale(' + zoom_factor + ')';
+    // container.style.transformOrigin = 'top left';
+    // container.style.transform = 'scale(' + zoom_factor + ')';
 
-    this.topleft = {
-      x: this.interlacement.j * this.scale,
-      y: this.interlacement.i * this.scale
-    };
+    // this.topleft = {
+    //   x: this.interlacement.j * this.scale,
+    //   y: this.interlacement.i * this.scale
+    // };
 
     // this.bounds.height = this.base_height * zoom_factor;
 
@@ -500,30 +515,41 @@ export class OperationComponent implements OnInit {
 
 
 
-    const pointer:Point = $event.pointerPosition;
-    const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
-    const adj:Point = utilInstance.snapToGrid(relative, this.scale);
-    this.topleft = adj;  
-      //  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
-       this.onOperationMove.emit({id: this.id, point: adj});
+    let parent = document.getElementById('scrollable-container');
+    let op_container = document.getElementById('scale-'+this.id);
+    let rect_palette = parent.getBoundingClientRect();
+
+    const zoom_factor =  this.default_cell / this.scale;
+    console.log("zoom",zoom_factor ,"MOUSE: ", $event.event.pageX,  "left: ",($event.event.pageX-rect_palette.x));
+
+    this.topleft = {
+      x: ($event.event.pageX-rect_palette.x)*zoom_factor-rect_palette.x,
+      y: ($event.event.pageY-rect_palette.y)*zoom_factor-rect_palette.y
+
+    }
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top =  this.topleft.y+"px";
+    op_container.style.left =  this.topleft.x+"px";
+
+    this.onOperationMove.emit({id: this.id, point: this.topleft});
 
   }
 
 
   dragEnd($event: any) {
 
-    let parent = document.getElementById('scrollable-container');
-    let subdraft_container = document.getElementById('scale-'+this.id);
+    // let parent = document.getElementById('scrollable-container');
+    // let subdraft_container = document.getElementById('scale-'+this.id);
 
-    let rect_palette = parent.getBoundingClientRect();
-    let rect_sd = subdraft_container.getBoundingClientRect(); 
+    // let rect_palette = parent.getBoundingClientRect();
+    // let rect_sd = subdraft_container.getBoundingClientRect(); 
 
-    this.topleft.x = rect_sd.x - rect_palette.x;
-    this.topleft.y = rect_sd.y - rect_palette.y;
+    // this.topleft.x = rect_sd.x - rect_palette.x;
+    // this.topleft.y = rect_sd.y - rect_palette.y;
 
 
 
-    this.multiselect.setRelativePosition(this.topleft);
+    // this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({id: this.id});
 
   }

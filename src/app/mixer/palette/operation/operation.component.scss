@@ -1,7 +1,4 @@
 .operation-container{
-    position: absolute;
-    top: 0;
-    left: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -28,6 +25,10 @@
     }
 
   
+}
+
+.operation-parent{
+    position: absolute;
 }
 
 /* The animation code */

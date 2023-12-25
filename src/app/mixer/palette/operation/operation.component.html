@@ -1,17 +1,16 @@
-<div class="operation-container no-text-select selectable-{{!disable_drag}}"
+<div id='scale-{{id}}' class="operation-parent no-text-select selectable-{{!disable_drag}}"
 cdkDrag
 cdkDragBoundary=".palette"
 (mousedown)="mousedown($event)"
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
 [cdkDragDisabled] = "disable_drag"
-[cdkDragFreeDragPosition]="topleft"
 (cdkDragMoved)="dragMove($event)"
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"
 >
 
-  <div id='scale-{{id}}' class="operation-container">
+  <div class="operation-container">
 
         <div class="cxn-row" >
             <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">

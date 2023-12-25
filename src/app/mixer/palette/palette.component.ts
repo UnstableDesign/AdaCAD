@@ -159,10 +159,6 @@ export class PaletteComponent implements OnInit{
 
     
 
-    // this.cx.beginPath();
-    // this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
-    // this.cx.stroke();
-
     this.selection.scale = this.zs.zoom;
 
     this.selection.active = false;
@@ -395,6 +391,25 @@ handlePan(diff: Point){
    */
   rescale(prev_zoom: number){
 
+    console.log("RESCALE")
+
+
+    const zoom_factor = this.zs.zoom / this.default_cell_size;
+    const container: HTMLElement = document.getElementById('scrollable-container');
+    if(container === null) return;
+
+    container.style.transformOrigin = 'top left';
+    container.style.transform = 'scale(' + zoom_factor + ')';
+
+    // this.topleft = {
+    //   x: this.interlacement.j * this.scale,
+    //   y: this.interlacement.i * this.scale
+    // };
+
+    // this.bounds.height = this.base_height * zoom_factor;
+
+ 
+
 
     //these subdrafts are all rendered independely of the canvas and need to indivdiually rescalled. This 
     //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
@@ -415,9 +430,9 @@ handlePan(diff: Point){
 
   
 
-     if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.zs.zoom;
+    //  if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.zs.zoom;
 
-    this.handleScrollFromZoom(prev_zoom);
+    // this.handleScrollFromZoom(prev_zoom);
 
   }
 
@@ -2326,7 +2341,7 @@ pasteConnection(from: number, to: number, inlet: number){
 
     this.tree.getInputs(id).forEach(cxn => {
        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-       comp.updateToPosition(id, this.zs.zoom);
+       if(comp !== null) comp.updateToPosition(id, this.zs.zoom);
     });
 
     this.tree.getOutputs(id).forEach(cxn => {
@@ -2342,9 +2357,9 @@ pasteConnection(from: number, to: number, inlet: number){
    if(this.tree.getType(moving.id) === "op" ){
 
       outs.forEach((out, ndx) => {
-        const out_comp = <SubdraftComponent> this.tree.getComponent(out);
+        //const out_comp = <SubdraftComponent> this.tree.getComponent(out);
        // if(this.tree.getType(out_comp.id) === 'draft') out_comp.updatePositionFromParent(moving, ndx);
-        this.updateAttachedComponents(out_comp.id, false);
+        this.updateAttachedComponents(out, false);
       })
 
     
@@ -2354,9 +2369,8 @@ pasteConnection(from: number, to: number, inlet: number){
     //if this is a draft with a parent, move the parent as well 
     if(this.tree.getType(moving.id) === "draft" && !this.tree.isSibling(moving.id)){
       ins.forEach(input => {
-        const in_comp: OperationComponent = <OperationComponent> this.tree.getComponent(input);
        // in_comp.updatePositionFromChild(moving);
-        this.updateAttachedComponents(in_comp.id, false);
+        this.updateAttachedComponents(input, false);
       });
     }
       
