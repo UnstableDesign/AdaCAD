@@ -78,10 +78,9 @@ export class ConnectionComponent implements OnInit {
     const from = this.tree.getConnectionInput(this.id);
 
 
-
-
      this.updateFromPosition(from, this.zs.zoom);
      this.updateToPosition(to, this.zs.zoom);
+
      this.drawConnection(this.zs.zoom)
 
 
@@ -129,6 +128,8 @@ export class ConnectionComponent implements OnInit {
    */
   updateToPosition(to: number, scale: number){
    
+    console.log("UPDATE TO ")
+
     const to_comp = <SubdraftComponent | OperationComponent> this.tree.getComponent(to);
 
     this.b_to = {
@@ -166,31 +167,6 @@ export class ConnectionComponent implements OnInit {
     this.drawConnection(scale);
   }
 
-   /**
-   * if every connection goes from one node to another, the to node is always the topleft corner
-   * unless the to node is a dynamic operation, in which case we must move to an inlet. 
-   * @param to the id of the component this connection goes to
-   */
-  //  updateInitalToPosition(to: number, inlet_id: number, within_inlet_id: number,  scale: number){
-  //   console.log("***UPDATE INITIAL POSITION***", to, scale)
-   
-  //   const to_comp = <OperationComponent> this.tree.getComponent(to);
-
-  //   this.b_to = {
-  //     x:  to_comp.topleft.x + 3*this.scale/this.default_cell_size +  15* this.scale/this.default_cell_size,
-  //     y: to_comp.topleft.y
-  //   };
-
-
-
-  //   this.b_to = {x: to_comp.topleft.x + (inlet_id*100+15)*this.scale/this.default_cell_size, y: to_comp.topleft.y}
-  //   console.log("THIS B TO ", this.b_to)
-  
-
-  //   this.calculateBounds();
-  //   this.drawConnection(scale);
-  // }
-
 
   /**
    * connections can come from a subdraft or an operation component 
@@ -198,32 +174,26 @@ export class ConnectionComponent implements OnInit {
    */
   updateFromPosition(from: number, scale: number){
 
-    const from_el = document.getElementById(from+"-out");
-    const rect = from_el.getBoundingClientRect();
+    console.log("update from")
 
-    console.log("RECT", rect)
+    const from_el = document.getElementById(from+"-out").getBoundingClientRect();
+    const container = document.getElementById("scrollable-container").getBoundingClientRect();
 
     this.b_from = 
-    {x: rect.x, 
-     y: rect.y};
-    // const from_comp =  <SubdraftComponent | OperationComponent> this.tree.getComponent(from);
-  
-    // if(from_comp === null){
-    //   console.error("no from component assigned yet on ", this.id);
-    // }
-    
-    // if(this.tree.getType(from) === 'op') this.fromOpUpdate(<OperationComponent> from_comp);
-    // else this.fromDraftUpdate(<SubdraftComponent> from_comp);
-
+    {x: from_el.x - container.x, 
+     y: from_el.y- container.y};
 
     this.calculateBounds();
     this.drawConnection(scale);
     
    }
 
-   //TODO, add positing here
-  // fromOpUpdate(op_comp: OperationComponent){
-  //     const scale = document.getElementById("scale-"+op_comp.id);
+
+  // fromDraftUpdate(draft_comp: SubdraftComponent){
+
+
+  //   if(draft_comp.draft_visible){
+  //     const scale = document.getElementById("scale-"+draft_comp.id);
   //     if(scale === null){
   //       // console.log("draft not found on update")
   //       // this.b_from = 
@@ -231,35 +201,17 @@ export class ConnectionComponent implements OnInit {
   //       //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
   //     }else{
   //       this.b_from = 
-  //       {x: op_comp.topleft.x+5, 
-  //        y: (op_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
+  //       {x: draft_comp.topleft.x+5, 
+  //        y: (draft_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
   //     }
-   
-  // }
-
-  fromDraftUpdate(draft_comp: SubdraftComponent){
-
-
-    if(draft_comp.draft_visible){
-      const scale = document.getElementById("scale-"+draft_comp.id);
-      if(scale === null){
-        // console.log("draft not found on update")
-        // this.b_from = 
-        // {x: draft_comp.topleft.x+5, 
-        //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
-      }else{
-        this.b_from = 
-        {x: draft_comp.topleft.x+5, 
-         y: (draft_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
-      }
       
      
-    }else{
-      this.b_from = 
-      {x: draft_comp.topleft.x + 3*this.zs.zoom, 
-       y: draft_comp.topleft.y + 30};
-    }
-  }
+  //   }else{
+  //     this.b_from = 
+  //     {x: draft_comp.topleft.x + 3*this.zs.zoom, 
+  //      y: draft_comp.topleft.y + 30};
+  //   }
+  // }
 
 
   calculateBounds(){

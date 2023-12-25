@@ -541,6 +541,11 @@ export class TreeService {
     return <SubdraftComponent> this.getComponent(this.open_connection);
   }
 
+  getOpenConnectionId(): number{
+    return this.open_connection;
+  }
+
+
   /**
    * TEMP DISABLE DUE TO CAUSING PROBLEMS 
    * unsets the open connection

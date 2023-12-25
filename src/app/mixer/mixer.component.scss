@@ -10,6 +10,10 @@
 
 }
 
+.no-pointer{
+  pointer-events: none;
+}
+
 .sidenav_small{
   width: 100px;
   position: fixed;

@@ -500,12 +500,12 @@ export class OperationComponent implements OnInit {
 
 
 
-      //  const pointer:Point = $event.pointerPosition;
-      //  const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
-      //  const adj:Point = utilInstance.snapToGrid(relative, this.scale);
-      //  this.topleft = adj;  
+    const pointer:Point = $event.pointerPosition;
+    const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
+    const adj:Point = utilInstance.snapToGrid(relative, this.scale);
+    this.topleft = adj;  
       //  this.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
-       // this.onOperationMove.emit({id: this.id, point: adj});
+       this.onOperationMove.emit({id: this.id, point: adj});
 
   }
 

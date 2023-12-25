@@ -513,7 +513,7 @@ export class SubdraftComponent implements OnInit {
 
     this.topleft.x = rect_sd.x - rect_palette.x;
     this.topleft.y = rect_sd.y - rect_palette.y;
-
+    console.log("Moved")
     this.onSubdraftMove.emit({id: this.id, point: this.topleft});
 
   }

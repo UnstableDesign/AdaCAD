@@ -87,13 +87,14 @@
 ></app-mixerview>
 </div>
 
-  <app-palette  
-  class="palette mode-{{dm.cur_mixer_mode}}"
-  [style.width.px]='vp.getAbsoluteWidth()' 
-  [style.height.px]='vp.getAbsoluteHeight()' 
-  #palette  id="scrollable-container"
-  (onRevealDraftDetails)="showDraftDetails($event)" >
-  </app-palette>
+<app-palette  
+class="palette mode-{{dm.cur_mixer_mode}}"
+[style.width.px]='vp.getAbsoluteWidth()' 
+[style.height.px]='vp.getAbsoluteHeight()' 
+[class.no-pointer]="!palette.pointer_events" 
+#palette  id="scrollable-container"
+(onRevealDraftDetails)="showDraftDetails($event)" >
+</app-palette>
 
 
 

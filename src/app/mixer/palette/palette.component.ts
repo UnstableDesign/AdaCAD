@@ -94,7 +94,6 @@ export class PaletteComponent implements OnInit{
    */
    active_connection:Bounds;
 
-
    /**
     * a reference to the base size of each cell. Zoom in and out only modifies the view, not this base size.
     */
@@ -1222,7 +1221,6 @@ handlePan(diff: Point){
     return;
   }
 
-
   const valid = this.tree.setOpenConnection(obj.id);
   if(!valid) return;
 
@@ -1243,14 +1241,17 @@ handlePan(diff: Point){
 
   let adj: Point;
 
-    const from = document.getElementById(obj.id+'-out').getBoundingClientRect();
+  const from = document.getElementById(obj.id+'-out').getBoundingClientRect();
+  const container = document.getElementById('scrollable-container').getBoundingClientRect();
 
-  //  adj = {
-  //   x: sd.topleft.x - this.viewport.getTopLeft().x + 8, 
-  //   y: (sd.topleft.y+from.offsetHeight*(this.zs.zoom/this.default_cell_size)) - this.viewport.getTopLeft().y}
+  console.log("FROM ", from, container)
+
+
+
+
   adj = {
-    x: from.x, 
-    y: from.y}
+    x: from.x - container.x, 
+    y: from.y - container.y}
 
 
   this.unfreezePaletteObjects();
@@ -1401,17 +1402,16 @@ handlePan(diff: Point){
    */
 connectionDragged(mouse: Point, shift: boolean){
 
-  console.log('active', this.active_connection);
+  let container = document.getElementById("scrollable-container").getBoundingClientRect();
 
   //get the mouse position relative to the view frame
-  const adj: Point = {x: mouse.x - this.viewport.getTopLeft().x, y: mouse.y - this.viewport.getTopLeft().y}
+  const adj: Point = {x: mouse.x - container.x, y: mouse.y -container.y}
   this.active_connection.width =  (adj.x - this.active_connection.topleft.x);
   this.active_connection.height =  (adj.y - this.active_connection.topleft.y);
 
-
   const svg = document.getElementById('scratch_svg');
-  svg.style.top = (this.viewport.getTopLeft().y+this.active_connection.topleft.y)+"px";
-  svg.style.left = (this.viewport.getTopLeft().x+this.active_connection.topleft.x)+"px"
+  svg.style.top = (this.active_connection.topleft.y)+"px";
+  svg.style.left = (this.active_connection.topleft.x)+"px"
 
  
   svg.innerHTML = ' <path d="M 0 0 C 0 50,'
@@ -1812,9 +1812,9 @@ connectionMade(obj: any){
 
   //this is defined in the order that the line was drawn
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(obj.id);
-  const sd: SubdraftComponent = <SubdraftComponent> this.tree.getOpenConnection();
+  const sd: number = this.tree.getOpenConnectionId();
   
-  this.createConnection(sd.id, obj.id, obj.ndx);
+  this.createConnection(sd, obj.id, obj.ndx);
   
   this.performAndUpdateDownstream(obj.id).then(el => {
     this.addTimelineState();
@@ -2503,7 +2503,7 @@ pasteConnection(from: number, to: number, inlet: number){
    */
   subdraftMoved(obj: any){
 
-
+      console.log("Subdraft moved")
       if(obj === null) return;
   
       //get the reference to the draft that's moving
@@ -2512,40 +2512,8 @@ pasteConnection(from: number, to: number, inlet: number){
       if(moving === null) return; 
 
       this.moveAllSelections(obj.id);
-  
-    
+      this.updateAttachedComponents(moving.id, true);
 
-
-      // // this.updateSnackBar("Using Ink: "+moving.ink,null);
-       this.updateAttachedComponents(moving.id, true);
-
-
-      // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
-      // const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
-
-      // if(seed_drafts.length === 0){
-      //   if(this.tree.hasPreview()) this.removePreview();
-      //   return;
-      // } 
-
-      // const bounds: Bounds = utilInstance.getCombinedBounds(moving, seed_drafts);
-      // const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
-      
-
-
-      // if(this.tree.hasPreview()) {
-       
-      //   this.tree.setPreviewDraft(temp).then(dn => {
-      //     dn.component.bounds = bounds;
-      //    (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
-      //   });
-      // }else{
-      //   this.createAndSetPreview(temp).then(dn => {
-      //     dn.component.bounds = bounds;
-      //     (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
-      //   }).catch(console.error);
-      // } 
-    
     }
 
 
