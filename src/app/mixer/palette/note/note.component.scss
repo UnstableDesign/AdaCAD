@@ -4,11 +4,10 @@
 
 .note-container{
 	position: absolute;
-	top: 0px;
-	left: 0px;
 	display: flex;
 	flex-direction: column;
-	min-width: 200px;
+	width: 400px;
+	height: 400px;
 }
 
 .scale-conatiner{
@@ -66,6 +65,7 @@ img{
 	display: flex;
 	flex-direction: column;
 	flex-grow: 3;
+	font-size: 24px;
 }
 
 

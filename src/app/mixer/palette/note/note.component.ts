@@ -30,8 +30,8 @@ export class NoteComponent implements OnInit {
   note: Note;
   bounds: Bounds = {
     topleft: {x:0, y:0},
-    width: 200, 
-    height: 200
+    width: 400, 
+    height: 400
   };
 
 
@@ -65,41 +65,46 @@ export class NoteComponent implements OnInit {
   ngAfterViewInit(){
     this.canvas = <HTMLCanvasElement> document.getElementById("notecanvas-"+this.note.id.toString());
     this.cx = this.canvas.getContext("2d");
-    this.rescale();
-    
+    let note_container = document.getElementById('note-'+this.id);
+    note_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    note_container.style.top =  this.bounds.topleft.y+"px";
+    note_container.style.left =  this.bounds.topleft.x+"px";
+
+
   }
 
   /**
    * called via resize button
    * @param event 
    */
-  @HostListener('mousedown', ['$event'])
-  private onStart(event) {
-    if(event.target.id == 'resize_button'){
-      this.moveSubscription = 
-           fromEvent(document, 'mousemove').subscribe(e => this.onDrag(e)); 
+  // @HostListener('mousedown', ['$event'])
+  // private onStart(event) {
+  //   if(event.target.id == 'resize_button'){
+  //     this.moveSubscription = 
+  //          fromEvent(document, 'mousemove').subscribe(e => this.onDrag(e)); 
 
-    }
+  //   }
 
-  }
+  // }
 
-  @HostListener('mouseup', ['$event'])
-  private onEnd(event) {
-      if(this.moveSubscription !== undefined) this.moveSubscription.unsubscribe();
+  // @HostListener('mouseup', ['$event'])
+  // private onEnd(event) {
+  //     if(this.moveSubscription !== undefined) this.moveSubscription.unsubscribe();
     
 
-  }
+  // }
 
   /**
-   * called via drag handler to reset position
+   * called by the expanding function
    * @param event 
    */
-  onDrag(event: any){
-    const zoom_factor:number = this.default_cell/this.scale;
-    const pointer:Point = {x: event.clientX, y: event.clientY};  
-    this.note.width =(pointer.x - this.bounds.topleft.x + 10)*zoom_factor;
-    this.note.height = (pointer.y - this.bounds.topleft.y + 10)*zoom_factor;
-  }
+  // onDrag(event: any){
+  //   const zoom_factor:number = this.default_cell/this.scale;
+  //   const pointer:Point = {x: event.clientX, y: event.clientY};  
+  //   this.note.width =(pointer.x - this.bounds.topleft.x + 10)*zoom_factor;
+  //   this.note.height = (pointer.y - this.bounds.topleft.y + 10)*zoom_factor
+    
+  // }
 
 
   delete(){
@@ -108,11 +113,30 @@ export class NoteComponent implements OnInit {
     
 
   dragMove($event: any) {
-    const pointer:Point = $event.pointerPosition;
-    const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
-    const adj:Point = utilInstance.snapToGrid(relative, this.scale);
-    this.bounds.topleft = adj;
-    this.note.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
+
+
+    let parent = document.getElementById('scrollable-container');
+    let note_container = document.getElementById('note-'+this.id);
+    let rect_palette = parent.getBoundingClientRect();
+
+    const zoom_factor =  this.default_cell / this.scale;
+    let screenX = $event.event.pageX-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
+    let scaledX = screenX* zoom_factor;
+    let screenY = $event.event.pageY-rect_palette.y;
+    let scaledY = screenY * zoom_factor;
+   
+
+
+    this.bounds.topleft = {
+      x: scaledX,
+      y: scaledY
+
+    }
+    note_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    note_container.style.top =  this.bounds.topleft.y+"px";
+    note_container.style.left =  this.bounds.topleft.x+"px";
+
+    this.note.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.bounds.topleft, this.scale);
   }
 
 
@@ -122,23 +146,6 @@ export class NoteComponent implements OnInit {
    * @param scale - the zoom scale of the iterface (e.g. the number of pixels to render each cell)
    */
    rescale(){
-    if(this.note === undefined){
-       console.error("note is undefined on rescale");
-       return;
-    }
-
-    const zoom_factor:number = this.scale/this.default_cell;
-
-    //redraw at scale
-    const container: HTMLElement = document.getElementById('scalenote-'+this.note.id);
-    container.style.transformOrigin = 'top left';
-    container.style.transform = 'scale(' + zoom_factor + ')';
-
-
-    this.bounds.topleft = {
-      x: this.note.interlacement.j * this.scale,
-      y: this.note.interlacement.i * this.scale
-    };
 
   }
 
@@ -187,21 +194,6 @@ export class NoteComponent implements OnInit {
   }
 
   hidePreview(e) { console.log(e.getContent()); }
-
-
-  // expandDown(event: any){
-  //   console.log("EXPAND DOWN")
-  //   this.moveSubscription = 
-  //         fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
-  // }
-
-  // expandUp(event: any) {
-  //   console.log("EXPAND UP")
-  //   this.moveSubscription.unsubscribe();
-  // }
-
-
-
 
 
 }

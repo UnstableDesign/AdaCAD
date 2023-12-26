@@ -113,7 +113,6 @@ export class AppComponent implements OnInit{
   }
 
   private onWindowScroll(data: any) {
-    console.log("left", data.measureScrollOffset('left'));
    // if(!this.manual_scroll){
      this.mixer.palette.handleWindowScroll(data);
     //}else{

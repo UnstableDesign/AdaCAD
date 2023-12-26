@@ -1,17 +1,17 @@
 
 <!--TODO add z index support here-->
-<div class="selectable-{{!disable_drag}}" 
-[cdkDragDisabled] = "disable_drag"
+<div 
+class="note-container" 
+class="selectable-{{!disable_drag}}" 
+id="note-{{note.id}}" 
 cdkDrag
-[cdkDragFreeDragPosition]="bounds.topleft"
 (cdkDragMoved)="dragMove($event)">
 
 
-<div class="note-container" 
+<div 
 [style.width.px]="note.width"
 [style.min-height.px]="note.height"
-[style.background]="note.color"
-id="scalenote-{{note.id}}">
+[style.background]="note.color">
 
 
 
@@ -19,13 +19,13 @@ id="scalenote-{{note.id}}">
   <div class="note-opts"> 
 
         <div class="align-left">
-        <div class="handle" cdkDragHandle>
+        <div class="handle">
           <button mat-icon-button class="fa-solid fa-up-down-left-right"></button>
         </div>
       </div>
         
       <div class="align-right">
-      <button 
+      <!-- <button 
           mat-icon-button
           matTooltip= "Change Note Color"
           (colorPickerChange) = 'colorChange($event)'  
@@ -33,7 +33,7 @@ id="scalenote-{{note.id}}">
           [(colorPicker)]="note.color" 
           [style.background]="note.color" 
           >
-      </button> 
+      </button>  -->
     
 
         <button *ngIf="!show_url"
@@ -87,10 +87,10 @@ id="scalenote-{{note.id}}">
 
     </div>
 
-    <div class="expand" >
+    <!-- <div class="expand" >
        <button mat-icon-button id="resize_button" class="expand-icon fa-solid fa-up-right-and-down-left-from-center"></button>
        
-    </div>
+    </div> -->
 
     <canvas id="notecanvas-{{note.id}}" hidden></canvas>
 </div>
