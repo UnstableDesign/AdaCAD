@@ -234,6 +234,7 @@ export class PaletteComponent implements OnInit{
  */
   handleScroll(position: Point){
     this.viewport.setTopLeft(position);
+    console.log("HANDLE SCROLL")
     const div:HTMLElement = document.getElementById('scrollable-container');  
      div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
      div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
@@ -278,9 +279,8 @@ handlePan(diff: Point){
  */
    handleWindowScroll(data: any){
 
-
-    const div:HTMLElement = document.getElementById('scrollable-container');
-    this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
+   const div:HTMLElement = document.getElementById('scrollable-container');
+   this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     //update the canvas to this position
   }
 

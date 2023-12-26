@@ -175,21 +175,21 @@ export class SubdraftComponent implements OnInit {
     this.draft_rendering.draft_cell_size = this.calculateDefaultCellSize(this.draft);
   
 
+    let sd_container = document.getElementById('scale-'+this.id);
+    sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    sd_container.style.top =  this.topleft.y+"px";
+    sd_container.style.left =  this.topleft.x+"px";
+
+
+
     /**
      * when loading a draft from a file, the connections won't match if the connection is drawn before this
      * function executes. For this reason, I made these sequential function and then they manually call updates
      */
     this.draft_rendering.drawDraft(this.draft).then(out => {
-      return this.rescale();
-
-    }).then(after => {
       this.updateViewport(this.topleft);
-  
-      //this must be called to trigger redrawing on any outgoing connections
       this.onSubdraftMove.emit({id: this.id, point: this.topleft});
 
-  
-      
     });
 
   }
@@ -207,31 +207,7 @@ export class SubdraftComponent implements OnInit {
  */
   rescale() : Promise<boolean>{
 
-
-    if(this.draft === null){
-      return Promise.reject("draft is null on draft rescale");
-    } 
-
-    const zoom_factor:number = this.scale/this.default_cell;
-
-    //redraw at scale
-    const container: HTMLElement = document.getElementById('scale-'+this.id.toString());
-   
-    if(container === null) return Promise.reject("no container initialized on draft rescale");
-
-
-    container.style.transformOrigin = 'top left';
-    container.style.transform = 'scale(' + zoom_factor + ')';
-
-   
-    this.topleft = {
-      x: this.interlacement.j * this.scale,
-      y: this.interlacement.i * this.scale
-    };
-
     return Promise.resolve(true)
-
-
 
   }
 
@@ -389,38 +365,6 @@ export class SubdraftComponent implements OnInit {
 
 
 
-  // /**
-  //  * sets a new draft
-  //  * @param temp the draft to set this component to
-  //  */
-  // setNewDraft(temp: Draft) {
-
-  //   this.bounds.width = temp.warps * this.scale;
-  //   this.bounds.height = temp.wefts * this.scale;
-  //   this.draft.reload(temp);
-  //   this.drawDraft();
-
-  // }
-
-  // setComponentPosition(point: Point){
-  //   this.bounds.topleft = point;
-  // }
-
-
-  // setComponentBounds(bounds: Bounds){
-  //   this.setPosition(bounds.topleft);
-  //   this.bounds = bounds;
-  // }
-  /**
-   * manually sets the component size. While such an operation should be handled on init but there is a bug where this value is checked before the 
-   * component runds its init sequence. Manually adding the data makes it possible for check for intersections on selection and drawing end.
-   * @param width 
-   * @param height 
-   */
-  // setComponentSize(width: number, height: number){
-  //   this.bounds.width = width;
-  //   this.bounds.height = height;
-  // }
 
  
   redrawExistingDraft(){
@@ -505,15 +449,36 @@ export class SubdraftComponent implements OnInit {
   }
 
   dragMove($event: any) {
+
+
+
     let parent = document.getElementById('scrollable-container');
-    let subdraft_container = document.getElementById('scale-'+this.id);
-
+    let sd_container = document.getElementById('scale-'+this.id);
     let rect_palette = parent.getBoundingClientRect();
-    let rect_sd = subdraft_container.getBoundingClientRect(); 
 
-    this.topleft.x = rect_sd.x - rect_palette.x;
-    this.topleft.y = rect_sd.y - rect_palette.y;
-    console.log("Moved")
+    const zoom_factor =  this.default_cell / this.scale;
+
+    //the positioning is strange because the mouse is in screen coordinates and needs to account for the 
+    //positioning of the palette. We take that position and translate it (by * zoom factor) to the palette coordinate system, 
+    //which is transformed by the scale operations. We then write the new position while acounting for the sidebar. 
+
+    let screenX = $event.event.pageX-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
+    let scaledX = screenX* zoom_factor;
+    let screenY = $event.event.pageY-rect_palette.y;
+    let scaledY = screenY * zoom_factor;
+   
+
+
+
+    this.topleft = {
+      x: scaledX,
+      y: scaledY
+
+    }
+    sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    sd_container.style.top =  this.topleft.y+"px";
+    sd_container.style.left =  this.topleft.x+"px";
+
     this.onSubdraftMove.emit({id: this.id, point: this.topleft});
 
   }

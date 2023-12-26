@@ -1,7 +1,7 @@
 
 <div 
 *ngIf="tree.getDraft(id) !== null" 
-id="con-{{id}}" 
+id="scale-{{id}}" 
 class="subdraft-parent-container selectable-{{!disable_drag}}" 
 [class.is_preview] = "is_preview"
 	cdkDrag
@@ -12,7 +12,6 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 	[class.drawing] = "disable_drag && !is_preview"
 	[class.no-pointer] = "disable_drag"
 	[cdkDragDisabled] = "disable_drag"
-	[cdkDragFreeDragPosition]="topleft"
 	(cdkDragMoved)="dragMove($event)"
 	(cdkDragEnded)="dragEnd($event)"
 	(cdkDragStarted)="dragStart($event)">

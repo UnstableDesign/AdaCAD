@@ -16,8 +16,9 @@ export class ZoomService {
   constructor() { 
 
     //create a table that stores each zoom value, which increments exponentally as it gets larger
+   // this.zoom_table_ndx = Math.floor(this.num_steps/2);
     this.zoom_table_ndx = Math.floor(this.num_steps/2);
-    
+
     for(let i = 0; i < this.num_steps; i++){
       const raw = this.zoom_min + this.zoom_step*(i*i);
       this.zoom_table.push(this.manageZoomRounding(raw));

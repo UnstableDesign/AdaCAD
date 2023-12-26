@@ -2,10 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DraftNode, OpNode, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ZoomService } from '../../provider/zoom.service';
-import { OperationComponent } from '../operation/operation.component';
-import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { OperationService } from '../../../core/provider/operation.service';
-import { defaults } from '../../../core/model/defaults';
 
 @Component({
   selector: 'app-connection',
@@ -61,8 +58,6 @@ export class ConnectionComponent implements OnInit {
 
     this.no_draw = this.tree.getType(from) === 'op' && this.tree.hasSingleChild(from);
     this.show_disconnect = !(this.tree.getType(from) === 'op' && !(this.tree.hasSingleChild(from)));
-    // this.path_text = this.id+'';
-    // this.show_path_text = true;
 
     this.updatePathText()
 
@@ -127,41 +122,30 @@ export class ConnectionComponent implements OnInit {
    * @param to the id of the component this connection goes to
    */
   updateToPosition(to: number, scale: number){
-   
-    console.log("UPDATE TO ")
 
-    const to_comp = <SubdraftComponent | OperationComponent> this.tree.getComponent(to);
+
+
+    let parent = document.getElementById('scrollable-container').getBoundingClientRect();
+    let to_container = document.getElementById('scale-'+to);
+    let sd_rect = to_container.getBoundingClientRect();
+
+    const zoom_factor =  this.default_cell_size / this.scale;
+
+    //on screen position relative to palette
+    let screenX = sd_rect.x - parent.x;
+    let scaledX = screenX * zoom_factor;
+
+    //on screen position relative to palette
+    let screenY = sd_rect.y - parent.y;
+    let scaledY = screenY * zoom_factor;
+
+    
 
     this.b_to = {
-      x:  to_comp.topleft.x + 3*this.scale/this.default_cell_size +  15* this.scale/this.default_cell_size,
-      y: to_comp.topleft.y
-    };
-
-
-    if(this.tree.getType(to_comp.id) === 'op'){
-      // get the inlet value 
-      const ndx = this.tree.getInletOfCxn(to_comp.id, this.id);
-      if(ndx !== -1){
-
-        
-        
-        const ndx_in_list = this.tree.getInputsAtNdx(to_comp.id, ndx).findIndex(el => el.tn.node.id === this.id);
-
-
-        const element: HTMLElement = document.getElementById('inlet'+to_comp.id+"-"+ndx+"-"+ndx_in_list);
-
-        //to get a current position, you need the inlets parent to have a defined position. 
-        if( element !== undefined && element !== null && element.offsetParent !== null){
-          const left_offset = element.offsetLeft;
-            this.b_to = {x: to_comp.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to_comp.topleft.y}
-        }else{
-            const left_offset = (ndx + ndx_in_list)*defaults.inlet_button_width;
-            this.b_to = {x: to_comp.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to_comp.topleft.y}
-
-        }
-        
-      }
+      x: scaledX,
+      y: scaledY
     }
+
 
     this.calculateBounds();
     this.drawConnection(scale);
@@ -174,44 +158,29 @@ export class ConnectionComponent implements OnInit {
    */
   updateFromPosition(from: number, scale: number){
 
-    console.log("update from")
+    let parent = document.getElementById('scrollable-container').getBoundingClientRect();
+    let sd_container = document.getElementById(from+'-out').getBoundingClientRect();
 
-    const from_el = document.getElementById(from+"-out").getBoundingClientRect();
-    const container = document.getElementById("scrollable-container").getBoundingClientRect();
 
-    this.b_from = 
-    {x: from_el.x - container.x, 
-     y: from_el.y- container.y};
+    const zoom_factor =  this.default_cell_size / this.scale;
+   //on screen position relative to palette
+   let screenX = sd_container.x - parent.x;
+   let scaledX = screenX * zoom_factor;
+
+   //on screen position relative to palette
+   let screenY = sd_container.y - parent.y;
+   let scaledY = screenY * zoom_factor;
+
+   this.b_from = {
+    x: scaledX,
+    y: scaledY
+  }
 
     this.calculateBounds();
     this.drawConnection(scale);
     
    }
 
-
-  // fromDraftUpdate(draft_comp: SubdraftComponent){
-
-
-  //   if(draft_comp.draft_visible){
-  //     const scale = document.getElementById("scale-"+draft_comp.id);
-  //     if(scale === null){
-  //       // console.log("draft not found on update")
-  //       // this.b_from = 
-  //       // {x: draft_comp.topleft.x+5, 
-  //       //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
-  //     }else{
-  //       this.b_from = 
-  //       {x: draft_comp.topleft.x+5, 
-  //        y: (draft_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
-  //     }
-      
-     
-  //   }else{
-  //     this.b_from = 
-  //     {x: draft_comp.topleft.x + 3*this.zs.zoom, 
-  //      y: draft_comp.topleft.y + 30};
-  //   }
-  // }
 
 
   calculateBounds(){
@@ -232,7 +201,15 @@ export class ConnectionComponent implements OnInit {
     bottomright.x = Math.max(p1.x, p2.x);
     bottomright.y = Math.max(p1.y, p2.y);
 
+
     this.topleft = {x: Math.min(p1.x, p2.x), y: Math.min(p1.y, p2.y)};
+
+    let cxn_container = document.getElementById('scale-'+this.id);
+    cxn_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    cxn_container.style.top =  this.topleft.y+"px";
+    cxn_container.style.left =  this.topleft.x+"px";
+
+
     this.width = bottomright.x - this.topleft.x + 2; //add two so a line is drawn when horiz or vert
     this.height = bottomright.y - this.topleft.y + 2;
   }
@@ -253,7 +230,7 @@ export class ConnectionComponent implements OnInit {
     if(this.no_draw) return;
     if(this.svg === null || this.svg == undefined) return;
 
-    const stroke_width = 4 * this.zs.zoom / this.zs.getZoomMax();
+    const stroke_width = 2;
 
 
     if(this.orientation_x && this.orientation_y){
@@ -359,22 +336,8 @@ export class ConnectionComponent implements OnInit {
    */
   rescale(scale:number){
 
-    const to = this.tree.getConnectionOutput(this.id);
-    const from = this.tree.getConnectionInput(this.id);
-
-    this.updateFromPosition(from, scale);
-    this.updateToPosition(to,scale);
-   
-    // this.b_from = {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y + from_comp.bounds.height};
-    // this.b_to = {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y};
-     
     this.scale = scale;
-    this.calculateBounds();
-    this.drawConnection(scale);
 
-    // const container: HTMLElement = document.getElementById('cxn-'+this.id);
-    // container.style.transformOrigin = 'top left';
-    // container.style.transform = 'scale(' + this.scale/5 + ')';
 
   }
 

@@ -182,7 +182,6 @@ export class OperationComponent implements OnInit {
     this.viewInit = true;
     this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
 
-    console.log("AFTER VIEW INIT ", this.topleft)
     let op_container = document.getElementById('scale-'+this.id);
     op_container.style.transform = 'none'; //negate angulars default positioning mechanism
     op_container.style.top =  this.topleft.y+"px";
@@ -195,14 +194,6 @@ export class OperationComponent implements OnInit {
 
   }
 
-
-
-  // setBounds(bounds:Bounds){
-  //   this.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y},
-  //   this.bounds.width = bounds.width;
-  //   this.bounds.height = bounds.height;
-  //   this.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
-  // }
 
   setPosition(pos: Point){
     this.topleft =  {x: pos.x, y:pos.y};
@@ -222,19 +213,6 @@ export class OperationComponent implements OnInit {
     const zoom_factor = this.scale / this.default_cell;
     const container: HTMLElement = document.getElementById('scale-'+this.id);
     if(container === null) return;
-
-    // container.style.transformOrigin = 'top left';
-    // container.style.transform = 'scale(' + zoom_factor + ')';
-
-    // this.topleft = {
-    //   x: this.interlacement.j * this.scale,
-    //   y: this.interlacement.i * this.scale
-    // };
-
-    // this.bounds.height = this.base_height * zoom_factor;
-
- 
-  
 
 
   }
@@ -263,7 +241,6 @@ export class OperationComponent implements OnInit {
 
 
   disableDrag(){
-    console.log("DIABLE DRAG CALLED ON ", this.id)
     this.disable_drag = true;
   }
 
@@ -340,14 +317,6 @@ export class OperationComponent implements OnInit {
 
   removeConnectionTo(obj:any){
     this.onConnectionRemoved.emit(obj);
-
-    // const inlets = this.tree.getInputs(this.id);
-    // inlets.forEach(id => {
-    //   const comp = <ConnectionComponent> this.tree.getComponent(id);
-    //   comp.updateToPosition(this);
-
-    // })
-
   }
 
   openHelpDialog() {
@@ -515,16 +484,25 @@ export class OperationComponent implements OnInit {
 
 
 
+    let vp = this.viewport.getTopLeft();
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-'+this.id);
     let rect_palette = parent.getBoundingClientRect();
 
     const zoom_factor =  this.default_cell / this.scale;
-    console.log("zoom",zoom_factor ,"MOUSE: ", $event.event.pageX,  "left: ",($event.event.pageX-rect_palette.x));
+    //the positioning is strange because the mouse is in screen coordinates and needs to account for the 
+    //positioning of the palette. We take that position and translate it (by * zoom factor) to the palette coordinate system, 
+    //which is transformed by the scale operations. We then write the new position while acounting for the sidebar. 
+    let screenX = $event.event.pageX-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
+    let scaledX = screenX* zoom_factor;
+    let screenY = $event.event.pageY-rect_palette.y;
+    let scaledY = screenY * zoom_factor;
+   
+
 
     this.topleft = {
-      x: ($event.event.pageX-rect_palette.x)*zoom_factor-rect_palette.x,
-      y: ($event.event.pageY-rect_palette.y)*zoom_factor-rect_palette.y
+      x: scaledX,
+      y: scaledY
 
     }
     op_container.style.transform = 'none'; //negate angulars default positioning mechanism
@@ -538,18 +516,9 @@ export class OperationComponent implements OnInit {
 
   dragEnd($event: any) {
 
-    // let parent = document.getElementById('scrollable-container');
-    // let subdraft_container = document.getElementById('scale-'+this.id);
-
-    // let rect_palette = parent.getBoundingClientRect();
-    // let rect_sd = subdraft_container.getBoundingClientRect(); 
-
-    // this.topleft.x = rect_sd.x - rect_palette.x;
-    // this.topleft.y = rect_sd.y - rect_palette.y;
 
 
-
-    // this.multiselect.setRelativePosition(this.topleft);
+    this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({id: this.id});
 
   }

@@ -31,6 +31,7 @@ import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { ExamplesComponent } from './core/modal/examples/examples.component';
 import { DesignmodesService } from './core/provider/designmodes.service';
 import { OperationComponent } from './mixer/palette/operation/operation.component';
+import { ScrollDispatcher } from '@angular/cdk/overlay';
 
 
 @Component({
@@ -46,7 +47,7 @@ export class AppComponent implements OnInit{
   @ViewChild(MixerComponent) mixer;
   @ViewChild(DraftDetailComponent) details;
   @ViewChild(SimulationComponent) sim;
-  
+
 
   //modals to manage
   filebrowser_modal: MatDialog |any;
@@ -66,6 +67,9 @@ export class AppComponent implements OnInit{
   };
   views = [];
 
+  scrollingSubscription: any;
+
+
 
   constructor(
     public auth: AuthService,
@@ -80,7 +84,9 @@ export class AppComponent implements OnInit{
     private ms: MaterialsService,
     private multiselect: MultiselectService,
     private ops: OperationService,
+    public scroll: ScrollDispatcher,
     private tree: TreeService,
+    private view_tool:ViewportService,
     public vp: ViewportService,
     private ws: WorkspaceService,
     private zs: ZoomService
@@ -98,7 +104,23 @@ export class AppComponent implements OnInit{
     
        }
 
+       this.scrollingSubscription = this.scroll
+       .scrolled()
+       .subscribe((data: any) => {
+         this.onWindowScroll(data);
+ });
+
   }
+
+  private onWindowScroll(data: any) {
+    console.log("left", data.measureScrollOffset('left'));
+   // if(!this.manual_scroll){
+     this.mixer.palette.handleWindowScroll(data);
+    //}else{
+     // this.manual_scroll = false;
+   // }
+  }
+
 
 
   ngOnInit(){

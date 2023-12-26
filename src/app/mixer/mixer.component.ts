@@ -78,7 +78,6 @@ export class MixerComponent  {
    */
   constructor(public dm: DesignmodesService, 
     private tree: TreeService,
-    public scroll: ScrollDispatcher,
     private fs: FileService,
     public ws: WorkspaceService,
     public vp: ViewportService,
@@ -91,11 +90,6 @@ export class MixerComponent  {
     ) {
 
    
-    this.scrollingSubscription = this.scroll
-          .scrolled()
-          .subscribe((data: any) => {
-            this.onWindowScroll(data);
-    });
     
     this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
    
@@ -106,16 +100,6 @@ export class MixerComponent  {
 
 
 
-  }
-
-
-  private onWindowScroll(data: any) {
-    if(!this.manual_scroll){
-     this.palette.handleWindowScroll(data);
-    // this.view_tool.updateViewPort(data);
-    }else{
-      this.manual_scroll = false;
-    }
   }
 
  setScroll(delta: any) {

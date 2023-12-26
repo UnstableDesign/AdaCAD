@@ -97,7 +97,8 @@
       <div class="ui-grid">
 
 
-        <div class="mixer" id="mixer" [class.hasFocus]="ui.main=='mixer'" [class.isSide]="ui.main!='mixer'">
+        <div class="mixer" id="mixer" cdkScrollable #scroll_mixer
+         [class.hasFocus]="ui.main=='mixer'" [class.isSide]="ui.main!='mixer'">
           <div class="view-controls" [class.main]="ui.main=='mixer'" [class.fullscreen]="ui.fullscreen">
             <span> dataflow</span>
 
