@@ -1,23 +1,21 @@
-import { Component, EventEmitter, Input, OnInit, HostListener, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { Subscription, Subject, fromEvent } from 'rxjs';
-import { DesignMode, Draft, Drawdown, Interlacement, Loom, LoomSettings, LoomUtil, Material, Operation, OpInput, Cell } from '../../core/model/datatypes';
-import { FileService } from '../../core/provider/file.service';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
+import * as htmlToImage from 'html-to-image';
+import { fromEvent, Subject, Subscription } from 'rxjs';
+import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
+import { Cell, Draft, Drawdown, Interlacement, Loom, LoomSettings } from '../../core/model/datatypes';
+import { defaults } from '../../core/model/defaults';
+import { createBlankDrawdown, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getDraftAsImage, hasCell, initDraftWithParams, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isSet, isUp, pasteIntoDrawdown, setHeddle, warps, wefts } from '../../core/model/drafts';
+import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { FileService } from '../../core/provider/file.service';
 import { MaterialsService } from '../../core/provider/materials.service';
-import { SystemsService } from '../../core/provider/systems.service';
-import { StateService } from '../../core/provider/state.service';
-import { WorkspaceService } from '../../core/provider/workspace.service';
-import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, copyDraft, getDraftName } from '../../core/model/drafts';
-import { convertLiftPlanToTieup, convertTieupToLiftPlan, generateDirectTieup, getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
-import { TreeService } from '../../core/provider/tree.service';
-import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
+import { StateService } from '../../core/provider/state.service';
+import { SystemsService } from '../../core/provider/systems.service';
+import { TreeService } from '../../core/provider/tree.service';
+import { WorkspaceService } from '../../core/provider/workspace.service';
 import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
-import { NgForm } from '@angular/forms';
-import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
-import {defaults, density_units, loom_types} from '../../core/model/defaults'
-import * as htmlToImage from 'html-to-image';
 
 @Component({
   selector: 'app-draftviewer',
@@ -345,8 +343,6 @@ export class DraftviewerComponent implements OnInit {
     const loom_settings = this.tree.getLoomSettings(id);
     const draft = this.tree.getDraft(id);
     const loom = this.tree.getLoom(id);
-
-    console.log("DATA ", loom_settings, draft, loom)
 
     this.resetDirty();
     
@@ -1878,13 +1874,18 @@ export class DraftviewerComponent implements OnInit {
 public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
 
    switch(this.render.getCurrentView()){
-      case 'pattern':
+      case 'draft':
       this.redrawDraft(draft, loom, loom_settings);
       break;
 
-      case 'crossing':
-      this.redrawCrossings(draft);
-      break;
+      case 'structure':
+        this.redrawStructure(draft);
+        break;
+
+      case 'color':
+        this.redrawColor(draft);
+        break;
+  
     }
 }
 
@@ -1924,27 +1925,63 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
     
     var base_dims = this.render.getCellDims("base");
-    this.cx.fillStyle = "#f0f0f0";
-    this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
+    let cell_size = base_dims.w;
+    const draft_cx = this.canvasEl.getContext("2d");
 
-    var i,j;
+    this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;
+    this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
+    this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
+    this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
 
-    
+    let img = getDraftAsImage(draft, cell_size, false, false, this.ms.getShuttles());
+    draft_cx.putImageData(img, cell_size, cell_size);
+    this.tree.setDraftClean(this.id);
 
-    var color = '#000000';
-    this.cx.fillStyle = color;
-    for (i = 0; i < this.render.visibleRows.length; i++) {
-      this.redrawRow(draft, loom, loom_settings, i * base_dims.h, i, this.cx);
-    }
- 
+  }
 
-    this.drawGrid(loom, loom_settings, this.cx,this.canvasEl);
+  /**
+   * Redraws the entire canvas based on weave pattern.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public redrawStructure(draft: Draft) {
+    var base_dims = this.render.getCellDims("base");
+    let cell_size = base_dims.w;
+    const draft_cx = this.canvasEl.getContext("2d");
+
+    this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;
+    this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
+    this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
+    this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
+
+    let img = getDraftAsImage(draft, cell_size, true, false, this.ms.getShuttles());
+    draft_cx.putImageData(img, cell_size, cell_size);
+    this.tree.setDraftClean(this.id);
 
   }
 
 
+  /**
+   * Redraws the entire canvas based on weave pattern.
+   * @extends WeaveDirective
+   * @returns {void}
+   */
+  public redrawColor(draft: Draft) {
+    
+    var base_dims = this.render.getCellDims("base");
+    let cell_size = base_dims.w;
+    const draft_cx = this.canvasEl.getContext("2d");
 
+    this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;
+    this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
+    this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
+    this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
 
+    let img = getDraftAsImage(draft, cell_size, true, true, this.ms.getShuttles());
+    draft_cx.putImageData(img, cell_size, cell_size);
+    this.tree.setDraftClean(this.id);
+
+  }
 
 
   public drawWarps(draft: Draft, cx:any){
@@ -2804,404 +2841,12 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   }
   
   
-  loomChange(e:any){
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    this.selected_loom_type =  e.value.loomtype;
-
-    if (loom_settings.type === 'jacquard') this.dm.selectDraftEditSource('drawdown');
-    else{
-      this.dm.selectDraftEditSource('loom');
-    }
- 
-    let utils:LoomUtil = null;
-  
-      const new_settings:LoomSettings = {
-        type: e.value.loomtype,
-        epi: loom_settings.epi,
-        units: loom_settings.units,
-        frames: loom_settings.frames,
-        treadles: loom_settings.treadles
-      }
-  
-
-      //make null effectively function as though it was jacquard
-      if(loom_settings.type === null) loom_settings.type == 'jacquard';
-
-      //there are several combinations that could take place
-
-      //from jacquard to direct tie loom
-      utils = getLoomUtilByType(new_settings.type);
-      this.isFrame = isFrame(new_settings);
-
-      if(loom_settings.type === 'jacquard' && new_settings.type === 'direct'){
-
-        this.tree.setLoomSettings(this.id, new_settings);      
-       
-        utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
-        .then(loom => {
-          this.tree.setLoom(this.id, loom);
-          const treadles = Math.max(numTreadles(loom), loom_settings.treadles);  
-          const frames = Math.max(numFrames(loom), loom_settings.frames);
-          this.treadles = Math.max(treadles, frames);
-          this.frames = Math.max(treadles, frames);
-          this.redraw(draft, loom, new_settings, {loom: true});
-
-          this.onLoomSettingsUpdated.emit();
-
-
-
-        });
-
-      }else if(loom_settings.type === 'jacquard' && new_settings.type === 'frame'){
-          //from jacquard to floor loom (shaft/treadle) 'frame'
-          this.tree.setLoomSettings(this.id, new_settings);      
-          utils.computeLoomFromDrawdown(draft.drawdown, new_settings, this.ws.selected_origin_option)
-          .then(loom => {
-            this.tree.setLoom(this.id, loom);
-            this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
-            this.frames = Math.max(numFrames(loom), loom_settings.frames);
-            this.redraw(draft, loom, new_settings, {loom: true});
-            this.onLoomSettingsUpdated.emit();
-
-          });
-      }else if(loom_settings.type === 'direct' && new_settings.type === 'jacquard'){
-        // from direct-tie to jacquard
-        //do nothing, we'll just keep the drawdown
-        this.tree.setLoom(this.id, null);
-        this.tree.setLoomSettings(this.id, new_settings);      
-        this.onLoomSettingsUpdated.emit();
-
-      }else if(loom_settings.type === 'frame' && new_settings.type === 'jacquard'){
-        // from direct-tie to jacquard
-        //do nothing, we'll just keep the drawdown
-        this.tree.setLoom(this.id, null);
-        this.tree.setLoomSettings(this.id, new_settings);      
-        this.onLoomSettingsUpdated.emit();
-
-      }else if(loom_settings.type == 'direct' && new_settings.type == 'frame'){
-      // from direct-tie to floor
-
-      const converted_loom = convertLiftPlanToTieup(loom);
-      this.tree.setLoom(this.id, converted_loom);
-      this.frames = numFrames(converted_loom);
-      this.treadles = numTreadles(converted_loom);
-      this.tree.setLoomSettings(this.id, new_settings);      
-      this.redraw(draft, converted_loom, new_settings, {loom: true});
-      this.onLoomSettingsUpdated.emit();
-
-
-
-
-
-      }else if(loom_settings.type == 'frame' && new_settings.type == 'direct'){
-        // from floor to direct
-        const converted_loom = convertTieupToLiftPlan(loom);
-        this.tree.setLoom(this.id, converted_loom);
-        this.frames = numFrames(converted_loom);
-        this.treadles = numTreadles(converted_loom);
-        this.tree.setLoomSettings(this.id, new_settings);      
-        this.redraw(draft, converted_loom, new_settings, {loom: true});
-        this.onLoomSettingsUpdated.emit();
-
-
-      }
 
 
   
-    } 
-  
-  
-  public unitChange(){
-
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    loom_settings.units = this.selected_units;
-    this.tree.setLoomSettings(this.id, loom_settings);
-    this.redraw(draft, loom, loom_settings, {loom: true});
-    this.onLoomSettingsUpdated.emit();
-  }
-  
-  
-  
-  /**
-   * recomputes warps and epi if the width of the loom is changed
-   * @param f 
-   */
-  widthChange(f: NgForm) {
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-  
-    if(!f.value.width){
-      f.value.width = 1;
-      this.width = f.value.width;
-    } 
-  
-    // if(this.warp_locked){
-      var new_epi = (loom_settings.units == "in") ? f.value.warps / f.value.width : (10 * f.value.warps / f.value.width);   
-      loom_settings.epi = new_epi;
-      f.value.epi = new_epi;
-      this.tree.setLoomSettings(this.id, loom_settings);
-      this.redraw(draft, loom, loom_settings, {loom: true});
-      this.onDrawdownUpdated.emit()
-    // }else{
-    //   var new_warps = (loom_settings.units === "in") 
-    //   ? Math.ceil(f.value.width * f.value.epi) : 
-    //   Math.ceil((10 * f.value.warps / f.value.width));
-  
-    //   this.warpNumChange({warps: new_warps});
-    // }
-  }
-  
-  public warpNumChange(e:any) {
-  
-    if(e.warps == "") return;
-  
-    const draft = this.tree.getDraft(this.id);
-    let loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-  
-  
-    if(e.warps > warps(draft.drawdown)){
-      var diff = e.warps -  warps(draft.drawdown);
-      for(var i = 0; i < diff; i++){  
-  
-        let ndx = warps(draft.drawdown);
-        const utils = getLoomUtilByType(loom_settings.type);
-        loom = utils.insertIntoThreading(loom, ndx, -1);
-  
-        draft.drawdown = insertDrawdownCol(draft.drawdown,ndx, null);
-        draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping,ndx, 0);
-        draft.colSystemMapping = insertMappingCol(draft.colSystemMapping,ndx, 0);
-        
-      }
-    }else{
-  
-      var diff = warps(draft.drawdown) - e.warps;
-      for(var i = 0; i < diff; i++){  
-        let ndx = warps(draft.drawdown)-1;
-  
-        const utils = getLoomUtilByType(loom_settings.type);
-        loom = utils.deleteFromThreading(loom, ndx);
-        draft.drawdown = deleteDrawdownCol(draft.drawdown, ndx);
-        draft.colShuttleMapping = deleteMappingCol(draft.colShuttleMapping,ndx);
-        draft.colSystemMapping = deleteMappingCol(draft.colSystemMapping,ndx);
-  
-      }
-  
-    }
-  
-    if(this.dm.isSelectedDraftEditSource('drawdown')){
-      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-      .then(loom => {
-          this.redraw(draft, loom, loom_settings, {
-            drawdown: true, 
-            loom:true, 
-            warp_systems: true, 
-            warp_materials: true,
-          });
-          this.onDrawdownUpdated.emit()
-
-        })
-  
-    }else{
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
-      .then(draft => {
-        this.redraw(draft, loom, loom_settings, {
-          drawdown: true, 
-          loom:true, 
-          warp_systems: true, 
-          warp_materials: true,
-        });
-        this.onDrawdownUpdated.emit()
-
-      })
-  
-    }
-  
-  
-  }
-  
-  
-  warpChange(f: NgForm) {
-  
-    const loom_settings = this.tree.getLoomSettings(this.id);
-  
-    if(!f.value.warps){
-     f.value.warps = 2;
-     this.warps = f.value.warps;
-    }
-    this.warpNumChange({warps: f.value.warps})
-    this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
-    f.value.width = this.width;
-  
-  }
-  
-  weftChange(f: NgForm) {
-    if(!f.value.wefts){
-      f.value.wefts = 2;
-      this.wefts = 2;
-    } 
-    this.weftNumChange({wefts: f.value.wefts})
-  
-  }
-  
-  public weftNumChange(e:any) {
-  
-    if(e.wefts === "" || e.wefts =="null") return;
-  
-  
-    const draft = this.tree.getDraft(this.id);
-    let loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-  
-  
-    if(e.wefts > wefts(draft.drawdown)){
-      var diff = e.wefts - wefts(draft.drawdown);
-  
-      for(var i = 0; i < diff; i++){  
-        let ndx = wefts(draft.drawdown);
-  
-        draft.drawdown = insertDrawdownRow(draft.drawdown,ndx, null);
-        draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping,  ndx, 1)
-        draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping,  ndx, 0);
-        this.render.updateVisible(draft);
-        const utils = getLoomUtilByType(loom_settings.type);
-        loom = utils.insertIntoTreadling(loom, ndx, []);
-      }
-    }else{
-      var diff = wefts(draft.drawdown) - e.wefts;
-      for(var i = 0; i < diff; i++){  
-        let ndx = wefts(draft.drawdown)-1;
-        draft.drawdown = deleteDrawdownRow(draft.drawdown, ndx);
-        draft.rowShuttleMapping = deleteMappingRow(draft.rowShuttleMapping, ndx)
-        draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping,  ndx)
-        const utils = getLoomUtilByType(loom_settings.type);
-        loom =  utils.deleteFromTreadling(loom, ndx);
-        this.render.updateVisible(draft);
-
-      }
-    }
-  
-    if(this.dm.isSelectedDraftEditingMode('drawdown')){
-  
-      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-      .then(loom => {
-        this.redraw(draft, loom, loom_settings, {
-          drawdown: true, 
-          loom:true, 
-          weft_systems: true, 
-          weft_materials: true,
-        });
-        this.onDrawdownUpdated.emit()
-
-      })
-    }else{
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
-      .then(draft => {
-
-        this.redraw(draft, loom, loom_settings, {
-          drawdown: true, 
-          loom:true, 
-          weft_systems: true, 
-          weft_materials: true,
-        });  
-        this.onDrawdownUpdated.emit()
-  
-      })
-    }
-   
-  }
 
 
-
-  public frameChange(e:any){
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    loom_settings.frames = e.value;
-    this.tree.setLoomSettings(this.id, loom_settings);
-    this.redraw(draft, loom, loom_settings, {loom: true});
-  }
-
-  public treadleChange(e:any){
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    this.tree.setLoomSettings(this.id, loom_settings);
-    this.redraw(draft, loom, loom_settings, {loom: true});
-  }
-
-
-  updateMinTreadles(f: NgForm){
-    //validate the input
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const draft = this.tree.getDraft(this.id);
-
-    if(!f.value.treadles){
-      f.value.treadles = 2; 
-      this.treadles = f.value.treadles;
-    } 
-
-    f.value.treadles = Math.ceil(f.value.treadles);
-   
-
-      loom_settings.treadles = f.value.treadles;
-
-      if(loom_settings.type == 'direct'){
-        this.frames = f.value.treadles;
-        this.treadles = f.value.treadles;
-        loom_settings.frames = this.frames;
-        loom_settings.treadles = this.treadles;
-        loom.tieup = generateDirectTieup(f.value.treadles);
-        this.tree.setLoom(this.id, loom);
-
-      }
-
-      this.tree.setLoomSettings(this.id, loom_settings);
-      this.redraw(draft, loom, loom_settings, {
-        loom:true, 
-      });
-    
-
-  }
-
-  updateMinFrames(f: NgForm){
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const draft = this.tree.getDraft(this.id);
-
-    if(!f.value.frames){
-      f.value.frames = 2; 
-      this.frames = f.value.frames;
-
-    }
-     
-
-    f.value.frames = Math.ceil(f.value.frames);
-    
-
-      loom_settings.frames = f.value.frames;
-
-      if(loom_settings.type == 'direct'){
-        this.frames = f.value.frames;
-        this.treadles = f.value.frames;
-        loom_settings.frames = this.frames;
-        loom_settings.treadles = this.treadles;
-        loom.tieup = generateDirectTieup(f.value.frames);
-        this.tree.setLoom(this.id, loom);
-      }
-
-      this.tree.setLoomSettings(this.id, loom_settings);      
-      this.redraw(draft, loom, loom_settings, {
-        loom:true, 
-      });
-    
-  }
+  
 
 
 
@@ -3277,17 +2922,16 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    */
   public viewChange(value: any) {
     
-    // const draft = this.tree.getDraft(this.id);
-    // const loom = this.tree.getDraft(this.id);
-    // const loom_settings = this.tree.getDraft(this.id);
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
 
-    // this.dm.selectDesignMode(value, 'view_modes');
-    // this.render.setCurrentView(value);
+     this.render.setCurrentView(value);
 
 
-    // // this.redraw(draft, loom, loom_settings,  {
-    // //   drawdown: true
-    // // });
+    this.redraw(draft, loom, loom_settings,  {
+      drawdown: true
+    });
   }
 
   public renderChange(e: any){

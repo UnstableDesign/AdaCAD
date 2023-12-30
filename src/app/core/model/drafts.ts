@@ -396,7 +396,7 @@ export const createDraft = (
    
   }
 
-  export const getDraftAsImage = (draft: Draft, pix_per_cell: number, use_color: boolean, mats: Array<Material>) : ImageData => {
+  export const getDraftAsImage = (draft: Draft, pix_per_cell: number, floats: boolean, use_color: boolean, mats: Array<Material>) : ImageData => {
     pix_per_cell = Math.floor(pix_per_cell);
 
     let array_vals:Array<number> = [];
@@ -428,7 +428,7 @@ export const createDraft = (
         (j ==  warps(draft.drawdown) * pix_per_cell -1);
 
         
-        if((is_weftwise_edge || is_warpwise_edge) && pix_per_cell > 4 && !use_color){
+        if((is_weftwise_edge || is_warpwise_edge) && pix_per_cell > 4 && (!use_color && !floats)){
 
             array_vals.push(150);
             array_vals.push(150);
@@ -439,7 +439,7 @@ export const createDraft = (
         }else if(cell_val){
          
           let mat: Material = mats.find(el => el.id == draft.colShuttleMapping[adj_j]);
-          if(mat !== undefined && use_color){
+          if(floats && mat !== undefined){
             
             if(pix_per_cell > 4 && (is_warpwise_edge || (is_weftwise_edge && !warp_float))){
               array_vals.push(150);
@@ -448,26 +448,34 @@ export const createDraft = (
               array_vals.push(255);
             
             }else{
-              array_vals.push(mat.rgb.r);
-              array_vals.push(mat.rgb.g);
-              array_vals.push(mat.rgb.b);
-              array_vals.push(255);
+  
+              if(!use_color){
+                array_vals.push(255);
+                array_vals.push(255);
+                array_vals.push(255);
+                array_vals.push(255);
+
+              }else{
+                array_vals.push(mat.rgb.r);
+                array_vals.push(mat.rgb.g);
+                array_vals.push(mat.rgb.b);
+                array_vals.push(255);
+              }
+              
             }
 
           }else{
-
-            array_vals.push(0);
-            array_vals.push(0);
-            array_vals.push(0);
-            array_vals.push(255);
-
+              array_vals.push(0);
+              array_vals.push(0);
+              array_vals.push(0);
+              array_vals.push(255);
           }
 
         }else{
           //weft over warp or weft unset
           let mat: Material = mats.find(el => el.id == draft.rowShuttleMapping[adj_i]);
-          if(mat !== undefined && use_color){
-             
+          if(mat !== undefined && floats){    
+
             if(pix_per_cell > 4 && (is_weftwise_edge || (is_warpwise_edge && !weft_float))){
               array_vals.push(150);
               array_vals.push(150);
@@ -475,10 +483,19 @@ export const createDraft = (
               array_vals.push(255);
             
             }else{
-              array_vals.push(mat.rgb.r);
-              array_vals.push(mat.rgb.g);
-              array_vals.push(mat.rgb.b);
-              array_vals.push(255);
+
+              if(!use_color){
+                array_vals.push(255);
+                array_vals.push(255);
+                array_vals.push(255);
+                array_vals.push(255);
+
+              }else{
+                array_vals.push(mat.rgb.r);
+                array_vals.push(mat.rgb.g);
+                array_vals.push(mat.rgb.b);
+                array_vals.push(255);
+              }
             }
           }else{
             array_vals.push(255);
@@ -486,8 +503,8 @@ export const createDraft = (
             array_vals.push(255);
             array_vals.push(255);
           }
-        }
-      } 
+        } 
+      }
     }
 
     const arr = new Uint8ClampedArray(array_vals);
@@ -815,7 +832,6 @@ export const createDraft = (
    */
   export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell>) : Drawdown => {
     i = i+1;
-
     if(row === null){
       row = [];
       for (var j = 0; j < warps(d); j++) {

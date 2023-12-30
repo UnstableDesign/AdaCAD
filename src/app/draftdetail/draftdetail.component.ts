@@ -1,27 +1,25 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
-import { Draft, Drawdown, Loom, LoomSettings, Cell, DraftNode } from '../core/model/datatypes';
-import { copyDraft, createDraft, generateMappingFromPattern, getDraftName } from '../core/model/drafts';
-import { copyLoom, getLoomUtilByType, isFrame } from '../core/model/looms';
-import { RenderService } from './provider/render.service';
+import { createCell } from '../core/model/cell';
+import { Drawdown, LoomSettings } from '../core/model/datatypes';
+import { defaults, draft_pencil } from '../core/model/defaults';
+import { copyDraft, getDraftName, wefts } from '../core/model/drafts';
+import { copyLoom, getLoomUtilByType } from '../core/model/looms';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
+import { StateService } from '../core/provider/state.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
-import { DraftviewerComponent } from './draftviewer/draftviewer.component';
-import { createCell } from '../core/model/cell';
-import utilInstance from '../core/model/util';
-import { ActionsComponent } from './actions/actions.component';
-import { NgForm } from '@angular/forms';
-import { defaults } from '../core/model/defaults';
 import { ZoomService } from '../mixer/provider/zoom.service';
-import { StateService } from '../core/provider/state.service';
+import { ActionsComponent } from './actions/actions.component';
+import { DraftviewerComponent } from './draftviewer/draftviewer.component';
+import { RenderService } from './provider/render.service';
 
 
 
@@ -98,8 +96,10 @@ export class DraftDetailComponent implements OnInit {
   epi: number = 10;
   units: string = 'cm';
   type: string = 'jacquard';
+  draw_modes: any = [];
+  selected_material_id: any = -1;
 
-  
+  current_view = 'draft';
 
 
   /// ANGULAR FUNCTIONS
@@ -130,6 +130,7 @@ export class DraftDetailComponent implements OnInit {
 
 
     this.copy = [[createCell(false)]];
+    this.draw_modes = draft_pencil;
   }
 
   private onWindowScroll(data: CdkScrollable) {
@@ -143,6 +144,7 @@ export class DraftDetailComponent implements OnInit {
     this.epi = defaults.epi;
     this.units =defaults.units;
     this.type = defaults.loom_type;
+
 
 
   }
@@ -284,6 +286,8 @@ export class DraftDetailComponent implements OnInit {
 
 
     if(id == -1) return;
+
+    console.log("WEAVE REF", this.weaveRef)
     
     //reset the dirty value every time the window is open
     this.weaveRef.is_dirty = false;
@@ -377,17 +381,30 @@ export class DraftDetailComponent implements OnInit {
   }
 
 
-  /**
-   * this is emitted from the detail viewer to indicate that something changed on the draft while it was in detail view. 
-   * if this is a generated draft, it now needs to be cloned on window close. If not, an update on the draft chain needs to be called for the original draft
-   * @param obj {id: the draft id}
-   */
   public designModeChange(e:any) {
    // this.simRef.unsetSelection();
+    console.log("Selecting mode ", e)
     this.weaveRef.unsetSelection();
+
   }
 
   public drawdownUpdated(){
+
+
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
+
+    this.weaveRef.render.loadNewDraft(draft);
+    this.weaveRef.redraw(draft, loom, loom_settings, {
+      drawdown: true, 
+      loom:true, 
+      warp_systems: true, 
+      weft_systems: true, 
+      warp_materials: true,
+      weft_materials:true
+    });
 
   //  this.simRef.setDirty();
     this.redrawSimulation();
@@ -409,8 +426,14 @@ export class DraftDetailComponent implements OnInit {
 
 
   public loomSettingsUpdated(){
+
+    if(this.id == -1) return;
+
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    this.weaveRef.redrawLoom(draft, loom, loom_settings )
     this.saveChanges.emit();
-   // this.simRef.setDirty();
     this.redrawSimulation();
 
   }
@@ -418,6 +441,10 @@ export class DraftDetailComponent implements OnInit {
 
   public materialChange() {
    // this.simRef.redrawCurrentSim();
+  }
+
+  unsetSelection(){
+      this.weaveRef.unsetSelection();
   }
   
   
@@ -579,9 +606,8 @@ warpThresholdChange(){
 //SIDEBAR SUPPORT: 
 
 drawModeChange(name: string) {
-  var obj: any = {};
-  obj.name = name;
-  obj.target = "draw_modes";
+  this.dm.selectDraftEditingMode('draw');
+  this.dm.selectPencil(name);
   this.weaveRef.unsetSelection();
 }
 
@@ -611,31 +637,8 @@ openActions(){
  
 
 
-swapEditingStyleClicked(){
-  if(this.id == -1) return;
-
-  const loom_type = this.tree.getLoomSettings(this.id);
-
-  if(loom_type.type !== 'jacquard'){
-    if(this.dm.isSelectedDraftEditSource('drawdown')){
-      this.dm.selectDraftEditSource('loom')
-    }else{
-      this.dm.selectDraftEditSource('drawdown')
-    }
-    this.weaveRef.unsetSelection();
-  }
-
-}
-
-viewChange(e:any){
-  console.log("ON VIEW CHANGE ", e)
-  // if(e.checked){
-  //   this.weaveRef.viewChange('visual');
-  //   this.dm.selectDesignMode('visual', 'view_modes');
-  // } else{
-  //   this.weaveRef.viewChange('pattern');
-  //   this.dm.selectDesignMode('pattern', 'view_modes');
-  // }     
+viewChange(name:any){
+    this.weaveRef.viewChange(name);
 
 }
 
@@ -655,37 +658,28 @@ zoomOut(){
   this.weaveRef.renderChange({source: 'out', val: -1});
 }
 
+drawWithMaterial(material_id: number){
+  this.dm.selectDraftEditingMode('draw');
+  this.dm.selectPencil('material');
+  this.selected_material_id = material_id;
+  this.weaveRef.selected_material_id = material_id;
+}
 
 
-epiChange(f: NgForm) {
-
+swapEditingStyleClicked(){
   if(this.id == -1) return;
 
-  const loom_settings = this.tree.getLoomSettings(this.id);
-
-  if(!f.value.epi){
-    f.value.epi = 1;
-    loom_settings.epi = f.value.epi;
-    this.tree.setLoomSettings(this.id, loom_settings);
-  } 
-  
-  //this.loom.overloadEpi(f.value.epi);
-  this.ws.epi = f.value.epi;
-
-  this.width = (loom_settings.units =='cm') ? f.value.warps / loom_settings.epi * 10 : f.value.warps / loom_settings.epi;
-  f.value.width = this.width;
-  
-  this.loomSettingsUpdated();
-  this.materialChange();
-
+  if(this.type !== 'jacquard'){
+    if(this.dm.isSelectedDraftEditSource('drawdown')){
+      this.dm.selectDraftEditSource('loom');
+    }else{
+      this.dm.selectDraftEditSource('drawdown')
+    }
+  }else{
 
   }
 
-
-
-
-
-
+}
 
 
 

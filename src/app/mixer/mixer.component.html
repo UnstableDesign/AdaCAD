@@ -3,15 +3,57 @@
 
 <div class="sidenav_small" *ngIf="hasFocus">
 
+    <div class="sidenav_section">
+        
+        <button 
+        [matMenuTriggerFor]="addItems"
+        mat-mini-fab 
+        color="primary"
+        matTooltip= "Blank Draft">
+        <i class="fas fa-plus"></i>
+        </button>
 
-    <app-quickop 
-    (onOperationAdded)="addOp($event)"  >
-    </app-quickop>
 
-  <div class="button_col">
-    <div class="design_opts">
+        <mat-menu #addItems="matMenu">
+
+            <button 
+            mat-raised-button 
+            color="primary"
+            matTooltip= "Blank Draft"
+            (click)="createNewDraft()">
+            <i class="fas fa-chess-board"></i> add draft
+            </button>
+      
+            <button 
+            mat-raised-button 
+            color="primary"
+            matTooltip= "Note"
+            color="primary"
+            (click)="createNewNote()">
+            <i class="fas fa-comment"></i> add note
+            </button>
+
+                
+<app-quickop 
+(onOperationAdded)="addOp($event)"  >
+</app-quickop>
+      
+    
 
 
+        </mat-menu>
+      </div>
+
+        <!-- <button 
+        mat-icon-button 
+        [color]="(dm.cur_mixer_mode == 'marquee')? 'accent' : 'primary'" 
+        matTooltip= "Select"
+        (click)="toggleSelectMode()">
+        <i class="fas fa-expand"></i>
+        </button>
+       -->
+<!-- 
+   -->
 
       <!-- <button 
       mat-icon-button 
@@ -21,72 +63,47 @@
       <i class="fa-solid fa-code-branch"></i>
       </button> -->
 
-      <button 
-      mat-icon-button 
-      color="primary"
-      matTooltip= "Blank Draft"
-      (click)="createNewDraft()">
-      <i class="fas fa-chess-board"></i>
-      </button>
 
-      <button 
-      mat-icon-button 
-      color="primary"
-      matTooltip= "Note"
-      color="primary"
-      (click)="createNewNote()">
-      <i class="fas fa-comment"></i>
-      </button>
-
-
-      <button 
-      mat-icon-button 
-      [color]="(dm.cur_mixer_mode == 'marquee')? 'accent' : 'primary'" 
-      matTooltip= "Select"
-      (click)="toggleSelectMode()">
-      <i class="fas fa-expand"></i>
-      </button>
-
-
-      <button
+      <!-- <button
       mat-icon-button color="primary"  
       (click)="onSave({type: 'ada'})"
       ><i class="fa-solid fa-download"></i>
-      </button>
+      </button> -->
+
+    <div class="sidenav_section">
+
+    
+      <button  mat-icon-button (click)="zoomIn()" color="primary" class="fas fa-search-plus"></button>
+
+
+        <mat-slider 
+        class="slider"
+        vertical
+        color="primary"
+        tickInterval="1" 
+        [step]="1" 
+        [min]= "0"
+        [max]= "zs.num_steps"
+        value="{{zs.zoom_table_ndx}}" 
+        (change)="zoomChange($event, 'slider')"></mat-slider>
+      
+        <button  mat-icon-button (click)="zoomOut()" color="primary" class="fas fa-search-minus"></button> 
+        <button
+        mat-icon-button 
+        [color]="(dm.cur_mixer_mode == 'pan')? 'accent' : 'primary'" 
+        (click)="togglePanMode()"
+        ><i class="fa-solid fa-hand"></i>
+        </button>
     </div>
 
 
-<div class="slider-row">
-  <button  mat-icon-button (click)="zoomIn()" color="primary" class="fas fa-search-plus"></button>
 
-
-    <mat-slider 
-    class="slider"
-    [vertical]="true"
-    color="primary"
-    tickInterval="1" 
-    [step]="1" 
-    [min]= "0"
-    [max]= "zs.num_steps"
-    value="{{zs.zoom_table_ndx}}" 
-    (change)="zoomChange($event, 'slider')"></mat-slider>
-    
-    <button  mat-icon-button (click)="zoomOut()" color="primary" class="fas fa-search-minus"></button> 
-    <button
-    mat-icon-button 
-    [color]="(dm.cur_mixer_mode == 'pan')? 'accent' : 'primary'" 
-    (click)="togglePanMode()"
-    ><i class="fa-solid fa-hand"></i>
-    </button>
-      </div>
-</div>
 
 <app-mixerview
 (onZoomChange) ="zoomChangeExternal($event);"
 (onViewPortMove) ="setScroll($event);"
 ></app-mixerview>
 </div>
-
 <app-palette  
 class="palette mode-{{dm.cur_mixer_mode}}"
 [style.width.px]='vp.getAbsoluteWidth()' 

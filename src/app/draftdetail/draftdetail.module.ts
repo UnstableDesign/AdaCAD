@@ -31,13 +31,17 @@ import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { ActionsComponent } from './actions/actions.component';
 import { RenderService } from './provider/render.service';
 import { SelectionComponent } from './draftviewer/selection/selection.component';
+import { SettingsComponent } from './settings/settings.component';
+import { MaterialSettingsComponent } from './material-settings/material-settings.component';
 
 @NgModule({
     declarations: [
         DraftDetailComponent,
         DraftviewerComponent,
         ActionsComponent,
-        SelectionComponent
+        SelectionComponent,
+        SettingsComponent,
+        MaterialSettingsComponent
     ],
     imports: [
         CommonModule,

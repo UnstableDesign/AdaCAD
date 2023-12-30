@@ -205,7 +205,6 @@ export class AppComponent implements OnInit{
 
 
   detailViewChange(){
-    console.error("FUNCTION DIABLED")
    // this.details.weaveRef.rescale(this.render.getZoom());
 
   }
@@ -236,9 +235,6 @@ export class AppComponent implements OnInit{
     let side_width = '33%';
     let main_height = '100%';
     let side_height = '50%';
-
-    console.log("THIS VIEWS ", this.views)
-    console.log("THIS UI ", this.ui)
 
     let main_div = this.views.find(el => el.name == view);
     let side_divs = this.views.filter(el => el.name != view)

@@ -274,7 +274,7 @@ export class DraftrenderingComponent {
       this.draft_canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
       this.draft_canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
  
-      let img = getDraftAsImage(draft, cell_size, use_colors, this.ms.getShuttles());
+      let img = getDraftAsImage(draft, cell_size, use_colors, use_colors, this.ms.getShuttles());
       this.draft_cx.putImageData(img, 0, 0);
       this.tree.setDraftClean(this.id);
       });
@@ -398,7 +398,7 @@ export class DraftrenderingComponent {
 
 
 
-    let img = getDraftAsImage(draft, 10, this.use_colors, this.ms.getShuttles());  
+    let img = getDraftAsImage(draft, 10, true, this.use_colors, this.ms.getShuttles());  
     context.putImageData(img, 30, 30);
 
     context.font = "12px Arial";
@@ -443,7 +443,7 @@ export class DraftrenderingComponent {
   
       b.width = warps(draft.drawdown);
       b.height = wefts(draft.drawdown);
-      let img = getDraftAsImage(draft, 1, false, this.ms.getShuttles());
+      let img = getDraftAsImage(draft, 1, false, false, this.ms.getShuttles());
       context.putImageData(img, 0, 0);
   
       const a = document.createElement('a')

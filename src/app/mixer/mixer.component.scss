@@ -6,21 +6,30 @@
 #scrollable-container{
   display: block;
   position: relative;
-  left: 100px;
 }
 
 .no-pointer{
   pointer-events: none;
 }
 
+
+
 .sidenav_small{
-  width: 100px;
   position: fixed;
   z-index: 4;
   display: flex;
   background-color: white;
   flex-direction: column;
   height: 100%;
+}
+
+.sidenav_section{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 22px;
+  justify-content: center;
+
 }
 
 
@@ -36,10 +45,7 @@
   cursor:default;
 }
 
-.mat-slider-vertical{
-  height: 33%!important;
-  min-height: 50px !important;
-}
+
 
 .slider-row{
   height: 33%;

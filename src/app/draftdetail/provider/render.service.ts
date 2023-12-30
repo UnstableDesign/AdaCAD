@@ -28,7 +28,7 @@ select:{
  //max values
    this.zoom = defaults.draft_detail_zoom; //zoom can range from .1 to 2
  // this.view_frames = view_frames;
-  this.current_view = 'pattern';
+  this.current_view = 'draft';
   this.view_front = true;
 
 
@@ -57,10 +57,6 @@ select:{
     for(let i = 0; i < wefts(draft.drawdown); i++){
       this.visibleRows[i] =i;
     }
-
-
-
-
   }
 
   getTextInterval(){

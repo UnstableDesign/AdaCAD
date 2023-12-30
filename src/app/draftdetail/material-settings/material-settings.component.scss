@@ -1,0 +1,26 @@
+.material-item{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.system-selectors{
+    display: flex;
+    flex-direction: row;
+}
+
+.warp-systems,
+.weft-systems{
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    align-items: center;
+}    
+
+.system_item{
+    margin: 4px;
+}
+
+.mat-divider{
+    margin: 16px;
+}

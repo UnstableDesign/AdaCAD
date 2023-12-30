@@ -8,17 +8,18 @@
 }
 
 #logo{
-  width: 60px;
-  margin: 20px;
+  width: 42px;
+  margin-bottom: 40px;
+  margin-top: 3px;
 }
 
 .logo {
-  display: block;
-  opacity: .5;
-  background: url(../assets/svg/logo.svg);
-  background-position: center;
-  /* background-position-y: center; */
-  background-size: 60px 60px;
+  // display: block;
+  // opacity: .5;
+  // background: url(../assets/svg/logo.svg);
+  // background-position-y: 0px;
+  // background-position-x: 0px;
+  // background-size: 42px 52px;
 }
 
 .header-content{

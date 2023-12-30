@@ -1,0 +1,63 @@
+  
+<div class="visibility_toggle">
+    <mat-checkbox></mat-checkbox> render material heights?
+</div>
+
+<div class="material-item">
+    <div class="swatch-name">
+    color
+    </div>
+
+    <div class="adjust_width">
+    diameter
+    </div>
+
+    <div class="adjust_view">
+    visible?
+    </div>
+</div>
+
+<ng-container *ngFor="let shuttle of ms.materials">
+    
+        <form #materialForm="ngForm">
+
+        <div class="material-item">
+            <div class="swatch-name">
+            <i [style.color]="shuttle.color" class="fas fa-square"></i>
+            </div>
+
+            <div class="adjust_width">
+                <mat-slider></mat-slider>
+
+            </div>
+
+            <div class="adjust_view">
+                <mat-checkbox></mat-checkbox>
+            </div>
+        </div>
+
+    
+    
+      </form>
+    
+    
+    </ng-container>
+
+<button class="fullwidth" mat-raised-button>Edit Materials Library</button>
+
+<mat-divider></mat-divider>
+
+<div class="system-selectors">
+    <div class="warp-systems">
+        <div class="system_item"> warp systems</div>
+        <ng-container *ngFor="let system of warp_systems">
+            <div class="system_item">   <mat-checkbox></mat-checkbox> {{system.name}}</div>
+        </ng-container>
+    </div>
+    <div class="weft-systems">
+        <div class="system_item"> weft systems</div>
+        <ng-container *ngFor="let system of weft_systems">
+            <div class="system_item">   <mat-checkbox></mat-checkbox> {{system.name}}</div>
+        </ng-container>
+    </div>
+</div>
