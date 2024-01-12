@@ -40,7 +40,6 @@ export class FileService {
     private ws: WorkspaceService,
     private files: FilesystemService) { 
 
-      console.log("IN FILE SERVICE CONSTRUCTOR ", files)
   
   this.status = [
     {id: 0, message: 'success', success: true},
@@ -113,7 +112,8 @@ export class FileService {
         if(draft_nodes !== undefined){
           draft_nodes.forEach(el => {
 
-            if(el.draft == undefined && el.compressed_draft !== undefined){
+            if(el.draft == undefined && el.compressed_draft !== undefined && el.compressed_draft !== null){
+
               draft_fns.push(loadDraftFromFile(el.compressed_draft, flips_required, version));
               draft_elements.push(el);
             }else if(el.draft !== null && el.draft !== undefined){
@@ -660,29 +660,22 @@ export class FileService {
     // }
   }
 
-  // interface FileSaver{
-  //   ada: (drafts: Array<Draft>, looms: Array<Loom>, pattern: Array<Pattern>, palette:PaletteComponent) => void,
-  //   wif: (drafts: Array<Draft>, looms: Array<Loom>) => void,
-  //   bmp: (drafts: Array<Draft>) => LoadResponse,
-  //   jpg: (drafts: Array<Draft>, looms: Array<Loom>, pattern: Array<Pattern>, palette:PaletteComponent) => void
-  // }
-  
+
 
   const dsaver: FileSaver = {
 
-    copy:  async (include: Array<number>, current_scale: number) : Promise<SaveObj> => {
+    copy:  async (include: Array<number>) : Promise<SaveObj> => {
     
       const out: SaveObj = {
         type: 'partial',
         version: this.vs.currentVersion(),
         workspace: null,
-        nodes: this.tree.exportNodesForSaving(current_scale),
+        nodes: this.tree.exportNodesForSaving(),
         tree: this.tree.exportTreeForSaving(),
         draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
         notes: [],
-        materials: this.ms.exportForSaving(),
-        scale: 5
+        materials: this.ms.exportForSaving()
       }
 
       //now filter out things that aren't relevant
@@ -697,7 +690,7 @@ export class FileService {
 
     },
     
-    ada:  async (type: string, for_timeline: boolean, current_scale: number) : Promise<{json: string, file: SaveObj}> => {
+    ada:  async () : Promise<{json: string, file: SaveObj}> => {
       
 
       return this.tree.exportDraftNodeProxiesForSaving().then(draft_nodes => {
@@ -705,14 +698,13 @@ export class FileService {
         const out: SaveObj = {
           version: this.vs.currentVersion(),
           workspace: this.ws.exportWorkspace(),
-          type: type,
-          nodes: this.tree.exportNodesForSaving(current_scale),
+          type: 'mixer',
+          nodes: this.tree.exportNodesForSaving(),
           tree: this.tree.exportTreeForSaving(),
           draft_nodes: draft_nodes,
           ops: this.tree.exportOpMetaForSaving(),
           notes: this.ns.exportForSaving(),
-          materials: this.ms.exportForSaving(),
-          scale: current_scale
+          materials: this.ms.exportForSaving()
         }
 
         var theJSON = JSON.stringify(out);

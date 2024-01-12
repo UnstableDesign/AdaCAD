@@ -59,8 +59,11 @@ export class MaterialModal{
    */
   delete(index:number){
 
-    //never delete all of the shuttles
     if(this.ms.getShuttles().length == 1) return;
+
+    if(confirm("Are you sure you want to delete this material")) {
+    
+
 
     const map: Array<MaterialMap> = this.ms.deleteShuttle(index);
     const dn: Array<DraftNode> = this.tree.getDraftNodes();
@@ -78,6 +81,7 @@ export class MaterialModal{
     this.replacements = this.replacements.map(el => (el%this.ms.getShuttles().length));
 
     this.onMaterialChange.emit();
+    }
   }
 
   addNewShuttle(){

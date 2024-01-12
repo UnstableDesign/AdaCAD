@@ -59,6 +59,7 @@ export class OperationComponent implements OnInit {
    @Output() onInputVisibilityChange = new EventEmitter <any> ();
    @Output() onInletLoaded = new EventEmitter <any> ();
    @Output() onOpLoaded = new EventEmitter <any> ();
+   @Output() onShowChildDetails = new EventEmitter <any> ();
 
 
 
@@ -270,6 +271,13 @@ export class OperationComponent implements OnInit {
    * @param e 
    */
   mousedown(e: any){
+
+    if(this.children.length > 0){
+      let child = this.children[0];
+      this.onShowChildDetails.emit(child);
+
+    }
+
     e.stopPropagation();
 
 
@@ -480,11 +488,7 @@ export class OperationComponent implements OnInit {
   }
 
   dragMove($event: any) {
-       //position of pointer of the page
 
-
-
-    let vp = this.viewport.getTopLeft();
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-'+this.id);
     let rect_palette = parent.getBoundingClientRect();

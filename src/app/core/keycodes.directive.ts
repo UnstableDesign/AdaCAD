@@ -108,10 +108,7 @@ export class KeycodesDirective {
    * SAVE
    */
     if(e.key =="s" && e.metaKey){
-    this.fs.saver.ada(
-      'mixer', 
-      true,
-      this.zs.zoom)
+    this.fs.saver.ada()
       .then(so => {
         this.ss.addMixerHistoryState(so);
       });

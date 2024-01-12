@@ -16,7 +16,7 @@
 
       <div class="draft_tools">
 
-        <div class="editing-mode-toggle">
+        <div *ngIf="type !== 'jacquard'" class="editing-mode-toggle">
         <mat-label>design from: </mat-label>
         <mat-slide-toggle
         (click)="swapEditingStyleClicked()">
@@ -61,7 +61,7 @@
       <button
       matTooltip= "Set Repeats"
       mat-raised-button 
-      class="fullwidth"
+      class="fullwidth set_repeats"
       [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
       (click)='openActions()'><i class="fas fa-magic"></i> Set Repeats</button>
 
@@ -101,7 +101,7 @@
 
 
 
-        <app-material-settings></app-material-settings>
+        <!-- <app-material-settings></app-material-settings> -->
 
 
 

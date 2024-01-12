@@ -158,7 +158,7 @@ export class MultiselectService {
     relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el));
     let all_nodes = selected_nodes.concat(relevant_connection_nodes);
 
-    this.copy = this.fs.saver.copy(all_nodes.map(el => el.id), this.zs.zoom);
+    this.copy = this.fs.saver.copy(all_nodes.map(el => el.id));
      
 
 

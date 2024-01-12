@@ -28,32 +28,13 @@ export class AuthService {
     if (auth) {
 
        this.userDisposable = authState(this.auth).subscribe(user => {
+        console.log("AUTH SUBSCRIBE CALLED")
         this.showLoginButton = (user === null);
         this.showLogoutButton = (user !== null);
         this.isLoggedIn = (user !== null);
         this.uid =(user === null) ? "" : user.uid;
         this.firstLoad = false;
         if(user !== null) this.username = (user.displayName === null) ? user.email : user.displayName;        
-
-
-        //udpate the file system based on the files existing in the database
-        // if(user !== null){
-        //   const db = getDatabase();
-        //   const userFiles = query(ref(db, 'filemeta'), orderByChild('timestamp'));
-
-        //   onValue(userFiles, (snapshot) => {
-        //     snapshot.forEach((childSnapshot) => {
-        //       const childKey = childSnapshot.key;
-        //       const childData = childSnapshot.val();
-        //       if(childData.owner === user.uid) this.filesystem.addToTree(parseInt(childKey), childData)
-              
-        //     });
-        //   }, {
-        //     onlyOnce: true
-        //   });
-        
-        // }
-
 
        });
 

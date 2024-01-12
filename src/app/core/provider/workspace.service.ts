@@ -32,14 +32,6 @@ export class WorkspaceService {
    */
   selected_origin_option: number = defaults.selected_origin_option;
 
-  private origin_option_list: Array<{value: number, view: string}> = 
-  [
-    {value: 0, view: 'top right'},
-    {value: 1, view: 'bottom right'},
-    {value: 2, view: 'bottom left'},
-    {value: 3, view: 'top left'},
-  ];
-
 
 
   constructor() { }
@@ -70,9 +62,6 @@ export class WorkspaceService {
     this.file_favorites = (data.file_favorites === undefined) ? [] : data.file_favorites;
   }
 
-  getOriginOptions(){
-    return this.origin_option_list;
-  }
 
   isFrame() : boolean{
     if(this.type === 'frame') return true;

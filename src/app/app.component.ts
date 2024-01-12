@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, Optional, ViewChild } from '@angular/core';
+import { ApplicationRef, Component, HostListener, NgZone, OnInit, Optional, ViewChild } from '@angular/core';
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { createCell } from './core/model/cell';
-import { Draft, DraftNode, DraftNodeProxy, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Draft, DraftNode, DraftNodeProxy, FileObj, LoadedFile, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { copyDraft, initDraftWithParams } from './core/model/drafts';
 import { copyLoom, copyLoomSettings } from './core/model/looms';
-import utilInstance from './core/model/util';
 import { AuthService } from './core/provider/auth.service';
 import { FileService } from './core/provider/file.service';
 import { FilesystemService } from './core/provider/filesystem.service';
@@ -32,6 +31,9 @@ import { ExamplesComponent } from './core/modal/examples/examples.component';
 import { DesignmodesService } from './core/provider/designmodes.service';
 import { OperationComponent } from './mixer/palette/operation/operation.component';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
+import { defaults, density_units, loom_types, origin_option_list } from './core/model/defaults';
+import { MaterialModal } from './core/modal/material/material.modal';
+
 
 
 @Component({
@@ -49,26 +51,29 @@ export class AppComponent implements OnInit{
   @ViewChild(SimulationComponent) sim;
 
 
+
   //modals to manage
   filebrowser_modal: MatDialog |any;
   upload_modal: MatDialog |any;
   example_modal: MatDialog |any;
+  material_modal: MatDialog |any;
   
   loading: boolean;
+
   selected_origin: number;
-
-  active_file: number;
-
-  open_files = [];
   
   ui = {
     main: 'mixer',
     fullscreen: false
   };
+
   views = [];
 
   scrollingSubscription: any;
 
+  originOptions: any;
+  loomOptions: any;
+  unitOptions: any;
 
 
   constructor(
@@ -77,7 +82,7 @@ export class AppComponent implements OnInit{
     private dm: DesignmodesService,
     private ss: StateService,
     @Optional() private fbauth: Auth,
-    private files: FilesystemService,
+    public files: FilesystemService,
     private fs: FileService,
     private http: HttpClient,
     private image: ImageService,
@@ -89,10 +94,14 @@ export class AppComponent implements OnInit{
     private view_tool:ViewportService,
     public vp: ViewportService,
     private ws: WorkspaceService,
-    private zs: ZoomService
+    private zs: ZoomService,
+    private zone: NgZone
   ){
 
-    this.active_file = -1;
+    this.originOptions = origin_option_list;
+    this.loomOptions = loom_types;
+    this.unitOptions = density_units;
+
 
         //subscribe to the login event and handle what happens in that case 
 
@@ -123,12 +132,17 @@ export class AppComponent implements OnInit{
 
 
   ngOnInit(){
+
     const analytics = getAnalytics();
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
     });
 
+
+
   }
+
+
 
   ngAfterViewInit() {
  
@@ -146,9 +160,9 @@ export class AppComponent implements OnInit{
         div: document.getElementById('sim')
       }
 
-
-
     ]
+
+    this.focusUIView('detail', true);
 
   }
 
@@ -157,6 +171,7 @@ export class AppComponent implements OnInit{
   clearAll() : void{
 
     this.mixer.clearView();
+    this.details.clearAll();
     this.tree.clear();
     this.ss.clearTimeline();
     this.mixer.clear();
@@ -171,17 +186,13 @@ export class AppComponent implements OnInit{
     this.addTimelineState();
   }
 
-    /**
+   /**
    * adds a state to the timeline. This should be called 
    * each time a user performs an action that they should be able to undo/redo
    */
     addTimelineState(){
   
-  
-     this.fs.saver.ada(
-        'mixer', 
-        true,
-        this.zs.zoom)
+     this.fs.saver.ada()
         .then(so => {
           this.ss.addMixerHistoryState(so);
         });
@@ -210,18 +221,21 @@ export class AppComponent implements OnInit{
   }
 
 
+  /**
+   * 
+   */
   deleteCurrentFile(){
-    this.clearAll();
-    if(this.files.file_tree.length > 0){
-      this.loadFromDB(this.files.file_tree[0].id)
-    }else{
-      this.files.setCurrentFileInfo(this.files.generateFileId(), 'new blank file', '');
-      this.open_files.push({
-        id: this.files.current_file_id,
-        name: this.files.current_file_name
-      });
-    }
-    this.saveFile();
+    // this.clearAll();
+    // if(this.files.file_tree.length > 0){
+    //   this.loadFromDB(this.files.file_tree[0].id)
+    // }else{
+    //   this.files.setCurrentFileInfo(this.files.generateFileId(), 'new blank file', '');
+    //   this.open_files.push({
+    //     id: this.files.current_file_id,
+    //     name: this.files.current_file_name
+    //   });
+    // }
+    // this.saveFile();
   }
 
 
@@ -271,6 +285,42 @@ export class AppComponent implements OnInit{
 
   }
 
+  /**
+   * this is called when a user pushes save from the topbar
+   * @param event 
+   */
+  public async downloadWorkspace(type: any) : Promise<any>{
+
+    const link = document.createElement('a')
+
+
+    switch(type){
+      // case 'jpg': 
+
+      // //this.printMixer();
+
+      // break;
+
+      // case 'wif': 
+      //    this.mixer.downloadVisibleDraftsAsWif();
+      //    return Promise.resolve(null);
+      // break;
+
+      case 'ada': 
+      this.fs.saver.ada().then(out => {
+          link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
+          link.download =  this.files.getCurrentFileName() + ".ada";
+          link.click();
+        })
+      break;
+
+      case 'bmp':
+        this.mixer.downloadVisibleDraftsAsBmp();
+        return Promise.resolve(null);
+      break;
+    }
+  }
+
 
 
 
@@ -302,6 +352,8 @@ export class AppComponent implements OnInit{
    */
   initLoginLogoutSequence(user:User) {
     console.log("IN LOGIN/LOGOUT ", user)
+    /** TODO: check also if the person is online */
+
 
 
     let searchParams = new URLSearchParams(window.location.search);
@@ -312,16 +364,7 @@ export class AppComponent implements OnInit{
 
 
     if(user === null){
-      //this is a logout event
-      this.files.setCurrentFileInfo(this.files.generateFileId(), 'blank draft','');
-      this.open_files.push({
-        id: this.files.current_file_id,
-        name: this.files.current_file_name
-      });
-      this.files.clearTree();
-
-
-
+      this.loadStarterFile();
     }else{
 
       if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
@@ -383,13 +426,23 @@ export class AppComponent implements OnInit{
         
         //this.loadBlankFile();
         this.saveFile();
-        this.files.writeNewFileMetaData(user.uid, this.files.current_file_id, this.files.current_file_name, this.files.current_file_desc)
+        this.files.writeNewFileMetaData(user.uid, this.files.getCurrentFileId(), this.files.getCurrentFileName(), this.files.getCurrentFileDesc())
 
     
       }
       
     }
   }
+
+  closeFile(fileid: number){
+    let item = this.files.getLoadedFile(fileid);
+    if(item == null) return;
+    if(confirm("Are you sure to close file: "+item.name)) {
+      this.files.unloadFile(fileid)
+    }
+  }
+
+
 
   insertPasteFile(result: LoadResponse){
     this.processFileData(result.data).then(data => {
@@ -406,14 +459,30 @@ export class AppComponent implements OnInit{
     return this.tree.nodes.length == 0;
   }
 
+  async switchFile(id: any){
+    
+    let loaded: LoadedFile = this.files.getLoadedFile(id);
+    if(loaded == null) return;
+    let so: SaveObj = loaded.ada;
 
+    if(so === null || so === undefined) return;
+    
+    this.clearAll();
+    this.fs.loader.ada(loaded.name, loaded.id,loaded.desc, so).then(lr => {
+      this.loadNewFile(lr);
+      console.log("after load new file ", this.files.loaded_files)
+    }
+    
+    );
+
+  
+  }
+
+  //must be online
   async loadFromDB(fileid: number){
     this.clearAll();
-
-
     const ada = await this.files.getFile(fileid);
-    const meta = await this.files.getFileMeta(fileid);           
-    this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
+    const meta = await this.files.getFileMeta(fileid); 
     this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
     this.saveFile();
     
@@ -421,14 +490,41 @@ export class AppComponent implements OnInit{
 
   loadBlankFile(){
     this.clearAll();
-    this.files.setCurrentFileInfo(this.files.generateFileId(), 'new file', '');
-    this.open_files.push({
-      id: this.files.current_file_id,
-      name: this.files.current_file_name
-    });
+    this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'new file', '');
     this.saveFile();
-    
   }
+
+  loadStarterFile(){
+    this.clearAll();
+
+    this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '');
+    
+    const draft: Draft = initDraftWithParams({wefts: 10, warps: 10});
+    let loom: Loom = null;
+  
+    const loom_settings: LoomSettings = {
+      treadles: this.ws.min_treadles,
+      frames: this.ws.min_frames,
+      type: this.ws.type,
+      epi: defaults.epi,
+      units:<"in"|"cm"> this.ws.units
+    };
+
+    
+
+    let id = this.mixer.newDraftCreated({draft, loom, loom_settings});
+    this.details.id = id;
+    this.details.weaveRef.id = id;
+
+    this.tree.setDraftAndRecomputeLoom(id, draft, loom_settings)
+    .then(loom => {
+      this.details.render.updateVisible(draft);
+      this.details.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+      this.saveFile();
+
+    })
+  }
+
 
   loadExampleAtURL(name: string){
     const analytics = getAnalytics();
@@ -456,14 +552,8 @@ export class AppComponent implements OnInit{
    */
   loadNewFile(result: LoadResponse){
 
-    //DO NOT CALL CLEAR ALL HERE AS IT WILL OVERWRITE LOADED FILE DATA
-    this.files.setCurrentFileInfo(result.id, result.name, result.desc);
-    this.open_files.push({
-      id: this.files.current_file_id,
-      name: this.files.current_file_name
-    });
-    
-
+    this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc);
+  
     this.processFileData(result.data).then(data => {
       this.saveFile();
     }
@@ -614,6 +704,11 @@ onPasteSelections(){
 
   }
 
+  /**
+   * called when a user selects a file to open from the AdaFile Browser
+   * @param selectOnly 
+   * @returns 
+   */
   openAdaFiles(selectOnly:boolean) {
       if(this.filebrowser_modal != undefined && this.filebrowser_modal.componentInstance != null) return;
 
@@ -627,6 +722,19 @@ onPasteSelections(){
 
 
   }
+
+
+  openMaterials() {
+    if(this.material_modal != undefined && this.material_modal.componentInstance != null) return;
+
+  this.material_modal = this.dialog.open(MaterialModal, {data: {}});
+  this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
+    console.log("MATERIAL CHANGED");
+    //redraw all
+
+  });
+  }
+
 
   openExamples() {
     if(this.example_modal != undefined && this.example_modal.componentInstance != null) return;
@@ -680,6 +788,8 @@ originChange(e:any){
 
 
 }
+
+
 
 
 prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
@@ -940,22 +1050,16 @@ redo() {
   let so: SaveObj = this.ss.restoreNextMixerHistoryState();
   if(so === null || so === undefined) return;
   this.clearAll();
-  this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id,this.files.current_file_desc,  so)
+  this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(),this.files.getCurrentFileDesc(),  so)
   .then(lr =>  this.loadNewFile(lr));
 
  
 }
 
-removeTab(index: number) {
-  this.open_files.splice(index, 1);
-}
 
 saveFile(){
   //if this user is logged in, write it to the
-  this.fs.saver.ada(
-    'mixer', 
-    true,
-    this.zs.zoom)
+  this.fs.saver.ada()
     .then(so => {
       this.ss.addMixerHistoryState(so);
     });
@@ -976,13 +1080,34 @@ showDraftDetails(id: number){
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
     this.clearAll();
-    this.fs.loader.ada(this.files.current_file_name, this.files.current_file_id, this.files.current_file_desc, so).then(lr => {
+    this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(), this.files.getCurrentFileDesc(), so).then(lr => {
       this.loadNewFile(lr)
     }
     
     );
 
   
+  }
+
+  selectOriginOption(value: number){
+    this.ws.selected_origin_option = value;
+    this.mixer.originChange(value);
+
+  }
+
+  selectLoom(value: string){
+    this.ws.type = value;
+    //redraw?
+  }
+
+  selectUnit(value: "in" | 'cm'){
+    this.ws.units = value;
+    //redraw?
+  }
+
+  selectEpi(value: number){
+    this.ws.epi = value;
+    //redraw?
   }
 
   /**

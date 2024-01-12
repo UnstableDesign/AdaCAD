@@ -1918,7 +1918,7 @@ isValidIOTuple(io: IOTuple) : boolean {
    * converts all of the nodes in this tree for saving. 
    * @returns an array of objects that describe nodes
    */
-  exportNodesForSaving(current_scale: number) : Array<NodeComponentProxy> {
+  exportNodesForSaving() : Array<NodeComponentProxy> {
 
     const objs: Array<any> = []; 
 

@@ -210,14 +210,9 @@ zoomChange(e:any, source: string){
 }
 
 
-
-
-
-
-
-    changeDesignMode(mode){
-      this.palette.changeDesignMode(mode);
-    }
+  changeDesignMode(mode){
+    this.palette.changeDesignMode(mode);
+  }
 
 
   /**
@@ -406,44 +401,7 @@ zoomChange(e:any, source: string){
       
     // }
 
-  /**
-   * this is called when a user pushes save from the topbar
-   * @param event 
-   */
-  public async onSave(e: any) : Promise<any>{
-
-    const link = document.createElement('a')
-
-
-    switch(e.type){
-      case 'jpg': 
-
-      //this.printMixer();
-
-      break;
-
-      case 'wif': 
-         this.palette.downloadVisibleDraftsAsWif();
-         return Promise.resolve(null);
-      break;
-
-      case 'ada': 
-      this.fs.saver.ada(
-        'mixer', 
-        false,
-        this.zs.zoom).then(out => {
-          link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
-          link.download =  this.files.current_file_name + ".ada";
-          link.click();
-        })
-      break;
-
-      case 'bmp':
-        this.palette.downloadVisibleDraftsAsBmp();
-        return Promise.resolve(null);
-      break;
-    }
-  }
+  
 
   /**
    * Updates the canvas based on the weave view.
@@ -483,10 +441,11 @@ zoomChange(e:any, source: string){
    * called when the user adds a new draft from the sidebar
    * @param obj 
    */
-  public newDraftCreated(obj: any){
+  public newDraftCreated(obj: any): number{
     const id = this.tree.createNode("draft", null, null);
     this.tree.loadDraftData({prev_id: null, cur_id: id,}, obj.draft, obj.loom, obj.loom_settings, true);
     this.palette.loadSubDraft(id, obj.draft, null, null, this.zs.zoom);
+    return id;
     //id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number
   }
 
@@ -526,10 +485,9 @@ zoomChange(e:any, source: string){
  * when the global settings change, the data itself does NOT need to change, only the rendering
  * @param e 
  */
-originChange(e:any){
+originChange(value: number){
 
-
-  this.selected_origin = e.value;
+  this.selected_origin = value;
   this.palette.redrawAllSubdrafts(); //force a redraw so that the weft/warp system info is up to date
 
 }

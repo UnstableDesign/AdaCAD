@@ -35,6 +35,15 @@ export const defaults = {
       mixer_mode: 'move'
 }
 
+
+export const origin_option_list: Array<{value: number, view: string}> = 
+[
+  {value: 0, view: 'top right'},
+  {value: 1, view: 'bottom right'},
+  {value: 2, view: 'bottom left'},
+  {value: 3, view: 'top left'},
+];
+
 export const draft_view_modes = [
   {value: 'draft', viewValue: 'Draft'}, //black and white individual cells
   {value: 'structure', viewValue: 'Structure'}, //single color outlines of floats
@@ -51,6 +60,7 @@ export const density_units = [
   {value: 'in', viewValue: 'Ends per Inch'},
   {value: 'cm', viewValue: 'Ends per 10cm '}
 ];
+
 
 export const draft_edit_source = [
   {value: 'drawdown', viewValue: 'Drawdown'},

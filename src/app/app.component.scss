@@ -117,7 +117,7 @@
   .detail{
     display: flex;
     flex-direction: column;
-    background-color: green;
+    background-color: #f0f0f0;
     overflow: scroll;
     height: 50%;
     width: 33%;
@@ -132,6 +132,10 @@
     flex: 1 1 auto;
     background-color: #f0f0f0;
 
+  }
+
+  .active{
+    color: #ff4081;
   }
 
   #sim_viewer{
@@ -153,9 +157,17 @@
     opacity: .5;
     color: #3f51b5;
 
+
+
   }
 
-  .selected{
+  .offline{
+    font-size: .6em;
+  }
+
+
+  .selected,
+  .active{
     opacity: .9;
   }
   

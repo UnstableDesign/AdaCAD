@@ -10,6 +10,19 @@ import { MaterialsService } from "../provider/materials.service";
  */
 
 
+/*** APPLICATION STATE MANAGEMENT */
+
+/**
+ * a local instance of a file that is currently open within the users's workspace
+ */
+export interface LoadedFile{
+  id: number, 
+  name: string,
+  desc: string, 
+  ada: SaveObj
+}
+
+
 
 /*****   OBJECTS/TYPES RELATED TO DRAFTS  *******/
 
@@ -362,7 +375,6 @@ export interface NodeComponentProxy{
   ops: Array<OpComponentProxy>,
   notes: Array<Note>,
   materials: Array<Material>,
-  scale: number
  }
 
 export interface FileObj{
@@ -401,8 +413,8 @@ export interface Fileloader{
 }
 
 export interface FileSaver{
-  ada: (type: string, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
-  copy: (include: Array<number>, current_scale: number) => Promise<SaveObj>,
+  ada: () => Promise<{json: string, file: SaveObj}>,
+  copy: (include: Array<number>) => Promise<SaveObj>,
   //wif: (draft: Draft, loom: Loom) => Promise<string>,
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>

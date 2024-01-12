@@ -303,10 +303,7 @@ handlePan(diff: Point){
     console.log("ADD TIMELINE");
 
 
-   this.fs.saver.ada(
-      'mixer', 
-      true,
-      this.zs.zoom)
+   this.fs.saver.ada()
       .then(so => {
         this.ss.addMixerHistoryState(so);
       });
@@ -510,6 +507,7 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onShowDetails.subscribe(this.revealDraftDetails.bind(this)));
+
   }
 
 
@@ -715,6 +713,7 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onInputVisibilityChange.subscribe(this.updateVisibility.bind(this)));
     this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
+    this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.revealDraftDetails.bind(this)));
   }
 
 

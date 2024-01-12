@@ -100,8 +100,8 @@ export class FilebrowserComponent implements OnInit {
 
   rename(){
     if(this.rename_mode === true){
-      this.files.renameFile(this.files.current_file_id, this.files.current_file_name);
-      this.files.updateDescription(this.files.current_file_id, this.files.current_file_desc);
+      this.files.renameFile(this.files.getCurrentFileId(), this.files.getCurrentFileName());
+      this.files.updateDescription(this.files.getCurrentFileId(), this.files.getCurrentFileDesc());
       this.rename_mode = false;
     }else{
       this.rename_mode = true;
@@ -111,7 +111,7 @@ export class FilebrowserComponent implements OnInit {
 
   remove(fileid: number){
     this.files.removeFile(fileid);
-    if(fileid === this.files.current_file_id){
+    if(fileid === this.files.getCurrentFileId()){
       this.onCurrentFileDeleted.emit();
     }  
 

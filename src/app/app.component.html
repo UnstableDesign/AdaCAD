@@ -25,44 +25,78 @@
         <mat-menu #file="matMenu">
           <button mat-menu-item (click)="loadBlankFile()">New Workspace</button>
           <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button >
-          <button mat-menu-item>Save</button>
-          <button mat-menu-item>Import</button>
-          <button mat-menu-item>Export</button>
-          <button mat-menu-item>About</button>
+            <button mat-menu-item (click)="saveFile()">Save</button>
+            <button mat-menu-item (click)="redo()" >Import Bitmaps</button>
+            <button mat-menu-item [matMenuTriggerFor]="downloadMenu">Export</button>
+          <button mat-menu-item (click)="openAboutDialog()">About</button>
         </mat-menu>
         
+        <mat-menu #downloadMenu="matMenu">
+          <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
+          <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button>
+        </mat-menu>
+
         <mat-menu #openFile="matMenu">
           <button mat-menu-item (click)="openNewFileDialog()">From Computer</button>
-          <button mat-menu-item (click)="openAdaFiles(true)">From AdaCAD Cloud</button>
+          <button mat-menu-item [disabled]="!online || !auth.isLoggedIn" (click)="openAdaFiles(true)">From AdaCAD Cloud
+            <span *ngIf="!auth.isLoggedIn">you must login to use this feature </span>
+          </button>
         </mat-menu>
 
         <button mat-button [matMenuTriggerFor]="edit">Edit</button>
         <mat-menu #edit="matMenu">
-          <button mat-menu-item>Undo (ctrl-z)</button>
-          <button mat-menu-item >Redo</button>
-          <button mat-menu-item >Select</button>
+          <button mat-menu-item (click)="undo()">Undo (ctrl-z)</button>
+          <button mat-menu-item (click)="redo()" >Redo</button>
+
+          <!-- <button mat-menu-item >Select</button>
           <button mat-menu-item >Copy</button>
           <button mat-menu-item >Paste</button>
           <button mat-menu-item >Add Blank Draft</button>
           <button mat-menu-item >Add Operation</button>
-          <button mat-menu-item >Add Comment</button>
+          <button mat-menu-item >Add Comment</button> -->
         </mat-menu>
 
         <button mat-button [matMenuTriggerFor]="settings">Settings</button>
         <mat-menu #settings="matMenu">
-          <button mat-menu-item>Origin</button>
-          <button mat-menu-item >Default Loom Type</button>
-          <button mat-menu-item >Default Draft View</button>
-          <button mat-menu-item >Default Density Units</button>
-          <button mat-menu-item >Default Density</button>
-          <button mat-menu-item >Optimize for Device</button>
+          <button mat-menu-item [matMenuTriggerFor]="defaultOrigin">Origin</button>
+
+          <mat-menu #defaultOrigin="matMenu">
+            <button *ngFor="let opt of originOptions" [class.active]="this.ws.selected_origin_option === opt.value" mat-menu-item (click)="selectOriginOption(opt.value)">{{opt.view}}</button>
+          </mat-menu>
+
+          <button mat-menu-item [matMenuTriggerFor]="defaultLoomType">Loom Type</button>
+          <mat-menu #defaultLoomType="matMenu">
+            <button *ngFor="let loom of loomOptions" [class.active]="this.ws.type === loom.value" mat-menu-item (click)="selectLoom(loom.value)">{{loom.viewValue}}</button>
+          </mat-menu>
+
+
+          <!-- <button mat-menu-item >Default Draft View</button> -->
+          <button mat-menu-item [matMenuTriggerFor]="defaultUnits">Units</button>
+          <mat-menu #defaultUnits="matMenu">
+            <button *ngFor="let unit of unitOptions" [class.active]="this.ws.units === unit.value" mat-menu-item (click)="selectUnit(unit.value)">{{unit.viewValue}}</button>
+          </mat-menu>         
+
+     
+
+
+
+
+          <!-- <button mat-menu-item >Optimize for Device</button> -->
         </mat-menu>
-        <button mat-button>Materials</button> <!-- open as modal -->
+        <button mat-button (click)="openMaterials()">Materials</button> <!-- open as modal -->
         <button mat-button (click)="openExamples()">Examples</button> <!-- open as modal --> 
       </div>
       
       <div class="topbar-button-group">
-        <div class="auth" *ngIf="(auth.showLogoutButton)">
+       
+        <div class="auth" *ngIf="!files.connected">
+
+          <div mat-stroked-button class="offline" >No Internet Connection, Working in Offline Mode</div>
+
+        </div>
+
+       
+        <div class="auth" *ngIf="files.connected && (auth.showLogoutButton)">
       
 
           <button mat-button [matMenuTriggerFor]="account">Hi {{auth.username}} </button>
@@ -73,7 +107,7 @@
           </mat-menu>
         </div>
 
-        <div *ngIf="!auth.isLoggedIn">
+        <div *ngIf="files.connected && !auth.isLoggedIn">
           <button mat-stroked-button class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
         </div>
       </div>
@@ -84,11 +118,16 @@
 
           <!-- Open Files List-->
       <div class="filelist">
-        <div class="fileitem" *ngFor="let tab of open_files; index as index;">
-          <button mat-button >{{tab.name}} </button>
-            <button mat-button >x</button>
-        </div>
-        <button class="addfile" mat-button >+</button>
+        <div class="fileitem" [class.active]= "tab.id === files.getCurrentFileId()" *ngFor="let tab of files.loaded_files; index as index;">
+          <button  mat-button (click)="switchFile(tab.id)" >{{tab.name}} </button>
+          <button *ngIf="tab.id !==  files.getCurrentFileId()" mat-button (click)="closeFile(tab.id)">x</button>
+
+
+          <!-- <mat-form-field *ngIf="tab.id ==  files.getCurrentFileId()" >
+            <input matInput [placeholder]="tab.name" name="filename">
+          </mat-form-field> -->
+          </div>
+        <button class="addfile" mat-button (click)="loadBlankFile()" >+</button>
       </div>
     </div>
 </div>
@@ -150,7 +189,7 @@
 
     <app-simulation id="sim_viewer" 
     [hasFocus]="ui.main == 'sim'"  
-      [id]="active_file"
+      [id]="files.getCurrentFileId()"
       >
       </app-simulation>
        </div>

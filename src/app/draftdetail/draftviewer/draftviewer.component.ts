@@ -444,12 +444,13 @@ export class DraftviewerComponent implements OnInit {
 
     this.mouse_pressed = true;
 
-    const loom = this.tree.getLoom(this.id);
+
+
     const loom_settings = this.tree.getLoomSettings(this.id);
     const draft = this.tree.getDraft(this.id);
 
-    const frames = loom_settings.frames;
-    const treadles =loom_settings.treadles;
+    const frames = (loom_settings !== null ) ? loom_settings.frames : 0;
+    const treadles = (loom_settings !== null ) ? loom_settings.treadles : 0;
   
 
   // console.log("DIV COORDS", )
@@ -702,7 +703,7 @@ export class DraftviewerComponent implements OnInit {
      }
 
      if(this.flag_history && event.type == 'mouseup'){
-        this.timeline.addHistoryState(draft);
+        this.onDrawdownUpdated.emit(draft);
         this.flag_history = false;
       } 
 
@@ -1889,6 +1890,47 @@ public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
     }
 }
 
+public clearAll(){
+  this.colSystemMapping = [];
+  this.rowSystemMapping = [];
+  this.render.visibleRows = [];
+
+      this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
+      this.cx.canvas.width = 0;
+      this.cx.canvas.height = 0;
+      this.cx.canvas.style.width = "0px";
+      this.cx.canvas.style.height = "0px";
+      this.cx.strokeStyle = "#3d3d3d";
+      this.cx.fillStyle = "#f0f0f0";
+      this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
+      this.cx.strokeRect(0,0,this.canvasEl.width,this.canvasEl.height);
+  
+      this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
+      this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
+      this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
+  
+      this.cxThreading.canvas.width = 0;
+      this.cxThreading.canvas.height = 0;
+      this.cxThreading.canvas.style.width =  "0px"
+      this.cxThreading.canvas.style.height = "0px"
+  
+  
+      this.cxTreadling.canvas.width = 0;
+      this.cxTreadling.canvas.height = 0;
+      this.cxTreadling.canvas.style.width = "0px";
+      this.cxTreadling.canvas.style.height = "0px";
+  
+      this.cxTieups.canvas.width = 0;
+      this.cxTieups.canvas.height = 0;
+      this.cxTieups.canvas.style.width = "0px";
+      this.cxTieups.canvas.style.height = "0px";
+      
+  
+
+
+  
+}
+
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
@@ -2171,41 +2213,41 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     // }
 
 
-    public print(e){
-      let draft = this.tree.getDraft(this.id);
-      let loom = this.tree.getLoom(this.id);
-      let width = (Math.max(500, warps(draft.drawdown)+ numTreadles(loom))*this.cell_size + 200);
-      let height = Math.max(500, (wefts(draft.drawdown)+ numFrames(loom))*this.cell_size + 200);
-      var node = document.getElementById('draft-container');
-      htmlToImage.toPng(node, {  backgroundColor: 'white', width, height})
-      .then(function (dataUrl) {
+    // public print(e){
+    //   let draft = this.tree.getDraft(this.id);
+    //   let loom = this.tree.getLoom(this.id);
+    //   let width = (Math.max(500, warps(draft.drawdown)+ numTreadles(loom))*this.cell_size + 200);
+    //   let height = Math.max(500, (wefts(draft.drawdown)+ numFrames(loom))*this.cell_size + 200);
+    //   var node = document.getElementById('draft-container');
+    //   htmlToImage.toPng(node, {  backgroundColor: 'white', width, height})
+    //   .then(function (dataUrl) {
 
-        var win = window.open('about:blank', "_new");
-        win.document.open();
-        win.document.write([
-            '<html>',
-            '   <head>',
-            '   </head>',
-            '   <body onload="window.print()" onafterprint="window.close()">',
-            '       <img src="' + dataUrl + '"/>',
-            '   </body>',
-            '</html>'
-        ].join(''));
-        win.document.close();
+    //     var win = window.open('about:blank', "_new");
+    //     win.document.open();
+    //     win.document.write([
+    //         '<html>',
+    //         '   <head>',
+    //         '   </head>',
+    //         '   <body onload="window.print()" onafterprint="window.close()">',
+    //         '       <img src="' + dataUrl + '"/>',
+    //         '   </body>',
+    //         '</html>'
+    //     ].join(''));
+    //     win.document.close();
 
-        // const link = document.createElement('a')
-        // link.href= dataUrl;
-        // link.download = getDraftName(draft)+"_detailview.jpg";
-        // link.click();
+    //     // const link = document.createElement('a')
+    //     // link.href= dataUrl;
+    //     // link.download = getDraftName(draft)+"_detailview.jpg";
+    //     // link.click();
 
     
    
 
-      })
-      .catch(function (error) {
-        console.error('oops, something went wrong!', error);
-      });
-    }
+    //   })
+    //   .catch(function (error) {
+    //     console.error('oops, something went wrong!', error);
+    //   });
+    // }
 
     public translateThreadingRowForView(loom: Loom, loom_settings: LoomSettings, i:number) : number{
       const opt = this.ws.selected_origin_option;
@@ -2267,7 +2309,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(loom => {
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-        this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
       })
@@ -2276,7 +2317,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(draft => {
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-        this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2310,7 +2350,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(loom => {
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-        this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2322,7 +2361,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(draft => {
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-        this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2353,7 +2391,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(loom => {
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-        this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2363,7 +2400,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(draft => {
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-        this.timeline.addHistoryState(draft);
         this.rowShuttleMapping = draft.rowShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2393,7 +2429,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-        this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2404,7 +2439,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-        this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2437,7 +2471,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-        this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2449,7 +2482,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-        this.timeline.addHistoryState(draft);
         this.colShuttleMapping = draft.colShuttleMapping;
         this.onDrawdownUpdated.emit(draft);
 
@@ -2479,7 +2511,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-          this.timeline.addHistoryState(draft);
           this.colShuttleMapping = draft.colShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
 
@@ -2489,7 +2520,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-          this.timeline.addHistoryState(draft);
           this.colShuttleMapping = draft.colShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
 

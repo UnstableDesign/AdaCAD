@@ -51,7 +51,6 @@ export class DraftDetailComponent implements OnInit {
 
   actions_modal: MatDialogRef<ActionsComponent, any>;
 
-
   /**
   The current selection, as a Pattern 
   **/
@@ -185,6 +184,13 @@ export class DraftDetailComponent implements OnInit {
     this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
   }
 
+  clearAll(){
+    console.log("Clearing Detail Viewer ");
+    this.id == -1;
+    this.weaveRef.id == -1;
+    this.weaveRef.clearAll();
+  }
+
 
   expandViewer(){
     this.viewer_expanded = !this.viewer_expanded;
@@ -287,7 +293,6 @@ export class DraftDetailComponent implements OnInit {
 
     if(id == -1) return;
 
-    console.log("WEAVE REF", this.weaveRef)
     
     //reset the dirty value every time the window is open
     this.weaveRef.is_dirty = false;
@@ -297,6 +302,13 @@ export class DraftDetailComponent implements OnInit {
       this.id = id;
       this.clone_id = -1;
       const draft = this.tree.getDraft(id);
+      const loom_settings = this.tree.getLoomSettings(id);
+      this.type = loom_settings.type;
+
+      if(this.type == 'jacquard' && this.dm.cur_draft_edit_source == 'loom'){
+        this.dm.selectDraftEditSource('draft');
+      }
+
       this.draftname = getDraftName(draft)
       this.render.loadNewDraft(draft);
       this.weaveRef.onNewDraftLoaded(id);
@@ -412,13 +424,10 @@ export class DraftDetailComponent implements OnInit {
     
   }  
 
+  
   addTimelineState(){
 
-
-   this.fs.saver.ada(
-      'mixer', 
-      true,
-      this.zs.zoom)
+   this.fs.saver.ada()
       .then(so => {
         this.state.addMixerHistoryState(so);
       });
@@ -449,9 +458,6 @@ export class DraftDetailComponent implements OnInit {
   
   
 
-
-
-  
   public redrawSimulation(){
     let draft = this.tree.getDraft(this.id);
     let loom_settings = this.tree.getLoomSettings(this.id);
