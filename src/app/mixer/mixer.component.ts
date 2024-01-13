@@ -1,12 +1,12 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Component, enableProdMode, EventEmitter, Input, Optional, Output, ViewChild } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { NgForm } from '@angular/forms';
+import { NgForm, UntypedFormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
-import { DesignMode, Draft, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Point } from '../core/model/datatypes';
+import { DesignMode, Draft, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Operation, Point } from '../core/model/datatypes';
 import { defaults, loom_types } from '../core/model/defaults';
 import { warps, wefts } from '../core/model/drafts';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -20,6 +20,8 @@ import { PaletteComponent } from './palette/palette.component';
 import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
+import { map, startWith } from 'rxjs/operators';
+import { OperationService } from '../core/provider/operation.service';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -51,6 +53,7 @@ export class MixerComponent  {
   @ViewChild(PaletteComponent) palette;
 
   @Input('hasFocus') hasFocus; 
+
   @Output() onDraftDetailOpen: any = new EventEmitter();
 
   origin_options: any = null;
@@ -70,6 +73,14 @@ export class MixerComponent  {
 
   classifications: any =[];
 
+  myControl = new UntypedFormControl();
+
+  filteredOptions: Observable<string[]>;
+  
+  op_tree: Array<{class_name: string, ops: Array<{name: string, display_name: string}>}> = [];
+
+  search_error: string = ''
+
 
   /// ANGULAR FUNCTIONS
   /**
@@ -85,6 +96,7 @@ export class MixerComponent  {
     public vp: ViewportService,
     private notes: NotesService,
     private dialog: MatDialog,
+    public ops: OperationService, 
     private op_desc: OperationDescriptionsService,
     public zs: ZoomService,
     private files: FilesystemService,
@@ -96,11 +108,45 @@ export class MixerComponent  {
     this.classifications = this.op_desc.getOpClassifications();
 
     this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
-   
 
+    this.op_tree = this.classifications.map(classification => {
+      console.log("CLASS ", classification, classification.op_names)
+      return {
+        class_name: classification.category_name, 
+        ops: classification.op_names
+          .filter(op => this.op_desc.hasDisplayName(op))
+          .map(op => {return {name: op, display_name:this.op_desc.getDisplayName(op)}})
+      }
+    });
+  }
 
+  ngOnInit(){
+    this.filteredOptions = this.myControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value))
+    );
+  }
 
+  private _filter(value: string): any[] {
+    const filterValue = value.toLowerCase();
 
+    let tree =  this.op_tree.map(classification => {
+      return {
+        class_name: classification.class_name,
+        ops: classification.ops
+        .filter(option => option.display_name.toLowerCase().includes(filterValue))
+      }
+    });
+
+    tree = tree.filter(classification => classification.ops.length > 0 );
+
+    if(tree.length == 0){
+      this.search_error = "no operations match this search"
+    }else{  
+      this.search_error = '';
+    }
+
+    return tree;
 
 
 
@@ -112,10 +158,18 @@ export class MixerComponent  {
    //this.view_tool.updateViewPort(data);
   }
 
+  inCat(op_name: string, cat_name: string) {;
+    console.log("OP NAME ", op_name, cat_name)
+    let parent = this.op_desc.getOpCategory(op_name);
+    return parent == cat_name;
+
+  }
+
 
   addOperation(name: string){
 
     this.palette.addOperation(name);
+    this.myControl.setValue('');
   }
 
 

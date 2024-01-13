@@ -82,6 +82,9 @@ h3{
   
   &.operation{
     color: white;
+    white-space: normal;
+    line-height: 20px;
+    padding: 10px;
   }
 
 }
@@ -98,7 +101,10 @@ h3{
 }
 
 
-
+.view_slider{
+  display: flex;
+  flex-direction: row;
+}
 
 .topbar_sub{
   display: flex;

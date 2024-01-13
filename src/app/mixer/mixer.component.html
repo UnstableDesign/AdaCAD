@@ -3,6 +3,37 @@
 
 <div class="sidenav_small" *ngIf="hasFocus">
 
+
+<!-- <app-mixerview
+(onZoomChange) ="zoomChangeExternal($event);"
+(onViewPortMove) ="setScroll($event);"
+></app-mixerview> -->
+
+<div class="view_slider">
+
+    
+  <button  mat-icon-button (click)="zoomIn()" color="primary" class="fas fa-search-plus"></button>
+
+
+    <mat-slider 
+    class="slider"
+    color="primary"
+    tickInterval="1" 
+    [step]="1" 
+    [min]= "0"
+    [max]= "zs.num_steps"
+    value="{{zs.zoom_table_ndx}}" 
+    (change)="zoomChange($event, 'slider')"></mat-slider>
+  
+    <button  mat-icon-button (click)="zoomOut()" color="primary" class="fas fa-search-minus"></button> 
+    <button
+    mat-icon-button 
+    [color]="(dm.cur_mixer_mode == 'pan')? 'accent' : 'primary'" 
+    (click)="togglePanMode()"
+    ><i class="fa-solid fa-hand"></i>
+    </button>
+</div>
+
     <div class="sidenav_section">
         
    
@@ -28,32 +59,42 @@
 <div class="sidenav_section">
 
                 
-<app-quickop 
+<!-- <app-quickop 
 (onOperationAdded)="addOp($event)"  >
-</app-quickop>
+</app-quickop> -->
 
 
-<ng-container *ngFor="let class of classifications">
+<mat-form-field matNativeControl class="quickop_form is-fullwidth" appearance="fill" width='100%'  color="primary">
+  <mat-label><i class="fas fa-project-diagram"></i> search operation</mat-label>
+  <input type="text"
+         placeholder=""
+         matInput
+         [formControl]="myControl"
+         >
+  </mat-form-field>
+
+  <div>{{search_error}}</div>
+
+<ng-container *ngFor="let classification of filteredOptions | async">
 
   <mat-divider></mat-divider>
 
-      <h3>{{class.category_name}} </h3>  
-  
-        <!-- <p class="cat_desc">{{class.description}}</p> -->
+      <h3>{{classification.class_name}} </h3>  
 
      
 
-        <ng-container *ngFor="let op_name of class.op_names">
+       <!-- // <ng-container *ngFor="let op_name of class.op_names"> -->
+          <ng-container *ngFor="let op_names of classification.ops">
 
         
                 
                  <!-- {{class.description}} -->
                   <button 
-
-                  mat-stroked-button class="operation" [style.background-color]="op_desc.getCatColor(class.category_name)" 
-                  (click)="addOperation(op_name)"
-                  [matTooltip]="op_desc.getOpDescription(op_name)">
-                  {{op_desc.getDisplayName(op_name)}}
+                  mat-stroked-button class="operation" 
+                  [style.background-color]="op_desc.getCatColor(classification.class_name)" 
+                  (click)="addOperation(op_names.name)"
+                  [matTooltip]="op_desc.getOpDescription(op_names.name)">
+                 {{op_names.display_name}}
                 </button>
 
 
@@ -124,39 +165,11 @@
       ><i class="fa-solid fa-download"></i>
       </button> -->
 
-    <div class="sidenav_section">
-
-    
-      <button  mat-icon-button (click)="zoomIn()" color="primary" class="fas fa-search-plus"></button>
-
-
-        <mat-slider 
-        class="slider"
-        vertical
-        color="primary"
-        tickInterval="1" 
-        [step]="1" 
-        [min]= "0"
-        [max]= "zs.num_steps"
-        value="{{zs.zoom_table_ndx}}" 
-        (change)="zoomChange($event, 'slider')"></mat-slider>
-      
-        <button  mat-icon-button (click)="zoomOut()" color="primary" class="fas fa-search-minus"></button> 
-        <button
-        mat-icon-button 
-        [color]="(dm.cur_mixer_mode == 'pan')? 'accent' : 'primary'" 
-        (click)="togglePanMode()"
-        ><i class="fa-solid fa-hand"></i>
-        </button>
-    </div>
 
 
 
 
-<app-mixerview
-(onZoomChange) ="zoomChangeExternal($event);"
-(onViewPortMove) ="setScroll($event);"
-></app-mixerview>
+
 </div>
 <app-palette  
 class="palette mode-{{dm.cur_mixer_mode}}"
