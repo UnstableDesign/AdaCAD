@@ -6,6 +6,7 @@ import { OperationClassification } from '../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../core/provider/operation.service';
 import { ViewEncapsulation } from '@angular/core';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-quickop',

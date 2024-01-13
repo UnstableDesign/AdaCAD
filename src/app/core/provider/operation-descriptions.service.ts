@@ -30,11 +30,27 @@ export class OperationDescriptionsService {
     else return "";
    }
 
+   getOpCategory(opname: string) : string {
+    const cat = classifications.classifications.find(classification => {
+      return (classification.op_names.find(sel => sel == opname) !== undefined);
+    })
+
+    if(cat == undefined) return '';
+
+    return cat.category_name;
+
+   }
+
    getCatName(name: string) : string{
     const cat =  classifications.classifications.find(el => el.category_name == name);
     if(cat !== undefined) return cat.category_name;
     else return "";
    }
+
+   getCatColor(name: string) : string{
+    const cat =  classifications.classifications.find(el => el.category_name == name);
+    if(cat !== undefined) return cat.color;
+    else return "#000";   }
 
 
   getOpDescription(opname: string){

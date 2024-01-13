@@ -131,6 +131,8 @@ export class OperationComponent implements OnInit {
 
    selecting_connection: boolean = false;
 
+   category_name: string = "";
+
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
@@ -152,7 +154,8 @@ export class OperationComponent implements OnInit {
     this.description = this.opdescriptions.getOpDescription(this.name);
     this.displayname = this.opdescriptions.getDisplayName(this.name);
     this.application = this.opdescriptions.getOpApplication(this.name);
-
+    this.category_name = this.opdescriptions.getOpCategory(this.name);
+    console.log("CATEGORY NAME ", this.category_name)
 
     // const tl: Point = this.viewport.getTopLeft();
     // const tl_offset = {x: tl.x, y: tl.y};

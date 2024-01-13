@@ -3,9 +3,9 @@ import { UntypedFormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { OperationClassification, OperationInlet, OperationParam } from '../../../core/model/datatypes';
-import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
-import { OperationService } from '../../../core/provider/operation.service';
+import { OperationClassification, OperationInlet, OperationParam } from '../../core/model/datatypes';
+import { OperationDescriptionsService } from '../../core/provider/operation-descriptions.service';
+import { OperationService } from '../../core/provider/operation.service';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({

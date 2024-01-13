@@ -13,7 +13,7 @@
 
     <mat-drawer-container class="example-container">
       <mat-drawer #drawer class="example-sidenav" mode="side" opened>
-        <form  autocomplete="off">
+        <!-- <form  autocomplete="off">
           <mat-form-field  class="full-width" width='100%' appearance="fill">
           <mat-label><i class="fas fa-search"></i>   search for action by name</mat-label>
           <input type="text"
@@ -31,7 +31,7 @@
                   </mat-option>
           </mat-autocomplete>
           </mat-form-field>
-        </form>
+        </form> -->
 
         <ng-container *ngIf="!searchOnly">
           <ng-container *ngFor="let class of classifications">

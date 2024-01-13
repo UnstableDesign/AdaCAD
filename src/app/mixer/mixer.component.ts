@@ -13,6 +13,7 @@ import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { FilesystemService } from '../core/provider/filesystem.service';
 import { NotesService } from '../core/provider/notes.service';
+import { OperationDescriptionsService } from '../core/provider/operation-descriptions.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { PaletteComponent } from './palette/palette.component';
@@ -67,6 +68,7 @@ export class MixerComponent  {
 
   selected_nodes_copy: any = null;
 
+  classifications: any =[];
 
 
   /// ANGULAR FUNCTIONS
@@ -83,6 +85,7 @@ export class MixerComponent  {
     public vp: ViewportService,
     private notes: NotesService,
     private dialog: MatDialog,
+    private op_desc: OperationDescriptionsService,
     public zs: ZoomService,
     private files: FilesystemService,
     private multiselect: MultiselectService,
@@ -90,7 +93,8 @@ export class MixerComponent  {
     ) {
 
    
-    
+    this.classifications = this.op_desc.getOpClassifications();
+
     this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
    
 
@@ -109,6 +113,10 @@ export class MixerComponent  {
   }
 
 
+  addOperation(name: string){
+
+    this.palette.addOperation(name);
+  }
 
 
   /**

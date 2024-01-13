@@ -91,10 +91,6 @@ export class MaterialModal{
     this.newshuttle = createMaterial();
   }
 
-  // close() {
-  //   this.dialogRef.close(null);
-  // }
-
   save() {
   }
 

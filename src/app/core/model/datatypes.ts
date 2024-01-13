@@ -595,6 +595,7 @@ export type DynamicOperation = Operation &  {
  export interface OperationClassification{
   category_name: string,
   description: string,
+  color: string,
   op_names: Array<string>;
  }
 

@@ -12,6 +12,16 @@
   pointer-events: none;
 }
 
+h3{
+  width: 90%;
+  text-align: left;
+  font-style: italic;
+  padding-bottom: 6px;
+  border-top: thin solid #999;
+  color: #999;
+  margin-top: 6px;
+}
+
 
 
 .sidenav_small{
@@ -21,6 +31,8 @@
   background-color: white;
   flex-direction: column;
   height: 100%;
+  width: min-content;
+  overflow: scroll;
 }
 
 .sidenav_section{
@@ -28,7 +40,7 @@
   flex-direction: column;
   align-items: center;
   padding-top: 22px;
-  justify-content: center;
+  justify-content: space-around;
 
 }
 
@@ -61,6 +73,16 @@
 }
 
 .slider-row button{
+
+}
+
+.mat-stroked-button{
+  margin: 2px;
+  max-width: 160px;
+  
+  &.operation{
+    color: white;
+  }
 
 }
 

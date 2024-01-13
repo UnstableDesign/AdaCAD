@@ -5,43 +5,97 @@
 
     <div class="sidenav_section">
         
-        <button 
-        [matMenuTriggerFor]="addItems"
-        mat-mini-fab 
-        color="primary"
-        matTooltip= "Blank Draft">
-        <i class="fas fa-plus"></i>
-        </button>
+   
 
-
-        <mat-menu #addItems="matMenu">
 
             <button 
-            mat-raised-button 
+            mat-stroked-button            
             color="primary"
             matTooltip= "Blank Draft"
             (click)="createNewDraft()">
-            <i class="fas fa-chess-board"></i> add draft
+            + <i class="fas fa-chess-board"></i> add draft
             </button>
       
             <button 
-            mat-raised-button 
+            mat-stroked-button
             color="primary"
             matTooltip= "Note"
             color="primary"
             (click)="createNewNote()">
-            <i class="fas fa-comment"></i> add note
+            + <i class="fas fa-comment"></i> add note
             </button>
+</div>
+<div class="sidenav_section">
 
                 
 <app-quickop 
 (onOperationAdded)="addOp($event)"  >
 </app-quickop>
+
+
+<ng-container *ngFor="let class of classifications">
+
+  <mat-divider></mat-divider>
+
+      <h3>{{class.category_name}} </h3>  
+  
+        <!-- <p class="cat_desc">{{class.description}}</p> -->
+
+     
+
+        <ng-container *ngFor="let op_name of class.op_names">
+
+        
+                
+                 <!-- {{class.description}} -->
+                  <button 
+
+                  mat-stroked-button class="operation" [style.background-color]="op_desc.getCatColor(class.category_name)" 
+                  (click)="addOperation(op_name)"
+                  [matTooltip]="op_desc.getOpDescription(op_name)">
+                  {{op_desc.getDisplayName(op_name)}}
+                </button>
+
+
+<!--            
+                <h4> Description </h4>
+                <p>{{op_desc.getOpDescription(op_name)}}</p>
+
+                <h4>Application  </h4>
+                <p> {{op_desc.getOpApplication(op_name)}}</p> -->
+
+                <!-- <h4 *ngIf="ops.getOp(op_name) !== null && ops.getOp(op_name).params.length > 0"> Parameters </h4>
+                <ng-container *ngFor="let param of ops.getOp(op_name).params">
+                    <h5>{{param.name}}</h5>
+                    <p *ngIf="param.dx === undefined">{{op_desc.getParamDescription(param.name)}}</p>
+                    <p *ngIf="param.dx !== undefined">{{param.dx}}</p>
+
+                </ng-container> -->
+
+
+                <!-- {{op_desc.getOpApplication(op_name)}}
+                this.youtube = this.op_desc.getOpYoutube(obj);
+                this.url = this.createYoutubeEmbedLink(this.youtube)
+                this.params = this.ops.getOp(obj).params;
+                this.params = this.params.map(param => {
+                  if(param.dx === undefined) param.dx = this.op_desc.getParamDescription(param.name);
+                  return param;
+                }) -->
+
+
+        </ng-container>
+
+
+        
+        
+
+    <!-- <p> {{class.description}}</p> -->
+  
+  </ng-container>
       
     
 
 
-        </mat-menu>
       </div>
 
         <!-- <button 

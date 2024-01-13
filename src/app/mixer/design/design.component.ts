@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { BlankdraftModal } from '../../core/modal/blankdraft/blankdraft.modal';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { InitModal } from '../../core/modal/init/init.modal';
-import { OpsComponent } from '../modal/ops/ops.component';
+import { OpsComponent } from '../ops/ops.component';
 import { StateService } from '../../core/provider/state.service';
 import { OperationService } from '../../core/provider/operation.service';
 import { OperationDescriptionsService } from '../../core/provider/operation-descriptions.service';
