@@ -77,6 +77,13 @@
           </mat-menu>         
 
      
+      <!-- <button mat-menu-item >Default Draft View</button> -->
+      <button mat-menu-item [matMenuTriggerFor]="showDrafts">Show Drafts on Dataflow View</button>
+      
+      <mat-menu #showDrafts="matMenu">
+        <button [class.active]="!this.ws.hide_mixer_drafts" mat-menu-item (click)="setDraftsViewable(false)">yes</button>
+        <button [class.active]="this.ws.hide_mixer_drafts" mat-menu-item (click)="setDraftsViewable(true)">no</button>
+      </mat-menu>         
 
 
 
@@ -138,7 +145,7 @@
 
         <div class="mixer" id="mixer" cdkScrollable
          [class.hasFocus]="ui.main=='mixer'" [class.isSide]="ui.main!='mixer'">
-          <div class="view-controls" [class.main]="ui.main=='mixer'" [class.fullscreen]="ui.fullscreen">
+          <div class="view-controls no-text-select"  [class.main]="ui.main=='mixer'" [class.fullscreen]="ui.fullscreen">
             <span> dataflow</span>
 
           <button *ngIf="ui.fullscreen" mat-button (click)="collapseFullScreen()">

@@ -110,7 +110,6 @@ export class MixerComponent  {
     this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
 
     this.op_tree = this.classifications.map(classification => {
-      console.log("CLASS ", classification, classification.op_names)
       return {
         class_name: classification.category_name, 
         ops: classification.op_names
@@ -158,18 +157,21 @@ export class MixerComponent  {
    //this.view_tool.updateViewPort(data);
   }
 
-  inCat(op_name: string, cat_name: string) {;
-    console.log("OP NAME ", op_name, cat_name)
-    let parent = this.op_desc.getOpCategory(op_name);
-    return parent == cat_name;
+inCat(op_name: string, cat_name: string) {;
+  let parent = this.op_desc.getOpCategory(op_name);
+  return parent == cat_name;
 
-  }
+}
 
 
   addOperation(name: string){
 
-    this.palette.addOperation(name);
+    let id = this.palette.addOperation(name);
     this.myControl.setValue('');
+    const outputs = this.tree.getNonCxnOutputs(id);
+    console.log("OUTPUTS ", id, outputs)
+    if(outputs.length > 0) this.onDraftDetailOpen.emit(outputs[0]);
+    //focus this is the detail view
   }
 
 

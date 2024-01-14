@@ -25,7 +25,6 @@ h3{
 
 
 .sidenav_small{
-  position: fixed;
   z-index: 4;
   display: flex;
   background-color: white;
@@ -59,22 +58,6 @@ h3{
 
 
 
-.slider-row{
-  height: 33%;
-}
-
-
-.slider-row i{
-  display: block;
-  height: 48px;
-  line-height: 32px;
-  padding-top: 8px;
-  width: 100%;
-}
-
-.slider-row button{
-
-}
 
 .mat-stroked-button{
   margin: 2px;
@@ -104,6 +87,7 @@ h3{
 .view_slider{
   display: flex;
   flex-direction: row;
+  line-height: 40px;
 }
 
 .topbar_sub{
@@ -135,7 +119,7 @@ h3{
 }
 
 .mat-form-field {
-width: 95%;
+width: 90%;
 }
 
 

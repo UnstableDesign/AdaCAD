@@ -60,26 +60,11 @@ export class DraftrenderingComponent {
   ngAfterViewInit() {
 
 
-    this.draft_canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
-    this.draft_cx = this.draft_canvas.getContext("2d");
-
-    this.warp_data_canvas = <HTMLCanvasElement> document.getElementById('warp-data-'+this.id.toString());
-    this.warp_data_cx = this.draft_canvas.getContext("2d");
-
-        // set the width and height
-        let dpr = window.devicePixelRatio || 1;
-        let bsr =  this.draft_cx.webkitBackingStorePixelRatio ||
-        this.draft_cx.mozBackingStorePixelRatio ||
-        this.draft_cx.msBackingStorePixelRatio ||
-        this.draft_cx.oBackingStorePixelRatio ||
-        this.draft_cx.backingStorePixelRatio || 1;
-        this.pixel_ratio = dpr/bsr;
-
-        const draft = this.tree.getDraft(this.id);
-        this.drawDraft(draft);  
-        this.ud_name = draft.ud_name;
-        this.warps = warps(draft.drawdown);
-        this.wefts = wefts(draft.drawdown)
+    const draft = this.tree.getDraft(this.id);
+    this.drawDraft(draft);  
+    this.ud_name = draft.ud_name;
+    this.warps = warps(draft.drawdown);
+    this.wefts = wefts(draft.drawdown)
   
 
   }
@@ -245,6 +230,25 @@ export class DraftrenderingComponent {
    * @returns 
    */
   async drawDraft(draft: Draft) : Promise<any> {
+
+    if(this.hasParent && this.ws.hide_mixer_drafts) return;
+
+    this.draft_canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
+    this.draft_cx = this.draft_canvas.getContext("2d");
+
+    this.warp_data_canvas = <HTMLCanvasElement> document.getElementById('warp-data-'+this.id.toString());
+    this.warp_data_cx = this.draft_canvas.getContext("2d");
+
+        // set the width and height
+    let dpr = window.devicePixelRatio || 1;
+    let bsr =  this.draft_cx.webkitBackingStorePixelRatio ||
+    this.draft_cx.mozBackingStorePixelRatio ||
+    this.draft_cx.msBackingStorePixelRatio ||
+    this.draft_cx.oBackingStorePixelRatio ||
+    this.draft_cx.backingStorePixelRatio || 1;
+    this.pixel_ratio = dpr/bsr;
+
+
 
 
     let cell_size = this.calculateCellSize(draft);

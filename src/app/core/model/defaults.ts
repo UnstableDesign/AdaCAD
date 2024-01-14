@@ -22,6 +22,7 @@ export const defaults = {
     min_treadles: 8,
     selected_origin_option: 3,
     default_material_diameter: 1,
+    hide_mixer_drafts: true,
     loom_settings:  {
             frames: 8,
             treadles: 8,

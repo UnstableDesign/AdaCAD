@@ -1,7 +1,7 @@
 
-<div class="subdraft-container" >
+<div class="subdraft-container" *ngIf="!hasParent || !ws.hide_mixer_drafts" >
 
-  <div class="bottom-opts">
+  <div *ngIf="!hasParent || !ws.hide_mixer_drafts" class="bottom-opts">
 
     <div id="subdraft-details"> 
 
@@ -93,9 +93,7 @@
 
 
 
-
-
-<div [class.hidden]="!draft_visible" class="subdraft-contents origin{{ws.selected_origin_option}}" >
+<div *ngIf="!hasParent || !ws.hide_mixer_drafts" [class.hidden]="!draft_visible" class="subdraft-contents origin{{ws.selected_origin_option}}" >
 
   <div id="local-zoom-{{id}}" class="local_zoom origin{{ws.selected_origin_option}}">
 
@@ -127,6 +125,26 @@
   </div>
 </div>
 
+
+<div class="single_line">
+  <div class="dims">{{warps}} x {{wefts}}</div>
+  <div >
+    <input matInput  [(ngModel)]="ud_name" 
+    [placeholder]="tree.getDraft(id).gen_name"  
+    (focusout)="nameFocusOut($event)"
+    (change)="updateName()">
+   </div>
+   </div>
+
+
+
+
+
+  <canvas #bitmapImage hidden></canvas>
+
+
+</div>
+
 <div class="outlet_row">
 
 
@@ -139,23 +157,8 @@
   <i class="fa-sharp fa-solid fa-circle-down"></i>
   </button>
 
-  <div class="single_line">
-    <div class="dims">{{warps}} x {{wefts}}</div>
-    <div >
-      <input matInput  [(ngModel)]="ud_name" 
-      [placeholder]="tree.getDraft(id).gen_name"  
-      (focusout)="nameFocusOut($event)"
-      (change)="updateName()">
-     </div>
+
 
   </div>
-
-
-
-
-  <canvas #bitmapImage hidden></canvas>
-
-
-</div>
 
 

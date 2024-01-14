@@ -24,7 +24,7 @@ export class WorkspaceService {
   show_materials: boolean = defaults.show_materials;
   black_cell_up: boolean = defaults.black_cell_up;
   number_threading: boolean = defaults.number_threading;
-
+  hide_mixer_drafts: boolean = defaults.hide_mixer_drafts;
 
   /**
    * when looking at the draft viewer, where should the (0, 0) point of the drawdown sit. 
@@ -46,6 +46,7 @@ export class WorkspaceService {
     this.black_cell_up = defaults.black_cell_up;
     this.number_threading = defaults.number_threading;
     this.selected_origin_option = defaults.selected_origin_option;
+    this.hide_mixer_drafts = defaults.hide_mixer_drafts;
 
   }
 
@@ -60,6 +61,7 @@ export class WorkspaceService {
     this.number_threading = data.number_threading;
     this.selected_origin_option = data.selected_origin_option;
     this.file_favorites = (data.file_favorites === undefined) ? [] : data.file_favorites;
+    this.hide_mixer_drafts = (data.hide_mixer_drafts === undefined) ? true : data.hide_mixer_drafts;
   }
 
 
@@ -112,7 +114,9 @@ export class WorkspaceService {
       black_cell_up: this.black_cell_up,
       number_threading: this.number_threading,
       selected_origin_option: this.selected_origin_option,
-      file_favorites: this.file_favorites.slice()
+      file_favorites: this.file_favorites.slice(),
+      hide_mixer_drafts: this.hide_mixer_drafts
+
     }
   }
 

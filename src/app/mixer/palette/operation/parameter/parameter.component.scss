@@ -34,7 +34,7 @@
     color: white;
     height: fit-content;
     font-size: .8em;
-    font-size: 1em;
+    font-size: 1.2em;
 }
 
 .boolean-input{
@@ -50,7 +50,7 @@
     }
     
     .mat-slide-toggle-content {
-        font-size: .8em;
+        font-size: 1.2;
     }
     
     .mat-slide-toggle-thumb {
@@ -221,15 +221,11 @@
     margin-left: 6px;
 }
 
-.mat-slider{
-    height: 40px;
-    padding: 0px;
-}
 
-.mat-icon-button{
-    position: relative;
-    top: -9px;
-}
+// .mat-icon-button{
+//     position: relative;
+//     top: -9px;
+// }
 
 button.is-primary.is-active{
     background-color: rgb(255, 64, 129);

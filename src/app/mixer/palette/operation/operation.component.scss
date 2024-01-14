@@ -4,6 +4,7 @@
     justify-content: flex-start;
     width: max-content;
     min-width: 300px;
+    border-radius: 8px;
     background-color: #434345;
     color: white;
 
@@ -29,6 +30,7 @@
 
 .operation-parent{
     position: absolute;
+
 }
 
 /* The animation code */
@@ -185,8 +187,12 @@ button.is-primary.is-active{
 .name{
     margin: 0px 8px;
     color: white;
-    font-size: 1.5em;
+    font-size: 1.6em;
     font-weight: bold;
+}
+
+.hidden{
+    display: none;
 }
 
 
@@ -197,12 +203,12 @@ button.is-primary.is-active{
         padding: 16px 8px;
         width: 100%;
 
+
 }
 
 .param{
-
+    padding: 0px 8px;
     display: flex;
-    flex: 1 1 0px;
 }
 
 
@@ -228,11 +234,9 @@ button.is-primary.is-active{
 
 .outputs{
     display: flex;
-    background-color: white;
     flex-direction: row;
-    border: thin solid black
 }
 
 .draftrendering{
-    padding: 8px;
+    width: 100%;
 }

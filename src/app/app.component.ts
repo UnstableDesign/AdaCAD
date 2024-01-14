@@ -804,8 +804,6 @@ prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>
    */
 async processFileData(data: FileObj) : Promise<string|void>{
 
-  console.log("DATA IS ", data)
-
   this.loading = true;
   let entry_mapping = [];
 
@@ -1063,6 +1061,11 @@ saveFile(){
     .then(so => {
       this.ss.addMixerHistoryState(so);
     });
+}
+
+setDraftsViewable(val: boolean){
+  this.ws.hide_mixer_drafts = val;
+  this.mixer.redrawAllSubdrafts();
 }
 
 showDraftDetails(id: number){

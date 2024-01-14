@@ -118,11 +118,9 @@ export class SubdraftComponent implements OnInit {
 
   set_connectable:boolean = false;
 
-
   draft_visible: boolean = true;
 
   loom_settings: LoomSettings;
-
 
   use_colors: boolean = false;
 

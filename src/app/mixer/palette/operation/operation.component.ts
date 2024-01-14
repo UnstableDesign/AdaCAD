@@ -155,15 +155,6 @@ export class OperationComponent implements OnInit {
     this.displayname = this.opdescriptions.getDisplayName(this.name);
     this.application = this.opdescriptions.getOpApplication(this.name);
     this.category_name = this.opdescriptions.getOpCategory(this.name);
-    console.log("CATEGORY NAME ", this.category_name)
-
-    // const tl: Point = this.viewport.getTopLeft();
-    // const tl_offset = {x: tl.x, y: tl.y};
-    // console.log("setting position to ", tl)
-
-    //  if(this.topleft.x == 0 && this.topleft.y == 0){
-    //   this.setPosition(tl_offset);
-    //  } 
      this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
 

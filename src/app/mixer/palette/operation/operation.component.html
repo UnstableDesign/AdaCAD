@@ -11,8 +11,7 @@ cdkDragBoundary=".palette"
 >
 
   <div class="operation-container" [style.background-color]="opdescriptions.getCatColor(category_name)">
-
-        <div class="cxn-row" >
+        <div class="cxn-row" [class.hidden] = "op.inlets.length == 0">
             <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">
               
               <app-inlet 
@@ -75,14 +74,7 @@ cdkDragBoundary=".palette"
 
 
 
-      <!-- 
-        <button class="refresh" 
-        mat-icon-button
-          (click)="toggleParamsVisible()"
-          matTooltip="update draft with input values">
-          <i *ngIf="!params_visible" class="fas fa-edit"></i>
-          <i *ngIf="params_visible" class="fas fa-eye-slash"></i>
-      </button>   -->
+ 
 
       </div>
 
@@ -92,7 +84,7 @@ cdkDragBoundary=".palette"
         *ngFor="let child_id of children" 
         [id]="child_id" 
         [dirty]="redrawchildren"
-        [fromOp]="true"
+        [hasParent]="true"
         (connectionSelected)="connectionStarted($event)"
         (onDuplicateCalled)="designActionChange($event)"
 				(onDeleteCalled)="designActionChange($event)"
