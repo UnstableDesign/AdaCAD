@@ -234,6 +234,7 @@ export class DraftrenderingComponent {
     if(this.hasParent && this.ws.hide_mixer_drafts) return;
 
     this.draft_canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
+    if(this.draft_canvas == null) return;
     this.draft_cx = this.draft_canvas.getContext("2d");
 
     this.warp_data_canvas = <HTMLCanvasElement> document.getElementById('warp-data-'+this.id.toString());

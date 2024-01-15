@@ -329,12 +329,67 @@ export class DraftviewerComponent implements OnInit {
 
   expand(){
     this.expanded = !this.expanded;
+
+
+
     this.onViewerExpanded.emit();
+
+    if(this.id !== -1){
+
+      const loom_settings = this.tree.getLoomSettings(this.id);
+      const draft = this.tree.getDraft(this.id);
+      const loom = this.tree.getLoom(this.id);
+      this.computeandSetScale(draft, loom, loom_settings);
+      
+      }
   }
+
+
+
+  computeandSetScale(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
+
+    let div = document.getElementById('draft_viewer');
+    let rect = div.getBoundingClientRect();
+    var base_dims = this.render.getCellDims("base_fill");
+    let cell_size = base_dims.w * this.pixel_ratio;
+    
+
+    let weft_num = wefts(draft.drawdown);
+    let warp_num = warps(draft.drawdown);
+    let treadles = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
+    let frames = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
+    let width = (isFrame(loom_settings)) ? (warp_num + treadles + 12) * cell_size : (warp_num + 11)  * cell_size; 
+    let height = (isFrame(loom_settings)) ? (weft_num + frames + 12)* cell_size : (weft_num+11)  * cell_size; 
+
+
+    let width_adj = rect.width / width;
+    let height_adj = Math.min(window.innerHeight, rect.height) / height;
+
+
+    let adj = Math.min(width_adj, height_adj);
+    let left_diff = (rect.width - width) / 2;
+    let draft_viewer = document.getElementById('draft-container');
+
+    //this.render.setZoom(adj);
+    if(this.hasFocus){
+      let sidebar = document.getElementById('detail-sidebar');
+      let sidebar_rect = sidebar.getBoundingClientRect();
+      draft_viewer.style.left = rect.width + "px";
+      draft_viewer.style.left = sidebar_rect.width + left_diff + "px";
+
+  }else{
+    if(left_diff > 0) draft_viewer.style.left = left_diff + "px";
+  }
+
+   this.rescale(adj);     
+
+  }
+
+
+
 
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {  
-    console.log("ON NEW DRAFT LOADED", id)
 
     this.id = id;  
 
@@ -343,6 +398,8 @@ export class DraftviewerComponent implements OnInit {
     const loom_settings = this.tree.getLoomSettings(id);
     const draft = this.tree.getDraft(id);
     const loom = this.tree.getLoom(id);
+
+    this.computeandSetScale(draft, loom, loom_settings);
 
     this.resetDirty();
     

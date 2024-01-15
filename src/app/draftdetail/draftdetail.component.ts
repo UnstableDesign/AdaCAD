@@ -4,9 +4,9 @@ import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 import { createCell } from '../core/model/cell';
-import { Drawdown, LoomSettings } from '../core/model/datatypes';
+import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { defaults, draft_pencil } from '../core/model/defaults';
-import { copyDraft, getDraftName, wefts } from '../core/model/drafts';
+import { copyDraft, getDraftName, warps, wefts } from '../core/model/drafts';
 import { copyLoom, getLoomUtilByType } from '../core/model/looms';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -153,7 +153,6 @@ export class DraftDetailComponent implements OnInit {
 
 
   
-    
   }
 
 
@@ -293,11 +292,9 @@ export class DraftDetailComponent implements OnInit {
 
     if(id == -1) return;
 
-    
     //reset the dirty value every time the window is open
-    this.weaveRef.is_dirty = false;
+      this.weaveRef.is_dirty = false;
 
-   // if(!this.tree.hasParent(id)){
 
       this.id = id;
       this.clone_id = -1;
@@ -315,65 +312,6 @@ export class DraftDetailComponent implements OnInit {
       //return this.simRef.loadNewDraft(this.draft, this.loom_settings);
       return Promise.resolve(null);
     
-    // }else{
-
-    //   //set up a clone of this draft if it has a parent, so that major changes can spawn a new draft to be created
-
-    //   this.clone_id  = id;
-    //   const newid = this.tree.createNode('draft', null, null);
-
-    //   let d = this.tree.getDraft(id);
-      
-    //   const draft= copyDraft(d);
-    //   this.draftname = getDraftName(draft)
-
-    //   draft.id =newid;
-    //   this.id = newid;
-
-    //   //copy over the loom settings
-    //   const old_loom_settings:LoomSettings = this.tree.getLoomSettings(id);
-    //   const loom_settings = {
-    //     type: old_loom_settings.type,
-    //     epi: old_loom_settings.epi,
-    //     units: old_loom_settings.units,
-    //     frames: old_loom_settings.frames,
-    //     treadles: old_loom_settings.treadles
-    //   }
-
-    //   this.tree.setLoomSettings(this.id, loom_settings)
-
-    //   let loom = this.tree.getLoom(id);
-    //   const loom_fns = [];
-
-    //   if(loom === null){
-    //     let loom_util = getLoomUtilByType(loom_settings.type);
-    //     loom_fns.push( loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option))
-    //   }else{
-    //     loom = copyLoom(this.tree.getLoom(id));
-    //     this.tree.setLoom(this.id, loom);
-    //   }
-
-
-    //   return Promise.all(loom_fns)
-    //   .then(loom => {
-
-    //     if(loom.length > 0){
-    //       let new_loom = copyLoom(loom[0]);
-    //       this.tree.setLoom(this.id, new_loom)
-    //     }
-
-    //     let new_loom = this.tree.getLoom(this.id);
-    //     return  this.tree.loadDraftData({prev_id: -1, cur_id: this.id}, draft, new_loom, loom_settings, false)
-    //   }).then(d => {
-
-
-    //     this.render.loadNewDraft(draft);
-    //     this.weaveRef.onNewDraftLoaded(this.id);
-    //     return Promise.resolve(null)
-
-    //     })
-    //     .catch(err => {console.error(err)})
-    // }
    
   }
 
