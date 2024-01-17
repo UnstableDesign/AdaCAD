@@ -22,9 +22,6 @@ h3{
   margin-top: 6px;
 }
 
-.hidden{
-  display: none;
-}
 
 
 
@@ -37,6 +34,11 @@ h3{
   height: 100%;
   width: min-content;
   overflow: scroll;
+
+  &.hide{
+    z-index: -1;
+  }
+  
 }
 
 .sidenav_section{

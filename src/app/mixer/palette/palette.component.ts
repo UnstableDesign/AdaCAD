@@ -1226,7 +1226,6 @@ handlePan(diff: Point){
   */
  onConnectionStarted(obj: any){
 
-  console.log("ON CXN STARTED", obj)
 
   if(obj.type == 'stop'){
     this.selecting_connection = false;
@@ -1255,17 +1254,24 @@ handlePan(diff: Point){
 
   let adj: Point;
 
-  const from = document.getElementById(obj.id+'-out').getBoundingClientRect();
-  const container = document.getElementById('scrollable-container').getBoundingClientRect();
 
-  console.log("FROM ", from, container)
+  let parent = document.getElementById('scrollable-container').getBoundingClientRect();
 
+  let sd_container = document.getElementById(obj.id+'-out').getBoundingClientRect();
 
+  const zoom_factor =  this.default_cell_size / this.zs.zoom;
+  //on screen position relative to palette
+  let screenX = sd_container.x - parent.x;
+  let scaledX = screenX * zoom_factor;
 
+  //on screen position relative to palette
+  let screenY = sd_container.y - parent.y;
+  let scaledY = screenY * zoom_factor;
 
-  adj = {
-    x: from.x - container.x, 
-    y: from.y - container.y}
+ adj = {
+   x: scaledX,
+   y: scaledY
+ }
 
 
   this.unfreezePaletteObjects();
@@ -1416,10 +1422,30 @@ handlePan(diff: Point){
    */
 connectionDragged(mouse: Point, shift: boolean){
 
-  let container = document.getElementById("scrollable-container").getBoundingClientRect();
+
+
+  let parent = document.getElementById('scrollable-container');
+  let rect_palette = parent.getBoundingClientRect();
+
+  const zoom_factor =  this.default_cell_size / this.zs.zoom;
+
+  //on screen position relative to palette
+  let screenX = mouse.x-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
+  let scaledX = screenX * zoom_factor;
+
+  //on screen position relative to palette
+  let screenY = mouse.y-rect_palette.y;
+  let scaledY = screenY * zoom_factor;
+  
 
   //get the mouse position relative to the view frame
-  const adj: Point = {x: mouse.x - container.x, y: mouse.y -container.y}
+  const adj: Point  = {
+    x: scaledX,
+    y: scaledY
+  }
+
+
+  //get the mouse position relative to the view frame
   this.active_connection.width =  (adj.x - this.active_connection.topleft.x);
   this.active_connection.height =  (adj.y - this.active_connection.topleft.y);
 
@@ -2139,11 +2165,16 @@ pasteConnection(from: number, to: number, inlet: number){
 
 
 
-    const shift: boolean = event.shiftKey;
-    const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
-    mouse.x = ndx.j * this.zs.zoom;
-    mouse.y = ndx.i *this.zs.zoom;
+     const shift: boolean = event.shiftKey;
+    // const mouse:Point = {
+    //   x: this.viewport.getTopLeft().x + event.clientX, 
+    //   y:this.viewport.getTopLeft().y+event.clientY
+    // };
+
+    const mouse:Point = {
+      x: event.clientX, 
+      y: event.clientY
+    };
 
     if(this.selecting_connection){
       this.connectionDragged(mouse, shift);

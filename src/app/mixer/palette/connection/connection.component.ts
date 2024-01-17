@@ -127,16 +127,16 @@ export class ConnectionComponent implements OnInit {
 
     let parent = document.getElementById('scrollable-container').getBoundingClientRect();
     let to_container = document.getElementById('scale-'+to);
-    let sd_rect = to_container.getBoundingClientRect();
+    let to_rect = to_container.getBoundingClientRect();
 
     const zoom_factor =  this.default_cell_size / this.scale;
 
     //on screen position relative to palette
-    let screenX = sd_rect.x - parent.x;
+    let screenX = to_rect.x - parent.x;
     let scaledX = screenX * zoom_factor;
 
     //on screen position relative to palette
-    let screenY = sd_rect.y - parent.y;
+    let screenY = to_rect.y - parent.y;
     let scaledY = screenY * zoom_factor;
 
     
@@ -222,7 +222,8 @@ export class ConnectionComponent implements OnInit {
 
     const stublength = 15;
     const connector_opening = 10;
-    const connector_font_size = Math.max((10 - scale) / 10, .75);
+    // const connector_font_size = Math.max((10 - scale) / 10, .75);
+    const connector_font_size = 2;
     const text_path_font_size =   Math.max((10 - scale) / 10, .75);
     const button_margin_left = -20;
     const button_margin_top = -16;

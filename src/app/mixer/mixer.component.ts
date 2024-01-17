@@ -134,6 +134,7 @@ export class MixerComponent  {
 
     let mixer_div = document.getElementById('scrollable-container');
 
+    console.log("SETTING MIXER DIV to ",  mixer_sidenav_rect.width, mixer_sidenav_rect)
     mixer_div.style.left = mixer_sidenav_rect.width+"px";
     
     
