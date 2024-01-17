@@ -22,10 +22,15 @@ h3{
   margin-top: 6px;
 }
 
+.hidden{
+  display: none;
+}
 
 
-.sidenav_small{
+
+.sidenav{
   z-index: 4;
+  position: fixed;
   display: flex;
   background-color: white;
   flex-direction: column;

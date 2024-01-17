@@ -1,7 +1,7 @@
 
 
 
-<div class="sidenav_small" *ngIf="hasFocus">
+<div class="sidenav" id="mixer_sidenav" [class.hidden]="!hasFocus">
 
 
 <!-- <app-mixerview
@@ -171,6 +171,7 @@
 
 
 </div>
+
 <app-palette  
 class="palette mode-{{dm.cur_mixer_mode}}"
 [style.width.px]='vp.getAbsoluteWidth()' 

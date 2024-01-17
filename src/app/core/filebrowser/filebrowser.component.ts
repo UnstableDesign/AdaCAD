@@ -45,7 +45,6 @@ export class FilebrowserComponent implements OnInit {
 
 
         this.files.loaded_file_change$.subscribe(data => {
-          console.log("UDPDATED FILE DATA in Browser window to ", data)
           this.updateFileData(data)
         });
 
@@ -102,7 +101,6 @@ export class FilebrowserComponent implements OnInit {
 
   rename(id: number){
     let file_to_rename = this.file_list.find(el => el.id == id);
-    console.log("FILE TO RENAME ", file_to_rename, this.file_list)
 
       if(file_to_rename !== undefined){
 

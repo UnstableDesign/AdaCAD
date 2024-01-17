@@ -1,5 +1,5 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { Component, enableProdMode, EventEmitter, Input, Optional, Output, ViewChild } from '@angular/core';
+import { Component, enableProdMode, EventEmitter, Input, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { NgForm, UntypedFormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -124,6 +124,19 @@ export class MixerComponent  {
       startWith(''),
       map(value => this._filter(value))
     );
+  }
+
+
+  ngOnChanges(changes: SimpleChanges): void{
+
+    let mixer_sidenav_div = document.getElementById('mixer_sidenav');
+    let mixer_sidenav_rect = mixer_sidenav_div.getBoundingClientRect();
+
+    let mixer_div = document.getElementById('scrollable-container');
+
+    mixer_div.style.left = mixer_sidenav_rect.width+"px";
+    
+    
   }
 
   private _filter(value: string): any[] {
