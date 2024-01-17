@@ -19,7 +19,8 @@ export interface LoadedFile{
   id: number, 
   name: string,
   desc: string, 
-  ada: SaveObj
+  ada: SaveObj,
+  last_saved_time: number
 }
 
 

@@ -2,9 +2,8 @@ import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsula
 import { AuthService } from '../provider/auth.service';
 import { FilesystemService } from '../provider/filesystem.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { LoginComponent } from '../login/login.component';
 import { WorkspaceService } from '../provider/workspace.service';
-import { LoadfileComponent } from '../modal/loadfile/loadfile.component';
+import { FileService } from '../provider/file.service';
 
 @Component({
   selector: 'app-filebrowser',
@@ -15,38 +14,41 @@ import { LoadfileComponent } from '../modal/loadfile/loadfile.component';
 })
 export class FilebrowserComponent implements OnInit {
 
-  //@Output() onLoadNewFile: any = new EventEmitter();
-  //@Output() onClearScreen: any = new EventEmitter();
-  @Output() onCurrentFileDeleted: any = new EventEmitter();
-  //@Output() onSave: any = new EventEmitter();
   @Output() onLoadFromDB: any = new EventEmitter();
+  @Output() onCreateFile: any = new EventEmitter();
 
   
-  isLoggedIn = false;
-  filelist = [];
-  rename_mode = false;
-  last_saved_time = '--';
+  unopened_filelist = [];
+  file_list = [];
+
+
+
+  rename_mode_id = -1;
+  rename_file_name ="";
+
 
   constructor(
     public files: FilesystemService, 
     public auth: AuthService,
     public ws: WorkspaceService,
+    public fs: FileService,
     private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any
     ) { 
     
 
-    this.filelist = this.files.file_tree;
+      this.updateFileData(this.files.file_tree)
 
       this.files.file_tree_change$.subscribe(data => {
-        
-        this.updateFileData(data);
-      }
-    );
+        this.updateFileData(data);});
 
-    this.files.file_saved_change$.subscribe(data => {
-      this.last_saved_time =new Date(data).toUTCString();
-    });
+
+
+        this.files.loaded_file_change$.subscribe(data => {
+          console.log("UDPDATED FILE DATA in Browser window to ", data)
+          this.updateFileData(data)
+        });
+
 
 
 
@@ -61,25 +63,24 @@ export class FilebrowserComponent implements OnInit {
     
   }
 
+  createBlankFile(){
+    this.onCreateFile.emit();
+  }
+
+  formatDate(date: number){
+    var dateFormat = new Date(date);
+    return dateFormat.toLocaleTimeString();
+  }
+
   updateFileData(data: Array<any>){
-    function compareFn(a, b) {
-      if (a.meta.timestamp > b.meta.timestamp) {
-        return -1;
+    this.unopened_filelist = [];
+    this.file_list = [];
+    data.forEach(file => {
+      this.file_list.push(file);
+      if(this.files.loaded_files.find(el => el.id == file.id) == undefined){
+        this.unopened_filelist.push(file);
       }
-      if (a.meta.timestamp < b.meta.timestamp) {
-        return 1;
-      }
-      // a must be equal to b
-      return 0;
-    }
-
-    const timesorted = data.sort(compareFn);
-    // const favs = timesorted.filter(el => this.ws.isFavorite(el.id) || this.files.current_file_id == el.id);
-    // const other = timesorted.filter(el => !this.ws.isFavorite(el.id) && this.files.current_file_id !== el.id);
-
-    //this.filelist = favs.concat(other);
-    this.filelist = timesorted;
-
+    })
   }
 
 
@@ -87,86 +88,72 @@ export class FilebrowserComponent implements OnInit {
     this.onLoadFromDB.emit(id);
   }
 
-  toggleFavorite(id: number){
-      this.ws.toggleFavorite(id);
-      this.updateFileData(this.filelist)
-  }
-
   duplicate(){
     
   }
 
 
+  close(id: number){
+    let item = this.files.getLoadedFile(id);
+    if(item == null) return;
+    this.files.unloadFile(id)
+  }
 
-  rename(){
-    if(this.rename_mode === true){
-      this.files.renameFile(this.files.getCurrentFileId(), this.files.getCurrentFileName());
-      this.files.updateDescription(this.files.getCurrentFileId(), this.files.getCurrentFileDesc());
-      this.rename_mode = false;
-    }else{
-      this.rename_mode = true;
-    } 
 
+  rename(id: number){
+    let file_to_rename = this.file_list.find(el => el.id == id);
+    console.log("FILE TO RENAME ", file_to_rename, this.file_list)
+
+      if(file_to_rename !== undefined){
+
+        if(this.rename_mode_id !== -1){
+
+        this.files.renameFile(file_to_rename.id, this.rename_file_name);
+        this.rename_mode_id = -1;
+        this.rename_file_name = '';
+
+        }else{
+          this.rename_file_name = file_to_rename.meta.name;
+          this.rename_mode_id = id;
+        }
+      }
   }
 
   remove(fileid: number){
     this.files.removeFile(fileid);
-    if(fileid === this.files.getCurrentFileId()){
-      this.onCurrentFileDeleted.emit();
-    }  
-
-
-
   }
 
+    /**
+   * this is called when a user pushes save from the topbar
+   * @param event 
+   */
+  public  exportWorkspace(id: number){
 
-  // public saveAsBmp() {
-  //   var obj: any = {
-  //     type: "bmp"
-  //   }
-  //   console.log(obj);
-  // 	this.onSave.emit(obj);
-  // }
+    const link = document.createElement('a')
 
-  // public saveAsAda() {
-  //   var obj: any = {
-  //     type: "ada"
-  //   }
-  //   console.log(obj);
-  //   this.onSave.emit(obj);
-  // }
+      let loaded = this.files.getLoadedFile(id);
+      if(loaded !== null){
+        var theJSON = JSON.stringify(loaded.ada);
+        link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
+        link.download =  loaded.name + ".ada";
+        link.click();
+      }else{
+        let fns = [ this.files.getFile(id), this.files.getFileMeta(id)];
+        Promise.all(fns)
+        .then(res => {
+          var theJSON = JSON.stringify(res[0]);
+          link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
+          link.download =  res[1].name + ".ada";
+          link.click();
+        }).catch(err => {console.error(err)});
 
-  // public saveAsWif() {
-  //   var obj: any = {
-  //     type: "wif"
-  //   }
-  //   this.onSave.emit(obj);
-  // }
-
-  // public saveAsPrint() {
-  //   var obj: any = {
-  //     type: "jpg"
-  //   }
-  //   this.onSave.emit(obj);
-  // }
+      }
 
 
   
-
-
-
-// openLoginDialog() {
-//     const dialogRef = this.dialog.open(LoginComponent, {
-//       width: '600px',
-//     });
-// }
-
-// onNewWorkspace(){
-//   this.onClearScreen.emit();
-// }
-
-
-
+  
+    }
+  
 
   
 

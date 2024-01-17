@@ -38,7 +38,7 @@
 
         <mat-menu #openFile="matMenu">
           <button mat-menu-item (click)="openNewFileDialog()">From Computer</button>
-          <button mat-menu-item [disabled]="!online || !auth.isLoggedIn" (click)="openAdaFiles(true)">From AdaCAD Cloud
+          <button mat-menu-item [disabled]="!files.connected || !auth.isLoggedIn" (click)="openAdaFiles(true)">From AdaCAD Cloud
             <span *ngIf="!auth.isLoggedIn">you must login to use this feature </span>
           </button>
         </mat-menu>
@@ -127,14 +127,25 @@
       <div class="filelist">
         <div class="fileitem" [class.active]= "tab.id === files.getCurrentFileId()" *ngFor="let tab of files.loaded_files; index as index;">
           <button  mat-button (click)="switchFile(tab.id)" >{{tab.name}} </button>
-          <button *ngIf="tab.id !==  files.getCurrentFileId()" mat-button (click)="closeFile(tab.id)">x</button>
-
+          <button *ngIf="tab.id !==  files.getCurrentFileId()" mat-button [matMenuTriggerFor]="deleteConfirm"><i class="fa-solid fa-xmark"></i></button>
+      
+          <mat-menu #deleteConfirm>
+            <button 
+            mat-icon-button 
+            matListItemIcon
+            (click)="closeFile(tab.id)"
+            >
+              Are you sure?
+              </button>
+          </mat-menu>
+        
+        
 
           <!-- <mat-form-field *ngIf="tab.id ==  files.getCurrentFileId()" >
             <input matInput [placeholder]="tab.name" name="filename">
           </mat-form-field> -->
           </div>
-        <button class="addfile" mat-button (click)="loadBlankFile()" >+</button>
+        <button class="addfile" mat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i></button>
       </div>
     </div>
 </div>

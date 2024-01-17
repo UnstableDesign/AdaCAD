@@ -11,121 +11,210 @@ cdkDrag
 
 <mat-dialog-content class="filebrowser">
 
+  <button mat-raised-button (click)="createBlankFile()">Create A New File</button>
+
 
 
       <!-- files-->
-        <div *ngIf="!auth.isLoggedIn">
-          <button mat-flat-button  color="primary" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
+  <div *ngIf="!auth.isLoggedIn">
+    <button mat-flat-button  color="primary" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
+  </div>
+
+
+
+  <ng-container *ngIf="!files.connected">
+    Saved files cannot be accessed because you are offline.
+  </ng-container>
+
+
+    <ng-container *ngIf="auth.isLoggedIn && files.connected">
+
+
+      <!-- begin loaded files section -->
+
+      <h3> Loaded Files</h3>
+
+      <div class="file-item-block">
+        <div class="filename">
+          Name
         </div>
-      
+        <div class="lastviewed">
+          Last Saved
+        </div>
+
+        <div class="actions">
+          Actions
+        </div>
+      </div>
 
 
-      <ng-container *ngIf="!files.connected">
-        Saved files cannot be accessed because you are offline.
-      </ng-container>
+      <!-- display loaded files -->
+      <div  class="file-item-block current" *ngFor="let file of files.loaded_files">
+          
+        <div class="filename">
+            <mat-form-field *ngIf="rename_mode_id == file.id">
+              <mat-label>Rename File</mat-label>
+             <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
 
-        <ng-container *ngIf="filelist !== undefined && auth.isLoggedIn && files.connected">
+              <button 
+              mat-icon-button 
+              [class.primary]="file.id == this.files.current_file_id" 
+              (click) = "rename(file.id)">
+              <i class="fas fa-save"></i></button>
 
-        <div  *ngFor="let file of filelist">
-          <ng-container *ngIf="file !== null && file.meta !== null">
+            </mat-form-field>
 
 
-            <div class="file-item-block" [class.current]="file.id === this.files.current_file_id">
-           
-              <div class="details">
+            <button *ngIf="rename_mode_id !== file.id"
+            mat-button 
+            [class.primary]="file.id == this.files.current_file_id" 
+            (click) = openFile(file.id)
+            class="file_name">
+             {{file.name}}
+            </button>
 
-    
-                <div  *ngIf="file.id == this.files.current_file_id && rename_mode">
-                <mat-form-field class="example-full-width" class="filename">
-                  <mat-label>Rename File</mat-label>
-                  <div><input matInput color="accent" [(ngModel)]="files.current_file_name" placeholder="Filename" (change)="rename()"> </div>
-                </mat-form-field>
+            
 
-                <mat-form-field class="example-full-width" >
-                  <mat-label>Description</mat-label>
-                  <textarea matInput placeholder="Ex. this file creates..."  [(ngModel)]="files.current_file_desc"></textarea>
-                </mat-form-field>
-                <button 
-                mat-raised-button
-                color="accent"
-                (click) = "rename()">
+        </div>
+
+
+        <div class="lastviewed"> {{formatDate(file.last_saved_time)}} </div>
+
+
+          <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
+
+
+        <div class="actions"> 
 
         
-                 Save
-               
-                </button>
-               
-              </div>
 
-                <ng-container *ngIf="data.selectOnly">
+          <button 
+          mat-icon-button 
+          matListItemIcon
+          matTooltip="rename this file"
+          (click)="rename(file.id)"
+          ><i class="fas fa-edit"></i>
+        </button>
 
-                  <button *ngIf="(file.id == this.files.current_file_id && !rename_mode) || file.id !== this.files.current_file_id" 
-                  mat-button 
+
+          <button 
+          mat-icon-button 
+          matListItemIcon
+          matTooltip="Download"
+          (click)="exportWorkspace(file.id)"
+          ><i class="fa-solid fa-download"></i>
+          </button>
+
+          <button *ngIf="files.loaded_files.length != 1"
+          mat-icon-button 
+          matListItemIcon
+          matTooltip="close this file"
+          (click)="close(file.id)"
+          ><i class="fa-solid fa-xmark"></i>
+        </button>
+
+
+
+
+
+        
+        
+        </div>
+  
+
+
+
+
+          
+  
+  </div>
+
+
+    <h3> Files Saved on AdaCAD Server</h3>
+
+
+      <!-- HEADER ROW -->
+      <div class="file-item-block">
+        <div class="filename">
+          Name
+        </div>
+        <div class="lastviewed">
+          Last Viewed
+        </div>
+
+        <div class="actions">
+          Actions
+        </div>
+      </div>
+
+
+
+      <div  class="file-item-block" *ngFor="let file of unopened_filelist" >
+          
+            <div class="filename">
+
+
+                <mat-form-field *ngIf="rename_mode_id == file.id">
+                  <mat-label>Rename File</mat-label>
+                 <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
+
+                  <button 
+                  mat-icon-button 
                   [class.primary]="file.id == this.files.current_file_id" 
-                  (click) = openFile(file.id)
-                  class="file_name">
+                  (click) = "rename(file.id)">
+                  <i class="fas fa-save"></i></button>
 
-                  {{file.meta.name}}
-                
-                  </button>
-                </ng-container>
+          
+    
 
-                <ng-container *ngIf="!data.selectOnly">
-
-                  <span *ngIf="(file.id == this.files.current_file_id && !rename_mode) || file.id !== this.files.current_file_id" 
-                  mat-button        
-                  class="file_name">
-
-                  {{file.meta.name}}
-                
-                </span>
-                </ng-container>
-
-                <div *ngIf="file.id != this.files.current_file_id"  class="timestamp">last viewed on: {{file.meta.date}} </div>
+                </mat-form-field>
 
 
-                <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="timestamp">last saved at: {{last_saved_time}} </div>
+                <button *ngIf="rename_mode_id !== file.id"
+                mat-button 
+                [class.primary]="file.id == this.files.current_file_id" 
+                (click) = openFile(file.id)
+                class="file_name">
+                 {{file.meta.name}}
+                </button>
+
+            </div>
+    
+
+            <div class="lastviewed"> {{file.meta.date}} </div>
 
 
-              </div>
+              <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
 
-              <div class="more" *ngIf="!data.selectOnly"> 
 
-             
+            <div class="actions"> 
 
-                <button 
-                mat-icon-button 
-                matListItemIcon
-                matTooltip="rename this file"
-                (click)="rename()"
-                ><i class="fas fa-edit"></i>
-              </button>
+            
+
+              <button 
+              mat-icon-button 
+              matListItemIcon
+              matTooltip="rename this file"
+              (click)="rename(file.id)"
+              ><i class="fas fa-edit"></i>
+            </button>
 
 
               <button 
               mat-icon-button 
               matListItemIcon
-              matTooltip="open"
-              (click)="openFile(file.id)"
-              > <i class="fa-solid fa-book-open"></i>
-            </button>
+              matTooltip="download"
+              (click)="exportWorkspace(file.id)">
+              <i class="fa-solid fa-download"></i>
+              </button>
 
-
-                <button 
-                mat-icon-button 
-                matListItemIcon
-                matTooltip="Download the current AdaCAD file"
-                [matMenuTriggerFor]="downloadDropdown"
-                ><i class="fa-solid fa-download"></i>
-                </button>
-
-     
-           
-             <button 
-             mat-icon-button 
-             [matMenuTriggerFor]="deleteConfirm"
-             >
-             <i class="fa-solid fa-trash"></i>
+    
+          
+              <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="deleteConfirm"
+              >
+              <i class="fa-solid fa-trash"></i>
               </button>
 
               <mat-menu #deleteConfirm>
@@ -134,25 +223,24 @@ cdkDrag
                 matListItemIcon
                 (click) = "remove(file.id)"
                 >
-                 Are you sure?
-                 </button>
+                  Are you sure?
+                  </button>
               </mat-menu>
             
+            
+            </div>
+      
+
+
+
+
               
-              </div>
-       
-
-
- 
-  
-               
-        
-              </div>
-       </ng-container>
-
-       
+      
       </div>
     </ng-container>
+
+       
+
 
     <!-- <mat-divider></mat-divider> -->
     <!-- <h2>Publicly Shared Files</h2> -->

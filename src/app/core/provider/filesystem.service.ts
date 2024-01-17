@@ -1,7 +1,7 @@
 import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
 import { get as fbget, getDatabase, query, ref as fbref, ref, remove } from '@angular/fire/database';
-import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, update } from 'firebase/database';
+import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
 import { Observable, Subject } from 'rxjs';
 import { FilebrowserComponent } from '../filebrowser/filebrowser.component';
 import { LoadedFile, SaveObj } from '../model/datatypes';
@@ -16,6 +16,7 @@ export class FilesystemService {
 
   file_tree_change$ = new Subject<any>();
   file_saved_change$ = new Subject<any>();
+  loaded_file_change$ = new Subject<any>();
 
   file_tree: Array<any> = [];
 
@@ -27,8 +28,6 @@ export class FilesystemService {
 
   connected: boolean = false;
 
-  last_saved_time: number = 0;
-
   updateUItree: Observable<Array<any>>;
 
 
@@ -39,6 +38,7 @@ export class FilesystemService {
       const db = getDatabase();
 
       const presenceRef = ref(db, "disconnectmessage");
+     
       // Write a string when this client loses connection
       onDisconnect(presenceRef).set("I disconnected!");
 
@@ -57,21 +57,19 @@ export class FilesystemService {
 
       authState(this.auth).subscribe(user => {
 
-        console.log('user', user)
         if(user == null){
           this.file_tree = [];
           return;
         } 
-        //update the tree based on the state of the DB
        
-    
-    
-    
-        const userFiles = query(ref(db, 'users/'+user.uid+'/files'));
+        
+        const userFiles = query(ref(db, 'users/'+user.uid+'/files'), orderByChild('timestamp'));
         
 
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
+          //console.log("CHILD ADDED ", userFiles)
+
           //only add values that haven't already been added
           if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
             this.addToTree(parseInt(childsnapshot.key), childsnapshot.val());
@@ -83,6 +81,7 @@ export class FilesystemService {
     
         //called when anything in meta changes
         onChildChanged(userFiles, (data) => {
+         // console.log("CHILD CHANGED ", userFiles)
             const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
             if(ndx !== -1){
               this.file_tree[ndx].meta.name = data.val().name;
@@ -92,6 +91,8 @@ export class FilesystemService {
         
         //needs to redraw the files list 
         onChildRemoved(userFiles, (removedItem) => {
+          //console.log("CHILD REMOVED ", userFiles)
+
           const removedId = removedItem.key;
           this.file_tree = this.file_tree.filter(el => parseInt(el.id) !== parseInt(removedId));
           this.file_tree_change$.next(this.file_tree.slice());
@@ -102,13 +103,9 @@ export class FilesystemService {
   }
 
   public getLoadedFile(id: number) : LoadedFile{
-    console.log("LOOKING FOR ", id, this.loaded_files.slice())
-    this.loaded_files.forEach(val => {
-      console.log(val.id)
-    })
+
     let item = this.loaded_files.find(el => el.id == id);
     if(item == undefined){
-      console.error("CURRENT FILE ID IS NOT FOUND IN LIST");
       return null;
     }else{
       return item
@@ -125,23 +122,23 @@ export class FilesystemService {
    */
   public pushToLoadedFilesAndFocus(id: number, name: string, desc: string) : Promise<boolean>{
 
-    console.log("PUSHING TO LOADED FILES ", id, name, desc )
 
     let item = this.getLoadedFile(id);
 
-    console.log("BEFORE PUSH, got ", item);
-
     if(item === null){
-      console.log("ITEM WAS NULL")
+
+      
       return this.getFileMeta(id)
       .then(res => {
         this.loaded_files.push({
           id: id,
           name: res.name,
           desc: res.desc,
-          ada: undefined
+          ada: undefined,
+          last_saved_time: 0
         });
-        this.current_file_id = id;
+        this.setCurrentFileInfo(id, res.name, res.desc);
+        this.loaded_file_change$.next(this.file_tree.slice());
         return Promise.resolve(true);
 
       })
@@ -150,14 +147,16 @@ export class FilesystemService {
           id: id,
           name:name,
           desc: desc,
-          ada: undefined
+          ada: undefined,
+          last_saved_time: 0
         })
-        this.current_file_id = id;
+        this.setCurrentFileInfo(id, name, desc);
+        this.loaded_file_change$.next(this.file_tree.slice());
         return Promise.resolve(false);
       });
 
     }else{
-      this.current_file_id = id;
+      this.setCurrentFileInfo(item.id, item.name, item.desc);
       return Promise.reject('this file has already been loaded')
     }
   }
@@ -165,6 +164,8 @@ export class FilesystemService {
   public unloadFile(id: number){
     this.loaded_files = this.loaded_files.filter(el => el.id !== id);
     if(this.current_file_id == id) this.current_file_id = -1;
+    this.loaded_file_change$.next(this.file_tree.slice());
+
   }
 
   public setCurrentFileId(id: number){
@@ -217,7 +218,7 @@ export class FilesystemService {
     var dateFormat = new Date(meta.timestamp);
     meta.date = dateFormat.toLocaleDateString();
 
-    this.file_tree.push({
+    this.file_tree.unshift({
       id: fileid,
       meta: meta
     })
@@ -419,7 +420,6 @@ getFile(fileid: number) : Promise<any> {
 
   updateCurrentStateInLoadedFiles(fileid: number, cur_state: SaveObj){
     const item = this.getLoadedFile(fileid);
-    console.log("uploading current status", item)
 
     if(item !== null){
       item.ada = cur_state;
@@ -434,8 +434,6 @@ getFile(fileid: number) : Promise<any> {
    */
   writeFileData(uid: string, fileid: number, cur_state: SaveObj) {
 
- 
-
 
     if(!this.connected) return;
 
@@ -445,8 +443,8 @@ getFile(fileid: number) : Promise<any> {
 
     update(ref,{ada: cur_state})
     .then(success => {
-      this.last_saved_time = Date.now();
-      this.file_saved_change$.next(this.last_saved_time);
+      const item = this.getLoadedFile(fileid);
+      item.last_saved_time = Date.now();
 
     })
     .catch(err => {

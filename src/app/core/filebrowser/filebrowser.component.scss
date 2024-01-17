@@ -4,30 +4,34 @@ h2{
     padding-bottom: 12px;
 }
 
-
-button{
-    margin-bottom: 4px;
+h3{
+    font-size: 1em;
+    padding-top: 40px;
+    font-weight: bold;
 }
 
-// button i {
-//     width: 24px;
-// }
-
-.mat-stroked-button{
-     margin: 4px 0px;
+.file-browser{
+    width: max-content;
 }
 
-
-.folder{
-    display: flex;
-    flex-direction: column;
+.lastviewed{
+    width: 25%;
+    text-align: left;
+    line-height: 40px;
 }
 
-.filebrowser{
-    max-width: 60vw;
+.filename{
+    width: 50%;
+    text-align: left;
+    text-wrap: pretty;
+}
+
+.actions{
+    width: 25%;
 }
 
 .file-item-block{
+    font-size: .8em;
     display: flex;
     flex: 1 0 0px;
     flex-direction: row;
@@ -41,7 +45,7 @@ button{
 }
 
 
-.more{
+.actions{
     display: flex;
     flex-direction: row;
     color: grey;

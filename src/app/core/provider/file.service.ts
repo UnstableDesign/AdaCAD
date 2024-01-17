@@ -54,7 +54,6 @@ export class FileService {
   const dloader: Fileloader = {
 
      ada: async (filename: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
-      console.log("DATA ", data, files)
 
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 

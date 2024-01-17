@@ -437,9 +437,7 @@ export class AppComponent implements OnInit{
   closeFile(fileid: number){
     let item = this.files.getLoadedFile(fileid);
     if(item == null) return;
-    if(confirm("Are you sure to close file: "+item.name)) {
-      this.files.unloadFile(fileid)
-    }
+    this.files.unloadFile(fileid)
   }
 
 
@@ -496,6 +494,7 @@ export class AppComponent implements OnInit{
     this.clearAll();
     this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'new file', '')
     .then(res => {
+
       this.saveFile();
     });
   }
@@ -735,6 +734,13 @@ onPasteSelections(){
     this.filebrowser_modal.componentInstance.onLoadFromDB.subscribe(event => {
       this.loadFromDB(event);
     });
+
+    this.filebrowser_modal.componentInstance.onCreateFile.subscribe(event => {
+      this.loadBlankFile();
+    });
+
+
+
 
 
   }
