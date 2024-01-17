@@ -1849,12 +1849,9 @@ export class DraftviewerComponent implements OnInit {
    * redraws the loom provided into the video
    * @returns 
    */
-  public redrawLoom(draft:Draft, loom:Loom, loom_settings:LoomSettings) {
+  public redrawLoom(draft: Draft, loom:Loom, loom_settings:LoomSettings) {
 
 
-
-
-    this.isFrame = isFrame(loom_settings);
 
     if(loom === null || loom === undefined){
       return;

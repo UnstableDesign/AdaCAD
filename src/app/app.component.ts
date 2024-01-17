@@ -460,8 +460,12 @@ export class AppComponent implements OnInit{
   }
 
   async switchFile(id: any){
+
+    console.log("SWITCH TO ID ", id)
     
     let loaded: LoadedFile = this.files.getLoadedFile(id);
+    console.log("loaded ", loaded)
+
     if(loaded == null) return;
     let so: SaveObj = loaded.ada;
 
@@ -490,18 +494,17 @@ export class AppComponent implements OnInit{
 
   loadBlankFile(){
     this.clearAll();
-    this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'new file', '');
-    this.saveFile();
+    this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'new file', '')
+    .then(res => {
+      this.saveFile();
+    });
   }
 
   loadStarterFile(){
     this.clearAll();
 
-    this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '');
-    
     const draft: Draft = initDraftWithParams({wefts: 10, warps: 10});
     let loom: Loom = null;
-  
     const loom_settings: LoomSettings = {
       treadles: this.ws.min_treadles,
       frames: this.ws.min_frames,
@@ -510,19 +513,21 @@ export class AppComponent implements OnInit{
       units:<"in"|"cm"> this.ws.units
     };
 
-    
-
     let id = this.mixer.newDraftCreated({draft, loom, loom_settings});
-    this.details.id = id;
-    this.details.weaveRef.id = id;
 
-    this.tree.setDraftAndRecomputeLoom(id, draft, loom_settings)
-    .then(loom => {
+    this.tree.setDraftAndRecomputeLoom(id, draft, loom_settings).then(loom => {
+      this.details.id = id;
+      this.details.weaveRef.id = id;
       this.details.render.updateVisible(draft);
       this.details.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-      this.saveFile();
 
-    })
+      return this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '')
+    }).then(res => {
+      this.saveFile();
+    });
+
+    
+    
   }
 
 
@@ -552,15 +557,26 @@ export class AppComponent implements OnInit{
    */
   loadNewFile(result: LoadResponse){
 
-    this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc);
-  
-    this.processFileData(result.data).then(data => {
-      this.saveFile();
+    //this file is already open in a different tab window 
+    if(this.files.getLoadedFile(result.id) !== null){
+      this.files.setCurrentFileId(result.id);
+      this.processFileData(result.data)
+      .then(data => {
+        this.saveFile();
+      })
+    }else{
+      this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
+      .then(res => {
+        return this.processFileData(result.data)
+      }).then(data => {
+          this.saveFile();
+      }).catch(e => {
+        console.log(e, "CAUGHT ERROR through from process file data")
+      });
     }
 
-    ).catch(e => {
-      console.log("CAUGHT ERROR through from process file data")
-    });
+
+
     
   }
 

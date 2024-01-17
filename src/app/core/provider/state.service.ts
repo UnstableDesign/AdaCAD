@@ -64,8 +64,9 @@ export class StateService {
  * this is called every-time there is an action that needs saving on the stack. 
  * this includes the creation of a new file
  */
-  public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
+  public addMixerHistoryState(ada:{json: string, file: SaveObj}){
 
+    console.log("adding mixer history state ", ada.file);
 
     this.files.updateCurrentStateInLoadedFiles(this.files.getCurrentFileId(), ada.file);
 

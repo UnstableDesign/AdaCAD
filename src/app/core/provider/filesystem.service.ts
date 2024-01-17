@@ -102,6 +102,10 @@ export class FilesystemService {
   }
 
   public getLoadedFile(id: number) : LoadedFile{
+    console.log("LOOKING FOR ", id, this.loaded_files.slice())
+    this.loaded_files.forEach(val => {
+      console.log(val.id)
+    })
     let item = this.loaded_files.find(el => el.id == id);
     if(item == undefined){
       console.error("CURRENT FILE ID IS NOT FOUND IN LIST");
@@ -117,19 +121,29 @@ export class FilesystemService {
    * given a new file that has just been loaded, update the meta-data to match the value of this item.
    * @param id 
    * @param ada 
+   * @returns boolean representing if the id had meta-data already stored or if new meta-data was created
    */
-  public pushToLoadedFilesAndFocus(id: number, name: string, desc: string){
+  public pushToLoadedFilesAndFocus(id: number, name: string, desc: string) : Promise<boolean>{
+
+    console.log("PUSHING TO LOADED FILES ", id, name, desc )
 
     let item = this.getLoadedFile(id);
+
+    console.log("BEFORE PUSH, got ", item);
+
     if(item === null){
-      this.getFileMeta(id)
+      console.log("ITEM WAS NULL")
+      return this.getFileMeta(id)
       .then(res => {
         this.loaded_files.push({
           id: id,
           name: res.name,
           desc: res.desc,
           ada: undefined
-        })
+        });
+        this.current_file_id = id;
+        return Promise.resolve(true);
+
       })
       .catch(nodata => {
         this.loaded_files.push({
@@ -138,9 +152,14 @@ export class FilesystemService {
           desc: desc,
           ada: undefined
         })
+        this.current_file_id = id;
+        return Promise.resolve(false);
       });
+
+    }else{
+      this.current_file_id = id;
+      return Promise.reject('this file has already been loaded')
     }
-    this.current_file_id = id;
   }
 
   public unloadFile(id: number){
@@ -400,6 +419,8 @@ getFile(fileid: number) : Promise<any> {
 
   updateCurrentStateInLoadedFiles(fileid: number, cur_state: SaveObj){
     const item = this.getLoadedFile(fileid);
+    console.log("uploading current status", item)
+
     if(item !== null){
       item.ada = cur_state;
     }
