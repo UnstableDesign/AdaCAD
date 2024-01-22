@@ -127,18 +127,19 @@ export class MixerComponent  {
   }
 
 
-  ngOnChanges(changes: SimpleChanges): void{
+  // ngOnChanges(changes: SimpleChanges): void{
 
-    let mixer_sidenav_div = document.getElementById('mixer_sidenav');
-    let mixer_sidenav_rect = mixer_sidenav_div.getBoundingClientRect();
 
-    let mixer_div = document.getElementById('scrollable-container');
+  //   let mixer_sidenav_div = document.getElementById('mixer_sidenav');
+  //   let mixer_sidenav_rect = mixer_sidenav_div.getBoundingClientRect();
 
-    console.log("SETTING MIXER DIV to ",  mixer_sidenav_rect.width, mixer_sidenav_rect)
-    mixer_div.style.left = mixer_sidenav_rect.width+"px";
+  //   let mixer_div = document.getElementById('scrollable-container');
+
+  //   console.log("SETTING MIXER DIV to ",  mixer_sidenav_rect.width, mixer_sidenav_rect)
+  //   mixer_div.style.left = mixer_sidenav_rect.width+"px";
     
     
-  }
+  // }
 
   private _filter(value: string): any[] {
     const filterValue = value.toLowerCase();

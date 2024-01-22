@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -7,7 +7,7 @@ import { createCell } from '../core/model/cell';
 import { Draft, Drawdown, Loom, LoomSettings } from '../core/model/datatypes';
 import { defaults, draft_pencil } from '../core/model/defaults';
 import { copyDraft, getDraftName, warps, wefts } from '../core/model/drafts';
-import { copyLoom, getLoomUtilByType } from '../core/model/looms';
+import { copyLoom, getLoomUtilByType, isFrame } from '../core/model/looms';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
@@ -46,7 +46,7 @@ export class DraftDetailComponent implements OnInit {
 
   @Input('hasFocus') hasFocus; 
 
-  id: number = -1;  
+  private id: number = -1;  
 
 
   actions_modal: MatDialogRef<ActionsComponent, any>;
@@ -85,7 +85,6 @@ export class DraftDetailComponent implements OnInit {
 
   layer_spacing: number = 10;
 
-  sim_expanded: boolean = false;
   viewer_expanded: boolean = false;
 
   clone_id: number = -1;
@@ -156,32 +155,8 @@ export class DraftDetailComponent implements OnInit {
   }
 
 
-  tabChange(event: any){
-    // if(event.index == 2){
-    //   this.crosssection.initScene();
-    // }
-  }
 
-  expandSimulation(){
-    this.sim_expanded = !this.sim_expanded;
 
-    if(this.sim_expanded){
-      const dvdiv = document.getElementById('draft-container');
-      dvdiv.style.display = 'none';
-      const el = document.getElementById('draft_sidebar');
-      el.style.display = "none";
-    }else{
-      const dvdiv = document.getElementById('draft-container');
-      dvdiv.style.display = 'flex';
-      const el = document.getElementById('draft_sidebar');
-      el.style.display = "flex";
-    }
-
-  }
-
-  closeDetailView(){
-    this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});
-  }
 
   clearAll(){
     console.log("Clearing Detail Viewer ");
@@ -193,17 +168,6 @@ export class DraftDetailComponent implements OnInit {
 
   expandViewer(){
     this.viewer_expanded = !this.viewer_expanded;
-
-    if(this.viewer_expanded){
-      const dvdiv = document.getElementById('sim_viewer');
-      dvdiv.style.display = 'none';
-    }else{
-      const dvdiv = document.getElementById('sim_viewer');
-      dvdiv.style.display = 'flex';
-      this.redrawSimulation();
-
-    }
-
   }
 
 
@@ -279,6 +243,17 @@ export class DraftDetailComponent implements OnInit {
 
   }
 
+  centerView(){
+    if(this.id !== -1){
+      
+      const loom_settings = this.tree.getLoomSettings(this.id);
+      const draft = this.tree.getDraft(this.id);
+      const loom = this.tree.getLoom(this.id);
+      this.weaveRef.computeAndSetScale(draft, loom, loom_settings);
+      
+      }
+  }
+
 
   /**
    * loads a new draft into the detail viewer
@@ -309,7 +284,6 @@ export class DraftDetailComponent implements OnInit {
       this.draftname = getDraftName(draft)
       this.render.loadNewDraft(draft);
       this.weaveRef.onNewDraftLoaded(id);
-      //return this.simRef.loadNewDraft(this.draft, this.loom_settings);
       return Promise.resolve(null);
     
    
@@ -379,7 +353,8 @@ export class DraftDetailComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    this.weaveRef.redrawLoom(draft, loom, loom_settings )
+    this.weaveRef.redrawLoom(draft, loom, loom_settings );
+    this.weaveRef.isFrame = isFrame(loom_settings);
     this.saveChanges.emit();
     this.redrawSimulation();
 
@@ -451,29 +426,29 @@ export class DraftDetailComponent implements OnInit {
    * when a change happens to the defaults for looms, we must update all looms on screen
    */
 
-  public globalLoomChange(e: any){
+  // public globalLoomChange(e: any){
 
-    const dn = this.tree.getDraftNodes();
-    dn.forEach(node => {
-      const draft = this.tree.getDraft(node.id)
-      const loom = this.tree.getLoom(node.id)
-      const loom_settings = this.tree.getLoomSettings(node.id);
-      (<SubdraftComponent> node.component).draft_rendering.drawDraft(draft);
-      if(node.id == this.id){
-        this.weaveRef.redraw(draft, loom, loom_settings, {
-          drawdown: true, 
-          loom:true, 
-          warp_systems: true, 
-          weft_systems: true, 
-          warp_materials: true,
-          weft_materials:true
-        });
-      } 
+  //   const dn = this.tree.getDraftNodes();
+  //   dn.forEach(node => {
+  //     const draft = this.tree.getDraft(node.id)
+  //     const loom = this.tree.getLoom(node.id)
+  //     const loom_settings = this.tree.getLoomSettings(node.id);
+  //     (<SubdraftComponent> node.component).draft_rendering.drawDraft(draft);
+  //     if(node.id == this.id){
+  //       this.weaveRef.redraw(draft, loom, loom_settings, {
+  //         drawdown: true, 
+  //         loom:true, 
+  //         warp_systems: true, 
+  //         weft_systems: true, 
+  //         warp_materials: true,
+  //         weft_materials:true
+  //       });
+  //     } 
 
-    });
+  //   });
 
 
-  }
+  // }
 
   public notesChanged(e:any) {
 

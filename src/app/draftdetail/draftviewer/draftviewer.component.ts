@@ -68,12 +68,6 @@ export class DraftviewerComponent implements OnInit {
    */ 
    canvasEl: HTMLCanvasElement;
  
- /**
-    * the window holding the draft.
-    * @property {HTMLCanvasElement}
-   */ 
-   draftContainer: HTMLElement;
- 
  
    /**
     * flag defining if there needs to be a recomputation of the draft on Mouse Up
@@ -211,7 +205,6 @@ export class DraftviewerComponent implements OnInit {
    private lastPos: Interlacement;
  
 
-   /** USED ONLY FOR FORM UPDATES */
    isFrame: boolean;
    treadles: number;
    frames: number;
@@ -274,8 +267,6 @@ export class DraftviewerComponent implements OnInit {
 
     // define the elements and context of the weave draft, threading, treadling, and tieups.
     this.canvasEl = <HTMLCanvasElement> document.getElementById('drawdown');
-    this.draftContainer = <HTMLElement> document.getElementById('draft-container');
-
 
   
     // this.svgSelectRow = el.nativeElement.children[12];
@@ -329,57 +320,82 @@ export class DraftviewerComponent implements OnInit {
 
   expand(){
     this.expanded = !this.expanded;
-
-
-
     this.onViewerExpanded.emit();
-
-    if(this.id !== -1){
-
-      const loom_settings = this.tree.getLoomSettings(this.id);
-      const draft = this.tree.getDraft(this.id);
-      const loom = this.tree.getLoom(this.id);
-      this.computeandSetScale(draft, loom, loom_settings);
-      
-      }
   }
 
 
 
-  computeandSetScale(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
+  /**
+   * called when a new draft is loaded. updates the zoom such that the draft content fills the window. 
+   * @param draft 
+   * @param loom 
+   * @param loom_settings 
+   */
+  computeAndSetScale(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
 
-    let div = document.getElementById('draft_viewer');
-    let rect = div.getBoundingClientRect();
+    let adj = 1;
+    let margin = 160;
+
+    let div_draft_detail = document.getElementById('detail');
+    let rect = div_draft_detail.getBoundingClientRect();
+
+
+    let div_draftviewer = document.getElementById('draft_viewer');
+
+
     var base_dims = this.render.getCellDims("base_fill");
-    let cell_size = base_dims.w * this.pixel_ratio;
-    
+    let cell_size = base_dims.w;    
+
+
 
     let weft_num = wefts(draft.drawdown);
     let warp_num = warps(draft.drawdown);
     let treadles = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
     let frames = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
-    let width = (isFrame(loom_settings)) ? (warp_num + treadles + 12) * cell_size : (warp_num + 11)  * cell_size; 
-    let height = (isFrame(loom_settings)) ? (weft_num + frames + 12)* cell_size : (weft_num+11)  * cell_size; 
+    let draft_width = (isFrame(loom_settings)) ? (warp_num + treadles) * cell_size : (warp_num)  * cell_size; 
+    let draft_height = (isFrame(loom_settings)) ? (weft_num + frames)* cell_size : (weft_num)  * cell_size; 
 
+    //add 100 to make space for the warp and weft selectors
+    draft_width += margin;
+    draft_height += margin;
 
-    let width_adj = rect.width / width;
-    let height_adj = Math.min(window.innerHeight, rect.height) / height;
-
-
-    let adj = Math.min(width_adj, height_adj);
-    let left_diff = (rect.width - width) / 2;
-    let draft_viewer = document.getElementById('draft-container');
-
-    //this.render.setZoom(adj);
     if(this.hasFocus){
       let sidebar = document.getElementById('detail-sidebar');
       let sidebar_rect = sidebar.getBoundingClientRect();
-      draft_viewer.style.left = rect.width + "px";
-      draft_viewer.style.left = sidebar_rect.width + left_diff + "px";
 
-  }else{
-    if(left_diff > 0) draft_viewer.style.left = left_diff + "px";
-  }
+      //the view rect includes the sidebar, so subtract it out
+      let width_less_sidebar = rect.width - sidebar_rect.width - margin;
+      let height_less_margin = Math.min(window.innerHeight, rect.height) - margin/2;
+
+      //get the ration of the view to the item
+      let width_adj = width_less_sidebar / draft_width;
+      let height_adj =height_less_margin /draft_height;
+
+      //make the zoom the smaller of the width or height
+      adj = Math.min(width_adj, height_adj);
+      
+      div_draftviewer.style.left = sidebar_rect.width + 'px';
+
+
+
+    }else{
+
+      let width_less_margin = rect.width - margin/4;
+      let window_height = rect.height - margin/8;
+
+      //get the ration of the view to the item
+      let width_adj = width_less_margin / draft_width;
+      let height_adj = window_height / draft_height;
+
+      //make the zoom the smaller of the width or height
+      adj = Math.min(width_adj, height_adj);
+
+
+
+      div_draftviewer.style.left = 0 + "px";
+
+
+    }
 
    this.rescale(adj);     
 
@@ -398,8 +414,7 @@ export class DraftviewerComponent implements OnInit {
     const loom_settings = this.tree.getLoomSettings(id);
     const draft = this.tree.getDraft(id);
     const loom = this.tree.getLoom(id);
-
-    this.computeandSetScale(draft, loom, loom_settings);
+    this.isFrame = isFrame(loom_settings);
 
     this.resetDirty();
     
@@ -442,6 +457,8 @@ export class DraftviewerComponent implements OnInit {
       warp_materials: true,
       weft_materials:true
     });
+
+    this.computeAndSetScale(draft, loom, loom_settings);
 
   }
 
@@ -1766,7 +1783,7 @@ export class DraftviewerComponent implements OnInit {
   public rescale(zoom: number){
   //   //var dims = this.render.getCellDims("base");
     const container: HTMLElement = document.getElementById('draft-scale-container');
-    container.style.transformOrigin = 'top center';
+    container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom + ')';
 
    
@@ -1978,11 +1995,7 @@ public clearAll(){
       this.cxTieups.canvas.height = 0;
       this.cxTieups.canvas.style.width = "0px";
       this.cxTieups.canvas.style.height = "0px";
-      
-  
-
-
-  
+    
 }
 
 //takes inputs about what, exactly to redraw
@@ -2011,7 +2024,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     }
 
   }
-  
+
 
   /**
    * Redraws the entire canvas based on weave pattern.
@@ -3051,24 +3064,24 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   }
 
 
-  public redrawLoomAndDraft(){
+  // public redrawLoomAndDraft(){
 
-    const draft = this.tree.getDraft(this.id)
-    const loom = this.tree.getLoom(this.id)
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    this.render.updateVisible(draft);
+  //   const draft = this.tree.getDraft(this.id)
+  //   const loom = this.tree.getLoom(this.id)
+  //   const loom_settings = this.tree.getLoomSettings(this.id);
+  //   this.render.updateVisible(draft);
 
-    const is_frame = isFrame(loom_settings);
-    if(is_frame){
-      this.isFrame = true;
-    }else{
-      this.isFrame = false;
-    }
-    this.colShuttleMapping = draft.colShuttleMapping.slice();
-    this.rowShuttleMapping = draft.rowShuttleMapping.slice();
-    this.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, warp_systems: true, warp_materials: true, weft_systems: true, weft_materials:true});
+  //   const is_frame = isFrame(loom_settings);
+  //   if(is_frame){
+  //     this.isFrame = true;
+  //   }else{
+  //     this.isFrame = false;
+  //   }
+  //   this.colShuttleMapping = draft.colShuttleMapping.slice();
+  //   this.rowShuttleMapping = draft.rowShuttleMapping.slice();
+  //   this.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, warp_systems: true, warp_materials: true, weft_systems: true, weft_materials:true});
   
-  }
+  // }
 
    
 

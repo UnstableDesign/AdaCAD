@@ -108,10 +108,20 @@ canvas{
 }
 
 
-#draft-container{
+#draft-scale-container{
   display: flex;
   flex-direction: column;
   position: relative;
+  width: fit-content;
+  height: fit-content;
+}
+
+#scale_view_test{
+  position: absolute;
+  background-color: blue;
+  width: 10px;
+  height: 10px;
+  display: block;
 }
 
 
@@ -139,6 +149,7 @@ canvas{
 .warp-systems-container{
   padding: 15px;
   display: flex;
+  width: 100%;
 }
 
 .warp-systems-container.origin0

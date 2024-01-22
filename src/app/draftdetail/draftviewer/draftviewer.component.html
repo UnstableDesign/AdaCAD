@@ -1,24 +1,4 @@
-<!-- <app-sidebar *ngIf="hasFocus" id="draft_sidebar"
-#sidebar
-[expanded]="hasFocus"
-(onDesignModeChange)='designModeChange($event)'
-(onZoomChange) ="renderChange($event);"
-(onViewChange) ="viewChange($event);"
-(onHideWeftSystem)="hideWeftSystem($event);"
-(onShowWeftSystem)="showWeftSystem($event);"
-(onHideWarpSystem)="hideWarpSystem($event);"
-(onShowWarpSystem)="showWarpSystem($event);"
-(onLocalLoomNeedsRedraw)="redrawLoomAndDraft()"
-(onUpdateWarpSystems) = "updateWarpSystems($event)"
-(onUpdateWeftSystems) = "updateWeftSystems($event)"
-(onUpdateWarpShuttles) = "updateWarpShuttles($event)"
-(onUpdateWeftShuttles) = "updateWeftShuttles($event)"
-(onExpand)="expand()"
-></app-sidebar> -->
-
-
-
-<div class="draft-container {{source}}"  [class.expanded] ="hasFocus" id="draft-container">
+<div class="draft-container origin{{ws.selected_origin_option}}"  [class.expanded] ="hasFocus" id="draft-scale-container">
 
   <app-selection
   #selection
@@ -28,19 +8,13 @@
   (onPaste)="onPaste($event)"
   (onSelectionEnd)="onSelectionEnd()"
   ></app-selection>
- 
-    
-    
-
-
-    <div id = 'draft-scale-container' class="origin{{ws.selected_origin_option}}" [class.hide]="render.current_view == 'simulate'">
 
 
 
       
       
 
-      <div class="warp-systems-container origin{{ws.selected_origin_option}} ">
+      <div class="warp-systems-container origin{{ws.selected_origin_option}}" id="warp-systems-container">
         <div class="warp-systems-text origin{{ws.selected_origin_option}}"  id="warp-systems-text">
          
           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
@@ -68,10 +42,10 @@
             </span>       -->
           </div>
             <div  class="warp_selectors">
-            <span *ngIf="!viewonly"class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
+            <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
               </span>
       
-            <span *ngIf="!viewonly" class="warp_clone"
+            <span class="warp_clone"
             (click)="cloneCol(j);">
               <i class="fa fa-clone"></i>
             </span>
@@ -174,9 +148,6 @@
     
           
 
-    
-    
-    </div>
 
 
      </div>

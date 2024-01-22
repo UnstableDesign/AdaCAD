@@ -245,6 +245,7 @@ export class AppComponent implements OnInit{
   }
 
   focusUIView(view: string, forceCollapse: boolean){
+    console.log("FOCUS UI VIEW ", view);
     let main_width = '67%';
     let side_width = '33%';
     let main_height = '100%';
@@ -281,8 +282,15 @@ export class AppComponent implements OnInit{
 
     }
 
+    this.recenterViews();
 
+  }
 
+  recenterViews(){
+    
+    this.details.centerView();
+    // this.mixer.centerView();
+    // this.sim.centerView();
   }
 
   /**
@@ -458,11 +466,8 @@ export class AppComponent implements OnInit{
   }
 
   async switchFile(id: any){
-
-    console.log("SWITCH TO ID ", id)
     
     let loaded: LoadedFile = this.files.getLoadedFile(id);
-    console.log("loaded ", loaded)
 
     if(loaded == null) return;
     let so: SaveObj = loaded.ada;
@@ -472,10 +477,7 @@ export class AppComponent implements OnInit{
     this.clearAll();
     this.fs.loader.ada(loaded.name, loaded.id,loaded.desc, so).then(lr => {
       this.loadNewFile(lr);
-      console.log("after load new file ", this.files.loaded_files)
-    }
-    
-    );
+    });
 
   
   }
@@ -515,8 +517,7 @@ export class AppComponent implements OnInit{
     let id = this.mixer.newDraftCreated({draft, loom, loom_settings});
 
     this.tree.setDraftAndRecomputeLoom(id, draft, loom_settings).then(loom => {
-      this.details.id = id;
-      this.details.weaveRef.id = id;
+      this.details.loadDraft(id);
       this.details.render.updateVisible(draft);
       this.details.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
 
