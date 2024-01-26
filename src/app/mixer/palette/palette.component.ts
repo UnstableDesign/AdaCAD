@@ -350,6 +350,8 @@ handlePan(diff: Point){
       
       const opcomp:OperationComponent = this.createOperation(name);
       this.performAndUpdateDownstream(opcomp.id).then(el => {
+        let children = this.tree.getNonCxnOutputs(opcomp.id);
+        if(children.length > 0) this.revealDraftDetails(children[0]);
         this.addTimelineState();
       });
 
@@ -1855,8 +1857,12 @@ connectionMade(obj: any){
   const sd: number = this.tree.getOpenConnectionId();
   
   this.createConnection(sd, obj.id, obj.ndx);
+
   
   this.performAndUpdateDownstream(obj.id).then(el => {
+    let children = this.tree.getNonCxnOutputs(obj.id);
+    console.log("CONNECTION MADE ", obj.id, children[0]);
+    if(children.length > 0) this.revealDraftDetails(children[0]);
     this.addTimelineState();
   });
 
