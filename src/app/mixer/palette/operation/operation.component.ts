@@ -362,6 +362,8 @@ export class OperationComponent implements OnInit {
           
         }
         this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value) 
+        console.log("RETURNED INLETS ", this.opnode.inlets)
+
 
         this.hasInlets = opnode.inlets.length > 0;
 

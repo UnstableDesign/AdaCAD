@@ -398,10 +398,15 @@ export const createDraft = (
 
   export const getDraftAsImage = (draft: Draft, pix_per_cell: number, floats: boolean, use_color: boolean, mats: Array<Material>) : ImageData => {
     pix_per_cell = Math.floor(pix_per_cell);
+    
 
-    let array_vals:Array<number> = [];
+    const length = wefts(draft.drawdown) * warps(draft.drawdown) * Math.pow(pix_per_cell, 2) * 4;
+    const uint8c = new Uint8ClampedArray(length);
+
     for(let i = 0; i < wefts(draft.drawdown) * pix_per_cell; i++){
       for(let j = 0; j < warps(draft.drawdown) * pix_per_cell; j++){
+       
+        let array_ndx = (i * (warps(draft.drawdown) * pix_per_cell) + j) * 4;
         let adj_i = Math.floor(i / pix_per_cell);
         let adj_j = Math.floor(j / pix_per_cell);
 
@@ -429,11 +434,14 @@ export const createDraft = (
 
         
         if((is_weftwise_edge || is_warpwise_edge) && pix_per_cell > 4 && (!use_color && !floats)){
-
-            array_vals.push(150);
-            array_vals.push(150);
-            array_vals.push(150);
-            array_vals.push(255);
+            uint8c[array_ndx] = 150;
+            uint8c[array_ndx+1] = 150;
+            uint8c[array_ndx+2] = 150;
+            uint8c[array_ndx+3] = 255;
+            // array_vals.push(150);
+            // array_vals.push(150);
+            // array_vals.push(150);
+            // array_vals.push(255);
           
 
         }else if(cell_val){
@@ -442,33 +450,34 @@ export const createDraft = (
           if(floats && mat !== undefined){
             
             if(pix_per_cell > 4 && (is_warpwise_edge || (is_weftwise_edge && !warp_float))){
-              array_vals.push(150);
-              array_vals.push(150);
-              array_vals.push(150);
-              array_vals.push(255);
+              uint8c[array_ndx] = 150;
+              uint8c[array_ndx+1] = 150;
+              uint8c[array_ndx+2] = 150;
+              uint8c[array_ndx+3] = 255;
+
             
             }else{
   
               if(!use_color){
-                array_vals.push(255);
-                array_vals.push(255);
-                array_vals.push(255);
-                array_vals.push(255);
+                uint8c[array_ndx] = 255;
+                uint8c[array_ndx+1] = 255;
+                uint8c[array_ndx+2] = 255;
+                uint8c[array_ndx+3] = 255;
 
               }else{
-                array_vals.push(mat.rgb.r);
-                array_vals.push(mat.rgb.g);
-                array_vals.push(mat.rgb.b);
-                array_vals.push(255);
+                uint8c[array_ndx] = mat.rgb.r;
+                uint8c[array_ndx+1] = mat.rgb.g;
+                uint8c[array_ndx+2] = mat.rgb.b;
+                uint8c[array_ndx+3] = 255;
               }
               
             }
 
           }else{
-              array_vals.push(0);
-              array_vals.push(0);
-              array_vals.push(0);
-              array_vals.push(255);
+            uint8c[array_ndx] = 0;
+            uint8c[array_ndx+1] = 0;
+            uint8c[array_ndx+2] = 0;
+            uint8c[array_ndx+3] = 255;
           }
 
         }else{
@@ -477,38 +486,37 @@ export const createDraft = (
           if(mat !== undefined && floats){    
 
             if(pix_per_cell > 4 && (is_weftwise_edge || (is_warpwise_edge && !weft_float))){
-              array_vals.push(150);
-              array_vals.push(150);
-              array_vals.push(150);
-              array_vals.push(255);
+              uint8c[array_ndx] = 150;
+              uint8c[array_ndx+1] = 150;
+              uint8c[array_ndx+2] = 150;
+              uint8c[array_ndx+3] = 255;
             
             }else{
 
               if(!use_color){
-                array_vals.push(255);
-                array_vals.push(255);
-                array_vals.push(255);
-                array_vals.push(255);
+                uint8c[array_ndx] = 255;
+                uint8c[array_ndx+1] = 255;
+                uint8c[array_ndx+2] = 255;
+                uint8c[array_ndx+3] = 255;
 
               }else{
-                array_vals.push(mat.rgb.r);
-                array_vals.push(mat.rgb.g);
-                array_vals.push(mat.rgb.b);
-                array_vals.push(255);
+                uint8c[array_ndx] = mat.rgb.r;
+                uint8c[array_ndx+1] = mat.rgb.g;
+                uint8c[array_ndx+2] = mat.rgb.b;
+                uint8c[array_ndx+3] = 255;
               }
             }
           }else{
-            array_vals.push(255);
-            array_vals.push(255);
-            array_vals.push(255);
-            array_vals.push(255);
+            uint8c[array_ndx] = 255;
+            uint8c[array_ndx+1] = 255;
+            uint8c[array_ndx+2] = 255;
+            uint8c[array_ndx+3] = 255;
           }
         } 
       }
     }
 
-    const arr = new Uint8ClampedArray(array_vals);
-    let image = new ImageData(arr, warps(draft.drawdown)*pix_per_cell);
+    let image = new ImageData(uint8c, warps(draft.drawdown)*pix_per_cell);
     return image;
 
 
