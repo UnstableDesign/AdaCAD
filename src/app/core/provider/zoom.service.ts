@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ZoomService {
   //current zoom scale
+  
   zoom: number; //this is the default
   num_steps: number = 15;
   zoom_min: number = .1;

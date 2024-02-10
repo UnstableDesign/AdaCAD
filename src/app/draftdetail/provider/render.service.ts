@@ -93,44 +93,9 @@ select:{
       h: defaults.draft_detail_cell_size
     };
 
-    // return {
-    //   x: this.getOffset(type+"_x"),
-    //   y: this.getOffset(type+"_y"),
-    //   w: this.base_cell.w.min,
-    //   h: this.base_cell.h.min
-    // };
+
 
   }
-
-
-  setZoom(z: number){
-    this.zoom = z;
-  }
-
-  getZoom(){
-    return this.zoom;
-  }
-
-   zoomOut(){
-    this.zoom -= .25; 
-    if(this.zoom < .1) this.zoom = .1;
-  }
-
-  zoomIn(){
-    this.zoom += .25; 
-    if(this.zoom > 2) this.zoom = 2;
-
-  }
-
-  // private getOffset(type) {
-  //   if(type ==="select_x") return this.select.offset_x.min;
-  //   if(type ==="select_y") return this.select.offset_y.min;
-  //   if(type ==="base_clear_x") return this.base_cell.margin_clear_x.min;
-  //   if(type ==="base_clear_y") return this.base_cell.margin_clear_y.min;
-  //   if(type ==="base_fill_x") return this.base_cell.margin_fill_x.min;
-  //   if(type ==="base_fill_y") return this.base_cell.margin_fill_y.min;
-  //   else return 0;
-  // }
 
 
   isYarnBasedView(): boolean{

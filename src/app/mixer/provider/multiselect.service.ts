@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FileService } from '../../core/provider/file.service';
-import { ZoomService } from './zoom.service';
+import { ZoomService } from '../../core/provider/zoom.service';
 import { Node, Point, SaveObj, TreeNode } from '../../core/model/datatypes';
 import { TreeService } from '../../core/provider/tree.service';
 

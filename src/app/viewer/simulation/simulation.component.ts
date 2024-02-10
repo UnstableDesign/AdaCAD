@@ -227,6 +227,7 @@ export class SimulationComponent implements OnInit {
    * @param loom_settings 
    */
   updateSimulation(draft: Draft, loom_settings: LoomSettings){
+    
 
     if(!this.dirty) return; //only recalc and redraw when there is a change that requires it. 
     this.recalcAndRenderSimData(draft, loom_settings, this.selection_bounds);

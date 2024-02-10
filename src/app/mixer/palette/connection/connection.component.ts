@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DraftNode, OpNode, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../../core/provider/tree.service';
-import { ZoomService } from '../../provider/zoom.service';
+import { ZoomService } from '../../../core/provider/zoom.service';
 import { OperationService } from '../../../core/provider/operation.service';
 
 @Component({

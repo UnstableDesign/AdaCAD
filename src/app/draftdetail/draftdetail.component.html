@@ -12,31 +12,49 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <button *ngIf="!viewer_expanded" mat-button (click)="focusUIView()">
+      <!-- <button *ngIf="!viewer_expanded" mat-button (click)="focusUIView()">
         <i  class="fa-solid fa-maximize"></i> Enter Full Screen</button> 
         <button *ngIf="viewer_expanded" mat-button (click)="collapseUIView()">
-          <i  class="fa-solid fa-minimize"></i> Exit Full Screen</button> 
+          <i  class="fa-solid fa-minimize"></i> Exit Full Screen</button>  -->
+
+          <button  
+          mat-icon-button 
+          [class.active]="current_view == 'draft'"
+          matTooltip="view draft" 
+          (click)="viewChange('draft')">
+            <i class="fa-solid fa-chess-board"></i>
+          </button>
+          
+          <button  
+          mat-icon-button 
+          [class.active]="current_view == 'structure'"
+          matTooltip="view structure" 
+          (click)="viewChange('structure')">
+            <i class="fa-solid fa-hashtag"></i>
+          </button>
+          
+          <button  
+          mat-icon-button 
+          [class.active]="current_view == 'color'"
+          matTooltip="view colors" 
+          (click)="viewChange('color')">
+            <i class="fa-solid fa-paint-roller">
+          </i></button>
+          
+          <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expand()"></i></button>
 
 
-        <mat-button-toggle-group name="view_mode" [(ngModel)]="current_view" aria-label="Font Style">
+
+
+
+
+        <!-- <mat-button-toggle-group name="view_mode" [(ngModel)]="current_view" aria-label="Font Style">
           <mat-button-toggle value="draft" (click)="viewChange('draft')">Draft</mat-button-toggle>
           <mat-button-toggle value="structure"  (click)="viewChange('structure')">Structure</mat-button-toggle>
           <mat-button-toggle value="color" (click)="viewChange('color')">Color</mat-button-toggle>
-        </mat-button-toggle-group>
+        </mat-button-toggle-group> -->
 
-        <div class="buttons">
-        <button mat-icon-button  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
-        <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
-        </div> 
-         <mat-slider 
-        tickInterval=".1" 
-        step=".1"
-        min="0" 
-        max="2" 
-        value="{{render.zoom}}" 
-        (change)="zoomChange($event, 'slider')"></mat-slider> 
-
-  
+    
 
 
 
@@ -112,6 +130,13 @@
       class="fullwidth set_repeats"
       [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
       (click)='openActions()'><i class="fas fa-magic"></i> Set Repeats</button>
+
+      <button
+      matTooltip= "Add/Edit Materials"
+      mat-raised-button 
+      class="fullwidth set_repeats"
+      (click)='openMaterials()'><i class="fa-solid fa-paintbrush"></i> Add / Edit Materials</button>
+
 
 
      </mat-expansion-panel>

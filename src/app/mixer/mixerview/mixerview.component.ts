@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { Bounds, DesignMode, Point } from '../../core/model/datatypes';
 import { ViewportService } from '../provider/viewport.service';
-import { ZoomService } from '../provider/zoom.service';
+import { ZoomService } from '../../core/provider/zoom.service';
 
 @Component({
   selector: 'app-mixerview',

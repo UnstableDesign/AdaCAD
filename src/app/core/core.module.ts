@@ -50,6 +50,7 @@ import { ExamplesComponent } from './modal/examples/examples.component';
 import { LoadfileComponent } from './modal/loadfile/loadfile.component';
 import { FilebrowserComponent } from './filebrowser/filebrowser.component';
 import { KeycodesDirective } from './keycodes.directive';
+import { ZoomService } from './provider/zoom.service';
 
 @NgModule({
     imports: [
@@ -109,7 +110,7 @@ import { KeycodesDirective } from './keycodes.directive';
         VaeService,
         PatternfinderService,
         AuthService
-        ],
+    ],
     exports: [
         CommonModule,
         FormsModule,

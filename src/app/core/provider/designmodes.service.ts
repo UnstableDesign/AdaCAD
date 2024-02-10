@@ -7,10 +7,10 @@ import { defaults, draft_edit_mode, draft_pencil, draft_edit_source, mixer_edit_
 })
 export class DesignmodesService {
 
-  cur_pencil: string = 'toggle';
-  cur_draft_edit_mode: string = 'draw';
-  cur_draft_edit_source: string = 'drawdown';
-  cur_mixer_mode: string = 'move';
+  cur_pencil: string = defaults.pencil;
+  cur_draft_edit_mode: string = defaults.draft_edit_mode;
+  cur_draft_edit_source: string = defaults.draft_edit_source;
+  cur_mixer_mode: string = defaults.mixer_mode;
 
 
 /**

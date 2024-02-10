@@ -17,7 +17,7 @@ import { WorkspaceService } from './core/provider/workspace.service';
 import { DraftDetailComponent } from './draftdetail/draftdetail.component';
 import { MixerComponent } from './mixer/mixer.component';
 import { MultiselectService } from './mixer/provider/multiselect.service';
-import { ZoomService } from './mixer/provider/zoom.service';
+import { ZoomService } from './core/provider/zoom.service';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { FormControl } from '@angular/forms';
@@ -100,7 +100,7 @@ export class AppComponent implements OnInit{
     private view_tool:ViewportService,
     public vp: ViewportService,
     public ws: WorkspaceService,
-    private zs: ZoomService,
+    public zs: ZoomService,
     private zone: NgZone
   ){
 
@@ -1158,15 +1158,25 @@ showDraftDetails(id: number){
   }
 
   zoomOut(){
-
+    const old_zoom = this.zs.zoom;
+    this.zs.zoomOut();
+    this.mixer.renderChange(old_zoom);
+    this.details.renderChange();
   }
 
   zoomIn(){
+    const old_zoom = this.zs.zoom;
+    this.zs.zoomIn();
+    this.mixer.renderChange(old_zoom);
+    this.details.renderChange();
 
   }
 
-  zoomChange(event: any, source: string){
-
+  zoomChange(e: any, source: string){
+    const old_zoom = this.zs.zoom;
+    this.zs.setZoom(e.value)
+    this.mixer.renderChange(old_zoom);
+    this.details.renderChange();
   }
 
 

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 import * as htmlToImage from 'html-to-image';
 import { fromEvent, Subject, Subscription } from 'rxjs';
+import { ZoomService } from '../../core/provider/zoom.service';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import { Cell, Draft, Drawdown, Interlacement, Loom, LoomSettings } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
@@ -249,7 +250,8 @@ export class DraftviewerComponent implements OnInit {
     public timeline: StateService,
     private tree:TreeService,
     private ops: OperationService,
-    public render: RenderService
+    public render: RenderService,
+    private zs: ZoomService
   ) { 
 
     this.flag_recompute = false;
@@ -297,7 +299,7 @@ export class DraftviewerComponent implements OnInit {
 
 
 
-    this.rescale(this.render.getZoom());
+    this.rescale(this.zs.zoom);
 
   }
 
@@ -1773,8 +1775,8 @@ export class DraftviewerComponent implements OnInit {
   public flip(){
     const container: HTMLElement = document.getElementById('draft-scale-container');
     container.style.transformOrigin = '50% 50%';
-    if(this.render.view_front) container.style.transform = "matrix(1, 0, 0, 1, 0, 0) scale(" + this.render.getZoom() + ')';
-    else container.style.transform = "matrix(-1, 0, 0, 1, 0, 0) scale(" + this.render.getZoom() + ')';
+    if(this.render.view_front) container.style.transform = "matrix(1, 0, 0, 1, 0, 0) scale(" + this.zs.zoom + ')';
+    else container.style.transform = "matrix(-1, 0, 0, 1, 0, 0) scale(" + this.zs.zoom + ')';
 
   }
 
@@ -3040,36 +3042,10 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     });
   }
 
-  public renderChange(e: any){
+  public renderChange(){
 
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-     
-     if(e.source === "slider"){
-        this.render.setZoom(e.value);
-        this.rescale(this.render.getZoom());
+    this.rescale(this.zs.zoom);     
 
-     } 
-
-     if(e.source === "in"){
-        this.render.zoomIn();
-        this.rescale(this.render.getZoom());
-
-
-     } 
-
-     if(e.source === "out"){
-        this.render.zoomOut();
-        this.rescale(this.render.getZoom());
-
-
-     } 
-     if(e.source === "front"){
-        this.render.setFront(!e.checked);
-        this.flip();
-        this.redraw(draft, loom, loom_settings, {drawdown:true});
-     }      
   }
 
 

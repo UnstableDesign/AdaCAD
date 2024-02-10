@@ -15,10 +15,11 @@ import { StateService } from '../core/provider/state.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { ZoomService } from '../mixer/provider/zoom.service';
+import { ZoomService } from '../core/provider/zoom.service';
 import { ActionsComponent } from './actions/actions.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
 import { RenderService } from './provider/render.service';
+import { MaterialModal } from '../core/modal/material/material.modal';
 
 
 
@@ -563,29 +564,30 @@ openActions(){
    //this.weaveRef.designModeChange(obj);
 }
 
+openMaterials() {
+
+const material_modal = this.dialog.open(MaterialModal, {data: {}});
+material_modal.componentInstance.onMaterialChange.subscribe(event => {
+  console.log("MATERIAL CHANGED");
+  //redraw all
+
+});
+}
+
  
 
 
 viewChange(name:any){
+    this.current_view = name;
     this.weaveRef.viewChange(name);
 
 }
 
-
-zoomChange(e:any, source: string){
-  e.source = source;
-  this.weaveRef.renderChange(e);
+renderChange(){
+  this.weaveRef.renderChange();
 }
 
 
-zoomIn(){
-  this.weaveRef.renderChange({source: 'in', val: -1});
-}
-
-
-zoomOut(){
-  this.weaveRef.renderChange({source: 'out', val: -1});
-}
 
 drawWithMaterial(material_id: number){
   this.dm.selectDraftEditingMode('draw');

@@ -14,7 +14,7 @@ import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { MultiselectService } from '../provider/multiselect.service';
 import { ViewportService } from '../provider/viewport.service';
-import { ZoomService } from '../provider/zoom.service';
+import { ZoomService } from '../../core/provider/zoom.service';
 import { FileService } from './../../core/provider/file.service';
 import { ConnectionComponent } from './connection/connection.component';
 import { MarqueeComponent } from './marquee/marquee.component';

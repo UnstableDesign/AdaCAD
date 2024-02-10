@@ -19,7 +19,7 @@ import { WorkspaceService } from '../core/provider/workspace.service';
 import { PaletteComponent } from './palette/palette.component';
 import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
-import { ZoomService } from './provider/zoom.service';
+import { ZoomService } from '../core/provider/zoom.service';
 import { map, startWith } from 'rxjs/operators';
 import { OperationService } from '../core/provider/operation.service';
 

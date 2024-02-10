@@ -6,6 +6,8 @@ canvas{
 
 
 
+
+
 .status{
   width: 100%;
   text-align: center;
@@ -57,11 +59,14 @@ canvas{
 
 #threading{
   margin: 0px 15px;
+  background-color: white;
   //width: fit-content;
 }
 
 #treadling{
   margin-top: 15px;
+  background-color: white;
+
 }
 
 .controls{
@@ -184,20 +189,24 @@ canvas{
   opacity: 1;
   cursor: pointer;
 
+  canvas{
+    border: thin solid grey;
+
+  }
 
 
 }
 
 .threading-tieup-container.editable-loom.loomtype-direct{
   #tieups{
-  opacity:  .5;
+  opacity:  .2;
   cursor: not-allowed;
   }
 
 }
 
 .threading-tieup-container.editable-drawdown{
-  opacity:  .5;
+  opacity:  .2;
   cursor: not-allowed;
 }
 
@@ -306,12 +315,13 @@ canvas{
 .drawdown-container.editable-loom{
   #treadling{
     opacity: 1;
+    border: thin solid grey;
     cursor: pointer;
 
   }
 
   #drawdown{
-    opacity: 0.5;
+    opacity: 0.2;
     cursor: not-allowed;
 
   }
@@ -320,12 +330,13 @@ canvas{
 
 .drawdown-container.editable-drawdown{
   #treadling{
-    opacity: .5;
+    opacity: .2;
     cursor: not-allowed;
   }
 
   #drawdown{
     opacity: 1;
+    border: thin solid grey;
     cursor: pointer;
   }
 

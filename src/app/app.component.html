@@ -3,6 +3,8 @@
 <appKeycodes
   (onUndo)="undo()"
   (onRedo)="redo()"
+  (zoomOut)="zoomOut()"
+  (zoomIn)="zoomIn()"
   (updateMixerView)="updateMixerView($event)"
   (updateDetailView)="detailViewChange()"
   (onCopySelections)="onCopySelections()"
@@ -187,18 +189,31 @@
     <div class="footer-left">
 
       <button mat-icon-button  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
-       <mat-slider 
+      <mat-slider 
       tickInterval=".1" 
-      step=".1"
-      min="0" 
-      max="2" 
+      [step]="1"
+      [min]="0" 
+      [max]="zs.num_steps" 
+      [value]="zs.zoom_table_ndx" 
       (change)="zoomChange($event, 'slider')"></mat-slider> 
       <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
-      <button  mat-icon-button >U</button>
-      <button  mat-icon-button >R</button>
+      <button  
+      mat-icon-button 
+      matTooltip="undo"
+      (click)="undo()" >
+      <i class="fa-solid fa-rotate-left"></i>
+      </button>
+
+      <button  
+      mat-icon-button 
+      matTooltip="redo"
+      (click)="redo">
+      <i class="fa-solid fa-rotate-right"></i>
+      </button>
 
     </div>
     <div class="footer-right">
+      <button mat-raised-button color="primary">Download</button>
 
       </div>
   </mat-toolbar>
