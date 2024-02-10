@@ -53,7 +53,6 @@ export class SimulationComponent implements OnInit {
 
 
   }
-  @Input('hasFocus') hasFocus; 
 
 
   @HostListener('window:resize', ['$event'])
@@ -70,12 +69,16 @@ export class SimulationComponent implements OnInit {
 
 
   ngAfterViewInit(){
-    
-    const div = document.getElementById('simulation_container');
-    const rect = div.getBoundingClientRect();
 
-    let width = rect.width;
-    let height = rect.height;
+    
+    const parent_div = document.getElementById('static_draft_view');
+    const parent_rect = parent_div.getBoundingClientRect();
+
+    const div = document.getElementById('simulation_container');
+    console.log("size ", parent_rect.width, parent_rect.height)
+
+    let width = parent_rect.width;
+    let height = parent_rect.height;
 
 
     this.renderer = new THREE.WebGLRenderer();
@@ -138,7 +141,11 @@ export class SimulationComponent implements OnInit {
   }
 
 
-  loadNewDraft(draft: Draft, loom_settings: LoomSettings) : Promise<any>{
+  loadNewDraft(id) : Promise<any>{
+
+    const draft = this.tree.getDraft(id);
+    const loom_settings = this.tree.getLoomSettings(id);
+
     this.layer_spacing = this.calcDefaultLayerSpacing(draft);
     this.simulation.setupSimulation(this.renderer, this.scene, this.camera, this.controls);
     this.resetSelectionBounds(draft);

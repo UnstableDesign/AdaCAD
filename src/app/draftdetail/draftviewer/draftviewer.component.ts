@@ -1241,6 +1241,7 @@ export class DraftviewerComponent implements OnInit {
     this.tree.setDraftOnly(this.id, draft);
 
 
+
   }
 
 
@@ -1354,8 +1355,8 @@ export class DraftviewerComponent implements OnInit {
  
         break;
         case 'material':
-          // this.drawOnWeftMaterials(draft, currentPos);
-          // this.drawOnWarpMaterials(draft, currentPos)
+          this.drawOnWeftMaterials(draft, currentPos);
+          this.drawOnWarpMaterials(draft, currentPos)
         break;        
         default:
           break;
@@ -1387,10 +1388,7 @@ export class DraftviewerComponent implements OnInit {
    * @returns {void}
    */
   private drawOnTieups(loom: Loom, loom_settings:LoomSettings, currentPos: Interlacement ) {
-    var updates;
     var val = false;
-    const frames = numFrames(loom);
-    const treadles = numFrames(loom);
 
     if (!this.cxTieups || !currentPos) { return; }
 
@@ -1441,12 +1439,9 @@ export class DraftviewerComponent implements OnInit {
     
 
     if (isInUserThreadingRange(loom, loom_settings, currentPos)){
-      var val = false;
+      var val;
+      const draft = this.tree.getDraft(this.id)
       this.markDirty();
-
-
-      //modify based on the current view 
-       // currentPos.i = this.translateThreadingRowForView(loom, loom_settings,currentPos.i)
 
 
       switch (this.dm.cur_pencil) {
@@ -1459,12 +1454,17 @@ export class DraftviewerComponent implements OnInit {
         case 'toggle':
           val = !(loom.threading[currentPos.j] == currentPos.i);
           break;
+        case 'material':
+           val = (loom.threading[currentPos.j] == currentPos.i);
+           this.drawOnWarpMaterials(draft, currentPos)
+          break;
         default:
           break;
       }
 
+
       const utils = getLoomUtilByType(loom_settings.type);
-      loom = utils.updateThreading(loom, {i:currentPos.i, j:currentPos.j, val:val});
+      if(this.dm.cur_pencil !== 'material') loom = utils.updateThreading(loom, {i:currentPos.i, j:currentPos.j, val:val});
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
@@ -1485,7 +1485,7 @@ export class DraftviewerComponent implements OnInit {
 
     if (!this.cxTreadling || !currentPos) { return; }
     this.markDirty();
-
+    const draft = this.tree.getDraft(this.id)
     var val = false;
 
     if(isInUserTreadlingRange(loom, loom_settings, currentPos)){
@@ -1499,6 +1499,9 @@ export class DraftviewerComponent implements OnInit {
         case 'toggle':
           val = !(loom.treadling[currentPos.i].find(el => el === currentPos.j) !== undefined);
           break;
+        case 'material':
+          this.drawOnWeftMaterials(draft, currentPos)
+          break;
         default:
           break;
       }
@@ -1507,7 +1510,7 @@ export class DraftviewerComponent implements OnInit {
 
       //this updates the value in the treadling
       const utils = getLoomUtilByType(loom_settings.type);
-      loom = utils.updateTreadling(loom, {i:currentPos.i, j:currentPos.j, val:val});
+      if(this.dm.cur_pencil !== 'material') loom = utils.updateTreadling(loom, {i:currentPos.i, j:currentPos.j, val:val});
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
@@ -2940,6 +2943,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   
 
 
+
   
 
 
@@ -2950,16 +2954,21 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   public checkForPaint(source: string, index: number, event: any){
     const draft = this.tree.getDraft(this.id);
     if(this.dm.isSelectedPencil('material') && this.mouse_pressed){
-
       if(source == 'weft') draft.rowShuttleMapping[index] = this.selected_material_id;
       if(source == 'warp') draft.colShuttleMapping[index] = this.selected_material_id;
       this.onMaterialChange.emit();
-
     } 
-
-
-
   }
+
+  public drawOnWarpMaterials(draft: Draft, currentPos: Interlacement){
+    draft.colShuttleMapping[currentPos.j] = this.selected_material_id;
+    this.onMaterialChange.emit();
+  }
+
+  public drawOnWeftMaterials(draft: Draft, currentPos: Interlacement){
+    draft.rowShuttleMapping[currentPos.i] = this.selected_material_id;
+  }
+
 
 
   public updateWarpSystems(pattern: Array<number>) {

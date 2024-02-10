@@ -332,8 +332,6 @@ export class DraftDetailComponent implements OnInit {
       weft_materials:true
     });
 
-  //  this.simRef.setDirty();
-   // this.redrawSimulation();
     this.redrawViewer.emit();
     this.addTimelineState();
     
@@ -365,7 +363,9 @@ export class DraftDetailComponent implements OnInit {
 
 
   public materialChange() {
-   // this.simRef.redrawCurrentSim();
+   
+    this.redrawViewer.emit();
+
   }
 
   unsetSelection(){
@@ -375,11 +375,9 @@ export class DraftDetailComponent implements OnInit {
   
 
   public redrawSimulation(){
-    let draft = this.tree.getDraft(this.id);
-    let loom_settings = this.tree.getLoomSettings(this.id);
 
-    //if(!this.viewer_expanded)
-    // this.simRef.updateSimulation(draft, loom_settings);
+    this.redrawViewer.emit();
+
   }
 
   focusUIView(){

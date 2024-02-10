@@ -20,6 +20,7 @@ export class ViewerComponent {
   draft_cx: any;
   pixel_ratio: number = 1;
   draft_cell_size: number = 8;
+  vis_mode: string = 'color'; //sim, draft, structure, color
 
 
   constructor(
@@ -30,14 +31,24 @@ export class ViewerComponent {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['id']) {
-      this.drawDraft(changes['id'].currentValue);    
+    if (changes['id'] || changes['dirty']) {
+      this.redraw(this.id);
     }
-    if (changes['dirty']) {
-      this.drawDraft(changes['id'].currentValue);    
-    }
+  }
 
 
+
+
+getVisVariables(){
+  switch(this.vis_mode){
+    case 'sim':
+    case 'draft':
+      return {use_colors: false, floats: false};
+    case 'structure':
+      return {use_colors: false, floats: true};
+    case 'color':
+      return {use_colors: true, floats: true};
+  }
 }
 
 
@@ -63,22 +74,57 @@ export class ViewerComponent {
 
 
   /**
+   * redraws the current draft, usually following an update from the drawdown
+   */
+  redraw(id: number){
+    let vars = this.getVisVariables();
+    if(this.vis_mode != 'sim') this.drawDraft(id, vars. floats, vars.use_colors);        
+    else this.sim.loadNewDraft(this.id);
+  }
+
+  viewAsSimulation(){
+    this.vis_mode = 'sim';
+    this.sim.loadNewDraft(this.id);
+
+  }
+
+  viewAsDraft(){
+    this.vis_mode = 'draft';
+    let vars = this.getVisVariables();
+    this.drawDraft(this.id, vars.floats, vars.use_colors);   
+  }
+
+  viewAsStructure(){
+    this.vis_mode = 'structure';
+    let vars = this.getVisVariables();
+
+    this.drawDraft(this.id, vars.floats, vars.use_colors);   
+  }
+
+  viewAsColor(){
+    this.vis_mode = 'color';
+    let vars = this.getVisVariables();
+    this.drawDraft(this.id, vars.floats, vars.use_colors);   
+  }
+
+  expand(){
+
+  }
+
+
+  /**
    * draw whetever is stored in the draft object to the screen
    * @returns 
    */
-  async drawDraft(id: number) : Promise<any> {
+  async drawDraft(id: number, floats: boolean, use_colors: boolean) : Promise<any> {
 
     if(id == -1) return;
 
 
-    console.log("ID IS ", id)
     const draft:Draft = this.tree.getDraft(id);
-    console.log("Draft IS ", draft)
 
     this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
     if(this.draft_canvas == null) return;
-
-    console.log("Cavas IS ", this.draft_canvas)
 
     this.draft_cx = this.draft_canvas.getContext("2d");
 
@@ -93,8 +139,6 @@ export class ViewerComponent {
 
     let cell_size = this.calculateCellSize(draft);
     console.log("cell size IS ", cell_size)
-
-    const use_colors =true;
 
 
     if(this.draft_canvas === undefined) return;
@@ -111,11 +155,37 @@ export class ViewerComponent {
       this.draft_canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
       this.draft_canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
  
-      let img = getDraftAsImage(draft, cell_size, use_colors, use_colors, this.ms.getShuttles());
+      let img = getDraftAsImage(draft, cell_size, floats, use_colors, this.ms.getShuttles());
       this.draft_cx.putImageData(img, 0, 0);
 
     }
+
+
+
+    /* now recalc the scale based on the draft size: */
+
+    let adj = 1;
+    let canvas_width = (warps(draft.drawdown)*cell_size);
+    let canvas_height = (wefts(draft.drawdown)*cell_size);
+
+    let div_draftviewer = document.getElementById('static_draft_view');
+    let rect_viewer = div_draftviewer.getBoundingClientRect();
+
+
+    console.log("recalc ", canvas_width, canvas_height, rect_viewer)
+
+    //get the ration of the view to the item
+    let width_adj = rect_viewer.width / canvas_width;
+    let height_adj = rect_viewer.height / canvas_height;
+
+    //make the zoom the smaller of the width or height
+    adj = Math.min(width_adj, height_adj);
+    console.log("adj ",adj)
+
+    if(adj < 1) this.draft_canvas.style.transform = 'scale('+adj+')';
+    else  this.draft_canvas.style.transform = 'scale(1)';
   }
+
 
 
 }

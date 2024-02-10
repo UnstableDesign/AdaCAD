@@ -1140,7 +1140,7 @@ showDraftDetails(id: number){
    */
   redrawViewer(){
 
-    this.viewer.drawDraft(this.selected_draft_id);
+    this.viewer.redraw(this.selected_draft_id);
 
   }
 

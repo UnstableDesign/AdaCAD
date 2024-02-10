@@ -4,4 +4,21 @@
     background-color: white;
     margin: 16px;
     border: thin solid grey;
+    display: flex;
+    align-items: center;
+}
+
+#viewer_canvas{
+    transform-origin: top left;
+    transform: scale(1);
+    border: thin solid grey;
+    margin: auto;
+}
+
+.active{
+    color: #ff4081;
+}
+
+.hidden{
+    display: none;
 }

@@ -743,6 +743,7 @@ canvas{
 .warp-system{
   display: block;
   padding: 4px 0px;
+  user-select: none;
 
 }
 
@@ -754,7 +755,9 @@ canvas{
 .weft-system{
   display: inline-block;
   margin: 0px 2px;
+  user-select: none;
 
 }
-  
+
+
   

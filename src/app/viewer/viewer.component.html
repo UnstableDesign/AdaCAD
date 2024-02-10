@@ -1,17 +1,51 @@
-<div class="current_view">
+<div class="current_view" id="static_draft_view">
 
-    <canvas id="viewer_canvas"></canvas>
 
-    <!-- <app-simulation id="sim_viewer" 
-    [id]="files.getCurrentFileId()"
+    <app-simulation 
+    [class.hidden]="vis_mode != 'sim'" 
+    #sim
+     id="sim_viewer" 
+    [id]="id"
     >
-  </app-simulation> -->
+  </app-simulation>
+
+      <canvas [class.hidden]="vis_mode == 'sim'" id="viewer_canvas"></canvas>
+
 </div>
-<div class="view_options">
-    <button  mat-icon-button >A</button>
-    <button  mat-icon-button >B</button>
-    <button  mat-icon-button >C</button>
-    <button  mat-icon-button >D</button>
+<div  class="view_options">
+    <button  
+    mat-icon-button 
+    [class.active]="vis_mode == 'sim'"
+    matTooltip="view in 3D" 
+    (click)="viewAsSimulation()">
+      <i class="fa-solid fa-cube"></i>
+    </button>
+    
+    <button  
+    mat-icon-button 
+    [class.active]="vis_mode == 'draft'"
+    matTooltip="view draft" 
+    (click)="viewAsDraft()">
+      <i class="fa-solid fa-chess-board"></i>
+    </button>
+    
+    <button  
+    mat-icon-button 
+    [class.active]="vis_mode == 'structure'"
+    matTooltip="view structure" 
+    (click)="viewAsStructure()">
+      <i class="fa-solid fa-hashtag"></i>
+    </button>
+    
+    <button  
+    mat-icon-button 
+    [class.active]="vis_mode == 'color'"
+    matTooltip="view colors" 
+    (click)="viewAsColor()">
+      <i class="fa-solid fa-paint-roller">
+    </i></button>
+    
+    <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expand()"></i></button>
 </div>
 
 

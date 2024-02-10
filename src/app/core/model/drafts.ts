@@ -399,7 +399,6 @@ export const createDraft = (
   export const getDraftAsImage = (draft: Draft, pix_per_cell: number, floats: boolean, use_color: boolean, mats: Array<Material>) : ImageData => {
     pix_per_cell = Math.floor(pix_per_cell);
     
-
     const length = wefts(draft.drawdown) * warps(draft.drawdown) * Math.pow(pix_per_cell, 2) * 4;
     const uint8c = new Uint8ClampedArray(length);
 
