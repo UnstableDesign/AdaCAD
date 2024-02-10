@@ -1,4 +1,5 @@
-import { Component, Input, ViewChild, SimpleChanges } from '@angular/core';
+import { Component, Input, ViewChild, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { OuterSubscriber } from 'rxjs/internal/OuterSubscriber';
 import { Draft, DraftNode } from '../core/model/datatypes';
 import { getDraftAsImage, warps, wefts } from '../core/model/drafts';
 import { FilesystemService } from '../core/provider/filesystem.service';
@@ -13,6 +14,9 @@ import { SimulationComponent } from './simulation/simulation.component';
 })
 export class ViewerComponent {
   @Input() id;
+  @Output() onLoadBlankFile: any = new EventEmitter();
+  @Output() onManageFiles: any = new EventEmitter();
+
   @ViewChild(SimulationComponent) sim;
 
 
@@ -70,6 +74,14 @@ getVisVariables(){
       return 1;
     }
 
+  }
+
+  loadBlankFile(){
+    this.onLoadBlankFile.emit();
+  }
+
+  manageFiles(){
+    this.onManageFiles.emit();
   }
 
 

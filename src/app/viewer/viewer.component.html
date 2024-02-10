@@ -50,5 +50,61 @@
 
 
 
+<div class="filelist">
+  <h4>active projects
+
+    <button class="addfile" mat-icon-button (click)="manageFiles()" ><i class="fa-solid fa-gear"></i></button>
+  </h4>
+
+  <ng-container *ngFor="let tab of files.loaded_files; index as index;">
+
+    <button 
+    [class.active]= "tab.id === files.getCurrentFileId()"
+    [matMenuTriggerFor]="fileOptions" 
+    mat-raised-button 
+    >
+      {{tab.name}} 
+    </button>
+
+
+
+    <mat-menu #fileOptions="matMenu">
+
+      <button 
+      [class.active]="tab.id !==  files.getCurrentFileId()"
+      mat-raised-button (click)="switchFile(tab.id)"  >
+      <i class="fa-solid fa-xmark"></i> Open
+      </button>
+
+      <button 
+      *ngIf="tab.id !==  files.getCurrentFileId()" mat-raised-button 
+      [matMenuTriggerFor]="deleteConfirm">
+      <i class="fa-solid fa-xmark"> Close </i>
+      </button>
+
+     </mat-menu>
+
+    <mat-menu #deleteConfirm="matMenu">
+      <button 
+      mat-icon-button 
+      matListItemIcon
+      (click)="closeFile(tab.id)"
+      >
+        Are you sure?
+        </button>
+    </mat-menu>
+  </ng-container>
+
+  
+  
+
+
+  <button class="addfile" mat-raised-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> create new</button>
+
+</div>
+
+
+
+
 
 

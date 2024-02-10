@@ -121,28 +121,6 @@
       
       </mat-toolbar>
 
-      <div class="filelist">
-        <div class="fileitem" [class.active]= "tab.id === files.getCurrentFileId()" *ngFor="let tab of files.loaded_files; index as index;">
-          <button  mat-button (click)="switchFile(tab.id)" >{{tab.name}} </button>
-          <button *ngIf="tab.id !==  files.getCurrentFileId()" mat-button [matMenuTriggerFor]="deleteConfirm"><i class="fa-solid fa-xmark"></i></button>
-      
-          <mat-menu #deleteConfirm>
-            <button 
-            mat-icon-button 
-            matListItemIcon
-            (click)="closeFile(tab.id)"
-            >
-              Are you sure?
-              </button>
-          </mat-menu>
-        
-        
-
-    
-          </div>
-        <button class="addfile" mat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i></button>
-      </div>
-
   </div>
 
 
@@ -178,7 +156,9 @@
      <app-viewer 
      #viewer
      [id]="selected_draft_id"
-     class="static-container">
+     class="static-container"
+     (onLoadBlankFile)="loadBlankFile()"
+     (onManageFiles)="openAdaFiles(false)">
     </app-viewer>
 
       
