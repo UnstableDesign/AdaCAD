@@ -17,7 +17,6 @@ import { ParameterComponent } from './palette/operation/parameter/parameter.comp
 import { InletComponent } from './palette/operation/inlet/inlet.component';
 import { DesignComponent } from './design/design.component';
 import { QuickopComponent } from './quickop/quickop.component';
-import { SimulationModule } from '../simulation/simulation.module';
 import { DraftrenderingComponent } from './palette/draftrendering/draftrendering.component';
 
 
@@ -25,8 +24,7 @@ import { DraftrenderingComponent } from './palette/draftrendering/draftrendering
 @NgModule({
     imports: [
         CoreModule,
-        DraftDetailModule,
-        SimulationModule
+        DraftDetailModule    
     ],
     declarations: [
         MixerComponent,

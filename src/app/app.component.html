@@ -10,12 +10,10 @@
 >
 </appKeycodes>
 
-<div class="view-window">
+<div class="view-container">
 
-  <div *ngIf="!ui.fullscreen" class="header">
-    <div id="logo" class="logo"></div>
+  <div class="header-container">
 
-    <div class="header-content">
     <mat-toolbar class="topbar">
       <div class="topbar-button-group">
         <span>AdaCAD</span>
@@ -90,8 +88,8 @@
 
           <!-- <button mat-menu-item >Optimize for Device</button> -->
         </mat-menu>
-        <button mat-button (click)="openMaterials()">Materials</button> <!-- open as modal -->
-        <button mat-button (click)="openExamples()">Examples</button> <!-- open as modal --> 
+        <button mat-button (click)="openMaterials()">Materials</button> 
+        <button mat-button (click)="openExamples()">Examples</button> 
       </div>
       
       <div class="topbar-button-group">
@@ -121,9 +119,6 @@
       
       </mat-toolbar>
 
-
-
-          <!-- Open Files List-->
       <div class="filelist">
         <div class="fileitem" [class.active]= "tab.id === files.getCurrentFileId()" *ngFor="let tab of files.loaded_files; index as index;">
           <button  mat-button (click)="switchFile(tab.id)" >{{tab.name}} </button>
@@ -141,83 +136,73 @@
         
         
 
-          <!-- <mat-form-field *ngIf="tab.id ==  files.getCurrentFileId()" >
-            <input matInput [placeholder]="tab.name" name="filename">
-          </mat-form-field> -->
+    
           </div>
         <button class="addfile" mat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i></button>
       </div>
+
+  </div>
+
+
+
+  <div class="ui-grid">
+
+      <div class="mixer" id="mixer" cdkScrollable>
+
+        <app-mixer class="app-mixer" 
+        #mixer
+        [hasFocus]="ui.main == 'mixer'"  
+        (onFocusView)="focusUIView('mixer', false)"
+        (onDraftDetailOpen)="showDraftDetails($event)"
+        >
+        </app-mixer> 
     </div>
-</div>
-
-
-      <div class="ui-grid">
-
-
-        <div class="mixer" id="mixer" cdkScrollable
-         [class.hasFocus]="ui.main=='mixer'" [class.isSide]="ui.main!='mixer'">
-          <div class="view-controls no-text-select"  [class.main]="ui.main=='mixer'" [class.fullscreen]="ui.fullscreen">
-            <span> dataflow</span>
-
-          <button *ngIf="ui.fullscreen" mat-button (click)="collapseFullScreen()">
-            <i  class="fa-solid fa-minimize"></i></button> 
-          <button *ngIf="!ui.fullscreen" mat-button (click)="focusUIView('mixer', false)">
-            <i class="fa-solid fa-maximize"></i></button>
-          </div>
-          
-      <app-mixer class="app-mixer" 
-      #mixer
-      [hasFocus]="ui.main == 'mixer'"  
-      (onDraftDetailOpen)="showDraftDetails($event)"
-       >
-      </app-mixer> 
-    </div>
-
-        <div class="detail" id="detail"  [class.hasFocus]="ui.main=='detail'" [class.isSide]="ui.main!='detail'">
-          <div class="view-controls" [class.main]="ui.main=='detail'" [class.fullscreen]="ui.fullscreen">
-            <span>draft</span>
-
-            <button *ngIf="ui.fullscreen" mat-button (click)="collapseFullScreen()">
-              <i  class="fa-solid fa-minimize"></i></button> 
-            <button *ngIf="!ui.fullscreen" mat-button  (click)="focusUIView('detail', false)">
-              <i class="fa-solid fa-maximize"></i></button>
-            </div>
-
-            <app-draftdetail id="draftdetail"
-            #details 
-            [hasFocus]="ui.main == 'detail'"  
-            (saveChanges)="saveFile()"
-            (updateSimulation)="updateSimulation()"
-            (createNewDraftOnMixer)="createNewDraftOnMixer($event)"
-            (updateMixer)="updateMixer()"
-             ></app-draftdetail>
-        </div>
-
 
       
-      <div class="sim" id="sim"  [class.hasFocus]="ui.main=='sim'" [class.isSide]="ui.main!='sim'">
-        <div class="view-controls" [class.main]="ui.main=='sim'" [class.fullscreen]="ui.fullscreen">
-          <span> simulation</span>
 
-          <button *ngIf="ui.fullscreen" mat-button (click)="collapseFullScreen()">
-            <i  class="fa-solid fa-minimize"></i></button> 
-          <button *ngIf="!ui.fullscreen" mat-button  (click)="focusUIView('sim', false)">
-            <i class="fa-solid fa-maximize"></i></button>
-          </div>
+    <app-draftdetail id="draftdetail"
+    class="detail-container"
+    #details 
+    [hasFocus]="true"  
+    (onFocusView)="focusUIView('detail', false)"
+    (onCollapseView)="collapseFullScreen()"
+    (saveChanges)="saveFile()"
+    (redrawViewer)="redrawViewer()"
+    (createNewDraftOnMixer)="createNewDraftOnMixer($event)"
+    (updateMixer)="updateMixer()"
+      ></app-draftdetail>
 
-    <app-simulation id="sim_viewer" 
-    [hasFocus]="ui.main == 'sim'"  
-      [id]="files.getCurrentFileId()"
-      >
-      </app-simulation>
-       </div>
+     
+     <app-viewer 
+     #viewer
+     [id]="selected_draft_id"
+     class="static-container">
+    </app-viewer>
 
+      
+</div>
 
-        
+<div class="footer-container">
+  <mat-toolbar class="topbar">
+    <div class="footer-left">
+
+      <button mat-icon-button  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
+       <mat-slider 
+      tickInterval=".1" 
+      step=".1"
+      min="0" 
+      max="2" 
+      (change)="zoomChange($event, 'slider')"></mat-slider> 
+      <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
+      <button  mat-icon-button >U</button>
+      <button  mat-icon-button >R</button>
+
+    </div>
+    <div class="footer-right">
+
       </div>
-
-
-
+  </mat-toolbar>
+</div>
 
 
 </div>

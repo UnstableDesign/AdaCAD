@@ -15,7 +15,6 @@ import { StateService } from '../core/provider/state.service';
 import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
-import { SubdraftComponent } from '../mixer/palette/subdraft/subdraft.component';
 import { ZoomService } from '../mixer/provider/zoom.service';
 import { ActionsComponent } from './actions/actions.component';
 import { DraftviewerComponent } from './draftviewer/draftviewer.component';
@@ -35,14 +34,17 @@ export class DraftDetailComponent implements OnInit {
    * @property {WeaveDirective}
    */
   @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
-  // @ViewChild(SimulationComponent, {static: true}) simRef;
   
 
   @Output() closeDrawer: any = new EventEmitter();
   @Output() saveChanges: any = new EventEmitter();
-  @Output() updateSimulation: any = new EventEmitter();
+  @Output() redrawViewer: any = new EventEmitter();
   @Output() updateMixer: any = new EventEmitter();
   @Output() createNewDraftOnMixer: any = new EventEmitter();
+  @Output() onFocusView: any = new EventEmitter();
+  @Output() onCollapseView: any = new EventEmitter();
+
+
 
   @Input('hasFocus') hasFocus; 
 
@@ -120,22 +122,22 @@ export class DraftDetailComponent implements OnInit {
     public render: RenderService,
     private zs: ZoomService) {
 
-    this.scrollingSubscription = this.scroll
-          .scrolled()
-          .subscribe((data: any) => {
-            this.onWindowScroll(data);
-    });
+    // this.scrollingSubscription = this.scroll
+    //       .scrolled()
+    //       .subscribe((data: any) => {
+    //         this.onWindowScroll(data);
+    // });
 
 
     this.copy = [[createCell(false)]];
     this.draw_modes = draft_pencil;
   }
 
-  private onWindowScroll(data: CdkScrollable) {
-    const scrollTop:number = data.measureScrollOffset("top");
-    const scrollLeft:number = data.measureScrollOffset("left");
-    this.weaveRef.reposition(scrollTop, scrollLeft);
-  }
+  // private onWindowScroll(data: CdkScrollable) {
+  //   const scrollTop:number = data.measureScrollOffset("top");
+  //   const scrollLeft:number = data.measureScrollOffset("left");
+  //   this.weaveRef.reposition(scrollTop, scrollLeft);
+  // }
   
   ngOnInit(){
 
@@ -331,7 +333,8 @@ export class DraftDetailComponent implements OnInit {
     });
 
   //  this.simRef.setDirty();
-    this.redrawSimulation();
+   // this.redrawSimulation();
+    this.redrawViewer.emit();
     this.addTimelineState();
     
   }  
@@ -379,6 +382,15 @@ export class DraftDetailComponent implements OnInit {
     // this.simRef.updateSimulation(draft, loom_settings);
   }
 
+  focusUIView(){
+    this.onFocusView.emit();
+  }
+
+  collapseUIView(){
+    this.onCollapseView.emit();
+  }
+
+  
   
 
 

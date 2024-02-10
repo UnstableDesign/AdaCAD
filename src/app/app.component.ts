@@ -18,7 +18,6 @@ import { DraftDetailComponent } from './draftdetail/draftdetail.component';
 import { MixerComponent } from './mixer/mixer.component';
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ZoomService } from './mixer/provider/zoom.service';
-import { SimulationComponent } from './simulation/simulation.component';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { FormControl } from '@angular/forms';
@@ -33,6 +32,7 @@ import { OperationComponent } from './mixer/palette/operation/operation.componen
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { defaults, density_units, loom_types, origin_option_list } from './core/model/defaults';
 import { MaterialModal } from './core/modal/material/material.modal';
+import { ViewerComponent } from './viewer/viewer.component';
 
 
 
@@ -48,7 +48,7 @@ export class AppComponent implements OnInit{
 
   @ViewChild(MixerComponent) mixer;
   @ViewChild(DraftDetailComponent) details;
-  @ViewChild(SimulationComponent) sim;
+  @ViewChild(ViewerComponent) viewer;
 
 
 
@@ -72,8 +72,14 @@ export class AppComponent implements OnInit{
   scrollingSubscription: any;
 
   originOptions: any;
+
   loomOptions: any;
+  
   unitOptions: any;
+
+  selected_draft_id: number =1;
+
+  redraw_viewer: boolean = false;
 
 
   constructor(
@@ -93,7 +99,7 @@ export class AppComponent implements OnInit{
     private tree: TreeService,
     private view_tool:ViewportService,
     public vp: ViewportService,
-    private ws: WorkspaceService,
+    public ws: WorkspaceService,
     private zs: ZoomService,
     private zone: NgZone
   ){
@@ -170,11 +176,11 @@ export class AppComponent implements OnInit{
 
   clearAll() : void{
 
-    this.mixer.clearView();
+    //this.mixer.clearView();
     this.details.clearAll();
     this.tree.clear();
     this.ss.clearTimeline();
-    this.mixer.clear();
+   // this.mixer.clear();
     this.ms.reset();
 
   }
@@ -245,44 +251,29 @@ export class AppComponent implements OnInit{
   }
 
   focusUIView(view: string, forceCollapse: boolean){
-    console.log("FOCUS UI VIEW ", view);
-    let main_width = '67%';
-    let side_width = '33%';
-    let main_height = '100%';
-    let side_height = '50%';
+    // let main_width = '90%';
+    // let main_height = '100%';
 
-    let main_div = this.views.find(el => el.name == view);
-    let side_divs = this.views.filter(el => el.name != view)
+    // let main_div = this.views.find(el => el.name == view);
 
     
-    if(this.ui.main == view && !forceCollapse){
-      this.ui.fullscreen = true;
-      main_div.div.style.height = '100%';
-      main_div.div.style.width = '100%';
-      main_div.div.style.order = '1';
-
-      side_divs.forEach(viewitem => {
-        viewitem.div.style.display = "none";
-      })
+    // if(this.ui.main == view && !forceCollapse){
+    //   this.ui.fullscreen = true;
+    //   main_div.div.style.height = '100%';
+    //   main_div.div.style.width = '100%';
+    //   main_div.div.style.order = '1';
       
-    }else{
-      this.ui.main = view;
-      main_div.div.style.height = main_height;
-      main_div.div.style.width = main_width;
-      main_div.div.style.order = '1';
-      main_div.div.style.display = "flex";
+    // }else{
+    //   this.ui.main = view;
+    //   main_div.div.style.height = main_height;
+    //   main_div.div.style.width = main_width;
+    //   main_div.div.style.order = '1';
+    //   main_div.div.style.display = "flex";
 
-      side_divs.forEach((viewitem, ndx) => {
-        viewitem.div.style.height = side_height;
-        viewitem.div.style.width = side_width;
-        let order = ndx+2;
-        viewitem.div.style.order = ''+order+'';
-        viewitem.div.style.display = "flex";      
-      })
 
-    }
+    // }
 
-    this.recenterViews();
+    // this.recenterViews();
 
   }
 
@@ -505,6 +496,7 @@ export class AppComponent implements OnInit{
     this.clearAll();
 
     const draft: Draft = initDraftWithParams({wefts: 10, warps: 10});
+
     let loom: Loom = null;
     const loom_settings: LoomSettings = {
       treadles: this.ws.min_treadles,
@@ -523,6 +515,7 @@ export class AppComponent implements OnInit{
 
       return this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '')
     }).then(res => {
+      this.selected_draft_id = draft.id;
       this.saveFile();
     });
 
@@ -1095,7 +1088,7 @@ showDraftDetails(id: number){
   this.details.loadDraft(id);
   let draft = this.tree.getDraft(id);
   let loom_settings = this.tree.getLoomSettings(id);
-  this.sim.loadNewDraft(draft, loom_settings)
+ // this.sim.loadNewDraft(draft, loom_settings)
   this.dm.selectPencil('toggle');
 }
 
@@ -1145,9 +1138,9 @@ showDraftDetails(id: number){
     /**
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    */
-  updateSimulation(){
+  redrawViewer(){
 
-    //this.sim.updateSimulation(draft: Draft, loom_settings: LoomSettings){
+    this.viewer.drawDraft(this.selected_draft_id);
 
   }
 
@@ -1162,6 +1155,18 @@ showDraftDetails(id: number){
 
   updateMixerView(event: any){
     this.mixer.renderChange(event);
+  }
+
+  zoomOut(){
+
+  }
+
+  zoomIn(){
+
+  }
+
+  zoomChange(event: any, source: string){
+
   }
 
 

@@ -3,9 +3,11 @@
   z-index: -1;
 }
 
-#scrollable-container{
-  display: block;
-  position: relative;
+.palette{
+  width: 1600px;
+  height: 1600px;
+  background-color: blue;
+  overflow: scroll;
 }
 
 .no-pointer{
@@ -23,31 +25,27 @@ h3{
 }
 
 
+.mat-expansion-panel-header{
+  font-size: .8em;
 
+  i{
+      padding-right: 8px;
+  }
+}
 
 .sidenav{
-  z-index: 4;
-  position: fixed;
   display: flex;
-  background-color: white;
+  padding: 16px;
+  background-color: #f0f0f0;
   flex-direction: column;
   height: 100%;
   width: min-content;
   overflow: scroll;
 
   &.hide{
-    z-index: -1;
+    display: none;;
   }
   
-}
-
-.sidenav_section{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 22px;
-  justify-content: space-around;
-
 }
 
 

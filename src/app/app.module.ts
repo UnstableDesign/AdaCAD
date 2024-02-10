@@ -20,11 +20,11 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { MixerModule } from './mixer/mixer.module';
 import { DraftDetailModule } from './draftdetail/draftdetail.module';
-import { SimulationModule } from './simulation/simulation.module';
+import { ViewerModule } from './viewer/viewer.module';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
     ],
   imports: [
     BrowserModule,
@@ -33,7 +33,7 @@ import { SimulationModule } from './simulation/simulation.module';
     CoreModule,
     DraftDetailModule,
     MixerModule,
-    SimulationModule,
+    ViewerModule,
     BrowserAnimationsModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore()),

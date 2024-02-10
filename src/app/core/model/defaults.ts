@@ -30,7 +30,7 @@ export const defaults = {
             units: <'in'> 'in',
             type: 'frame'
           },
-      draft_edit_source: 'drawdown',
+      draft_edit_source: 'loom',
       pencil: 'toggle',
       draft_edit_mode: 'draw',
       mixer_mode: 'move'

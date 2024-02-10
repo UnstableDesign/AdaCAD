@@ -1,40 +1,59 @@
 
-
-
-.view-window{
-  display: flex;
-  flex-flow: column;
-  height: 100%;
-}
-
-#logo{
-  width: 42px;
-  margin-bottom: 40px;
-  margin-top: 3px;
-}
-
-.logo {
-  // display: block;
-  // opacity: .5;
-  // background: url(../assets/svg/logo.svg);
-  // background-position-y: 0px;
-  // background-position-x: 0px;
-  // background-size: 42px 52px;
-}
-
-.header-content{
+.view-container{
   display: flex;
   flex-direction: column;
-  width: 100%;
+  align-items: stretch;
 }
 
 
-.header{
+.header-container{
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 64px;
+  background-color: #3f51b5;
+  overflow: hidden;
+
+}
+
+.ui-grid{
+  display: flex;
+  background: white;
+  flex: 1 1 calc(100vh - 128px);
+  flex-direction: row;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+
+.footer-container{
   display: flex;
   flex-direction: row;
-  flex: 0 1 auto;
+  flex: 0 1 64px;
   background-color: #3f51b5;
+  justify-content: space-between;
 }
+
+
+
+.detail-container{
+  display: flex;
+  flex: 0 1 80%;
+  flex-direction: row;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.static-container{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  flex: 0 1 20%;
+  overflow: scroll;
+}
+
+
+
+
 
 .topbar{
   display: flex;
@@ -44,23 +63,11 @@
   
 }
 
-.ui-grid{
-    display: flex;
-    flex: 1 1 auto;
-    justify-content: space-around;
-    flex-flow: column wrap;
-    background-color: aqua;
-    overflow: hidden;
-  }
-  
+
   .mixer{
-    position: relative;
-    display: flex;
-    flex-direction: row;
+    display: none;
     background-color: #f0f0f0;
-    overflow: scroll;
     height: 100%;
-    width: 67%;
     flex: 1 1 auto;
 
   }
@@ -86,28 +93,44 @@
     width: 66%;
   }
 
-  .hasFocus{
-    border-right: thin solid grey;
+
+
+
+  .side_views{
+    width: 20%;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    background: #f0f0f0;
+
+    .mat-card{
+      flex: 1 1 auto;
+      overflow: hidden;
+      margin-bottom: 16px;
+      height: 30%;
+    }
+
   }
 
-  .isSide{
-    border-bottom: thin solid grey;
-
+  .mat-card-title{
+    font-size: .8em;
   }
+
 
   .fullscreen{
     width: 100%;
   }
   .app-mixer{
     display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    height: 100%;
   }
 
   .sim{
-    display: block;
+    display: flex;
     background-color: #f0f0f0;
     overflow: scroll;
-    height: 50%;
-    width: 33%;
     flex: 1 1 auto;
 
 
@@ -118,21 +141,14 @@
     display: flex;
     flex-direction: column;
     background-color: #f0f0f0;
-    overflow: scroll;
-    height: 50%;
-    width: 33%;
+    height: 100%;
+    width: 100%;
     flex: 1 1 auto;
 
 
 
   }
 
-  #draftdetail{
-    display: flex;
-    flex: 1 1 auto;
-    background-color: #f0f0f0;
-
-  }
 
   .active{
     color: #ff4081;

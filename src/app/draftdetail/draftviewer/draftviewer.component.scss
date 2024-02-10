@@ -110,10 +110,6 @@ canvas{
 
 #draft-scale-container{
   display: flex;
-  flex-direction: column;
-  position: relative;
-  width: fit-content;
-  height: fit-content;
 }
 
 #scale_view_test{
@@ -125,12 +121,6 @@ canvas{
 }
 
 
-#draft-scale-container{
-  width: fit-content;
-  height: fit-content;
-  display: flex;
-
-}
 
 #draft-scale-container.origin0,
 #draft-scale-container.origin3

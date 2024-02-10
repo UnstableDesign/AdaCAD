@@ -1,5 +1,5 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { Component, enableProdMode, EventEmitter, Input, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, enableProdMode, EventEmitter, HostListener, Input, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { NgForm, UntypedFormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -55,6 +55,8 @@ export class MixerComponent  {
   @Input('hasFocus') hasFocus; 
 
   @Output() onDraftDetailOpen: any = new EventEmitter();
+  @Output() onFocusView: any = new EventEmitter();
+
 
   origin_options: any = null;
   selected_origin: number = 0;
@@ -184,10 +186,11 @@ inCat(op_name: string, cat_name: string) {;
     let id = this.palette.addOperation(name);
     this.myControl.setValue('');
     const outputs = this.tree.getNonCxnOutputs(id);
-    console.log("OUTPUTS ", id, outputs)
     if(outputs.length > 0) this.onDraftDetailOpen.emit(outputs[0]);
     //focus this is the detail view
   }
+
+
 
 
   /**
@@ -251,9 +254,6 @@ inCat(op_name: string, cat_name: string) {;
   }
 
 
-
-
-
   zoomIn(){
     const old_zoom = this.zs.zoom;
     this.zs.zoomIn();
@@ -277,6 +277,10 @@ createNewDraft(){
   dialogRef.afterClosed().subscribe(obj => {
     if(obj !== undefined && obj !== null) this.newDraftCreated(obj);
  });
+}
+
+focusUIView(){
+  this.onFocusView.emit();
 }
  
 
