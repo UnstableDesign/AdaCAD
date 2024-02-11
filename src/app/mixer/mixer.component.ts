@@ -1,4 +1,3 @@
-import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { Component, enableProdMode, EventEmitter, HostListener, Input, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { NgForm, UntypedFormControl } from '@angular/forms';
@@ -51,8 +50,6 @@ export class MixerComponent  {
 
 
   @ViewChild(PaletteComponent) palette;
-
-  @Input('hasFocus') hasFocus; 
 
   @Output() onDraftDetailOpen: any = new EventEmitter();
   @Output() onFocusView: any = new EventEmitter();

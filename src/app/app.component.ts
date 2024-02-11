@@ -30,7 +30,7 @@ import { ExamplesComponent } from './core/modal/examples/examples.component';
 import { DesignmodesService } from './core/provider/designmodes.service';
 import { OperationComponent } from './mixer/palette/operation/operation.component';
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { defaults, density_units, loom_types, origin_option_list } from './core/model/defaults';
+import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { ViewerComponent } from './viewer/viewer.component';
 
@@ -77,6 +77,10 @@ export class AppComponent implements OnInit{
   
   unitOptions: any;
 
+  editorModes: any;
+
+  selected_editor_mode: any;
+
   selected_draft_id: number =1;
 
   redraw_viewer: boolean = false;
@@ -107,7 +111,8 @@ export class AppComponent implements OnInit{
     this.originOptions = origin_option_list;
     this.loomOptions = loom_types;
     this.unitOptions = density_units;
-
+    this.editorModes = editor_modes;
+    this.selected_editor_mode = defaults.editor;
 
         //subscribe to the login event and handle what happens in that case 
 
@@ -152,23 +157,6 @@ export class AppComponent implements OnInit{
 
   ngAfterViewInit() {
  
-    this.views = [
-      {
-        name: 'mixer',
-        div: document.getElementById('mixer')
-      },
-      {
-        name: 'detail',
-        div: document.getElementById('detail')
-      },
-      {
-        name: 'sim',
-        div: document.getElementById('sim')
-      }
-
-    ]
-
-    this.focusUIView('detail', true);
 
   }
 
@@ -248,6 +236,21 @@ export class AppComponent implements OnInit{
   collapseFullScreen(){
     this.ui.fullscreen = false;
     this.focusUIView(this.ui.main, true)
+  }
+
+  toggleEditorMode(){
+    console.log("EDITOR MODE ", this.selected_editor_mode)
+
+    switch(this.selected_editor_mode){
+      case 'draft':
+        
+
+        break;
+      case 'mixer':
+        break;
+    }
+
+
   }
 
   focusUIView(view: string, forceCollapse: boolean){

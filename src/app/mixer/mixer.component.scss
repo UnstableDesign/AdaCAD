@@ -3,12 +3,25 @@
   z-index: -1;
 }
 
+
+.mixer-sidebars{
+  padding: 16px;
+  flex: 0 0 275px;
+  display: flex;
+  overflow: scroll;
+  flex-direction: column;
+
+}
+
 .palette{
-  width: 1600px;
-  height: 1600px;
-  background-color: blue;
+  display: flex;
+  flex: 0 1 100%;
+  flex-direction: row;
+  height: 100%;
   overflow: scroll;
 }
+
+
 
 .no-pointer{
   pointer-events: none;

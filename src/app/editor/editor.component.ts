@@ -46,24 +46,11 @@ export class EditorComponent implements OnInit {
   @Output() onCollapseView: any = new EventEmitter();
 
 
-
-  @Input('hasFocus') hasFocus; 
-
-  private id: number = -1;  
-
+  id: number = -1;  
 
   actions_modal: MatDialogRef<RepeatsComponent, any>;
 
-  /**
-  The current selection, as a Pattern 
-  **/
   copy: Drawdown;
-
-  // draft: Draft;
-
-  // loom: Loom;
-
-  // loom_settings: LoomSettings;
 
   selected;
 

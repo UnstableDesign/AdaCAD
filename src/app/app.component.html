@@ -95,9 +95,15 @@
         <button mat-icon-button (click)="openMaterials()"><i class="fa-solid fa-palette"></i></button> 
         <button mat-icon-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i></button> 
 
-        <mat-button-toggle-group name="editingMode" color="primary"class="toggle" aria-label="Editor Style">
-          <mat-button-toggle value="draft">Draft</mat-button-toggle>
-          <mat-button-toggle value="code">Program</mat-button-toggle>
+        <mat-button-toggle-group 
+        name="editingMode" 
+        [(ngModel)]="selected_editor_mode"
+        color="primary"
+        class="toggle" 
+        aria-label="Editor Style"
+        (change)="toggleEditorMode()"
+        >
+          <mat-button-toggle *ngFor="let mode of editorModes" [value]="mode.value">{{mode.view}}</mat-button-toggle>
         </mat-button-toggle-group>
       </div>
       
@@ -134,23 +140,25 @@
 
   <div class="ui-grid">
 
-      <div class="mixer" id="mixer" cdkScrollable>
+  
 
-        <app-mixer class="app-mixer" 
-        #mixer
-        [hasFocus]="ui.main == 'mixer'"  
-        (onFocusView)="focusUIView('mixer', false)"
-        (onDraftDetailOpen)="showDraftDetails($event)"
-        >
-        </app-mixer> 
-    </div>
+    <app-mixer 
+    class="mixer-container" 
+    [class.hidden]="selected_editor_mode !== 'mixer'" 
+    #mixer
+    id="mixer" 
+    cdkScrollable
+    (onFocusView)="focusUIView('mixer', false)"
+    (onDraftDetailOpen)="showDraftDetails($event)"
+    >
+    </app-mixer> 
 
-      
+  
 
     <app-editor id="draftdetail"
     class="detail-container"
+    [class.hidden]="selected_editor_mode !== 'draft'"
     #details 
-    [hasFocus]="true"  
     (onFocusView)="focusUIView('detail', false)"
     (onCollapseView)="collapseFullScreen()"
     (saveChanges)="saveFile()"

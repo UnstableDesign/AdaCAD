@@ -1,4 +1,5 @@
 export const defaults = {
+    editor: 'draft',
     max_simulation_area: 10000,
     draft_detail_cell_size: 15,
     draft_detail_zoom: 1,
@@ -43,6 +44,12 @@ export const origin_option_list: Array<{value: number, view: string}> =
   {value: 1, view: 'bottom right'},
   {value: 2, view: 'bottom left'},
   {value: 3, view: 'top left'},
+];
+
+export const editor_modes: Array<{value: string, view: string}> = 
+[
+  {value: 'draft', view: 'draft'},
+  {value: 'mixer', view: 'parametric'},
 ];
 
 export const draft_view_modes = [

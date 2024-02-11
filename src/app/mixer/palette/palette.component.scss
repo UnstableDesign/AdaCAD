@@ -1,10 +1,8 @@
-#palette{
-    position: relative;
-    background:#f0f0f0;
-    z-index: -1;
+.palette-scale-container{
+    width: 16000px;
+    height: 1600px;
+    background-color: blue;
 }
-
-
 
 svg{
     position: absolute;

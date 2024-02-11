@@ -1,4 +1,4 @@
-<div *ngIf="hasFocus" class="detail-sidebars" id="detail-sidebar">
+<div  class="detail-sidebars" id="detail-sidebar">
   
   <mat-accordion multi>
 
@@ -41,7 +41,7 @@
             <i class="fa-solid fa-paint-roller">
           </i></button>
           
-          <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expand()"></i></button>
+          <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expandViewer()"></i></button>
 
 
 
@@ -166,7 +166,6 @@
   <app-draft 
   id="draft_viewer"
   #weaveRef
-  [hasFocus]="hasFocus"
   source = "weaver"
   (onNewSelection) = "updateSelection($event)"
   (onDrawdownUpdated)="drawdownUpdated()"
