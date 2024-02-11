@@ -36,13 +36,11 @@ import { LoginComponent } from './login/login.component';
 import { AboutModal } from './modal/about/about.modal';
 import { InitModal } from './modal/init/init.modal';
 import { MaterialModal } from './modal/material/material.modal';
-import { ProfileComponent } from './profile/profile.component';
 import { AuthService } from './provider/auth.service';
 import { FileService } from './provider/file.service';
 import { PatternfinderService } from './provider/patternfinder.service';
 import { VaeService } from './provider/vae.service';
 import { SignupComponent } from './signup/signup.component';
-import { TopbarComponent } from './topbar/topbar.component';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
 import { UploadService } from './provider/upload.service';
 import { BlankdraftModal } from './modal/blankdraft/blankdraft.modal';
@@ -91,13 +89,11 @@ import { ZoomService } from './provider/zoom.service';
     ],
     declarations: [
         UploadFormComponent,
-        TopbarComponent,
         InitModal,
         AboutModal,
         MaterialModal,
         LoginComponent,
         SignupComponent,
-        ProfileComponent,
         BlankdraftModal,
         ExamplesComponent,
         LoadfileComponent,
@@ -147,7 +143,6 @@ import { ZoomService } from './provider/zoom.service';
         MatBadgeModule,
         DragDropModule,
         UploadFormComponent,
-        TopbarComponent,
         InitModal,
         AboutModal,
         MaterialModal,
