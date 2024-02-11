@@ -24,11 +24,11 @@ import { MaterialModal } from '../core/modal/material/material.modal';
 
 
 @Component({
-  selector: 'app-draftdetail',
-  templateUrl: './draftdetail.component.html',
-  styleUrls: ['./draftdetail.component.scss']
+  selector: 'app-editor',
+  templateUrl: './editor.component.html',
+  styleUrls: ['./editor.component.scss']
 })
-export class DraftDetailComponent implements OnInit {
+export class EditorComponent implements OnInit {
  
   /**
    * The reference to the weave directive.

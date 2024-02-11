@@ -19,8 +19,10 @@
     <mat-toolbar class="topbar">
       <div class="topbar-button-group">
         <span>AdaCAD</span>
+        </div>
+        <div class="topbar-button-group">
         
-        <button mat-button [matMenuTriggerFor]="file">File</button>
+        <button mat-icon-button [matMenuTriggerFor]="file"><i class="fa-solid fa-house"></i></button>
 
         <mat-menu #file="matMenu">
           <button mat-menu-item (click)="loadBlankFile()">New Workspace</button>
@@ -43,7 +45,7 @@
           </button>
         </mat-menu>
 
-        <button mat-button [matMenuTriggerFor]="edit">Edit</button>
+        <button mat-icon-button [matMenuTriggerFor]="edit"><i class="fa-solid fa-pen-to-square"></i></button>
         <mat-menu #edit="matMenu">
           <button mat-menu-item (click)="undo()">Undo (ctrl-z)</button>
           <button mat-menu-item (click)="redo()" >Redo</button>
@@ -56,7 +58,7 @@
           <button mat-menu-item >Add Comment</button> -->
         </mat-menu>
 
-        <button mat-button [matMenuTriggerFor]="settings">Settings</button>
+        <button mat-icon-button [matMenuTriggerFor]="settings"><i class="fa-solid fa-gear"></i></button>
         <mat-menu #settings="matMenu">
           <button mat-menu-item [matMenuTriggerFor]="defaultOrigin">Origin</button>
 
@@ -90,8 +92,13 @@
 
           <!-- <button mat-menu-item >Optimize for Device</button> -->
         </mat-menu>
-        <button mat-button (click)="openMaterials()">Materials</button> 
-        <button mat-button (click)="openExamples()">Examples</button> 
+        <button mat-icon-button (click)="openMaterials()"><i class="fa-solid fa-palette"></i></button> 
+        <button mat-icon-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i></button> 
+
+        <mat-button-toggle-group name="editingMode" color="primary"class="toggle" aria-label="Editor Style">
+          <mat-button-toggle value="draft">Draft</mat-button-toggle>
+          <mat-button-toggle value="code">Program</mat-button-toggle>
+        </mat-button-toggle-group>
       </div>
       
       <div class="topbar-button-group">
@@ -140,7 +147,7 @@
 
       
 
-    <app-draftdetail id="draftdetail"
+    <app-editor id="draftdetail"
     class="detail-container"
     #details 
     [hasFocus]="true"  
@@ -150,7 +157,7 @@
     (redrawViewer)="redrawViewer()"
     (createNewDraftOnMixer)="createNewDraftOnMixer($event)"
     (updateMixer)="updateMixer()"
-      ></app-draftdetail>
+      ></app-editor>
 
      
      <app-viewer 

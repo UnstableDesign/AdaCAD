@@ -14,7 +14,7 @@ import { OperationService } from './core/provider/operation.service';
 import { StateService } from './core/provider/state.service';
 import { TreeService } from './core/provider/tree.service';
 import { WorkspaceService } from './core/provider/workspace.service';
-import { DraftDetailComponent } from './editor/draftdetail.component';
+import { EditorComponent } from './editor/editor.component';
 import { MixerComponent } from './mixer/mixer.component';
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ZoomService } from './core/provider/zoom.service';
@@ -47,7 +47,7 @@ export class AppComponent implements OnInit{
   title = 'app';
 
   @ViewChild(MixerComponent) mixer;
-  @ViewChild(DraftDetailComponent) details;
+  @ViewChild(EditorComponent) details;
   @ViewChild(ViewerComponent) viewer;
 
 

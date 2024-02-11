@@ -52,7 +52,9 @@
 
 }
 
-
+.toggle{
+  font-size: .5em;
+}
 
 
 
@@ -62,6 +64,10 @@
   color: white;
   background-color: #3f51b5;
   
+}
+
+.topbar-button-group{
+  justify-content: flex-start;
 }
 
 

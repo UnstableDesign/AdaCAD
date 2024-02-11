@@ -26,7 +26,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { MatChipsModule } from '@angular/material/chips';
 import { ScrollingModule} from '@angular/cdk/scrolling';
 import { CoreModule } from '../core/core.module';
-import { DraftDetailComponent } from './draftdetail.component';
+import { EditorComponent } from './editor.component';
 import { DraftComponent } from './draft/draft.component';
 import { RepeatsComponent } from './repeats/repeats.component';
 import { RenderService } from './provider/render.service';
@@ -34,7 +34,7 @@ import { SelectionComponent } from './draft/selection/selection.component';
 
 @NgModule({
     declarations: [
-        DraftDetailComponent,
+        EditorComponent,
         DraftComponent,
         RepeatsComponent,
         SelectionComponent
@@ -71,7 +71,7 @@ import { SelectionComponent } from './draft/selection/selection.component';
         
     ],
     exports:[
-        DraftDetailComponent
+        EditorComponent
     ],
     providers: [
         RenderService
