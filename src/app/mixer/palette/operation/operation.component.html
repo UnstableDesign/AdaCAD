@@ -33,29 +33,36 @@ cdkDragBoundary=".palette"
 
 
 
+          <button 
+          class="button is-primary fa-solid fa-magnifying-glass"
+          (click)="openHelpDialog()">
+          </button> 
+  
+
         <div class="operation-details">
             <div class="name no-text-select">{{displayname}}</div>
           
         </div>
 
+   
         <button 
-        class="button is-small is-primary fas fa-question"
+        class="button is-primary fas fa-question"
         (click)="openHelpDialog()">
-    </button> 
+        </button> 
 
         <button 
         matTooltip= "Duplicate"
-        class="button is-small is-primary fa fa-clone"
+        class="button  is-primary fa fa-clone"
         (click)="duplicate()">
         </button>
         
 
         <button 
-        class="button is-small is-primary"
+        class="button  is-primary"
         (click)="delete()">
         <i class="fas fa-times"></i>
         </button>
-      </div>
+       </div>
 
       <div class="params">
 

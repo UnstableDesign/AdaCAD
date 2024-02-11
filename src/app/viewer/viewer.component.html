@@ -1,107 +1,153 @@
-<div class="current_view" id="static_draft_view">
+<mat-accordion multi class="static-menus">
+
+  <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title class="small-text">
+        <i class="fa-solid fa-magnifying-glass"></i> Preview
+        </mat-panel-title>
+        <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="current_view" id="static_draft_view">
 
 
-    <app-simulation 
-    [class.hidden]="vis_mode != 'sim'" 
-    #sim
-     id="sim_viewer" 
-    [id]="id"
-    >
-  </app-simulation>
-
-      <canvas [class.hidden]="vis_mode == 'sim'" id="viewer_canvas"></canvas>
-
-</div>
-<div  class="view_options">
-    <button  
-    mat-icon-button 
-    [class.active]="vis_mode == 'sim'"
-    matTooltip="view in 3D" 
-    (click)="viewAsSimulation()">
-      <i class="fa-solid fa-cube"></i>
-    </button>
-    
-    <button  
-    mat-icon-button 
-    [class.active]="vis_mode == 'draft'"
-    matTooltip="view draft" 
-    (click)="viewAsDraft()">
-      <i class="fa-solid fa-chess-board"></i>
-    </button>
-    
-    <button  
-    mat-icon-button 
-    [class.active]="vis_mode == 'structure'"
-    matTooltip="view structure" 
-    (click)="viewAsStructure()">
-      <i class="fa-solid fa-hashtag"></i>
-    </button>
-    
-    <button  
-    mat-icon-button 
-    [class.active]="vis_mode == 'color'"
-    matTooltip="view colors" 
-    (click)="viewAsColor()">
-      <i class="fa-solid fa-paint-roller">
-    </i></button>
-    
-    <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expand()"></i></button>
-</div>
-
-
-
-<div class="filelist">
-  <h4>active projects
-
-    <button class="addfile" mat-icon-button (click)="manageFiles()" ><i class="fa-solid fa-gear"></i></button>
-  </h4>
-
-  <ng-container *ngFor="let tab of files.loaded_files; index as index;">
-
-    <button 
-    [class.active]= "tab.id === files.getCurrentFileId()"
-    [matMenuTriggerFor]="fileOptions" 
-    mat-raised-button 
-    >
-      {{tab.name}} 
-    </button>
-
-
-
-    <mat-menu #fileOptions="matMenu">
-
-      <button 
-      [class.active]="tab.id !==  files.getCurrentFileId()"
-      mat-raised-button (click)="switchFile(tab.id)"  >
-      <i class="fa-solid fa-xmark"></i> Open
-      </button>
-
-      <button 
-      *ngIf="tab.id !==  files.getCurrentFileId()" mat-raised-button 
-      [matMenuTriggerFor]="deleteConfirm">
-      <i class="fa-solid fa-xmark"> Close </i>
-      </button>
-
-     </mat-menu>
-
-    <mat-menu #deleteConfirm="matMenu">
-      <button 
-      mat-icon-button 
-      matListItemIcon
-      (click)="closeFile(tab.id)"
+      <app-simulation 
+      [class.hidden]="vis_mode != 'sim'" 
+      #sim
+       id="sim_viewer" 
+      [id]="id"
       >
-        Are you sure?
+    </app-simulation>
+  
+        <canvas [class.hidden]="vis_mode == 'sim'" id="viewer_canvas"></canvas>
+  
+  </div>
+  <div  class="view_options">
+      <button  
+      mat-icon-button 
+      [class.active]="vis_mode == 'sim'"
+      matTooltip="view in 3D" 
+      (click)="viewAsSimulation()">
+        <i class="fa-solid fa-cube"></i>
+      </button>
+      
+      <button  
+      mat-icon-button 
+      [class.active]="vis_mode == 'draft'"
+      matTooltip="view draft" 
+      (click)="viewAsDraft()">
+        <i class="fa-solid fa-chess-board"></i>
+      </button>
+      
+      <button  
+      mat-icon-button 
+      [class.active]="vis_mode == 'structure'"
+      matTooltip="view structure" 
+      (click)="viewAsStructure()">
+        <i class="fa-solid fa-hashtag"></i>
+      </button>
+      
+      <button  
+      mat-icon-button 
+      [class.active]="vis_mode == 'color'"
+      matTooltip="view colors" 
+      (click)="viewAsColor()">
+        <i class="fa-solid fa-paint-roller">
+      </i></button>
+      
+      <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expand()"></i></button>
+  </div>
+  
+  </mat-expansion-panel>
+
+
+
+ <mat-expansion-panel expanded>
+  <mat-expansion-panel-header>
+    <mat-panel-title class="small-text">
+      <i class="fa-solid fa-folder"></i> Projects
+      </mat-panel-title>
+      <mat-panel-description>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+    <div class="filelist">
+      <h4>active projects
+
+        <button class="addfile" mat-icon-button (click)="manageFiles()" ><i class="fa-solid fa-gear"></i></button>
+      </h4>
+
+      <ng-container *ngFor="let tab of files.loaded_files; index as index;">
+
+        <button 
+        [class.active]= "tab.id === files.getCurrentFileId()"
+        [matMenuTriggerFor]="fileOptions" 
+        mat-raised-button 
+        >
+          {{tab.name}} 
         </button>
-    </mat-menu>
-  </ng-container>
 
+
+
+        <mat-menu #fileOptions="matMenu">
+
+          <button 
+          [class.active]="tab.id !==  files.getCurrentFileId()"
+          mat-raised-button (click)="switchFile(tab.id)"  >
+          <i class="fa-solid fa-xmark"></i> Open
+          </button>
+
+          <button 
+          *ngIf="tab.id !==  files.getCurrentFileId()" mat-raised-button 
+          [matMenuTriggerFor]="deleteConfirm">
+          <i class="fa-solid fa-xmark"> Close </i>
+          </button>
+
+        </mat-menu>
+
+        <mat-menu #deleteConfirm="matMenu">
+          <button 
+          mat-icon-button 
+          matListItemIcon
+          (click)="closeFile(tab.id)"
+          >
+            Are you sure?
+            </button>
+        </mat-menu>
+      </ng-container>
+
+    
+
+      <button class="addfile" mat-raised-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> create new</button>
+
+    </div>
+  </mat-expansion-panel>
+
+
+
+<mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title class="small-text">
+        <i class="fa-solid fa-palette"></i> Materials
+        </mat-panel-title>
+      
+    </mat-expansion-panel-header>
+    </mat-expansion-panel>
+
+      <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title class="small-text">
+          <i class="fa-solid fa-lightbulb"></i> Examples
+          </mat-panel-title>
+        
+      </mat-expansion-panel-header>
+      </mat-expansion-panel>
   
-  
+
+</mat-accordion> 
 
 
-  <button class="addfile" mat-raised-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> create new</button>
-
-</div>
 
 
 

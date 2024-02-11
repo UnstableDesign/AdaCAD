@@ -1,8 +1,19 @@
-.current_view{
-    width: 18vw;
-    height: 18vw;
-    background-color: white;
+.static-menus{
     margin: 16px;
+}
+
+.small-text{
+    font-size: .8em;
+}
+
+.mat-expansion-panel-header i{
+    padding-right: 8px;
+}
+
+.current_view{
+    width: 14vw;
+    height: 14vw;
+    background-color: white;
     border: thin solid grey;
     display: flex;
     align-items: center;

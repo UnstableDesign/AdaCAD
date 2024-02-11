@@ -389,7 +389,7 @@ handlePan(diff: Point){
 
 
     const zoom_factor = this.zs.zoom / this.default_cell_size;
-    const container: HTMLElement = document.getElementById('scrollable-container');
+    const container: HTMLElement = document.getElementById('palette-scale-container');
     if(container === null) return;
 
     container.style.transformOrigin = 'top left';
