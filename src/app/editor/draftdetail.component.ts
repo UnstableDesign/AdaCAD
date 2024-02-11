@@ -17,7 +17,7 @@ import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { ActionsComponent } from './actions/actions.component';
-import { DraftviewerComponent } from './draftviewer/draftviewer.component';
+import { DraftComponent } from './draft/draft.component';
 import { RenderService } from './provider/render.service';
 import { MaterialModal } from '../core/modal/material/material.modal';
 
@@ -34,7 +34,7 @@ export class DraftDetailComponent implements OnInit {
    * The reference to the weave directive.
    * @property {WeaveDirective}
    */
-  @ViewChild(DraftviewerComponent, {static: true}) weaveRef;
+  @ViewChild(DraftComponent, {static: true}) weaveRef;
   
 
   @Output() closeDrawer: any = new EventEmitter();

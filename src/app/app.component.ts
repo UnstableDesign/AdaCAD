@@ -14,7 +14,7 @@ import { OperationService } from './core/provider/operation.service';
 import { StateService } from './core/provider/state.service';
 import { TreeService } from './core/provider/tree.service';
 import { WorkspaceService } from './core/provider/workspace.service';
-import { DraftDetailComponent } from './draftdetail/draftdetail.component';
+import { DraftDetailComponent } from './editor/draftdetail.component';
 import { MixerComponent } from './mixer/mixer.component';
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ZoomService } from './core/provider/zoom.service';

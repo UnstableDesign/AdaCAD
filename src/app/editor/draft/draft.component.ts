@@ -19,11 +19,11 @@ import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
 
 @Component({
-  selector: 'app-draftviewer',
-  templateUrl: './draftviewer.component.html',
-  styleUrls: ['./draftviewer.component.scss']
+  selector: 'app-draft',
+  templateUrl: './draft.component.html',
+  styleUrls: ['./draft.component.scss']
 })
-export class DraftviewerComponent implements OnInit {
+export class DraftComponent implements OnInit {
 
   @ViewChild('bitmapImage') bitmap;
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;

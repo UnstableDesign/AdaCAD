@@ -11,7 +11,7 @@ import { ConnectionComponent } from './palette/connection/connection.component';
 import { OpsComponent } from './ops/ops.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 import { ImageComponent } from './palette/image/image.component';
-import { DraftDetailModule } from '../draftdetail/draftdetail.module';
+import { EditorModule } from '../editor/editor.module';
 import { NoteComponent } from './palette/note/note.component';
 import { ParameterComponent } from './palette/operation/parameter/parameter.component';
 import { InletComponent } from './palette/operation/inlet/inlet.component';
@@ -24,7 +24,7 @@ import { DraftrenderingComponent } from './palette/draftrendering/draftrendering
 @NgModule({
     imports: [
         CoreModule,
-        DraftDetailModule    
+        EditorModule    
     ],
     declarations: [
         MixerComponent,

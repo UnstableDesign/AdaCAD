@@ -19,7 +19,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { MixerModule } from './mixer/mixer.module';
-import { DraftDetailModule } from './draftdetail/draftdetail.module';
+import { EditorModule } from './editor/editor.module';
 import { ViewerModule } from './viewer/viewer.module';
 
 @NgModule({
@@ -31,7 +31,7 @@ import { ViewerModule } from './viewer/viewer.module';
     AppRoutingModule,
     HttpClientModule,
     CoreModule,
-    DraftDetailModule,
+    EditorModule,
     MixerModule,
     ViewerModule,
     BrowserAnimationsModule,

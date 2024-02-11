@@ -1,6 +1,6 @@
 import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
 import { Subject } from 'rxjs';
-import { RenderService } from '../draftdetail/provider/render.service';
+import { RenderService } from '../editor/provider/render.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DesignMode } from './model/datatypes';
 import { DesignmodesService } from './provider/designmodes.service';
