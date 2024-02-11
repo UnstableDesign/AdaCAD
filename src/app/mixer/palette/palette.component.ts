@@ -10,7 +10,6 @@ import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
-import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { MultiselectService } from '../provider/multiselect.service';
 import { ViewportService } from '../provider/viewport.service';
@@ -121,7 +120,6 @@ export class PaletteComponent implements OnInit{
   constructor(
     public dm: DesignmodesService, 
     private tree: TreeService,
-    private inks: InkService, 
     private layers: LayersService, 
     private resolver: ComponentFactoryResolver, 
     private fs: FileService,
@@ -300,8 +298,6 @@ handlePan(diff: Point){
    * each time a user performs an action that they should be able to undo/redo
    */
   addTimelineState(){
-    console.log("ADD TIMELINE");
-
 
    this.fs.saver.ada()
       .then(so => {
@@ -618,7 +614,6 @@ handlePan(diff: Point){
     subdraft.instance.draft = d;
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.zs.zoom;
-    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
 
     return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true)
@@ -642,7 +637,6 @@ handlePan(diff: Point){
     subdraft.instance.draft = this.tree.getDraft(id);
     subdraft.instance.default_cell = this.default_cell_size;
     subdraft.instance.scale = this.zs.zoom;
-    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
 
     return Promise.resolve(subdraft.instance);
 
@@ -671,7 +665,6 @@ handlePan(diff: Point){
     subdraft.instance.scale = this.zs.zoom;
     subdraft.instance.draft_visible = true;
     subdraft.instance.use_colors = true;
-    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
     subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
 
@@ -971,7 +964,6 @@ handlePan(diff: Point){
           sd.default_cell = this.default_cell_size;
           sd.scale = this.zs.zoom;
           sd.draft = d;
-          sd.ink = this.inks.getSelected(); //default to the currently selected ink
           sd.setAsPreview();
           // sd.disableDrag();
           

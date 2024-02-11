@@ -8,7 +8,6 @@ import { FileService } from '../../../core/provider/file.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
-import { InkService } from '../../provider/ink.service';
 import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
@@ -127,7 +126,7 @@ export class SubdraftComponent implements OnInit {
   draft_zoom: number = 1;
 
 
-  constructor(private inks: InkService, 
+  constructor( 
     private layer: LayersService, 
     private ms: MaterialsService, 
     private ss: SystemsService, 
@@ -268,13 +267,6 @@ export class SubdraftComponent implements OnInit {
     this.updateViewport(this.topleft);
   }
 
-
-
-  public inkActionChange(name: any){
-    this.ink = name;
-    this.inks.select(name);
-    //this.drawDraft();
-  }
 
   /**
    * gets the next z-ndx to place this in front
