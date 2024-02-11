@@ -2,7 +2,6 @@ import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
 import { defaults } from '../../core/model/defaults';
-import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Node, Point, Cell, OpNode, Operation} from '../../core/model/datatypes';
 import { copyDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';

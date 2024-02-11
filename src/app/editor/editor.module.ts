@@ -32,7 +32,6 @@ import { RepeatsComponent } from './repeats/repeats.component';
 import { RenderService } from './provider/render.service';
 import { SelectionComponent } from './draft/selection/selection.component';
 import { SettingsComponent } from './settings/settings.component';
-import { MaterialSettingsComponent } from './material-settings/material-settings.component';
 
 @NgModule({
     declarations: [
@@ -40,8 +39,7 @@ import { MaterialSettingsComponent } from './material-settings/material-settings
         DraftComponent,
         RepeatsComponent,
         SelectionComponent,
-        SettingsComponent,
-        MaterialSettingsComponent
+        SettingsComponent
     ],
     imports: [
         CommonModule,
