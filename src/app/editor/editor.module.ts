@@ -28,7 +28,7 @@ import { ScrollingModule} from '@angular/cdk/scrolling';
 import { CoreModule } from '../core/core.module';
 import { DraftDetailComponent } from './draftdetail.component';
 import { DraftComponent } from './draft/draft.component';
-import { ActionsComponent } from './actions/actions.component';
+import { RepeatsComponent } from './repeats/repeats.component';
 import { RenderService } from './provider/render.service';
 import { SelectionComponent } from './draft/selection/selection.component';
 import { SettingsComponent } from './settings/settings.component';
@@ -38,7 +38,7 @@ import { MaterialSettingsComponent } from './material-settings/material-settings
     declarations: [
         DraftDetailComponent,
         DraftComponent,
-        ActionsComponent,
+        RepeatsComponent,
         SelectionComponent,
         SettingsComponent,
         MaterialSettingsComponent

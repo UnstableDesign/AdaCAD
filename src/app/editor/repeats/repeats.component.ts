@@ -12,14 +12,14 @@ import { System } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 
 @Component({
-  selector: 'app-actions',
-  templateUrl: './actions.component.html',
-  styleUrls: ['./actions.component.scss']
+  selector: 'app-repeats',
+  templateUrl: './repeats.component.html',
+  styleUrls: ['./repeats.component.scss']
 })
 
 
 
-export class ActionsComponent implements OnInit {
+export class RepeatsComponent implements OnInit {
 
   id:number;
 
@@ -77,7 +77,7 @@ export class ActionsComponent implements OnInit {
   constructor(
     public ms: MaterialsService, 
     public ss: SystemsService,
-    private dialogRef: MatDialogRef<ActionsComponent>,
+    private dialogRef: MatDialogRef<RepeatsComponent>,
              @Inject(MAT_DIALOG_DATA) public data: any) {
 
               this.id = data.id;

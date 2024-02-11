@@ -16,7 +16,7 @@ import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
-import { ActionsComponent } from './actions/actions.component';
+import { RepeatsComponent } from './repeats/repeats.component';
 import { DraftComponent } from './draft/draft.component';
 import { RenderService } from './provider/render.service';
 import { MaterialModal } from '../core/modal/material/material.modal';
@@ -52,7 +52,7 @@ export class DraftDetailComponent implements OnInit {
   private id: number = -1;  
 
 
-  actions_modal: MatDialogRef<ActionsComponent, any>;
+  actions_modal: MatDialogRef<RepeatsComponent, any>;
 
   /**
   The current selection, as a Pattern 
@@ -544,7 +544,7 @@ drawModeChange(name: string) {
 openActions(){
   if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) return;
  
-   this.actions_modal  =  this.dialog.open(ActionsComponent,
+   this.actions_modal  =  this.dialog.open(RepeatsComponent,
      {disableClose: true,
        maxWidth:350, 
        hasBackdrop: false,
