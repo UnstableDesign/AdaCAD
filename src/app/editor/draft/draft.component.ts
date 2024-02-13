@@ -335,71 +335,42 @@ export class DraftComponent implements OnInit {
    */
   computeAndSetScale(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
 
-    // let adj = 1;
-    // let margin = 160;
+    let adj = 1;
+    let margin = 160;
 
     // let div_draft_detail = document.getElementById('detail');
     // let rect = div_draft_detail.getBoundingClientRect();
 
 
-    // let div_draftviewer = document.getElementById('draft_viewer');
+    let div_draftviewer = document.getElementById('draft_viewer');
+     let rect_draftviewer = div_draftviewer.getBoundingClientRect();
 
 
-    // var base_dims = this.render.getCellDims("base_fill");
-    // let cell_size = base_dims.w;    
+    var base_dims = this.render.getCellDims("base_fill");
+    let cell_size = base_dims.w;    
 
+    let weft_num = wefts(draft.drawdown);
+    let warp_num = warps(draft.drawdown);
+    let treadles = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
+    let frames = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
+    let draft_width = (isFrame(loom_settings)) ? (warp_num + treadles) * cell_size : (warp_num)  * cell_size; 
+    let draft_height = (isFrame(loom_settings)) ? (weft_num + frames)* cell_size : (weft_num)  * cell_size; 
 
+    //add 100 to make space for the warp and weft selectors
+    draft_width += margin;
+    draft_height += margin;
 
-    // let weft_num = wefts(draft.drawdown);
-    // let warp_num = warps(draft.drawdown);
-    // let treadles = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
-    // let frames = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
-    // let draft_width = (isFrame(loom_settings)) ? (warp_num + treadles) * cell_size : (warp_num)  * cell_size; 
-    // let draft_height = (isFrame(loom_settings)) ? (weft_num + frames)* cell_size : (weft_num)  * cell_size; 
+   
+    //get the ration of the view to the item
+    let width_adj = rect_draftviewer.width / draft_width;
+    let height_adj = rect_draftviewer.height /draft_height;
 
-    // //add 100 to make space for the warp and weft selectors
-    // draft_width += margin;
-    // draft_height += margin;
-
-    // if(this.hasFocus){
-    //   let sidebar = document.getElementById('detail-sidebar');
-    //   let sidebar_rect = sidebar.getBoundingClientRect();
-
-    //   //the view rect includes the sidebar, so subtract it out
-    //   let width_less_sidebar = rect.width - sidebar_rect.width - margin;
-    //   let height_less_margin = Math.min(window.innerHeight, rect.height) - margin/2;
-
-    //   //get the ration of the view to the item
-    //   let width_adj = width_less_sidebar / draft_width;
-    //   let height_adj =height_less_margin /draft_height;
-
-    //   //make the zoom the smaller of the width or height
-    //   adj = Math.min(width_adj, height_adj);
+      //make the zoom the smaller of the width or height
+      adj = Math.min(width_adj, height_adj);
+     
+      this.zs.setZoom(adj);
       
-    //   div_draftviewer.style.left = sidebar_rect.width + 'px';
-
-
-
-    // }else{
-
-    //   let width_less_margin = rect.width - margin/4;
-    //   let window_height = rect.height - margin/8;
-
-    //   //get the ration of the view to the item
-    //   let width_adj = width_less_margin / draft_width;
-    //   let height_adj = window_height / draft_height;
-
-    //   //make the zoom the smaller of the width or height
-    //   adj = Math.min(width_adj, height_adj);
-
-
-
-    //   div_draftviewer.style.left = 0 + "px";
-
-
-    // }
-
-   //this.rescale(adj);     
+      this.rescale(adj);     
 
   }
 
@@ -1787,6 +1758,7 @@ export class DraftComponent implements OnInit {
   //this does not draw on canvas but just rescales the canvas
   public rescale(zoom: number){
   //   //var dims = this.render.getCellDims("base");
+  console.log("RESCALED TO  ", zoom)
     const container: HTMLElement = document.getElementById('draft-scale-container');
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom + ')';

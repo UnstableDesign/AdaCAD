@@ -147,22 +147,16 @@ export class PaletteComponent implements OnInit{
    */
    ngAfterViewInit(){
     
-    const div:HTMLElement = document.getElementById('scrollable-container');
-    this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
+    // const div:HTMLElement = document.getElementById('scrollable-container');
+    // this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
+
+    // this.selection.scale = this.zs.zoom;
+
+    // this.selection.active = false;
     
-    // const center:Point = this.viewport.setViewportCenter();
-    // div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
-    // div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
+    // this.designModeChanged();
 
-    
-
-    this.selection.scale = this.zs.zoom;
-
-    this.selection.active = false;
-    
-    this.designModeChanged();
-
-    this.rescale(-1);
+    // this.rescale(-1);
 
   }
 
@@ -376,6 +370,9 @@ handlePan(diff: Point){
     
 }
 
+  centerView(){
+    this.rescale();
+  }
 
 
 
@@ -383,10 +380,9 @@ handlePan(diff: Point){
    * redraws each operation and subdraft at the new scale, then redraws each of their connections
    * @param scale 
    */
-  rescale(prev_zoom: number){
+  rescale(){
 
-    console.log("RESCALE")
-
+    console.log("ON MIXER RESCALE ", this.zs.zoom);
 
     const zoom_factor = this.zs.zoom / this.default_cell_size;
     const container: HTMLElement = document.getElementById('palette-scale-container');
@@ -394,16 +390,6 @@ handlePan(diff: Point){
 
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
-
-    // this.topleft = {
-    //   x: this.interlacement.j * this.scale,
-    //   y: this.interlacement.i * this.scale
-    // };
-
-    // this.bounds.height = this.base_height * zoom_factor;
-
- 
-
 
     //these subdrafts are all rendered independely of the canvas and need to indivdiually rescalled. This 
     //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points

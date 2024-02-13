@@ -177,8 +177,8 @@ getVisVariables(){
     /* now recalc the scale based on the draft size: */
 
     let adj = 1;
-    let canvas_width = (warps(draft.drawdown)*cell_size);
-    let canvas_height = (wefts(draft.drawdown)*cell_size);
+    let canvas_width =  this.draft_canvas.width;
+    let canvas_height = this.draft_canvas.height;
 
     let div_draftviewer = document.getElementById('static_draft_view');
     let rect_viewer = div_draftviewer.getBoundingClientRect();

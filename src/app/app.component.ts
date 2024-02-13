@@ -47,7 +47,7 @@ export class AppComponent implements OnInit{
   title = 'app';
 
   @ViewChild(MixerComponent) mixer;
-  @ViewChild(EditorComponent) details;
+  @ViewChild(EditorComponent) editor;
   @ViewChild(ViewerComponent) viewer;
 
 
@@ -157,7 +157,7 @@ export class AppComponent implements OnInit{
 
   ngAfterViewInit() {
  
-
+    this.recenterViews();
   }
 
 
@@ -165,7 +165,7 @@ export class AppComponent implements OnInit{
   clearAll() : void{
 
     //this.mixer.clearView();
-    this.details.clearAll();
+    this.editor.clearAll();
     this.tree.clear();
     this.ss.clearTimeline();
    // this.mixer.clear();
@@ -239,14 +239,15 @@ export class AppComponent implements OnInit{
   }
 
   toggleEditorMode(){
-    console.log("EDITOR MODE ", this.selected_editor_mode)
+    console.log("EDITOR MODE ", this.selected_editor_mode, this.zs.zoom)
 
     switch(this.selected_editor_mode){
       case 'draft':
-        
+        this.editor.centerView();
 
         break;
       case 'mixer':
+        this.mixer.recenterViews();
         break;
     }
 
@@ -282,8 +283,8 @@ export class AppComponent implements OnInit{
 
   recenterViews(){
     
-    this.details.centerView();
-    // this.mixer.centerView();
+    this.editor.centerView();
+    this.mixer.centerView();
     // this.sim.centerView();
   }
 
@@ -512,9 +513,9 @@ export class AppComponent implements OnInit{
     let id = this.mixer.newDraftCreated({draft, loom, loom_settings});
 
     this.tree.setDraftAndRecomputeLoom(id, draft, loom_settings).then(loom => {
-      this.details.loadDraft(id);
-      this.details.render.updateVisible(draft);
-      this.details.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
+      this.editor.loadDraft(id);
+      this.editor.render.updateVisible(draft);
+      this.editor.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
 
       return this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '')
     }).then(res => {
@@ -676,7 +677,7 @@ export class AppComponent implements OnInit{
   public materialChange() {
   
     this.mixer.materialChange();
-    this.details.redrawSimulation();
+    this.editor.redrawSimulation();
     this.saveFile();
   }
 
@@ -1088,7 +1089,7 @@ setDraftsViewable(val: boolean){
 }
 
 showDraftDetails(id: number){
-  this.details.loadDraft(id);
+  this.editor.loadDraft(id);
   let draft = this.tree.getDraft(id);
   let loom_settings = this.tree.getLoomSettings(id);
  // this.sim.loadNewDraft(draft, loom_settings)
@@ -1161,25 +1162,22 @@ showDraftDetails(id: number){
   }
 
   zoomOut(){
-    const old_zoom = this.zs.zoom;
     this.zs.zoomOut();
-    this.mixer.renderChange(old_zoom);
-    this.details.renderChange();
+    this.mixer.renderChange();
+    this.editor.renderChange();
   }
 
   zoomIn(){
-    const old_zoom = this.zs.zoom;
     this.zs.zoomIn();
-    this.mixer.renderChange(old_zoom);
-    this.details.renderChange();
+    this.mixer.renderChange();
+    this.editor.renderChange();
 
   }
 
   zoomChange(e: any, source: string){
-    const old_zoom = this.zs.zoom;
     this.zs.setZoom(e.value)
-    this.mixer.renderChange(old_zoom);
-    this.details.renderChange();
+    this.mixer.renderChange();
+    this.editor.renderChange();
   }
 
 

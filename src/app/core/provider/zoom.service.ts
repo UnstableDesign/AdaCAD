@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { defaults } from '../model/defaults';
 
 @Injectable({
   providedIn: 'root'
@@ -6,7 +7,7 @@ import { Injectable } from '@angular/core';
 export class ZoomService {
   //current zoom scale
   
-  zoom: number; //this is the default
+  zoom: number = defaults.zoom; //this is the default
   num_steps: number = 15;
   zoom_min: number = .1;
   zoom_step: number = .05;
@@ -58,11 +59,24 @@ export class ZoomService {
      }
    
   
-  setZoom(val: number){
-    if(val >= this.zoom_min && val <= this.zoom_table.length){
-       this.zoom_table_ndx = val;
-       this.zoom =  this.zoom_table[this.zoom_table_ndx];
-    }
+  /**
+   * set zoom takes a number representing the scale of the content to the window and matches it to the 
+   * closest value in the predefined sets of values
+   * @param val 
+   */
+  setZoom(zoom: number){
+
+    let closest = this.zoom_table.reduce((acc, val, ndx) => {
+      let diff = zoom - val;
+      if(diff > 0 && diff < acc.min) return {min: diff, ndx: ndx}
+      else return acc;
+
+    }, {min: 1000000, ndx: 0})
+
+
+    this.zoom =  this.zoom_table[closest.ndx];
+
+
 
   }
   

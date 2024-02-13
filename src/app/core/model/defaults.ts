@@ -34,7 +34,8 @@ export const defaults = {
       draft_edit_source: 'loom',
       pencil: 'toggle',
       draft_edit_mode: 'draw',
-      mixer_mode: 'move'
+      mixer_mode: 'move',
+      zoom: 2.55
 }
 
 

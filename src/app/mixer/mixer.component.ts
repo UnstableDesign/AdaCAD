@@ -178,67 +178,15 @@ inCat(op_name: string, cat_name: string) {;
 }
 
 
-  addOperation(name: string){
+addOperation(name: string){
 
-    let id = this.palette.addOperation(name);
-    this.myControl.setValue('');
-    const outputs = this.tree.getNonCxnOutputs(id);
-    if(outputs.length > 0) this.onDraftDetailOpen.emit(outputs[0]);
-    //focus this is the detail view
-  }
+  let id = this.palette.addOperation(name);
+  this.myControl.setValue('');
+  const outputs = this.tree.getNonCxnOutputs(id);
+  if(outputs.length > 0) this.onDraftDetailOpen.emit(outputs[0]);
+  //focus this is the detail view
+}
 
-
-
-
-  /**
-   * this is called when the detail view is closed. It passes an object that has three values: 
-   * id: the draft id
-   * clone_id: the id for the cloned draft
-   * is_dirty: a boolean to note if the draft was changed at all while in detail view. 
-   * @param obj 
-   */
-  // updatePaletteFromDetailView(obj: any){
-
-  //   console.log("UPDATE PALETTE")
-
-  //   //the object was never copied
-  //   if(obj.clone_id == -1){
-  //     let comp = <SubdraftComponent>this.tree.getComponent(obj.id);
-  //     comp.redrawExistingDraft();
-  //     this.palette.updateDownstream(obj.id).then(el => {
-  //     this.palette.addTimelineState();
-  //     });
-  //   //reperform all of the ops 
-  //   }else{
-  //     //this object was copied and we need to keep the copy
-
-  //     if(obj.dirty){
-  //       const parent = this.tree.getComponent(obj.clone_id);
-  //       let el = document.getElementById('scale-'+parent.id);
-  //       let width = 0;
-  //       if(el !== null && el !== undefined) width = el.offsetWidth;
-  //       this.palette.createSubDraftFromEditedDetail(obj.id).then(sd => {
-  //         const new_topleft = {
-  //           x: parent.topleft.x+((width+40)*this.zs.zoom/defaults.mixer_cell_size), 
-  //           y: parent.topleft.y};
-    
-  //           sd.setPosition(new_topleft);
-  //       });
-
-       
-  //     }else{
-  //       //copy over any superficial changes 
-  //       this.tree.setLoomSettings(obj.clone_id, this.tree.getLoomSettings(obj.id))
-  //       this.tree.setLoom(obj.clone_id, copyLoom(this.tree.getLoom(obj.id)))
-  //       this.tree.removeSubdraftNode(obj.id);
-  //     }
-  //   }
-
-
-
-
-
-  // }
 
 
   performAndUpdateDownstream(obj_id: number){
@@ -283,9 +231,8 @@ focusUIView(){
 
 zoomChange(e:any, source: string){
   
-  const old_zoom = this.zs.zoom;
   this.zs.setZoom(e.value)
-  this.palette.rescale(old_zoom);
+  this.palette.rescale();
 
 }
 
@@ -302,7 +249,6 @@ zoomChange(e:any, source: string){
    */
   loadDrafts(drafts: any){
 
-    console.log("MIXER LOAD DRAFTS CALLED")
     const loom:Loom = {
       threading:[],
       tieup:[],
@@ -487,7 +433,7 @@ zoomChange(e:any, source: string){
    * Updates the canvas based on the weave view.
    */
   public renderChange(old_zoom: number) {
-    this.palette.rescale(old_zoom);
+    this.palette.rescale();
   }
 
 
@@ -495,7 +441,7 @@ zoomChange(e:any, source: string){
    * Updates the canvas based on the weave view.
    */
    public zoomChangeExternal(event: any) {
-    this.palette.rescale(event.old_zoom);
+    this.palette.rescale();
   }
 
 
@@ -539,6 +485,10 @@ zoomChange(e:any, source: string){
 
   loadConnection(id: number){
     this.palette.loadConnection(id);
+  }
+
+  recenterViews(){
+    this.palette.centerView();
   }
 
 
