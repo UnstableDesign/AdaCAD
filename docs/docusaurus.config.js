@@ -11,17 +11,20 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://docs.adacad.org',
+  url: 'https://unstabledesign.github.io/AdaCAD/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'unstabledesignlab', // Usually your GitHub org/user name.
-  projectName: 'adacad', // Usually your repo name.
+  organizationName: 'unstabledesign', // Usually your GitHub org/user name.
+  projectName: 'AdaCAD', // Usually your repo name.
+  
+  deploymentBranch: 'main', 
 
   onBrokenLinks: 'throw',
+
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internalization, you can use this field to set useful
