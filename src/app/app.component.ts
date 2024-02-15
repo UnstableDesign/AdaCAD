@@ -108,6 +108,7 @@ export class AppComponent implements OnInit{
     private zone: NgZone
   ){
 
+    
     this.originOptions = origin_option_list;
     this.loomOptions = loom_types;
     this.unitOptions = density_units;

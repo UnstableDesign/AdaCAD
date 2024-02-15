@@ -183,16 +183,12 @@ getVisVariables(){
     let div_draftviewer = document.getElementById('static_draft_view');
     let rect_viewer = div_draftviewer.getBoundingClientRect();
 
-
-    console.log("recalc ", canvas_width, canvas_height, rect_viewer)
-
     //get the ration of the view to the item
     let width_adj = rect_viewer.width / canvas_width;
     let height_adj = rect_viewer.height / canvas_height;
 
     //make the zoom the smaller of the width or height
     adj = Math.min(width_adj, height_adj);
-    console.log("adj ",adj)
 
     if(adj < 1) this.draft_canvas.style.transform = 'scale('+adj+')';
     else  this.draft_canvas.style.transform = 'scale(1)';

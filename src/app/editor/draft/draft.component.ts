@@ -368,6 +368,7 @@ export class DraftComponent implements OnInit {
       //make the zoom the smaller of the width or height
       adj = Math.min(width_adj, height_adj);
      
+      
       this.zs.setZoom(adj);
       
       this.rescale(adj);     
