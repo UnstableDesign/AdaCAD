@@ -1,5 +1,4 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
-import * as htmlToImage from 'html-to-image';
 import { fromEvent, Subject, Subscription } from 'rxjs';
 import { ZoomService } from '../../core/provider/zoom.service';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';

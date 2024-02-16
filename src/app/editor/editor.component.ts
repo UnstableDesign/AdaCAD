@@ -56,8 +56,6 @@ export class EditorComponent implements OnInit {
 
   collapsed: boolean = false;
 
-  private unsubscribe$ = new Subject();
-
   dims:any;
 
   draftelement:any;
@@ -280,8 +278,7 @@ export class EditorComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+
   //  this.simRef.endSimulation();
 
   }

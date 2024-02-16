@@ -1,9 +1,8 @@
 import { Component, enableProdMode, EventEmitter, HostListener, Input, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { NgForm, UntypedFormControl } from '@angular/forms';
+import { FormControl, NgForm, UntypedFormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
-import { Observable, Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { DesignMode, Draft, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Operation, Point } from '../core/model/datatypes';
 import { defaults, loom_types } from '../core/model/defaults';
@@ -60,26 +59,16 @@ export class MixerComponent  {
   show_viewer: boolean = false;
   show_details: boolean = false;
   loading: boolean = false;
+  viewonly: boolean = false;
   manual_scroll: boolean = false;
-
-  private unsubscribe$ = new Subject();
-
   collapsed:boolean = true;
-
   scrollingSubscription: any;
-
   selected_nodes_copy: any = null;
-
-  classifications: any =[];
-
-  myControl = new UntypedFormControl();
-
-  filteredOptions: Observable<string[]>;
-  
-  op_tree: Array<{class_name: string, ops: Array<{name: string, display_name: string}>}> = [];
-
-  search_error: string = ''
-
+  classifications: any = [];
+  op_tree: any = [];
+  filteredOptions: any = [];
+  myControl: FormControl;
+  search_error: any; 
 
   /// ANGULAR FUNCTIONS
   /**
@@ -88,7 +77,9 @@ export class MixerComponent  {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(public dm: DesignmodesService, 
+  constructor(
+    
+    public dm: DesignmodesService, 
     private tree: TreeService,
     private fs: FileService,
     public ws: WorkspaceService,
@@ -352,8 +343,8 @@ zoomChange(e:any, source: string){
 
 
   ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+    // this.unsubscribe$.next(0);
+    // this.unsubscribe$.complete();
   }
 
 

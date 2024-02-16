@@ -1,5 +1,4 @@
 import { Component, Input, ViewChild, SimpleChanges, Output, EventEmitter } from '@angular/core';
-import { OuterSubscriber } from 'rxjs/internal/OuterSubscriber';
 import { Draft, DraftNode } from '../core/model/datatypes';
 import { getDraftAsImage, warps, wefts } from '../core/model/drafts';
 import { FilesystemService } from '../core/provider/filesystem.service';

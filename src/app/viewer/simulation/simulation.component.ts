@@ -162,6 +162,7 @@ export class SimulationComponent implements OnInit {
    * @param end 
    */
   updateSelection(start: Interlacement, end: Interlacement){
+    console.log("UPDATE SELECTION CALLED", start, end)
 
     console.log("UPDATE SELECTION ", start, end)
 

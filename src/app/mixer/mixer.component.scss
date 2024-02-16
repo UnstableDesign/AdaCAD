@@ -74,6 +74,7 @@ h3{
   cursor:default;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of slider that may no longer apply for the MDC version. */
 
 
 
@@ -136,8 +137,9 @@ h3{
   left: 33%;
 }
 
-.mat-form-field {
-width: 90%;
+
+.mat-mdc-form-field {
+width: 95%;
 }
 
 

@@ -1,0 +1,114 @@
+.mat-mdc-dialog-content{
+    overflow-y: hidden;
+}
+
+
+.example-sidenav{
+    width: 350px;
+    overflow-x: hidden;
+}
+
+.mat-drawer-inner-container{
+    overflow: hidden !important;
+}
+
+.example-container {
+    width: 700px;
+    height: 400px;
+    margin: 10px;
+  }
+.example-sidenav-content{
+    background: white;
+    padding: 0px 15px;
+}
+
+.mat-mdc-outlined-button{
+    margin: 0px 4px 4px 0px;
+    /* background-color: #00d1b2; */
+    text-align: left;
+}
+
+.mat-mdc-form-field{
+    width: 100%;
+}
+
+.op_container{
+    display: flex;
+    flex-direction: row;
+    width: 700px;
+}
+
+ul{
+    list-style-type: disc;
+}
+
+li{
+    margin-left: 20px;
+}
+
+.param_name{
+    font-weight: bold;
+    margin: auto;
+}
+
+.param_desc{
+    padding-bottom:0px !important;
+}
+
+
+
+
+.example-container h2{
+    padding-top: 10px;
+    font-weight: bold;
+    font-size: .8em;
+}
+
+.example-container p{
+    font-size: 1em;
+    padding-bottom: 30px;
+}
+
+.example-container h1{
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+
+
+
+
+.op-group h3{
+    width: 95%;
+    font-size: 100%;
+    font-weight: bold;
+    padding: 20px 0px 10px 14px;
+}
+
+
+
+.op-group  p{
+    width: 95%;
+    font-size: .8em;
+    padding: 0px 0px 10px 14px;
+}
+
+.toprow{
+    display: flex;
+    flex-direction: row;
+    line-height: 1em;
+}
+
+
+
+.visibleTooltip{
+    font-size: 2em;
+    background: #b71c1c;
+
+}
+
+.op-group{
+    display: flex;
+    flex-direction: column;
+}
+

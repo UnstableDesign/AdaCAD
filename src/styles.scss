@@ -1,18 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
-@import 'bulma/bulma';
 @import '@fortawesome/fontawesome-free/css/all.css';
+@import url('https://fonts.googleapis.com/css2?family=Asul&family=Fruktur&family=IBM+Plex+Mono:ital,wght@0,300;0,500;1,300;1,500&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-
-// body {
-//   margin: 0;
-//   overscroll-behavior-x: none;
-// }
-
-html,
 body {
   height: 100%;
   margin: 0;
+  overscroll-behavior-x: none;
+  font-family:  "Roboto", sans-serif;
 }
 
 
@@ -49,11 +44,7 @@ svg {
 
 
 
-.mat-focused .mat-form-field-label {
-  color: rgba(255,255,255,.7);
-}
-
-.mat-radio-button {
+.mat-mdc-radio-button {
   padding-right: 10px;
 }
 
@@ -82,14 +73,6 @@ svg {
   width: 100%;
 }
 
-.mat-form-field-infix.mat-form-field-infix {
-  display: flex;
-}
 
-.mat-tab-label{
-  height: 48px !important;
-  padding: 0 7px !important;
-  min-width: 80px !important;
-}
 
 

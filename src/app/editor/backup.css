@@ -18,7 +18,7 @@
   }
 
 
-  .mat-slider{
+  .mat-mdc-slider{
     width: 100%;
   }
 
@@ -55,7 +55,7 @@
   }
 
 
-  .mat-list-item {
+  .mat-mdc-list-item {
 
     .edit-button, .trash-button {
       display: none;
@@ -68,7 +68,7 @@
     }
 
     &.selected {
-
+      /* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version.*/
       .mat-list-item-content {
         padding-left: 14px;
       }
@@ -92,7 +92,7 @@
   display: flex;
   align-items: center;
 
-    .mat-icon-button {
+    .mat-mdc-icon-button {
       margin-left: -40px;
     }
   }
@@ -101,11 +101,11 @@
     opacity: .7;
   }
 
-  .mat-card-actions {
+  .mat-mdc-card-actions {
     // text-align: right;
   }
 
-  .mat-card {
+  .mat-mdc-card {
     margin-bottom: 10px;
 
     .pattern-edit-button, .pattern-trash-button {
@@ -152,7 +152,7 @@
   .panel-content{
     padding: 0px;
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.*/
   .mat-form-field-infix{
     width:44px !important;
   }
@@ -174,7 +174,7 @@
     margin-left: 15px
   }
 
-  .mat-form-field{
+  .mat-mdc-form-field{
      width: 40px !important;
      margin-left: 4px;
   }
@@ -188,17 +188,17 @@
     margin: 0px;
   }
 
-  .mat-icon-button{
+  .mat-mdc-icon-button{
     background: white;
     width: 25px;
     height: 25px;
     margin: 0px 0px 10px 10px;
   }
 
-  .mat-icon-button i{
+  .mat-mdc-icon-button i{
    height: 38px;
   }
-
+  /* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
   .mat-button-toggle-group{
     flex-direction: column;
   }
@@ -207,7 +207,7 @@
     width: 70px !important;
   }*/
 
-  .mat-card{
+  .mat-mdc-card{
     padding: 0px;
     margin-bottom:0px;
   }
@@ -235,7 +235,7 @@
   margin: 0;
   display: flex;
 
-  .mat-icon-button {
+  .mat-mdc-icon-button {
     margin-left: 0px;
   }
 }

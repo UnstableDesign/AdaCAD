@@ -25,7 +25,7 @@ i{
     width: 66%;
 
    }
-
+   /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
    mat-select{
        width: 33%;
        overflow: hidden;
