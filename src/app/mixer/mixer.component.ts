@@ -35,7 +35,6 @@ import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from './provider/zoom.service';
 import {MatSidenavModule} from '@angular/material/sidenav';
-import * as htmlToImage from 'html-to-image';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -97,7 +96,7 @@ export class MixerComponent implements OnInit {
 
   manual_scroll: boolean = false;
 
-  private unsubscribe$ = new Subject();
+  // private unsubscribe$ = new Subject();
 
   collapsed:boolean = true;
 
@@ -994,8 +993,8 @@ zoomChange(e:any, source: string){
 
 
   ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+    // this.unsubscribe$.next(0);
+    // this.unsubscribe$.complete();
   }
 
 
@@ -1079,39 +1078,7 @@ zoomChange(e:any, source: string){
     }
 
 
-    printMixer(){
-      console.log("PRINT MIXER", "get bounding box of the elements and print")
-      var node = document.getElementById('scrollable-container');
-        htmlToImage.toPng(node, {width: 16380/2, height: 16380/2})
-        .then(function (dataUrl) {
-  
-          // var win = window.open('about:blank', "_new");
-          // win.document.open();
-          // win.document.write([
-          //     '<html>',
-          //     '   <head>',
-          //     '   </head>',
-          //     '   <body onload="window.print()" onafterprint="window.close()">',
-          //     '       <img src="' + dataUrl + '"/>',
-          //     '   </body>',
-          //     '</html>'
-          // ].join(''));
-          // win.document.close();
-  
-          const link = document.createElement('a')
-          link.href= dataUrl;
-          link.download = "mixer.jpg"
-          link.click();
-  
-      
-     
-  
-        })
-        .catch(function (error) {
-          console.error('oops, something went wrong!', error);
-        });
-      
-    }
+   
 
   /**
    * this is called when a user pushes save from the topbar
@@ -1125,7 +1092,6 @@ zoomChange(e:any, source: string){
     switch(e.type){
       case 'jpg': 
 
-      this.printMixer();
 
       break;
 

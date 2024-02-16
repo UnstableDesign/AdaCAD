@@ -59,7 +59,7 @@ export class DraftDetailComponent implements OnInit {
 
   collapsed: boolean = false;
 
-  private unsubscribe$ = new Subject();
+  // private unsubscribe$ = new Subject();
 
   dims:any;
 
@@ -273,8 +273,8 @@ export class DraftDetailComponent implements OnInit {
 
 
   ngOnDestroy(): void {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+    // this.unsubscribe$.next();
+    // this.unsubscribe$.complete();
     this.simRef.endSimulation();
 
   }

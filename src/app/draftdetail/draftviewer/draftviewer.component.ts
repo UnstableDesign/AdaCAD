@@ -10,7 +10,6 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { hasCell, insertDrawdownRow, deleteDrawdownRow, insertDrawdownCol, deleteDrawdownCol, isSet, isUp, setHeddle, warps, wefts, pasteIntoDrawdown, initDraftWithParams, createBlankDrawdown, insertMappingRow, insertMappingCol, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, copyDraft, getDraftName } from '../../core/model/drafts';
 import { convertLiftPlanToTieup, convertTieupToLiftPlan, generateDirectTieup, getLoomUtilByType, isFrame, isInThreadingRange, isInTreadlingRange, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
 import { TreeService } from '../../core/provider/tree.service';
-import utilInstance from '../../core/model/util';
 import { OperationService } from '../../core/provider/operation.service';
 import { RenderService } from '../provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
@@ -18,7 +17,6 @@ import { NgForm } from '@angular/forms';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import {defaults} from '../../core/model/defaults'
 import { SidebarComponent } from './sidebar/sidebar.component';
-import * as htmlToImage from 'html-to-image';
 
 @Component({
   selector: 'app-draftviewer',
@@ -2138,26 +2136,26 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
 
     public print(e){
-      let draft = this.tree.getDraft(this.id);
-      let loom = this.tree.getLoom(this.id);
-      let width = (Math.max(500, warps(draft.drawdown)+ numTreadles(loom))*this.cell_size + 200);
-      let height = Math.max(500, (wefts(draft.drawdown)+ numFrames(loom))*this.cell_size + 200);
-      var node = document.getElementById('draft-container');
-      htmlToImage.toPng(node, {  backgroundColor: 'white', width, height})
-      .then(function (dataUrl) {
+      // let draft = this.tree.getDraft(this.id);
+      // let loom = this.tree.getLoom(this.id);
+      // let width = (Math.max(500, warps(draft.drawdown)+ numTreadles(loom))*this.cell_size + 200);
+      // let height = Math.max(500, (wefts(draft.drawdown)+ numFrames(loom))*this.cell_size + 200);
+      // var node = document.getElementById('draft-container');
+      // htmlToImage.toPng(node, {  backgroundColor: 'white', width, height})
+      // .then(function (dataUrl) {
 
-        var win = window.open('about:blank', "_new");
-        win.document.open();
-        win.document.write([
-            '<html>',
-            '   <head>',
-            '   </head>',
-            '   <body onload="window.print()" onafterprint="window.close()">',
-            '       <img src="' + dataUrl + '"/>',
-            '   </body>',
-            '</html>'
-        ].join(''));
-        win.document.close();
+      //   var win = window.open('about:blank', "_new");
+      //   win.document.open();
+      //   win.document.write([
+      //       '<html>',
+      //       '   <head>',
+      //       '   </head>',
+      //       '   <body onload="window.print()" onafterprint="window.close()">',
+      //       '       <img src="' + dataUrl + '"/>',
+      //       '   </body>',
+      //       '</html>'
+      //   ].join(''));
+      //   win.document.close();
 
         // const link = document.createElement('a')
         // link.href= dataUrl;
@@ -2167,10 +2165,10 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     
    
 
-      })
-      .catch(function (error) {
-        console.error('oops, something went wrong!', error);
-      });
+      // })
+      // .catch(function (error) {
+      //   console.error('oops, something went wrong!', error);
+      // });
     }
 
     public translateThreadingRowForView(loom: Loom, loom_settings: LoomSettings, i:number) : number{
