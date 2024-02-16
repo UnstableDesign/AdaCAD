@@ -5,15 +5,13 @@ import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { NgForm } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
-import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { createCell } from '../core/model/cell';
 import { DesignMode, Draft, DraftNode, DraftNodeProxy, FileObj, IOTuple, LoadResponse, Loom, LoomSettings, NodeComponentProxy, OpInput, SaveObj, TreeNode, TreeNodeProxy } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { copyDraft, initDraftWithParams, warps, wefts } from '../core/model/drafts';
-import { copyLoom, copyLoomSettings, flipLoom } from '../core/model/looms';
+import { copyLoom, copyLoomSettings } from '../core/model/looms';
 import utilInstance from '../core/model/util';
 import { AuthService } from '../core/provider/auth.service';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -80,39 +78,13 @@ export class MixerComponent implements OnInit {
   show_viewer: boolean = false;
   show_details: boolean = false;
   loading: boolean = false;
-
-
-
-
-
-
-
- /**
-   * The weave Timeline object.
-   * @property {Timeline}
-   */
-
   viewonly: boolean = false;
-
   manual_scroll: boolean = false;
-
-  // private unsubscribe$ = new Subject();
-
   collapsed:boolean = true;
-
   scrollingSubscription: any;
-
   selected_nodes_copy: any = null;
 
 
-
-  /// ANGULAR FUNCTIONS
-  /**
-   * @constructor
-   * ps - pattern service (variable name is initials). Subscribes to the patterns and used
-   * to get and update stitches.
-   * dialog - Anglar Material dialog module. Used to control the popup modals.
-   */
   constructor(public dm: DesignmodesService, 
     private auth: AuthService,
     private ms: MaterialsService,

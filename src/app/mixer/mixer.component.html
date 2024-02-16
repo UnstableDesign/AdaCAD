@@ -100,12 +100,12 @@
 
       <!-- TODO: The 'vertical' property no longer exists -->
       <!-- TODO: The 'tickInterval' property no longer exists -->
-      <mat-slider 
+      <!-- <mat-slider 
       class="slider"
       color="primary" 
       [step]="1" 
       [min]= "0"
-      [max]= "zs.num_steps" #ngSlider><input matSliderThumb value="{{zs.zoom_table_ndx}}" (change)="zoomChange({source: ngSliderThumb, parent: ngSlider, value: ngSliderThumb.value}, 'slider')" #ngSliderThumb="matSliderThumb" /></mat-slider>
+      [max]= "zs.num_steps" #ngSlider><input matSliderThumb value="{{zs.zoom_table_ndx}}" (change)="zoomChange({source: ngSliderThumb, parent: ngSlider, value: ngSliderThumb.value}, 'slider')" #ngSliderThumb="matSliderThumb" /></mat-slider> -->
       
       <button  mat-icon-button (click)="zoomOut()" color="primary" class="fas fa-search-minus"></button> 
       <button
