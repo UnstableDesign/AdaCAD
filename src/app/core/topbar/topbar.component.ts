@@ -74,6 +74,19 @@ export class TopbarComponent implements OnInit {
     this.auth.logout();
   }
 
+  linkToStable(){
+    window.location.assign("https://adacad.org")
+
+  }
+
+  linkToDocs(){
+    window.location.assign("https://docs.adacad.org")
+  }
+
+  linkToForum(){
+    window.location.assign("https://groups.google.com/g/adacad-forum")
+  }
+
   // clear(){
   // 	this.onClearScreen.emit();
   // }

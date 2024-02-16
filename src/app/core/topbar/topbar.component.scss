@@ -1,14 +1,35 @@
 
-.left, 
+
+.left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.auth{
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+}
+
 .right{
     display: flex;
     flex-direction: row;
+    align-items: center;
+}
+
+.text{
+    padding: 16px 32px;
+    line-height: 1.2em;
+    color: white;
+
 }
 
 .betadesc{
-    padding: 0px 40px;
-    font-size: .8em;
-    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: stretch;
     background-color: #3f51b5;
 }
 
@@ -19,24 +40,14 @@
 
 
 .filename{
-    font-size: 0.6em;
-    width: 217px;
-    margin: 0px 0px 0 21px;
-}
-
-.auth{
-    font-size: .6em;
-    font-weight: 400;
-    display: flex;
-    flex-direction: row;
 
 }
+
 
 .titlebar{
-    font-size: 0.8em;
     color: white;
-    display: inline;
-    line-height: 25px;
+    position: relative;
+    top: -2px;
 }
 
 .buttonrow{
@@ -47,7 +58,8 @@
 
 .loggedInUserName{
     display: flex;
-    line-height: 26px;
+    position: relative;
+    top: -3px;
 }
 
 .stable{
@@ -56,13 +68,6 @@
     display: block;
 }
 
-p{
-    padding: 8px 0px;
-}
-
-a{
-    display: inline-block;
-}
 
 
 
@@ -70,6 +75,7 @@ a{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    font-size: 14px;
 }
 
 

@@ -1,16 +1,16 @@
 <mat-toolbar class="topbar" color="primary">
 
   <div class="left">
-  <button mat-icon-button
-  (click)=" collapse()"
-  class="collapse" 
-  [class.nav-opened] = "!collapsed"
-  value="collapsed">
-  <i class="fa"
-    [class.fa-angle-double-right]="collapsed" 
-    [class.fa-angle-double-left]="!collapsed"
-  aria-hidden="true"></i>
-  </button>
+    <button mat-icon-button
+    (click)=" collapse()"
+    class="collapse" 
+    [class.nav-opened] = "!collapsed"
+    value="collapsed">
+    <i class="fa"
+      [class.fa-angle-double-right]="collapsed" 
+      [class.fa-angle-double-left]="!collapsed"
+    aria-hidden="true"></i>
+    </button>
 
      <div class="titlebar">AdaCAD 4.0, <i>beta</i></div>
 
@@ -24,10 +24,9 @@
 
     <div class="right">
 
-
       <div class="auth" *ngIf="(auth.showLogoutButton)">
-        <span class="loggedInUserName">Hi {{auth.username}} </span>
-        <a mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></a>
+        <div class="loggedInUserName">Hi {{auth.username}} </div>
+        <button mat-icon-button matTooltip="logout" (click)="logout()"><i class="fa fa-sign-out"></i></button>
       </div>
   </div>
 
@@ -47,37 +46,17 @@
 </mat-toolbar>
 
 <div class="betadesc">
-  <p>
-  This is a new/"beta" release of AdaCAD 4.0. It has more features but has not been tested as extensively as our previous version of AdaCAD.Use at your own risk. 
 
-  <button mat-raised-button href="https://adacad.org" class="mat-stroked-button stable" ><i class="fa-solid fa-person-through-window"></i> Take me to the Stable AdaCAD</button>
+  <div class="text">
+  This is a new/"beta" release of AdaCAD 4.0. It has more features but has not been tested as extensively as our previous version of AdaCAD. Use at your own risk. 
+ </div>
+  <button color="primary" (click)="linkToStable()" mat-raised-button href="https://adacad.org"><i class="fa-solid fa-person-through-window"></i> Take me to the Stable AdaCAD</button>
 
-  <a href="docs.adacad.org" class="mat-stroked-button stable btn btn-primary" >
-    <i class="fa-solid fa-book-open-reader"></i>Learn More about AdaCAD</a>
+  <button color="primary" (click)="linkToDocs()" mat-raised-button href="docs.adacad.org"  >
+    <i class="fa-solid fa-book-open-reader"></i>Learn More about AdaCAD</button>
 
-    <a href="https://groups.google.com/g/adacad-forum" class="mat-stroked-button stable" >
-      <i class="fa-solid fa-spider"></i> Please report any bugs you find</a>
-  
-
-    
-    <div class="buttonrow">
-    
-    <div *ngIf="!auth.isLoggedIn">
-      <button mat-stroked-button class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
-    </div>
-
-    <div *ngIf="auth.isLoggedIn">
-      You are already logged in!
-    </div>
-
-
-    <!-- <a href="http://adacad.org" class="mat-stroked-button" >
-      Watch Intro Video
-     </a>
-      -->
-    </div>
-
-
+    <button color="primary" (click)="linkToForum()" mat-raised-button href="https://groups.google.com/g/adacad-forum" >
+      <i class="fa-solid fa-spider"></i> Please report any bugs you find</button>
 
 </div>
 
