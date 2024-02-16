@@ -126,13 +126,14 @@ button.cxn{
 }
 
 
-.mat-select{
+.mat-mdc-select{
     width: 34px;
     padding-left: 4px;
     line-height: 30px;
     background-color: #fff;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
 .mat-select-value{
     color: #fff !important;
 }

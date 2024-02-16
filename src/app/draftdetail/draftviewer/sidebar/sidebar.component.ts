@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BlankdraftModal } from '../../../core/modal/blankdraft/blankdraft.modal';
 import { Draft, LoomSettings } from '../../../core/model/datatypes';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';

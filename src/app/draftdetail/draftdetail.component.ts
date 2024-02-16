@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/overlay';
-import { MatLegacyDialog as MatDialog } from "@angular/material/legacy-dialog";
+import { MatDialog } from "@angular/material/dialog";
 import { Subject } from 'rxjs';
 import { Draft, Drawdown, Loom, LoomSettings, Cell } from '../core/model/datatypes';
 import { copyDraft, createDraft, generateMappingFromPattern, getDraftName } from '../core/model/drafts';

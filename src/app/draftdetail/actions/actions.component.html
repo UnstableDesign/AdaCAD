@@ -23,14 +23,14 @@
   <mat-label>
     Warp System Repeat Pattern
 </mat-label>
-  <mat-chip-list  class="mat-chip-list-stacked" #chipListWasy aria-label="Warp System Repeat">
-    <mat-chip
+  <mat-chip-grid  class="mat-chip-list-stacked" #chipListWasy aria-label="Warp System Repeat">
+    <mat-chip-row
       *ngFor="let sys of colSystemMapping; let j = index;"
       [removable]="removable"
       (removed)="remove('wasy', j)">
       {{ss.warp_systems[sys].id+1}}
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
-    </mat-chip>
+    </mat-chip-row>
     <input
       name="wasy"
       placeholder="Add System to Pattern..."
@@ -40,7 +40,7 @@
       [matChipInputFor]="chipListWasy"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       (matChipInputTokenEnd)="add($event)">
-  </mat-chip-list>
+  </mat-chip-grid>
   <mat-autocomplete  #auto_wasy="matAutocomplete" (optionSelected)="selected('wasy', $event)">
     <mat-option *ngFor="let sys of ss.warp_systems" [value]="warp_system">
       {{sys.id+1}}
@@ -61,15 +61,15 @@
   <mat-label>
     Warp Materials Repeat
 </mat-label>
-  <mat-chip-list  class="mat-chip-list-stacked" #chipListWash aria-label="Warp Material Repeat">
-    <mat-chip
+  <mat-chip-grid  class="mat-chip-list-stacked" #chipListWash aria-label="Warp Material Repeat">
+    <mat-chip-row
       *ngFor="let sys of colShuttleMapping; let j = index;"
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wash', j)">
       <i class="fas fa-square-full" [style.color]="ms.materials[sys].color"></i>
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
-    </mat-chip>
+    </mat-chip-row>
     <input
       name="wash"
       placeholder="Add Material to Pattern..."
@@ -79,7 +79,7 @@
       [matChipInputFor]="chipListWash"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       (matChipInputTokenEnd)="add($event)">
-  </mat-chip-list>
+  </mat-chip-grid>
   <mat-autocomplete #auto_wash="matAutocomplete" (optionSelected)="selected('wash', $event)">
     <mat-option *ngFor="let sys of ms.materials" [value]="system">
       <i class="fas fa-square-full" [style.color]="sys.color"></i>
@@ -106,15 +106,15 @@
   <mat-label>
     Weft System Repeat Pattern
 </mat-label>
-  <mat-chip-list  class="mat-chip-list-stacked" #chipListWesy aria-label="Weft System Repeat">
-    <mat-chip
+  <mat-chip-grid  class="mat-chip-list-stacked" #chipListWesy aria-label="Weft System Repeat">
+    <mat-chip-row
       *ngFor="let sys of rowSystemMapping; let j = index;"
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wesy', j)">
       {{system_codes[sys]}}
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
-    </mat-chip>
+    </mat-chip-row>
     <input
       name="wesy"
       placeholder="Add System to Pattern..."
@@ -124,7 +124,7 @@
       [matChipInputFor]="chipListWesy"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       (matChipInputTokenEnd)="add($event)">
-  </mat-chip-list>
+  </mat-chip-grid>
   <mat-autocomplete #auto_wesy="matAutocomplete" (optionSelected)="selected('wesy', $event)">
     <mat-option *ngFor="let sys of system_codes" [value]="system">
       {{sys}}
@@ -149,15 +149,15 @@
   <mat-label>
     Weft Materials Repeat
 </mat-label>
-  <mat-chip-list  class="mat-chip-list-stacked" #chipListWesh aria-label="Weft Material Repeat">
-    <mat-chip
+  <mat-chip-grid  class="mat-chip-list-stacked" #chipListWesh aria-label="Weft Material Repeat">
+    <mat-chip-row
       *ngFor="let sys of rowShuttleMapping; let j = index; "
       [selectable]="selectable"
       [removable]="removable"
       (removed)="remove('wesh', j)">
       <i class="fas fa-square-full" [style.color]="ms.materials[sys].color"></i>
       <mat-icon matChipRemove *ngIf="removable"><i class="fas fa-times-circle"></i></mat-icon>
-    </mat-chip>
+    </mat-chip-row>
     <input
       name="wesh"
       placeholder="Add Shuttle to Pattern..."
@@ -167,7 +167,7 @@
       [matChipInputFor]="chipListWesh"
       [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
       (matChipInputTokenEnd)="add($event)">
-  </mat-chip-list>
+  </mat-chip-grid>
   <mat-autocomplete #auto_wesh="matAutocomplete" (optionSelected)="selected('wesh', $event)">
     <mat-option *ngFor="let sys of ms.materials" [value]="system">
       <i class="fas fa-square-full" [style.color]="sys.color"></i>

@@ -40,7 +40,7 @@
 .boolean-input{
     display: flex;
     flex-direction: column;
-
+    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
     .mat-slide-toggle-bar{
         position: relative;
         width: 30px !important;
@@ -48,11 +48,11 @@
         flex-shrink: 0;
         border-radius: 6px;
     }
-    
+    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
     .mat-slide-toggle-content {
         font-size: .8em;
     }
-    
+    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
     .mat-slide-toggle-thumb {
         height: 18px !important;
         width: 18px !important;
@@ -72,23 +72,23 @@
     height: fit-content;
     width: fit-content;
 
-   .mat-select {
+   .mat-mdc-select {
         height: 100%;
         align-content: baseline;
         flex-basis: 0;
     }
-
+    /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
     .mat-select-value{
         color: white;
         font-weight: bolder;
         font-size: 1.5em;
 
     }
-
+    /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
     .mat-select-arrow{
         color: white;
     }
-
+    /* TODO(mdc-migration): The following rule targets internal classes of option that may no longer apply for the MDC version.*/
     .mat-option-text{
 
     }
@@ -143,14 +143,14 @@
         color: white;
     }
 
-    .mat-input-element{
+    .mat-mdc-input-element{
         caret-color: white !important;
         border-bottom: thin solid white;
         width: 90%;
     }
 
     .refresh,
-    .mat-icon-button{
+    .mat-mdc-icon-button{
         color: white;
         top: -1px;
         font-size: 1.2em;
@@ -221,12 +221,12 @@
     margin-left: 6px;
 }
 
-.mat-slider{
+.mat-mdc-slider{
     height: 40px;
     padding: 0px;
 }
 
-.mat-icon-button{
+.mat-mdc-icon-button{
     position: relative;
     top: -9px;
 }

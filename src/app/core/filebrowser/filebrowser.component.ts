@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Optional, Output,ViewEncapsulation } from '@angular/core';
 import { AuthService } from '../provider/auth.service';
 import { FilesystemService } from '../provider/filesystem.service';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { LoginComponent } from '../login/login.component';
 import { WorkspaceService } from '../provider/workspace.service';
 import { LoadfileComponent } from '../modal/loadfile/loadfile.component';

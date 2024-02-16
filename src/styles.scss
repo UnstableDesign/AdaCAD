@@ -42,11 +42,12 @@ svg {
 
 
 
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
 .mat-focused .mat-form-field-label {
   color: rgba(255,255,255,.7);
 }
 
-.mat-radio-button {
+.mat-mdc-radio-button {
   padding-right: 10px;
 }
 
@@ -75,10 +76,12 @@ svg {
   width: 100%;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
 .mat-form-field-infix.mat-form-field-infix {
   display: flex;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version. */
 .mat-tab-label{
   height: 48px !important;
   padding: 0 7px !important;

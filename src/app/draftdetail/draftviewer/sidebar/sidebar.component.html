@@ -139,15 +139,13 @@
         <button color="primary" mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
         
         <div class="view_slider">
+        <!-- TODO: The 'vertical' property no longer exists -->
+        <!-- TODO: The 'tickInterval' property no longer exists -->
         <mat-slider 
-        tickInterval=".1" 
         color="primary"
-        [vertical]="true"
         step=".1"
         min="0" 
-        max="2" 
-        value="{{render.zoom}}" 
-        (change)="zoomChange($event, 'slider')"></mat-slider>
+        max="2" #ngSlider><input matSliderThumb value="{{render.zoom}}" (change)="zoomChange({source: ngSliderThumb, parent: ngSlider, value: ngSliderThumb.value}, 'slider')" #ngSliderThumb="matSliderThumb" /></mat-slider>
     </div> 
 
        <button mat-icon-button color="primary"  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button> 

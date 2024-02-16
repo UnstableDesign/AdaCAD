@@ -13,7 +13,7 @@ button{
 //     width: 24px;
 // }
 
-.mat-stroked-button{
+.mat-mdc-outlined-button{
      margin: 4px 0px;
 }
 
@@ -50,11 +50,11 @@ button{
     color: grey;
 }
 
-.mat-form-field{
+.mat-mdc-form-field{
     width: 100%;
 }
 
-.mat-list-item{
+.mat-mdc-list-item{
     padding: 0px !important;
     width: 100%;
 }
@@ -81,13 +81,14 @@ button{
     color:#ff4081;
 }
 
-.details .mat-button{
+.details .mat-mdc-button{
     height: fit-content !important;
     display: flex;
     flex-direction: column;
 
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
 .details .mat-button-wrapper{
     display: flex;
     white-space:normal;
@@ -98,7 +99,7 @@ button{
     width: inherit;
 }
 
-.details .mat-icon-button{
+.details .mat-mdc-icon-button{
     width: 30px;
     height: 30px;
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Inject, ViewChild } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { HttpClient } from '@angular/common/http';
 import {AuthService} from '../../provider/auth.service'
