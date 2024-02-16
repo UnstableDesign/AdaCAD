@@ -4,9 +4,9 @@ import { Component, enableProdMode, OnInit, Optional, ViewChild } from '@angular
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { NgForm } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
-import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
+import { MatLegacyTooltipDefaultOptions as MatTooltipDefaultOptions, MAT_LEGACY_TOOLTIP_DEFAULT_OPTIONS as MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/legacy-tooltip';
 import { Subject } from 'rxjs';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { createCell } from '../core/model/cell';

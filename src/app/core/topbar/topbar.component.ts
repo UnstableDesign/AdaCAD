@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MatDialog } from "@angular/material/dialog";
+import { MatLegacyDialog as MatDialog } from "@angular/material/legacy-dialog";
 import { LoginComponent } from '../login/login.component';
 import { AboutModal } from '../modal/about/about.modal';
 import { AuthService } from '../provider/auth.service';

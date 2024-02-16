@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { DesignMode, Draft, LoomSettings, DraftNode, LoomUtil } from '../../model/datatypes';
 import { NgForm } from '@angular/forms';
