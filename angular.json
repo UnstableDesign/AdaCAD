@@ -60,18 +60,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "adacad-weaver:build"
+            "buildTarget": "adacad-weaver:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "adacad-weaver:build:production"
+              "buildTarget": "adacad-weaver:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "adacad-weaver:build"
+            "buildTarget": "adacad-weaver:build"
           }
         },
         "test": {
