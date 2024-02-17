@@ -582,6 +582,7 @@ drawWithMaterial(material_id: number){
 
 
 swapEditingStyleClicked(){
+  console.log("SSWAP")
   if(this.id == -1) return;
 
   if(this.type !== 'jacquard'){

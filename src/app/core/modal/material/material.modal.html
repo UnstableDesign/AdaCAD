@@ -1,12 +1,15 @@
   
   <!-- <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button> -->
   
+  <h2 mat-dialog-title>Material Library</h2>
+  <mat-dialog-content>
+
+
 
 
 <mat-accordion>
 <ng-container *ngFor="let shuttle of ms.materials">
 
-  <form #materialForm="ngForm">
     <mat-expansion-panel >
 
       <mat-expansion-panel-header>
@@ -20,9 +23,11 @@
       
    
       <mat-form-field  class="is-fullwidth">
-        
+        <mat-label>color</mat-label>
       <input matInput 
       #colorpicker
+      [cpToggle] = 'false'
+      [cpSaveClickOutside] = 'true'
       (colorPickerChange) = 'change()' 
       placeholder="Color" 
       class="colorpicker" 
@@ -31,7 +36,6 @@
       name="color" 
       [(ngModel)]="shuttle.color"
       cpDialogDisplay ='inline'
-      cpToggle="true" 
 
       />
 
@@ -40,6 +44,8 @@
       
 
       <mat-form-field  class="is-fullwidth">
+        <mat-label>name</mat-label>
+
       <input matInput placeholder="Material Name" name="name" [(ngModel)]="shuttle.name">
     </mat-form-field>
 
@@ -52,8 +58,9 @@
       </mat-select>
     </mat-form-field> -->
 
-   <div class="is-fullwidth">
-      <mat-form-field class="form-field">
+      <mat-form-field class="form-field" class="is-fullwidth">
+        <mat-label>diameter (in mm)</mat-label>
+
         <input matInput  
         type="number" 
         placeholder="Yarn Diameter (in mm)" 
@@ -63,11 +70,11 @@
         step=".5"
         (change)="change()"
         [(ngModel)]="shuttle.diameter"> 
-        <span>&nbsp;&nbsp;mm</span>
+        <span matTextSuffix>mm</span>
+
       </mat-form-field>
 
      
-    </div>
 
     <!-- <div class="is-fullwidth">
        Insert From Left
@@ -83,22 +90,32 @@
     </mat-form-field>
   </div>
 
-  <div class="is-fullwidth" >
-    <!-- <button class="is-fullwidth" mat-flat-button color="primary" (click)="save(shuttle.id)"> <i class="fa fa-save" aria-hidden="true"></i> Save</button> -->
-  </div>
+
+
 
       <div class="is-fullwidth" *ngIf="ms.materials.length > 1">
-      <button class="is-fullwidth" mat-flat-button color="grey" (click)="delete(shuttle.id)"> <i class="fa fa-trash" aria-hidden="true"></i> Delete and Reassign to:</button>
-      <mat-select lass="is-fullwidth" placeholder="Replacement" name="replacement" [(ngModel)]="replacements[shuttle.id]">
-        <mat-option *ngFor="let rep of ms.materials" [value]="rep.id">
-          {{ rep.name }}
-        </mat-option>
-      </mat-select>
+     
+     
+     
+        <button 
+        class="is-fullwidth" 
+        mat-flat-button 
+        [matMenuTriggerFor]="replacements"
+        > 
+        <i class="fa fa-trash"></i> Delete
+        </button>
+
+        <mat-menu #replacements="matMenu">
+          <button mat-button  *ngFor="let rep of ms.materials"  (click)="delete(shuttle.id, rep.id)">
+            {{ rep.name }}
+          </button>
+        </mat-menu>
+        
+ 
     </div>
 
 </mat-expansion-panel>
 
-  </form>
 
 
 </ng-container>
@@ -133,27 +150,31 @@
     </mat-form-field>
 
         <mat-form-field  class="is-fullwidth">
+          <mat-label>name</mat-label>
+
         <input matInput placeholder="Material Name" name="name" [(ngModel)]="newshuttle.name">
       </mat-form-field>
 
       
 
-    <div class="is-fullwidth">
-        <mat-form-field class="form-field">
-          <input matInput  
-          type="number" 
-          placeholder="Yarn Diameter" 
-          name="diameter" 
-          min="0"
-          max="100"
-          step="10"
-          (change)="change()"
-          [(ngModel)]="newshuttle.diameter"> 
-          <span>&nbsp;&nbsp;%</span>
-        </mat-form-field>
+      <mat-form-field class="form-field" class="is-fullwidth">
+        <mat-label>diameter (in mm)</mat-label>
+
+        <input matInput  
+        type="number" 
+        placeholder="Yarn Diameter (in mm)" 
+        name="diameter" 
+        min="0"
+        max="100"
+        step=".5"
+        (change)="change()"
+        [(ngModel)]="newshuttle.diameter"> 
+        <span matTextSuffix>mm</span>
+
+      </mat-form-field>
+
 
       
-      </div>
 
 
     <div class="is-fullwidth">
@@ -168,3 +189,7 @@
 
 </mat-expansion-panel>
 </mat-accordion>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close cdkFocusInitial>Close</button>
+</mat-dialog-actions>

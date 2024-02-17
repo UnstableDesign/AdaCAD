@@ -57,12 +57,12 @@ export class MaterialModal{
    * handles user input of delete event and reads the "replace" value to reassign draft
    * @param index  - the shuttle to delete
    */
-  delete(index:number){
+  delete(index:number, replacement_id: number){
 
     if(this.ms.getShuttles().length == 1) return;
 
     if(confirm("Are you sure you want to delete this material")) {
-    
+    this.replacements[index] = replacement_id;
 
 
     const map: Array<MaterialMap> = this.ms.deleteShuttle(index);

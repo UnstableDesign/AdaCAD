@@ -43,17 +43,6 @@
           
           <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expandViewer()"></i></button>
 
-
-
-
-
-
-        <!-- <mat-button-toggle-group name="view_mode" [(ngModel)]="current_view" aria-label="Font Style">
-          <mat-button-toggle value="draft" (click)="viewChange('draft')">Draft</mat-button-toggle>
-          <mat-button-toggle value="structure"  (click)="viewChange('structure')">Structure</mat-button-toggle>
-          <mat-button-toggle value="color" (click)="viewChange('color')">Color</mat-button-toggle>
-        </mat-button-toggle-group> -->
-
     
 
 
@@ -75,7 +64,9 @@
         <div *ngIf="type !== 'jacquard'" class="editing-mode-toggle">
         <mat-label>design from: </mat-label>
         <mat-slide-toggle
-        (click)="swapEditingStyleClicked()">
+        [disabled]="id === -1"
+        hideIcon
+        (change)="swapEditingStyleClicked()">
         </mat-slide-toggle>
         <div class="selected_mode">{{dm.cur_draft_edit_source}}
         </div>

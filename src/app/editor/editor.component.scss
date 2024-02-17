@@ -1,4 +1,6 @@
-
+.mat-mdc-icon-button{
+    font-size: 14px;
+}
 
 .detail-sidebars{
     padding: 16px;
@@ -91,7 +93,6 @@ h1{
 
 
 .mat-expansion-panel-header{
-    font-size: .8em;
 
     i{
         padding-right: 8px;
@@ -112,7 +113,6 @@ h1{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    font-size: .8em;
 
     h3{
         width: 100%;
