@@ -332,6 +332,15 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+  warps(){
+    return warps(this.draft.drawdown)
+  }
+
+  wefts(){
+    return wefts(this.draft.drawdown)
+
+  }
+
 
 
 /**

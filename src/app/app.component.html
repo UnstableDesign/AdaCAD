@@ -186,12 +186,18 @@
     <div class="footer-left">
 
       <button mat-icon-button  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
+     
       <mat-slider 
-      tickInterval=".1" 
-      [step]="1"
-      [min]="0" 
-      [max]="zs.num_steps" 
-      (change)="zoomChange($event, 'slider')"></mat-slider> 
+        min="0"
+        color="alert"
+        [max]="zs.num_steps"  
+        step="1" 
+        value="1"  
+       >
+        <input matSliderThumb  (valueChange)="zoomChange($event, 'slider')" >
+      </mat-slider>
+     
+  
       <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
       <button  
       mat-icon-button 

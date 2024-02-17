@@ -1,7 +1,7 @@
 import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
-import { get as fbget, getDatabase, query, ref as fbref, ref, remove } from '@angular/fire/database';
-import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
+import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged } from '@angular/fire/database';
+// import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
 import { Observable, Subject } from 'rxjs';
 import { FilebrowserComponent } from '../filebrowser/filebrowser.component';
 import { LoadedFile, SaveObj } from '../model/datatypes';
@@ -469,7 +469,7 @@ getFile(fileid: number) : Promise<any> {
         desc: desc,
         timestamp: stamp, 
         last_opened:fileid});
-    }
+   }
     
     
 

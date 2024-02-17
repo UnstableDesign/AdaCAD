@@ -1,6 +1,5 @@
 import { Injectable, Optional } from '@angular/core';
 import { EMPTY, Observable, Subscription } from 'rxjs';
-import { FilesystemService } from './filesystem.service';
 import { getDatabase, ref as fbref, get as fbget } from '@angular/fire/database';
 import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
 

@@ -94,6 +94,8 @@ export class MixerComponent  {
     @Optional() private fbauth: Auth
     ) {
 
+      this.myControl = new FormControl();
+
    
     this.classifications = this.op_desc.getOpClassifications();
 
@@ -478,7 +480,7 @@ zoomChange(e:any, source: string){
     this.palette.loadConnection(id);
   }
 
-  recenterViews(){
+  centerView(){
     this.palette.centerView();
   }
 
