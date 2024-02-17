@@ -12,6 +12,8 @@
 
      
     <mat-form-field >
+      <mat-label>Warp Ends</mat-label>            
+
       <input matInput name="warps" 
       [(ngModel)]="warps" 
       type="number" 
@@ -24,6 +26,8 @@
     </mat-form-field>
 
     <mat-form-field >
+      <mat-label>Weft Picks</mat-label>            
+
       <input matInput name="wefts" 
       [(ngModel)]="wefts" 
       type="number" 
@@ -53,17 +57,23 @@
       (change)="epiChange(envt)"
       (blur)="epiChange(envt)">  
 
-      <ng-container *ngIf="units === 'cm'">
-        <span matSuffix>ends / 10cm</span>
-      </ng-container>
-      <ng-container *ngIf="units == 'in'">
-       <span matSuffix>epi</span> 
-      </ng-container>
+      <span matTextSuffix>
+        <ng-container *ngIf="units === 'in'">
+          epi
+       </ng-container>
+       <ng-container *ngIf="units === 'cm'">
+        ends / 10cm
+      </ng-container> 
+ 
+       </span> 
+
+    
     </mat-form-field>
 
 
 
     <mat-form-field class="fullwidth">
+      <mat-label>width</mat-label>
       <input matInput 
       name="width" 
       [(ngModel)]="width" 
@@ -74,14 +84,17 @@
       placeholder="Width" 
       (change)="widthChange(envt)"
       (blur)="widthChange(envt)"> 
-
-      <ng-container *ngIf="units === 'in'">
-        <span matSuffix>inches</span> 
+      <span matTextSuffix>
+       <ng-container *ngIf="units === 'in'">
+       inches
       </ng-container>
+      <ng-container *ngIf="units === 'cm'">
+       cm
+     </ng-container> 
 
-       <ng-container *ngIf="units === 'cm'">
-        <span matSuffix>cm</span> 
-     </ng-container>
+      </span> 
+
+
 
     </mat-form-field>
 
@@ -99,7 +112,7 @@
         max ="1000" 
         (change)="updateMinFrames(envt)" 
         (blur)="updateMinFrames(envt)"> 
-         <span matSuffix>frames</span> 
+         <span matTextSuffix>frames</span> 
        </mat-form-field>
 
 
@@ -116,7 +129,7 @@
         (change)="updateMinTreadles(envt)"
         (blur)="updateMinTreadles(envt)"
         > 
-         <span matSuffix>treadles</span> 
+         <span matTextSuffix>treadles</span> 
        </mat-form-field>
       </ng-container>
 
