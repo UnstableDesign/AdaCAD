@@ -127,7 +127,7 @@
         <div class="auth" *ngIf="files.connected && (auth.showLogoutButton)">
       
 
-          <button mat-button [matMenuTriggerFor]="account">Hi {{auth.username}} </button>
+          <button mat-flat-button color="primary" [matMenuTriggerFor]="account"> Hi {{auth.username}} <i class="fa-solid fa-caret-down"></i> </button>
 
           <mat-menu #account="matMenu">
             <button mat-menu-item (click)="openAdaFiles(false)">Manage Saved Files</button>
@@ -136,7 +136,7 @@
         </div>
 
         <div *ngIf="files.connected && !auth.isLoggedIn">
-          <button mat-stroked-button class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
+          <button mat-raised-button color="primary" class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
         </div>
       </div>
       

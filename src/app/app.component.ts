@@ -21,7 +21,7 @@ import { ZoomService } from './core/provider/zoom.service';
 import { Auth, authState, User } from '@angular/fire/auth';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { FormControl } from '@angular/forms';
-import { LoginComponent } from './core/login/login.component';
+import { LoginComponent } from './core/modal/login/login.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FilebrowserComponent } from './core/filebrowser/filebrowser.component';
 import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';

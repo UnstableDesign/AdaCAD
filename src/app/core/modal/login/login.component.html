@@ -3,10 +3,11 @@
  
 </div>
 <mat-dialog-content>
-<p>Creating a user account allows us to save the state of your design so that if the system crashes or closes for any reason you can recover your file when you reload AdaCAD.</p>
+<p>Creating a user account allows you to save your files online. It also automatically saves the state of your design so that if the system crashes or closes for any reason you can recover your file when you reload AdaCAD.</p>
   <div class="form-container">
     <div class="left">
-    <button mat-raised-button (click)="loginGoogle()" class="google">Login or Signup With Google</button>
+    <button mat-raised-button color="primary" (click)="loginGoogle()" class="google">Login or Signup With Google</button>
+    <button mat-raised-button mat-dialog-close>Continue Without an Account</button>
 
     </div>
     <div class="right">
@@ -44,7 +45,6 @@
 
   </mat-dialog-content>
 
-  <mat-dialog-actions align="start">
-    <button mat-button mat-dialog-close>Continue Without an Account</button>
+  <mat-dialog-actions>
     <button mat-button mat-dialog-close>Close</button>
   </mat-dialog-actions>
