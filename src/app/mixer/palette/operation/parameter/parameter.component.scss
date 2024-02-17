@@ -8,6 +8,7 @@
     width: 100%;
     padding:.25em 0em 0em 0.5em;
     font-size: 1.5em;
+    gap: 10px;
 }
 
 .number_input{
@@ -16,15 +17,6 @@
     color: white;
     height: fit-content;
 
-    input{
-        height: 100%;
-        align-content: baseline;
-        font-size: 1.2em;
-        flex-basis: 0;
-        font-weight: bolder;
-        font-size: 1.5em;
-
-    }
 }
 
 .number-label,
@@ -33,8 +25,6 @@
 .string-label{
     color: white;
     height: fit-content;
-    font-size: .8em;
-    font-size: 1em;
 }
 
 .boolean-input{
@@ -57,8 +47,6 @@
         height: 18px !important;
         width: 18px !important;
     }
-    
-
 
 }
 

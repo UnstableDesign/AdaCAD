@@ -1,6 +1,5 @@
 h2{
     color: rgba(0,0,0,.54);
-    font-size: .8em;
     padding-bottom: 12px;
 }
 
@@ -27,12 +26,10 @@ button{
     margin: 20px;
     display: flex;
     flex-direction: column;
-    font-size: .8em;
 }
 
 .file-item-block{
     display: flex;
-    flex: 1 0 0px;
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
@@ -66,7 +63,6 @@ button{
 .timestamp{
     position: relative;
     left: 16px;
-    font-size: .8em;
     padding: 4px 0px;
 }
 

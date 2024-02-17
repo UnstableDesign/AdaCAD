@@ -88,8 +88,7 @@
 
               
 
-                <button *ngIf="(file.id == this.files.current_file_id && !rename_mode) || file.id !== this.files.current_file_id" 
-                mat-button 
+                <button mat-raised-button *ngIf="(file.id == this.files.current_file_id && !rename_mode) || file.id !== this.files.current_file_id" 
                 
                 [class.primary]="file.id == this.files.current_file_id" 
                 (click) = openFile(file.id)

@@ -3,7 +3,8 @@
     <ng-container  *ngIf="param.type === 'number'">
         
       <div class="number_input">
-          
+        <mat-form-field >
+          <mat-label>{{param.name}}</mat-label>
             <input 
             matInput
             [ngModel] = "opnode.params[paramid]"
@@ -17,9 +18,7 @@
             (change)= "onParamChange(fc.value)"
         >
 
-        <div class="number-label">
-          {{param.name}}
-        </div>
+        </mat-form-field>
       </div>
 
 
@@ -64,10 +63,10 @@
 
         <div class="boolean-input">
 
-
         <mat-slide-toggle
             [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
+            hideIcon = true
             [matTooltip]="description"
             (change)= "onParamChange(fc.value)"
             > 
