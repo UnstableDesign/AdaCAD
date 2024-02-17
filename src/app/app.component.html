@@ -96,9 +96,7 @@
 
           <!-- <button mat-menu-item >Optimize for Device</button> -->
         </mat-menu>
-        <!-- <button mat-icon-button (click)="openMaterials()"><i class="fa-solid fa-palette"></i></button> 
-        <button mat-icon-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i></button>  -->
-       
+ 
       </div>
 
         <div class="topbar-button-group">
@@ -180,6 +178,8 @@
      #viewer
      [id]="selected_draft_id"
      class="static-container"
+     (onOpenMaterials)="openMaterials()"
+     (onOpenExamples)="openExamples()"
      (onLoadBlankFile)="loadBlankFile()"
      (onManageFiles)="openAdaFiles(false)">
     </app-viewer>
@@ -188,10 +188,10 @@
 </div>
 
 <div class="footer-container">
-  <mat-toolbar class="topbar">
+  <mat-toolbar class="footer">
     <div class="footer-left">
 
-      <button mat-icon-button  (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
+      <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
      
       <mat-slider 
         min="0"
@@ -221,7 +221,7 @@
 
     </div>
     <div class="footer-right">
-      <button mat-raised-button color="primary">Download</button>
+      <button class="download" mat-raised-button  [matMenuTriggerFor]="downloadMenu" color="primary">Download</button>
 
       </div>
   </mat-toolbar>

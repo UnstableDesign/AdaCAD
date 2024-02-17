@@ -66,83 +66,21 @@
  <mat-expansion-panel expanded>
   <mat-expansion-panel-header>
     <mat-panel-title class="small-text">
-      <i class="fa-solid fa-folder"></i> Projects
+      <i class="fa-solid fa-link"></i> Quick Links
       </mat-panel-title>
-      <mat-panel-description>
-    </mat-panel-description>
   </mat-expansion-panel-header>
 
-    <div class="filelist">
-      <h4>active projects
 
-        <button class="addfile" mat-icon-button (click)="manageFiles()" ><i class="fa-solid fa-gear"></i></button>
-      </h4>
+      <button  mat-flat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> New Workspace</button>
 
-      <ng-container *ngFor="let tab of files.loaded_files; index as index;">
+      <button mat-flat-button  (click)="manageFiles()" ><i class="fa-solid fa-file"></i> Manage Workspaces</button>
 
-        <button 
-        [class.active]= "tab.id === files.getCurrentFileId()"
-        [matMenuTriggerFor]="fileOptions" 
-        mat-raised-button 
-        >
-          {{tab.name}} 
-        </button>
+      <button  mat-flat-button (click)="openMaterials()"><i class="fa-solid fa-palette"></i> Manage Materials</button> 
 
-
-
-        <mat-menu #fileOptions="matMenu">
-
-          <button 
-          [class.active]="tab.id !==  files.getCurrentFileId()"
-          mat-raised-button (click)="switchFile(tab.id)"  >
-          <i class="fa-solid fa-xmark"></i> Open
-          </button>
-
-          <button 
-          *ngIf="tab.id !==  files.getCurrentFileId()" mat-raised-button 
-          [matMenuTriggerFor]="deleteConfirm">
-          <i class="fa-solid fa-xmark"> Close </i>
-          </button>
-
-        </mat-menu>
-
-        <mat-menu #deleteConfirm="matMenu">
-          <button 
-          mat-icon-button 
-          matListItemIcon
-          (click)="closeFile(tab.id)"
-          >
-            Are you sure?
-            </button>
-        </mat-menu>
-      </ng-container>
-
-    
-
-      <button class="addfile" mat-raised-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> create new</button>
-
-    </div>
+       <button  mat-flat-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
+       
   </mat-expansion-panel>
 
-
-
-<mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title class="small-text">
-        <i class="fa-solid fa-palette"></i> Materials
-        </mat-panel-title>
-      
-    </mat-expansion-panel-header>
-    </mat-expansion-panel>
-
-      <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title class="small-text">
-          <i class="fa-solid fa-lightbulb"></i> Examples
-          </mat-panel-title>
-        
-      </mat-expansion-panel-header>
-      </mat-expansion-panel>
   
 
 </mat-accordion> 

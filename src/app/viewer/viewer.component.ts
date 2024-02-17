@@ -14,6 +14,8 @@ import { SimulationComponent } from './simulation/simulation.component';
 export class ViewerComponent {
   @Input() id;
   @Output() onLoadBlankFile: any = new EventEmitter();
+  @Output() onOpenExamples: any = new EventEmitter();
+  @Output() onOpenMaterials: any = new EventEmitter();
   @Output() onManageFiles: any = new EventEmitter();
 
   @ViewChild(SimulationComponent) sim;
@@ -81,6 +83,16 @@ getVisVariables(){
 
   manageFiles(){
     this.onManageFiles.emit();
+  }
+
+  openExamples(){
+    this.onOpenExamples.emit();
+
+  }
+
+  openMaterials(){
+    this.onOpenMaterials.emit();
+
   }
 
 

@@ -75,6 +75,10 @@
   font-size: .5em;
 }
 
+.download{
+  width: 18vw;
+}
+
 
 
 .topbar{
@@ -83,6 +87,11 @@
   color: white;
   background-color: #3f51b5;
   
+}
+
+.footer{
+  display: flex;
+  justify-content: space-between;
 }
 
 .topbar-button-group{

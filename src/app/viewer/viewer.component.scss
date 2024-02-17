@@ -1,10 +1,12 @@
+.mat-mdc-icon-button{
+    font-size: 14px;
+  }
+
 .static-menus{
     margin: 16px;
 }
 
-.small-text{
-    font-size: .8em;
-}
+
 
 .mat-expansion-panel-header i{
     padding-right: 8px;
@@ -29,8 +31,6 @@
 .filelist{
     text-align: center;
     padding: 16px;
-    margin: 16px 0px;
-    border-top: thin solid grey;
     overflow: scroll;
     flex: 0 1 auto;
     display: flex;

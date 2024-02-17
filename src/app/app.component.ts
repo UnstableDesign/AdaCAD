@@ -247,7 +247,7 @@ export class AppComponent implements OnInit{
 
         break;
       case 'mixer':
-        this.mixer.recenterViews();
+      //  this.mixer.recenterViews();
         break;
     }
 
