@@ -19,6 +19,12 @@ h3{
 }
 
 
+.mat-mdc-icon-button{
+    font-size: 14px;
+    position: relative;
+    top: 0px;
+  }
+
 .folder{
     display: flex;
     flex-direction: column;
@@ -27,7 +33,6 @@ h3{
 .lastviewed{
     width: 25%;
     text-align: left;
-    line-height: 40px;
 }
 
 .filename{
@@ -48,6 +53,7 @@ h3{
     justify-content: space-between;
     width: 100%;
     padding: 4px 0px;
+    align-items: center;
 }
 
 .current{

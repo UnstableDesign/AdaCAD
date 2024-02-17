@@ -66,7 +66,7 @@ cdkDrag
 
 
             <button *ngIf="rename_mode_id !== file.id"
-            mat-button 
+            mat-raised-button
             [class.primary]="file.id == this.files.current_file_id" 
             (click) = openFile(file.id)
             class="file_name">
@@ -171,7 +171,7 @@ cdkDrag
 
 
                 <button *ngIf="rename_mode_id !== file.id"
-                mat-button 
+                mat-raised-button
                 [class.primary]="file.id == this.files.current_file_id" 
                 (click) = openFile(file.id)
                 class="file_name">
@@ -262,5 +262,5 @@ cdkDrag
 
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Close</button>
+  <button mat-raised-button color="primary" mat-dialog-close>Close</button>
 </mat-dialog-actions>

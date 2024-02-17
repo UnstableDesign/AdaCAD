@@ -17,7 +17,13 @@
   <div class="header-container">
 
     <mat-toolbar class="topbar">
+
+
+
       <div class="topbar-button-group">
+
+        <div class="logo"></div>
+
         <span>AdaCAD</span>
         
         <button mat-icon-button [matMenuTriggerFor]="file"><i class="fa-solid fa-house"></i></button>
@@ -26,14 +32,14 @@
           <button mat-menu-item (click)="loadBlankFile()">New Workspace</button>
           <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button >
             <button mat-menu-item (click)="saveFile()">Save</button>
-            <button mat-menu-item (click)="redo()" >Import Bitmaps</button>
+            <!-- <button mat-menu-item (click)="redo()" >Import Bitmaps</button> -->
             <button mat-menu-item [matMenuTriggerFor]="downloadMenu">Export</button>
           <button mat-menu-item (click)="openAboutDialog()">About</button>
         </mat-menu>
         
         <mat-menu #downloadMenu="matMenu">
           <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
-          <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button>
+          <!-- <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button> -->
         </mat-menu>
 
         <mat-menu #openFile="matMenu">

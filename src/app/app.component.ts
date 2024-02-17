@@ -23,7 +23,6 @@ import { ViewportService } from './mixer/provider/viewport.service';
 import { FormControl } from '@angular/forms';
 import { LoginComponent } from './core/login/login.component';
 import { MatDialog } from '@angular/material/dialog';
-import { AboutModal } from './core/modal/about/about.modal';
 import { FilebrowserComponent } from './core/filebrowser/filebrowser.component';
 import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { ExamplesComponent } from './core/modal/examples/examples.component';
@@ -714,7 +713,8 @@ onPasteSelections(){
   }
 
   openAboutDialog() {
-    const dialogRef = this.dialog.open(AboutModal);
+
+    window.open('https://docs.adacad.org', '_blank');
 
   }
 

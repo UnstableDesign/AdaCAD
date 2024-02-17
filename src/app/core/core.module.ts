@@ -33,7 +33,6 @@ import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { LoginComponent } from './login/login.component';
-import { AboutModal } from './modal/about/about.modal';
 import { InitModal } from './modal/init/init.modal';
 import { MaterialModal } from './modal/material/material.modal';
 import { AuthService } from './provider/auth.service';
@@ -90,7 +89,6 @@ import { ZoomService } from './provider/zoom.service';
     declarations: [
         UploadFormComponent,
         InitModal,
-        AboutModal,
         MaterialModal,
         LoginComponent,
         SignupComponent,
@@ -144,7 +142,6 @@ import { ZoomService } from './provider/zoom.service';
         DragDropModule,
         UploadFormComponent,
         InitModal,
-        AboutModal,
         MaterialModal,
         FilebrowserComponent,
         ExamplesComponent,

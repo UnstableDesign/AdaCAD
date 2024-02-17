@@ -1,9 +1,17 @@
 
+
 .view-container{
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
+
+.mat-mdc-icon-button{
+  font-size: 14px;
+  position: relative;
+  top: 0px;
+}
+
 
 
 .header-container{
@@ -75,6 +83,9 @@
 
 .topbar-button-group{
   justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 
