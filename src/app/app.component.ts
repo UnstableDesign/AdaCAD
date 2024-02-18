@@ -1138,9 +1138,9 @@ setDraftsViewable(val: boolean){
 showDraftDetails(id: number){
   console.log("SHOW DRAFT ", id)
   this.editor.loadDraft(id);
-  let draft = this.tree.getDraft(id);
-  let loom_settings = this.tree.getLoomSettings(id);
+
  // this.sim.loadNewDraft(draft, loom_settings)
+  this.selected_draft_id = id;
   this.dm.selectPencil('toggle');
 }
 

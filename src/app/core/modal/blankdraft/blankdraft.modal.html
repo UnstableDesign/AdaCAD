@@ -1,4 +1,8 @@
 
+<h2 mat-dialog-title>Make Blank Draft</h2>
+
+<mat-dialog-content>
+
   <form #initForm="ngForm">
 
 
@@ -12,10 +16,13 @@
       <input matInput  type="number" placeholder="Number of Weft Picks" value ="20" name="wefts" min="2" step="1" [(ngModel)]="wefts" >
       </mat-form-field>
 
- 
-    <mat-dialog-actions>
-        <button class="mat-raised-button mat-primary" (click)="save(initForm)">Load</button>
-    </mat-dialog-actions>
 
 
 </form>
+
+</mat-dialog-content>    
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Close</button>
+  <button mat-button mat-dialog-close cdkFocusInitial  (click)="save(initForm)">Ok</button>
+</mat-dialog-actions>
