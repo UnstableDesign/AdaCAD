@@ -129,7 +129,7 @@ export class ConnectionComponent implements OnInit {
     let to_container = document.getElementById('scale-'+to);
     let to_rect = to_container.getBoundingClientRect();
 
-    const zoom_factor =  this.default_cell_size / this.scale;
+    const zoom_factor =  1/this.zs.zoom;
 
     //on screen position relative to palette
     let screenX = to_rect.x - parent.x;
@@ -162,7 +162,7 @@ export class ConnectionComponent implements OnInit {
     let sd_container = document.getElementById(from+'-out').getBoundingClientRect();
 
 
-    const zoom_factor =  this.default_cell_size / this.scale;
+    const zoom_factor =  1/this.zs.zoom;
    //on screen position relative to palette
    let screenX = sd_container.x - parent.x;
    let scaledX = screenX * zoom_factor;
@@ -335,9 +335,11 @@ export class ConnectionComponent implements OnInit {
    * Call after the operation and subdraft connections have been updated. 
    * @param scale 
    */
-  rescale(scale:number){
+  rescale(){
 
-    this.scale = scale;
+    const zoom_factor =  this.zs.zoom;
+    const container: HTMLElement = document.getElementById('scale-'+this.id);
+    if(container === null) return;
 
 
   }

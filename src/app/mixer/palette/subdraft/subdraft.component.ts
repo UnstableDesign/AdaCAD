@@ -11,9 +11,8 @@ import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
-import { OperationComponent } from '../operation/operation.component';
-import { max } from 'mathjs';
 import { DraftrenderingComponent } from '../draftrendering/draftrendering.component';
+import { ZoomService } from '../../../core/provider/zoom.service';
 
 
 
@@ -39,7 +38,7 @@ export class SubdraftComponent implements OnInit {
     this._scale = value;
     this.rescale().catch(e => console.log(e))
   }
-  private _scale:number = 5;
+  private _scale:number = this.zs.zoom;
 
   @Input()
   get draft(): Draft { return this._draft; }
@@ -135,7 +134,8 @@ export class SubdraftComponent implements OnInit {
     private viewport: ViewportService,
     private dialog: MatDialog,
     public ws: WorkspaceService,
-    private multiselect: MultiselectService) { 
+    private multiselect: MultiselectService,
+    public zs: ZoomService) { 
 
       this.zndx = layer.createLayer();
 
@@ -148,7 +148,7 @@ export class SubdraftComponent implements OnInit {
     const tl_offset = {x: tl.x - 250, y: tl.y + 200};
 
     if(this.topleft.x === 0 && this.topleft.y === 0) this.setPosition(tl_offset);
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
+   // this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
     if(!this.is_preview) this.viewport.addObj(this.id, this.interlacement);
 
@@ -210,8 +210,8 @@ export class SubdraftComponent implements OnInit {
 
   /**called when bounds change, updates the global view port */
   updateViewport(topleft: Point){
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(topleft, this.scale);
-    this.viewport.updatePoint(this.id, this.interlacement);
+    // this.interlacement = utilInstance.resolvePointToAbsoluteNdx(topleft, this.scale);
+    // this.viewport.updatePoint(this.id, this.interlacement);
 
   }
 
@@ -455,7 +455,7 @@ export class SubdraftComponent implements OnInit {
     let sd_container = document.getElementById('scale-'+this.id);
     let rect_palette = parent.getBoundingClientRect();
 
-    const zoom_factor =  this.default_cell / this.scale;
+    const zoom_factor =  1/this.zs.zoom;
 
     //the positioning is strange because the mouse is in screen coordinates and needs to account for the 
     //positioning of the palette. We take that position and translate it (by * zoom factor) to the palette coordinate system, 

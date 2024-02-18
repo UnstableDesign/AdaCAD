@@ -506,14 +506,14 @@ class Util {
  * @param p the screen coordinate
  * @returns the row and column within the draft (i = row, j=col), returns -1 if out of bounds
  */
-   public resolvePointToAbsoluteNdx(p:Point, scale:number) : Interlacement{
+  //  public resolvePointToAbsoluteNdx(p:Point, scale:number) : Interlacement{
     
-    let i = Math.floor((p.y) / scale);
-    let j = Math.floor((p.x) / scale);
+  //   let i = Math.floor((p.y) / scale);
+  //   let j = Math.floor((p.x) / scale);
 
-    return {i: i, j:j, si: i};
+  //   return {i: i, j:j, si: i};
 
-  }
+  // }
 
   /**
    * returns the number of wefts that is greatest out of all the input drafts

@@ -199,9 +199,8 @@
         min="0"
         [max]="zs.num_steps"  
         step="1" 
-        value="1"  
        >
-        <input matSliderThumb  (valueChange)="zoomChange($event)" >
+        <input matSliderThumb [value]="zs.zoom_table_ndx"  (valueChange)="zoomChange($event)" >
       </mat-slider>
      
   

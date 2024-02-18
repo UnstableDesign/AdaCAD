@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
-import { Interlacement, Note } from '../model/datatypes';
+import { Interlacement, Note, Point } from '../model/datatypes';
 import utilInstance from '../model/util';
 
 
@@ -24,12 +24,15 @@ export class NotesService {
     this.notes = [];
   }
 
-  createNote(i: Interlacement, component: NoteComponent, ref: ViewRef, note: Note) : number{
+  createNote(tl: Point, component: NoteComponent, ref: ViewRef, note: Note) : number{
     let gennote: Note = null;
     if(note == null){
      gennote = {
         id: utilInstance.generateId(8),
-        interlacement: i,
+        topleft: {
+          x: tl.x,
+          y: tl.y
+        },
         title: "",
         text: "",
         ref: ref,
@@ -42,7 +45,10 @@ export class NotesService {
     }else{
       gennote = {
         id: utilInstance.generateId(8),
-        interlacement: i,
+        topleft: {
+          x: tl.x,
+          y: tl.y
+        },        
         title: (note.title !== undefined) ? note.title : "",
         text: note.text,
         ref: ref,
@@ -62,7 +68,10 @@ export class NotesService {
   createBlankNode(i: Interlacement) : Note{
     const note: Note = {
       id: utilInstance.generateId(8),
-      interlacement: i,
+      topleft: {
+        x: 0, 
+        y: 0
+      },
       title: "",
       text: "",
       color: "#FFFF00",
@@ -93,7 +102,7 @@ export class NotesService {
       title: note.title,
       text: note.text,
       color: note.color,
-      interlacement: note.interlacement,
+      topleft: note.topleft,
       imageurl: note.imageurl,
       width: note.width,
       height: note.height

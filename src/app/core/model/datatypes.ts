@@ -221,7 +221,7 @@ export interface ViewModes {
 
 export interface Note{
   id: number,
-  interlacement: Interlacement; 
+  topleft: Point,
   title: string;
   text: string;
   ref: ViewRef;

@@ -7,12 +7,12 @@ import { defaults } from '../model/defaults';
 export class ZoomService {
   //current zoom scale
   
-  zoom: number = defaults.zoom; //this is the default
+  zoom: number = 1; //this is the default
   num_steps: number = 15;
   zoom_min: number = .1;
   zoom_step: number = .05;
   zoom_table: Array<number> = [];
-  zoom_table_ndx: number;
+  zoom_table_ndx: number = defaults.zoom_ndx;
 
 
   constructor() { 
@@ -21,10 +21,12 @@ export class ZoomService {
    // this.zoom_table_ndx = Math.floor(this.num_steps/2);
     this.zoom_table_ndx = Math.floor(this.num_steps/2);
 
+
     for(let i = 0; i < this.num_steps; i++){
       const raw = this.zoom_min + this.zoom_step*(i*i);
       this.zoom_table.push(this.manageZoomRounding(raw));
     }
+
     this.zoom = this.zoom_table[this.zoom_table_ndx];
 
   }

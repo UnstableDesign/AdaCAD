@@ -14,6 +14,7 @@ import { ViewportService } from '../../provider/viewport.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { InletComponent } from './inlet/inlet.component';
 import { ParameterComponent } from './parameter/parameter.component';
+import { ZoomService } from '../../../core/provider/zoom.service';
 
 
 
@@ -36,9 +37,8 @@ export class OperationComponent implements OnInit {
    get scale(): number { return this._scale; }
    set scale(value: number) {
      this._scale = value;
-     this.rescale();
    }
-   private _scale:number = 5;
+   private _scale:number = this.zs.zoom;
  
  /**
   * handles actions to take when the mouse is down inside of the palette
@@ -142,7 +142,8 @@ export class OperationComponent implements OnInit {
     private imageService: ImageService,
     public systems: SystemsService,
     public multiselect: MultiselectService,
-    public opdescriptions: OperationDescriptionsService) { 
+    public opdescriptions: OperationDescriptionsService,
+    public zs: ZoomService) { 
      
 
   }
@@ -155,7 +156,6 @@ export class OperationComponent implements OnInit {
     this.displayname = this.opdescriptions.getDisplayName(this.name);
     this.application = this.opdescriptions.getOpApplication(this.name);
     this.category_name = this.opdescriptions.getOpCategory(this.name);
-     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
 
     this.opnode = <OpNode> this.tree.getNode(this.id);
@@ -164,7 +164,7 @@ export class OperationComponent implements OnInit {
   }
 
   ngAfterViewInit(){
-    this.rescale();
+    //this.rescale();
    // this.onOperationParamChange.emit({id: this.id});
     if(this.name == 'imagemap' || this.name == 'bwimagemap'){
       
@@ -196,20 +196,6 @@ export class OperationComponent implements OnInit {
     op_container.style.transform = 'none'; //negate angulars default positioning mechanism
     op_container.style.top =  this.topleft.y+"px";
     op_container.style.left =  this.topleft.x+"px";
-
-
-
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
-  }
-
-
-  rescale(){
-
-    const zoom_factor = this.scale / this.default_cell;
-    const container: HTMLElement = document.getElementById('scale-'+this.id);
-    if(container === null) return;
-
-
   }
 
   drawForPrint(canvas, cx, scale){
@@ -260,22 +246,20 @@ export class OperationComponent implements OnInit {
 
   
 
-  /**
-   * prevents hits on the operation to register as a palette click, thereby voiding the selection
-   * @param e 
-   */
+
   mousedown(e: any){
 
+    this.selectForView();
+    e.stopPropagation();
+  }
+
+  selectForView(){
     if(this.children.length > 0){
       let child = this.children[0];
       this.onShowChildDetails.emit(child);
-
     }
-
-    e.stopPropagation();
-
-
   }
+
 
   drop(){
     console.log("dropped");
@@ -362,7 +346,6 @@ export class OperationComponent implements OnInit {
           
         }
         this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value) 
-        console.log("RETURNED INLETS ", this.opnode.inlets)
 
 
         this.hasInlets = opnode.inlets.length > 0;
@@ -489,7 +472,7 @@ export class OperationComponent implements OnInit {
     let op_container = document.getElementById('scale-'+this.id);
     let rect_palette = parent.getBoundingClientRect();
 
-    const zoom_factor =  this.default_cell / this.scale;
+    const zoom_factor =  1/this.zs.zoom;
     //the positioning is strange because the mouse is in screen coordinates and needs to account for the 
     //positioning of the palette. We take that position and translate it (by * zoom factor) to the palette coordinate system, 
     //which is transformed by the scale operations. We then write the new position while acounting for the sidebar. 

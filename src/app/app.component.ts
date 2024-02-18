@@ -33,6 +33,7 @@ import { defaults, density_units, editor_modes, loom_types, origin_option_list }
 import { MaterialModal } from './core/modal/material/material.modal';
 import { ViewerComponent } from './viewer/viewer.component';
 import utilInstance from './core/model/util';
+import { NotesService } from './core/provider/notes.service';
 
 
 
@@ -97,6 +98,7 @@ export class AppComponent implements OnInit{
     private image: ImageService,
     private ms: MaterialsService,
     private multiselect: MultiselectService,
+    private ns: NotesService,
     private ops: OperationService,
     public scroll: ScrollDispatcher,
     private tree: TreeService,
@@ -1136,7 +1138,6 @@ setDraftsViewable(val: boolean){
 }
 
 showDraftDetails(id: number){
-  console.log("SHOW DRAFT ", id)
   this.editor.loadDraft(id);
 
  // this.sim.loadNewDraft(draft, loom_settings)

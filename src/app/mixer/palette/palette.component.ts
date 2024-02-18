@@ -382,29 +382,13 @@ handlePan(diff: Point){
    */
   rescale(){
 
-    const zoom_factor = this.zs.zoom / this.default_cell_size;
+    const zoom_factor = this.zs.zoom;
     const container: HTMLElement = document.getElementById('palette-scale-container');
     if(container === null) return;
 
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom_factor + ')';
 
-    //these subdrafts are all rendered independely of the canvas and need to indivdiually rescalled. This 
-    //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
-    this.tree.nodes.forEach(node => {
-        if(node.type !== "cxn"){
-          if(node.component !== null) node.component.scale = this.zs.zoom;
-        } 
-      });
-
-
-    this.tree.getConnections().forEach(sd => {
-      if(sd !== null) sd.rescale(this.zs.zoom);
-    });
-
-    this.notes.getComponents().forEach(el => {
-      el.scale = this.zs.zoom;
-    });
 
   
 
@@ -501,27 +485,29 @@ handlePan(diff: Point){
    * dynamically creates a a note component
    * @returns the created note instance
    */
-   createNote(note: Note):NoteComponent{
+   createNote(note: any):NoteComponent{
+
+  
+    let tl: Point = null;
+    if(note.topleft === undefined) console.log("INTERLACEMENT ", note.interlacement)
 
 
-    let tl: Interlacement = null;
 
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
     this.setNoteSubscriptions(notecomp.instance);
 
-    if(note === null || note.interlacement == null){
-      tl = utilInstance.resolvePointToAbsoluteNdx(this.viewport.getCenterPoint(), this.zs.zoom);
+    if(note === null || note.topleft == null){
+      tl = this.viewport.getCenterPoint();
     }else{
-      tl = note.interlacement
+      tl = {
+        x: tl.x, 
+        y: tl.y
+      }
     }
     let id = this.notes.createNote(tl,  notecomp.instance, notecomp.hostView, note);
 
     notecomp.instance.id = id;
-    notecomp.instance.scale = this.zs.zoom;
-    notecomp.instance.default_cell = this.default_cell_size;
-
-
     this.changeDesignmode('move');
     return notecomp.instance;
   }
@@ -714,7 +700,6 @@ handlePan(diff: Point){
       op.instance.name = name;
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
-      op.instance.scale =this.zs.zoom ;
       op.instance.default_cell = this.default_cell_size;
 
       const tr =  this.viewport.getTopRight()
@@ -746,7 +731,6 @@ handlePan(diff: Point){
         op.instance.name = name;
         op.instance.id = id;
         op.instance.zndx = this.layers.createLayer();
-        op.instance.scale = this.zs.zoom;
         op.instance.default_cell = this.default_cell_size;
         op.instance.loaded_inputs = params;
         op.instance.topleft = {x: topleft.x, y: topleft.y};
@@ -1236,7 +1220,7 @@ handlePan(diff: Point){
 
   let sd_container = document.getElementById(obj.id+'-out').getBoundingClientRect();
 
-  const zoom_factor =  this.default_cell_size / this.zs.zoom;
+  const zoom_factor =  1 / this.zs.zoom;
   //on screen position relative to palette
   let screenX = sd_container.x - parent.x;
   let scaledX = screenX * zoom_factor;
@@ -1404,7 +1388,7 @@ connectionDragged(mouse: Point, shift: boolean){
   let parent = document.getElementById('scrollable-container');
   let rect_palette = parent.getBoundingClientRect();
 
-  const zoom_factor =  this.default_cell_size / this.zs.zoom;
+  const zoom_factor = 1 / this.zs.zoom;
 
   //on screen position relative to palette
   let screenX = mouse.x-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
@@ -2558,8 +2542,8 @@ pasteConnection(from: number, to: number, inlet: number){
   
     //get the reference to the draft that's moving
     const moving = this.tree.getComponent(obj.id);
-    const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
-    this.viewport.updatePoint(moving.id, interlacement);
+    //const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
+   // this.viewport.updatePoint(moving.id, interlacement);
       
 
 
