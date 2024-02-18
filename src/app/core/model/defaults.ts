@@ -13,6 +13,8 @@ export const defaults = {
     mixer_canvas_height: 16380,
     inlet_button_width: 50,
     weft_system_codes: ['a', 'b', 'c', 'd', 'e','f','g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
+    warps: 12,
+    wefts: 12,
     epi: 12,
     units: 'in',
     show_materials: true,
@@ -50,7 +52,7 @@ export const origin_option_list: Array<{value: number, view: string}> =
 export const editor_modes: Array<{value: string, view: string}> = 
 [
   {value: 'draft', view: 'draft'},
-  {value: 'mixer', view: 'parametric'},
+  {value: 'mixer', view: 'workspace'},
 ];
 
 export const draft_view_modes = [

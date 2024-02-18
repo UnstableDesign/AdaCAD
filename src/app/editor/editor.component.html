@@ -61,7 +61,7 @@
 
       <div class="draft_tools">
 
-        <div *ngIf="type !== 'jacquard'" class="editing-mode-toggle">
+        <div *ngIf="loom.type !== 'jacquard'" class="editing-mode-toggle">
         <mat-label>design from: </mat-label>
         <mat-slide-toggle
         [disabled]="id === -1"
@@ -134,7 +134,9 @@
    
     </mat-expansion-panel-header>
 
-    <app-loom [id]="id"
+    <app-loom 
+       #loom
+      [id]="id"
       (unsetSelection)='unsetSelection()'
       (drawdownUpdated)='drawdownUpdated()'
       (loomSettingsUpdated)="loomSettingsUpdated()"

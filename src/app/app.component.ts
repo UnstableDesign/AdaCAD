@@ -173,11 +173,25 @@ export class AppComponent implements OnInit{
 
   }
 
+  /**
+   * called from the editor when a new draft has been created. 
+   * A new draft is created by either opening the draft editor with no draft selected
+   * or opening the draft editor with a draft that has a parent (and therefore, a copy is created)
+   * @param obj 
+   */
   createNewDraftOnMixer(obj: any){
 
-    let old_id = obj.original_id;
-    this.mixer.performAndUpdateDownstream(this.tree.getSubdraftParent(old_id))
-    this.addTimelineState();
+    const draft: Draft = obj.draft;
+    const loom: Loom = obj.loom;
+    const loom_settings: LoomSettings = obj.loom_settings;
+    let id = this.mixer.newDraftCreated(draft, loom, loom_settings);
+
+    this.tree.setDraftOnly(id, draft);
+    this.tree.setLoom(id, loom);
+    this.tree.setLoomSettings(id, loom_settings);
+    this.editor.loadDraft(id);
+    this.selected_draft_id = id;
+
   }
 
    /**
@@ -239,14 +253,15 @@ export class AppComponent implements OnInit{
   }
 
   toggleEditorMode(){
-    console.log("EDITOR MODE ", this.selected_editor_mode, this.zs.zoom)
 
     switch(this.selected_editor_mode){
       case 'draft':
-        this.editor.centerView();
+        this.editor.onFocus();
+        //this.editor.centerView();
 
         break;
       case 'mixer':
+        this.editor.onClose();
       //  this.mixer.recenterViews();
         break;
     }
@@ -495,6 +510,8 @@ export class AppComponent implements OnInit{
       this.saveFile();
     });
   }
+
+ 
 
   loadStarterFile(){
     this.clearAll();
@@ -1175,8 +1192,8 @@ showDraftDetails(id: number){
 
   }
 
-  zoomChange(e: any, source: string){
-    this.zs.setZoom(e.value)
+  zoomChange(ndx: number){
+    this.zs.setZoomIndex(ndx)
     this.mixer.renderChange();
     this.editor.renderChange();
   }

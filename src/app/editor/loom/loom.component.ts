@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Inject, Input, Output, SimpleChanges } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
-import { density_units, loom_types } from '../../core/model/defaults';
+import { defaults, density_units, loom_types } from '../../core/model/defaults';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../core/model/drafts';
 import { TreeService } from '../../core/provider/tree.service';
 import { LoomSettings, LoomUtil } from '../../core/model/datatypes';
@@ -22,17 +22,16 @@ export class LoomComponent {
   @Output() loomSettingsUpdated: any = new EventEmitter();
 
 
-  units: any = 'in';
-  warps: number = 1;
-  wefts: number = 1;
-  epi: number = 10;
-  frames: number = 8;
-  treadles: number = 10;
-  width: number = 10;
+  units: any = defaults.units;
+  warps: number = defaults.warps;
+  wefts: number = defaults.wefts;
+  epi: number = defaults.epi;
+  frames: number = defaults.min_frames;
+  treadles: number = defaults.min_treadles;
+  type:string = defaults.loom_type
+  width: number = 0;
   density_units;
   loomtypes;
-  isFrame:boolean = false;
-  type = "jacquard"
 
 
   constructor(
@@ -42,10 +41,12 @@ export class LoomComponent {
 
        this.density_units = density_units;
        this.loomtypes = loom_types;
-    // }
+    
   }
 
   ngOnChanges(changes: SimpleChanges){
+
+    this.id = changes['id'].currentValue;
 
     if(this.id !== -1){
       const draft = this.tree.getDraft(this.id);
@@ -56,7 +57,6 @@ export class LoomComponent {
       this.epi = loom_settings.epi;
       this.warps = warps(draft.drawdown);
       this.wefts = wefts(draft.drawdown);
-      this.isFrame = isFrame(loom_settings);
 
       this.updateWidth();
     }
@@ -246,7 +246,6 @@ export class LoomComponent {
   
         //from jacquard to direct tie loom
         utils = getLoomUtilByType(new_settings.type);
-        this.isFrame = isFrame(new_settings);
   
         if(loom_settings.type === 'jacquard' && new_settings.type === 'direct'){
   

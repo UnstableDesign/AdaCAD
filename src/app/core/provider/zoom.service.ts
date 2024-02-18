@@ -79,6 +79,18 @@ export class ZoomService {
 
 
   }
+
+  setZoomIndex(ndx: number){
+
+    this.zoom =  this.zoom_table[ndx];
+
+
+
+  }
+  
+
+
+
   
 
 

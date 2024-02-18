@@ -109,6 +109,20 @@ export class MixerComponent  {
           .map(op => {return {name: op, display_name:this.op_desc.getDisplayName(op)}})
       }
     });
+
+    function alphabetical(a, b) {
+      if (a.display_name < b.display_name) {
+        return -1;
+      }
+      if (a.display_name > b.display_name) {
+        return 1;
+      }
+      return 0;
+    }
+
+    this.op_tree.forEach(el => {
+      el.ops.sort(alphabetical);
+    })
   }
 
   ngOnInit(){
@@ -119,19 +133,6 @@ export class MixerComponent  {
   }
 
 
-  // ngOnChanges(changes: SimpleChanges): void{
-
-
-  //   let mixer_sidenav_div = document.getElementById('mixer_sidenav');
-  //   let mixer_sidenav_rect = mixer_sidenav_div.getBoundingClientRect();
-
-  //   let mixer_div = document.getElementById('scrollable-container');
-
-  //   console.log("SETTING MIXER DIV to ",  mixer_sidenav_rect.width, mixer_sidenav_rect)
-  //   mixer_div.style.left = mixer_sidenav_rect.width+"px";
-    
-    
-  // }
 
   private _filter(value: string): any[] {
     const filterValue = value.toLowerCase();
@@ -213,7 +214,7 @@ createNewDraft(){
   });
 
   dialogRef.afterClosed().subscribe(obj => {
-    if(obj !== undefined && obj !== null) this.newDraftCreated(obj);
+    if(obj !== undefined && obj !== null) this.newDraftCreated(obj.draft, obj.loom, obj.loom_settings);
  });
 }
 
@@ -457,15 +458,14 @@ zoomChange(e:any, source: string){
     this.palette.createNote(null);
   }
   /**
-   * called when the user adds a new draft from the sidebar
+   * called when the user adds a new draft from the sidebar OR when a new draft is created from the editor
    * @param obj 
    */
-  public newDraftCreated(obj: any): number{
+  public newDraftCreated(draft: Draft, loom: Loom, loom_settings: LoomSettings): number{
     const id = this.tree.createNode("draft", null, null);
-    this.tree.loadDraftData({prev_id: null, cur_id: id,}, obj.draft, obj.loom, obj.loom_settings, true);
-    this.palette.loadSubDraft(id, obj.draft, null, null, this.zs.zoom);
+    this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
+    this.palette.loadSubDraft(id, draft, null, null, this.zs.zoom);
     return id;
-    //id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number
   }
 
   public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){

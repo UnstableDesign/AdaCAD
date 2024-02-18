@@ -382,8 +382,6 @@ handlePan(diff: Point){
    */
   rescale(){
 
-    console.log("ON MIXER RESCALE ", this.zs.zoom);
-
     const zoom_factor = this.zs.zoom / this.default_cell_size;
     const container: HTMLElement = document.getElementById('palette-scale-container');
     if(container === null) return;

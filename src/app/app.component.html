@@ -150,7 +150,8 @@
 
     <app-mixer 
     class="mixer-container" 
-    [class.hidden]="selected_editor_mode !== 'mixer'" 
+    [class.hide]="selected_editor_mode !== 'mixer'" 
+    [class.show]="selected_editor_mode === 'mixer'" 
     #mixer
     id="mixer" 
     cdkScrollable
@@ -163,8 +164,9 @@
 
     <app-editor id="draftdetail"
     class="detail-container"
-    [class.hidden]="selected_editor_mode !== 'draft'"
     #details 
+    [class.hide]="selected_editor_mode !== 'draft'"
+    [class.show]="selected_editor_mode === 'draft'" 
     (onFocusView)="focusUIView('detail', false)"
     (onCollapseView)="collapseFullScreen()"
     (saveChanges)="saveFile()"
@@ -195,12 +197,11 @@
      
       <mat-slider 
         min="0"
-        color="alert"
         [max]="zs.num_steps"  
         step="1" 
         value="1"  
        >
-        <input matSliderThumb  (valueChange)="zoomChange($event, 'slider')" >
+        <input matSliderThumb  (valueChange)="zoomChange($event)" >
       </mat-slider>
      
   

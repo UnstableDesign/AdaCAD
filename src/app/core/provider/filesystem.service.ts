@@ -169,6 +169,7 @@ export class FilesystemService {
   }
 
   public setCurrentFileId(id: number){
+    console.log("SETTING FILE ID TO ", id)
     this.current_file_id = id;
   }
 
@@ -439,11 +440,12 @@ getFile(fileid: number) : Promise<any> {
 
     const db = getDatabase();
     const ref = fbref(db, 'filedata/'+fileid);
-
+    console.log("WRITING ", fileid, cur_state)
 
     update(ref,{ada: cur_state})
     .then(success => {
       const item = this.getLoadedFile(fileid);
+      console.log("GOT ITEM ", item)
       item.last_saved_time = Date.now();
 
     })

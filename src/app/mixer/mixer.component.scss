@@ -1,4 +1,16 @@
 
+.mat-mdc-icon-button{
+  font-size: 14px;
+}
+
+.mat-mdc-outlined-button{
+  width: 100%;
+  text-wrap: pretty;
+  padding: 8px;
+  margin: 2px;
+  height: fit-content;
+}
+
 #saver{
   z-index: -1;
 }
@@ -14,9 +26,6 @@
 }
 
 .palette{
-  display: flex;
-  flex: 0 1 100%;
-  flex-direction: row;
   height: 100%;
   overflow: scroll;
 }
@@ -28,19 +37,15 @@
 }
 
 h3{
-  width: 90%;
   text-align: left;
-  font-style: italic;
-  padding-bottom: 6px;
-  border-top: thin solid #999;
+  font-weight: lighter;
+  padding-bottom: 0px;
   color: #999;
-  margin-top: 6px;
+  margin-top: 24px;
 }
 
 
 .mat-expansion-panel-header{
-  font-size: .8em;
-
   i{
       padding-right: 8px;
   }

@@ -4,7 +4,7 @@ import { ZoomService } from '../../core/provider/zoom.service';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import { Cell, Draft, Drawdown, Interlacement, Loom, LoomSettings } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
-import { createBlankDrawdown, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getDraftAsImage, hasCell, initDraftWithParams, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isSet, isUp, pasteIntoDrawdown, setHeddle, warps, wefts } from '../../core/model/drafts';
+import { copyDraft, createBlankDrawdown, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getDraftAsImage, hasCell, initDraftWithParams, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isSet, isUp, pasteIntoDrawdown, setHeddle, warps, wefts } from '../../core/model/drafts';
 import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { FileService } from '../../core/provider/file.service';
@@ -298,7 +298,7 @@ export class DraftComponent implements OnInit {
 
 
 
-    this.rescale(this.zs.zoom);
+    this.rescale();
 
   }
 
@@ -368,9 +368,9 @@ export class DraftComponent implements OnInit {
       adj = Math.min(width_adj, height_adj);
      
       
-      this.zs.setZoom(adj);
+      if(adj !== 0) this.zs.setZoom(adj);
       
-      this.rescale(adj);     
+      this.rescale();     
 
   }
 
@@ -380,6 +380,7 @@ export class DraftComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {  
 
+    console.log("ON NEW DRAFT LOADED ", id)
     this.id = id;  
 
     if(id == -1) return;
@@ -1246,7 +1247,6 @@ export class DraftComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
     var newSystem = this.ss.getNextWarpSystem(j,draft);
-    console.log(newSystem, j);
     draft.colSystemMapping[j] = newSystem;
     this.colSystemMapping = draft.colSystemMapping.slice();
 
@@ -1756,9 +1756,10 @@ export class DraftComponent implements OnInit {
    * receives offset of the scroll from the CDKScrollable created when the scroll was initiated
    */
   //this does not draw on canvas but just rescales the canvas
-  public rescale(zoom: number){
+  public rescale(){
+
+    let zoom = this.zs.zoom;
   //   //var dims = this.render.getCellDims("base");
-  console.log("RESCALED TO  ", zoom)
     const container: HTMLElement = document.getElementById('draft-scale-container');
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + zoom + ')';
@@ -1922,6 +1923,8 @@ export class DraftComponent implements OnInit {
 
 public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
 
+  console.log("DRAW DRAWDOWN ", draft, this.render.getCurrentView(), loom, loom_settings)
+
    switch(this.render.getCurrentView()){
       case 'draft':
       this.redrawDraft(draft, loom, loom_settings);
@@ -1977,6 +1980,7 @@ public clearAll(){
 
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
+  console.log("REDRAW ! ", copyDraft(draft), flags)
 
     var base_dims = this.render.getCellDims("base");
     this.colSystemMapping = draft.colSystemMapping;
@@ -2010,6 +2014,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    */
   public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
     
+    console.log("REDRAW DRAFT", this.canvasEl)
+
     var base_dims = this.render.getCellDims("base");
     let cell_size = base_dims.w;
     const draft_cx = this.canvasEl.getContext("2d");
@@ -3016,7 +3022,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
   public renderChange(){
 
-    this.rescale(this.zs.zoom);     
+
+    this.rescale();     
 
   }
 

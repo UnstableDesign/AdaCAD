@@ -161,8 +161,6 @@ getVisVariables(){
     this.pixel_ratio = dpr/bsr;
 
     let cell_size = this.calculateCellSize(draft);
-    console.log("cell size IS ", cell_size)
-
 
     if(this.draft_canvas === undefined) return;
     this.draft_cx = this.draft_canvas.getContext("2d");
