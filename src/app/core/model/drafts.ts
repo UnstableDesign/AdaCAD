@@ -45,6 +45,8 @@ import utilInstance from "./util";
   return copy_draft;
 }
 
+
+
 /**
  * creates a draft based on the params provided.
  * @param params allowable params are id, weft, warp, drawdown, pattern, ud_name, gen_name, rowShuttleMapping, rowSystemMapping, colShuttleMapping, colSystemMapping.

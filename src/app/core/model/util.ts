@@ -7,7 +7,7 @@ import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.compone
 import { MaterialMap } from "../provider/materials.service";
 import { getCellValue, setCellValue } from "./cell";
 import { Point, Interlacement, Bounds, Draft, Loom, LoomSettings, Material, Cell } from "./datatypes";
-import { hasCell, initDraftWithParams, warps, wefts } from "./drafts";
+import { hasCell, initDraftWithParams, isSet, warps, wefts } from "./drafts";
 import { createMaterial, setMaterialID } from "./material";
 
 
@@ -58,6 +58,53 @@ class Util {
 
     }
 
+      /**
+       * a blank draft is one where the drawdown is set to all heddle down 
+       * the row and column info is all set to a uniform value.
+       * @param d 
+       */
+      isBlankDraft = (d: Draft, loom: Loom) : boolean => {
+
+        let has_value = false;
+        d.drawdown.forEach((row) => {
+          row.forEach((cell) => {
+            if(cell.is_up) has_value = true;
+          })
+        })
+
+        if(has_value) return false;
+        
+        let row_shuttle_unique = this.filterToUniqueValues(d.rowShuttleMapping);
+        let col_shuttle_unique = this.filterToUniqueValues(d.colShuttleMapping);
+        let row_system_unique = this.filterToUniqueValues(d.rowSystemMapping);
+        let col_system_unique = this.filterToUniqueValues(d.colSystemMapping);
+
+        if(row_shuttle_unique.length > 1) return false;
+        if(col_shuttle_unique.length > 1) return false;
+        if(row_system_unique.length > 1) return false;
+        if(col_system_unique.length > 1) return false;
+
+        if(loom == null) return true;
+
+        loom.threading.forEach(frame => {
+          if(frame !== -1) return false;
+        });
+
+        loom.treadling.forEach(pick => {
+          if(pick.length !== 0) return false;
+        });
+
+        has_value = false;
+        loom.tieup.forEach((row) => {
+          row.forEach((cell) => {
+            if(cell === true) has_value = true;
+          })
+        })
+        
+        return !has_value;
+    
+
+      }
      /**
     * given a drawdown and a column index, return if the column is blank
     * @param j 

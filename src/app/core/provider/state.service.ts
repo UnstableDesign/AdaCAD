@@ -66,7 +66,7 @@ export class StateService {
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
 
-    console.log("adding mixer history state ", ada.file);
+    console.log("adding mixer history state ", this.files.getCurrentFileId(), ada.file);
 
     this.files.updateCurrentStateInLoadedFiles(this.files.getCurrentFileId(), ada.file);
 
@@ -99,7 +99,7 @@ export class StateService {
         }
       })
 
-      this.files.writeFileData(user.uid, this.files.getCurrentFileId(), ada.file)
+      this.files.writeFileData(this.files.getCurrentFileId(), ada.file)
     } 
   }
 

@@ -32,6 +32,7 @@ import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { ViewerComponent } from './viewer/viewer.component';
+import utilInstance from './core/model/util';
 
 
 
@@ -83,7 +84,6 @@ export class AppComponent implements OnInit{
   selected_draft_id: number =1;
 
   redraw_viewer: boolean = false;
-
 
   constructor(
     public auth: AuthService,
@@ -386,7 +386,7 @@ export class AppComponent implements OnInit{
     }else{
 
       if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
-    
+
         this.auth.getMostRecentFileIdFromUser(user).then(async fileid => {
 
           if(fileid !== null){
@@ -410,7 +410,6 @@ export class AppComponent implements OnInit{
               }
 
           }else{
-              console.log("LOOKING FOR ADA FILE")
              this.auth.getMostRecentAdaFromUser(user).then(async adafile => {
                 console.log("ADA FILE IS ", adafile)
                 if(adafile !== null){
@@ -471,8 +470,27 @@ export class AppComponent implements OnInit{
   }
 
 
+  /**
+   * this function checks if the user has already started designing so that logging in does not override. 
+   * it does this by checking if there is one or viewer drafts in the tree
+   * @returns 
+   */
   isBlankWorkspace() : boolean {
-    return this.tree.nodes.length == 0;
+
+    if(this.tree.nodes.length == 0) return true;
+    else if(this.tree.nodes.length == 1){
+      let node = this.tree.nodes[0];
+      if(node.type == 'draft'){
+        let d = this.tree.getDraft(node.id);
+        let loom = this.tree.getLoom(node.id);
+        return utilInstance.isBlankDraft(d, loom);
+      }else{
+        return false;
+      }
+    }else{
+      return false;
+    }
+
   }
 
   async switchFile(id: any){
@@ -494,7 +512,6 @@ export class AppComponent implements OnInit{
 
   //must be online
   async loadFromDB(fileid: number){
-    this.clearAll();
     const ada = await this.files.getFile(fileid);
     const meta = await this.files.getFileMeta(fileid); 
     this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
@@ -576,6 +593,13 @@ export class AppComponent implements OnInit{
       this.files.setCurrentFileId(result.id);
       this.processFileData(result.data)
       .then(data => {
+
+        if(this.tree.nodes.length > 1){
+          this.selected_editor_mode = 'mixer';
+        }else{
+          this.editor.generateNewBlankDraft();
+        }
+
         this.saveFile();
       })
     }else{
@@ -583,6 +607,12 @@ export class AppComponent implements OnInit{
       .then(res => {
         return this.processFileData(result.data)
       }).then(data => {
+        if(this.tree.nodes.length > 1){
+          this.selected_editor_mode = 'mixer';
+        }else{
+          this.editor.generateNewBlankDraft();
+        }
+
           this.saveFile();
       }).catch(e => {
         console.log(e, "CAUGHT ERROR through from process file data")
@@ -963,7 +993,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
         el.draft = initDraftWithParams({warps: 1, wefts: 1, pattern: [[createCell(false)]]});
         el.draft.id = el.id;
       } else{
-        console.log("removing node ", el.id, el.type, this.tree.hasParent(el.id));
         this.tree.removeNode(el.id);
       } 
     })
@@ -1107,6 +1136,7 @@ setDraftsViewable(val: boolean){
 }
 
 showDraftDetails(id: number){
+  console.log("SHOW DRAFT ", id)
   this.editor.loadDraft(id);
   let draft = this.tree.getDraft(id);
   let loom_settings = this.tree.getLoomSettings(id);

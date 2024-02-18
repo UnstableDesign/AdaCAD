@@ -336,7 +336,7 @@ export class FilesystemService {
   convertAdaToFile(uid: string, ada: any) : Promise<number>{
     
    const fileid = this.generateFileId();
-   this.writeFileData(uid, fileid, ada);
+   this.writeFileData(fileid, ada);
    this.writeNewFileMetaData(uid, fileid, 'recovered draft', '')
    return Promise.resolve(fileid);
     
@@ -433,7 +433,7 @@ getFile(fileid: number) : Promise<any> {
    * @param cur_state 
    * @returns 
    */
-  writeFileData(uid: string, fileid: number, cur_state: SaveObj) {
+  writeFileData(fileid: number, cur_state: SaveObj) {
 
 
     if(!this.connected) return;
