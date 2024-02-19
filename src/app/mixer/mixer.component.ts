@@ -51,6 +51,7 @@ export class MixerComponent  {
   @ViewChild(PaletteComponent) palette;
 
   @Output() onDraftDetailOpen: any = new EventEmitter();
+  @Output() refreshViewer: any = new EventEmitter();
   @Output() onFocusView: any = new EventEmitter();
 
 
@@ -179,6 +180,10 @@ addOperation(name: string){
   const outputs = this.tree.getNonCxnOutputs(id);
   if(outputs.length > 0) this.onDraftDetailOpen.emit(outputs[0]);
   //focus this is the detail view
+}
+
+onRefreshViewer(){
+  this.refreshViewer.emit();
 }
 
 

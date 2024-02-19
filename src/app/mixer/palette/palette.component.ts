@@ -33,6 +33,7 @@ export class PaletteComponent implements OnInit{
 
   @Output() onDesignModeChange: any = new EventEmitter();  
   @Output() onRevealDraftDetails: any = new EventEmitter();  
+  @Output() refreshViewer: any = new EventEmitter();  
 
   /**
    * A container that supports the automatic generation and removal of the components inside of it
@@ -485,19 +486,17 @@ handlePan(diff: Point){
    * dynamically creates a a note component
    * @returns the created note instance
    */
-   createNote(note: any):NoteComponent{
+   createNote(note: Note):NoteComponent{
 
   
     let tl: Point = null;
-    if(note.topleft === undefined) console.log("INTERLACEMENT ", note.interlacement)
-
 
 
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
     this.setNoteSubscriptions(notecomp.instance);
 
-    if(note === null || note.topleft == null){
+    if(note === null || note.topleft == null || note.topleft === undefined){
       tl = this.viewport.getCenterPoint();
     }else{
       tl = {
@@ -702,8 +701,8 @@ handlePan(diff: Point){
       op.instance.zndx = this.layers.createLayer();
       op.instance.default_cell = this.default_cell_size;
 
-      const tr =  this.viewport.getTopRight()
-      op.instance.topleft ={x: tr.x - 340, y: tr.y+120};
+      const tr =  this.viewport.getCenterPoint()
+      op.instance.topleft ={x: tr.x, y: tr.y};
 
      
 
@@ -791,7 +790,6 @@ handlePan(diff: Point){
         
       cxn.instance.id = id;
       cxn.instance.scale = this.zs.zoom;
-      cxn.instance.default_cell_size = this.default_cell_size;
 
     }
 
@@ -810,7 +808,6 @@ handlePan(diff: Point){
       
       cxn.instance.id = id;
       cxn.instance.scale = this.zs.zoom;
-      cxn.instance.default_cell_size = this.default_cell_size;
 
       this.setConnectionSubscriptions(cxn.instance);
 
@@ -1697,7 +1694,7 @@ const op_children = this.tree.getNonCxnOutputs(op_id);
     if(div !== null) div.style.opacity = ".2";
   }else{
     cxn.show_path_text = true;
-    cxn.drawConnection(this.zs.zoom);
+    cxn.drawConnection();
   }
  })
 
@@ -1721,7 +1718,7 @@ resetOpacity(){
     const div = document.getElementById("scale-"+cxn.id);
     if(div !== null)  div.style.opacity = "1"
     cxn.show_path_text = false;
-    cxn.drawConnection(this.zs.zoom);
+    cxn.drawConnection();
 
   });
 
@@ -2335,12 +2332,12 @@ pasteConnection(from: number, to: number, inlet: number){
 
     this.tree.getInputs(id).forEach(cxn => {
        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-       if(comp !== null) comp.updateToPosition(id, this.zs.zoom);
+       if(comp !== null) comp.updateToPosition(id);
     });
 
     this.tree.getOutputs(id).forEach(cxn => {
       const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-      if(comp !== null) comp.updateFromPosition(id, this.zs.zoom);
+      if(comp !== null) comp.updateFromPosition(id);
    });
 
    if(!follow) return;
@@ -2421,6 +2418,7 @@ pasteConnection(from: number, to: number, inlet: number){
           this.removeFromViewContainer(el)
         });
         this.addTimelineState();
+        this.refreshViewer.emit();
       })
       .catch(console.error);
    

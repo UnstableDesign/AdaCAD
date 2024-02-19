@@ -156,6 +156,7 @@
     id="mixer" 
     cdkScrollable
     (onFocusView)="focusUIView('mixer', false)"
+    (refreshViewer)="onRefreshViewer()"
     (onDraftDetailOpen)="showDraftDetails($event)"
     >
     </app-mixer> 
@@ -170,7 +171,7 @@
     (onFocusView)="focusUIView('detail', false)"
     (onCollapseView)="collapseFullScreen()"
     (saveChanges)="saveFile()"
-    (redrawViewer)="redrawViewer()"
+    (redrawViewer)="onRefreshViewer()"
     (createNewDraftOnMixer)="createNewDraftOnMixer($event)"
     (updateMixer)="updateMixer()"
       ></app-editor>

@@ -1191,7 +1191,7 @@ showDraftDetails(id: number){
     /**
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    */
-  redrawViewer(){
+  onRefreshViewer(){
 
     this.viewer.redraw(this.selected_draft_id);
 

@@ -14,7 +14,6 @@ export class ConnectionComponent implements OnInit {
 
   @Input() id: number;
   @Input() scale: number;
-  @Input() default_cell_size: number;
   @Output() onConnectionRemoved = new EventEmitter <any>();
 
 
@@ -73,10 +72,10 @@ export class ConnectionComponent implements OnInit {
     const from = this.tree.getConnectionInput(this.id);
 
 
-     this.updateFromPosition(from, this.zs.zoom);
-     this.updateToPosition(to, this.zs.zoom);
+     this.updateFromPosition(from);
+     this.updateToPosition(to);
 
-     this.drawConnection(this.zs.zoom)
+     this.drawConnection()
 
 
   }
@@ -121,7 +120,7 @@ export class ConnectionComponent implements OnInit {
    * unless the to node is a dynamic operation, in which case we must move to an inlet. 
    * @param to the id of the component this connection goes to
    */
-  updateToPosition(to: number, scale: number){
+  updateToPosition(to: number){
 
 
 
@@ -148,7 +147,7 @@ export class ConnectionComponent implements OnInit {
 
 
     this.calculateBounds();
-    this.drawConnection(scale);
+    this.drawConnection();
   }
 
 
@@ -156,7 +155,7 @@ export class ConnectionComponent implements OnInit {
    * connections can come from a subdraft or an operation component 
    * @param from the id of the component this connection goes to
    */
-  updateFromPosition(from: number, scale: number){
+  updateFromPosition(from: number){
 
     let parent = document.getElementById('scrollable-container').getBoundingClientRect();
     let sd_container = document.getElementById(from+'-out').getBoundingClientRect();
@@ -177,7 +176,7 @@ export class ConnectionComponent implements OnInit {
   }
 
     this.calculateBounds();
-    this.drawConnection(scale);
+    this.drawConnection();
     
    }
 
@@ -217,14 +216,14 @@ export class ConnectionComponent implements OnInit {
 
 
   
-  drawConnection(scale: number){
+  drawConnection(){
 
 
     const stublength = 15;
     const connector_opening = 10;
     // const connector_font_size = Math.max((10 - scale) / 10, .75);
     const connector_font_size = 2;
-    const text_path_font_size =   Math.max((10 - scale) / 10, .75);
+    const text_path_font_size =   Math.max((10 - this.zs.zoom) / 10, .75);
     const button_margin_left = -20;
     const button_margin_top = -16;
     
@@ -336,11 +335,6 @@ export class ConnectionComponent implements OnInit {
    * @param scale 
    */
   rescale(){
-
-    const zoom_factor =  this.zs.zoom;
-    const container: HTMLElement = document.getElementById('scale-'+this.id);
-    if(container === null) return;
-
 
   }
 
