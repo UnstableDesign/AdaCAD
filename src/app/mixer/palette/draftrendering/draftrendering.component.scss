@@ -173,14 +173,10 @@ button.output{
 	justify-content: center;
 }
 
-.outlet_row{
-    display: flex;
-    flex-direction: row;
-    color: black;
-	position: relative;
-    top: -24px;
-    left: 16px;
-}
+
+
+
+
 
 .outlet{
 	background-color: transparent;
@@ -196,11 +192,14 @@ button.output{
 	
 }
 
-
+.outlet_row{
+	position: relative;
+	top: 12px;
+    left: 8px;
+}
 
 
 .subdraft-container{
-	background: rgba(255, 255, 255, 0.8);
 	display: flex;
 	flex-direction: column;
 	justify-content:flex-start;
@@ -231,10 +230,7 @@ button.output{
     flex-direction: row;
     justify-content: space-between;
 	align-items: center;
-    padding: 8px 0px;
     color: #555;
-    height: 40px;
-	
 }
 
 

@@ -5,6 +5,7 @@ import { FilesystemService } from '../core/provider/filesystem.service';
 import { MaterialsService } from '../core/provider/materials.service';
 import { TreeService } from '../core/provider/tree.service';
 import { SimulationComponent } from './simulation/simulation.component';
+import { AuthService } from '../core/provider/auth.service';
 
 @Component({
   selector: 'app-viewer',
@@ -29,6 +30,7 @@ export class ViewerComponent {
 
 
   constructor(
+    public auth: AuthService,
     public files: FilesystemService, 
     private ms: MaterialsService,
     private tree: TreeService){

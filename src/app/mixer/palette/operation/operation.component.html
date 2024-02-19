@@ -87,10 +87,11 @@ cdkDragBoundary=".palette"
 
 
       <div class="outputs">
-        <app-draftrendering class="draftrendering" 
+        <app-draftrendering class="draftrendering from_operation" 
         *ngFor="let child_id of children" 
         [id]="child_id" 
         [dirty]="redrawchildren"
+        [source]="operation"
         [hasParent]="true"
         (connectionSelected)="connectionStarted($event)"
         (onDuplicateCalled)="designActionChange($event)"

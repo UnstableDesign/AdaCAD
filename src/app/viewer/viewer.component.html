@@ -72,14 +72,24 @@
   </mat-expansion-panel-header>
 
 
-      <button  mat-flat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> New Workspace</button>
+      <button  mat-flat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> New Project</button>
 
-      <button mat-flat-button  (click)="manageFiles()" ><i class="fa-solid fa-file"></i> Manage Workspaces</button>
+      <button 
+      mat-flat-button  
+      [disabled] = "!auth.isLoggedIn"
+      matTooltip="you must be logged in to save projects"
+      (click)="manageFiles()" >
+      <i class="fa-solid fa-file"></i> Manage Projects
+     </button>
 
-      <button  mat-flat-button (click)="openMaterials()"><i class="fa-solid fa-palette"></i> Manage Materials</button> 
+      <button  
+      mat-flat-button
+      (click)="openMaterials()">
+      <i class="fa-solid fa-palette"></i> Manage Materials
+    </button> 
 
-       <button  mat-flat-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
-       
+       <!-- <button  mat-flat-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
+        -->
   </mat-expansion-panel>
 
   

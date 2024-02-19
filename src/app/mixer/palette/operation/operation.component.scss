@@ -25,6 +25,16 @@
         
     }
 
+   .outlet_row{
+        display: flex;
+        flex-direction: row;
+        color: blue;
+        position: relative;
+        top: -24px;
+        left: 16px;
+    }
+    
+
   
 }
 
