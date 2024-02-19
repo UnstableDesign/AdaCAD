@@ -153,7 +153,7 @@ flex-direction: row;
 button.output.active,
 button.output:active,
 button.output:hover{
-	color: white;
+	color: #ff4081;
 }
 
 
@@ -170,14 +170,16 @@ button.output{
 .single_line{
 	display: flex;
 	flex-direction: row;
+	justify-content: center;
 }
 
 .outlet_row{
-    height: 34px;
     display: flex;
     flex-direction: row;
-    padding-top: 9px;
     color: black;
+	position: relative;
+    top: -24px;
+    left: 16px;
 }
 
 .outlet{
@@ -313,12 +315,6 @@ h3{
 	background-color: transparent;
 }
 	
-
-
-.is-active{
-	background: #00d1b2;
-	background: #00000070
-}
 
 
 svg{

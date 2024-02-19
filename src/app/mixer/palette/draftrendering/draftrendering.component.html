@@ -14,11 +14,6 @@
       </button>
 
 
-      <button mat-icon-button
-      [matMenuTriggerFor]="subdraftOptions"
-      class="is-small fa-solid fa-ellipsis"
-      matTooltip ="View Options">
-      </button>
 
       <mat-menu #subdraftOptions>
       
@@ -32,32 +27,31 @@
       </button>
   
   
-      <button mat-icon-button
+      <button mat-flat-button
       matTooltip= "Duplicate"
-      class="fa fa-clone"
       name="duplicate"
       (click)="designActionChange('duplicate')">
+      <i class="fa-solid fa-clone"></i> duplicate
       </button>
       
-      <button mat-icon-button
-      class="fas fa-download"
+      <button mat-flat-button
       (click)="saveAsBmp()"
       matTooltip ="Download as Bitmap">
-
+      <i class="fa-solid fa-download"></i> download as bitmap
       </button>
-      <button mat-icon-button
+      <button mat-flat-button
       (click)="saveAsPrint()"
-      class="fa-solid fa-file-image"
       matTooltip ="Download as Printable Image">
+      <i class="fa-solid fa-image"></i> download as image
       </button>
 
   
     
-      <button mat-icon-button *ngIf='!hasParent'
+      <button mat-flat-button *ngIf='!hasParent'
       matTooltip= "Delete"
-      class="fas fa-times"
       [name]="delete"
       (click)="designActionChange('delete')">
+      <i class="fa-solid fa-x"></i>  delete 
       </button>
 
       
@@ -67,6 +61,13 @@
 
     </div>
 
+
+
+    <button mat-icon-button
+    [matMenuTriggerFor]="subdraftOptions"
+    class="is-small fa-solid fa-ellipsis"
+    matTooltip ="View Options">
+    </button>
     <!-- <div id="slider" *ngIf="!exceeds_size">
       <mat-slider 
       [(ngModel)]="draft_cell_size"
@@ -79,12 +80,7 @@
         </mat-slider>
     </div> -->
 
-    <button mat-icon-button *ngIf='!hasParent'
-    matTooltip= "Delete"
-    class="fas fa-times"
-    [name]="delete"
-    (click)="designActionChange('delete')">
-    </button>
+
   </div>
 
 
@@ -154,7 +150,7 @@
   [class.active]="selecting_connection"
   matTooltip = "connect this draft to an operation"
   (click)="connectionStarted($event)">
-  <i class="fa-sharp fa-solid fa-circle-down"></i>
+    <i class="fa-sharp fa-solid fa-circle-down"></i>
   </button>
 
 
