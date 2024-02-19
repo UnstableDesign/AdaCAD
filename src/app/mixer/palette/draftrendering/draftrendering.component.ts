@@ -20,6 +20,7 @@ export class DraftrenderingComponent {
   @Output() connectionSelected = new EventEmitter();
   @Output() onDuplicateCalled = new EventEmitter();
   @Output() onDeleteCalled = new EventEmitter();
+  @Output() onSelectCalled = new EventEmitter();
   @ViewChild('bitmapImage') bitmap: any;
 
   draft_canvas: HTMLCanvasElement;
@@ -85,6 +86,10 @@ export class DraftrenderingComponent {
   connectionStarted(event){
     this.selecting_connection = true;
     this.connectionSelected.emit({event: event, id: this.id});
+  }
+
+  selectDraft(){
+    this.onSelectCalled.emit(this.id)
   }
 
 

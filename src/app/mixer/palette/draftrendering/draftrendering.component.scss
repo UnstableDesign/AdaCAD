@@ -4,6 +4,10 @@ canvas{
 	height: fit-content;
   }
 
+.mat-mdc-icon-button {
+	font-size: 14px;
+}
+
 .top-half-draft{
 display: flex;
 flex-direction: row;
@@ -223,7 +227,8 @@ button.output{
 .bottom-opts{
 	display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
+	align-items: center;
     padding: 8px 0px;
     color: #555;
     height: 40px;

@@ -31,6 +31,7 @@ export class OperationComponent implements OnInit {
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
+   
 
 
    @Input()
@@ -94,6 +95,7 @@ export class OperationComponent implements OnInit {
  
    topleft: Point = {x: 0, y:0};
 
+   selected_draft_id: number = -1;
 
   //  bounds: Bounds = {
   //    topleft: {x: 0, y:0},

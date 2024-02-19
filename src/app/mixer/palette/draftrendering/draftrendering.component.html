@@ -5,16 +5,14 @@
 
     <div id="subdraft-details"> 
 
-      <button *ngIf="!exceeds_size"
+      <button *ngIf="!exceeds_size && !hasParent"
       mat-icon-button
       class="is-small fa-solid"
-      [class.fa-chess-board] = 'use_colors'
-      [class.fa-rug] = '!use_colors'
-      matTooltip ="Toggle Material View"
-      (click)="toggleDraftRendering()">
+      matTooltip ="Select Draft"
+      (click)="selectDraft()">
+      <i class="fa-solid fa-magnifying-glass"></i>
       </button>
 
-    
 
       <button mat-icon-button
       [matMenuTriggerFor]="subdraftOptions"
@@ -128,12 +126,14 @@
 
 <div class="single_line">
   <div class="dims">{{warps}} x {{wefts}}</div>
-  <div >
+  <!-- <div >
+    <mat-form-field>
     <input matInput  [(ngModel)]="ud_name" 
     [placeholder]="tree.getDraft(id).gen_name"  
     (focusout)="nameFocusOut($event)"
     (change)="updateName()">
-   </div>
+  </mat-form-field>
+   </div> -->
    </div>
 
 

@@ -103,6 +103,8 @@ export class PaletteComponent implements OnInit{
    visible_op: number = -1;
 
    visible_op_inlet: number = -1;
+
+   selected_draft_id: number = -1;
   
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
@@ -479,6 +481,22 @@ handlePan(diff: Point){
 
 
   revealDraftDetails(id: number){
+    console.log("REVEAL DETAILS", id)
+    this.selected_draft_id = id;
+
+    let sds = this.tree.getDraftNodes();
+    sds.forEach(node => {
+      if(node.component !== null)
+      (<SubdraftComponent>node.component).selected_draft_id = id;
+    })
+
+    let ops = this.tree.getOpNodes();
+    ops.forEach(node => {
+      if(node.component !== null)
+      (<OperationComponent>node.component).selected_draft_id = id;
+    })
+
+
     this.onRevealDraftDetails.emit(id);
   }
 
@@ -580,7 +598,7 @@ handlePan(diff: Point){
    
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
-    subdraft.instance.default_cell = this.default_cell_size;
+    subdraft.instance.selected_draft_id = this.selected_draft_id;
     subdraft.instance.scale = this.zs.zoom;
 
 
@@ -603,7 +621,7 @@ handlePan(diff: Point){
 
     subdraft.instance.id = id;
     subdraft.instance.draft = this.tree.getDraft(id);
-    subdraft.instance.default_cell = this.default_cell_size;
+    subdraft.instance.selected_draft_id = this.selected_draft_id;
     subdraft.instance.scale = this.zs.zoom;
 
     return Promise.resolve(subdraft.instance);
@@ -629,7 +647,7 @@ handlePan(diff: Point){
     node.ref = subdraft.hostView;
     this.setSubdraftSubscriptions(subdraft.instance);
     subdraft.instance.id = id;
-    subdraft.instance.default_cell = this.default_cell_size;
+    subdraft.instance.selected_draft_id = this.selected_draft_id;
     subdraft.instance.scale = this.zs.zoom;
     subdraft.instance.draft_visible = true;
     subdraft.instance.use_colors = true;
@@ -925,7 +943,7 @@ handlePan(diff: Point){
           const sd: SubdraftComponent = <SubdraftComponent> dn.component;
          
           sd.id = -1;
-          sd.default_cell = this.default_cell_size;
+          sd.selected_draft_id = this.selected_draft_id;
           sd.scale = this.zs.zoom;
           sd.draft = d;
           sd.setAsPreview();
@@ -2509,7 +2527,6 @@ pasteConnection(from: number, to: number, inlet: number){
    */
   subdraftMoved(obj: any){
 
-      console.log("Subdraft moved")
       if(obj === null) return;
   
       //get the reference to the draft that's moving

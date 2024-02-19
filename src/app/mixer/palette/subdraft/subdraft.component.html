@@ -4,6 +4,7 @@
 id="scale-{{id}}" 
 class="subdraft-parent-container selectable-{{!disable_drag}}" 
 [class.is_preview] = "is_preview"
+[class.is_selected]="selected_draft_id == id"
 	cdkDrag
 	cdkDragBoundary=".palette"
 	(mousedown)="mousedown($event)"
@@ -16,13 +17,13 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 	(cdkDragEnded)="dragEnd($event)"
 	(cdkDragStarted)="dragStart($event)">
 
-
 	<app-draftrendering 
 	#draftrendering 
 	[id]="id" 
 	[dirty]="false"
 	[hasParent]="false"
 	(connectionSelected)="connectionStarted($event)"
+	(onSelectDraft)="selectDraft($event)"
 	(onDuplicateCalled)="designAction($event)"
 	(onDeleteCalled)="designAction($event)"
 	></app-draftrendering>
