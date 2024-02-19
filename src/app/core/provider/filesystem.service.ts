@@ -169,7 +169,6 @@ export class FilesystemService {
   }
 
   public setCurrentFileId(id: number){
-    console.log("SETTING FILE ID TO ", id)
     this.current_file_id = id;
   }
 

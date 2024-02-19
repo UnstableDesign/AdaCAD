@@ -141,6 +141,7 @@ getVisVariables(){
    */
   async drawDraft(id: number, floats: boolean, use_colors: boolean) : Promise<any> {
 
+
     if(id == -1) return;
 
 

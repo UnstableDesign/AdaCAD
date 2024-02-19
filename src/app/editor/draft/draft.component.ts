@@ -380,7 +380,6 @@ export class DraftComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {  
 
-    console.log("ON NEW DRAFT LOADED ", id)
     this.id = id;  
 
     if(id == -1) return;
@@ -1923,7 +1922,6 @@ export class DraftComponent implements OnInit {
 
 public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
 
-  console.log("DRAW DRAWDOWN ", draft, this.render.getCurrentView(), loom, loom_settings)
 
    switch(this.render.getCurrentView()){
       case 'draft':
@@ -1980,7 +1978,6 @@ public clearAll(){
 
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
-  console.log("REDRAW ! ", copyDraft(draft), flags)
 
     var base_dims = this.render.getCellDims("base");
     this.colSystemMapping = draft.colSystemMapping;
@@ -2014,8 +2011,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    */
   public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
     
-    console.log("REDRAW DRAFT", this.canvasEl)
-
     var base_dims = this.render.getCellDims("base");
     let cell_size = base_dims.w;
     const draft_cx = this.canvasEl.getContext("2d");

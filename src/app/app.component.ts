@@ -188,6 +188,8 @@ export class AppComponent implements OnInit{
     const loom_settings: LoomSettings = obj.loom_settings;
     let id = this.mixer.newDraftCreated(draft, loom, loom_settings);
 
+    console.log("CREATED DRAFT AT ", id)
+
     this.tree.setDraftOnly(id, draft);
     this.tree.setLoom(id, loom);
     this.tree.setLoomSettings(id, loom_settings);
@@ -367,7 +369,8 @@ export class AppComponent implements OnInit{
 
 
   /**
-   * this is called anytime a user event is fired
+   * this is called anytime a user event is fired, 
+   * TODO, if the person was LOGGED IN and now LOGGED OUT
    * @param user 
    */
   initLoginLogoutSequence(user:User) {
@@ -532,30 +535,12 @@ export class AppComponent implements OnInit{
 
  
 
+  /**
+   * loading the starter file will not clear the prior workspace as it assumes that the space is empty on first load
+   */
   loadStarterFile(){
-    this.clearAll();
 
-    const draft: Draft = initDraftWithParams({wefts: 10, warps: 10});
-
-    let loom: Loom = null;
-    const loom_settings: LoomSettings = {
-      treadles: this.ws.min_treadles,
-      frames: this.ws.min_frames,
-      type: this.ws.type,
-      epi: defaults.epi,
-      units:<"in"|"cm"> this.ws.units
-    };
-
-    let id = this.mixer.newDraftCreated({draft, loom, loom_settings});
-
-    this.tree.setDraftAndRecomputeLoom(id, draft, loom_settings).then(loom => {
-      this.editor.loadDraft(id);
-      this.editor.render.updateVisible(draft);
-      this.editor.weaveRef.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
-
-      return this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '')
-    }).then(res => {
-      this.selected_draft_id = draft.id;
+    this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '').then(res => {
       this.saveFile();
     });
 
