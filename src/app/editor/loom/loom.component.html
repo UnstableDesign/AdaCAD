@@ -17,7 +17,8 @@
       <input matInput name="warps" 
       [(ngModel)]="warps" 
       type="number" 
-      min="2" 
+      [min]="2" 
+      [max]="40"
       placeholder="Warp Ends" 
       (change)="warpChange(envt)"
       (blur)="warpChange(envt)"> 
@@ -32,6 +33,7 @@
       [(ngModel)]="wefts" 
       type="number" 
       min="2" 
+      max="40"
       placeholder="Weft Picks" 
       (change)="weftChange(envt)"
       (blur)="weftChange(envt)"> 

@@ -41,9 +41,9 @@
             <i class="fa-solid fa-paint-roller">
           </i></button>
           
-          <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expandViewer()"></i></button>
+          <!-- <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expandViewer()"></i></button>
 
-    
+     -->
 
 
      </mat-expansion-panel>
@@ -72,15 +72,17 @@
         </div>
         </div>
 
-        <button 
+        <!-- <button 
         mat-icon-button
         class="menu-button" 
         matTooltip= "Select Region"
         [class.is-active]="dm.isSelectedDraftEditingMode('select')"
         (click)="select()">
         <i class="fas fa-expand"></i>
-        </button>
+        </button> -->
 
+        <div class="pencils">
+          <h3>draft</h3>
         <ng-container *ngFor="let mode of draw_modes">
           <button *ngIf="mode.value !== 'material'"
           class="menu-button" 
@@ -92,7 +94,10 @@
               <span class="{{mode.icon}}"></span>
           </button>
         </ng-container>
-  
+        </div>
+        <div class="materials">
+          <h3>materials</h3>
+
           <ng-container *ngFor="let shuttle of ms.materials">
               <button class="menu-button" 
               mat-icon-button
@@ -102,19 +107,20 @@
                   <span  [style.color]="shuttle.color" ><i class="fa-solid fa-paintbrush"></i></span>
               </button>
           </ng-container>
+        </div>
       </div>
   
   
-      <button
+      <!-- <button
       matTooltip= "Set Repeats"
       mat-raised-button 
       class="fullwidth set_repeats"
       [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
-      (click)='openActions()'><i class="fas fa-magic"></i> Set Repeats</button>
+      (click)='openActions()'><i class="fas fa-magic"></i> Set Repeats</button> -->
 
       <button
       matTooltip= "Add/Edit Materials"
-      mat-raised-button 
+      mat-flat-button 
       class="fullwidth set_repeats"
       (click)='openMaterials()'><i class="fa-solid fa-paintbrush"></i> Add / Edit Materials</button>
 

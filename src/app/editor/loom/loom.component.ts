@@ -137,12 +137,17 @@ export class LoomComponent {
   
   warpChange(f: NgForm) {
   
-    const loom_settings = this.tree.getLoomSettings(this.id);
   
     if(!f.value.warps){
      f.value.warps = 2;
      this.warps = f.value.warps;
     }
+
+    if(f.value.warps > 40){
+      this.warps = 40;
+      return;
+    }
+
     this.warpNumChange({warps: f.value.warps})
     this.updateWidth();
 
@@ -155,6 +160,12 @@ export class LoomComponent {
       f.value.wefts = 2;
       this.wefts = 2;
     } 
+
+    if(f.value.wefts > 40){
+      this.wefts = 40;
+      return;
+    } 
+
     this.weftNumChange({wefts: f.value.wefts})
   
   }
