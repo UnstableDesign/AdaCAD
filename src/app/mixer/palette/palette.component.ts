@@ -104,7 +104,14 @@ export class PaletteComponent implements OnInit{
 
    visible_op_inlet: number = -1;
 
+
+     /** variables for focused view */
+
    selected_draft_id: number = -1;
+
+  has_viewer_focus:number = -1;
+
+
   
   /**
    * Constructs a palette object. The palette supports drawing without components and dynamically
@@ -343,7 +350,9 @@ handlePan(diff: Point){
       const opcomp:OperationComponent = this.createOperation(name);
       this.performAndUpdateDownstream(opcomp.id).then(el => {
         let children = this.tree.getNonCxnOutputs(opcomp.id);
+       
         if(children.length > 0) this.revealDraftDetails(children[0]);
+      
         this.addTimelineState();
       });
 
@@ -475,29 +484,30 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onShowDetails.subscribe(this.revealDraftDetails.bind(this)));
+    this.subdraftSubscriptions.push(sd.onSelectForView.subscribe(this.setViewerFocus.bind(this)));
 
   }
 
 
 
+  /**
+   * A change has been made that, in the default condiiton, would trigger it to show up
+   * in the viewer. This checks if no other item is holding focus, and if not, updates. 
+   * @param id 
+   */
   revealDraftDetails(id: number){
-    console.log("REVEAL DETAILS", id)
+    
     this.selected_draft_id = id;
+    if(this.has_viewer_focus == -1) this.onRevealDraftDetails.emit(id);
 
-    let sds = this.tree.getDraftNodes();
-    sds.forEach(node => {
-      if(node.component !== null)
-      (<SubdraftComponent>node.component).selected_draft_id = id;
-    })
+    if(this.tree.hasParent(id)){
+      let parent = this.tree.getSubdraftParent(id);
+      if(parent == this.has_viewer_focus) this.onRevealDraftDetails.emit(id);
 
-    let ops = this.tree.getOpNodes();
-    ops.forEach(node => {
-      if(node.component !== null)
-      (<OperationComponent>node.component).selected_draft_id = id;
-    })
-
-
-    this.onRevealDraftDetails.emit(id);
+    }else{
+      if(this.has_viewer_focus == id) this.onRevealDraftDetails.emit(id);
+    }
+  
   }
 
   /**
@@ -598,7 +608,6 @@ handlePan(diff: Point){
    
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
-    subdraft.instance.selected_draft_id = this.selected_draft_id;
     subdraft.instance.scale = this.zs.zoom;
 
 
@@ -621,7 +630,6 @@ handlePan(diff: Point){
 
     subdraft.instance.id = id;
     subdraft.instance.draft = this.tree.getDraft(id);
-    subdraft.instance.selected_draft_id = this.selected_draft_id;
     subdraft.instance.scale = this.zs.zoom;
 
     return Promise.resolve(subdraft.instance);
@@ -647,7 +655,6 @@ handlePan(diff: Point){
     node.ref = subdraft.hostView;
     this.setSubdraftSubscriptions(subdraft.instance);
     subdraft.instance.id = id;
-    subdraft.instance.selected_draft_id = this.selected_draft_id;
     subdraft.instance.scale = this.zs.zoom;
     subdraft.instance.draft_visible = true;
     subdraft.instance.use_colors = true;
@@ -695,6 +702,7 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
     this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.revealDraftDetails.bind(this)));
+    this.operationSubscriptions.push(op.onSelectForView.subscribe(this.setViewerFocus.bind(this)));
   }
 
 
@@ -943,7 +951,6 @@ handlePan(diff: Point){
           const sd: SubdraftComponent = <SubdraftComponent> dn.component;
          
           sd.id = -1;
-          sd.selected_draft_id = this.selected_draft_id;
           sd.scale = this.zs.zoom;
           sd.draft = d;
           sd.setAsPreview();
@@ -1886,11 +1893,47 @@ pasteConnection(from: number, to: number, inlet: number){
  }
 
  panStarted(mouse_pos: Point){
-  console.log("PAN STARTED")
   this.last_point = mouse_pos;
   this.freezePaletteObjects();
 
  }
+
+ /**
+ * the id of the operation or subdraft that is now selected
+ * @param id 
+ */
+ setViewerFocus(id: number){
+
+
+  if(this.has_viewer_focus !== -1){
+    const el = document.getElementById('scale-'+this.has_viewer_focus);
+    el.style.border = "none";
+  }
+
+  if(this.has_viewer_focus == id){
+   id = -1;
+  }
+
+  if(id !== -1){
+    const el = document.getElementById('scale-'+id);
+    el.style.border = "thick solid black";
+  }
+
+  this.has_viewer_focus = id;
+  if(this.has_viewer_focus == -1) return;
+
+  //get node - if its an op, get the children, if its a draft, just send it. 
+  let type = this.tree.getType(id);
+
+  if(type == 'op'){
+    let children = this.tree.getNonCxnOutputs(id);
+    if(children.length > 0) this.revealDraftDetails(children[0]);
+  }else{
+    this.revealDraftDetails(id);
+  }
+  
+}
+
 
  /**
  * brings the base canvas to view and begins to render the

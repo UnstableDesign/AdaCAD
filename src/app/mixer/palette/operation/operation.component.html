@@ -34,8 +34,9 @@ cdkDragBoundary=".palette"
 
 
           <button 
-          class="button is-primary fa-solid fa-magnifying-glass"
+          mat-icon-button
           (click)="selectForView()">
+          <i class="fa-solid fa-eye"></i>
           </button> 
   
 
@@ -44,24 +45,37 @@ cdkDragBoundary=".palette"
           
         </div>
 
-   
+
+
+        <button mat-icon-button
+        [matMenuTriggerFor]="editOptions"
+        class="is-small fa-solid fa-ellipsis"
+        matTooltip ="View Options">
+        </button>
+
+        <mat-menu #editOptions>
+
         <button 
-        class="button is-primary fas fa-question"
+        mat-flat-button
         (click)="openHelpDialog()">
+        <i class="fa-solid fa-circle-info"></i> help
         </button> 
 
         <button 
+        mat-flat-button
         matTooltip= "Duplicate"
-        class="button  is-primary fa fa-clone"
         (click)="duplicate()">
+        <i class="fa-solid fa-clone"></i> duplicate
         </button>
         
 
         <button 
-        class="button  is-primary"
+        mat-flat-button
         (click)="delete()">
-        <i class="fas fa-times"></i>
+        <i class="fa-solid fa-x"></i>  delete 
+
         </button>
+        </mat-menu>
        </div>
 
       <div class="params">

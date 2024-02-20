@@ -56,20 +56,29 @@ export class MixerComponent  {
 
 
   origin_options: any = null;
-  selected_origin: number = 0;
-  show_viewer: boolean = false;
-  show_details: boolean = false;
+    
   loading: boolean = false;
-  viewonly: boolean = false;
+  
   manual_scroll: boolean = false;
-  collapsed:boolean = true;
+  
   scrollingSubscription: any;
+
   selected_nodes_copy: any = null;
+
+
+  /** variables for operation search */
+
   classifications: any = [];
+  
   op_tree: any = [];
+
   filteredOptions: any = [];
+  
   myControl: FormControl;
+  
   search_error: any; 
+
+
 
   /// ANGULAR FUNCTIONS
   /**
@@ -451,9 +460,6 @@ zoomChange(e:any, source: string){
   }
 
 
-  public toggleCollapsed(){
-    this.collapsed = !this.collapsed;
-  }
 
   public createNote(note){
     this.palette.createNote(note);
@@ -515,7 +521,6 @@ zoomChange(e:any, source: string){
  */
 originChange(value: number){
 
-  this.selected_origin = value;
   this.palette.redrawAllSubdrafts(); //force a redraw so that the weft/warp system info is up to date
 
 }
@@ -524,9 +529,11 @@ originChange(value: number){
 
 
 
-
   showDraftDetails(id: number){
-    this.onDraftDetailOpen.emit(id);
+
+      this.onDraftDetailOpen.emit(id);
+  
+ 
   }
 
 

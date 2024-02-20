@@ -9,10 +9,9 @@
       mat-icon-button
       class="is-small fa-solid"
       matTooltip ="Select Draft"
-      (click)="selectDraft()">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      </button>
-
+      (click)="selectForView()">
+      <i class="fa-solid fa-eye"></i>
+      </button> 
 
 
       <mat-menu #subdraftOptions>
@@ -39,6 +38,7 @@
       matTooltip ="Download as Bitmap">
       <i class="fa-solid fa-download"></i> download as bitmap
       </button>
+
       <button mat-flat-button
       (click)="saveAsPrint()"
       matTooltip ="Download as Printable Image">

@@ -61,7 +61,7 @@ export class OperationComponent implements OnInit {
    @Output() onInletLoaded = new EventEmitter <any> ();
    @Output() onOpLoaded = new EventEmitter <any> ();
    @Output() onShowChildDetails = new EventEmitter <any> ();
-
+   @Output() onSelectForView = new EventEmitter <any> ();
 
 
    params_visible: boolean = true;
@@ -94,8 +94,6 @@ export class OperationComponent implements OnInit {
    disable_drag: boolean = false;
  
    topleft: Point = {x: 0, y:0};
-
-   selected_draft_id: number = -1;
 
   //  bounds: Bounds = {
   //    topleft: {x: 0, y:0},
@@ -251,15 +249,17 @@ export class OperationComponent implements OnInit {
 
   mousedown(e: any){
 
-    this.selectForView();
-    e.stopPropagation();
-  }
-
-  selectForView(){
     if(this.children.length > 0){
       let child = this.children[0];
       this.onShowChildDetails.emit(child);
     }
+    e.stopPropagation();
+  }
+
+
+
+  selectForView(){
+      this.onSelectForView.emit(this.id);
   }
 
 

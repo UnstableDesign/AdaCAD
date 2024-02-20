@@ -88,8 +88,9 @@ export class DraftrenderingComponent {
     this.connectionSelected.emit({event: event, id: this.id});
   }
 
-  selectDraft(){
-    this.onSelectCalled.emit(this.id)
+  selectForView(){
+    console.log("SELECTED IN DRAFT RENDERING ")
+    this.onSelectCalled.emit()
   }
 
 

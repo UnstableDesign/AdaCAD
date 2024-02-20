@@ -143,8 +143,6 @@ export class EditorComponent implements OnInit {
    */
   generateNewBlankDraft(){
 
-    console.log("GENERATING NEW DRAFT")
-
 
   //if it has a parent and it does not yet have a view ref. 
  //this.tree.setSubdraftParent(id, -1)
