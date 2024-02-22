@@ -6,7 +6,8 @@ sidebar_position: 1
 
 
 # What is AdaCAD?
-AdaCAD is a [parametric design](./glossary/parametric-design) tool for making woven [drafts](./glossary/draft). While most drafting software starts with a blank canvas that the designer fills in their structures, AdaCAD works differently by "growing" a draft from the ground up: starting from structures and arranging them into more complex structural and visual designs. Essentially, it lets you create little workflows that "grow" designs based on a set of rules you define. Its programming for weaving and it makes explicit the inherently algorithmic nature of draft making. It  supports the creation of drafts for [Jacquard](./glossary/jacquard-loom), [Harness](./glossary/harness-loom), and [Direct Tie or Dobby](./glossary/direct-tie-loom) Looms. 
+
+AdaCAD is an experimental workspace that applies [parametric design](./glossary/parametric-design) to the domain of weave [drafting](./glossary/draft). It supports algorithmic and playful approaches to developing woven structures and cloth, for [shaft](./glossary/harness-loom), [dobby](./glossary/direct-tie-loom) ,  and [jacquard](./glossary/jacquard-loom) looms. 
 
 
 # How to Get the Software
@@ -27,7 +28,7 @@ For more information about the project and user guides, explore projects in our 
 <p>The image above is a labeled guide to the AdaCAD interface (which has the buttons you need to push create drafts as listed above). On the top bar, there are links allowing you to:</p>
 <ul>
 <li>Sign in: Signing in with a google account will automatically save your work so that you can recover it if something unexpected happens in your web browser. We collect only your google email and name, and do not share it. </li>
-<li>Get Help: Links to this page :)</li>
+<li>Get Help: Links to this page</li>
 <li>Learn About AdaCAD: Contains information about AdaCAD's version and how to report errors</li>
 <li>Clear Screen: starts a new blank workspace</li>
 <li>Save/Download Workspace: download to your computer so you can load it back later</li>

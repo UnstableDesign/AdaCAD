@@ -36,3 +36,8 @@
 .beta{
   margin: 4px;
 }
+
+img{
+  object-fit: scale-down;
+  height: 600px;
+}

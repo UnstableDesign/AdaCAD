@@ -20,11 +20,11 @@ function HomepageHeader() {
             to="http://adacad.org">
             Use AdaCAD 3.0 
           </Link>
-          {/* <Link
+          <Link
             className="button beta button--secondary button--lg"
             to="https://adacad-beta-fa4dc.web.app/">
             Try AdaCAD 4.0 (beta)
-          </Link> */}
+          </Link>
         </div>
       </div>
     </header>
