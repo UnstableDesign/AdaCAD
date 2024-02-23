@@ -37,7 +37,7 @@ export class SubdraftComponent implements OnInit {
     this._scale = value;
     this.rescale().catch(e => console.log(e))
   }
-  private _scale:number = this.zs.zoom;
+  private _scale:number = this.zs.getMixerZoom();
 
   @Input()
   get draft(): Draft { return this._draft; }
@@ -459,7 +459,7 @@ export class SubdraftComponent implements OnInit {
     let sd_container = document.getElementById('scale-'+this.id);
     let rect_palette = parent.getBoundingClientRect();
 
-    const zoom_factor =  1/this.zs.zoom;
+    const zoom_factor =  1/this.zs.getMixerZoom();
 
     //the positioning is strange because the mouse is in screen coordinates and needs to account for the 
     //positioning of the palette. We take that position and translate it (by * zoom factor) to the palette coordinate system, 

@@ -39,7 +39,7 @@ export class OperationComponent implements OnInit {
    set scale(value: number) {
      this._scale = value;
    }
-   private _scale:number = this.zs.zoom;
+   private _scale:number = this.zs.getMixerZoom();
  
  /**
   * handles actions to take when the mouse is down inside of the palette
@@ -474,7 +474,7 @@ export class OperationComponent implements OnInit {
     let op_container = document.getElementById('scale-'+this.id);
     let rect_palette = parent.getBoundingClientRect();
 
-    const zoom_factor =  1/this.zs.zoom;
+    const zoom_factor =  1/this.zs.getMixerZoom();
     //the positioning is strange because the mouse is in screen coordinates and needs to account for the 
     //positioning of the palette. We take that position and translate it (by * zoom factor) to the palette coordinate system, 
     //which is transformed by the scale operations. We then write the new position while acounting for the sidebar. 

@@ -37,7 +37,9 @@ export const defaults = {
       pencil: 'toggle',
       draft_edit_mode: 'draw',
       mixer_mode: 'move',
-      zoom_ndx: 3
+      zoom_ndx_mixer: 3,
+      zoom_ndx_editor: 7
+
 }
 
 

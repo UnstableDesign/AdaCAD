@@ -260,12 +260,15 @@ export class AppComponent implements OnInit{
 
     switch(this.selected_editor_mode){
       case 'draft':
+        this.mixer.onClose();
         this.editor.onFocus();
         //this.editor.centerView();
 
         break;
       case 'mixer':
         this.editor.onClose();
+        this.mixer.onFocus();
+
       //  this.mixer.recenterViews();
         break;
     }
@@ -1195,23 +1198,46 @@ showDraftDetails(id: number){
     this.mixer.renderChange(event);
   }
 
+  /**
+   * used to set the default value on the slider
+   */
+  getActiveZoomIndex() : number{
+    if(this.selected_editor_mode == 'mixer'){
+      return this.zs.zoom_table_ndx_mixer;
+    } else {
+      return this.zs.zoom_table_ndx_editor;
+    }
+  }
+
   zoomOut(){
-    this.zs.zoomOut();
-    this.mixer.renderChange();
-    this.editor.renderChange();
+    if(this.selected_editor_mode == 'mixer'){
+      this.zs.zoomOutMixer();
+      this.mixer.renderChange();
+    } else {
+      this.zs.zoomOutEditor()
+      this.editor.renderChange();
+    }
   }
 
   zoomIn(){
-    this.zs.zoomIn();
-    this.mixer.renderChange();
-    this.editor.renderChange();
+    if(this.selected_editor_mode == 'mixer'){
+      this.zs.zoomInMixer();
+      this.mixer.renderChange();
+    } else {
+      this.zs.zoomInEditor()
+      this.editor.renderChange();
+    }
 
   }
 
   zoomChange(ndx: number){
-    this.zs.setZoomIndex(ndx)
-    this.mixer.renderChange();
+    if(this.selected_editor_mode == 'mixer'){
+      this.zs.setZoomIndexOnMixer(ndx);
+      this.mixer.renderChange();
+    } else {
+    this.zs.setZoomIndexOnEditor(ndx)
     this.editor.renderChange();
+    }
   }
 
 

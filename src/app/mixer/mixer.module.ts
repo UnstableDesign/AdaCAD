@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CoreModule } from '../core/core.module';
 import { MixerComponent} from './mixer.component';
-import { MixerViewComponent } from './mixerview/mixerview.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { PaletteComponent } from './palette/palette.component';
 import { SnackbarComponent } from './palette/snackbar/snackbar.component';
@@ -25,7 +24,6 @@ import { DraftrenderingComponent } from './palette/draftrendering/draftrendering
     ],
     declarations: [
         MixerComponent,
-        MixerViewComponent,
         SubdraftComponent,
         PaletteComponent,
         SnackbarComponent,

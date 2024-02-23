@@ -208,17 +208,15 @@ onRefreshViewer(){
 
 
   zoomIn(){
-    const old_zoom = this.zs.zoom;
-    this.zs.zoomIn();
-    this.renderChange(old_zoom);
+    this.zs.zoomInMixer();
+    this.renderChange();
 
   }
 
 
   zoomOut(){
-    const old_zoom = this.zs.zoom;
-    this.zs.zoomOut();
-    this.renderChange(old_zoom);
+    this.zs.zoomOutMixer();
+    this.renderChange();
     
 }
 
@@ -232,14 +230,25 @@ createNewDraft(){
  });
 }
 
-focusUIView(){
-  this.onFocusView.emit();
+/**
+ * called when toggled to mixer
+ */
+onFocus(){
+
 }
+
+/**
+ * called when toggling away from to mixer
+ */
+onClose(){
+
+}
+
  
 
-zoomChange(e:any, source: string){
-  
-  this.zs.setZoom(e.value)
+zoomChange(zoom_index:any){
+  console.log("ZOOM CHANGE IN MIXER.TS", zoom_index)
+  this.zs.setZoomIndexOnMixer(zoom_index)
   this.palette.rescale();
 
 }
@@ -251,6 +260,7 @@ zoomChange(e:any, source: string){
 
 
   /**
+   * TODO, this likely doesn't work
    * Called from import bitmaps to drafts features. The drafts have already been imported and sent to this function, 
    * which now needs to draw them to the workspace
    * @param drafts 
@@ -277,7 +287,7 @@ zoomChange(e:any, source: string){
     let max_h = 0;
     let cur_h = topleft.y + 20; //start offset from top
     let cur_w = topleft.x + 50;
-    let zoom_factor = defaults.mixer_cell_size / this.zs.zoom;
+    let zoom_factor = defaults.mixer_cell_size / this.zs.getMixerZoom();
     let x_margin = 20 / zoom_factor;
     let y_margin = 40 / zoom_factor;
 
@@ -288,7 +298,7 @@ zoomChange(e:any, source: string){
       
       const id = this.tree.createNode("draft", null, null);
       this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
-      this.palette.loadSubDraft(id, draft, null, null, this.zs.zoom);
+      this.palette.loadSubDraft(id, draft, null, null, this.zs.getMixerZoom());
 
       //position the drafts so that they don't all overlap. 
        max_h = (wefts(draft.drawdown)*defaults.mixer_cell_size > max_h) ? wefts(draft.drawdown)*defaults.mixer_cell_size : max_h;
@@ -440,7 +450,7 @@ zoomChange(e:any, source: string){
   /**
    * Updates the canvas based on the weave view.
    */
-  public renderChange(old_zoom: number) {
+  public renderChange() {
     this.palette.rescale();
   }
 
@@ -475,7 +485,7 @@ zoomChange(e:any, source: string){
   public newDraftCreated(draft: Draft, loom: Loom, loom_settings: LoomSettings): number{
     const id = this.tree.createNode("draft", null, null);
     this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
-    this.palette.loadSubDraft(id, draft, null, null, this.zs.zoom);
+    this.palette.loadSubDraft(id, draft, null, null, this.zs.getMixerZoom());
     return id;
   }
 

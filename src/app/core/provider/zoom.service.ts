@@ -7,27 +7,26 @@ import { defaults } from '../model/defaults';
 export class ZoomService {
   //current zoom scale
   
-  zoom: number = 1; //this is the default
+  // mixer_zoom: number = 1;
+  // editor_zoom: number = 1;
+
+
   num_steps: number = 15;
   zoom_min: number = .1;
   zoom_step: number = .05;
   zoom_table: Array<number> = [];
-  zoom_table_ndx: number = defaults.zoom_ndx;
+
+  zoom_table_ndx_mixer: number = defaults.zoom_ndx_mixer;
+  zoom_table_ndx_editor: number = defaults.zoom_ndx_editor;
 
 
   constructor() { 
-
-    //create a table that stores each zoom value, which increments exponentally as it gets larger
-   // this.zoom_table_ndx = Math.floor(this.num_steps/2);
-    this.zoom_table_ndx = Math.floor(this.num_steps/2);
 
 
     for(let i = 0; i < this.num_steps; i++){
       const raw = this.zoom_min + this.zoom_step*(i*i);
       this.zoom_table.push(this.manageZoomRounding(raw));
     }
-
-    this.zoom = this.zoom_table[this.zoom_table_ndx];
 
   }
 
@@ -41,24 +40,35 @@ export class ZoomService {
   }
 
 
-  zoomIn(){
-      this.zoom_table_ndx++;
-      if(this.zoom_table_ndx < this.zoom_table.length){
-       this.zoom =  this.zoom_table[this.zoom_table_ndx];
-      }else{
-        this.zoom_table_ndx = this.zoom_table.length;
+  zoomInMixer(){
+      this.zoom_table_ndx_mixer++;
+      if(this.zoom_table_ndx_mixer >= this.zoom_table.length){
+        this.zoom_table_ndx_mixer = this.zoom_table.length;
       }
     }
+
+  zoomInEditor(){
+    this.zoom_table_ndx_editor++;
+    if(this.zoom_table_ndx_editor >= this.zoom_table.length){
+      this.zoom_table_ndx_editor = this.zoom_table.length;
+    }
+  }
+
+
   
-  
-    zoomOut(){
-      this.zoom_table_ndx--;
-      if(this.zoom_table_ndx >= 0){
-       this.zoom = this.zoom_table[this.zoom_table_ndx];
-      }else{
-        this.zoom_table_ndx = 0;
-      }
-     }
+  zoomOutMixer(){
+    this.zoom_table_ndx_mixer--;
+    if(this.zoom_table_ndx_mixer < 0){
+      this.zoom_table_ndx_mixer = 0;
+    }
+  }
+
+  zoomOutEditor(){
+    this.zoom_table_ndx_editor--;
+    if(this.zoom_table_ndx_editor < 0){
+      this.zoom_table_ndx_editor = 0;
+    }
+  }
    
   
   /**
@@ -66,7 +76,7 @@ export class ZoomService {
    * closest value in the predefined sets of values
    * @param val 
    */
-  setZoom(zoom: number){
+  setEditorIndexFromZoomValue(zoom: number){
 
     let closest = this.zoom_table.reduce((acc, val, ndx) => {
       let diff = zoom - val;
@@ -76,20 +86,41 @@ export class ZoomService {
     }, {min: 1000000, ndx: 0})
 
 
-    this.zoom =  this.zoom_table[closest.ndx];
-
-
+    this.zoom_table_ndx_editor =  closest.ndx;
 
   }
 
-  setZoomIndex(ndx: number){
+  setMixerIndexFromZoomValue(zoom: number){
 
-    this.zoom =  this.zoom_table[ndx];
+    let closest = this.zoom_table.reduce((acc, val, ndx) => {
+      let diff = zoom - val;
+      if(diff > 0 && diff < acc.min) return {min: diff, ndx: ndx}
+      else return acc;
+
+    }, {min: 1000000, ndx: 0})
 
 
+    this.zoom_table_ndx_mixer=  closest.ndx;
 
   }
-  
+
+  setZoomIndexOnMixer(ndx: number){
+    if(ndx >= 0 && ndx < this.zoom_table.length)
+    this.zoom_table_ndx_mixer = ndx;
+ }
+
+  setZoomIndexOnEditor(ndx: number){
+    if(ndx >= 0 && ndx < this.zoom_table.length)
+    this.zoom_table_ndx_editor = ndx;
+  }
+
+  getMixerZoom(){
+    return this.zoom_table[this.zoom_table_ndx_mixer];
+  }
+
+  getEditorZoom(){
+    return this.zoom_table[this.zoom_table_ndx_editor];
+  }
 
 
 

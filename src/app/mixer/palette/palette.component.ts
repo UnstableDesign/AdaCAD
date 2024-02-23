@@ -61,13 +61,13 @@ export class PaletteComponent implements OnInit{
    * holds a reference to the selection component
    * @property {Selection}
    */
-  selection = new MarqueeComponent();
+  // selection = new MarqueeComponent();
 
   /**
    * stores an i and j of the last user selected location within the component
    * @property {Point}
    */
-  last: Interlacement;
+  //last: Interlacement;
 
 
     /**
@@ -86,6 +86,7 @@ export class PaletteComponent implements OnInit{
    * trackable inputs to snackbar
    */
    snack_message:string;
+
    snack_bounds: Bounds;
 
      /**
@@ -255,7 +256,8 @@ handlePan(diff: Point){
 
   /**
  * when someone zooms in or out, we'd like to keep the center point the same. We do this by scaling the entire palette and 
- * elements and then manually scrolling to the new center point. 
+ * elements and then manually scrolling to the new center point.
+ * TODO, this may not be the case anymore with new scaling 
  * @param data 
  */
    handleScrollFromZoom(old_zoom: number){
@@ -263,10 +265,10 @@ handlePan(diff: Point){
     // console.log(old_center, this.viewport.getCenterPoint());
     const div:HTMLElement = document.getElementById('scrollable-container');  
     const past_scroll_x = div.offsetParent.scrollLeft / old_zoom;
-    const new_scroll_x = past_scroll_x * this.zs.zoom;
+    const new_scroll_x = past_scroll_x * this.zs.getMixerZoom();
 
     const past_scroll_y = div.offsetParent.scrollTop / old_zoom;
-    const new_scroll_y = past_scroll_y * this.zs.zoom;
+    const new_scroll_y = past_scroll_y * this.zs.getMixerZoom();
 
      div.offsetParent.scrollLeft = new_scroll_x;
      div.offsetParent.scrollTop = new_scroll_y;
@@ -394,17 +396,13 @@ handlePan(diff: Point){
    */
   rescale(){
 
-    const zoom_factor = this.zs.zoom;
     const container: HTMLElement = document.getElementById('palette-scale-container');
     if(container === null) return;
 
     container.style.transformOrigin = 'top left';
-    container.style.transform = 'scale(' + zoom_factor + ')';
+    container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
 
 
-  
-
-    //  if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.zs.zoom;
 
     // this.handleScrollFromZoom(prev_zoom);
 
@@ -422,7 +420,7 @@ handlePan(diff: Point){
       data: {
         message: this.snack_message,
         bounds: this.snack_bounds,
-        scale: this.zs.zoom
+        scale: this.zs.getMixerZoom()
       }
     });
   }
@@ -608,7 +606,7 @@ handlePan(diff: Point){
    
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
-    subdraft.instance.scale = this.zs.zoom;
+    subdraft.instance.scale = this.zs.getMixerZoom();
 
 
     return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true)
@@ -630,7 +628,7 @@ handlePan(diff: Point){
 
     subdraft.instance.id = id;
     subdraft.instance.draft = this.tree.getDraft(id);
-    subdraft.instance.scale = this.zs.zoom;
+    subdraft.instance.scale = this.zs.getMixerZoom();
 
     return Promise.resolve(subdraft.instance);
 
@@ -644,6 +642,7 @@ handlePan(diff: Point){
    * @param id the node id assigned to this element on load
    * @param d the draft object to load into this subdraft
    * @param nodep the component proxy used to define
+   * TODO, this likely is not positioning correctly
    */
    loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
 
@@ -655,16 +654,15 @@ handlePan(diff: Point){
     node.ref = subdraft.hostView;
     this.setSubdraftSubscriptions(subdraft.instance);
     subdraft.instance.id = id;
-    subdraft.instance.scale = this.zs.zoom;
+    subdraft.instance.scale = this.zs.getMixerZoom();
     subdraft.instance.draft_visible = true;
     subdraft.instance.use_colors = true;
     subdraft.instance.draft = d;
     subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
 
     if(nodep !== null && nodep.topleft !== null){
-      
-      const topleft_ilace = {j: nodep.topleft.x/saved_scale, i: nodep.topleft.y/saved_scale};
-      const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
+      console.log("NODEP ", nodep.topleft)
+      const adj_topleft: Point = {x: nodep.topleft.x, y: nodep.topleft.y};
       
     
       subdraft.instance.topleft = adj_topleft;
@@ -815,7 +813,7 @@ handlePan(diff: Point){
       node.ref = cxn.hostView;
         
       cxn.instance.id = id;
-      cxn.instance.scale = this.zs.zoom;
+      cxn.instance.scale = this.zs.getMixerZoom();
 
     }
 
@@ -833,7 +831,7 @@ handlePan(diff: Point){
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, 0, id_to, to_ndx, id);
       
       cxn.instance.id = id;
-      cxn.instance.scale = this.zs.zoom;
+      cxn.instance.scale = this.zs.getMixerZoom();
 
       this.setConnectionSubscriptions(cxn.instance);
 
@@ -936,32 +934,6 @@ handlePan(diff: Point){
 
   }
 
-    /**
-   * dynamically creates a subdraft component with specific requirements of the intersection, adds its inputs and event listeners, pushes the subdraft to the list of references
-   * @param d a Draft object for this component to contain
-   * @returns the created subdraft instance
-   */
-  createAndSetPreview(d: Draft) : Promise<DraftNode> {
-
-      const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
-      const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
-
-      return this.tree.setPreview(subdraft, d).then( dn=> {
-          //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
-          const sd: SubdraftComponent = <SubdraftComponent> dn.component;
-         
-          sd.id = -1;
-          sd.scale = this.zs.zoom;
-          sd.draft = d;
-          sd.setAsPreview();
-          // sd.disableDrag();
-          
-          return dn;
-
-      });
-
-
-    }
 
 
 
@@ -1049,7 +1021,7 @@ handlePan(diff: Point){
      }
 
    /**
-   * Duplicates the operation that called this function.
+   * TO DO: Duplicates the operation that called this function.
    */
     onDuplicateOpCalled(obj: any){
       if(obj === null) return;
@@ -1065,7 +1037,7 @@ handlePan(diff: Point){
           new_tl = {x: op_comp.topleft.x + 200, y: op_comp.topleft.y}
       }else{
         let container = document.getElementById('scale-'+obj.id);
-          new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.zoom/this.default_cell_size, y: op_comp.topleft.y}
+          new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.getMixerZoom()/this.default_cell_size, y: op_comp.topleft.y}
       }
 
 
@@ -1133,6 +1105,7 @@ handlePan(diff: Point){
   //  }
 
 
+  /**TO DO, this likely doesn't work */
     onDuplicateSubdraftCalled(obj: any){
         if(obj === null) return;
 
@@ -1155,7 +1128,7 @@ handlePan(diff: Point){
           const orig_size = document.getElementById('scale-'+obj.id);
 
           new_sd.setPosition({
-            x: sd.topleft.x + orig_size.offsetWidth*(this.zs.zoom/this.default_cell_size) + this.zs.zoom *2, 
+            x: sd.topleft.x + orig_size.offsetWidth*(this.zs.getMixerZoom()/this.default_cell_size) + this.zs.getMixerZoom() *2, 
             y: sd.topleft.y});  
           //const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
           //this.viewport.addObj(new_sd.id, interlacement);
@@ -1179,25 +1152,6 @@ handlePan(diff: Point){
       
       if(moving === null) return; 
 
-
-      // // this.startSnackBar("Using Ink: "+moving.ink, null);
-      
-      // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
-      // const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
-
-      // if(seed_drafts.length === 0) return;
-      
-      // const bounds: any = utilInstance.getCombinedBounds(moving, seed_drafts);
-      // const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
-
-
-
-      // this.createAndSetPreview(temp).then(dn => {
-      //   this.tree.getPreviewComponent().setPosition(bounds.topleft);
-      // }).catch(console.error);
-      
-    }else if(this.dm.isSelectedMixerEditingMode("marquee")){
-      this.selectionStarted();
     }
 
  }
@@ -1242,7 +1196,7 @@ handlePan(diff: Point){
 
   let sd_container = document.getElementById(obj.id+'-out').getBoundingClientRect();
 
-  const zoom_factor =  1 / this.zs.zoom;
+  const zoom_factor =  1 / this.zs.getMixerZoom();
   //on screen position relative to palette
   let screenX = sd_container.x - parent.x;
   let scaledX = screenX * zoom_factor;
@@ -1261,8 +1215,8 @@ handlePan(diff: Point){
 
   this.active_connection = {
     topleft: adj,
-    width: this.zs.zoom,
-    height: this.zs.zoom
+    width: this.default_cell_size,
+    height: this.default_cell_size
   };
 
   this.startSnackBar("select an input or click an empty space to stop selecting", null);
@@ -1410,7 +1364,7 @@ connectionDragged(mouse: Point, shift: boolean){
   let parent = document.getElementById('scrollable-container');
   let rect_palette = parent.getBoundingClientRect();
 
-  const zoom_factor = 1 / this.zs.zoom;
+  const zoom_factor = 1 / this.zs.getMixerZoom();
 
   //on screen position relative to palette
   let screenX = mouse.x-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
@@ -1470,10 +1424,8 @@ connectionDragged(mouse: Point, shift: boolean){
 
 
 /**
- * calculates the default topleft position for this node based on the width and size of its parent and/or neighbors
- * @param id the id of the component to position
- * @returns a promise for the updated point
- */
+ * TO DO!!!! Make sure this works aas we expect 
+ * */
 calculateInitialLocaiton(id: number) : Point {
   
   let new_tl =  this.viewport.getTopLeft(); 
@@ -1494,13 +1446,13 @@ calculateInitialLocaiton(id: number) : Point {
 
 
       // //component is not yet initalized on this calculation so we do it manually
-      const default_height =  100 * this.zs.zoom/this.default_cell_size;
+      const default_height =  100 * this.zs.getMixerZoom()/this.default_cell_size;
       new_tl = {x: topleft.x, y: topleft.y+default_height};
 
     }else{
 
       const container: HTMLElement = document.getElementById('scale-'+parent_id);
-      const parent_height = container.offsetHeight * (this.zs.zoom/this.default_cell_size);  
+      const parent_height = container.offsetHeight * (this.zs.getMixerZoom()/this.default_cell_size);  
       new_tl = {x: topleft.x, y: topleft.y + parent_height};
     }
 
@@ -1636,7 +1588,7 @@ updateDownstream(subdraft_id: number) {
             node_id: el.id,
             type: el.type,
             topleft: this.calculateInitialLocaiton(el.id),
-          }, null,this.zs.zoom);
+          }, null,this.zs.getMixerZoom());
         });
       
 
@@ -1886,12 +1838,6 @@ pasteConnection(from: number, to: number, inlet: number){
 
  
 
- selectionStarted(){
-
-  this.selection.start = this.last;
-  this.selection.active = true;
- }
-
  panStarted(mouse_pos: Point){
   this.last_point = mouse_pos;
   this.freezePaletteObjects();
@@ -2115,57 +2061,14 @@ pasteConnection(from: number, to: number, inlet: number){
         this.needs_init = false;
       }
 
-      const ctrl: boolean = event.ctrlKey;
-      const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-      const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
+  
 
-      //use this to snap the mouse to the nearest coord
-      mouse.x = ndx.j * this.zs.zoom;
-      mouse.y = ndx.i * this.zs.zoom;
-
-      
-      this.last = ndx;
-      this.selection.start = this.last;
+  
       this.removeSubscription();    
       
      
 
-      if(this.dm.isSelectedMixerEditingMode("marquee")){
-          this.selectionStarted();
-          this.moveSubscription = 
-          fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
-    
-      // }else if(this.dm.isSelected("draw",'design_modes')){
-      //   this.moveSubscription = 
-      //   fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
-  
-      //     this.drawStarted();    
-      //     this.setCell(ndx);
-      //     this.drawCell(ndx); 
-      // }else if(this.dm.isSelected("shape",'design_modes')){
-      //   this.moveSubscription = 
-      //   fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
-  
-
-      //   if(this.dm.isSelected('free','shapes')){
-      //     if(ctrl){
-      //       this.processShapeEnd().then(el => {
-      //         this.changeDesignmode('move');
-      //         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      //       });
-      //     }else{
-      //       if(this.shape_vtxs.length == 0) this.shapeStarted(mouse);
-      //       this.shape_vtxs.push(mouse);
-      //     }
-            
-          
-      //   }else{
-      //     this.shapeStarted(mouse);
-      //   }
-      // }else if(this.dm.isSelected("operation",'design_modes')){
-        // this.processConnectionEnd();
-        // this.changeDesignmode('move');
-      }else if(this.dm.isSelectedMixerEditingMode("move")){
+      if(this.dm.isSelectedMixerEditingMode("move")){
 
        if(event.shiftKey) return;
         this.multiselect.clearSelections();
@@ -2203,29 +2106,6 @@ pasteConnection(from: number, to: number, inlet: number){
     }
   }
   
- /**
-  * called when the operation input is selected and used to draw
-   * @param event the event object
-   */
-  mouseSelectingDraft(event: any, id: number){
-
-    const shift: boolean = event.shiftKey;
-    const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
-    //use this to snap the mouse to the nearest coord
-    mouse.x = ndx.j * this.zs.zoom;
-    mouse.y = ndx.i * this.zs.zoom;
-
-    if(utilInstance.isSameNdx(this.last, ndx)) return;
-
-    // if(this.dm.getDesignMode("operation",'design_modes').selected){
-
-     
-    
-    // }
-    
-    this.last = ndx;
-  }
 
   /**
    * called form the subscription created on start, checks the index of the location and returns null if its the same
@@ -2234,21 +2114,9 @@ pasteConnection(from: number, to: number, inlet: number){
   onDrag(event){
 
 
-    const shift: boolean = event.shiftKey;
     const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
 
-    //use this to snap the mouse to the nearest coord
-    mouse.x = ndx.j *this.zs.zoom;
-    mouse.y = ndx.i * this.zs.zoom;
-
-    if(utilInstance.isSameNdx(this.last, ndx)) return;
-
-    if(this.dm.isSelectedMixerEditingMode("marquee")){
-     this.drawSelection(ndx);
-     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
-     this.selection.setPositionAndSize(bounds);
-    }else if(this.dm.isSelectedMixerEditingMode("pan")){
+    if(this.dm.isSelectedMixerEditingMode("pan")){
       
       const diff = {
         x:  (this.last_point.x-event.clientX), 
@@ -2265,7 +2133,6 @@ pasteConnection(from: number, to: number, inlet: number){
     //   this.shapeDragged(mouse, shift);
     // }
     
-    this.last = ndx;
     this.last_point = {x: event.clientX, y: event.clientY};
   }
 
@@ -2281,22 +2148,16 @@ pasteConnection(from: number, to: number, inlet: number){
      private onEnd(event) {
 
       //if this.last is null, we have a mouseleave with no mousestart
-      if(this.last === undefined) return;
     
-      const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-      const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
-      //use this to snap the mouse to the nearest coord
-      mouse.x = ndx.j * this.zs.zoom;
-      mouse.y = ndx.i * this.zs.zoom;
+      // const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
+      // const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
+      // //use this to snap the mouse to the nearest coord
+      // mouse.x = ndx.j * this.zs.getMixerZoom();
+      // mouse.y = ndx.i * this.zs.getMixerZoom();
 
       this.removeSubscription();   
 
-      if(this.dm.isSelectedMixerEditingMode("marquee")){
-        if(this.selection.active) this.processSelection();
-        this.closeSnackBar();
-        this.changeDesignmode('move');
-        this.unfreezePaletteObjects();
-      }else if(this.dm.isSelectedMixerEditingMode('pan')){
+      if(this.dm.isSelectedMixerEditingMode('pan')){
         const div:HTMLElement = document.getElementById('scrollable-container');
         this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
 
@@ -2328,9 +2189,7 @@ pasteConnection(from: number, to: number, inlet: number){
       // }
 
       //unset vars that would have been created on press
-      this.last = undefined;
       this.last_point = undefined;
-      this.selection.active = false;
   }
   
  
@@ -2338,46 +2197,46 @@ pasteConnection(from: number, to: number, inlet: number){
    * Called when a selection operation ends. Checks to see if this selection intersects with any subdrafts and 
    * merges and or splits as required. 
    */
-  processSelection(){
+  // processSelection(){
 
-    this.closeSnackBar();
+  //   this.closeSnackBar();
 
-    //create the selection as subdraft
-    const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
+  //   //create the selection as subdraft
+  //   const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
     
     
-    this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.zs.zoom, warps: bounds.width/this.zs.zoom}), -1)
-    .then(sc => {
-      sc.setPosition(bounds.topleft);
-      //const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
-      const isect = [];
-      if(isect.length === 0){
-        this.addTimelineState();
-        return;
-      } 
+  //   this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.zs.getMixerZoom(), warps: bounds.width/this.zs.getMixerZoom()}), -1)
+  //   .then(sc => {
+  //     sc.setPosition(bounds.topleft);
+  //     //const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
+  //     const isect = [];
+  //     if(isect.length === 0){
+  //       this.addTimelineState();
+  //       return;
+  //     } 
 
-       //get a draft that reflects only the poitns in the selection view
-      // const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
-      // this.tree.setDraftOnly(sc.id, new_draft)
+  //      //get a draft that reflects only the poitns in the selection view
+  //     // const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
+  //     // this.tree.setDraftOnly(sc.id, new_draft)
     
 
-    // isect.forEach(el => {
-    //   const ibound = utilInstance.getIntersectionBounds(sc, el);
+  //   // isect.forEach(el => {
+  //   //   const ibound = utilInstance.getIntersectionBounds(sc, el);
 
-    //   if(el.isSameBoundsAs(ibound)){
-    //      console.log("Component had same Bounds as Intersection, Consumed");
-    //      this.removeSubdraft(el.id);
-    //   }
+  //   //   if(el.isSameBoundsAs(ibound)){
+  //   //      console.log("Component had same Bounds as Intersection, Consumed");
+  //   //      this.removeSubdraft(el.id);
+  //   //   }
 
-    // });
-    })
-    .catch(console.error);
+  //   // });
+  //   })
+  //   .catch(console.error);
    
     
     
    
 
-  }
+  // }
 
 
   /**
@@ -2616,19 +2475,19 @@ pasteConnection(from: number, to: number, inlet: number){
         height: 0
       }
       if(c1.i < c2.i){
-        bounds.topleft.y = c1.i * this.zs.zoom;
-        bottomright.y = c2.i * this.zs.zoom;
+        bounds.topleft.y = c1.i * this.zs.getMixerZoom();
+        bottomright.y = c2.i * this.zs.getMixerZoom();
       }else{
-        bounds.topleft.y = c2.i * this.zs.zoom;
-        bottomright.y = c1.i * this.zs.zoom;
+        bounds.topleft.y = c2.i * this.zs.getMixerZoom();
+        bottomright.y = c1.i * this.zs.getMixerZoom();
       }
 
       if(c1.j < c2.j){
-        bounds.topleft.x = c1.j * this.zs.zoom;
-        bottomright.x = c2.j * this.zs.zoom;
+        bounds.topleft.x = c1.j * this.zs.getMixerZoom();
+        bottomright.x = c2.j * this.zs.getMixerZoom();
       }else{
-        bounds.topleft.x = c1.j * this.zs.zoom;
-        bottomright.x = c2.j * this.zs.zoom;
+        bounds.topleft.x = c1.j * this.zs.getMixerZoom();
+        bottomright.x = c2.j * this.zs.getMixerZoom();
       }
 
       bounds.width = bottomright.x - bounds.topleft.x;

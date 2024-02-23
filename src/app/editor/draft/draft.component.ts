@@ -367,8 +367,8 @@ export class DraftComponent implements OnInit {
       //make the zoom the smaller of the width or height
       adj = Math.min(width_adj, height_adj);
      
-      
-      if(adj !== 0) this.zs.setZoom(adj);
+      console.log("ADJ ")
+      if(adj !== 0) this.zs.setEditorIndexFromZoomValue(adj);
       
       this.rescale();     
 
@@ -1745,8 +1745,8 @@ export class DraftComponent implements OnInit {
   public flip(){
     const container: HTMLElement = document.getElementById('draft-scale-container');
     container.style.transformOrigin = '50% 50%';
-    if(this.render.view_front) container.style.transform = "matrix(1, 0, 0, 1, 0, 0) scale(" + this.zs.zoom + ')';
-    else container.style.transform = "matrix(-1, 0, 0, 1, 0, 0) scale(" + this.zs.zoom + ')';
+    if(this.render.view_front) container.style.transform = "matrix(1, 0, 0, 1, 0, 0) scale(" + this.zs.getEditorZoom() + ')';
+    else container.style.transform = "matrix(-1, 0, 0, 1, 0, 0) scale(" + this.zs.getEditorZoom() + ')';
 
   }
 
@@ -1757,11 +1757,9 @@ export class DraftComponent implements OnInit {
   //this does not draw on canvas but just rescales the canvas
   public rescale(){
 
-    let zoom = this.zs.zoom;
-  //   //var dims = this.render.getCellDims("base");
     const container: HTMLElement = document.getElementById('draft-scale-container');
     container.style.transformOrigin = 'top left';
-    container.style.transform = 'scale(' + zoom + ')';
+    container.style.transform = 'scale(' + this.zs.getEditorZoom() + ')';
 
    
    }

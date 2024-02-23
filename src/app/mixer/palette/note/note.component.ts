@@ -114,7 +114,7 @@ export class NoteComponent implements OnInit {
     let note_container = document.getElementById('note-'+this.id);
     let rect_palette = parent.getBoundingClientRect();
 
-    const zoom_factor =  1/this.zs.zoom;
+    const zoom_factor =  1/this.zs.getMixerZoom();
     let screenX = $event.event.pageX-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
     let scaledX = screenX* zoom_factor;
     let screenY = $event.event.pageY-rect_palette.y;

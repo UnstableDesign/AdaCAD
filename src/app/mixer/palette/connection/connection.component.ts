@@ -128,7 +128,7 @@ export class ConnectionComponent implements OnInit {
     let to_container = document.getElementById('scale-'+to);
     let to_rect = to_container.getBoundingClientRect();
 
-    const zoom_factor =  1/this.zs.zoom;
+    const zoom_factor =  1/this.zs.getMixerZoom();
 
     //on screen position relative to palette
     let screenX = to_rect.x - parent.x;
@@ -161,7 +161,7 @@ export class ConnectionComponent implements OnInit {
     let sd_container = document.getElementById(from+'-out').getBoundingClientRect();
 
 
-    const zoom_factor =  1/this.zs.zoom;
+    const zoom_factor =  1/this.zs.getMixerZoom();
    //on screen position relative to palette
    let screenX = sd_container.x - parent.x;
    let scaledX = screenX * zoom_factor;
@@ -223,7 +223,7 @@ export class ConnectionComponent implements OnInit {
     const connector_opening = 10;
     // const connector_font_size = Math.max((10 - scale) / 10, .75);
     const connector_font_size = 2;
-    const text_path_font_size =   Math.max((10 - this.zs.zoom) / 10, .75);
+    const text_path_font_size =   Math.max((10 - this.zs.getMixerZoom()) / 10, .75);
     const button_margin_left = -20;
     const button_margin_top = -16;
     
