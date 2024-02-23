@@ -124,18 +124,19 @@ export class ConnectionComponent implements OnInit {
 
 
 
-    let parent = document.getElementById('scrollable-container').getBoundingClientRect();
+    let parent = document.getElementById('scrollable-container');
+    let parent_rect = parent.getBoundingClientRect();
     let to_container = document.getElementById('scale-'+to);
     let to_rect = to_container.getBoundingClientRect();
 
     const zoom_factor =  1/this.zs.getMixerZoom();
 
     //on screen position relative to palette
-    let screenX = to_rect.x - parent.x;
+    let screenX = to_rect.x - parent_rect.x + parent.scrollLeft;
     let scaledX = screenX * zoom_factor;
 
     //on screen position relative to palette
-    let screenY = to_rect.y - parent.y;
+    let screenY = to_rect.y - parent_rect.y + parent.scrollTop;
     let scaledY = screenY * zoom_factor;
 
     
@@ -157,17 +158,17 @@ export class ConnectionComponent implements OnInit {
    */
   updateFromPosition(from: number){
 
-    let parent = document.getElementById('scrollable-container').getBoundingClientRect();
+    let parent = document.getElementById('scrollable-container');
+    let parent_rect = parent.getBoundingClientRect();
     let sd_container = document.getElementById(from+'-out').getBoundingClientRect();
-
 
     const zoom_factor =  1/this.zs.getMixerZoom();
    //on screen position relative to palette
-   let screenX = sd_container.x - parent.x;
+   let screenX = sd_container.x - parent_rect.x + parent.scrollLeft;
    let scaledX = screenX * zoom_factor;
 
    //on screen position relative to palette
-   let screenY = sd_container.y - parent.y;
+   let screenY = sd_container.y - parent_rect.y + parent.scrollTop;
    let scaledY = screenY * zoom_factor;
 
    this.b_from = {

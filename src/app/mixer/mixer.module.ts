@@ -4,7 +4,6 @@ import { MixerComponent} from './mixer.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { PaletteComponent } from './palette/palette.component';
 import { SnackbarComponent } from './palette/snackbar/snackbar.component';
-import { MarqueeComponent } from './palette/marquee/marquee.component';
 import { OperationComponent } from './palette/operation/operation.component';
 import { ConnectionComponent } from './palette/connection/connection.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
@@ -27,7 +26,6 @@ import { DraftrenderingComponent } from './palette/draftrendering/draftrendering
         SubdraftComponent,
         PaletteComponent,
         SnackbarComponent,
-        MarqueeComponent,
         OperationComponent,
         ConnectionComponent,
         OpHelpModal,

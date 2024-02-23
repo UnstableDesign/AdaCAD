@@ -451,6 +451,12 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+
+/**
+ * the positioning is strange because the mouse is in screen coordinates and needs to account for the 
+   positioning of the palette on screen. We take that position and translate it (by * 1/zoom factor) to the palette coordinate system, which is transformed by the scale operations. We then write the new position while acounting for the sidebar.
+ * @param $event 
+ */
   dragMove($event: any) {
 
 
@@ -461,13 +467,10 @@ export class SubdraftComponent implements OnInit {
 
     const zoom_factor =  1/this.zs.getMixerZoom();
 
-    //the positioning is strange because the mouse is in screen coordinates and needs to account for the 
-    //positioning of the palette. We take that position and translate it (by * zoom factor) to the palette coordinate system, 
-    //which is transformed by the scale operations. We then write the new position while acounting for the sidebar. 
 
-    let screenX = $event.event.pageX-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
+    let screenX = $event.event.pageX-rect_palette.x+parent.scrollLeft; 
     let scaledX = screenX* zoom_factor;
-    let screenY = $event.event.pageY-rect_palette.y;
+    let screenY = $event.event.pageY-rect_palette.y+parent.scrollTop;
     let scaledY = screenY * zoom_factor;
    
 

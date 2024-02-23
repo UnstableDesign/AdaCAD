@@ -15,7 +15,6 @@ import { ViewportService } from '../provider/viewport.service';
 import { ZoomService } from '../../core/provider/zoom.service';
 import { FileService } from './../../core/provider/file.service';
 import { ConnectionComponent } from './connection/connection.component';
-import { MarqueeComponent } from './marquee/marquee.component';
 import { NoteComponent } from './note/note.component';
 import { OperationComponent } from './operation/operation.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
@@ -56,18 +55,6 @@ export class PaletteComponent implements OnInit{
    * flag to determine how conneection should be drawn
    */
   selecting_connection: boolean = false;
-
-  /**
-   * holds a reference to the selection component
-   * @property {Selection}
-   */
-  // selection = new MarqueeComponent();
-
-  /**
-   * stores an i and j of the last user selected location within the component
-   * @property {Point}
-   */
-  //last: Interlacement;
 
 
     /**
@@ -110,23 +97,10 @@ export class PaletteComponent implements OnInit{
 
    selected_draft_id: number = -1;
 
-  has_viewer_focus:number = -1;
+    has_viewer_focus:number = -1;
 
 
   
-  /**
-   * Constructs a palette object. The palette supports drawing without components and dynamically
-   * creates components from shapes and scribbles on the canvas. 
-   * @param dm  a reference to the service containing the current design modes and selections
-   * @param tree reference to the objects and relationships within this palette
-   * @param inks a reference to the service manaing the available inks
-   * @param layers a reference to the sercie managing the view layers (z-indexes) of components
-   * @param resolver a reference to the factory component for dynamically generating components
-   * @param fs file service for saving and loading files
-   * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
-   * @param viewport reference to the window and palette variables and where the viewer is currently lookin
-   * @param notes reference the service that stores all the tagged comments
-   */
   constructor(
     public dm: DesignmodesService, 
     private tree: TreeService,
@@ -1357,7 +1331,7 @@ handlePan(diff: Point){
    * @param mouse the absolute position of the mouse on screen
    * @param shift boolean representing if shift is pressed as well 
    */
-connectionDragged(mouse: Point, shift: boolean){
+connectionDragged(mouse: Point){
 
 
 
@@ -1367,11 +1341,11 @@ connectionDragged(mouse: Point, shift: boolean){
   const zoom_factor = 1 / this.zs.getMixerZoom();
 
   //on screen position relative to palette
-  let screenX = mouse.x-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
+  let screenX = mouse.x-rect_palette.x+parent.scrollLeft; //position of mouse relative to the palette sidebar - takes scroll into account
   let scaledX = screenX * zoom_factor;
 
   //on screen position relative to palette
-  let screenY = mouse.y-rect_palette.y;
+  let screenY = mouse.y-rect_palette.y+parent.scrollTop;
   let scaledY = screenY * zoom_factor;
   
 
@@ -2086,23 +2060,13 @@ pasteConnection(from: number, to: number, inlet: number){
   @HostListener('mousemove', ['$event'])
   private onMove(event) {
 
-
-
-
-
-     const shift: boolean = event.shiftKey;
-    // const mouse:Point = {
-    //   x: this.viewport.getTopLeft().x + event.clientX, 
-    //   y:this.viewport.getTopLeft().y+event.clientY
-    // };
-
     const mouse:Point = {
       x: event.clientX, 
       y: event.clientY
     };
 
     if(this.selecting_connection){
-      this.connectionDragged(mouse, shift);
+      this.connectionDragged(mouse);
     }
   }
   
@@ -2125,14 +2089,6 @@ pasteConnection(from: number, to: number, inlet: number){
       this.handlePan(diff);
 
     }
-    
-    // }else if(this.dm.getDesignMode("draw", 'design_modes').selected){
-    //   this.setCell(ndx);
-    //   this.drawCell(ndx);
-    // }else if(this.dm.getDesignMode("shape",'design_modes').selected){
-    //   this.shapeDragged(mouse, shift);
-    // }
-    
     this.last_point = {x: event.clientX, y: event.clientY};
   }
 
@@ -2147,13 +2103,6 @@ pasteConnection(from: number, to: number, inlet: number){
   @HostListener('mouseup', ['$event'])
      private onEnd(event) {
 
-      //if this.last is null, we have a mouseleave with no mousestart
-    
-      // const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-      // const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
-      // //use this to snap the mouse to the nearest coord
-      // mouse.x = ndx.j * this.zs.getMixerZoom();
-      // mouse.y = ndx.i * this.zs.getMixerZoom();
 
       this.removeSubscription();   
 
@@ -2164,80 +2113,12 @@ pasteConnection(from: number, to: number, inlet: number){
       }
 
 
-      // }else if(this.dm.isSelected("draw",'design_modes')){
-       
-      //   this.processDrawingEnd().then(el => {
-      //     this.closeSnackBar();
-      //     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      //     this.changeDesignmode('move');
-      //     this.scratch_pad = undefined;
-      //   }).catch(console.error);
-      
-
-
-
-      // }else if(this.dm.isSelected("shape",'design_modes')){
-      //   if(!this.dm.isSelected('free','shapes')){
-          
-      //     this.processShapeEnd().then(el => {
-      //       this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      //       this.changeDesignmode('move');
-           
-      //    });
-      //   }
-          
-      // }
 
       //unset vars that would have been created on press
       this.last_point = undefined;
   }
   
  
-  /**
-   * Called when a selection operation ends. Checks to see if this selection intersects with any subdrafts and 
-   * merges and or splits as required. 
-   */
-  // processSelection(){
-
-  //   this.closeSnackBar();
-
-  //   //create the selection as subdraft
-  //   const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
-    
-    
-  //   this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.zs.getMixerZoom(), warps: bounds.width/this.zs.getMixerZoom()}), -1)
-  //   .then(sc => {
-  //     sc.setPosition(bounds.topleft);
-  //     //const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
-  //     const isect = [];
-  //     if(isect.length === 0){
-  //       this.addTimelineState();
-  //       return;
-  //     } 
-
-  //      //get a draft that reflects only the poitns in the selection view
-  //     // const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
-  //     // this.tree.setDraftOnly(sc.id, new_draft)
-    
-
-  //   // isect.forEach(el => {
-  //   //   const ibound = utilInstance.getIntersectionBounds(sc, el);
-
-  //   //   if(el.isSameBoundsAs(ibound)){
-  //   //      console.log("Component had same Bounds as Intersection, Consumed");
-  //   //      this.removeSubdraft(el.id);
-  //   //   }
-
-  //   // });
-  //   })
-  //   .catch(console.error);
-   
-    
-    
-   
-
-  // }
-
 
   /**
    * this function will update any components that should move when the compoment passed by obj moves
