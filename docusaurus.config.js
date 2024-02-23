@@ -74,7 +74,7 @@ const config = {
             position: 'left',
             label: 'Develop',
           },
-          {to: '/blog', label: 'Showcase', position: 'left'},
+          {to: '/blog', label: 'Blog', position: 'left'},
           {
             href: 'https://github.com/UnstableDesign/AdaCAD',
             label: 'GitHub',
@@ -102,7 +102,7 @@ const config = {
                 to: 'docs/howtodevelop/install',
               },
               {
-                label: 'Showcase',
+                label: 'Blog',
                 to: '/blog',
               },
             ],
