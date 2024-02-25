@@ -1,21 +1,20 @@
 
 <div class="subdraft-container" *ngIf="!hasParent || !ws.hide_mixer_drafts" >
 
-  <div *ngIf="!hasParent || !ws.hide_mixer_drafts" class="bottom-opts">
+  <div *ngIf="!hasParent || !ws.hide_mixer_drafts" class="options">
 
-    <div id="subdraft-details"> 
-
-      <button *ngIf="!exceeds_size && !hasParent"
-      mat-icon-button
-      class="is-small fa-solid"
-      matTooltip ="Select Draft"
-      (click)="selectForView()">
-      <i class="fa-solid fa-eye"></i>
-      </button> 
+    <button
+    mat-icon-button
+    matTooltip ="Select Draft"
+    (click)="openInEditor()">
+    <i class="fa-solid fa-pen-to-square"></i>    
+    </button> 
 
 
       <mat-menu #subdraftOptions>
       
+
+        
   
       <button mat-icon-button *ngIf='hasParent'
       matTooltip= "Show/Hide Draft"
@@ -45,22 +44,18 @@
       <i class="fa-solid fa-image"></i> download as image
       </button>
 
-  
-    
-      <button mat-flat-button *ngIf='!hasParent'
-      matTooltip= "Delete"
-      [name]="delete"
-      (click)="designActionChange('delete')">
-      <i class="fa-solid fa-x"></i>  delete 
-      </button>
 
       
     </mat-menu>
 
 
-
-    </div>
-
+    <button *ngIf="!exceeds_size && !hasParent"
+    mat-icon-button
+    class="is-small fa-solid"
+    matTooltip ="Select Draft"
+    (click)="selectForView()">
+    <i class="fa-solid fa-eye"></i>
+    </button> 
 
 
     <button mat-icon-button
@@ -68,6 +63,17 @@
     class="is-small fa-solid fa-ellipsis"
     matTooltip ="View Options">
     </button>
+
+    <button  mat-icon-button *ngIf='!hasParent'
+    matTooltip= "Delete"
+    [name]="delete"
+    (click)="designActionChange('delete')">
+    <i class="fa-solid fa-times"></i> 
+    </button>
+
+
+
+
     <!-- <div id="slider" *ngIf="!exceeds_size">
       <mat-slider 
       [(ngModel)]="draft_cell_size"
@@ -144,17 +150,16 @@
 <div class="outlet_row">
 
 
-  <button 
-  id = "{{id}}-out" 
-  class="output"
-  [class.active]="selecting_connection"
-  matTooltip = "connect this draft to an operation"
-  (click)="connectionStarted($event)">
-    <i class="fa-sharp fa-solid fa-circle-down"></i>
-  </button>
-
-
-
+    <button 
+    mat-raised-button
+    id = "{{id}}-out" 
+    class="outlet"
+    [class.active]="selecting_connection"
+    [class.outlet_connected]="outlet_connected"
+    matTooltip = "connect this draft to an operation"
+    (click)="connectionStarted($event)">
+      <i class="fa-sharp fa-solid fa-circle-down"></i>  {{id}}
+    </button>
   </div>
 
 

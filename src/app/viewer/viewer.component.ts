@@ -39,6 +39,7 @@ export class ViewerComponent {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log("CHANGES MADE ", changes)
     if (changes['id'] || changes['dirty']) {
       this.redraw(this.id);
     }

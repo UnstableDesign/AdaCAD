@@ -17,10 +17,12 @@ export class DraftrenderingComponent {
   @Input() id;
   @Input() dirty;
   @Input() hasParent;
+  @Input() selecting_connection;
   @Output() connectionSelected = new EventEmitter();
   @Output() onDuplicateCalled = new EventEmitter();
   @Output() onDeleteCalled = new EventEmitter();
   @Output() onSelectCalled = new EventEmitter();
+  @Output() onOpenInEditor = new EventEmitter();
   @ViewChild('bitmapImage') bitmap: any;
 
   draft_canvas: HTMLCanvasElement;
@@ -41,11 +43,13 @@ export class DraftrenderingComponent {
 
   wefts: number;
 
-  selecting_connection: boolean;
-
   draft_visible: boolean = true;
 
   use_colors: boolean = true;
+
+  outlet_connected: boolean = true;
+
+  draft_name: string = "";
 
 
 
@@ -65,8 +69,10 @@ export class DraftrenderingComponent {
     this.drawDraft(draft);  
     this.ud_name = draft.ud_name;
     this.warps = warps(draft.drawdown);
-    this.wefts = wefts(draft.drawdown)
-  
+    this.wefts = wefts(draft.drawdown);
+
+    this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
+    this.draft_name = this.tree.getDraftName(this.id)
 
   }
 
@@ -84,13 +90,15 @@ export class DraftrenderingComponent {
   }
 
   connectionStarted(event){
-    this.selecting_connection = true;
     this.connectionSelected.emit({event: event, id: this.id});
   }
 
   selectForView(){
-    console.log("SELECTED IN DRAFT RENDERING ")
     this.onSelectCalled.emit()
+  }
+
+  openInEditor(){
+    this.onOpenInEditor.emit(this.id)
   }
 
 

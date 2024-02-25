@@ -76,14 +76,11 @@
         height: 100%;
         align-content: baseline;
         flex-basis: 0;
-    }
-    /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
-    .mat-select-value{
         color: white;
         font-weight: bolder;
         font-size: 1.5em;
-
     }
+
     /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
     .mat-select-arrow{
         color: white;

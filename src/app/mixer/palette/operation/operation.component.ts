@@ -235,6 +235,10 @@ export class OperationComponent implements OnInit {
 
   toggleSelection(e: any){
 
+      if(this.children.length > 0){
+        let child = this.children[0];
+        this.onShowChildDetails.emit(child);
+      }
 
       if(e.shiftKey == true){
         this.multiselect.toggleSelection(this.id, this.topleft);
@@ -249,10 +253,6 @@ export class OperationComponent implements OnInit {
 
   mousedown(e: any){
 
-    if(this.children.length > 0){
-      let child = this.children[0];
-      this.onShowChildDetails.emit(child);
-    }
     e.stopPropagation();
   }
 

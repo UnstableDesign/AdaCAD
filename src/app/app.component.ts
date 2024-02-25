@@ -1126,6 +1126,15 @@ setDraftsViewable(val: boolean){
   this.mixer.redrawAllSubdrafts();
 }
 
+openInEditor(id: number){
+  
+  this.editor.loadDraft(id);
+   this.selected_draft_id = id;
+   this.selected_editor_mode = 'draft';
+   this.toggleEditorMode();
+
+}
+
 showDraftDetails(id: number){
   this.editor.loadDraft(id);
 
@@ -1184,6 +1193,10 @@ showDraftDetails(id: number){
 
     this.viewer.redraw(this.selected_draft_id);
 
+  }
+
+  onSetViewer(id: number){
+    this.selected_draft_id = id;
   }
 
    /**

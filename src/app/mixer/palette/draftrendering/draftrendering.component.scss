@@ -4,13 +4,9 @@ canvas{
 	height: fit-content;
   }
 
-.mat-mdc-icon-button {
-	font-size: 14px;
-}
-
 .top-half-draft{
-display: flex;
-flex-direction: row;
+	display: flex;
+	flex-direction: row;
 }
 
 
@@ -170,9 +166,7 @@ button.output{
 
 
 .outlet{
-	background-color: transparent;
-	color: white;
-	border: none; 
+	font-size: 1.5em;
 	
 }
 
@@ -180,6 +174,18 @@ button.output{
 	position: relative;
 	top: 12px;
     left: 16px;
+	color: white;
+}
+
+
+.outlet_connected{
+	background-color: black;
+	color: white;
+}
+
+.active{
+	background-color: #ff3860;
+	color: white;
 }
 
 
@@ -199,29 +205,22 @@ button.output{
 
 
 .datarow{
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	color: white;
-    font-size: 0.7em;
-	padding: 0px 4px;
-	height: 20px;
+	// display: flex;
+	// flex-direction: row;
+	// justify-content: space-between;
+	// color: white;
+    // font-size: 1.5em;
+	// padding: 0px 4px;
 
 }
 
-.bottom-opts{
+.options{
 	display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-end;
 	align-items: center;
-    color: #555;
 }
 
-
-.bottom-opts.has_draft_hidden{
-	height: auto;
-	width: 224px;
-}
 
 .scale-container{
 
@@ -260,12 +259,6 @@ h3{
 .dropdown{
 	display: flex;
 	flex-direction: column;
-}
-
-.subdraft-details{
-	position: relative;
-	top: -10px;
-
 }
 
 .local_zoom{

@@ -33,6 +33,7 @@ export class PaletteComponent implements OnInit{
   @Output() onDesignModeChange: any = new EventEmitter();  
   @Output() onRevealDraftDetails: any = new EventEmitter();  
   @Output() refreshViewer: any = new EventEmitter();  
+  @Output() onOpenInEditor: any = new EventEmitter();  
 
   /**
    * A container that supports the automatic generation and removal of the components inside of it
@@ -455,11 +456,16 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
-    this.subdraftSubscriptions.push(sd.onShowDetails.subscribe(this.revealDraftDetails.bind(this)));
-    this.subdraftSubscriptions.push(sd.onSelectForView.subscribe(this.setViewerFocus.bind(this)));
+    this.subdraftSubscriptions.push(sd.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
+    this.subdraftSubscriptions.push(sd.onSelectForView.subscribe(this.forceFocus.bind(this)));
+    this.subdraftSubscriptions.push(sd.onFocus.subscribe(this.setFocus.bind(this)));
 
   }
 
+  openInEditor(id: number){
+    console.log("OPEN IN EDITOR PALETTE ", id)
+    this.onOpenInEditor.emit(id);
+  }
 
 
   /**
@@ -469,7 +475,6 @@ handlePan(diff: Point){
    */
   revealDraftDetails(id: number){
     
-    this.selected_draft_id = id;
     if(this.has_viewer_focus == -1) this.onRevealDraftDetails.emit(id);
 
     if(this.tree.hasParent(id)){
@@ -673,8 +678,8 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onInputVisibilityChange.subscribe(this.updateVisibility.bind(this)));
     this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
-    this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.revealDraftDetails.bind(this)));
-    this.operationSubscriptions.push(op.onSelectForView.subscribe(this.setViewerFocus.bind(this)));
+    this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.setFocus.bind(this)));
+    this.operationSubscriptions.push(op.onSelectForView.subscribe(this.forceFocus.bind(this)));
   }
 
 
@@ -1131,6 +1136,23 @@ handlePan(diff: Point){
  }
 
  /**
+  * when the connection is started, this manually adjusts styling on the outlet component 
+  * @param id 
+  * @param active 
+  */
+ setOutletStylingOnConnection(id: number, active: boolean){
+  if(id == -1) return;
+
+  let sd_container = document.getElementById(id+'-out')
+  if(active) sd_container.style.backgroundColor = "#ff4081";
+  else{
+    if(this.tree.getNonCxnOutputs(id).length > 0)    sd_container.style.backgroundColor = "black";
+    else sd_container.style.backgroundColor = "white";
+
+  } 
+ }
+
+ /**
   * triggers a mode that allows mouse-mouse to be followed by a line.
   * todo; add code that holds the point on scroll
   * @param obj - contains event, id of component who called
@@ -1138,26 +1160,28 @@ handlePan(diff: Point){
  onConnectionStarted(obj: any){
 
 
-  if(obj.type == 'stop'){
+  if(obj.type == 'stop' || (this.tree.getOpenConnectionId() !== -1)){
     this.selecting_connection = false;
+    this.setOutletStylingOnConnection(this.tree.getOpenConnectionId(), false);
     this.tree.unsetOpenConnection();
     this.processConnectionEnd();
-    return;
+    if(obj.type == 'stop') return;
   }
+
+
 
   const valid = this.tree.setOpenConnection(obj.id);
   if(!valid) return;
 
-  this.changeDesignmode('operation');
   this.selecting_connection = true;
 
   //make sure to unselect anything else that had previously been selected
-  const all_drafts = this.tree.getDraftNodes();
-  const not_selected = all_drafts.filter(el => el.id !== obj.id);
-  not_selected.forEach(node => {
-    let comp = <SubdraftComponent>node.component;
-    if(comp !== null) comp.selecting_connection = false;
-  })
+  // const all_drafts = this.tree.getDraftNodes();
+  // const not_selected = all_drafts.filter(el => el.id !== obj.id);
+  // not_selected.forEach(node => {
+  //   let comp = <SubdraftComponent>node.component;
+  //   if(comp !== null) comp.selecting_connection = false;
+  // })
 
 
 
@@ -1168,15 +1192,18 @@ handlePan(diff: Point){
 
   let parent = document.getElementById('scrollable-container');
   let parent_rect = parent.getBoundingClientRect();
-  let sd_container = document.getElementById(obj.id+'-out').getBoundingClientRect();
+  let sd_container = document.getElementById(obj.id+'-out')
+  let sd_rect = sd_container.getBoundingClientRect();
+
+  this.setOutletStylingOnConnection(obj.id, true);
 
   const zoom_factor =  1 / this.zs.getMixerZoom();
   //on screen position relative to palette
-  let screenX = sd_container.x - parent_rect.x + parent.scrollLeft;
+  let screenX = sd_rect.x - parent_rect.x + parent.scrollLeft;
   let scaledX = screenX * zoom_factor;
 
   //on screen position relative to palette
-  let screenY = sd_container.y - parent_rect.y + parent.scrollTop;
+  let screenY = sd_rect.y - parent_rect.y + parent.scrollTop;
   let scaledY = screenY * zoom_factor;
 
  adj = {
@@ -1383,6 +1410,7 @@ connectionDragged(mouse: Point){
  processConnectionEnd(){
   this.closeSnackBar();
   this.selecting_connection = false;
+  this.setOutletStylingOnConnection(this.tree.getOpenConnectionId(), false);
   const svg = document.getElementById('scratch_svg');
   svg.innerHTML = ' ' ;
 
@@ -1730,7 +1758,6 @@ connectionMade(obj: any){
   
   this.createConnection(sd, obj.id, obj.ndx);
 
-  
   this.performAndUpdateDownstream(obj.id).then(el => {
     let children = this.tree.getNonCxnOutputs(obj.id);
     if(children.length > 0) this.revealDraftDetails(children[0]);
@@ -1753,6 +1780,7 @@ pasteConnection(from: number, to: number, inlet: number){
 
 /**
  * Called when a connection is explicitly deleted
+ * id refers to the id of the connection that is being deleted. 
 */
  removeConnection(obj: {id: number}){
 
@@ -1784,11 +1812,19 @@ pasteConnection(from: number, to: number, inlet: number){
  }
 
  /**
+  * set focus sets the draft in the viewer and editor (as long as nothing is already forced in the focus)
+  * @param id 
+  */
+ setFocus(id: number){
+  console.log("SET FOCUS ON PALETTE", id)
+  this.revealDraftDetails(id);
+ }
+
+ /**
  * the id of the operation or subdraft that is now selected
  * @param id 
  */
- setViewerFocus(id: number){
-
+ forceFocus(id: number){
 
   if(this.has_viewer_focus !== -1){
     const el = document.getElementById('scale-'+this.has_viewer_focus);

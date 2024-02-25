@@ -133,6 +133,7 @@ id="scrollable-container"
 class="palette mode-{{dm.cur_mixer_mode}}"
 [class.no-pointer]="!palette.pointer_events" 
 #palette 
+(onOpenInEditor)="openDraftInEditor($event)"
 (onRevealDraftDetails)="showDraftDetails($event)"
 (refreshViewer)="onRefreshViewer()" >
 </app-palette>

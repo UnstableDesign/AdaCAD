@@ -72,8 +72,9 @@ export class SubdraftComponent implements OnInit {
   @Output() onSubdraftViewChange:any = new EventEmitter<any>();
   @Output() createNewSubdraftFromEdits:any = new EventEmitter<any>();
   @Output() onNameChange:any = new EventEmitter<any>();
-  @Output() onShowDetails:any = new EventEmitter<any>();
+  @Output() onOpenInEditor:any = new EventEmitter<any>();
   @Output() onSelectForView = new EventEmitter <any> ();
+  @Output() onFocus = new EventEmitter <any> ();
 
   @ViewChild('draftrendering') draftrendering: DraftrenderingComponent;
 
@@ -218,6 +219,10 @@ export class SubdraftComponent implements OnInit {
 
 
   toggleMultiSelection(e: any){
+
+    console.log("EMIT ON FOCUS ", this.id)
+    this.onFocus.emit(this.id);
+
     if(e.shiftKey){
       this.multiselect.toggleSelection(this.id, this.topleft);
     }else{
@@ -256,9 +261,18 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-  selectForView(){
-    console.log("SELECT FOR VIEW")
-    this.onSelectForView.emit(this.id);
+setFocus(){
+  this.onFocus.emit(this.id);
+
+}  
+
+selectForView(){
+  console.log("SELECT FOR VIEW")
+  this.onSelectForView.emit(this.id);
+}
+
+openInEditor(event: any){
+  this.onOpenInEditor.emit(this.id);
 }
 
 
@@ -408,9 +422,7 @@ export class SubdraftComponent implements OnInit {
    * @param e 
    */
      mousedown(e: any){
-      this.onShowDetails.emit(this.id);
       e.stopPropagation();
-
     }
 
   
@@ -561,16 +573,6 @@ export class SubdraftComponent implements OnInit {
     
     }
   
-
-
-    /**
-     * Open this when 
-     * @returns 
-     */
-    finetune(){
-      this.onShowDetails.emit(this.id);
-    }
-
  
 
 

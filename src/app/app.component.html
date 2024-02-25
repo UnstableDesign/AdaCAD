@@ -155,9 +155,10 @@
     #mixer
     id="mixer" 
     cdkScrollable
-    (onFocusView)="focusUIView('mixer', false)"
+    (onDraftDetailOpen)="onSetViewer($event)"
     (refreshViewer)="onRefreshViewer()"
-    (onDraftDetailOpen)="showDraftDetails($event)"
+    (onOpenInEditor)="openInEditor($event)"
+
     >
     </app-mixer> 
 

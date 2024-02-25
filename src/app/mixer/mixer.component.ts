@@ -51,6 +51,7 @@ export class MixerComponent  {
   @ViewChild(PaletteComponent) palette;
 
   @Output() onDraftDetailOpen: any = new EventEmitter();
+  @Output() onOpenInEditor: any = new EventEmitter();
   @Output() refreshViewer: any = new EventEmitter();
   @Output() onFocusView: any = new EventEmitter();
 
@@ -351,6 +352,11 @@ zoomChange(zoom_index:any){
 
 
 
+
+
+
+
+
   clearView() : void {
 
     if(this.palette !== undefined) this.palette.clearComponents();
@@ -515,13 +521,6 @@ zoomChange(zoom_index:any){
  }
 
 
-   public redrawAllSubdrafts() {
-    
-    this.palette.redrawAllSubdrafts();
-
-
- }
-
 
 /**
  * the drafts stored in adacad are ALWAYs oriented with 0,0 as the top left corner
@@ -536,15 +535,15 @@ originChange(value: number){
 }
 
 
+openDraftInEditor(id: number){
+  console.log("OPEN DRAFT IN EDITOR FROM MIXER ", id)
+  this.onOpenInEditor.emit(id);
+}
 
 
-
-  showDraftDetails(id: number){
-
-      this.onDraftDetailOpen.emit(id);
-  
- 
-  }
+showDraftDetails(id: number){
+    this.onDraftDetailOpen.emit(id);
+}
 
 
 
