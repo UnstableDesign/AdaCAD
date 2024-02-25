@@ -31,27 +31,17 @@ cdkDragBoundary=".palette"
 
         <div class="top-row" >
 
-
-
-          <button 
-          mat-icon-button
-          (click)="selectForView()">
-          <i class="fa-solid fa-eye"></i>
-          </button> 
-  
-
         <div class="operation-details">
             <div class="name no-text-select">{{displayname}}</div>
           
         </div>
 
+        <button 
+        mat-icon-button
+        (click)="selectForView()">
+        <i class="fa-solid fa-eye"></i>
+        </button> 
 
-
-        <button mat-icon-button
-        [matMenuTriggerFor]="editOptions"
-        class="is-small fa-solid fa-ellipsis"
-        matTooltip ="View Options">
-        </button>
 
         <mat-menu #editOptions>
 
@@ -68,15 +58,22 @@ cdkDragBoundary=".palette"
         <i class="fa-solid fa-clone"></i> duplicate
         </button>
         
-
+        </mat-menu>
+       
         <button 
-        mat-flat-button
+        mat-icon-button
         (click)="delete()">
-        <i class="fa-solid fa-x"></i>  delete 
+        <i class="fa-solid fa-times"></i>  
 
         </button>
-        </mat-menu>
-       </div>
+
+        <button mat-icon-button
+        [matMenuTriggerFor]="editOptions"
+        class="is-small fa-solid fa-ellipsis"
+        matTooltip ="View Options">
+        </button>
+
+      </div>
 
       <div class="params">
 

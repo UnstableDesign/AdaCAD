@@ -7,7 +7,6 @@ const name = "apply materials";
 const old_names = [];
 
 //PARAMS
-//PARAMS
 const shift_warp_mat:NumParam =  
 {name: 'warp colors shift',
 min: 0,
@@ -76,8 +75,8 @@ const draft: OperationInlet = {
 
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Promise<Array<Draft>> => {
 
-    const base_drafts = getAllDraftsAtInlet(op_inputs, 0);
-    const materials_drafts = getAllDraftsAtInlet(op_inputs, 1);
+     const base_drafts = getAllDraftsAtInlet(op_inputs, 0);
+     const materials_drafts = getAllDraftsAtInlet(op_inputs, 1);
 
     const weft_mat_shift = getOpParamValById(1, op_params);
     const warp_mat_shift = getOpParamValById(0, op_params);
@@ -85,10 +84,11 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     const weft_sys_shift = getOpParamValById(3, op_params);
 
 
-    if(base_drafts.length == 0 && materials_drafts.length == 0) return Promise.resolve([]);
+     if(base_drafts.length == 0) return Promise.resolve([]);
+     if(materials_drafts.length == 0) return Promise.resolve([]);
 
 
-    let active_draft = (base_drafts.length > 0) ?base_drafts[0] : initDraftWithParams({warps: 1, wefts: 1});
+    let active_draft = (base_drafts.length > 0) ? base_drafts[0] : initDraftWithParams({warps: 1, wefts: 1});
 
     let materials_draft = (materials_drafts.length > 0) ?materials_drafts[0] : initDraftWithParams({warps: 1, wefts: 1});
     
@@ -105,7 +105,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     let weft_materials = new Sequence.OneD(materials_draft.rowShuttleMapping).resize(height).shift(weft_mat_shift);
 
     
-    let d = copyDraft(active_draft);
+   let d = copyDraft(active_draft);
     d.colShuttleMapping = warp_mats.val();
     d.colSystemMapping = warp_systems.val();
     d.rowShuttleMapping = weft_materials.val();

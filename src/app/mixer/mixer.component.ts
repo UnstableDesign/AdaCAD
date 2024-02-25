@@ -351,17 +351,10 @@ zoomChange(zoom_index:any){
 
 
 
-
-
-
-
-  clear(){
-    this.notes.clear();
-  }
-
   clearView() : void {
 
     if(this.palette !== undefined) this.palette.clearComponents();
+    this.notes.clear();
     this.vp.clear();
 
   }
@@ -521,6 +514,13 @@ zoomChange(zoom_index:any){
 
  }
 
+
+   public redrawAllSubdrafts() {
+    
+    this.palette.redrawAllSubdrafts();
+
+
+ }
 
 
 /**

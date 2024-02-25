@@ -475,13 +475,17 @@ export class TreeService {
   sweepInlets(id: number, prior_inlet_vals: Array<any>) : Promise<Array<ViewRef>>{
 
      const opnode: OpNode = this.getOpNode(id);
+    if(!this.ops.isDynamic(opnode.name)) return Promise.resolve([]);
+
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
      const viewRefs:Array<ViewRef> = [];
 
      inputs_to_op.forEach((iotuple) => {
         //what was the value of the inlet
+
         let prior_val = prior_inlet_vals[iotuple.ndx];
         let new_ndx = opnode.inlets.findIndex(el => el == prior_val);
+
         if(new_ndx == -1){
           this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
           viewRefs.push(iotuple.tn.node.ref)
@@ -1833,6 +1837,43 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(output_ids.length  > 1) console.log("Error: more than one output");
     return output_ids.pop();
   }
+
+  
+
+  /**
+   * mostly used to identify which of an operation's inlet's this connection should connected to. 
+   * Because inlet information is stored on the operation, it looks at the operation to identify which inlet this connection enters into, and when approriate, which number in the array of inlets this belongs to
+   * @param cxn_id 
+   * @returns an object storing the id, the inlet_ndx, and the array_ndx (where there is multiple values in one inlet)
+   */
+  getConnectionOutputWithIndex(cxn_id: number):{id: number, inlet: number, arr: number}{
+    const tn = this.getTreeNode(cxn_id);
+    let found = null;
+    
+    //a connectino only have one output, so this in 
+    const output_tns: Array<TreeNode> = tn.outputs.map(child => child.tn);
+
+    //how many inputs are connected to this operation 
+    output_tns.forEach(output_tn => {
+
+
+      let has_connection: IOTuple = output_tn.inputs.find( input => input.tn.node.id === cxn_id);
+
+      if(has_connection !== undefined){
+
+        let inlet_with_connection = output_tn.inputs.filter(el => el.ndx == has_connection.ndx);
+        let arr_ndx = inlet_with_connection.findIndex( inlet => inlet.tn.node.id === cxn_id);
+        // console.log("inlet with connection length ", inlet_with_connection, arr_ndx)
+
+       found= {id: output_tn.node.id, inlet: has_connection.ndx, arr: arr_ndx};
+      }
+    })
+    if(found === null) console.error("ERROR Connection output's input does not contain this connection id ")
+    return found;
+  }
+
+
+
 
 
 

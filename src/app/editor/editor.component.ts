@@ -92,22 +92,12 @@ export class EditorComponent implements OnInit {
     public render: RenderService,
     private zs: ZoomService) {
 
-    // this.scrollingSubscription = this.scroll
-    //       .scrolled()
-    //       .subscribe((data: any) => {
-    //         this.onWindowScroll(data);
-    // });
 
 
     this.copy = [[createCell(false)]];
     this.draw_modes = draft_pencil;
   }
 
-  // private onWindowScroll(data: CdkScrollable) {
-  //   const scrollTop:number = data.measureScrollOffset("top");
-  //   const scrollLeft:number = data.measureScrollOffset("left");
-  //   this.weaveRef.reposition(scrollTop, scrollLeft);
-  // }
   
   ngOnInit(){
 
@@ -191,7 +181,6 @@ export class EditorComponent implements OnInit {
    * @returns 
    */
   onFocus(){
-    console.log("ON FOCUS ID IS ", this.id)
     if(this.id == -1){
       this.generateNewBlankDraft();
       this.renderChange();
@@ -280,6 +269,15 @@ export class EditorComponent implements OnInit {
 
   }
 
+  public materialChange() {
+
+    this.drawdownUpdated();
+   
+    // this.redrawViewer.emit();
+    // this.addTimelineState();
+
+  }
+
   public drawdownUpdated(){
 
 
@@ -328,11 +326,7 @@ export class EditorComponent implements OnInit {
   }
 
 
-  public materialChange() {
-   
-    this.redrawViewer.emit();
 
-  }
 
   unsetSelection(){
       this.weaveRef.unsetSelection();

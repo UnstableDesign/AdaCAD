@@ -82,13 +82,15 @@ button.is-primary{
 }
 
 .cxn-row{
-    font-size: 0.8em;
     display: flex;
     flex-direction: row;
     text-align: left;
+    align-items: center;
     overflow: visible;
-    height: 25px;
-    padding: 2px 0;
+    // height: 24px;
+    padding: 8px 8px 0px 8px;
+    //background:rgba(255, 255, 255, 0.5)
+    
 
 
 

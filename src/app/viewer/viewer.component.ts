@@ -15,6 +15,7 @@ import { AuthService } from '../core/provider/auth.service';
 export class ViewerComponent {
   @Input() id;
   @Output() onLoadBlankFile: any = new EventEmitter();
+  @Output() onClearWorkspace: any = new EventEmitter();
   @Output() onOpenExamples: any = new EventEmitter();
   @Output() onOpenMaterials: any = new EventEmitter();
   @Output() onManageFiles: any = new EventEmitter();
@@ -81,6 +82,10 @@ getVisVariables(){
 
   loadBlankFile(){
     this.onLoadBlankFile.emit();
+  }
+
+  clearWorkspace(){
+    this.onClearWorkspace.emit();
   }
 
   manageFiles(){

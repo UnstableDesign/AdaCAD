@@ -337,10 +337,6 @@ export class DraftComponent implements OnInit {
     let adj = 1;
     let margin = 160;
 
-    // let div_draft_detail = document.getElementById('detail');
-    // let rect = div_draft_detail.getBoundingClientRect();
-
-
     let div_draftviewer = document.getElementById('draft_viewer');
      let rect_draftviewer = div_draftviewer.getBoundingClientRect();
 
@@ -367,7 +363,6 @@ export class DraftComponent implements OnInit {
       //make the zoom the smaller of the width or height
       adj = Math.min(width_adj, height_adj);
      
-      console.log("ADJ ")
       if(adj !== 0) this.zs.setEditorIndexFromZoomValue(adj);
       
       this.rescale();     
@@ -2940,6 +2935,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
   public drawOnWeftMaterials(draft: Draft, currentPos: Interlacement){
     draft.rowShuttleMapping[currentPos.i] = this.selected_material_id;
+    this.onMaterialChange.emit();
   }
 
 

@@ -306,11 +306,11 @@ class Util {
    * @param scale the scale of the view we are using
    * @returns an Interlacement
    */
-  resolveCoordsToNdx(p: Point, scale:number) : Interlacement {  
-    const i = Math.floor((p.y) / scale);
-    const j = Math.floor((p.x) / scale);
-    return {i: i, j: j, si: i};
-  }
+  // resolveCoordsToNdx(p: Point, scale:number) : Interlacement {  
+  //   const i = Math.floor((p.y) / scale);
+  //   const j = Math.floor((p.x) / scale);
+  //   return {i: i, j: j, si: i};
+  // }
 
   /**
    * takes two interlacements and sees if they are the same
@@ -407,54 +407,6 @@ class Util {
     return true;
   }
 
-   /**
-   * returns a Bounds type that represents the intersection between primary and one intersecting subdraft
-   * @param primary the rectangular area we are checking for intersections
-   * @param isect an array of all the components that intersect
-   * @returns the array of bounds of all intersections
-   */
-    // getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent):Bounds{
-
-    //   const left: number = Math.max(primary.bounds.topleft.x, isect.bounds.topleft.x);
-    //   const top: number = Math.max(primary.bounds.topleft.y, isect.bounds.topleft.y);
-    //   const right: number = Math.min((primary.bounds.topleft.x + primary.bounds.width), (isect.bounds.topleft.x + isect.bounds.width));
-    //   const bottom: number = Math.min((primary.bounds.topleft.y + primary.bounds.height), (isect.bounds.topleft.y + isect.bounds.height));
-  
-    //   return {
-    //     topleft: {x: left, y: top},
-    //     width: right - left,
-    //     height: bottom - top
-    //   };
-  
-    // }
-  
-    /**
-     * gets the combined boundary of a Subdraft and any of its intersections
-     * @param moving A SubdraftComponent that is our primary subdraft
-     * @param isect  Any subdrafts that intersect with this component 
-     * @returns the bounds of a rectangle that holds both components
-    //  */
-    // getCombinedBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):Bounds{
-      
-    //   const bounds: Bounds = {
-    //     topleft: {x: 0, y:0},
-    //     width: 0,
-    //     height: 0
-    //   }
-  
-    //   bounds.topleft.x = utilInstance.getLeftMost(moving, isect).getTopleft().x;
-    //   bounds.topleft.y = utilInstance.getTopMost(moving, isect).getTopleft().y;
-  
-    //   const rm =  utilInstance.getRightMost(moving, isect);
-    //   const bm =  utilInstance.getBottomMost(moving, isect);
-  
-    //   bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
-    //   bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
-  
-    //   return bounds;
-  
-    // }
-
     /**
      * computes the value of a heddle given overlapping drafts
      * @param p the point we are interested in
@@ -476,17 +428,6 @@ class Util {
     }
 
 
-    getAdjustedPointerPosition(p: Point, viewport:Bounds) : any {   
-
-
-      
-
-      return {
-        x: p.x,
-        y: p.y
-      } 
-    }
-
     /**
    * takes an absolute point and returns the "cell" boundary that is closest. 
    * @param p the absolute point
@@ -499,21 +440,6 @@ class Util {
       return p;
 
     }
-
-/**
- * Takes an absolute coordinate and translates to a number that would represent its grid position on screen
- * used only for testing if a new move calculation should be called
- * @param p the screen coordinate
- * @returns the row and column within the draft (i = row, j=col), returns -1 if out of bounds
- */
-  //  public resolvePointToAbsoluteNdx(p:Point, scale:number) : Interlacement{
-    
-  //   let i = Math.floor((p.y) / scale);
-  //   let j = Math.floor((p.x) / scale);
-
-  //   return {i: i, j:j, si: i};
-
-  // }
 
   /**
    * returns the number of wefts that is greatest out of all the input drafts

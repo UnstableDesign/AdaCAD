@@ -166,12 +166,13 @@ export class AppComponent implements OnInit{
 
   clearAll() : void{
 
-    //this.mixer.clearView();
+    this.mixer.clearView();
     this.editor.clearAll();
     this.tree.clear();
     this.ss.clearTimeline();
-   // this.mixer.clear();
     this.ms.reset();
+
+    console.log("THIS TREE ", this.tree)
 
   }
 

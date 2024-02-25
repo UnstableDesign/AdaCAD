@@ -181,6 +181,7 @@
      #viewer
      [id]="selected_draft_id"
      class="static-container"
+     (onClearWorkspace)="clearAll()"
      (onOpenMaterials)="openMaterials()"
      (onOpenExamples)="openExamples()"
      (onLoadBlankFile)="loadBlankFile()"

@@ -72,7 +72,14 @@
   </mat-expansion-panel-header>
 
 
-      <button  mat-flat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> New Project</button>
+  <button  mat-flat-button [matMenuTriggerFor]="clearWorkspaceMenu" ><i class="fa-solid fa-eraser"></i> Clear Workspace</button>
+  <mat-menu #clearWorkspaceMenu="matMenu">
+    <button mat-menu-item (click)="clearWorkspace()">are you sure?</button>
+  </mat-menu>   
+
+    <button  mat-flat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> New Project</button>
+
+
 
       <button 
       mat-flat-button  

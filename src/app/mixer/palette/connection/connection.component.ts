@@ -68,12 +68,12 @@ export class ConnectionComponent implements OnInit {
     this.svg = document.getElementById('svg-'+this.id.toString());
     this.connector = document.getElementById('connector-'+this.id.toString());
 
-    const to = this.tree.getConnectionOutput(this.id);
+    const to = this.tree.getConnectionOutputWithIndex(this.id);
     const from = this.tree.getConnectionInput(this.id);
 
 
      this.updateFromPosition(from);
-     this.updateToPosition(to);
+     this.updateToPosition(to.id, to.inlet, to.arr);
 
      this.drawConnection()
 
@@ -120,15 +120,16 @@ export class ConnectionComponent implements OnInit {
    * unless the to node is a dynamic operation, in which case we must move to an inlet. 
    * @param to the id of the component this connection goes to
    */
-  updateToPosition(to: number){
-
-
+  updateToPosition(op_id: number, inlet_id: number, arr_id: number){
 
     let parent = document.getElementById('scrollable-container');
     let parent_rect = parent.getBoundingClientRect();
-    let to_container = document.getElementById('scale-'+to);
-    let to_rect = to_container.getBoundingClientRect();
 
+
+    let to_container = document.getElementById("inlet"+op_id+"-"+inlet_id+"-"+arr_id);
+    if(to_container == null || to_container == undefined) return;
+    
+    let to_rect = to_container.getBoundingClientRect();
     const zoom_factor =  1/this.zs.getMixerZoom();
 
     //on screen position relative to palette
@@ -142,8 +143,8 @@ export class ConnectionComponent implements OnInit {
     
 
     this.b_to = {
-      x: scaledX,
-      y: scaledY
+      x: scaledX + to_rect.width/2,
+      y: scaledY + to_rect.height/2
     }
 
 
@@ -162,6 +163,9 @@ export class ConnectionComponent implements OnInit {
     let parent_rect = parent.getBoundingClientRect();
     let sd_container = document.getElementById(from+'-out').getBoundingClientRect();
 
+
+
+
     const zoom_factor =  1/this.zs.getMixerZoom();
    //on screen position relative to palette
    let screenX = sd_container.x - parent_rect.x + parent.scrollLeft;
@@ -171,9 +175,12 @@ export class ConnectionComponent implements OnInit {
    let screenY = sd_container.y - parent_rect.y + parent.scrollTop;
    let scaledY = screenY * zoom_factor;
 
+    
+    
+    //draw from the center of the icon
    this.b_from = {
-    x: scaledX,
-    y: scaledY
+    x: scaledX + sd_container.width/2,
+    y: scaledY+ sd_container.height/2
   }
 
     this.calculateBounds();
@@ -220,13 +227,14 @@ export class ConnectionComponent implements OnInit {
   drawConnection(){
 
 
-    const stublength = 15;
-    const connector_opening = 10;
+    const stublength = 40;
+    const connector_opening = 20;
     // const connector_font_size = Math.max((10 - scale) / 10, .75);
     const connector_font_size = 2;
     const text_path_font_size =   Math.max((10 - this.zs.getMixerZoom()) / 10, .75);
-    const button_margin_left = -20;
+    const button_margin_left = -24;
     const button_margin_top = -16;
+    const color = "#000000"
     
     if(this.no_draw) return;
     if(this.svg === null || this.svg == undefined) return;
@@ -236,15 +244,15 @@ export class ConnectionComponent implements OnInit {
 
     if(this.orientation_x && this.orientation_y){
       
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 0 C 0 50, '+this.width+' '+(this.height-70)+', '+this.width+' '+(this.height-(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
+      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 0 C 0 50, '+this.width+' '+(this.height-70)+', '+this.width+' '+(this.height-(stublength+connector_opening))+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
 
       if(this.show_path_text){
-        this.svg.innerHTML += '<text><textPath startOffset="10%" fill="#ff4081" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ';
+        this.svg.innerHTML += '<text><textPath startOffset="10%" fill="'+color+'" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ';
 
       }
      
 
-      this.svg.innerHTML += '  <line x1="'+this.width+'" y1="'+(this.height-(stublength))+'" x2='+this.width+' y2="'+this.height+'"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+      this.svg.innerHTML += '  <line x1="'+this.width+'" y1="'+(this.height-(stublength))+'" x2='+this.width+' y2="'+this.height+'"  stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
 
       this.connector.style.top = (this.height-(stublength+connector_opening)+button_margin_top)+'px';
       this.connector.style.left = (this.width+button_margin_left)+'px';
@@ -254,13 +262,13 @@ export class ConnectionComponent implements OnInit {
   
 
     }else if(!this.orientation_x && !this.orientation_y){
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+-(stublength+connector_opening)+' c 0 -50, '+this.width+' '+(this.height+100)+', '+this.width+' '+(this.height+(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
+      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+-(stublength+connector_opening)+' c 0 -50, '+this.width+' '+(this.height+100)+', '+this.width+' '+(this.height+(stublength+connector_opening))+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
 
       if(this.show_path_text){
-        this.svg.innerHTML += ' <text><textPath startOffset="60%" fill="#ff4081" href="#path-'+this.id+'">'+this.path_text+'</textPath></text>';
+        this.svg.innerHTML += ' <text><textPath startOffset="60%" fill="'+color+'" href="#path-'+this.id+'">'+this.path_text+'</textPath></text>';
       }
 
-      this.svg.innerHTML += '  <line x1="0" y1="'+-(stublength )+'" x2="0" y2="0"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+      this.svg.innerHTML += '  <line x1="0" y1="'+-(stublength )+'" x2="0" y2="0"  stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
 
       this.connector.style.top = -(stublength+connector_opening)+(button_margin_top)+'px';
       this.connector.style.left = (button_margin_left)+'px';
@@ -274,13 +282,13 @@ export class ConnectionComponent implements OnInit {
       // this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-70)+', 0 '+(this.bounds.height-(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> <text><textPath startOffset="50%" fill="#000000" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ' ;
 
 
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d=" M  0 '+(this.height-(stublength+connector_opening))+' C 0 '+(this.height-(stublength+connector_opening)-50)+', '+this.width+' 50, '+this.width+' 0" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
+      this.svg.innerHTML = ' <path id="path-'+this.id+'" d=" M  0 '+(this.height-(stublength+connector_opening))+' C 0 '+(this.height-(stublength+connector_opening)-50)+', '+this.width+' 50, '+this.width+' 0" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
 
       if(this.show_path_text){
-        this.svg.innerHTML += '<text><textPath startOffset="60%" fill="#ff4081" href="#path-'+this.id+'">'+this.path_text+'</textPath></text>';
+        this.svg.innerHTML += '<text><textPath startOffset="60%" fill="'+color+'" href="#path-'+this.id+'">'+this.path_text+'</textPath></text>';
       }
 
-      this.svg.innerHTML += '  <line x1="0" y1="'+(this.height-(stublength))+'" x2="0" y2="'+this.height+'"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+      this.svg.innerHTML += '  <line x1="0" y1="'+(this.height-(stublength))+'" x2="0" y2="'+this.height+'"  stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
 
 
       this.connector.style.top = (this.height-(stublength+connector_opening)+button_margin_top)+'px';
@@ -293,13 +301,13 @@ export class ConnectionComponent implements OnInit {
 
     }else{
 
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+this.height+' C 0 '+(this.height+50)+', '+this.width+' -50, '+this.width+''+-(stublength+connector_opening)+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
+      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+this.height+' C 0 '+(this.height+50)+', '+this.width+' -50, '+this.width+''+-(stublength+connector_opening)+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
 
       if(this.show_path_text){
-        this.svg.innerHTML = '<text><textPath startOffset="10%" fill="#000000" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ';
+        this.svg.innerHTML = '<text><textPath startOffset="10%" fill="'+color+'" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ';
       }
 
-      this.svg.innerHTML += '  <line x1="'+this.width+'" y1="'+(-(stublength))+'" x2="'+this.width+'" y2="0"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+      this.svg.innerHTML += '  <line x1="'+this.width+'" y1="'+(-(stublength))+'" x2="'+this.width+'" y2="0"  stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
 
 
       this.connector.style.top = -(stublength+connector_opening)+(button_margin_top)+'px';

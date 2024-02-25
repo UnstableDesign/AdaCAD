@@ -699,7 +699,7 @@ handlePan(diff: Point){
       op.instance.zndx = this.layers.createLayer();
       op.instance.default_cell = this.default_cell_size;
 
-      const tr =  this.viewport.getCenterPoint()
+      let tr = this.calculateInitialLocation();
       op.instance.topleft ={x: tr.x, y: tr.y};
 
      
@@ -1166,17 +1166,17 @@ handlePan(diff: Point){
   let adj: Point;
 
 
-  let parent = document.getElementById('scrollable-container').getBoundingClientRect();
-
+  let parent = document.getElementById('scrollable-container');
+  let parent_rect = parent.getBoundingClientRect();
   let sd_container = document.getElementById(obj.id+'-out').getBoundingClientRect();
 
   const zoom_factor =  1 / this.zs.getMixerZoom();
   //on screen position relative to palette
-  let screenX = sd_container.x - parent.x;
+  let screenX = sd_container.x - parent_rect.x + parent.scrollLeft;
   let scaledX = screenX * zoom_factor;
 
   //on screen position relative to palette
-  let screenY = sd_container.y - parent.y;
+  let screenY = sd_container.y - parent_rect.y + parent.scrollTop;
   let scaledY = screenY * zoom_factor;
 
  adj = {
@@ -1398,57 +1398,22 @@ connectionDragged(mouse: Point){
 
 
 /**
- * TO DO!!!! Make sure this works aas we expect 
- * */
-calculateInitialLocaiton(id: number) : Point {
-  
-  let new_tl =  this.viewport.getTopLeft(); 
-  
+ * Optimized this to work with adding of operations
+ * @returns 
+ */
+calculateInitialLocation() : Point {
 
-  //if it has a parent, align it to the bottom edge
-  if(this.tree.hasParent(id)){
+  const container = document.getElementById('scrollable-container');
+  const container_rect = container.getBoundingClientRect();
 
-    const parent_id = this.tree.getSubdraftParent(id);
-    const opnode = this.tree.getNode(parent_id);
-    const topleft = opnode.component.topleft;
-
-    const container: HTMLElement = document.getElementById('scale-'+parent_id);
-
-    //this component was just generated and needs a postion
-    if(container == null){
-      new_tl = {x: topleft.x, y: topleft.y};
-
-
-      // //component is not yet initalized on this calculation so we do it manually
-      const default_height =  100 * this.zs.getMixerZoom()/this.default_cell_size;
-      new_tl = {x: topleft.x, y: topleft.y+default_height};
-
-    }else{
-
-      const container: HTMLElement = document.getElementById('scale-'+parent_id);
-      const parent_height = container.offsetHeight * (this.zs.getMixerZoom()/this.default_cell_size);  
-      new_tl = {x: topleft.x, y: topleft.y + parent_height};
-    }
-
-    const outs = this.tree.getNonCxnOutputs(parent_id);
-    if(outs.length > 1){
-      const this_child = outs.findIndex(el => el === id);
-      if(this_child === -1){ console.error("subdraft not found in parent output list")};
-      
-      const updated_point: Point = outs
-      .filter((el, ndx) => (ndx < this_child))
-      .reduce((acc, el, ndx) => {
-        const el_draft = this.tree.getDraft(el);
-         acc.x = acc.x + (warps(el_draft.drawdown) + 2)*this.default_cell_size;
-         return acc;
-      }, topleft);
-      
-      new_tl = updated_point;
-
-    }
-
+  let tl = {
+    x: (container.scrollLeft  + container_rect.x) * 1/this.zs.getMixerZoom(),
+    y: (container.scrollTop +  container_rect.y) * 1/this.zs.getMixerZoom(),
   }
-  return new_tl;
+
+  return tl;
+
+
 }
 
 
@@ -1561,7 +1526,7 @@ updateDownstream(subdraft_id: number) {
           {
             node_id: el.id,
             type: el.type,
-            topleft: this.calculateInitialLocaiton(el.id),
+            topleft:{x: 0, y: 0},
           }, null,this.zs.getMixerZoom());
         });
       
@@ -2133,7 +2098,10 @@ pasteConnection(from: number, to: number, inlet: number){
 
     this.tree.getInputs(id).forEach(cxn => {
        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-       if(comp !== null) comp.updateToPosition(id);
+       if(comp !== null){
+        const tuple = this.tree.getConnectionOutputWithIndex(cxn);
+        comp.updateToPosition(tuple.id, tuple.inlet, tuple.arr);
+       } 
     });
 
     this.tree.getOutputs(id).forEach(cxn => {
