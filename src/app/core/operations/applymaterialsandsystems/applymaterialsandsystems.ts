@@ -90,13 +90,15 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
 
     let active_draft = (base_drafts.length > 0) ? base_drafts[0] : initDraftWithParams({warps: 1, wefts: 1});
 
-    let materials_draft = (materials_drafts.length > 0) ?materials_drafts[0] : initDraftWithParams({warps: 1, wefts: 1});
+    let materials_draft = (materials_drafts.length > 0) ? materials_drafts[0] : initDraftWithParams({warps: 1, wefts: 1});
     
 
     let width = warps(active_draft.drawdown);
     let height = wefts(active_draft.drawdown);
 
     let warp_systems = new Sequence.OneD(materials_draft.colSystemMapping).resize(width).shift(warp_sys_shift);
+
+    //console.log("WARP SYSTEM RESULT ", warp_systems)
 
     let warp_mats = new Sequence.OneD(materials_draft.colShuttleMapping).resize(width).shift(warp_mat_shift);
 
@@ -107,13 +109,14 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     
    let d = copyDraft(active_draft);
     d.colShuttleMapping = warp_mats.val();
-    d.colSystemMapping = warp_systems.val();
+  //  d.colSystemMapping = warp_systems.val();
     d.rowShuttleMapping = weft_materials.val();
     d.rowSystemMapping = weft_systems.val();
 
 
 
     return Promise.resolve([d]);
+
 
 };   
 

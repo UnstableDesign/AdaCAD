@@ -14,7 +14,7 @@ export module Sequence{
 
     constructor(initSequence:Array<number> = []){
       if(initSequence){
-        this.state = initSequence;
+        this.state = initSequence.slice();
       }
       return this;
     }

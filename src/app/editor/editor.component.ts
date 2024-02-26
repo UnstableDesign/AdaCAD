@@ -190,8 +190,8 @@ export class EditorComponent implements OnInit {
   }
 
   onClose(){
-    this.id = -1;
-    this.weaveRef.id == -1;
+    // this.id = -1;
+    // this.weaveRef.id == -1;
   }
 
 
@@ -256,6 +256,7 @@ export class EditorComponent implements OnInit {
 
 
   public onCloseDrawer(){
+    
     this.weaveRef.unsetSelection();
    // this.simRef.unsetSelection();
     this.closeDrawer.emit({id: this.id, clone_id: this.clone_id, dirty: this.weaveRef.is_dirty});

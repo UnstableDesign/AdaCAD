@@ -2429,7 +2429,7 @@ pasteConnection(from: number, to: number, inlet: number){
   redrawAllSubdrafts(){
       const comps = this.tree.getDrafts();
       comps.forEach(sd => {
-        sd.redrawExistingDraft();
+        if(sd !== null && sd!== undefined) sd.redrawExistingDraft();
       })
     }
   }

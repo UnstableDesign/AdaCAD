@@ -1128,7 +1128,7 @@ setDraftsViewable(val: boolean){
 
 openInEditor(id: number){
   
-  this.editor.loadDraft(id);
+   this.editor.loadDraft(id);
    this.selected_draft_id = id;
    this.selected_editor_mode = 'draft';
    this.toggleEditorMode();
@@ -1137,7 +1137,6 @@ openInEditor(id: number){
 
 showDraftDetails(id: number){
   this.editor.loadDraft(id);
-
  // this.sim.loadNewDraft(draft, loom_settings)
   this.selected_draft_id = id;
   this.dm.selectPencil('toggle');
@@ -1197,6 +1196,7 @@ showDraftDetails(id: number){
 
   onSetViewer(id: number){
     this.selected_draft_id = id;
+    this.editor.loadDraft(id);
   }
 
    /**

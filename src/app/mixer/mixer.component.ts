@@ -50,10 +50,9 @@ export class MixerComponent  {
 
   @ViewChild(PaletteComponent) palette;
 
-  @Output() onDraftDetailOpen: any = new EventEmitter();
+  @Output() onDraftFocused: any = new EventEmitter();
   @Output() onOpenInEditor: any = new EventEmitter();
   @Output() refreshViewer: any = new EventEmitter();
-  @Output() onFocusView: any = new EventEmitter();
 
 
   origin_options: any = null;
@@ -188,7 +187,7 @@ addOperation(name: string){
   let id = this.palette.addOperation(name);
   this.myControl.setValue('');
   const outputs = this.tree.getNonCxnOutputs(id);
-  if(outputs.length > 0) this.onDraftDetailOpen.emit(outputs[0]);
+  if(outputs.length > 0) this.onDraftFocused.emit(outputs[0]);
   //focus this is the detail view
 }
 
@@ -235,6 +234,7 @@ createNewDraft(){
  * called when toggled to mixer
  */
 onFocus(){
+  this.palette.redrawAllSubdrafts();
 
 }
 
@@ -542,9 +542,9 @@ openDraftInEditor(id: number){
 
 
 showDraftDetails(id: number){
-    this.onDraftDetailOpen.emit(id);
+  console.log("SHOW DRAFT DETAILS ", id)
+  this.onDraftFocused.emit(id);
 }
-
 
 
 }

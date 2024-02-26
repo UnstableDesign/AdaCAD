@@ -4,6 +4,7 @@ import { Draft, Loom, LoomSettings } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { initDraftWithParams } from '../../model/drafts';
 import { WorkspaceService } from '../../provider/workspace.service';
+import { getLoomUtilByType } from '../../model/looms';
 
 @Component({
   selector: 'app-blankdraft',
@@ -46,26 +47,26 @@ export class BlankdraftModal implements OnInit {
 
   createDraftAndClose(){
     const draft: Draft = initDraftWithParams({wefts: this.wefts, warps: this.warps});
-    let loom: Loom = null;
-
-    if(this.ws.type !== 'jacquard'){
-      loom = {
-        threading: [],
-        treadling: [],
-        tieup: []
-      }
-    }
  
-
     const loom_settings: LoomSettings = {
       treadles: this.ws.min_treadles,
       frames: this.ws.min_frames,
       type: this.ws.type,
-      epi: defaults.epi,
-      units:<"in"|"cm"> defaults.units
+      epi: this.ws.epi,
+      units:<"in"|"cm"> this.ws.units
     };
 
-    this.dialogRef.close({draft, loom, loom_settings});
+
+    const loom_utils = getLoomUtilByType(this.ws.type);
+    loom_utils.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
+    .then((loom) => {
+      this.dialogRef.close({draft, loom, loom_settings});
+
+    })
+
+
+
+
 
   }
 

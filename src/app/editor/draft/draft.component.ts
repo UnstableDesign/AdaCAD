@@ -384,6 +384,8 @@ export class DraftComponent implements OnInit {
     const loom = this.tree.getLoom(id);
     this.isFrame = isFrame(loom_settings);
 
+    console.log("LOADING ", draft.colSystemMapping)
+
     this.resetDirty();
     
     this.selected_loom_type = loom_settings.type;
@@ -400,10 +402,10 @@ export class DraftComponent implements OnInit {
     const warp_num:number = warps(draft.drawdown);
     const weft_num:number = wefts(draft.drawdown);
 
-    this.colShuttleMapping = draft.colShuttleMapping;
-    this.colSystemMapping = draft.colSystemMapping;
-    this.rowShuttleMapping = draft.rowShuttleMapping;
-    this.rowSystemMapping = draft.rowSystemMapping;
+    this.colShuttleMapping = draft.colShuttleMapping.slice();
+    this.colSystemMapping = draft.colSystemMapping.slice();
+    this.rowShuttleMapping = draft.rowShuttleMapping.slice();
+    this.rowSystemMapping = draft.rowSystemMapping.slice();
 
     var dims = this.render.getCellDims("base");
     this.canvasEl.width = warp_num * dims.w;
