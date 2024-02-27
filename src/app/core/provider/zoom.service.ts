@@ -7,13 +7,10 @@ import { defaults } from '../model/defaults';
 export class ZoomService {
   //current zoom scale
   
-  // mixer_zoom: number = 1;
-  // editor_zoom: number = 1;
-
 
   num_steps: number = 15;
-  zoom_min: number = .1;
-  zoom_step: number = .05;
+  zoom_min: number = .2;
+  zoom_step: number = .004;
   zoom_table: Array<number> = [];
 
   zoom_table_ndx_mixer: number = defaults.zoom_ndx_mixer;
@@ -27,6 +24,8 @@ export class ZoomService {
       const raw = this.zoom_min + this.zoom_step*(i*i);
       this.zoom_table.push(this.manageZoomRounding(raw));
     }
+
+    console.log("ZOOM TABLE ", this.zoom_table)
 
   }
 
