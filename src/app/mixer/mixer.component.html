@@ -70,10 +70,11 @@
           </mat-panel-title>
   
       </mat-expansion-panel-header>
-    
+  
+
 
       <mat-form-field matNativeControl class="quickop_form is-fullwidth" appearance="fill" width='100%'  color="primary">
-        <mat-label><i class="fas fa-project-diagram"></i> quick add operation</mat-label>
+        <mat-label><i class="fas fa-search"></i> search operations</mat-label>
         <input type="text"
                placeholder=""
                matInput
@@ -82,6 +83,13 @@
         </mat-form-field>
       
         <div>{{search_error}}</div>
+
+
+        <mat-slide-toggle 
+        [checked]="ws.show_advanced_operations"
+        (change)="operationLevelToggleChange($event)">
+        Show Advanced Operations</mat-slide-toggle>
+
       
       <ng-container *ngFor="let classification of filteredOptions | async">
             
@@ -100,7 +108,9 @@
                         [style.background-color]="op_desc.getCatColor(classification.class_name)" 
                         (click)="addOperation(op_names.name)"
                         [matTooltip]="op_desc.getOpDescription(op_names.name)">
-                       {{op_names.display_name}}
+                        <span *ngIf="op_names.advanced"><i class="fa-regular fa-star"></i></span>
+                        
+                        {{op_names.display_name}}
                       </button>
       
 

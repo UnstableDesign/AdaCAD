@@ -111,14 +111,34 @@ export class MixerComponent  {
 
     this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
 
-    this.op_tree = this.classifications.map(classification => {
-      return {
-        class_name: classification.category_name, 
-        ops: classification.op_names
-          .filter(op => this.op_desc.hasDisplayName(op))
-          .map(op => {return {name: op, display_name:this.op_desc.getDisplayName(op)}})
-      }
-    });
+    this.op_tree = this.makeOperationsList();
+ 
+
+    console.log("OP TREE ", this.op_tree)
+
+  }
+
+
+  ngOnInit(){
+    this.filteredOptions = this.myControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value))
+    );
+  }
+
+  operationLevelToggleChange(event: any){
+    console.log("EVENT ", event.checked)
+    this.ws.show_advanced_operations = event.checked;
+    this.op_tree = this.makeOperationsList();
+    console.log("OP TREE IS ", this.op_tree)
+    this.filteredOptions = this.myControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value))
+    );
+
+  }
+
+  makeOperationsList(){
 
     function alphabetical(a, b) {
       if (a.display_name < b.display_name) {
@@ -130,16 +150,31 @@ export class MixerComponent  {
       return 0;
     }
 
-    this.op_tree.forEach(el => {
+
+    const op_list =  this.classifications.map(classification => {
+      return {
+        class_name: classification.category_name, 
+        ops: classification.op_names
+          .filter(op => this.op_desc.hasDisplayName(op))
+          .map(op => {return {name: op, display_name:this.op_desc.getDisplayName(op), advanced: this.op_desc.hasOpTag(op, "advanced")}})
+          .filter(op => {
+            if(this.ws.show_advanced_operations){
+              return true;
+            }else{
+              return op.advanced === false;
+            }
+          })
+      }
+    });
+
+    op_list.forEach(el => {
       el.ops.sort(alphabetical);
     })
-  }
 
-  ngOnInit(){
-    this.filteredOptions = this.myControl.valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value))
-    );
+    return op_list;
+
+
+
   }
 
 

@@ -25,7 +25,7 @@ export class WorkspaceService {
   black_cell_up: boolean = defaults.black_cell_up;
   number_threading: boolean = defaults.number_threading;
   hide_mixer_drafts: boolean = defaults.hide_mixer_drafts;
-
+  show_advanced_operations: boolean = defaults.show_advanced_operations;
   /**
    * when looking at the draft viewer, where should the (0, 0) point of the drawdown sit. 
    * 0 top right, 1 bottom right, 2 bottom left, 3 top left
