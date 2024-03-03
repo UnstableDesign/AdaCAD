@@ -1146,8 +1146,14 @@ handlePan(diff: Point){
   let sd_container = document.getElementById(id+'-out')
   if(active) sd_container.style.backgroundColor = "#ff4081";
   else{
-    if(this.tree.getNonCxnOutputs(id).length > 0)    sd_container.style.backgroundColor = "black";
-    else sd_container.style.backgroundColor = "white";
+    if(this.tree.getNonCxnOutputs(id).length > 0){
+      sd_container.style.backgroundColor = "black";
+      sd_container.style.color = "white";
+    }    
+    else{
+      sd_container.style.backgroundColor = "white";
+      sd_container.style.color="black";
+    } 
 
   } 
  }
@@ -1784,7 +1790,8 @@ pasteConnection(from: number, to: number, inlet: number){
 */
  removeConnection(obj: {id: number}){
 
-  let to = this.tree.getConnectionOutput(obj.id)
+  let to = this.tree.getConnectionOutput(obj.id);
+  let from = this.tree.getConnectionInput(obj.id);
 
   const to_delete = this.tree.removeConnectionNodeById(obj.id);  
   to_delete.forEach(node => this.removeFromViewContainer(node.ref));
@@ -1793,7 +1800,8 @@ pasteConnection(from: number, to: number, inlet: number){
  // if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
 
    this.processConnectionEnd();
-  
+   this.setOutletStylingOnConnection(from, false);
+
    if(this.tree.getType(to)==="op"){
      this.performAndUpdateDownstream(to);
    }

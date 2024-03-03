@@ -8,7 +8,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 	cdkDrag
 	cdkDragBoundary=".palette"
 	(mousedown)="mousedown($event)"
-	 (click)="toggleMultiSelection($event)"
+	(click)="toggleMultiSelection($event)"
 	[style.z-index] = "zndx"
 	[class.drawing] = "disable_drag && !is_preview"
 	[class.no-pointer] = "disable_drag"

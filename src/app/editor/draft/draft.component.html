@@ -15,11 +15,13 @@
       
 
       <div class="warp-systems-container origin{{ws.selected_origin_option}}" id="warp-systems-container">
+
         <div class="warp-systems-text origin{{ws.selected_origin_option}}"  id="warp-systems-text">
          
           <div class="warp-system-col origin{{ws.selected_origin_option}}" 
           [style.width.px] = "cell_size"
           *ngFor="let i of colSystemMapping; let j = index;" >
+          
           <a class="warp-material"
           id="warp-material-{{j}}"
           [style.background-color]="this.ms.getColor(colShuttleMapping[j])" 

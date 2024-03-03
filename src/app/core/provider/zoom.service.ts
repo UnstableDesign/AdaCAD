@@ -24,9 +24,6 @@ export class ZoomService {
       const raw = this.zoom_min + this.zoom_step*(i*i);
       this.zoom_table.push(this.manageZoomRounding(raw));
     }
-
-    console.log("ZOOM TABLE ", this.zoom_table)
-
   }
 
   getZoomMax(): number{
