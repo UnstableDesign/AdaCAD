@@ -68,7 +68,6 @@ export class UploadService {
   uploadData(id: string, upload: Upload, metadata: UploadMetadata){
       const storage = getStorage();
       const storageRef = ref(storage, 'uploads/'+id);
-      
       const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
 
       uploadTask

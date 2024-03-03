@@ -73,7 +73,7 @@ export class SubdraftComponent implements OnInit {
   @Output() createNewSubdraftFromEdits:any = new EventEmitter<any>();
   @Output() onNameChange:any = new EventEmitter<any>();
   @Output() onOpenInEditor:any = new EventEmitter<any>();
-  @Output() onSelectForView = new EventEmitter <any> ();
+  @Output() onSelectForView = new EventEmitter <any> (); //force this as the sole focus
   @Output() onFocus = new EventEmitter <any> ();
 
   @ViewChild('draftrendering') draftrendering: DraftrenderingComponent;
@@ -220,8 +220,8 @@ export class SubdraftComponent implements OnInit {
 
   toggleMultiSelection(e: any){
 
-    console.log("EMIT ON FOCUS ", this.id)
-    this.onFocus.emit(this.id);
+    // console.log("TOGGLE MULTI")
+    // this.onFocus.emit(this.id);
 
     if(e.shiftKey){
       this.multiselect.toggleSelection(this.id, this.topleft);
@@ -262,12 +262,14 @@ export class SubdraftComponent implements OnInit {
   }
 
 setFocus(){
+
+  console.log("SET FOCUS on SUBDRAFT")
+
   this.onFocus.emit(this.id);
 
 }  
 
 selectForView(){
-  console.log("SELECT FOR VIEW")
   this.onSelectForView.emit(this.id);
 }
 
@@ -421,9 +423,11 @@ openInEditor(event: any){
    * prevents hits on the operation to register as a palette click, thereby voiding the selection
    * @param e 
    */
-     mousedown(e: any){
-      e.stopPropagation();
-    }
+    mousedown(e: any){
+      console.log("MOUSE DOWN")
+    this.onFocus.emit(this.id);
+    e.stopPropagation();
+  }
 
   
 
@@ -480,6 +484,7 @@ openInEditor(event: any){
     const zoom_factor =  1/this.zs.getMixerZoom();
 
 
+
     let screenX = $event.event.pageX-rect_palette.x+parent.scrollLeft; 
     let scaledX = screenX* zoom_factor;
     let screenY = $event.event.pageY-rect_palette.y+parent.scrollTop;
@@ -493,6 +498,7 @@ openInEditor(event: any){
       y: scaledY
 
     }
+
     sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
     sd_container.style.top =  this.topleft.y+"px";
     sd_container.style.left =  this.topleft.x+"px";

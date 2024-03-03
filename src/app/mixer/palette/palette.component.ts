@@ -96,9 +96,9 @@ export class PaletteComponent implements OnInit{
 
      /** variables for focused view */
 
-   selected_draft_id: number = -1;
+  selected_draft_id: number = -1;
 
-    has_viewer_focus:number = -1;
+  has_viewer_focus:number = -1;
 
 
   
@@ -474,8 +474,10 @@ handlePan(diff: Point){
    * @param id 
    */
   revealDraftDetails(id: number){
-    
-    if(this.has_viewer_focus == -1) this.onRevealDraftDetails.emit(id);
+    this.selected_draft_id = id;
+
+    if(this.has_viewer_focus == -1 || id == -1) this.onRevealDraftDetails.emit(id);
+    if(id == -1) return;
 
     if(this.tree.hasParent(id)){
       let parent = this.tree.getSubdraftParent(id);
@@ -870,6 +872,17 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
+    if(this.has_viewer_focus == id){
+      this.has_viewer_focus = -1;
+      this.revealDraftDetails(-1);
+
+    }
+
+    if(this.selected_draft_id == id){
+      this.selected_draft_id = -1;
+      this.revealDraftDetails(-1);
+    }
+
     const outputs = this.tree.getNonCxnOutputs(id);
     const delted_nodes = this.tree.removeSubdraftNode(id);
 
@@ -894,7 +907,16 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
+    if(this.has_viewer_focus == id){
+      this.has_viewer_focus = -1;
+    }
+
+    if(this.selected_draft_id == id){
+      this.selected_draft_id = -1;
+    }
+
     const drafts_out = this.tree.getNonCxnOutputs(id);
+
 
     const outputs:Array<number> = drafts_out.reduce((acc, el) => {
       return acc.concat(this.tree.getNonCxnOutputs(el));
@@ -1824,7 +1846,6 @@ pasteConnection(from: number, to: number, inlet: number){
   * @param id 
   */
  setFocus(id: number){
-  console.log("SET FOCUS ON PALETTE", id)
   this.revealDraftDetails(id);
  }
 

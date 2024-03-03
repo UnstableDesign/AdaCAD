@@ -218,6 +218,10 @@ export class EditorComponent implements OnInit {
       }
   }
 
+  clearDraft(){
+    this.id = -1;
+  }
+
 
   /**
    * given an id, it proceeds to load the draft and loom associated with that id. 
@@ -227,9 +231,10 @@ export class EditorComponent implements OnInit {
   loadDraft(id: number) : Promise<any> {
 
     console.log("Loading Draft ", id)
+    this.id = id;
 
     if(id == -1) return Promise.resolve();
-    this.id = id;
+
     const draft = this.tree.getDraft(id);
 
     //reset the dirty value every time the window is open

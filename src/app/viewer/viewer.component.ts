@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { Draft, DraftNode } from '../core/model/datatypes';
-import { getDraftAsImage, warps, wefts } from '../core/model/drafts';
+import { createDraft, getDraftAsImage, initDraft, warps, wefts } from '../core/model/drafts';
 import { FilesystemService } from '../core/provider/filesystem.service';
 import { MaterialsService } from '../core/provider/materials.service';
 import { TreeService } from '../core/provider/tree.service';
@@ -39,7 +39,6 @@ export class ViewerComponent {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log("CHANGES MADE ", changes)
     if (changes['id'] || changes['dirty']) {
       this.redraw(this.id);
     }
@@ -143,14 +142,33 @@ getVisVariables(){
   }
 
 
+  clearView(){
+    this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
+    if(this.draft_canvas == null) return;
+    this.draft_cx = this.draft_canvas.getContext("2d");
+
+
+      this.draft_canvas.width = 0;
+      this.draft_canvas.height = 0;
+      this.draft_canvas.style.width = "0px";
+      this.draft_canvas.style.height = "0px";
+
+
+
+
+
+  }
+
   /**
    * draw whetever is stored in the draft object to the screen
    * @returns 
    */
   async drawDraft(id: number, floats: boolean, use_colors: boolean) : Promise<any> {
 
-
-    if(id == -1) return;
+    if(id === -1){
+      this.clearView();
+      return Promise.resolve();
+    }
 
 
     const draft:Draft = this.tree.getDraft(id);

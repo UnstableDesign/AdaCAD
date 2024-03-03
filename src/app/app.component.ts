@@ -1189,14 +1189,14 @@ showDraftDetails(id: number){
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    */
   onRefreshViewer(){
-
     this.viewer.redraw(this.selected_draft_id);
-
   }
 
   onSetViewer(id: number){
+
     this.selected_draft_id = id;
-    this.editor.loadDraft(id);
+    if(id !== -1) this.editor.loadDraft(id);
+    else this.editor.clearDraft();
   }
 
    /**

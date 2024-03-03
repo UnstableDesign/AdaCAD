@@ -113,9 +113,6 @@ export class MixerComponent  {
 
     this.op_tree = this.makeOperationsList();
  
-
-    console.log("OP TREE ", this.op_tree)
-
   }
 
 
@@ -127,10 +124,8 @@ export class MixerComponent  {
   }
 
   operationLevelToggleChange(event: any){
-    console.log("EVENT ", event.checked)
     this.ws.show_advanced_operations = event.checked;
     this.op_tree = this.makeOperationsList();
-    console.log("OP TREE IS ", this.op_tree)
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
@@ -283,7 +278,6 @@ onClose(){
  
 
 zoomChange(zoom_index:any){
-  console.log("ZOOM CHANGE IN MIXER.TS", zoom_index)
   this.zs.setZoomIndexOnMixer(zoom_index)
   this.palette.rescale();
 

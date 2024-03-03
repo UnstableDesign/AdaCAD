@@ -1368,28 +1368,23 @@ isValidIOTuple(io: IOTuple) : boolean {
     .forEach((el) => {
       
       const draft_tn = el.tn.inputs[0].tn;
-      const cxn_tn = el.tn;
-      const type = draft_tn.node.type;
-
-      if(type === 'draft'){
-         draft_id_to_ndx.push({ndx: el.ndx, node_id: draft_tn.node.id, cxn: cxn_tn.node.id})
-        // flip_fns.push(flipDraft((<DraftNode>draft_tn.node).draft, flips.horiz, flips.vert));
-      }
-
-      const paraminputs = draft_id_to_ndx.map(el => {
-        const draft = (<DraftNode>draft_tn.node).draft;
-        return {drafts: [draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]]}
-      })
-      
-      const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el != undefined);
-
-      inputs = inputs.concat(cleaned_inputs);
-     
+      draft_id_to_ndx.push({ndx: el.ndx, draft: (<DraftNode>draft_tn.node).draft})
     });
 
+
+
+    const paraminputs = draft_id_to_ndx.map(el => {
+      return {drafts: [el.draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]]}
+    })
+    const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
+
+    // inputs = inputs.concat(cleaned_inputs);
+    
+
+
     
     
-    return op.perform(param_vals, inputs)
+    return op.perform(param_vals, cleaned_inputs)
     .then(res => {
         opnode.dirty = false;
         return this.updateDraftsFromResults(id, res, inputs);

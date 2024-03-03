@@ -384,8 +384,6 @@ export class DraftComponent implements OnInit {
     const loom = this.tree.getLoom(id);
     this.isFrame = isFrame(loom_settings);
 
-    console.log("LOADING ", draft.colSystemMapping)
-
     this.resetDirty();
     
     this.selected_loom_type = loom_settings.type;
@@ -1911,9 +1909,9 @@ export class DraftComponent implements OnInit {
   }
 
 
-  public unsetSelection(){
-    this.selection.unsetParameters();
-  }
+public unsetSelection(){
+  this.selection.unsetParameters();
+}
 
 public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
 
