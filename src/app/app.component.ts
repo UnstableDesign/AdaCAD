@@ -172,8 +172,6 @@ export class AppComponent implements OnInit{
     this.ss.clearTimeline();
     this.ms.reset();
 
-    console.log("THIS TREE ", this.tree)
-
   }
 
   /**
@@ -189,7 +187,6 @@ export class AppComponent implements OnInit{
     const loom_settings: LoomSettings = obj.loom_settings;
     let id = this.mixer.newDraftCreated(draft, loom, loom_settings);
 
-    console.log("CREATED DRAFT AT ", id)
 
     this.tree.setDraftOnly(id, draft);
     this.tree.setLoom(id, loom);
@@ -212,20 +209,6 @@ export class AppComponent implements OnInit{
     }
   
 
-  /**
-   * this is called when the detail view is closed. It passes an object that has three values: 
-   * id: the draft id
-   * clone_id: the id for the cloned draft
-   * is_dirty: a boolean to note if the draft was changed at all while in detail view. 
-   * @param obj 
-   */
-  // closeDetailViewer(obj: any){
-
-  //   console.log("CLOSE DETAIL VIEW")
-  //   this.details.windowClosed();
-  //   this.mixer.updatePaletteFromDetailView(obj);
-  //   this.saveFile();
-  // }
 
 
   detailViewChange(){
@@ -1022,6 +1005,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
     //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
     data.draft_nodes
     .forEach(np => {
+
       const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
       const node = this.tree.getNode(new_id.cur_id);
       if(node === undefined) return;

@@ -302,7 +302,7 @@ export type YarnMap = Array<Array<Cell>>;
  * holds data about each node/component in a form to easily load.
  * @param node_id the id of this node within the tree
  * @param type the type of node
- * @param bounds the screen position and size data for this node
+ * @param topleft the screen position and size data for this node
  */
 export interface NodeComponentProxy{
   node_id: number,

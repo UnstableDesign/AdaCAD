@@ -10,6 +10,8 @@ cdkDragBoundary=".palette"
 (cdkDragStarted)="dragStart($event)"
 >
 
+{{topleft.x}}
+
   <div class="operation-container" [style.background-color]="opdescriptions.getCatColor(category_name)">
         <div class="cxn-row">
             <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">

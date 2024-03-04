@@ -171,9 +171,8 @@ export class SubdraftComponent implements OnInit {
 
 
     this.draft_rendering.draft_cell_size = this.calculateDefaultCellSize(this.draft);
-  
 
-    let sd_container = document.getElementById('scale-'+this.id);
+   let sd_container = document.getElementById('scale-'+this.id);
     sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
     sd_container.style.top =  this.topleft.y+"px";
     sd_container.style.left =  this.topleft.x+"px";
@@ -434,15 +433,6 @@ openInEditor(event: any){
   //The drag event has handled the on screen view, but internally, we need to track the top left of the element for saving and loading. 
   dragEnd($event: any) {
 
-    let parent = document.getElementById('scrollable-container');
-    let subdraft_container = document.getElementById('scale-'+this.id);
-
-    let rect_palette = parent.getBoundingClientRect();
-    let rect_sd = subdraft_container.getBoundingClientRect(); 
-
-    this.topleft.x = rect_sd.x - rect_palette.x;
-    this.topleft.y = rect_sd.y - rect_palette.y;
-
  
     this.moving = false;
     this.counter = 0;  
@@ -496,7 +486,6 @@ openInEditor(event: any){
     this.topleft = {
       x: scaledX,
       y: scaledY
-
     }
 
     sd_container.style.transform = 'none'; //negate angulars default positioning mechanism

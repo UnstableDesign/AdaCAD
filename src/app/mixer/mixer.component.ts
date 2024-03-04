@@ -6,7 +6,7 @@ import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { DesignMode, Draft, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Operation, Point } from '../core/model/datatypes';
 import { defaults, loom_types } from '../core/model/defaults';
-import { warps, wefts } from '../core/model/drafts';
+import { getDraftName, warps, wefts } from '../core/model/drafts';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { FilesystemService } from '../core/provider/filesystem.service';
@@ -512,13 +512,32 @@ zoomChange(zoom_index:any){
    */
   public newDraftCreated(draft: Draft, loom: Loom, loom_settings: LoomSettings): number{
     const id = this.tree.createNode("draft", null, null);
+    const tr: Point = this.palette.calculateInitialLocation();
+    let nodep: NodeComponentProxy = {
+      node_id: id,
+      type: 'draft',
+      topleft:  {x: tr.x, y: tr.y}
+    }
+
+    let dnproxy: DraftNodeProxy = {
+      node_id: id,
+      draft_id: id,
+      draft_name: getDraftName(draft),
+      draft: draft,
+      compressed_draft: null,
+      draft_visible: !defaults.hide_mixer_drafts,
+      loom: loom,
+      loom_settings: loom_settings,
+      render_colors: true
+    }
+
     this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
-    this.palette.loadSubDraft(id, draft, null, null, this.zs.getMixerZoom());
+    this.palette.loadSubDraft(id, draft, nodep, dnproxy);
     return id;
   }
 
-  public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
-    this.palette.loadSubDraft(id, d, nodep, draftp, saved_scale);
+  public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy){
+    this.palette.loadSubDraft(id, d, nodep, draftp);
   }
 
   loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point, saved_scale: number){

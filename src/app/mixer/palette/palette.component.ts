@@ -625,7 +625,7 @@ handlePan(diff: Point){
    * @param nodep the component proxy used to define
    * TODO, this likely is not positioning correctly
    */
-   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
+   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy){
 
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
@@ -645,7 +645,6 @@ handlePan(diff: Point){
       console.log("NODEP ", nodep.topleft)
       const adj_topleft: Point = {x: nodep.topleft.x, y: nodep.topleft.y};
       
-    
       subdraft.instance.topleft = adj_topleft;
 
       if(draftp !== null && draftp !== undefined){
@@ -829,10 +828,10 @@ handlePan(diff: Point){
    * @param d 
    */
   addSubdraftFromDraft(d: Draft){
+    console.log("ADD SUBDRAFT FROM DRAFT")
     this.createSubDraft(d, -1).then(sd => {
-      sd.setPosition({x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + 60});
-      // const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
-      // this.viewport.addObj(sd.id, interlacement);
+      let tr = this.calculateInitialLocation();
+      sd.topleft ={x: tr.x, y: tr.y};
       this.addTimelineState();
     });
     
@@ -851,9 +850,8 @@ handlePan(diff: Point){
 
 
     return this.createSubDraft(d, -1).then(sd => {
-      sd.setPosition({x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + 60});
-      sd.topleft = {x: draftnode.component.topleft.x+100, y:draftnode.component.topleft.y+100};
-
+      let tr = this.calculateInitialLocation();
+      sd.topleft ={x: tr.x, y: tr.y};
       this.addTimelineState();
       return Promise.resolve(sd.id);
     });
@@ -1127,12 +1125,8 @@ handlePan(diff: Point){
         .then(new_sd => {
 
           const orig_size = document.getElementById('scale-'+obj.id);
-
-          new_sd.setPosition({
-            x: sd.topleft.x + orig_size.offsetWidth*(this.zs.getMixerZoom()/this.default_cell_size) + this.zs.getMixerZoom() *2, 
-            y: sd.topleft.y});  
-          //const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
-          //this.viewport.addObj(new_sd.id, interlacement);
+          let tr = this.calculateInitialLocation();
+          new_sd.topleft ={x: tr.x, y: tr.y};
           this.addTimelineState();
         }).catch(console.error);
        
@@ -1583,7 +1577,7 @@ updateDownstream(subdraft_id: number) {
             node_id: el.id,
             type: el.type,
             topleft:{x: 0, y: 0},
-          }, null,this.zs.getMixerZoom());
+          }, null);
         });
       
 
