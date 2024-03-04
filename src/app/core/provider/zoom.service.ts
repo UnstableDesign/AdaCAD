@@ -15,6 +15,7 @@ export class ZoomService {
 
   zoom_table_ndx_mixer: number = defaults.zoom_ndx_mixer;
   zoom_table_ndx_editor: number = defaults.zoom_ndx_editor;
+  zoom_table_ndx_viewer: number = defaults.zoom_ndx_viewer;
 
 
   constructor() { 
@@ -50,6 +51,13 @@ export class ZoomService {
     }
   }
 
+  zoomInViewer(){
+    this.zoom_table_ndx_viewer++;
+    if(this.zoom_table_ndx_viewer >= this.zoom_table.length){
+      this.zoom_table_ndx_viewer = this.zoom_table.length;
+    }
+  }
+
 
   
   zoomOutMixer(){
@@ -63,6 +71,13 @@ export class ZoomService {
     this.zoom_table_ndx_editor--;
     if(this.zoom_table_ndx_editor < 0){
       this.zoom_table_ndx_editor = 0;
+    }
+  }
+
+  zoomOutViewer(){
+    this.zoom_table_ndx_viewer--;
+    if(this.zoom_table_ndx_viewer < 0){
+      this.zoom_table_ndx_viewer = 0;
     }
   }
    
@@ -110,6 +125,11 @@ export class ZoomService {
     this.zoom_table_ndx_editor = ndx;
   }
 
+  setZoomIndexOnViewer(ndx: number){
+    if(ndx >= 0 && ndx < this.zoom_table.length)
+    this.zoom_table_ndx_viewer = ndx;
+  }
+
   getMixerZoom(){
     return this.zoom_table[this.zoom_table_ndx_mixer];
   }
@@ -117,6 +137,11 @@ export class ZoomService {
   getEditorZoom(){
     return this.zoom_table[this.zoom_table_ndx_editor];
   }
+
+  getViewerZoom(){
+    return this.zoom_table[this.zoom_table_ndx_viewer];
+  }
+
 
 
 

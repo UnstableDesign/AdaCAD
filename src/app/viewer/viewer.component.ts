@@ -6,6 +6,7 @@ import { MaterialsService } from '../core/provider/materials.service';
 import { TreeService } from '../core/provider/tree.service';
 import { SimulationComponent } from './simulation/simulation.component';
 import { AuthService } from '../core/provider/auth.service';
+import { ZoomService } from '../core/provider/zoom.service';
 
 @Component({
   selector: 'app-viewer',
@@ -19,6 +20,8 @@ export class ViewerComponent {
   @Output() onOpenExamples: any = new EventEmitter();
   @Output() onOpenMaterials: any = new EventEmitter();
   @Output() onManageFiles: any = new EventEmitter();
+  @Output() onViewerExpanded: any = new EventEmitter();
+  @Output() onViewerCollapsed: any = new EventEmitter();
 
   @ViewChild(SimulationComponent) sim;
 
@@ -28,13 +31,15 @@ export class ViewerComponent {
   pixel_ratio: number = 1;
   draft_cell_size: number = 8;
   vis_mode: string = 'color'; //sim, draft, structure, color
+  view_expanded: boolean = false;
 
 
   constructor(
     public auth: AuthService,
     public files: FilesystemService, 
     private ms: MaterialsService,
-    private tree: TreeService){
+    private tree: TreeService,
+    private zs: ZoomService){
     
   }
 
@@ -137,8 +142,23 @@ getVisVariables(){
     this.drawDraft(this.id, vars.floats, vars.use_colors);   
   }
 
-  expand(){
+  onExpand(){
+    this.view_expanded = true;
+    this.onViewerExpanded.emit();
+    this.redraw(this.id);
 
+
+  }
+
+  onCollapse(){
+    this.view_expanded = false;
+    this.onViewerCollapsed.emit();
+    this.redraw(this.id);
+
+  }
+
+  download(){
+    
   }
 
 
@@ -156,6 +176,17 @@ getVisVariables(){
 
 
 
+
+  }
+
+  //when expanded, someone can set the zoom from the main zoom bar
+  //this is called, then, to rescale the view
+  renderChange(){
+
+    console.log("RENDERING ZOOM TO ", this.zs.getViewerZoom())
+    this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
+    if(this.draft_canvas == null) return;
+    this.draft_canvas.style.transform = 'scale('+this.zs.getViewerZoom()+')'
 
   }
 
@@ -211,23 +242,27 @@ getVisVariables(){
 
 
     /* now recalc the scale based on the draft size: */
-
-    let adj = 1;
-    let canvas_width =  this.draft_canvas.width;
-    let canvas_height = this.draft_canvas.height;
-
     let div_draftviewer = document.getElementById('static_draft_view');
     let rect_viewer = div_draftviewer.getBoundingClientRect();
 
-    //get the ration of the view to the item
-    let width_adj = rect_viewer.width / canvas_width;
-    let height_adj = rect_viewer.height / canvas_height;
+    if(!this.view_expanded){
+      let adj = 1;
+      let canvas_width =  this.draft_canvas.width;
+      let canvas_height = this.draft_canvas.height;
 
-    //make the zoom the smaller of the width or height
-    adj = Math.min(width_adj, height_adj);
 
-    if(adj < 1) this.draft_canvas.style.transform = 'scale('+adj+')';
-    else  this.draft_canvas.style.transform = 'scale(1)';
+      //get the ration of the view to the item
+      let width_adj = rect_viewer.width / canvas_width;
+      let height_adj = rect_viewer.height / canvas_height;
+
+      //make the zoom the smaller of the width or height
+      adj = Math.min(width_adj, height_adj);
+
+      if(adj < 1) this.draft_canvas.style.transform = 'scale('+adj+')';
+      else  this.draft_canvas.style.transform = 'scale(1)';
+    }else{
+      this.draft_canvas.style.transform = 'scale(1)'
+    }
   }
 
 

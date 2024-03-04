@@ -9,7 +9,12 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <div class="current_view" id="static_draft_view">
+    <div 
+    class="current_view" 
+    id="static_draft_view"
+    [class.view_standard]="!view_expanded"
+    [class.view_expanded]="view_expanded"
+    >
 
 
       <app-simulation 
@@ -26,14 +31,16 @@
 
   <!-- <div>{{id}}</div> -->
 
-  <div  class="view_options">
-      <button  
+  <div 
+  class="view_options"
+  >
+      <!-- <button  
       mat-icon-button 
       [class.active]="vis_mode == 'sim'"
       matTooltip="view in 3D" 
       (click)="viewAsSimulation()">
         <i class="fa-solid fa-cube"></i>
-      </button>
+      </button> -->
       
       <button  
       mat-icon-button 
@@ -59,15 +66,18 @@
         <i class="fa-solid fa-paint-roller">
       </i></button>
 
-      <!--TO DO, ENABLE WHEN EXPAND IS SUPPORTED-->
-      <!-- <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expand()"></i></button> -->
+      <button  mat-icon-button  (click)="download()"><i class="fa-solid fa-download"></i></button>
+
+      <button *ngIf="!view_expanded"  mat-icon-button (click)="onExpand()" ><i class="fa-solid fa-expand"></i></button>
+
+      <button *ngIf="view_expanded"  mat-icon-button (click)="onCollapse()" ><i class="fa fa-window-close"></i></button>
   </div>
   
   </mat-expansion-panel>
 
 
 
- <mat-expansion-panel expanded>
+<mat-expansion-panel *ngIf="!view_expanded" expanded>
   <mat-expansion-panel-header>
     <mat-panel-title class="small-text">
       <i class="fa-solid fa-link"></i> Quick Links

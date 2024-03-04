@@ -169,7 +169,6 @@
     #details 
     [class.hide]="selected_editor_mode !== 'draft'"
     [class.show]="selected_editor_mode === 'draft'" 
-    (onCollapseView)="collapseFullScreen()"
     (saveChanges)="saveFile()"
     (redrawViewer)="onRefreshViewer()"
     (createNewDraftOnMixer)="createNewDraftOnMixer($event)"
@@ -185,7 +184,9 @@
      (onOpenMaterials)="openMaterials()"
      (onOpenExamples)="openExamples()"
      (onLoadBlankFile)="loadBlankFile()"
-     (onManageFiles)="openAdaFiles(false)">
+     (onManageFiles)="openAdaFiles(false)"
+     (onViewerExpanded)="expandViewer()"
+     (onViewerCollapsed)="collapseViewer()">
     </app-viewer>
 
       

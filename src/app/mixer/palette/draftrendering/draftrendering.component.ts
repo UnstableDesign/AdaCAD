@@ -1,7 +1,7 @@
 import { Component, Input, Output, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 import { FileService } from '../../../core/provider/file.service';
 import { Draft, DraftNode } from '../../../core/model/datatypes';
-import { flipDraft, getDraftAsImage, getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
+import { flipDraft, getDraftAsImage, getDraftName, initDraft, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
@@ -78,7 +78,11 @@ export class DraftrenderingComponent {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['dirty']) {
-      const draft = this.tree.getDraft(this.id);
+
+      let draft = this.tree.getDraft(this.id);
+      
+      if(draft == undefined) draft = initDraft();
+      
       this.ud_name = getDraftName(draft);
       this.warps = warps(draft.drawdown);
       this.wefts = wefts(draft.drawdown)

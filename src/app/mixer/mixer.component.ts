@@ -515,7 +515,7 @@ zoomChange(zoom_index:any){
     const tr: Point = this.palette.calculateInitialLocation();
     let nodep: NodeComponentProxy = {
       node_id: id,
-      type: 'draft',
+      type: 'draft', 
       topleft:  {x: tr.x, y: tr.y}
     }
 
@@ -584,13 +584,11 @@ originChange(value: number){
 
 
 openDraftInEditor(id: number){
-  console.log("OPEN DRAFT IN EDITOR FROM MIXER ", id)
   this.onOpenInEditor.emit(id);
 }
 
 
 showDraftDetails(id: number){
-  console.log("SHOW DRAFT DETAILS ", id)
   this.onDraftFocused.emit(id);
 }
 

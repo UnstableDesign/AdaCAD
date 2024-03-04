@@ -235,12 +235,11 @@ export class AppComponent implements OnInit{
   }
 
 
-  collapseFullScreen(){
-    this.ui.fullscreen = false;
-    this.focusUIView(this.ui.main, true)
-  }
-
   toggleEditorMode(){
+
+    if(this.viewer.view_expanded){
+      this.viewer.onCollapse();
+    }
 
     switch(this.selected_editor_mode){
       case 'draft':
@@ -260,32 +259,7 @@ export class AppComponent implements OnInit{
 
   }
 
-  focusUIView(view: string, forceCollapse: boolean){
-    // let main_width = '90%';
-    // let main_height = '100%';
 
-    // let main_div = this.views.find(el => el.name == view);
-
-    
-    // if(this.ui.main == view && !forceCollapse){
-    //   this.ui.fullscreen = true;
-    //   main_div.div.style.height = '100%';
-    //   main_div.div.style.width = '100%';
-    //   main_div.div.style.order = '1';
-      
-    // }else{
-    //   this.ui.main = view;
-    //   main_div.div.style.height = main_height;
-    //   main_div.div.style.width = main_width;
-    //   main_div.div.style.order = '1';
-    //   main_div.div.style.display = "flex";
-
-
-    // }
-
-    // this.recenterViews();
-
-  }
 
   recenterViews(){
     
@@ -1119,6 +1093,30 @@ openInEditor(id: number){
 
 }
 
+expandViewer(){
+  if(this.selected_editor_mode == "mixer"){
+    let div = document.getElementById('mixer');
+    div.classList.remove('show');
+    div.classList.add('hide');
+  }else{
+    let div = document.getElementById('draftdetail');
+    div.classList.remove('show');
+    div.classList.add('hide');
+  }
+}
+
+collapseViewer(){
+  if(this.selected_editor_mode == "mixer"){
+    let div = document.getElementById('mixer');
+    div.classList.remove('hide');
+    div.classList.add('show');
+  }else{
+    let div = document.getElementById('draftdetail');
+    div.classList.remove('hide');
+    div.classList.add('show');
+  }
+}
+
 showDraftDetails(id: number){
   this.editor.loadDraft(id);
  // this.sim.loadNewDraft(draft, loom_settings)
@@ -1200,7 +1198,9 @@ showDraftDetails(id: number){
    * used to set the default value on the slider
    */
   getActiveZoomIndex() : number{
-    if(this.selected_editor_mode == 'mixer'){
+    if(this.viewer !== undefined && this.viewer.view_expanded){
+      return this.zs.zoom_table_ndx_viewer;
+    }else if(this.selected_editor_mode == 'mixer'){
       return this.zs.zoom_table_ndx_mixer;
     } else {
       return this.zs.zoom_table_ndx_editor;
@@ -1208,7 +1208,10 @@ showDraftDetails(id: number){
   }
 
   zoomOut(){
-    if(this.selected_editor_mode == 'mixer'){
+    if(this.viewer.view_expanded){
+      this.zs.zoomOutViewer();
+      this.viewer.renderChange();
+    }else if(this.selected_editor_mode == 'mixer'){
       this.zs.zoomOutMixer();
       this.mixer.renderChange();
     } else {
@@ -1218,7 +1221,10 @@ showDraftDetails(id: number){
   }
 
   zoomIn(){
-    if(this.selected_editor_mode == 'mixer'){
+    if(this.viewer.view_expanded){
+      this.zs.zoomInViewer();
+      this.viewer.renderChange();
+    }else if(this.selected_editor_mode == 'mixer'){
       this.zs.zoomInMixer();
       this.mixer.renderChange();
     } else {
@@ -1229,12 +1235,16 @@ showDraftDetails(id: number){
   }
 
   zoomChange(ndx: number){
-    if(this.selected_editor_mode == 'mixer'){
+    if(this.viewer.view_expanded){
+
+      this.zs.setZoomIndexOnViewer(ndx);
+      this.viewer.renderChange();
+    }else if(this.selected_editor_mode == 'mixer'){
       this.zs.setZoomIndexOnMixer(ndx);
       this.mixer.renderChange();
     } else {
-    this.zs.setZoomIndexOnEditor(ndx)
-    this.editor.renderChange();
+      this.zs.setZoomIndexOnEditor(ndx)
+      this.editor.renderChange();
     }
   }
 

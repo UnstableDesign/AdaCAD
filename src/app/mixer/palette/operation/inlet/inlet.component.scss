@@ -1,8 +1,9 @@
 
-.input-color{
-    width: 30px;
-    height: 80%;
-    border: thin solid white;
+
+
+.colorgroup{
+    display: inline-flex;
+    border: thin solid grey;
 }
 
 .inlet_connector{
@@ -92,9 +93,7 @@
 
 
 
-.colorgroup{
-    display: inline-flex;
-}
+
 
 
 .inputs{

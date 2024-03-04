@@ -138,7 +138,6 @@ export class OperationComponent implements OnInit {
     private dialog: MatDialog,
     private viewport: ViewportService,
     public tree: TreeService,
-    public dm: DesignmodesService,
     private imageService: ImageService,
     public systems: SystemsService,
     public multiselect: MultiselectService,

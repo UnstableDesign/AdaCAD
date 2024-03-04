@@ -1,6 +1,7 @@
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, getMetadata, uploadBytesResumable, UploadMetadata } from "firebase/storage";
+
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, getMetadata, uploadBytesResumable, UploadMetadata } from "@angular/fire/storage";
 import { Observable } from 'rxjs';
 import { AuthService } from '../provider/auth.service';
 import { Upload } from '../model/datatypes';

@@ -211,7 +211,6 @@ export class PaletteComponent implements OnInit{
  */
   handleScroll(position: Point){
     this.viewport.setTopLeft(position);
-    console.log("HANDLE SCROLL")
     const div:HTMLElement = document.getElementById('scrollable-container');  
      div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
      div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
@@ -463,7 +462,6 @@ handlePan(diff: Point){
   }
 
   openInEditor(id: number){
-    console.log("OPEN IN EDITOR PALETTE ", id)
     this.onOpenInEditor.emit(id);
   }
 
@@ -474,9 +472,13 @@ handlePan(diff: Point){
    * @param id 
    */
   revealDraftDetails(id: number){
-    this.selected_draft_id = id;
+    this.refreshViewer.emit();
 
+    this.selected_draft_id = id;
+    
     if(this.has_viewer_focus == -1 || id == -1) this.onRevealDraftDetails.emit(id);
+    
+    
     if(id == -1) return;
 
     if(this.tree.hasParent(id)){
@@ -642,7 +644,6 @@ handlePan(diff: Point){
     subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
 
     if(nodep !== null && nodep.topleft !== null){
-      console.log("NODEP ", nodep.topleft)
       const adj_topleft: Point = {x: nodep.topleft.x, y: nodep.topleft.y};
       
       subdraft.instance.topleft = adj_topleft;
@@ -828,7 +829,6 @@ handlePan(diff: Point){
    * @param d 
    */
   addSubdraftFromDraft(d: Draft){
-    console.log("ADD SUBDRAFT FROM DRAFT")
     this.createSubDraft(d, -1).then(sd => {
       let tr = this.calculateInitialLocation();
       sd.topleft ={x: tr.x, y: tr.y};
@@ -1440,10 +1440,11 @@ connectionDragged(mouse: Point){
 
   if(!this.tree.hasOpenConnection()) return;
 
-  
+
   const sd: SubdraftComponent = this.tree.getOpenConnection();
   if(sd !== null) sd.connectionEnded();
   this.tree.unsetOpenConnection();
+
 } 
 
 
@@ -1819,9 +1820,12 @@ pasteConnection(from: number, to: number, inlet: number){
    this.setOutletStylingOnConnection(from, false);
 
    if(this.tree.getType(to)==="op"){
-     this.performAndUpdateDownstream(to);
+     this.performAndUpdateDownstream(to).then(done => {
+      this.refreshViewer.emit();
+     }); 
    }
   
+
   this.addTimelineState();
 
 

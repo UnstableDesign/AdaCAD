@@ -241,7 +241,7 @@ export class EditorComponent implements OnInit {
     this.weaveRef.is_dirty = false;
 
     if(this.loom.type == 'jacquard' && this.dm.cur_draft_edit_source == 'loom'){
-      this.dm.selectDraftEditSource('draft');
+      this.dm.selectDraftEditSource('drawdown');
     }
 
     this.draftname = getDraftName(draft)
@@ -346,13 +346,6 @@ export class EditorComponent implements OnInit {
 
   }
 
-  focusUIView(){
-    this.onFocusView.emit();
-  }
-
-  collapseUIView(){
-    this.onCollapseView.emit();
-  }
 
   
   
@@ -465,9 +458,7 @@ export class EditorComponent implements OnInit {
    * tranfers on save from header to draft viewer
    */
   public onSave(e: any) {
-
     this.weaveRef.onSave(e);
-
   }
 
  
