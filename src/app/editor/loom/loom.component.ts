@@ -18,7 +18,7 @@ export class LoomComponent {
   @Input('id') id; 
 
   @Output() unsetSelection: any = new EventEmitter();
-  @Output() drawdownUpdated: any = new EventEmitter();
+  // @Output() drawdownUpdated: any = new EventEmitter();
   @Output() loomSettingsUpdated: any = new EventEmitter();
 
 
@@ -118,14 +118,14 @@ export class LoomComponent {
     if(this.dm.isSelectedDraftEditSource('drawdown')){
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
-          this.drawdownUpdated.emit()
-        })
+        this.loomSettingsUpdated.emit();
+      })
   
     }else{
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
 
-        this.drawdownUpdated.emit()
+        this.loomSettingsUpdated.emit();
 
       })
   
@@ -143,10 +143,10 @@ export class LoomComponent {
      this.warps = f.value.warps;
     }
 
-    if(f.value.warps > 40){
-      this.warps = 40;
-      return;
-    }
+    // if(f.value.warps > 40){
+    //   this.warps = 40;
+    //   return;
+    // }
 
     this.warpNumChange({warps: f.value.warps})
     this.updateWidth();
@@ -161,17 +161,18 @@ export class LoomComponent {
       this.wefts = 2;
     } 
 
-    if(f.value.wefts > 40){
-      this.wefts = 40;
-      return;
-    } 
+    // if(f.value.wefts > 40){
+    //   this.wefts = 40;
+    //   return;
+    // } 
 
     this.weftNumChange({wefts: f.value.wefts})
   
   }
   
   public weftNumChange(e:any) {
-  
+    console.log("WEFT CHANGE ", e)
+
     if(e.wefts === "" || e.wefts =="null") return;
   
   
@@ -194,7 +195,9 @@ export class LoomComponent {
         loom = utils.insertIntoTreadling(loom, ndx, []);
       }
     }else{
+
       var diff = wefts(draft.drawdown) - e.wefts;
+      console.log("DIFF ",diff, draft)
       for(var i = 0; i < diff; i++){  
         let ndx = wefts(draft.drawdown)-1;
         draft.drawdown = deleteDrawdownRow(draft.drawdown, ndx);
@@ -204,13 +207,15 @@ export class LoomComponent {
         loom =  utils.deleteFromTreadling(loom, ndx);
 
       }
+    
+      console.log("LOOM AFTER ", loom)
     }
   
     if(this.dm.isSelectedDraftEditSource('drawdown')){
   
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
       .then(loom => {
-        this.drawdownUpdated.emit()
+        this.loomSettingsUpdated.emit();
 
       })
     }else{
@@ -218,7 +223,7 @@ export class LoomComponent {
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
       .then(draft => {
         this.tree.setDraftOnly(this.id, draft);
-        this.drawdownUpdated.emit()
+        this.loomSettingsUpdated.emit();
       })
     }
    
@@ -427,7 +432,8 @@ export class LoomComponent {
   
       this.warps = new_warps;
       this.warpNumChange({warps: new_warps});
-      this.drawdownUpdated.emit()
+      this.loomSettingsUpdated.emit();
+
 
   }
   

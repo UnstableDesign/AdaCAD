@@ -276,19 +276,14 @@ export class EditorComponent implements OnInit {
   }
 
   public materialChange() {
-
     this.drawdownUpdated();
-   
-    // this.redrawViewer.emit();
-    // this.addTimelineState();
-
   }
+
+
 
   public drawdownUpdated(){
 
-    this.redrawViewer.emit();
-    //this.addTimelineState();
-    
+    this.redrawViewer.emit();    
   }  
 
   
@@ -308,10 +303,18 @@ export class EditorComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    this.weaveRef.redrawLoom(draft, loom, loom_settings );
+    this.render.updateVisible(draft);
+
+    this.weaveRef.redraw(draft, loom, loom_settings, {
+              drawdown: true, 
+              loom:true, 
+              warp_systems: true, 
+              weft_systems: true, 
+              warp_materials: true,
+              weft_materials:true
+            });    
     this.weaveRef.isFrame = isFrame(loom_settings);
     this.saveChanges.emit();
-    this.redrawSimulation();
 
   }
 
@@ -324,11 +327,10 @@ export class EditorComponent implements OnInit {
   
   
 
-  public redrawSimulation(){
-    console.log("emit redraw viewer from redraw simulation")
-    this.redrawViewer.emit();
+  // public redrawSimulation(){
+  //   this.redrawViewer.emit();
 
-  }
+  // }
 
 
   

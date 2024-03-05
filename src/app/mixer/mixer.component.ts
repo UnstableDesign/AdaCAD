@@ -265,7 +265,6 @@ createNewDraft(){
  */
 onFocus(){
   this.palette.redrawAllSubdrafts();
-
 }
 
 /**

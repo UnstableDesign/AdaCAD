@@ -500,11 +500,9 @@ export class FileService {
 
      if(loom === null){
 
-      console.log("AWAITING LOOM");
       //force loom type to something with shafts;
       loom_settings.type = 'frame';
       loom = await getLoomUtilByType(loom_settings.type).computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option);
-      console.log("GOT LOOM", loom)
 
      }
 

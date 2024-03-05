@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LoomComponent } from '../settings/settings.component';
+import { LoomComponent } from '../loom/loom.component';
 
 describe('LoomComponent', () => {
   let component: LoomComponent;

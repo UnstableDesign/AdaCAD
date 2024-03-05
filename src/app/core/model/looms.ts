@@ -421,6 +421,7 @@ const jacquard_utils: LoomUtil = {
       return loom;
     },
     deleteFromTreadling: (loom: Loom, i: number) : Loom => {
+      console.log("SPLICING FROM ", i)
       loom.treadling.splice(i, 1);
       return loom;
     }

@@ -1285,7 +1285,6 @@ export class DraftComponent implements OnInit {
    */
 
   private drawOnDrawdown(draft:Draft, loom_settings: LoomSettings,  currentPos: Interlacement, shift: boolean) {
-    console.log("*DRAW ON DRAWDOWN")
 
     var val  = false;
 
@@ -1325,7 +1324,6 @@ export class DraftComponent implements OnInit {
           break;
       }
 
-      console.log("BEFORE SET DRAFT AND RECOMPUTE")
 
       this.tree.setDraftAndRecomputeLoom(this.id, draft, this.tree.getLoomSettings(this.id))
       .then(loom => {
@@ -1895,6 +1893,12 @@ export class DraftComponent implements OnInit {
 
   }
 
+
+  public getTextInterval(){
+    let ls = this.tree.getLoomSettings(this.id);
+    return ls.epi;
+  }
+
 /**
  * callled when frames become visible or drawdown without frame info is loaded
  */
@@ -1966,6 +1970,8 @@ public clearAll(){
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
+    console.log("REDRAWING WITH FLAGS ", flags)
+
     var base_dims = this.render.getCellDims("base");
     this.colSystemMapping = draft.colSystemMapping;
     this.rowSystemMapping = draft.rowSystemMapping;
@@ -1985,6 +1991,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
   
     if(flags.loom !== undefined){
+      console.log("LOOM IS ", loom)
        this.redrawLoom(draft, loom, loom_settings);
     }
 

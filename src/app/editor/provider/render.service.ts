@@ -59,16 +59,16 @@ select:{
     }
   }
 
-  getTextInterval(){
-    if(this.zoom > 1.75) return 1;
-    if(this.zoom > 1.5) return 2;
-    if(this.zoom > 1.25) return 4;
-    if(this.zoom > 1) return 5;
-    if(this.zoom > .75) return 8; 
-    if(this.zoom > .5) return 10;
-    if(this.zoom > .25) return 12;
-    return 15;
-  }
+  // getTextInterval(){
+  //   if(this.zoom > 1.75) return 1;
+  //   if(this.zoom > 1.5) return 2;
+  //   if(this.zoom > 1.25) return 4;
+  //   if(this.zoom > 1) return 5;
+  //   if(this.zoom > .75) return 8; 
+  //   if(this.zoom > .5) return 10;
+  //   if(this.zoom > .25) return 12;
+  //   return 15;
+  // }
 
   /**
    * given the ndx, get the next visible row or -1 if there isn't a next

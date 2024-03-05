@@ -1176,7 +1176,6 @@ showDraftDetails(id: number){
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    */
   onRefreshViewer(){
-    console.log("REFRESH VIEWER")
     this.viewer.redraw(this.selected_draft_id);
   }
 
@@ -1186,7 +1185,6 @@ showDraftDetails(id: number){
    * @param id 
    */
   onSetViewer(id: number){
-    console.log("SET VIEWER", this.selected_draft_id, id);
     this.selected_draft_id = id;
     this.onRefreshViewer();
   }
