@@ -22,6 +22,7 @@ export class ViewerComponent {
   @Output() onManageFiles: any = new EventEmitter();
   @Output() onViewerExpanded: any = new EventEmitter();
   @Output() onViewerCollapsed: any = new EventEmitter();
+  @Output() onSave: any = new EventEmitter();
 
   @ViewChild(SimulationComponent) sim;
 
@@ -177,6 +178,10 @@ getVisVariables(){
 
 
 
+  }
+
+  saveAs(format: string){
+    this.onSave.emit(format);
   }
 
   //when expanded, someone can set the zoom from the main zoom bar

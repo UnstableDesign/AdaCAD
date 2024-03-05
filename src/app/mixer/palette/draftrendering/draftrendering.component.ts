@@ -6,6 +6,7 @@ import { MaterialsService } from '../../../core/provider/materials.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
+import utilInstance from '../../../core/model/util';
 
 @Component({
   selector: 'app-draftrendering',
@@ -334,110 +335,30 @@ export class DraftrenderingComponent {
 
   }
 
-  async saveAsPrint() {
+  async saveAsWif() {
 
-    let b = this.bitmap.nativeElement;
-    let context = b.getContext('2d');
     let draft = this.tree.getDraft(this.id);
-    b.width = (warps(draft.drawdown)+3)*10;
-    b.height =(wefts(draft.drawdown)+7)*10;
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, b.width, b.height);
+    let loom = this.tree.getLoom(this.id);
+    let loom_settings = this.tree.getLoomSettings(this.id);
+    utilInstance.saveAsWif(this.fs, draft, loom, loom_settings)
 
-    switch(this.ws.selected_origin_option){
-      case 0:
-        draft = await flipDraft(draft, true, false);
-      break;
-
-      case 1:
-        draft = await flipDraft(draft, true, true);
-        break;
-
-      case 2:
-        draft = await flipDraft(draft, false, true);
-
-      break;
-
-    }
-
-
-  let system = null;
-
-    for (let j = 0; j < draft.colShuttleMapping.length; j++) {
-      let color = this.ms.getColor(draft.colShuttleMapping[j]);
-      switch(this.ws.selected_origin_option){
-        case 0:
-        case 1: 
-        system = this.ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length-1 - j]);
-
-        break;
-        case 2: 
-        case 3: 
-        system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
-
-        break;
-      }
-    
-      context.fillStyle = color;
-      context.strokeStyle = "#666666";
-      context.fillRect(30+(j*10), 16,  8,  8);
-      context.strokeRect(30+(j*10), 16,  8,  8);
-
-      context.font = "10px Arial";
-      context.fillStyle = "#666666";
-      context.fillText(system, j*10+32, 10)
-
-    
-    }
-
-
-      for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
-
-        switch(this.ws.selected_origin_option){
-          case 1:
-          case 2: 
-          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length-1 - j]);
-
-          break;
-          case 0: 
-          case 3: 
-          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
-
-          break;
-        }
-
-        let color = this.ms.getColor(draft.rowShuttleMapping[j]);
-        context.fillStyle = color;
-        context.strokeStyle = "#666666";
-        context.fillRect(16, j*10+31,  8,  8);
-        context.strokeRect(16, j*10+31,  8,  8);
-        
-        context.font = "10px Arial";
-        context.fillStyle = "#666666";
-        context.fillText(system, 0, 28+(j+1)*10)
-
-
-      }
-
-
-
-    let img = getDraftAsImage(draft, 10, true, this.use_colors, this.ms.getShuttles());  
-    context.putImageData(img, 30, 30);
-
-    context.font = "12px Arial";
-    context.fillStyle = "#000000";
-    let textstring = getDraftName(draft)+" // "+warps(draft.drawdown)+" x "+wefts(draft.drawdown);
-    context.fillText(textstring, 30, 50+wefts(draft.drawdown)*10)
-
-    const a = document.createElement('a')
-    return this.fs.saver.jpg(b)
-    .then(href => {
-      a.href =  href;
-      a.download = getDraftName(draft) + ".jpg";
-      a.click();  
-    });
-    
+  
   }
+
+  async saveAsPrint() {
+    let draft = this.tree.getDraft(this.id);
+
+    utilInstance.saveAsPrint(
+      this.bitmap.nativeElement,
+      draft,
+      this.use_colors,
+      this.ws.selected_origin_option, 
+      this.ms,
+      this.ss,
+      this.fs
+    )
+  }
+
 
     /**
    * Draws to hidden bitmap canvas a file in which each draft cell is represented as a single pixel. 
@@ -446,39 +367,9 @@ export class DraftrenderingComponent {
     async saveAsBmp() : Promise<any> {
 
       let b = this.bitmap.nativeElement;
-      let context = b.getContext('2d');
       let draft = this.tree.getDraft(this.id);
-      switch(this.ws.selected_origin_option){
-        case 0:
-          draft = await flipDraft(draft, true, false);
-        break;
-  
-        case 1:
-          draft = await flipDraft(draft, true, true);
-          break;
-  
-        case 2:
-          draft = await flipDraft(draft, false, true);
-  
-        break;
-  
-      }
-  
-      b.width = warps(draft.drawdown);
-      b.height = wefts(draft.drawdown);
-      let img = getDraftAsImage(draft, 1, false, false, this.ms.getShuttles());
-      context.putImageData(img, 0, 0);
-  
-      const a = document.createElement('a')
-      return this.fs.saver.bmp(b)
-      .then(href => {
-        a.href =  href;
-        a.download = getDraftName(draft) + "_bitmap.jpg";
-        a.click();
-      });
-      
-  
-  
+
+      utilInstance.saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
         
     }
 

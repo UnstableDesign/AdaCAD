@@ -66,7 +66,43 @@
         <i class="fa-solid fa-paint-roller">
       </i></button>
 
-      <button  mat-icon-button  (click)="download()"><i class="fa-solid fa-download"></i></button>
+      <button  
+      mat-icon-button  
+      [matMenuTriggerFor]="subdraftOptions"
+      (click)="download()">
+      <i class="fa-solid fa-download"></i>
+      </button>
+
+
+      <mat-menu #subdraftOptions>
+  
+    
+        <button mat-flat-button
+        (click)="saveAs('bmp')"
+        matTooltip ="Download as Bitmap">
+        <i class="fa-solid fa-download"></i> download as bitmap
+        </button>
+  
+        <button mat-flat-button
+        (click)="saveAs('jpg')"
+        matTooltip ="Download as Printable Image">
+        <i class="fa-solid fa-image"></i> download as image
+        </button>
+  
+        <button mat-flat-button
+        (click)="saveAs('wif')"
+        matTooltip ="Download as .WIF file">
+        <i class="fa-solid fa-file"></i> download as .WIF file
+        </button>
+  
+  
+        
+      </mat-menu>
+  
+
+
+
+
 
       <button *ngIf="!view_expanded"  mat-icon-button (click)="onExpand()" ><i class="fa-solid fa-expand"></i></button>
 

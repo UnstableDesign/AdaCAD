@@ -4,10 +4,12 @@
  */
 
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
-import { MaterialMap } from "../provider/materials.service";
+import { FileService } from "../provider/file.service";
+import { MaterialMap, MaterialsService } from "../provider/materials.service";
+import { SystemsService } from "../provider/systems.service";
 import { getCellValue, setCellValue } from "./cell";
 import { Point, Interlacement, Bounds, Draft, Loom, LoomSettings, Material, Cell } from "./datatypes";
-import { hasCell, initDraftWithParams, isSet, warps, wefts } from "./drafts";
+import { flipDraft, getDraftAsImage, getDraftName, hasCell, initDraftWithParams, isSet, warps, wefts } from "./drafts";
 import { createMaterial, setMaterialID } from "./material";
 
 
@@ -1127,7 +1129,155 @@ getFlips(from:number, to: number) : {horiz: boolean, vert: boolean} {
 
 }
 
+async saveAsWif(fs: FileService, draft: Draft, loom:Loom, loom_settings:LoomSettings) {
 
+  const a = document.createElement('a')
+  return fs.saver.wif(draft, loom,loom_settings)
+  .then(href => {
+    a.href =  href;
+    a.download = getDraftName(draft) + ".wif";
+    a.click();  
+  });
+  
+}
+
+async saveAsPrint(el: any, draft: Draft, use_colors: boolean, selected_origin_option: number, ms: MaterialsService, ss: SystemsService, fs: FileService ) {
+
+  let b = el;
+  let context = b.getContext('2d');
+  b.width = (warps(draft.drawdown)+3)*10;
+  b.height =(wefts(draft.drawdown)+7)*10;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, b.width, b.height);
+
+  switch(selected_origin_option){
+    case 0:
+      draft = await flipDraft(draft, true, false);
+    break;
+
+    case 1:
+      draft = await flipDraft(draft, true, true);
+      break;
+
+    case 2:
+      draft = await flipDraft(draft, false, true);
+
+    break;
+
+  }
+
+
+let system = null;
+
+  for (let j = 0; j < draft.colShuttleMapping.length; j++) {
+    let color = ms.getColor(draft.colShuttleMapping[j]);
+    switch(selected_origin_option){
+      case 0:
+      case 1: 
+      system = ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length-1 - j]);
+
+      break;
+      case 2: 
+      case 3: 
+      system = ss.getWarpSystemCode(draft.colSystemMapping[j]);
+
+      break;
+    }
+  
+    context.fillStyle = color;
+    context.strokeStyle = "#666666";
+    context.fillRect(30+(j*10), 16,  8,  8);
+    context.strokeRect(30+(j*10), 16,  8,  8);
+
+    context.font = "10px Arial";
+    context.fillStyle = "#666666";
+    context.fillText(system, j*10+32, 10)
+
+  
+  }
+
+
+    for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+
+      switch(selected_origin_option){
+        case 1:
+        case 2: 
+        system = ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length-1 - j]);
+
+        break;
+        case 0: 
+        case 3: 
+        system = ss.getWeftSystemCode(draft.rowSystemMapping[j]);
+
+        break;
+      }
+
+      let color = ms.getColor(draft.rowShuttleMapping[j]);
+      context.fillStyle = color;
+      context.strokeStyle = "#666666";
+      context.fillRect(16, j*10+31,  8,  8);
+      context.strokeRect(16, j*10+31,  8,  8);
+      
+      context.font = "10px Arial";
+      context.fillStyle = "#666666";
+      context.fillText(system, 0, 28+(j+1)*10)
+
+
+    }
+
+
+
+  let img = getDraftAsImage(draft, 10, true, use_colors, ms.getShuttles());  
+  context.putImageData(img, 30, 30);
+
+  context.font = "12px Arial";
+  context.fillStyle = "#000000";
+  let textstring = getDraftName(draft)+" // "+warps(draft.drawdown)+" x "+wefts(draft.drawdown);
+  context.fillText(textstring, 30, 50+wefts(draft.drawdown)*10)
+
+  const a = document.createElement('a')
+  return fs.saver.jpg(b)
+  .then(href => {
+    a.href =  href;
+    a.download = getDraftName(draft) + ".jpg";
+    a.click();  
+  });
+  
+}
+
+async saveAsBmp(el: any, draft: Draft, selected_origin_option:number, ms :MaterialsService, fs: FileService){
+    let context = el.getContext('2d');
+
+    switch(selected_origin_option){
+      case 0:
+        draft = await flipDraft(draft, true, false);
+      break;
+
+      case 1:
+        draft = await flipDraft(draft, true, true);
+        break;
+
+      case 2:
+        draft = await flipDraft(draft, false, true);
+
+      break;
+
+    }
+
+    el.width = warps(draft.drawdown);
+    el.height = wefts(draft.drawdown);
+    let img = getDraftAsImage(draft, 1, false, false, ms.getShuttles());
+    context.putImageData(img, 0, 0);
+
+    const a = document.createElement('a')
+    return fs.saver.bmp(el)
+    .then(href => {
+      a.href =  href;
+      a.download = getDraftName(draft) + "_bitmap.jpg";
+      a.click();
+    });
+  
+  }
 
 }
   

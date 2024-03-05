@@ -3,7 +3,7 @@ import { ApplicationRef, Component, HostListener, NgZone, OnInit, Optional, View
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { createCell } from './core/model/cell';
 import { Draft, DraftNode, DraftNodeProxy, FileObj, LoadedFile, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
-import { copyDraft, initDraftWithParams } from './core/model/drafts';
+import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
 import { copyLoom, copyLoomSettings } from './core/model/looms';
 import { AuthService } from './core/provider/auth.service';
 import { FileService } from './core/provider/file.service';
@@ -34,6 +34,8 @@ import { MaterialModal } from './core/modal/material/material.modal';
 import { ViewerComponent } from './viewer/viewer.component';
 import utilInstance from './core/model/util';
 import { NotesService } from './core/provider/notes.service';
+import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
+import { SystemsService } from './core/provider/systems.service';
 
 
 
@@ -50,6 +52,7 @@ export class AppComponent implements OnInit{
   @ViewChild(MixerComponent) mixer;
   @ViewChild(EditorComponent) editor;
   @ViewChild(ViewerComponent) viewer;
+  @ViewChild('bitmapImage') bitmap: any;
 
 
 
@@ -101,6 +104,7 @@ export class AppComponent implements OnInit{
     private ns: NotesService,
     private ops: OperationService,
     public scroll: ScrollDispatcher,
+    public sys_serve: SystemsService,
     private tree: TreeService,
     private view_tool:ViewportService,
     public vp: ViewportService,
@@ -1093,6 +1097,9 @@ openInEditor(id: number){
 
 }
 
+/**
+ * called from the viewer component when the expand icon is clicked
+ */
 expandViewer(){
   if(this.selected_editor_mode == "mixer"){
     let div = document.getElementById('mixer');
@@ -1105,6 +1112,9 @@ expandViewer(){
   }
 }
 
+/**
+ * called from the viewer component when the close icon is clicked
+ */
 collapseViewer(){
   if(this.selected_editor_mode == "mixer"){
     let div = document.getElementById('mixer');
@@ -1248,5 +1258,29 @@ showDraftDetails(id: number){
     }
   }
 
+  saveDraftAs(format: string){
+
+    console.log("SAVE AS ", format, this.selected_draft_id);
+    let draft:Draft = this.tree.getDraft(this.selected_draft_id);
+    let b = this.bitmap.nativeElement;
+
+    if(this.selected_draft_id == -1) return;
+
+    switch(format){
+      case 'bmp':
+        utilInstance.saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
+        break;
+      case 'jpg':
+        utilInstance.saveAsPrint(b, draft, true, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
+        break;
+      case 'wif':
+        let loom = this.tree.getLoom(this.selected_draft_id);
+        let loom_settings = this.tree.getLoomSettings(this.selected_draft_id);
+        utilInstance.saveAsWif(this.fs, draft, loom, loom_settings)
+      break;
+    }
+
+
+  }
 
 }

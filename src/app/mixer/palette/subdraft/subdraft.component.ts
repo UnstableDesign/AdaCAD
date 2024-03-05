@@ -548,27 +548,4 @@ openInEditor(event: any){
   }
 
 
-
-  
-    async saveAsWif() {
-
-      // const draft = this.tree.getDraft(this.id);
-      // const loom = this.tree.getLoom(this.id);
-
-      
-      
-
-      // const a = document.createElement('a');
-      // return this.fs.saver.wif(draft, loom)
-      // .then(href => {
-      //   a.href = href;
-      //   a.download  = getDraftName(draft) +".wif";
-      //   a.click();
-      // });
-    
-    }
-  
- 
-
-
 }

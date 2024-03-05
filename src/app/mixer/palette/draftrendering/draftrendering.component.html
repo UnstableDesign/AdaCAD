@@ -7,14 +7,11 @@
     mat-icon-button
     matTooltip ="Select Draft"
     (click)="openInEditor()">
-    <i class="fa-solid fa-pen-to-square"></i>    
+      <i class="fa-solid fa-pen-to-square"></i>    
     </button> 
 
 
-      <mat-menu #subdraftOptions>
-      
-
-        
+    <mat-menu #subdraftOptions>
   
       <button mat-icon-button *ngIf='hasParent'
       matTooltip= "Show/Hide Draft"
@@ -42,6 +39,12 @@
       (click)="saveAsPrint()"
       matTooltip ="Download as Printable Image">
       <i class="fa-solid fa-image"></i> download as image
+      </button>
+
+      <button mat-flat-button
+      (click)="saveAsWif()"
+      matTooltip ="Download as .WIF file">
+      <i class="fa-solid fa-file"></i> download as .WIF file
       </button>
 
 

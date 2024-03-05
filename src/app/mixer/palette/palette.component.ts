@@ -305,13 +305,13 @@ handlePan(diff: Point){
    */
    async downloadVisibleDraftsAsWif() : Promise<any>{
 
-    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-    const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
-    const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsWif());
-    return Promise.all(functions)
-    .then(el =>
-      console.log("Downloaded "+functions.length+" files")
-    );
+    // const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    // const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
+    // const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsWif());
+    // return Promise.all(functions)
+    // .then(el =>
+    //   console.log("Downloaded "+functions.length+" files")
+    // );
 
   }
   

@@ -12,6 +12,9 @@
 >
 </appKeycodes>
 
+<canvas #bitmapImage hidden></canvas>
+
+
 <div class="view-container">
 
   <div class="header-container">
@@ -185,6 +188,7 @@
      (onOpenExamples)="openExamples()"
      (onLoadBlankFile)="loadBlankFile()"
      (onManageFiles)="openAdaFiles(false)"
+     (onSave)="saveDraftAs($event)"
      (onViewerExpanded)="expandViewer()"
      (onViewerCollapsed)="collapseViewer()">
     </app-viewer>

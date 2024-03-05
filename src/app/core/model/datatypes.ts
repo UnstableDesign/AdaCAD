@@ -408,15 +408,12 @@ export interface Fileloader{
   ada: (filename: string, id: number, desc: string, data: any) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
-  //bmp: (filename: string, data: any) => Promise<LoadResponse>,
-  //jpg: (filename: string, data: any) => Promise<LoadResponse>,
- // form: (data: any) => Promise<LoadResponse
 }
 
 export interface FileSaver{
   ada: () => Promise<{json: string, file: SaveObj}>,
   copy: (include: Array<number>) => Promise<SaveObj>,
-  //wif: (draft: Draft, loom: Loom) => Promise<string>,
+  wif: (draft: Draft, loom: Loom, loom_settings: LoomSettings) => Promise<string>
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>
 }
