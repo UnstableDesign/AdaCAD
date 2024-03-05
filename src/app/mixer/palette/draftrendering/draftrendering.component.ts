@@ -7,6 +7,7 @@ import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import utilInstance from '../../../core/model/util';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
 
 @Component({
   selector: 'app-draftrendering',
@@ -55,6 +56,7 @@ export class DraftrenderingComponent {
 
 
   constructor(
+    private dm: DesignmodesService,
     private ms: MaterialsService,
     private fs: FileService,
     public tree: TreeService,
@@ -80,13 +82,15 @@ export class DraftrenderingComponent {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['dirty']) {
 
+      if(this.dm.isSelectedDraftEditSource('drawdown')) return;
+
       let draft = this.tree.getDraft(this.id);
       
       if(draft == undefined) draft = initDraft();
       
       this.ud_name = getDraftName(draft);
       this.warps = warps(draft.drawdown);
-      this.wefts = wefts(draft.drawdown)
+      this.wefts = wefts(draft.drawdown);
       this.drawDraft(draft);    
     }
 }
@@ -245,10 +249,10 @@ export class DraftrenderingComponent {
 
 
   /**
-   * draw whetever is stored in the draft object to the screen
+   * draw whatever is stored in the draft object to the screen
    * @returns 
    */
-  async drawDraft(draft: Draft) : Promise<any> {
+  private async drawDraft(draft: Draft) : Promise<any> {
 
     if(this.hasParent && this.ws.hide_mixer_drafts) return;
 
@@ -298,6 +302,7 @@ export class DraftrenderingComponent {
       this.draft_canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
       this.draft_canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
  
+      console.log(" calling from draft rendering")
       let img = getDraftAsImage(draft, cell_size, use_colors, use_colors, this.ms.getShuttles());
       this.draft_cx.putImageData(img, 0, 0);
       this.tree.setDraftClean(this.id);

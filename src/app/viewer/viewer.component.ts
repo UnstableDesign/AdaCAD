@@ -44,11 +44,11 @@ export class ViewerComponent {
     
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['id'] || changes['dirty']) {
-      this.redraw(this.id);
-    }
-  }
+  // ngOnChanges(changes: SimpleChanges) {
+  //   if (changes['id'] || changes['dirty']) {
+  //     //this.redraw(this.id);
+  //   }
+  // }
 
 
 
@@ -158,10 +158,6 @@ getVisVariables(){
 
   }
 
-  download(){
-    
-  }
-
 
   clearView(){
     this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
@@ -187,8 +183,6 @@ getVisVariables(){
   //when expanded, someone can set the zoom from the main zoom bar
   //this is called, then, to rescale the view
   renderChange(){
-
-    console.log("RENDERING ZOOM TO ", this.zs.getViewerZoom())
     this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
     if(this.draft_canvas == null) return;
     this.draft_canvas.style.transform = 'scale('+this.zs.getViewerZoom()+')'
@@ -241,7 +235,7 @@ getVisVariables(){
  
       let img = getDraftAsImage(draft, cell_size, floats, use_colors, this.ms.getShuttles());
       this.draft_cx.putImageData(img, 0, 0);
-
+    
     }
 
 

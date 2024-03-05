@@ -20,9 +20,16 @@
     margin-bottom: 12px;
 }
 
+.view_options{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .view_standard{
     width: 14vw;
     height: 14vw; 
+    overflow: hidden;
 }
 
 .view_expanded{

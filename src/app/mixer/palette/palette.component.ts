@@ -472,13 +472,13 @@ handlePan(diff: Point){
    * @param id 
    */
   revealDraftDetails(id: number){
-    this.refreshViewer.emit();
+
+    console.log("______________")
+    console.log("Reveal Draft Details")
 
     this.selected_draft_id = id;
     
     if(this.has_viewer_focus == -1 || id == -1) this.onRevealDraftDetails.emit(id);
-    
-    
     if(id == -1) return;
 
     if(this.tree.hasParent(id)){
@@ -1032,7 +1032,7 @@ handlePan(diff: Point){
       let new_tl: Point = null;
 
 
-      if(this.tree.hasSingleChild(obj.id) && this.tree.opHasHiddenChild(obj.id)){
+      if(this.tree.hasSingleChild(obj.id)){
           new_tl = {x: op_comp.topleft.x + 200, y: op_comp.topleft.y}
       }else{
         let container = document.getElementById('scale-'+obj.id);
@@ -1104,7 +1104,6 @@ handlePan(diff: Point){
   //  }
 
 
-  /**TO DO, this likely doesn't work */
     onDuplicateSubdraftCalled(obj: any){
         if(obj === null) return;
 

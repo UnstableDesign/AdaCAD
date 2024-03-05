@@ -78,8 +78,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       let composite = new Sequence.TwoD().setBlank(2);
-      console.log("layer draft map", layer_draft_map)
-
 
       //assign drafts to their specified systems. 
       layer_draft_map.forEach((sdm, ndx) => {
@@ -106,7 +104,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             system_layer_map.push({ws: wasy, layer:el.layer})
           })
         });
-        console.log("LAYER SYSTEMS ", system_layer_map)
         composite.layerSystems(system_layer_map, warp_system_map);
         
  

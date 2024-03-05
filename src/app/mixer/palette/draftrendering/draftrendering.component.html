@@ -13,14 +13,6 @@
 
     <mat-menu #subdraftOptions>
   
-      <button mat-icon-button *ngIf='hasParent'
-      matTooltip= "Show/Hide Draft"
-      class="fas"
-      [class.fa-eye-slash] = 'draft_visible'
-      [class.fa-eye] = '!draft_visible'
-      (click)="showhide()">
-      </button>
-  
   
       <button mat-flat-button
       matTooltip= "Duplicate"

@@ -2,8 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChil
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { Bounds, Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
-import { flipDraft, getDraftAsImage, getDraftName, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
-import utilInstance from '../../../core/model/util';
+import { isUp, warps, wefts } from '../../../core/model/drafts';
 import { FileService } from '../../../core/provider/file.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { TreeService } from '../../../core/provider/tree.service';
@@ -13,6 +12,7 @@ import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { DraftrenderingComponent } from '../draftrendering/draftrendering.component';
 import { ZoomService } from '../../../core/provider/zoom.service';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
 
 
 
@@ -43,7 +43,8 @@ export class SubdraftComponent implements OnInit {
   get draft(): Draft { return this._draft; }
   set draft(value: Draft) {
     this._draft = value;
-    if(this.draft_rendering) this.draft_rendering.drawDraft(value);
+    if(this.draft_rendering && this.dm.isSelectedDraftEditSource('mixer'))        
+      this.draft_rendering.drawDraft(value);
   }
 
   private _draft:Draft = null;
@@ -127,13 +128,10 @@ export class SubdraftComponent implements OnInit {
 
 
   constructor( 
+    private dm: DesignmodesService,
     private layer: LayersService, 
-    private ms: MaterialsService, 
-    private ss: SystemsService, 
     public tree: TreeService,
-    private fs: FileService,
     private viewport: ViewportService,
-    private dialog: MatDialog,
     public ws: WorkspaceService,
     private multiselect: MultiselectService,
     public zs: ZoomService) { 

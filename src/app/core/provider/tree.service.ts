@@ -2173,7 +2173,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       dn.draft = createDraft(temp.drawdown, temp.gen_name, ud_name, temp.rowShuttleMapping, temp.rowSystemMapping, temp.colShuttleMapping, temp.colSystemMapping);
     } 
 
-    dn.draft.id = id;
+     dn.draft.id = id;
 
     if(loom_settings === null || loom_settings === undefined){
       dn.loom_settings = {
@@ -2187,12 +2187,13 @@ isValidIOTuple(io: IOTuple) : boolean {
     else dn.loom_settings = loom_settings;
 
     dn.dirty = true;
-    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
+
+      
+   if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
     return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings, this.ws.selected_origin_option)
     .then(loom =>{
-
       dn.loom = loom;
       return Promise.resolve(loom);
     });

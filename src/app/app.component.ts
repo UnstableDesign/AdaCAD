@@ -170,8 +170,10 @@ export class AppComponent implements OnInit{
 
   clearAll() : void{
 
+    this.selected_draft_id = -1;
     this.mixer.clearView();
     this.editor.clearAll();
+    this.viewer.clearView();
     this.tree.clear();
     this.ss.clearTimeline();
     this.ms.reset();
@@ -249,6 +251,7 @@ export class AppComponent implements OnInit{
       case 'draft':
         this.mixer.onClose();
         this.editor.onFocus();
+        this.editor.loadDraft(this.selected_draft_id)
         //this.editor.centerView();
 
         break;
@@ -767,27 +770,26 @@ onPasteSelections(){
 
 }
 
-   //need to handle this and load the file somehow
-   openNewFileDialog() {
-    if(this.upload_modal != undefined && this.upload_modal != null) return;
+  //need to handle this and load the file somehow
+  openNewFileDialog() {
+  if(this.upload_modal != undefined && this.upload_modal != null) return;
 
 
-    this.upload_modal = this.dialog.open(LoadfileComponent, {
-      data: {
-        multiple: false,
-        accepts: '.ada',
-        type: 'ada',
-        title: 'Select an AdaCAD (.ada) file to Import'
-      }
-    });
+  this.upload_modal = this.dialog.open(LoadfileComponent, {
+    data: {
+      multiple: false,
+      accepts: '.ada',
+      type: 'ada',
+      title: 'Select an AdaCAD (.ada) file to Import'
+    }
+  });
 
-    this.upload_modal.afterClosed().subscribe(loadResponse => {
-      console.log("LoadReSP", loadResponse)
-      if(loadResponse !== undefined && loadResponse != true) 
-      this.loadNewFile(loadResponse);
+  this.upload_modal.afterClosed().subscribe(loadResponse => {
+    if(loadResponse !== undefined && loadResponse != true) 
+    this.loadNewFile(loadResponse);
 
-   });
-  }
+  });
+}
 
 
 
@@ -798,15 +800,10 @@ onPasteSelections(){
  * @param e 
  */
 originChange(e:any){
-
-
   this.selected_origin = e.value;
   this.ws.selected_origin_option = this.selected_origin;
   this.mixer.originChange(); //force a redraw so that the weft/warp system info is up to date
   this.saveFile();
-
-
-
 }
 
 
@@ -1085,16 +1082,14 @@ saveFile(){
 
 setDraftsViewable(val: boolean){
   this.ws.hide_mixer_drafts = val;
-  this.mixer.redrawAllSubdrafts();
+  this.mixer.onFocus();
 }
 
 openInEditor(id: number){
-  
    this.editor.loadDraft(id);
    this.selected_draft_id = id;
    this.selected_editor_mode = 'draft';
    this.toggleEditorMode();
-
 }
 
 /**
@@ -1128,8 +1123,8 @@ collapseViewer(){
 }
 
 showDraftDetails(id: number){
+  console.log("SHOW DRAFT DETAILS")
   this.editor.loadDraft(id);
- // this.sim.loadNewDraft(draft, loom_settings)
   this.selected_draft_id = id;
   this.dm.selectPencil('toggle');
 }
@@ -1181,14 +1176,19 @@ showDraftDetails(id: number){
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    */
   onRefreshViewer(){
+    console.log("REFRESH VIEWER")
     this.viewer.redraw(this.selected_draft_id);
   }
 
-  onSetViewer(id: number){
 
+  /**
+   * Set view is only called from the mixer when a new draft is focused. 
+   * @param id 
+   */
+  onSetViewer(id: number){
+    console.log("SET VIEWER", this.selected_draft_id, id);
     this.selected_draft_id = id;
-    if(id !== -1) this.editor.loadDraft(id);
-    else this.editor.clearDraft();
+    this.onRefreshViewer();
   }
 
    /**
@@ -1246,7 +1246,6 @@ showDraftDetails(id: number){
 
   zoomChange(ndx: number){
     if(this.viewer.view_expanded){
-
       this.zs.setZoomIndexOnViewer(ndx);
       this.viewer.renderChange();
     }else if(this.selected_editor_mode == 'mixer'){
@@ -1260,7 +1259,6 @@ showDraftDetails(id: number){
 
   saveDraftAs(format: string){
 
-    console.log("SAVE AS ", format, this.selected_draft_id);
     let draft:Draft = this.tree.getDraft(this.selected_draft_id);
     let b = this.bitmap.nativeElement;
 

@@ -528,11 +528,14 @@ export class DraftComponent implements OnInit {
 
 
       if(!event.target) return;
+      console.log("__________________________________ ")
+      console.log("EVENT TARGET ID ", event.target.id)
 
       //reject out of bounds requests
       switch(event.target.id){
         case 'drawdown':
 
+          if(!this.dm.isSelectedDraftEditSource('drawdown')) return;
           currentPos.i -= 1;
           currentPos.j -= 1;
           currentPos.si -=1;
@@ -735,8 +738,6 @@ export class DraftComponent implements OnInit {
     this.mouse_pressed = false;
 
     if(this.id == -1) return;
-    const draft = this.tree.getDraft(this.id);
-
 
      this.lastPos = {
       si: -1,
@@ -745,7 +746,7 @@ export class DraftComponent implements OnInit {
      }
 
      if(this.flag_history && event.type == 'mouseup'){
-        this.onDrawdownUpdated.emit(draft);
+        // this.onDrawdownUpdated.emit(draft);
         this.flag_history = false;
       } 
 
@@ -1284,9 +1285,8 @@ export class DraftComponent implements OnInit {
    */
 
   private drawOnDrawdown(draft:Draft, loom_settings: LoomSettings,  currentPos: Interlacement, shift: boolean) {
+    console.log("*DRAW ON DRAWDOWN")
 
-
-    var updates;
     var val  = false;
 
 
@@ -1313,13 +1313,9 @@ export class DraftComponent implements OnInit {
           } 
           else val = !isUp(draft.drawdown, currentPos.i,currentPos.j);
           draft.drawdown = setHeddle(draft.drawdown, currentPos.i,currentPos.j,val);
-
           break;
-
         case 'unset':
           draft.drawdown = setHeddle(draft.drawdown, currentPos.i,currentPos.j,null);
-
- 
         break;
         case 'material':
           this.drawOnWeftMaterials(draft, currentPos);
@@ -1329,18 +1325,13 @@ export class DraftComponent implements OnInit {
           break;
       }
 
-
-      // if(this.render.getCurrentView() == 'pattern'){
-      //   this.drawCell(this.cx,currentPos.si, currentPos.j, "drawdown");
-      // }else{
-      //   this.drawYarn(currentPos.si, currentPos.j, val);
-      // }
-
+      console.log("BEFORE SET DRAFT AND RECOMPUTE")
 
       this.tree.setDraftAndRecomputeLoom(this.id, draft, this.tree.getLoomSettings(this.id))
       .then(loom => {
-        this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
-        this.onDrawdownUpdated.emit(draft);
+         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
+        // console.log("on drawdown updated called from draw on drawdown")
+         this.onDrawdownUpdated.emit(draft);
       })
       .catch(console.error);
     
@@ -1386,6 +1377,7 @@ export class DraftComponent implements OnInit {
     .then(draft => {
       this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
       this.tree.setDraftOnly(this.id, draft);
+      console.log("on drawdown updated called from draw on tieups")
       this.onDrawdownUpdated.emit(draft);
     })
      
@@ -1436,6 +1428,7 @@ export class DraftComponent implements OnInit {
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
         this.tree.setDraftOnly(this.id, draft);
+        console.log("on drawdown updated called from draw on threading")
         this.onDrawdownUpdated.emit(draft);
       });
     }
@@ -1482,6 +1475,7 @@ export class DraftComponent implements OnInit {
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
         this.tree.setDraftOnly(this.id, draft);
+        console.log("on drawdown updated called from draw on treadling")
         this.onDrawdownUpdated.emit(draft);
       })
     }
@@ -2003,7 +1997,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    * @returns {void}
    */
   public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
-    
+
+
     var base_dims = this.render.getCellDims("base");
     let cell_size = base_dims.w;
     const draft_cx = this.canvasEl.getContext("2d");
@@ -2013,6 +2008,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
     this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
 
+    console.log("calling redraw from editor, redrawDraft")
     let img = getDraftAsImage(draft, cell_size, false, false, this.ms.getShuttles());
     draft_cx.putImageData(img, cell_size, cell_size);
     this.tree.setDraftClean(this.id);
@@ -2034,6 +2030,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
     this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
 
+    console.log("calling redraw from editor, redrawStructure")
     let img = getDraftAsImage(draft, cell_size, true, false, this.ms.getShuttles());
     draft_cx.putImageData(img, cell_size, cell_size);
     this.tree.setDraftClean(this.id);
@@ -2056,6 +2053,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
     this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
     this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
+
+    console.log("calling redraw from editor, redrawColor")
 
     let img = getDraftAsImage(draft, cell_size, true, true, this.ms.getShuttles());
     draft_cx.putImageData(img, cell_size, cell_size);
@@ -2348,6 +2347,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        console.log("on drawdown updated called from draw on insert row")
         this.onDrawdownUpdated.emit(draft);
       })
     }else{
@@ -2356,6 +2356,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        console.log("on drawdown updated called from draw on insert row")
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2389,6 +2390,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        console.log("on drawdown updated called from draw on clone row")
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2400,6 +2402,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        console.log("on drawdown updated called from draw on clone row")
+
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2430,6 +2434,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        console.log("on drawdown updated called from draw on delete row")
+
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2439,6 +2445,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.rowShuttleMapping = draft.rowShuttleMapping;
+        console.log("on drawdown updated called from draw on delete row")
+
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2468,6 +2476,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.colShuttleMapping = draft.colShuttleMapping;
+        console.log("on drawdown updated called from draw on insert col")
+
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2478,6 +2488,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.colShuttleMapping = draft.colShuttleMapping;
+        console.log("on drawdown updated called from draw on insert col")
+
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2510,6 +2522,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.colShuttleMapping = draft.colShuttleMapping;
+        console.log("on drawdown updated called from draw on clone col")
+
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2521,6 +2535,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.colShuttleMapping = draft.colShuttleMapping;
+        console.log("on drawdown updated called from draw on clone col")
+
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2550,6 +2566,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         .then(loom => {
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
           this.colShuttleMapping = draft.colShuttleMapping;
+          console.log("on drawdown updated called from draw on delete col")
+
           this.onDrawdownUpdated.emit(draft);
 
         })
@@ -2559,6 +2577,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
           this.colShuttleMapping = draft.colShuttleMapping;
+          console.log("on drawdown updated called from draw on delete col")
+
           this.onDrawdownUpdated.emit(draft);
 
         })

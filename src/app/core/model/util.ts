@@ -1226,7 +1226,7 @@ let system = null;
     }
 
 
-
+    console.log("calling redraw from saveAs")
   let img = getDraftAsImage(draft, 10, true, use_colors, ms.getShuttles());  
   context.putImageData(img, 30, 30);
 
@@ -1266,6 +1266,7 @@ async saveAsBmp(el: any, draft: Draft, selected_origin_option:number, ms :Materi
 
     el.width = warps(draft.drawdown);
     el.height = wefts(draft.drawdown);
+    console.log("calling redraw from saveAs")
     let img = getDraftAsImage(draft, 1, false, false, ms.getShuttles());
     context.putImageData(img, 0, 0);
 

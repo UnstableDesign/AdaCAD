@@ -1,9 +1,10 @@
 
-<!--TODO add z index support here-->
+<!--TODO add z index support here
+add back id="note-{{note.id}}" 
+-->
 <div 
 class="note-container" 
 class="selectable-{{!disable_drag}}" 
-id="note-{{note.id}}" 
 cdkDrag
 (cdkDragMoved)="dragMove($event)">
 
