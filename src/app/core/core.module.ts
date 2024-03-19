@@ -47,7 +47,7 @@ import { ExamplesComponent } from './modal/examples/examples.component';
 import { LoadfileComponent } from './modal/loadfile/loadfile.component';
 import { FilebrowserComponent } from './filebrowser/filebrowser.component';
 import { KeycodesDirective } from './keycodes.directive';
-import { ZoomService } from './provider/zoom.service';
+import { WelcomeComponent } from './modal/welcome/welcome.component';
 
 @NgModule({
     imports: [
@@ -96,7 +96,8 @@ import { ZoomService } from './provider/zoom.service';
         ExamplesComponent,
         LoadfileComponent,
         FilebrowserComponent,
-        KeycodesDirective
+        KeycodesDirective,
+        WelcomeComponent
     ],
     providers: [
         UploadService,

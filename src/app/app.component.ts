@@ -36,6 +36,7 @@ import utilInstance from './core/model/util';
 import { NotesService } from './core/provider/notes.service';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { SystemsService } from './core/provider/systems.service';
+import { WelcomeComponent } from './core/modal/welcome/welcome.component';
 
 
 
@@ -153,6 +154,11 @@ export class AppComponent implements OnInit{
     const analytics = getAnalytics();
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
+    });
+
+    let dialogRef = this.dialog.open(WelcomeComponent, {
+      height: '400px',
+      width: '600px',
     });
 
 

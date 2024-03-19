@@ -1,0 +1,13 @@
+.container{
+    display: flex;
+    flex-direction: row;
+}
+
+button{
+    margin-top: 1em;
+}
+
+.left,
+.right{
+    padding: 12px;
+}
