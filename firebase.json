@@ -1,6 +1,7 @@
 {
   "hosting": {
     "public": "dist",
+    "site": "adacad-4-1",
     "ignore": [
       "firebase.json",
       "**/.*",
