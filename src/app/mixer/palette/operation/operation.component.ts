@@ -14,6 +14,7 @@ import { ViewportService } from '../../provider/viewport.service';
 import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { InletComponent } from './inlet/inlet.component';
 import { ParameterComponent } from './parameter/parameter.component';
+import { ZoomService } from '../../../core/provider/zoom.service';
 
 
 
@@ -30,15 +31,15 @@ export class OperationComponent implements OnInit {
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
+   
 
 
    @Input()
    get scale(): number { return this._scale; }
    set scale(value: number) {
      this._scale = value;
-     this.rescale();
    }
-   private _scale:number = 5;
+   private _scale:number = this.zs.getMixerZoom();
  
  /**
   * handles actions to take when the mouse is down inside of the palette
@@ -49,6 +50,7 @@ export class OperationComponent implements OnInit {
    @Input() zndx: number;
    @Output() onConnectionRemoved = new EventEmitter <any>();
    @Output() onConnectionMove = new EventEmitter <any>();
+   @Output() onConnectionStarted = new EventEmitter <any>();
    @Output() onOperationMove = new EventEmitter <any>(); 
    @Output() onOperationMoveEnded = new EventEmitter <any>(); 
    @Output() onOperationParamChange = new EventEmitter <any>(); 
@@ -58,6 +60,8 @@ export class OperationComponent implements OnInit {
    @Output() onInputVisibilityChange = new EventEmitter <any> ();
    @Output() onInletLoaded = new EventEmitter <any> ();
    @Output() onOpLoaded = new EventEmitter <any> ();
+   @Output() onShowChildDetails = new EventEmitter <any> ();
+   @Output() onSelectForView = new EventEmitter <any> ();
 
 
    params_visible: boolean = true;
@@ -91,7 +95,6 @@ export class OperationComponent implements OnInit {
  
    topleft: Point = {x: 0, y:0};
 
-
   //  bounds: Bounds = {
   //    topleft: {x: 0, y:0},
   //    width: 200,
@@ -120,19 +123,26 @@ export class OperationComponent implements OnInit {
 
    viewInit: boolean = false;
 
-
    hasInlets: boolean = false;
+
+   children: Array<number> = []; //a list of references to any drafts produced by this operation
+
+   redrawchildren: number = 0;
+
+   selecting_connection: boolean = false;
+
+   category_name: string = "";
 
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
     private viewport: ViewportService,
     public tree: TreeService,
-    public dm: DesignmodesService,
     private imageService: ImageService,
     public systems: SystemsService,
     public multiselect: MultiselectService,
-    public opdescriptions: OperationDescriptionsService) { 
+    public opdescriptions: OperationDescriptionsService,
+    public zs: ZoomService) { 
      
 
   }
@@ -144,16 +154,7 @@ export class OperationComponent implements OnInit {
     this.description = this.opdescriptions.getOpDescription(this.name);
     this.displayname = this.opdescriptions.getDisplayName(this.name);
     this.application = this.opdescriptions.getOpApplication(this.name);
-
-
-    // const tl: Point = this.viewport.getTopLeft();
-    // const tl_offset = {x: tl.x, y: tl.y};
-    // console.log("setting position to ", tl)
-
-    //  if(this.topleft.x == 0 && this.topleft.y == 0){
-    //   this.setPosition(tl_offset);
-    //  } 
-     this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
+    this.category_name = this.opdescriptions.getOpCategory(this.name);
 
 
     this.opnode = <OpNode> this.tree.getNode(this.id);
@@ -162,7 +163,7 @@ export class OperationComponent implements OnInit {
   }
 
   ngAfterViewInit(){
-    this.rescale();
+    //this.rescale();
    // this.onOperationParamChange.emit({id: this.id});
     if(this.name == 'imagemap' || this.name == 'bwimagemap'){
       
@@ -175,46 +176,25 @@ export class OperationComponent implements OnInit {
     this.viewInit = true;
     this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
 
+    let op_container = document.getElementById('scale-'+this.id);
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top =  this.topleft.y+"px";
+    op_container.style.left =  this.topleft.x+"px";
+
+
+
 
     this.onOpLoaded.emit({id: this.id})
 
   }
 
 
-
-  // setBounds(bounds:Bounds){
-  //   this.bounds.topleft = {x: bounds.topleft.x, y: bounds.topleft.y},
-  //   this.bounds.width = bounds.width;
-  //   this.bounds.height = bounds.height;
-  //   this.interlacement = utilInstance.resolvePointToAbsoluteNdx(bounds.topleft, this.scale);
-  // }
-
   setPosition(pos: Point){
     this.topleft =  {x: pos.x, y:pos.y};
-    this.interlacement = utilInstance.resolvePointToAbsoluteNdx(pos, this.scale);
-  }
-
-
-  rescale(){
-
-    const zoom_factor = this.scale / this.default_cell;
-    const container: HTMLElement = document.getElementById('scale-'+this.id);
-    if(container === null) return;
-
-    container.style.transformOrigin = 'top left';
-    container.style.transform = 'scale(' + zoom_factor + ')';
-
-    this.topleft = {
-      x: this.interlacement.j * this.scale,
-      y: this.interlacement.i * this.scale
-    };
-
-    // this.bounds.height = this.base_height * zoom_factor;
-
- 
-  
-
-
+    let op_container = document.getElementById('scale-'+this.id);
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top =  this.topleft.y+"px";
+    op_container.style.left =  this.topleft.x+"px";
   }
 
   drawForPrint(canvas, cx, scale){
@@ -239,30 +219,8 @@ export class OperationComponent implements OnInit {
 
   }
 
-   /**
-   * updates this components position based on the child component's position
-   * */
-    updatePositionFromChild(child: SubdraftComponent){
-
-      if(child == undefined) return;
-       const container = <HTMLElement> document.getElementById("scale-"+this.id);
-       if(container !== null) this.setPosition({x: child.topleft.x, y: child.topleft.y - (container.offsetHeight * this.scale/this.default_cell) });
-  
-    }
-
-  /**
-   * set's the width to at least 200, but w if its large
-   */
-  // setWidth(w:number){
-  //   this.bounds.width = (w > 200) ? w : 200;
-  // }
-
-  // addOutput(dm: DraftMap){
-  //   this.outputs.push(dm);
-  // }
 
   disableDrag(){
-    console.log("DIABLE DRAG CALLED ON ", this.id)
     this.disable_drag = true;
   }
 
@@ -276,6 +234,10 @@ export class OperationComponent implements OnInit {
 
   toggleSelection(e: any){
 
+      if(this.children.length > 0){
+        let child = this.children[0];
+        this.onShowChildDetails.emit(child);
+      }
 
       if(e.shiftKey == true){
         this.multiselect.toggleSelection(this.id, this.topleft);
@@ -287,15 +249,18 @@ export class OperationComponent implements OnInit {
 
   
 
-  /**
-   * prevents hits on the operation to register as a palette click, thereby voiding the selection
-   * @param e 
-   */
+
   mousedown(e: any){
+
     e.stopPropagation();
-
-
   }
+
+
+
+  selectForView(){
+      this.onSelectForView.emit(this.id);
+  }
+
 
   drop(){
     console.log("dropped");
@@ -311,6 +276,12 @@ export class OperationComponent implements OnInit {
     this.onInputVisibilityChange.emit({id: this.id, ndx:  obj.inletid, ndx_in_inlets: obj.ndx_in_inlets, show: obj.show});
   }
 
+  updateChildren(children: Array<number>){
+        this.children = children;
+        this.redrawchildren++;
+  
+  }
+
   /**
    * resets the visibility on any inlet in the attached list
    * @param inlets 
@@ -323,19 +294,16 @@ export class OperationComponent implements OnInit {
     })
   }
 
+  connectionStarted(event){
+    this.onConnectionStarted.emit(event);
+
+  }
+
 
 
 
   removeConnectionTo(obj:any){
     this.onConnectionRemoved.emit(obj);
-
-    // const inlets = this.tree.getInputs(this.id);
-    // inlets.forEach(id => {
-    //   const comp = <ConnectionComponent> this.tree.getComponent(id);
-    //   comp.updateToPosition(this);
-
-    // })
-
   }
 
   openHelpDialog() {
@@ -379,6 +347,7 @@ export class OperationComponent implements OnInit {
           
         }
         this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value) 
+
 
         this.hasInlets = opnode.inlets.length > 0;
 
@@ -499,25 +468,44 @@ export class OperationComponent implements OnInit {
   }
 
   dragMove($event: any) {
-       //position of pointer of the page
+
+    let parent = document.getElementById('scrollable-container');
+    let op_container = document.getElementById('scale-'+this.id);
+    let rect_palette = parent.getBoundingClientRect();
+
+    const zoom_factor =  1/this.zs.getMixerZoom();
+
+    let screenX = $event.event.pageX-rect_palette.x+parent.scrollLeft; 
+    let scaledX = screenX* zoom_factor;
+    let screenY = $event.event.pageY-rect_palette.y+parent.scrollTop;
+    let scaledY = screenY * zoom_factor;
+   
 
 
+    this.topleft = {
+      x: scaledX,
+      y: scaledY
 
-       const pointer:Point = $event.pointerPosition;
-       const relative:Point = utilInstance.getAdjustedPointerPosition(pointer, this.viewport.getBounds());
-       const adj:Point = utilInstance.snapToGrid(relative, this.scale);
-       this.topleft = adj;  
-       this.interlacement = utilInstance.resolvePointToAbsoluteNdx(adj, this.scale);
-       this.onOperationMove.emit({id: this.id, point: adj});
+    }
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top =  this.topleft.y+"px";
+    op_container.style.left =  this.topleft.x+"px";
+
+    this.onOperationMove.emit({id: this.id, point: this.topleft});
 
   }
 
 
   dragEnd($event: any) {
+
+
+
     this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({id: this.id});
 
   }
+
+  
  
 
 }

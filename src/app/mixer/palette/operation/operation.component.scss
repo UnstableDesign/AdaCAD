@@ -1,12 +1,10 @@
 .operation-container{
-    position: absolute;
-    top: 0;
-    left: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     width: max-content;
     min-width: 300px;
+    border-radius: 8px;
     background-color: #434345;
     color: white;
 
@@ -27,12 +25,27 @@
         
     }
 
+   .outlet_row{
+        display: flex;
+        flex-direction: row;
+        color: blue;
+        position: relative;
+        top: -24px;
+        left: 16px;
+    }
+    
+
   
+}
+
+.operation-parent{
+    position: absolute;
+
 }
 
 /* The animation code */
 @keyframes added_to_workspace {
-    from {background-color: #ff4081;}
+    from {background-color: #000;}
     to {background-color: transparent;}
   }
 
@@ -43,8 +56,8 @@
     flex-direction: row;
     vertical-align: bottom;
     justify-content: flex-start;
-    padding: 6px 0 0 0 ;   
-    border-top: white thin solid;
+    padding: 8px;
+    
 }
 
 
@@ -61,6 +74,7 @@
 
 
 
+
 button.is-primary{
     background-color: transparent;
     border-color: transparent;
@@ -68,13 +82,15 @@ button.is-primary{
 }
 
 .cxn-row{
-    font-size: 0.8em;
     display: flex;
     flex-direction: row;
     text-align: left;
+    align-items: center;
     overflow: visible;
-    height: 25px;
-    padding: 2px 0;
+    // height: 24px;
+    padding: 8px 8px 0px 8px;
+    //background:rgba(255, 255, 255, 0.5)
+    
 
 
 
@@ -184,8 +200,12 @@ button.is-primary.is-active{
 .name{
     margin: 0px 8px;
     color: white;
-    font-size: 1.5em;
+    font-size: 1.6em;
     font-weight: bold;
+}
+
+.hidden{
+    display: none;
 }
 
 
@@ -197,12 +217,12 @@ button.is-primary.is-active{
         width: 100%;
         gap: 16px;
 
+
 }
 
 .param{
-
+    padding: 0px 8px;
     display: flex;
-    flex: 1 1 0px;
 }
 
 
@@ -223,5 +243,14 @@ button.is-primary.is-active{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    width: 100%;
+}
+
+.outputs{
+    display: flex;
+    flex-direction: row;
+}
+
+.draftrendering{
     width: 100%;
 }

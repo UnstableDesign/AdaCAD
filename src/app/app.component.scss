@@ -1,0 +1,128 @@
+
+
+.view-container{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.mat-mdc-icon-button{
+  font-size: 14px;
+  position: relative;
+  top: 0px;
+}
+
+.mat-button-toggle-appearance-standard{
+  font-size: 14px;
+}
+
+
+
+.header-container{
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 64px;
+  background-color: #3f51b5;
+  overflow: hidden;
+
+}
+
+.ui-grid{
+  display: flex;
+  background: white;
+  flex: 1 1 calc(100vh - 128px);
+  flex-direction: row;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+
+.footer-container{
+  display: flex;
+  flex-direction: row;
+  flex: 0 1 64px;
+  background-color: #3f51b5;
+  justify-content: space-between;
+}
+
+.mixer-container{
+  display: flex;
+  flex: 0 1 80%;
+  flex-direction: row;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.detail-container{
+  display: flex;
+  flex: 0 1 80%;
+  flex-direction: row;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.static-container{
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  flex: 1 1 20%;
+  overflow: scroll;
+  background-color: darkgrey;
+
+}
+
+.toggle{
+  font-size: .5em;
+}
+
+.download{
+  width: 18vw;
+}
+
+
+
+.topbar{
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  background-color: #3f51b5;
+  
+}
+
+.footer{
+  display: flex;
+  justify-content: space-between;
+}
+
+.topbar-button-group{
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+  .hide{
+    display: none;
+  }
+
+  .show{
+    display: flex;
+  }
+
+
+
+  .active{
+    color: #ff4081;
+  }
+
+
+  .offline{
+    font-size: .6em;
+  }
+
+
+  .selected,
+  .active{
+    opacity: .9;
+  }
+  

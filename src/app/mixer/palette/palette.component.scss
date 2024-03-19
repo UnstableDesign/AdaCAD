@@ -1,31 +1,10 @@
-div{
-    position: absolute;
-    top: 0;
-    left: 0;
-    // width: 16384px; //max
-    // height: 16384px;
-    background:#cccccc;
-    z-index: -1;
-    background-size: 5px 5px;
-    background-image:
-    linear-gradient(to right, #c2c1c1 .5px, transparent .5px),
-    linear-gradient(to bottom, #c2c1c1 .5px, transparent .5px);
-
+#palette-scale-container{
+    width: 64000px;
+    height: 64000px;
 }
-
 
 svg{
     position: absolute;
 }
 
 
-canvas{
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    overflow: scroll;
-}
-
-.no-pointer{
-    pointer-events: none;
-}

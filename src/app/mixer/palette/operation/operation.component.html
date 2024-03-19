@@ -1,18 +1,17 @@
-<div class="operation-container no-text-select selectable-{{!disable_drag}}"
+<div id='scale-{{id}}' class="operation-parent no-text-select selectable-{{!disable_drag}}"
 cdkDrag
+cdkDragBoundary=".palette"
 (mousedown)="mousedown($event)"
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
 [cdkDragDisabled] = "disable_drag"
-[cdkDragFreeDragPosition]="topleft"
 (cdkDragMoved)="dragMove($event)"
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"
 >
 
-  <div id='scale-{{id}}' class="operation-container">
-
-        <div class="cxn-row" >
+  <div class="operation-container" [style.background-color]="opdescriptions.getCatColor(category_name)">
+        <div class="cxn-row">
             <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">
               
               <app-inlet 
@@ -32,31 +31,48 @@ cdkDrag
 
         <div class="top-row" >
 
-
-
         <div class="operation-details">
-            <!-- <div class="name">{{op.name}} // {{id}}</div> -->
             <div class="name no-text-select">{{displayname}}</div>
           
         </div>
 
         <button 
-        class="button is-small is-primary fas fa-question"
-        (click)="openHelpDialog()">
-    </button> 
+        mat-icon-button
+        (click)="selectForView()">
+        <i class="fa-solid fa-eye"></i>
+        </button> 
+
+
+        <mat-menu #editOptions>
 
         <button 
-        matTooltip= "Duplilcate"
-        class="button is-small is-primary fa fa-clone"
+        mat-flat-button
+        (click)="openHelpDialog()">
+        <i class="fa-solid fa-circle-info"></i> help
+        </button> 
+
+        <button 
+        mat-flat-button
+        matTooltip= "Duplicate"
         (click)="duplicate()">
+        <i class="fa-solid fa-clone"></i> duplicate
         </button>
         
-
+        </mat-menu>
+       
         <button 
-        class="button is-small is-primary"
+        mat-icon-button
         (click)="delete()">
-        <i class="fas fa-times"></i>
+        <i class="fa-solid fa-times"></i>  
+
         </button>
+
+        <button mat-icon-button
+        [matMenuTriggerFor]="editOptions"
+        class="is-small fa-solid fa-ellipsis"
+        matTooltip ="View Options">
+        </button>
+
       </div>
 
       <div class="params">
@@ -76,16 +92,26 @@ cdkDrag
 
 
 
-      <!-- 
-        <button class="refresh" 
-        mat-icon-button
-          (click)="toggleParamsVisible()"
-          matTooltip="update draft with input values">
-          <i *ngIf="!params_visible" class="fas fa-edit"></i>
-          <i *ngIf="params_visible" class="fas fa-eye-slash"></i>
-      </button>   -->
+ 
 
       </div>
+
+
+      <div class="outputs">
+        <app-draftrendering class="draftrendering from_operation" 
+        *ngFor="let child_id of children" 
+        [id]="child_id" 
+        [dirty]="redrawchildren"
+        [source]="operation"
+        [hasParent]="true"
+        (connectionSelected)="connectionStarted($event)"
+        (onDuplicateCalled)="designActionChange($event)"
+				(onDeleteCalled)="designActionChange($event)"
+        >
+        </app-draftrendering>
+      </div>
+
+
 
   </div>
 </div>  

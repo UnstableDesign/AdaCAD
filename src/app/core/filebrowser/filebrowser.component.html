@@ -1,154 +1,220 @@
-<div class="filebrowser">
+<p mat-dialog-title
+cdkDrag
+ cdkDragRootElement=".cdk-overlay-pane" 
+ cdkDragHandle>
+ <span *ngIf="data.selectOnly" >Load File From AdaCAD</span>
+ <span *ngIf="!data.selectOnly">Manage Files</span>
+
+
+
+</p>
+
+<mat-dialog-content class="filebrowser">
+
+  <button mat-raised-button (click)="createBlankFile()">Create A New File</button>
 
 
 
       <!-- files-->
+  <div *ngIf="!auth.isLoggedIn">
+    <button mat-flat-button  color="primary" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
+  </div>
 
-          <button 
-          mat-stroked-button color="primary"  
-          (click)="onNewWorkspace()">
-            <i class="fa-regular fa-plus"></i>
-            <span *ngIf="auth.isLoggedIn"> Create Blank Workspace</span>
-            <span *ngIf="!auth.isLoggedIn"> Clear Workspace</span>
-          </button>
-      
-        <!-- <mat-menu #clearScreen mat-raised-button>
-          <a  (click)="onNewWorkspace()" mat-menu-item> Opening a new workspace will clear the current workspace. Are you sure you want to do this?</a>
-        </mat-menu> -->
 
-          <button 
-          mat-stroked-button color="primary"  
-          (click)="openNewFileDialog()"
-          ><i class="fa-regular fa-folder-open"></i> Import .ada Workspace</button>
 
-    
+  <ng-container *ngIf="!files.connected">
+    Saved files cannot be accessed because you are offline.
+  </ng-container>
 
-          <button
-          mat-stroked-button color="primary"  
-          [matMenuTriggerFor]="downloadDropdown"
-          ><i class="fa-solid fa-download"></i> Download Workspace
-          </button>
 
-          <mat-menu #downloadDropdown mat-raised-button>
-            <a  (click)="saveAsAda()" mat-menu-item> as AdaCAD workspace file</a>
-            <a  (click)="saveAsBmp()" mat-menu-item> export all visible drafts as bitmaps</a>
-            <!-- <a  (click)="saveAsWif()" mat-menu-item> export all visible drafts as .WIF files</a> -->
-          </mat-menu>
-          <!-- <button
-          mat-stroked-button color="primary"  
-          (click)="saveAsPrint()"
-          ><i class="fa-solid fa-print"></i> Export as Image
-          </button> -->
+    <ng-container *ngIf="auth.isLoggedIn && files.connected">
 
-        <mat-divider></mat-divider>
-        <h2>Your Saved AdaCAD Files</h2>
 
-        <div *ngIf="!auth.isLoggedIn">
-          <button mat-flat-button  color="primary" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
+      <!-- begin loaded files section -->
+
+      <h3> Loaded Files</h3>
+
+      <div class="file-item-block">
+        <div class="filename">
+          Name
         </div>
-      
+        <div class="lastviewed">
+          Last Saved
+        </div>
+
+        <div class="actions">
+          Actions
+        </div>
+      </div>
 
 
-      <ng-container *ngIf="!files.connected">
-        Saved files cannot be accessed because you are offline.
-      </ng-container>
+      <!-- display loaded files -->
+      <div  class="file-item-block current" *ngFor="let file of files.loaded_files">
+          
+        <div class="filename">
+            <mat-form-field *ngIf="rename_mode_id == file.id">
+              <mat-label>Rename File</mat-label>
+             <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
 
-        <ng-container *ngIf="filelist !== undefined && auth.isLoggedIn && files.connected">
+              <button 
+              mat-icon-button 
+              [class.primary]="file.id == this.files.current_file_id" 
+              (click) = "rename(file.id)">
+              <i class="fas fa-save"></i></button>
 
-        <div  *ngFor="let file of filelist">
-          <ng-container *ngIf="file !== null && file.meta !== null">
+            </mat-form-field>
 
 
-            <div class="file-item-block" [class.current]="file.id === this.files.current_file_id">
-           
-              <div class="details">
+            <button *ngIf="rename_mode_id !== file.id"
+            mat-raised-button
+            [class.primary]="file.id == this.files.current_file_id" 
+            (click) = openFile(file.id)
+            class="file_name">
+             {{file.name}}
+            </button>
 
-    
-                <div  *ngIf="file.id == this.files.current_file_id && rename_mode">
-                <mat-form-field class="example-full-width" class="filename">
-                  <mat-label>Rename File</mat-label>
-                  <div><input matInput color="accent" [(ngModel)]="files.current_file_name" placeholder="Filename" (change)="rename()"> </div>
-                </mat-form-field>
+            
 
-                <mat-form-field class="example-full-width" >
-                  <mat-label>Description</mat-label>
-                  <textarea matInput placeholder="Ex. this file creates..."  [(ngModel)]="files.current_file_desc"></textarea>
-                </mat-form-field>
-                <button 
-                mat-raised-button
-                color="accent"
-                (click) = "rename()">
+        </div>
+
+
+        <div class="lastviewed"> {{formatDate(file.last_saved_time)}} </div>
+
+
+          <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
+
+
+        <div class="actions"> 
 
         
-                 Save
-               
-                </button>
-               
-              </div>
 
-              
-
-                <button mat-raised-button *ngIf="(file.id == this.files.current_file_id && !rename_mode) || file.id !== this.files.current_file_id" 
-                
-                [class.primary]="file.id == this.files.current_file_id" 
-                (click) = openFile(file.id)
-                class="file_name">
-
-                 {{file.meta.name}}
-               
-                </button>
-
-                <div *ngIf="file.id != this.files.current_file_id"  class="timestamp">last viewed on: {{file.meta.date}} </div>
+          <button 
+          mat-icon-button 
+          matListItemIcon
+          matTooltip="rename this file"
+          (click)="rename(file.id)"
+          ><i class="fas fa-edit"></i>
+        </button>
 
 
-                <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="timestamp">last saved at: {{last_saved_time}} </div>
+          <button 
+          mat-icon-button 
+          matListItemIcon
+          matTooltip="Download"
+          (click)="exportWorkspace(file.id)"
+          ><i class="fa-solid fa-download"></i>
+          </button>
+
+          <button *ngIf="files.loaded_files.length != 1"
+          mat-icon-button 
+          matListItemIcon
+          matTooltip="close this file"
+          (click)="close(file.id)"
+          ><i class="fa-solid fa-xmark"></i>
+        </button>
 
 
-              </div>
-
-              <div class="more"> 
-                <button *ngIf="file.id === this.files.current_file_id"
-                mat-icon-button 
-                matListItemIcon
-                matTooltip="Download the current AdaCAD file"
-                [matMenuTriggerFor]="downloadDropdown"
-                ><i class="fa-solid fa-download"></i>
-                </button>
-
-                <button *ngIf="file.id === this.files.current_file_id"
-                mat-icon-button 
-                matListItemIcon
-                matTooltip="rename this file"
-                (click)="rename()"
-                ><i class="fas fa-edit"></i>
-              </button>
-
-              
- 
-                <!-- <button  
-                mat-icon-button 
-                matListItemIcon
-                (click)="duplicate()"
-                >            
-                <i class="fa-solid fa-copy"></i>
-    
-                </button> -->
- 
-            
-      
-           
 
 
+
+        
+        
+        </div>
   
 
 
-       
-           
-             <button 
-             mat-icon-button 
-             [matMenuTriggerFor]="deleteConfirm"
-             >
-             <i class="fa-solid fa-trash"></i>
+
+
+          
+  
+  </div>
+
+
+    <h3> Files Saved on AdaCAD Server</h3>
+
+
+      <!-- HEADER ROW -->
+      <div class="file-item-block">
+        <div class="filename">
+          Name
+        </div>
+        <div class="lastviewed">
+          Last Viewed
+        </div>
+
+        <div class="actions">
+          Actions
+        </div>
+      </div>
+
+
+
+      <div  class="file-item-block" *ngFor="let file of unopened_filelist" >
+          
+            <div class="filename">
+
+
+                <mat-form-field *ngIf="rename_mode_id == file.id">
+                  <mat-label>Rename File</mat-label>
+                 <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
+
+                  <button 
+                  mat-icon-button 
+                  [class.primary]="file.id == this.files.current_file_id" 
+                  (click) = "rename(file.id)">
+                  <i class="fas fa-save"></i></button>
+
+          
+    
+
+                </mat-form-field>
+
+
+                <button *ngIf="rename_mode_id !== file.id"
+                mat-raised-button
+                [class.primary]="file.id == this.files.current_file_id" 
+                (click) = openFile(file.id)
+                class="file_name">
+                 {{file.meta.name}}
+                </button>
+
+            </div>
+    
+
+            <div class="lastviewed"> {{file.meta.date}} </div>
+
+
+              <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
+
+
+            <div class="actions"> 
+
+            
+
+              <button 
+              mat-icon-button 
+              matListItemIcon
+              matTooltip="rename this file"
+              (click)="rename(file.id)"
+              ><i class="fas fa-edit"></i>
+            </button>
+
+
+              <button 
+              mat-icon-button 
+              matListItemIcon
+              matTooltip="download"
+              (click)="exportWorkspace(file.id)">
+              <i class="fa-solid fa-download"></i>
+              </button>
+
+    
+          
+              <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="deleteConfirm"
+              >
+              <i class="fa-solid fa-trash"></i>
               </button>
 
               <mat-menu #deleteConfirm>
@@ -157,25 +223,24 @@
                 matListItemIcon
                 (click) = "remove(file.id)"
                 >
-                 Are you sure?
-                 </button>
+                  Are you sure?
+                  </button>
               </mat-menu>
             
+            
+            </div>
+      
+
+
+
+
               
-              </div>
-       
-
-
- 
-  
-               
-        
-              </div>
-       </ng-container>
-
-       
+      
       </div>
     </ng-container>
+
+       
+
 
     <!-- <mat-divider></mat-divider> -->
     <!-- <h2>Publicly Shared Files</h2> -->
@@ -195,4 +260,7 @@
 
 
 
-</div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" mat-dialog-close>Close</button>
+</mat-dialog-actions>

@@ -4,10 +4,12 @@
  */
 
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
-import { MaterialMap } from "../provider/materials.service";
+import { FileService } from "../provider/file.service";
+import { MaterialMap, MaterialsService } from "../provider/materials.service";
+import { SystemsService } from "../provider/systems.service";
 import { getCellValue, setCellValue } from "./cell";
 import { Point, Interlacement, Bounds, Draft, Loom, LoomSettings, Material, Cell } from "./datatypes";
-import { hasCell, initDraftWithParams, warps, wefts } from "./drafts";
+import { flipDraft, getDraftAsImage, getDraftName, hasCell, initDraftWithParams, isSet, warps, wefts } from "./drafts";
 import { createMaterial, setMaterialID } from "./material";
 
 
@@ -58,6 +60,53 @@ class Util {
 
     }
 
+      /**
+       * a blank draft is one where the drawdown is set to all heddle down 
+       * the row and column info is all set to a uniform value.
+       * @param d 
+       */
+      isBlankDraft = (d: Draft, loom: Loom) : boolean => {
+
+        let has_value = false;
+        d.drawdown.forEach((row) => {
+          row.forEach((cell) => {
+            if(cell.is_up) has_value = true;
+          })
+        })
+
+        if(has_value) return false;
+        
+        let row_shuttle_unique = this.filterToUniqueValues(d.rowShuttleMapping);
+        let col_shuttle_unique = this.filterToUniqueValues(d.colShuttleMapping);
+        let row_system_unique = this.filterToUniqueValues(d.rowSystemMapping);
+        let col_system_unique = this.filterToUniqueValues(d.colSystemMapping);
+
+        if(row_shuttle_unique.length > 1) return false;
+        if(col_shuttle_unique.length > 1) return false;
+        if(row_system_unique.length > 1) return false;
+        if(col_system_unique.length > 1) return false;
+
+        if(loom == null) return true;
+
+        loom.threading.forEach(frame => {
+          if(frame !== -1) return false;
+        });
+
+        loom.treadling.forEach(pick => {
+          if(pick.length !== 0) return false;
+        });
+
+        has_value = false;
+        loom.tieup.forEach((row) => {
+          row.forEach((cell) => {
+            if(cell === true) has_value = true;
+          })
+        })
+        
+        return !has_value;
+    
+
+      }
      /**
     * given a drawdown and a column index, return if the column is blank
     * @param j 
@@ -259,11 +308,11 @@ class Util {
    * @param scale the scale of the view we are using
    * @returns an Interlacement
    */
-  resolveCoordsToNdx(p: Point, scale:number) : Interlacement {  
-    const i = Math.floor((p.y) / scale);
-    const j = Math.floor((p.x) / scale);
-    return {i: i, j: j, si: i};
-  }
+  // resolveCoordsToNdx(p: Point, scale:number) : Interlacement {  
+  //   const i = Math.floor((p.y) / scale);
+  //   const j = Math.floor((p.x) / scale);
+  //   return {i: i, j: j, si: i};
+  // }
 
   /**
    * takes two interlacements and sees if they are the same
@@ -360,54 +409,6 @@ class Util {
     return true;
   }
 
-   /**
-   * returns a Bounds type that represents the intersection between primary and one intersecting subdraft
-   * @param primary the rectangular area we are checking for intersections
-   * @param isect an array of all the components that intersect
-   * @returns the array of bounds of all intersections
-   */
-    // getIntersectionBounds(primary: SubdraftComponent, isect: SubdraftComponent):Bounds{
-
-    //   const left: number = Math.max(primary.bounds.topleft.x, isect.bounds.topleft.x);
-    //   const top: number = Math.max(primary.bounds.topleft.y, isect.bounds.topleft.y);
-    //   const right: number = Math.min((primary.bounds.topleft.x + primary.bounds.width), (isect.bounds.topleft.x + isect.bounds.width));
-    //   const bottom: number = Math.min((primary.bounds.topleft.y + primary.bounds.height), (isect.bounds.topleft.y + isect.bounds.height));
-  
-    //   return {
-    //     topleft: {x: left, y: top},
-    //     width: right - left,
-    //     height: bottom - top
-    //   };
-  
-    // }
-  
-    /**
-     * gets the combined boundary of a Subdraft and any of its intersections
-     * @param moving A SubdraftComponent that is our primary subdraft
-     * @param isect  Any subdrafts that intersect with this component 
-     * @returns the bounds of a rectangle that holds both components
-    //  */
-    // getCombinedBounds(moving: SubdraftComponent, isect: Array<SubdraftComponent>):Bounds{
-      
-    //   const bounds: Bounds = {
-    //     topleft: {x: 0, y:0},
-    //     width: 0,
-    //     height: 0
-    //   }
-  
-    //   bounds.topleft.x = utilInstance.getLeftMost(moving, isect).getTopleft().x;
-    //   bounds.topleft.y = utilInstance.getTopMost(moving, isect).getTopleft().y;
-  
-    //   const rm =  utilInstance.getRightMost(moving, isect);
-    //   const bm =  utilInstance.getBottomMost(moving, isect);
-  
-    //   bounds.width = (rm.getTopleft().x + rm.bounds.width) - bounds.topleft.x;
-    //   bounds.height =(bm.getTopleft().y + bm.bounds.height) - bounds.topleft.y;
-  
-    //   return bounds;
-  
-    // }
-
     /**
      * computes the value of a heddle given overlapping drafts
      * @param p the point we are interested in
@@ -429,13 +430,6 @@ class Util {
     }
 
 
-    getAdjustedPointerPosition(p: Point, viewport:Bounds) : any {   
-      return {
-        x: p.x + viewport.topleft.x,
-        y: p.y + viewport.topleft.y
-      } 
-    }
-
     /**
    * takes an absolute point and returns the "cell" boundary that is closest. 
    * @param p the absolute point
@@ -448,21 +442,6 @@ class Util {
       return p;
 
     }
-
-/**
- * Takes an absolute coordinate and translates to a number that would represent its grid position on screen
- * used only for testing if a new move calculation should be called
- * @param p the screen coordinate
- * @returns the row and column within the draft (i = row, j=col), returns -1 if out of bounds
- */
-   public resolvePointToAbsoluteNdx(p:Point, scale:number) : Interlacement{
-    
-    let i = Math.floor((p.y) / scale);
-    let j = Math.floor((p.x) / scale);
-
-    return {i: i, j:j, si: i};
-
-  }
 
   /**
    * returns the number of wefts that is greatest out of all the input drafts
@@ -940,107 +919,19 @@ areDraftsTheSame(d1: Draft, d2: Draft) : boolean {
 
 }
 
-/**
- * take an array of drafts and interlace them weft wise, in the order in which they appear in the array
- * this will also interlace weft systems and materials, but will use the first draft as the indication for the warp materials
- * @param drafts the drafts whose wefts we will be interlacing
- * @param factor_in_repeats should we calculate the size such that the pattern repeats in even intervals? 
- * @param warp_patterns a draft to use to represent the warp systems. 
- */
-interlace(drafts: Array<Draft>, factor_in_repeats: number, warp_patterns: Draft): Draft {
 
+hexToRgb(hex: string){
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 
-  let total_wefts: number = 0;
-  const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
-  if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
-  else  total_wefts = utilInstance.getMaxWefts(drafts);
-
-  let total_warps: number = 0;
-  const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
-
-  if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
-  else  total_warps = utilInstance.getMaxWarps(drafts);
-
-
-
-  //create a draft to hold the merged values
-  const d:Draft = initDraftWithParams(
-    {warps: total_warps, 
-      wefts:(total_wefts *drafts.length),
-      colShuttleMapping: warp_patterns.colShuttleMapping,
-      colSystemMapping: warp_patterns.colSystemMapping});
-
-    d.drawdown.forEach((row, ndx) => {
-
-      const select_array: number = ndx %drafts.length; 
-      const select_row: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % wefts(drafts[select_array].drawdown) : Math.floor(ndx /drafts.length);
-      row.forEach((cell, j) =>{
-          const select_col = (factor_in_repeats === 1) ? j % warps(drafts[select_array].drawdown) : j;
-          if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
-              const pattern = drafts[select_array].drawdown;
-              cell = setCellValue(cell, getCellValue(pattern[select_row][select_col]));
-
-          }else{
-              cell = setCellValue(cell, null);
-          }
-      });
-
-  });
-  
-
-  return d;
-
-}
-
-/**
- * take an array of drafts and interlace them warp-wise, in the order in which they appear in the array
- * @param drafts the drafts whose wefts we will be interlacing
- * @param factor_in_repeats should we calculate the size such that the pattern repeats in even intervals? 
- * @param weft_patterns a draft to use to represent the warp systems. 
- */
-interlace_warps(drafts: Array<Draft>, factor_in_repeats: number, weft_patterns: Draft): Draft {
-
-
-  let total_warps: number = 0;
-  const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
-  if(factor_in_repeats === 1)  total_warps = utilInstance.lcm(all_warps);
-  else  total_warps = utilInstance.getMaxWefts(drafts);
-
-  let total_wefts: number = 0;
-  const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
-
-  if(factor_in_repeats === 1)  total_wefts = utilInstance.lcm(all_wefts);
-  else  total_wefts = utilInstance.getMaxWarps(drafts);
-
-
-
-  //create a draft to hold the merged values
-  const d:Draft = initDraftWithParams(
-    {warps: total_warps*drafts.length, 
-      wefts:(total_wefts),
-      rowShuttleMapping: weft_patterns.rowShuttleMapping,
-      rowSystemMapping: weft_patterns.rowSystemMapping});
-
-    d.drawdown.forEach((col, ndx) => {
-
-      const select_array: number = ndx %drafts.length; 
-      const select_col: number = (factor_in_repeats === 1) ? Math.floor(ndx /drafts.length) % warps(drafts[select_array].drawdown) : Math.floor(ndx /drafts.length);
-      col.forEach((cell, i) =>{
-          const select_row = (factor_in_repeats === 1) ? i % wefts(drafts[select_array].drawdown) : i;
-          if(hasCell(drafts[select_array].drawdown, select_row, select_col)){
-              const pattern = drafts[select_array].drawdown;
-              cell = setCellValue(cell, getCellValue(pattern[select_row][select_col])); 
-
-          }else{
-              cell = setCellValue(cell, null);
-          }
-      });
-
-  });
-  
-
-  return d;
-
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : {
+    r: 0, 
+    g: 0, 
+    b: 0
+  };
 }
 
 /**
@@ -1063,7 +954,7 @@ gcd(a: number, b: number) : number {
 
 /**
  * this is an algorithm for finding the least common multiple of a give set of input numbers 
- * it works based on the formulat lcd (a,b) = a*b / gcd(a,b), and then caculates in a pairwise fashion.
+ * it works based on the formula lcd (a,b) = a*b / gcd(a,b), and then calculates in a pairwise fashion.
  * this has the risk of breaking with very large sets of inputs and/or prime numbers of a large size
  */
 lcm(original: Array<number>) : number{
@@ -1238,7 +1129,156 @@ getFlips(from:number, to: number) : {horiz: boolean, vert: boolean} {
 
 }
 
+async saveAsWif(fs: FileService, draft: Draft, loom:Loom, loom_settings:LoomSettings) {
 
+  const a = document.createElement('a')
+  return fs.saver.wif(draft, loom,loom_settings)
+  .then(href => {
+    a.href =  href;
+    a.download = getDraftName(draft) + ".wif";
+    a.click();  
+  });
+  
+}
+
+async saveAsPrint(el: any, draft: Draft, use_colors: boolean, selected_origin_option: number, ms: MaterialsService, ss: SystemsService, fs: FileService ) {
+
+  let b = el;
+  let context = b.getContext('2d');
+  b.width = (warps(draft.drawdown)+3)*10;
+  b.height =(wefts(draft.drawdown)+7)*10;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, b.width, b.height);
+
+  switch(selected_origin_option){
+    case 0:
+      draft = await flipDraft(draft, true, false);
+    break;
+
+    case 1:
+      draft = await flipDraft(draft, true, true);
+      break;
+
+    case 2:
+      draft = await flipDraft(draft, false, true);
+
+    break;
+
+  }
+
+
+let system = null;
+
+  for (let j = 0; j < draft.colShuttleMapping.length; j++) {
+    let color = ms.getColor(draft.colShuttleMapping[j]);
+    switch(selected_origin_option){
+      case 0:
+      case 1: 
+      system = ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length-1 - j]);
+
+      break;
+      case 2: 
+      case 3: 
+      system = ss.getWarpSystemCode(draft.colSystemMapping[j]);
+
+      break;
+    }
+  
+    context.fillStyle = color;
+    context.strokeStyle = "#666666";
+    context.fillRect(30+(j*10), 16,  8,  8);
+    context.strokeRect(30+(j*10), 16,  8,  8);
+
+    context.font = "10px Arial";
+    context.fillStyle = "#666666";
+    context.fillText(system, j*10+32, 10)
+
+  
+  }
+
+
+    for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+
+      switch(selected_origin_option){
+        case 1:
+        case 2: 
+        system = ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length-1 - j]);
+
+        break;
+        case 0: 
+        case 3: 
+        system = ss.getWeftSystemCode(draft.rowSystemMapping[j]);
+
+        break;
+      }
+
+      let color = ms.getColor(draft.rowShuttleMapping[j]);
+      context.fillStyle = color;
+      context.strokeStyle = "#666666";
+      context.fillRect(16, j*10+31,  8,  8);
+      context.strokeRect(16, j*10+31,  8,  8);
+      
+      context.font = "10px Arial";
+      context.fillStyle = "#666666";
+      context.fillText(system, 0, 28+(j+1)*10)
+
+
+    }
+
+
+    console.log("calling redraw from saveAs")
+  let img = getDraftAsImage(draft, 10, true, use_colors, ms.getShuttles());  
+  context.putImageData(img, 30, 30);
+
+  context.font = "12px Arial";
+  context.fillStyle = "#000000";
+  let textstring = getDraftName(draft)+" // "+warps(draft.drawdown)+" x "+wefts(draft.drawdown);
+  context.fillText(textstring, 30, 50+wefts(draft.drawdown)*10)
+
+  const a = document.createElement('a')
+  return fs.saver.jpg(b)
+  .then(href => {
+    a.href =  href;
+    a.download = getDraftName(draft) + ".jpg";
+    a.click();  
+  });
+  
+}
+
+async saveAsBmp(el: any, draft: Draft, selected_origin_option:number, ms :MaterialsService, fs: FileService){
+    let context = el.getContext('2d');
+
+    switch(selected_origin_option){
+      case 0:
+        draft = await flipDraft(draft, true, false);
+      break;
+
+      case 1:
+        draft = await flipDraft(draft, true, true);
+        break;
+
+      case 2:
+        draft = await flipDraft(draft, false, true);
+
+      break;
+
+    }
+
+    el.width = warps(draft.drawdown);
+    el.height = wefts(draft.drawdown);
+    console.log("calling redraw from saveAs")
+    let img = getDraftAsImage(draft, 1, false, false, ms.getShuttles());
+    context.putImageData(img, 0, 0);
+
+    const a = document.createElement('a')
+    return fs.saver.bmp(el)
+    .then(href => {
+      a.href =  href;
+      a.download = getDraftName(draft) + "_bitmap.jpg";
+      a.click();
+    });
+  
+  }
 
 }
   

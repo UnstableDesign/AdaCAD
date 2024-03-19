@@ -1,7 +1,7 @@
 import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
 import { Subject } from 'rxjs';
-import { RenderService } from '../draftdetail/provider/render.service';
-import { ZoomService } from '../mixer/provider/zoom.service';
+import { RenderService } from '../editor/provider/render.service';
+import { ZoomService } from '../core/provider/zoom.service';
 import { DesignMode } from './model/datatypes';
 import { DesignmodesService } from './provider/designmodes.service';
 import { FileService } from './provider/file.service';
@@ -17,6 +17,8 @@ export class KeycodesDirective {
 
   @Output() onUndo: any = new EventEmitter();
   @Output() onRedo: any = new EventEmitter();
+  @Output() zoomOut: any = new EventEmitter();
+  @Output() zoomIn: any = new EventEmitter();
   @Output() updateMixerView: any = new EventEmitter();
   @Output() updateDetailView: any = new EventEmitter();
   @Output() onCopySelections: any = new EventEmitter();
@@ -67,19 +69,9 @@ export class KeycodesDirective {
    */
     if(e.key =="=" && e.metaKey){
 
-      if(!this.mixer_has_focus){
-        console.log("ZOOM IN ON RENDER", e,  e.target);
-        this.render.zoomIn();
-        this.updateDetailView.emit();
-        return false;
-      }else{
-        console.log("ZOOM IN on MIXER", e,  e.target)
-        const old_zoom = this.zs.zoom;
-        this.zs.zoomIn();
-        this.updateMixerView.emit(old_zoom);
-        return false;
+      this.zoomIn.emit();
+      return false;
 
-      }
 
      
     }
@@ -87,20 +79,10 @@ export class KeycodesDirective {
    *  ZOOM OUT 
    */
     if(e.key =="-" && e.metaKey){
-
-      if(!this.mixer_has_focus){
-        console.log("ZOOM IN ON RENDER", e,  e.target);
-        this.render.zoomOut();
-        this.updateDetailView.emit();
-        return false;
-      }else{
-        console.log("ZOOM IN on MIXER", e,  e.target)
-        const old_zoom = this.zs.zoom;
-        this.zs.zoomOut();
-        this.updateMixerView.emit(old_zoom);
-        return false;
-
-      }
+      
+      this.zoomOut.emit();
+      return false;
+      
     }
 
     
@@ -108,10 +90,7 @@ export class KeycodesDirective {
    * SAVE
    */
     if(e.key =="s" && e.metaKey){
-    this.fs.saver.ada(
-      'mixer', 
-      true,
-      this.zs.zoom)
+    this.fs.saver.ada()
       .then(so => {
         this.ss.addMixerHistoryState(so);
       });
@@ -124,11 +103,10 @@ export class KeycodesDirective {
    */
     if(e.key =="d" && e.metaKey){
 
-      let dm: DesignMode = this.dm.getSelectedDesignMode('design_modes');
-      if(dm.value == 'select'){
-        this.dm.selectDesignMode('draw', 'design_modes');
-      }else if(dm.value == 'draw'){
-        this.dm.selectDesignMode('select', 'design_modes');
+      if(this.dm.cur_draft_edit_mode == 'select'){
+        this.dm.selectDraftEditingMode('draw');
+      }else if(this.dm.cur_draft_edit_mode == 'draw'){
+        this.dm.selectDraftEditingMode('select');
       }
       e.preventDefault()
     }

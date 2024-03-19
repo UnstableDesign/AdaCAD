@@ -2,19 +2,14 @@
 
 .connection-container{
     position: absolute;
-    top: 0px;
-    left: 0px;
-    pointer-events:none;
+    //pointer-events:none;
 }
 
 button{
     position: absolute;
     font-size: .5em;
+    color: black;
     pointer-events:all;
-}
-
-svg{
-    font-size: .8em;
 }
 
 .hidden{

@@ -87,15 +87,15 @@ export class InitModal implements OnInit {
     this.dialogRef.close(null);
   }
 
-  newDraftCreated(f) {
+  // newDraftCreated(f) {
 
-    console.log("SAVE CALLED", f)
+  //   console.log("SAVE CALLED", f)
 
-    return this.fls.loader.form(f)
-        .then(
-          res => this.dialogRef.close(res)
-        );
-  }
+  //   return this.fls.loader.form(f)
+  //       .then(
+  //         res => this.dialogRef.close(res)
+  //       );
+  // }
 
 
 

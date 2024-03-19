@@ -32,18 +32,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { ColorPickerModule } from 'ngx-color-picker';
-import { LoginComponent } from './login/login.component';
-import { AboutModal } from './modal/about/about.modal';
+import { LoginComponent } from './modal/login/login.component';
 import { InitModal } from './modal/init/init.modal';
-import { LoomModal } from './modal/loom/loom.modal';
 import { MaterialModal } from './modal/material/material.modal';
-import { ProfileComponent } from './profile/profile.component';
 import { AuthService } from './provider/auth.service';
 import { FileService } from './provider/file.service';
 import { PatternfinderService } from './provider/patternfinder.service';
 import { VaeService } from './provider/vae.service';
 import { SignupComponent } from './signup/signup.component';
-import { TopbarComponent } from './topbar/topbar.component';
 import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
 import { UploadService } from './provider/upload.service';
 import { BlankdraftModal } from './modal/blankdraft/blankdraft.modal';
@@ -51,6 +47,7 @@ import { ExamplesComponent } from './modal/examples/examples.component';
 import { LoadfileComponent } from './modal/loadfile/loadfile.component';
 import { FilebrowserComponent } from './filebrowser/filebrowser.component';
 import { KeycodesDirective } from './keycodes.directive';
+import { WelcomeComponent } from './modal/welcome/welcome.component';
 
 @NgModule({
     imports: [
@@ -91,19 +88,16 @@ import { KeycodesDirective } from './keycodes.directive';
     ],
     declarations: [
         UploadFormComponent,
-        TopbarComponent,
         InitModal,
-        AboutModal,
         MaterialModal,
-        LoomModal,
         LoginComponent,
         SignupComponent,
-        ProfileComponent,
         BlankdraftModal,
         ExamplesComponent,
         LoadfileComponent,
         FilebrowserComponent,
-        KeycodesDirective
+        KeycodesDirective,
+        WelcomeComponent
     ],
     providers: [
         UploadService,
@@ -111,7 +105,7 @@ import { KeycodesDirective } from './keycodes.directive';
         VaeService,
         PatternfinderService,
         AuthService
-        ],
+    ],
     exports: [
         CommonModule,
         FormsModule,
@@ -148,11 +142,8 @@ import { KeycodesDirective } from './keycodes.directive';
         MatBadgeModule,
         DragDropModule,
         UploadFormComponent,
-        TopbarComponent,
         InitModal,
-        AboutModal,
         MaterialModal,
-        LoomModal,
         FilebrowserComponent,
         ExamplesComponent,
         KeycodesDirective

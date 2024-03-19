@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { getAuth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Draft, SaveObj } from '../model/datatypes';
-import { copyDraft } from '../model/drafts';
 import { FilesystemService } from './filesystem.service';
 /**
  * stores a state within the undo/redo timeline
@@ -20,14 +19,18 @@ export class StateService {
 
   public readonly testDocValue$: Observable<any>;
 
+
+
   active_id = 0;
   max_size = 10;
   last_saved_time: string = "";
   undo_disabled: boolean;
   redo_disabled: boolean;
   timeline: Array<HistoryState>; //new states are always pushed to front of draft
-  // private itemDoc: AngularFirestoreDocument<Item>;
-  
+  currently_opened_file_id: number;
+
+
+
   constructor(private files: FilesystemService) {
 
 
@@ -36,6 +39,8 @@ export class StateService {
 
 
   }
+
+
 
   clearTimeline(){
     this.active_id = 0;
@@ -55,46 +60,15 @@ export class StateService {
     return cur_state;
   }
 
- 
-
 /**
- * used in weaver - adds a draft to the history state
- * @param draft 
+ * this is called every-time there is an action that needs saving on the stack. 
+ * this includes the creation of a new file
  */
-  public addHistoryState(draft:Draft):void{
+  public addMixerHistoryState(ada:{json: string, file: SaveObj}){
 
+    console.log("adding mixer history state ", this.files.getCurrentFileId(), ada.file);
 
-    var state = {
-      draft: copyDraft(draft),
-      ada: null
-    }
-
-    //we are looking at the most recent state
-    if(this.active_id > 0){
-
-
-      //erase all states until you get to the active row
-      this.timeline.splice(0, this.active_id);
-      this.active_id = 0;
-      this.redo_disabled = true;
-
-    }
-
-    //add the new element to position 0
-    var len = this.timeline.unshift(state);
-    if(len > this.max_size) this.timeline.pop();
-
-    if(this.timeline.length > 1) this.undo_disabled = false;
-
-
-  }
-
-/**
- * used in mixer - adds an ada file to the history state
- * @param ada 
- */
-  public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
-
+    this.files.updateCurrentStateInLoadedFiles(this.files.getCurrentFileId(), ada.file);
 
     var state = {
       draft: null,
@@ -107,31 +81,30 @@ export class StateService {
         draft_nodes: ada.file.draft_nodes.slice(),
         ops: ada.file.ops.slice(),
         notes: ada.file.notes.slice(),
-        materials: ada.file.materials.slice(),
-        scale: ada.file.scale
+        materials: ada.file.materials.slice()
       }
     }
-  
 
-    //write this to database, overwritting what was previously there
-    //this.files.writeUserData(ada.file);
+    if(this.files.connected){
+  
 
     const auth = getAuth();
     const user = auth.currentUser;
 
     if(user !== null){
-      this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
+      //do a quick correction for any undefined loom settings
+      ada.file.draft_nodes.forEach(dn => {
+        if(dn.loom_settings == undefined){
+          dn.loom_settings = null;
+        }
+      })
+
+      this.files.writeFileData(this.files.getCurrentFileId(), ada.file)
     } 
+  }
 
-  if(user !== null){
-    this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
-  } 
-
-  //we are looking at the most recent state
   if(this.active_id > 0){
 
-
-    //erase all states until you get to the active row
     this.timeline.splice(0, this.active_id);
     this.active_id = 0;
     this.redo_disabled = true;
@@ -141,50 +114,12 @@ export class StateService {
   //add the new element to position 0
   var len = this.timeline.unshift(state);
   if(len > this.max_size) this.timeline.pop();
-
   if(this.timeline.length > 1) this.undo_disabled = false;
 
-  //this.logState(ada);
+  
 
 }
 
-/**
- * used in mixer - adds an ada file to the history state
- * @param ada 
- */
-  // public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
-
-  //   var state = {
-  //     draft: null,
-  //     ada: cloneDeep(ada.file),
-  //   }
-
-  //   //write this to database, overwritting what was previously there
-  //   this.writeUserData(ada.file);
-
-
-  //   //we are looking at the most recent state
-  //   if(this.active_id > 0){
-
-
-  //     //erase all states until you get to the active row
-  //     this.timeline.splice(0, this.active_id);
-  //     this.active_id = 0;
-  //     this.redo_disabled = true;
-
-  //   }
-
-  //   //add the new element to position 0
-  //   var len = this.timeline.unshift(state);
-  //   if(len > this.max_size) this.timeline.pop();
-
-  //   if(this.timeline.length > 1) this.undo_disabled = false;
-
-  //   //this.logState(ada);
-
-  // }
-
-  
 /**
  * called on redo in weaver
  * @returns returns the draft to reload
@@ -219,25 +154,6 @@ public restoreNextMixerHistoryState(): SaveObj{
 
   }
 
-  /**
-   * called on undo in weaver
-   * @returns returns the draft to load
-   */
-   public restorePreviousHistoryState():Draft{
-
-     this.active_id++;
-
-      //you've hit the end of available states to restore
-     if(this.active_id >= this.timeline.length){
-        this.active_id--;
-        this.undo_disabled = true;
-        return null; 
-     } 
-
-     this.redo_disabled = false;
-     return this.timeline[this.active_id].draft;
-      
-  }
 
     /**
    * called on undo in mixer

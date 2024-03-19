@@ -32,7 +32,6 @@ export class MaterialModal{
       ms.getShuttles().forEach((el, ndx) => {
         this.replacements.push((ndx+1%this.ms.getShuttles().length));
       });
-  	  this.types = dm.material_types;
 
   }
 
@@ -58,10 +57,13 @@ export class MaterialModal{
    * handles user input of delete event and reads the "replace" value to reassign draft
    * @param index  - the shuttle to delete
    */
-  delete(index:number){
+  delete(index:number, replacement_id: number){
 
-    //never delete all of the shuttles
     if(this.ms.getShuttles().length == 1) return;
+
+    if(confirm("Are you sure you want to delete this material")) {
+    this.replacements[index] = replacement_id;
+
 
     const map: Array<MaterialMap> = this.ms.deleteShuttle(index);
     const dn: Array<DraftNode> = this.tree.getDraftNodes();
@@ -79,6 +81,7 @@ export class MaterialModal{
     this.replacements = this.replacements.map(el => (el%this.ms.getShuttles().length));
 
     this.onMaterialChange.emit();
+    }
   }
 
   addNewShuttle(){
@@ -87,10 +90,6 @@ export class MaterialModal{
     this.ms.addShuttle(this.newshuttle);
     this.newshuttle = createMaterial();
   }
-
-  // close() {
-  //   this.dialogRef.close(null);
-  // }
 
   save() {
   }

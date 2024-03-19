@@ -25,6 +25,8 @@
 .string-label{
     color: white;
     height: fit-content;
+    font-size: .8em;
+    font-size: 1.2em;
 }
 
 .boolean-input{
@@ -40,7 +42,7 @@
     }
     /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
     .mat-slide-toggle-content {
-        font-size: .8em;
+        font-size: 1.2;
     }
     /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
     .mat-slide-toggle-thumb {
@@ -64,14 +66,11 @@
         height: 100%;
         align-content: baseline;
         flex-basis: 0;
-    }
-    /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
-    .mat-select-value{
         color: white;
         font-weight: bolder;
         font-size: 1.5em;
-
     }
+
     /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
     .mat-select-arrow{
         color: white;
@@ -128,14 +127,9 @@
         font-size: 1.2em;
         font-weight: bolder;
         font-size: 1.5em;
-        color: white;
     }
 
-    .mat-mdc-input-element{
-        caret-color: white !important;
-        border-bottom: thin solid white;
-        width: 90%;
-    }
+
 
     .refresh,
     .mat-mdc-icon-button{

@@ -1,4 +1,13 @@
-    <div class="preloaded_files">
+<p mat-dialog-title
+cdkDrag
+ cdkDragRootElement=".cdk-overlay-pane" 
+ cdkDragHandle>
+ Examples
+</p>
+   
+<mat-dialog-content >
+
+   <div class="preloaded_files">
 
       <mat-card appearance="outlined" *ngFor="let example of local_examples">
         <mat-card-title>{{example.title}}
@@ -18,3 +27,8 @@
       </div>
      
 
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
+    

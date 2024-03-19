@@ -1,0 +1,155 @@
+<div class="draft-container origin{{ws.selected_origin_option}}"  [class.expanded] ="hasFocus" id="draft-scale-container">
+
+  <app-selection
+  #selection
+  [id]="id"
+  (onCopy)="onCopy()"
+  (onClear)="onClear($event)"
+  (onPaste)="onPaste($event)"
+  (onSelectionEnd)="onSelectionEnd()"
+  ></app-selection>
+
+
+
+      <!-- id: {{id}} -->
+      
+
+      <div class="warp-systems-container origin{{ws.selected_origin_option}}" id="warp-systems-container">
+
+        <div class="warp-systems-text origin{{ws.selected_origin_option}}"  id="warp-systems-text">
+         
+          <div class="warp-system-col origin{{ws.selected_origin_option}}" 
+          [style.width.px] = "cell_size"
+          *ngFor="let i of colSystemMapping; let j = index;" >
+          
+          <a class="warp-material"
+          id="warp-material-{{j}}"
+          [style.background-color]="this.ms.getColor(colShuttleMapping[j])" 
+          [style.width.px]="cell_size-1"
+          [style.height.px]="cell_size-1"
+          (mouseover)="checkForPaint('warp', j, $event)"
+          (click)="incrementWarpMaterial(j)">   
+          </a>
+            <a class="warp-system" (click)="incrementWarpSystem(j)"> {{i+1}}</a>
+     
+          <div class="warp-number-container">
+            <span *ngIf="j % getTextInterval() == 0" class="warp_number origin{{ws.selected_origin_option}}">
+              {{j}}
+            </span>      
+          
+            <!-- <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">
+              <ng-container *ngIf='ws.selected_origin_option == 2 || ws.selected_origin_option == 3'>{{j+1}}</ng-container>
+              <ng-container *ngIf='ws.selected_origin_option == 0 || ws.selected_origin_option == 1'>{{getFlippedWarpNum(j) - 1}}</ng-container>
+              
+            </span>       -->
+          </div>
+            <div  class="warp_selectors">
+            <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
+              </span>
+      
+            <span class="warp_clone"
+            (click)="cloneCol(j);">
+              <i class="fa fa-clone"></i>
+            </span>
+      
+      
+            <span class="warp_insert" 
+            (click)="insertCol(j + 1);">
+            <i class="fa fa-plus-circle"></i></span>
+            </div>
+         
+          </div>
+
+            <!-- <div class="warp-system-col" >
+              <span class="last-warp">{{draft?.warps}}</span>
+            </div>  -->
+
+          </div>  
+
+      </div>
+      <div [class.hidden]="!isFrame" class="threading-tieup-container 
+      origin{{ws.selected_origin_option}} 
+      editable-{{dm.cur_draft_edit_source}}
+      loomtype-{{selected_loom_type}}"
+      >
+      <div id="threading-canvas">
+        <canvas id="threading" class=""></canvas>
+        </div>
+        <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div>
+        <div id="tieups-canvas">
+        <canvas id="tieups" #tieups ></canvas>
+        </div>
+      </div>
+
+      <div class="drawdown-container origin{{ws.selected_origin_option}} editable-{{dm.cur_draft_edit_source}}" >
+        <div id="drawdown-canvas">
+        <canvas id="drawdown" #drawdown  >  </canvas>
+      </div>
+
+      <div id="treadling-canvas">
+        <canvas [class.hidden]="!isFrame" id="treadling" #treadling></canvas>
+        </div>
+        
+        <div class="weft-systems-container origin{{ws.selected_origin_option}}">
+          <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text">
+            <div class="weft-system-row origin{{ws.selected_origin_option}}" 
+            [style.height.px]="cell_size"
+            *ngFor="let i of (render?.visibleRows); let j = index;" >
+               
+            <a class="weft-material" 
+            id="weft-material-{{j}}"
+            [style.background-color]="this.ms.getColor(rowShuttleMapping[i])" 
+            [style.width.px]="cell_size-1"
+            [style.height.px]="cell_size-1"
+            (mouseover)="checkForPaint('weft', j, $event)"
+            (click)="incrementWeftMaterial(j)"> 
+            </a>
+            
+            <a class="weft-system" (click)="incrementWeftSystem(j)"> 
+                  {{ system_codes[rowSystemMapping[i]]}}</a>
+
+               
+
+
+                <div class="weft_indicies">
+
+                <ng-container *ngIf="ws.selected_origin_option == 1 || ws.selected_origin_option == 2">
+                  <span *ngIf="(i % getTextInterval() == 0)" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+                  <!-- <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)-1}}</span>       -->
+                </ng-container>  
+                <ng-container *ngIf="ws.selected_origin_option == 0 || ws.selected_origin_option == 3">
+
+                <span *ngIf="i % getTextInterval() == 0" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+                <!-- <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>       -->
+              </ng-container>  
+                </div>
+
+                <div class="weft_actions">
+                  <span class = "weft_insert" 
+                  (click)="insertRow(j, i)">
+                  <i class="fa fa-plus-circle"></i>
+                  </span>
+        
+                  <span class = "weft_clone" 
+                  (click)="cloneRow(j, i);">
+                  <i class="fa fa-clone"></i>
+                  </span>
+                  
+                  <span class="weft_delete" 
+                   (click)="deleteRow(i);">
+                   <i class="fa fa-trash"></i>
+                  </span>
+                </div>
+            </div> <!-- end weft system row-->
+          </div> 
+        </div>
+      </div>
+
+
+
+    
+          
+
+
+
+     </div>

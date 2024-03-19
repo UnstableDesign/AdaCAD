@@ -30,30 +30,6 @@
             "ext": "png",
             "title":"Shaded Structures",
             "desc":"A few different examples of how AdaCAD structures can be leveraged to make shaded structures"
-        },
-        {
-            "id": "etextile",
-            "ext": "png",
-            "title":"E-Textiles Sampler",
-            "desc":"Shows partiuclar techniques that can be particularly useful for creating e-textile LED circuits, force sensors, or electrodes"
-        },
-        {
-            "id": "electrode",
-            "ext": "png",
-            "title":"Woven Electrode Sample",
-            "desc":"Presents strategies and patterns for drafting woven electrodes."
-        },        
-        {
-            "id": "twopic",
-            "ext": "png",
-            "title":"Color Effects with Two Pick Structures",
-            "desc":"Two pick structures can create really interesting graphic patterns in the cloth and you can a apply a set of operations to make any weft-facing structure a 2 pic structure "
-        },
-        {
-            "id": "threelayer",
-            "ext": "png",
-            "title":"Designing Multi-Layer Weaves",
-            "desc":" We create three variations of a three layer weave structure, each which has a different layer on top. We then map each of those to an image."
         }
 
 

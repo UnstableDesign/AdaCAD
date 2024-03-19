@@ -3,37 +3,55 @@ h2{
     padding-bottom: 12px;
 }
 
-
-button{
-    margin-bottom: 4px;
+h3{
+    font-size: 1em;
+    padding-top: 40px;
+    font-weight: bold;
 }
 
-// button i {
-//     width: 24px;
-// }
+.file-browser{
+    width: max-content;
+}
 
 .mat-mdc-outlined-button{
      margin: 4px 0px;
 }
 
 
+.mat-mdc-icon-button{
+    font-size: 14px;
+    position: relative;
+    top: 0px;
+  }
+
 .folder{
     display: flex;
     flex-direction: column;
 }
 
-.filebrowser{
-    margin: 20px;
-    display: flex;
-    flex-direction: column;
+.lastviewed{
+    width: 25%;
+    text-align: left;
+}
+
+.filename{
+    width: 50%;
+    text-align: left;
+    text-wrap: pretty;
+}
+
+.actions{
+    width: 25%;
 }
 
 .file-item-block{
+    font-size: .8em;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
     padding: 4px 0px;
+    align-items: center;
 }
 
 .current{
@@ -41,7 +59,7 @@ button{
 }
 
 
-.more{
+.actions{
     display: flex;
     flex-direction: row;
     color: grey;
@@ -51,10 +69,7 @@ button{
     width: 100%;
 }
 
-.mat-mdc-list-item{
-    padding: 0px !important;
-    width: 100%;
-}
+
 
 // .mat-list-item-content{
 //     width: 100%;

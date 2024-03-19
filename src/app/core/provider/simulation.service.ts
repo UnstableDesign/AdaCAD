@@ -249,7 +249,6 @@ export class SimulationService {
 
     if(simdata.draft == null) return;
 
-    console.log("SELECTION AND DATA ", selection)
     //if no explicit selection has been made, use the default full boundary
 
     scene.clear();
@@ -266,7 +265,6 @@ export class SimulationService {
    const boundary_vtx = this.getBoundaryVtxs(simdata, selection);
 
    
-   console.log("REDRAWING WITH ", boundary_vtx)
     this.drawAxis(scene, simdata, boundary_vtx);
     this.drawYarns(scene, simdata, selection, boundary_vtx);
    // this.drawEndCaps(scene, simdata, boundary_vtx);

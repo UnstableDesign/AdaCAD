@@ -1,0 +1,172 @@
+<mat-accordion multi class="static-menus">
+
+  <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title class="small-text">
+        <i class="fa-solid fa-magnifying-glass"></i> Preview
+        </mat-panel-title>
+        <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div 
+    class="current_view" 
+    id="static_draft_view"
+    [class.view_standard]="!view_expanded"
+    [class.view_expanded]="view_expanded"
+    >
+
+
+      <app-simulation 
+      [class.hidden]="vis_mode != 'sim'" 
+      #sim
+       id="sim_viewer" 
+      [id]="id"
+      >
+    </app-simulation>
+  
+        <canvas [class.hidden]="vis_mode == 'sim'" id="viewer_canvas"></canvas>
+  
+  </div>
+
+  <!-- <div>{{id}}</div> -->
+
+  <div 
+  class="view_options"
+  >
+      <!-- <button  
+      mat-icon-button 
+      [class.active]="vis_mode == 'sim'"
+      matTooltip="view in 3D" 
+      (click)="viewAsSimulation()">
+        <i class="fa-solid fa-cube"></i>
+      </button> -->
+      
+      <button  
+      mat-icon-button 
+      [class.active]="vis_mode == 'draft'"
+      matTooltip="view draft" 
+      (click)="viewAsDraft()">
+        <i class="fa-solid fa-chess-board"></i>
+      </button>
+      
+      <button  
+      mat-icon-button 
+      [class.active]="vis_mode == 'structure'"
+      matTooltip="view structure" 
+      (click)="viewAsStructure()">
+        <i class="fa-solid fa-hashtag"></i>
+      </button>
+      
+      <button  
+      mat-icon-button 
+      [class.active]="vis_mode == 'color'"
+      matTooltip="view colors" 
+      (click)="viewAsColor()">
+        <i class="fa-solid fa-paint-roller">
+      </i></button>
+
+      <button  
+      mat-icon-button  
+      matTooltip="download this draft"
+      [matMenuTriggerFor]="subdraftOptions">
+      <i class="fa-solid fa-download"></i>
+      </button>
+
+
+      <mat-menu #subdraftOptions>
+  
+    
+        <button mat-flat-button
+        (click)="saveAs('bmp')"
+        matTooltip ="Download as Bitmap">
+        <i class="fa-solid fa-download"></i> download as bitmap
+        </button>
+  
+        <button mat-flat-button
+        (click)="saveAs('jpg')"
+        matTooltip ="Download as Printable Image">
+        <i class="fa-solid fa-image"></i> download as image
+        </button>
+  
+        <button mat-flat-button
+        (click)="saveAs('wif')"
+        matTooltip ="Download as .WIF file">
+        <i class="fa-solid fa-file"></i> download as .WIF file
+        </button>
+  
+
+      </mat-menu>
+  
+
+
+
+
+
+      <button 
+      *ngIf="!view_expanded"  
+      matTooltip="expand view"
+      mat-icon-button 
+      (click)="onExpand()" >
+        <i class="fa-solid fa-expand"></i>
+      </button>
+
+      <button 
+      *ngIf="view_expanded"  
+      mat-icon-button
+      matTooltip="collapse view" 
+      (click)="onCollapse()" >
+      <i class="fa fa-window-close"></i>
+      </button>
+  </div>
+  
+  </mat-expansion-panel>
+
+
+
+<mat-expansion-panel *ngIf="!view_expanded" expanded>
+  <mat-expansion-panel-header>
+    <mat-panel-title class="small-text">
+      <i class="fa-solid fa-link"></i> Quick Links
+      </mat-panel-title>
+  </mat-expansion-panel-header>
+
+
+  <button  mat-flat-button [matMenuTriggerFor]="clearWorkspaceMenu" ><i class="fa-solid fa-eraser"></i> Clear Workspace</button>
+  <mat-menu #clearWorkspaceMenu="matMenu">
+    <button mat-menu-item (click)="clearWorkspace()">are you sure?</button>
+  </mat-menu>   
+
+    <button  mat-flat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> New Project</button>
+
+
+
+      <button 
+      mat-flat-button  
+      [disabled] = "!auth.isLoggedIn"
+      matTooltip="you must be logged in to save projects"
+      (click)="manageFiles()" >
+      <i class="fa-solid fa-file"></i> Manage Projects
+     </button>
+
+      <button  
+      mat-flat-button
+      (click)="openMaterials()">
+      <i class="fa-solid fa-palette"></i> Manage Materials
+    </button> 
+
+       <button  mat-flat-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
+        
+  </mat-expansion-panel>
+
+  
+
+</mat-accordion> 
+
+
+
+
+
+
+
+

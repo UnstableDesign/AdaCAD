@@ -1,37 +1,12 @@
 import { Injectable, Optional } from '@angular/core';
-import { getDatabase, ref as fbref, set as fbset, query, ref, get as fbget, remove } from '@angular/fire/database';
-import utilInstance from '../model/util';
-import { DataSnapshot, onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, update } from 'firebase/database';
-import { FileService } from './file.service';
-import { ZoomService } from '../../mixer/provider/zoom.service';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
-import { Observable, Observer, Subject } from 'rxjs';
+import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged } from '@angular/fire/database';
+// import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
+import { Observable, Subject } from 'rxjs';
 import { FilebrowserComponent } from '../filebrowser/filebrowser.component';
+import { LoadedFile, SaveObj } from '../model/datatypes';
+import utilInstance from '../model/util';
 
-
-/**
- * users{
- *  uid: 
- *    ada:
- *    timestamp: 
- *    last_opened: 
- *     files : {
-        *  file_id: 
-        *  name: 
-        *  timestamp: 
-        *  desc:
-  }
- * 
- *  }
- * 
- * 
-
- * filedata{
- *  file_id: 
- *  data: 
- * }
- * 
- */
 
 
 @Injectable({
@@ -41,58 +16,60 @@ export class FilesystemService {
 
   file_tree_change$ = new Subject<any>();
   file_saved_change$ = new Subject<any>();
+  loaded_file_change$ = new Subject<any>();
 
   file_tree: Array<any> = [];
 
-  current_file_id: number = -1;
-  current_file_name: string = "draft"
-  current_file_desc: string = "";
+  loaded_files: Array<LoadedFile>; 
+
+
+  private current_file_id: number = -1;
+
 
   connected: boolean = false;
-
-  last_saved_time: number = 0;
 
   updateUItree: Observable<Array<any>>;
 
 
- constructor(@Optional() private auth: Auth,
-    private fs: FileService, private zs: ZoomService) {
+ constructor(@Optional() private auth: Auth) {
+
+      this.loaded_files = [];
 
       const db = getDatabase();
 
-    const presenceRef = ref(db, "disconnectmessage");
-    // Write a string when this client loses connection
-    onDisconnect(presenceRef).set("I disconnected!");
+      const presenceRef = ref(db, "disconnectmessage");
+     
+      // Write a string when this client loses connection
+      onDisconnect(presenceRef).set("I disconnected!");
 
-    const connectedRef = ref(db, ".info/connected");
-    onValue(connectedRef, (snap) => {
-      if (snap.val() === true) {
-        console.log("connected");
-        this.connected = true;
-      } else {
-        console.log("not connected");
-        this.connected = false;
-      }
-    });
+      const connectedRef = ref(db, ".info/connected");
+      onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+          console.log("connected");
+          this.connected = true;
+        } else {
+          console.log("not connected");
+          this.connected = false;
+        }
+      });
 
       this.file_tree = [];
 
       authState(this.auth).subscribe(user => {
-        console.log('user', user)
+
         if(user == null){
           this.file_tree = [];
           return;
         } 
-        //update the tree based on the state of the DB
        
-    
-    
-    
-        const userFiles = query(ref(db, 'users/'+user.uid+'/files'));
+        
+        const userFiles = query(ref(db, 'users/'+user.uid+'/files'), orderByChild('timestamp'));
         
 
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
+          //console.log("CHILD ADDED ", userFiles)
+
           //only add values that haven't already been added
           if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
             this.addToTree(parseInt(childsnapshot.key), childsnapshot.val());
@@ -104,6 +81,7 @@ export class FilesystemService {
     
         //called when anything in meta changes
         onChildChanged(userFiles, (data) => {
+         // console.log("CHILD CHANGED ", userFiles)
             const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
             if(ndx !== -1){
               this.file_tree[ndx].meta.name = data.val().name;
@@ -113,6 +91,8 @@ export class FilesystemService {
         
         //needs to redraw the files list 
         onChildRemoved(userFiles, (removedItem) => {
+          //console.log("CHILD REMOVED ", userFiles)
+
           const removedId = removedItem.key;
           this.file_tree = this.file_tree.filter(el => parseInt(el.id) !== parseInt(removedId));
           this.file_tree_change$.next(this.file_tree.slice());
@@ -120,14 +100,101 @@ export class FilesystemService {
     
     
       });
+  }
+
+  public getLoadedFile(id: number) : LoadedFile{
+
+    let item = this.loaded_files.find(el => el.id == id);
+    if(item == undefined){
+      return null;
+    }else{
+      return item
+    }
+  }
 
 
-     
-   
+
+  /**
+   * given a new file that has just been loaded, update the meta-data to match the value of this item.
+   * @param id 
+   * @param ada 
+   * @returns boolean representing if the id had meta-data already stored or if new meta-data was created
+   */
+  public pushToLoadedFilesAndFocus(id: number, name: string, desc: string) : Promise<boolean>{
+
+
+    let item = this.getLoadedFile(id);
+
+    if(item === null){
+
+      
+      return this.getFileMeta(id)
+      .then(res => {
+        this.loaded_files.push({
+          id: id,
+          name: res.name,
+          desc: res.desc,
+          ada: undefined,
+          last_saved_time: 0
+        });
+        this.setCurrentFileInfo(id, res.name, res.desc);
+        this.loaded_file_change$.next(this.file_tree.slice());
+        return Promise.resolve(true);
+
+      })
+      .catch(nodata => {
+        this.loaded_files.push({
+          id: id,
+          name:name,
+          desc: desc,
+          ada: undefined,
+          last_saved_time: 0
+        })
+        this.setCurrentFileInfo(id, name, desc);
+        this.loaded_file_change$.next(this.file_tree.slice());
+        return Promise.resolve(false);
+      });
+
+    }else{
+      this.setCurrentFileInfo(item.id, item.name, item.desc);
+      return Promise.reject('this file has already been loaded')
+    }
+  }
+
+  public unloadFile(id: number){
+    this.loaded_files = this.loaded_files.filter(el => el.id !== id);
+    if(this.current_file_id == id) this.current_file_id = -1;
+    this.loaded_file_change$.next(this.file_tree.slice());
 
   }
 
-  
+  public setCurrentFileId(id: number){
+    this.current_file_id = id;
+  }
+
+  public getCurrentFileId(){
+    return this.current_file_id;
+  }
+
+  public getCurrentFileName() : string{
+    let item = this.getLoadedFile(this.current_file_id);
+    if(item !== null) return item.name;
+    return '';
+  }
+
+  public getCurrentFileDesc() : string{
+    let item = this.getLoadedFile(this.current_file_id);
+    if(item !== null) return item.desc;
+    return null;
+  }
+
+  public getCurrentFileObj() : SaveObj{
+    let item = this.getLoadedFile(this.current_file_id);
+    if(item !== null) return item.ada;  
+    return null;
+  }
+
+
   
   public changeObserver(target: FilebrowserComponent) : Observable<Array<any>>{
     return new Observable<Array<any>>((observer) => {
@@ -151,7 +218,7 @@ export class FilesystemService {
     var dateFormat = new Date(meta.timestamp);
     meta.date = dateFormat.toLocaleDateString();
 
-    this.file_tree.push({
+    this.file_tree.unshift({
       id: fileid,
       meta: meta
     })
@@ -159,27 +226,44 @@ export class FilesystemService {
 
 
   /**
-   * sets the current data and updates the metadeta
+   * sets the current metadata
    * @param fileid 
    * @param name 
    * @param desc 
    */
   setCurrentFileInfo(fileid: number, name: string, desc: string){
    
+
+
     if(fileid === null || fileid == undefined) return; 
+
     if(desc === null || desc === undefined) desc = '';
     if(name === null || name === undefined) name = 'no name'; 
    
-    this.current_file_id = fileid;
-    this.current_file_name = name;
-    this.current_file_desc = desc;
+    this.setCurrentFileId(fileid);
+
+
+    const item = this.getLoadedFile(this.current_file_id);
+    if(item == null){
+        console.log("CANNOT FINDING ITEM in LOADED FILES IN SET DCURRENT FILE INFO")
+    }else{
+      item.name = name;
+      item.desc = desc;
+    }
+
+    // item.current_file_id = fileid;
+    // this.current_file_name = name;
+    // this.current_file_desc = desc;
+
+
     const stamp = Date.now();
+
+    if(!this.connected) return;
 
     const auth = getAuth();
     const user = auth.currentUser;
     if(user){
       const db = getDatabase();
-      console.log(name, desc, stamp)
       update(fbref(db, `users/${user.uid}`),{last_opened: fileid});
       update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
         name: name, 
@@ -195,8 +279,16 @@ export class FilesystemService {
   
     if(fileid === null || fileid == undefined) return; 
     if(newname === null || newname === undefined) newname = 'no name'; 
-    
-    this.current_file_name = newname;
+
+    const item = this.getLoadedFile(fileid);
+    if(item == null){
+        //this file is not currently loaded but we can still rename it
+    }else{
+      //if it is cureently loaded, get it here too
+      item.name = newname;
+    }
+
+    if(!this.connected) return;
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -212,7 +304,14 @@ export class FilesystemService {
     if(fileid === null || fileid == undefined) return; 
     if(desc === null || desc === undefined) desc = ''; 
     
-    this.current_file_desc = desc;
+    const item = this.getLoadedFile(fileid);
+    if(item == null){
+      //this file is not currently loaded
+    }else{
+      item.desc = desc;
+    }
+    
+    if(!this.connected) return;
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -236,7 +335,7 @@ export class FilesystemService {
   convertAdaToFile(uid: string, ada: any) : Promise<number>{
     
    const fileid = this.generateFileId();
-   this.writeFileData(uid, fileid, ada);
+   this.writeFileData(fileid, ada);
    this.writeNewFileMetaData(uid, fileid, 'recovered draft', '')
    return Promise.resolve(fileid);
     
@@ -248,17 +347,18 @@ export class FilesystemService {
    * gets the file at a given id
    * @returns the file data
    */
-  getFile(fileid: number) : Promise<any> {
+getFile(fileid: number) : Promise<any> {
+    if(!this.connected) return Promise.reject("get file is not logged in");
+
+
     const db = getDatabase();
-
-    
-
 
     return fbget(fbref(db, `filedata/${fileid}`))
     .then((filedata) => {
 
 
         if(filedata.exists()){
+
           return Promise.resolve(filedata.val().ada);
 
         }else{
@@ -277,6 +377,10 @@ export class FilesystemService {
    * @returns 
    */
   removeFile(fileid: number) {
+    
+    this.unloadFile(fileid);
+    
+    if(!this.connected) return;
 
     const db = getDatabase();
     const auth = getAuth();
@@ -285,6 +389,8 @@ export class FilesystemService {
     if(user == null) return;
     remove(fbref(db, `filedata/${fileid}`));
     remove(fbref(db, 'users/'+user.uid+'/files/'+fileid));
+
+
   }
 
   /**
@@ -297,7 +403,7 @@ export class FilesystemService {
     const auth = getAuth();
     const user = auth.currentUser;
 
-    if(user == null) return;
+    if(user == null) return Promise.reject("user not logged in");
     
     return fbget(fbref(db, 'users/'+user.uid+'/files/'+fileid)).then((meta) => {
 
@@ -311,18 +417,33 @@ export class FilesystemService {
     }
 
 
+
+  updateCurrentStateInLoadedFiles(fileid: number, cur_state: SaveObj){
+    const item = this.getLoadedFile(fileid);
+
+    if(item !== null){
+      item.ada = cur_state;
+    }
+    
+  }
+
   /**
    * writes the data for the currently open file to the database
    * @param cur_state 
    * @returns 
    */
-  writeFileData(uid: string, fileid: number, cur_state: any) {
+  writeFileData(fileid: number, cur_state: SaveObj) {
+
+
+    if(!this.connected) return;
+
     const db = getDatabase();
     const ref = fbref(db, 'filedata/'+fileid);
+
     update(ref,{ada: cur_state})
     .then(success => {
-      this.last_saved_time = Date.now();
-      this.file_saved_change$.next(this.last_saved_time);
+      const item = this.getLoadedFile(fileid);
+      item.last_saved_time = Date.now();
 
     })
     .catch(err => {
@@ -331,11 +452,15 @@ export class FilesystemService {
   }
 
 
-
-
-
-
   writeNewFileMetaData(uid: string, fileid: number, name: string, desc: string) {
+
+     const item = this.getLoadedFile(fileid);
+     if(item !== null){
+      item.name = name,
+      item.desc = desc
+     }
+
+      if(!this.connected) return;
       const stamp = Date.now();
       const db = getDatabase();
       update(fbref(db, 'users/'+uid+'/files/'+fileid),{
@@ -343,22 +468,12 @@ export class FilesystemService {
         desc: desc,
         timestamp: stamp, 
         last_opened:fileid});
-    }
+   }
     
     
-  
-
-
-  renameFolder(old_loc: string, new_name: string) : Promise<boolean>{
-    //all folders
-    return Promise.resolve(true);
-  }
 
 
 
-  deleteFile(path:string){
-
-  }
 
 
   

@@ -1,8 +1,5 @@
 import { Draft, OperationInlet, OpInput, OpParamVal } from "./datatypes";
 import { generateMappingFromPattern, getDraftName, initDraftWithParams, warps, wefts } from "./drafts";
-import { standardizeMaterialLists } from "./material";
-import { makeSystemsUnique } from "./system";
-
 
 export const operationHasInputs = (op_inputs : Array<OpInput>) : boolean => {
     return op_inputs.length > 0; 

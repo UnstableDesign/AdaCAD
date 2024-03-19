@@ -10,6 +10,20 @@ import { MaterialsService } from "../provider/materials.service";
  */
 
 
+/*** APPLICATION STATE MANAGEMENT */
+
+/**
+ * a local instance of a file that is currently open within the users's workspace
+ */
+export interface LoadedFile{
+  id: number, 
+  name: string,
+  desc: string, 
+  ada: SaveObj,
+  last_saved_time: number
+}
+
+
 
 /*****   OBJECTS/TYPES RELATED TO DRAFTS  *******/
 
@@ -42,6 +56,24 @@ export interface Draft{
   colSystemMapping: Array<number>,
 }
 
+
+/**
+ * a modified version of the draft that stores the drawdown as a Byte Array to save space
+ */
+export interface CompressedDraft{
+  id: number,
+  gen_name: string,
+  ud_name: string,
+  warps: number; 
+  wefts: number;
+  compressed_drawdown: Uint8ClampedArray,
+  rowShuttleMapping: Array<number>,
+  rowSystemMapping: Array<number>,
+  colShuttleMapping: Array<number>,
+  colSystemMapping: Array<number>,
+}
+
+
 export interface Cell{
   is_set: boolean,
   is_up: boolean
@@ -70,6 +102,7 @@ export interface Material {
   startLabel?: string;
   endLabel?: string;
   notes: string;
+  rgb: {r: number, g: number, b: number}
 
 }
 
@@ -183,14 +216,12 @@ export interface ViewModes {
  export interface DesignMode{
   value: string;
   viewValue: string;
-  icon: string;
-  children: Array<DesignMode>;
-  selected: boolean;
+  icon?: string;
 }
 
 export interface Note{
   id: number,
-  interlacement: Interlacement; 
+  topleft: Point,
   title: string;
   text: string;
   ref: ViewRef;
@@ -271,7 +302,7 @@ export type YarnMap = Array<Array<Cell>>;
  * holds data about each node/component in a form to easily load.
  * @param node_id the id of this node within the tree
  * @param type the type of node
- * @param bounds the screen position and size data for this node
+ * @param topleft the screen position and size data for this node
  */
 export interface NodeComponentProxy{
   node_id: number,
@@ -298,7 +329,9 @@ export interface NodeComponentProxy{
   * @param draft_id the draft id associated with this node (if available)
  * @param draft_visible a boolean to state if this node is visible or not. 
  * @param draft_name a string representing a user defined name
- * @param draft this will only export if the draft is a seed draft
+ * @param warps the number of warps in the drawdown
+ * @param wefts the number of wefts in the drawdown 
+ * @param compressed_draft this will only export if the draft is a seed draft
  * @param loom this will only export if the draft is a seed draft 
  * @param loom_settings the associated loom settings on this node, if present
   */
@@ -308,6 +341,7 @@ export interface NodeComponentProxy{
     draft_id: number;
     draft_name: string;
     draft: Draft;
+    compressed_draft: CompressedDraft;
     draft_visible: boolean;
     loom: Loom;
     loom_settings: LoomSettings;
@@ -342,7 +376,6 @@ export interface NodeComponentProxy{
   ops: Array<OpComponentProxy>,
   notes: Array<Note>,
   materials: Array<Material>,
-  scale: number
  }
 
 export interface FileObj{
@@ -375,14 +408,12 @@ export interface Fileloader{
   ada: (filename: string, id: number, desc: string, data: any) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
-  //bmp: (filename: string, data: any) => Promise<LoadResponse>,
-  //jpg: (filename: string, data: any) => Promise<LoadResponse>,
-  form: (data: any) => Promise<LoadResponse>}
+}
 
 export interface FileSaver{
-  ada: (type: string, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
-  copy: (include: Array<number>, current_scale: number) => Promise<SaveObj>,
-  //wif: (draft: Draft, loom: Loom) => Promise<string>,
+  ada: () => Promise<{json: string, file: SaveObj}>,
+  copy: (include: Array<number>) => Promise<SaveObj>,
+  wif: (draft: Draft, loom: Loom, loom_settings: LoomSettings) => Promise<string>
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>
 }
@@ -562,6 +593,7 @@ export type DynamicOperation = Operation &  {
  export interface OperationClassification{
   category_name: string,
   description: string,
+  color: string,
   op_names: Array<string>;
  }
 

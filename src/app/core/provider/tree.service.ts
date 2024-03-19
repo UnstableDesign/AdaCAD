@@ -1,7 +1,7 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
 import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
-import { copyDraft, createDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -475,13 +475,17 @@ export class TreeService {
   sweepInlets(id: number, prior_inlet_vals: Array<any>) : Promise<Array<ViewRef>>{
 
      const opnode: OpNode = this.getOpNode(id);
+    if(!this.ops.isDynamic(opnode.name)) return Promise.resolve([]);
+
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
      const viewRefs:Array<ViewRef> = [];
 
      inputs_to_op.forEach((iotuple) => {
         //what was the value of the inlet
+
         let prior_val = prior_inlet_vals[iotuple.ndx];
         let new_ndx = opnode.inlets.findIndex(el => el == prior_val);
+
         if(new_ndx == -1){
           this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
           viewRefs.push(iotuple.tn.node.ref)
@@ -540,6 +544,11 @@ export class TreeService {
   getOpenConnection(): SubdraftComponent{
     return <SubdraftComponent> this.getComponent(this.open_connection);
   }
+
+  getOpenConnectionId(): number{
+    return this.open_connection;
+  }
+
 
   /**
    * TEMP DISABLE DUE TO CAUSING PROBLEMS 
@@ -1359,28 +1368,23 @@ isValidIOTuple(io: IOTuple) : boolean {
     .forEach((el) => {
       
       const draft_tn = el.tn.inputs[0].tn;
-      const cxn_tn = el.tn;
-      const type = draft_tn.node.type;
-
-      if(type === 'draft'){
-         draft_id_to_ndx.push({ndx: el.ndx, node_id: draft_tn.node.id, cxn: cxn_tn.node.id})
-        // flip_fns.push(flipDraft((<DraftNode>draft_tn.node).draft, flips.horiz, flips.vert));
-      }
-
-      const paraminputs = draft_id_to_ndx.map(el => {
-        const draft = (<DraftNode>draft_tn.node).draft;
-        return {drafts: [draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]]}
-      })
-      
-      const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el != undefined);
-
-      inputs = inputs.concat(cleaned_inputs);
-     
+      draft_id_to_ndx.push({ndx: el.ndx, draft: (<DraftNode>draft_tn.node).draft})
     });
 
+
+
+    const paraminputs = draft_id_to_ndx.map(el => {
+      return {drafts: [el.draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]]}
+    })
+    const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
+
+    // inputs = inputs.concat(cleaned_inputs);
+    
+
+
     
     
-    return op.perform(param_vals, inputs)
+    return op.perform(param_vals, cleaned_inputs)
     .then(res => {
         opnode.dirty = false;
         return this.updateDraftsFromResults(id, res, inputs);
@@ -1550,8 +1554,16 @@ isValidIOTuple(io: IOTuple) : boolean {
    */
    setSubdraftParent(sd:number, op:number){
     const sd_tn: TreeNode = this.getTreeNode(sd);
-    const op_tn: TreeNode = this.getTreeNode(op);
-    sd_tn.parent = op_tn;
+    if(op == -1){
+      sd_tn.parent = null;
+
+    }else{
+      const op_tn: TreeNode = this.getTreeNode(op);
+      sd_tn.parent = op_tn;
+   
+    }
+
+
 
   }
 
@@ -1821,6 +1833,43 @@ isValidIOTuple(io: IOTuple) : boolean {
     return output_ids.pop();
   }
 
+  
+
+  /**
+   * mostly used to identify which of an operation's inlet's this connection should connected to. 
+   * Because inlet information is stored on the operation, it looks at the operation to identify which inlet this connection enters into, and when approriate, which number in the array of inlets this belongs to
+   * @param cxn_id 
+   * @returns an object storing the id, the inlet_ndx, and the array_ndx (where there is multiple values in one inlet)
+   */
+  getConnectionOutputWithIndex(cxn_id: number):{id: number, inlet: number, arr: number}{
+    const tn = this.getTreeNode(cxn_id);
+    let found = null;
+    
+    //a connectino only have one output, so this in 
+    const output_tns: Array<TreeNode> = tn.outputs.map(child => child.tn);
+
+    //how many inputs are connected to this operation 
+    output_tns.forEach(output_tn => {
+
+
+      let has_connection: IOTuple = output_tn.inputs.find( input => input.tn.node.id === cxn_id);
+
+      if(has_connection !== undefined){
+
+        let inlet_with_connection = output_tn.inputs.filter(el => el.ndx == has_connection.ndx);
+        let arr_ndx = inlet_with_connection.findIndex( inlet => inlet.tn.node.id === cxn_id);
+        // console.log("inlet with connection length ", inlet_with_connection, arr_ndx)
+
+       found= {id: output_tn.node.id, inlet: has_connection.ndx, arr: arr_ndx};
+      }
+    })
+    if(found === null) console.error("ERROR Connection output's input does not contain this connection id ")
+    return found;
+  }
+
+
+
+
 
 
 
@@ -1905,7 +1954,7 @@ isValidIOTuple(io: IOTuple) : boolean {
    * converts all of the nodes in this tree for saving. 
    * @returns an array of objects that describe nodes
    */
-  exportNodesForSaving(current_scale: number) : Array<NodeComponentProxy> {
+  exportNodesForSaving() : Array<NodeComponentProxy> {
 
     const objs: Array<any> = []; 
 
@@ -1964,11 +2013,13 @@ isValidIOTuple(io: IOTuple) : boolean {
         }
         if((<DraftNode>node).draft !== null && (<DraftNode>node).draft !== undefined){
 
-        const savable: DraftNodeProxy = {
+
+          const savable: DraftNodeProxy = {
           node_id: node.id,
           draft_id: (<DraftNode>node).draft.id,
           draft_name: getDraftName((<DraftNode>node).draft),
-          draft: (this.hasParent(node.id)) ? null : (<DraftNode>node).draft,
+          draft: null,
+          compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
           draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
           loom: (loom_export === null) ? null :loom_export,
           loom_settings: node.loom_settings,
@@ -2053,6 +2104,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       draft_id: draft.id,
       draft_name: '',
       draft: null,
+      compressed_draft: null,
       draft_visible: true,
       loom: null, 
       loom_settings:null,
@@ -2121,7 +2173,7 @@ isValidIOTuple(io: IOTuple) : boolean {
       dn.draft = createDraft(temp.drawdown, temp.gen_name, ud_name, temp.rowShuttleMapping, temp.rowSystemMapping, temp.colShuttleMapping, temp.colSystemMapping);
     } 
 
-    dn.draft.id = id;
+     dn.draft.id = id;
 
     if(loom_settings === null || loom_settings === undefined){
       dn.loom_settings = {
@@ -2135,12 +2187,13 @@ isValidIOTuple(io: IOTuple) : boolean {
     else dn.loom_settings = loom_settings;
 
     dn.dirty = true;
-    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
+
+      
+   if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
     return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings, this.ws.selected_origin_option)
     .then(loom =>{
-
       dn.loom = loom;
       return Promise.resolve(loom);
     });

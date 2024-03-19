@@ -2,7 +2,6 @@ import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
 import { defaults } from '../../core/model/defaults';
-import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
 import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Node, Point, Cell, OpNode, Operation} from '../../core/model/datatypes';
 import { copyDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';
@@ -10,19 +9,16 @@ import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { NotesService } from '../../core/provider/notes.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
-import { InkService } from '../../mixer/provider/ink.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { MultiselectService } from '../provider/multiselect.service';
 import { ViewportService } from '../provider/viewport.service';
-import { ZoomService } from '../provider/zoom.service';
+import { ZoomService } from '../../core/provider/zoom.service';
 import { FileService } from './../../core/provider/file.service';
 import { ConnectionComponent } from './connection/connection.component';
-import { MarqueeComponent } from './marquee/marquee.component';
 import { NoteComponent } from './note/note.component';
 import { OperationComponent } from './operation/operation.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
-import { child } from 'firebase/database';
 
 @Component({
   selector: 'app-palette',
@@ -36,6 +32,8 @@ export class PaletteComponent implements OnInit{
 
   @Output() onDesignModeChange: any = new EventEmitter();  
   @Output() onRevealDraftDetails: any = new EventEmitter();  
+  @Output() refreshViewer: any = new EventEmitter();  
+  @Output() onOpenInEditor: any = new EventEmitter();  
 
   /**
    * A container that supports the automatic generation and removal of the components inside of it
@@ -59,31 +57,6 @@ export class PaletteComponent implements OnInit{
    */
   selecting_connection: boolean = false;
 
-  /**
-   * holds a reference to the selection component
-   * @property {Selection}
-   */
-  selection = new MarqueeComponent();
-
-  /**
-   * holds the data of events drawn on this component (that are not associated with a subdraft)
-   * @property {Array<Array<Cell>>}
-   */
-  scratch_pad: Array<Array<Cell>> = [];
-
-  /**
-   * HTML Canvas element that draws the selection and currently cells drawn on this component
-   * @property {Canvas}
-   */
-  canvas: HTMLCanvasElement;
-  cx: any;
-
-  /**
-   * stores an i and j of the last user selected location within the component
-   * @property {Point}
-   */
-  last: Interlacement;
-
 
     /**
    * stores an i and j of the last user selected location within the component
@@ -97,37 +70,17 @@ export class PaletteComponent implements OnInit{
    */
    pointer_events: boolean;
 
-
-    /**
-   * a string to represent the current user defined scale for this component to be used in background grid css. 
-   * @property {striing}
-   */
-
-  scale_string: string;
-
-  /**
-   * links to the z-index to push the canvas to the front or back of view when freehand drawing. 
-   */
-   canvas_zndx:number = -1;
-  
-  
-  /**
-   * stores the bounds of the shape being drawn
-   */
-   shape_bounds:Bounds;
-  
-  /**
-   * stores the vtx for freehand shapes
-   */
-   shape_vtxs:Array<Point>;
-  
-
   /**
    * trackable inputs to snackbar
    */
    snack_message:string;
+
    snack_bounds: Bounds;
 
+     /**
+   * stores the bounds of the shape being drawn
+   */
+   active_connection:Bounds;
 
    /**
     * a reference to the base size of each cell. Zoom in and out only modifies the view, not this base size.
@@ -139,24 +92,19 @@ export class PaletteComponent implements OnInit{
    visible_op: number = -1;
 
    visible_op_inlet: number = -1;
+
+
+     /** variables for focused view */
+
+  selected_draft_id: number = -1;
+
+  has_viewer_focus:number = -1;
+
+
   
-  /**
-   * Constructs a palette object. The palette supports drawing without components and dynamically
-   * creates components from shapes and scribbles on the canvas. 
-   * @param dm  a reference to the service containing the current design modes and selections
-   * @param tree reference to the objects and relationships within this palette
-   * @param inks a reference to the service manaing the available inks
-   * @param layers a reference to the sercie managing the view layers (z-indexes) of components
-   * @param resolver a reference to the factory component for dynamically generating components
-   * @param fs file service for saving and loading files
-   * @param _snackBar _snackBar a reference to the snackbar component that shows data on move and select
-   * @param viewport reference to the window and palette variables and where the viewer is currently lookin
-   * @param notes reference the service that stores all the tagged comments
-   */
   constructor(
     public dm: DesignmodesService, 
     private tree: TreeService,
-    private inks: InkService, 
     private layers: LayersService, 
     private resolver: ComponentFactoryResolver, 
     private fs: FileService,
@@ -166,7 +114,6 @@ export class PaletteComponent implements OnInit{
     private ss: StateService,
     private zs: ZoomService,
     private multiselect: MultiselectService) { 
-    this.shape_vtxs = [];
     this.pointer_events = true;
   }
 
@@ -174,7 +121,6 @@ export class PaletteComponent implements OnInit{
  * Called when palette is initailized
  */
   ngOnInit(){
-    this.scale_string = this.default_cell_size+"px "+this.default_cell_size+"px";
     this.vc.clear();
     this.default_cell_size = defaults.mixer_cell_size; 
 
@@ -187,30 +133,16 @@ export class PaletteComponent implements OnInit{
    */
    ngAfterViewInit(){
     
-    const div:HTMLElement = document.getElementById('scrollable-container');
-    this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
+    // const div:HTMLElement = document.getElementById('scrollable-container');
+    // this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
+
+    // this.selection.scale = this.zs.zoom;
+
+    // this.selection.active = false;
     
-    // const center:Point = this.viewport.setViewportCenter();
-    // div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
-    // div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
+    // this.designModeChanged();
 
-    this.canvas = <HTMLCanvasElement> document.getElementById("scratch");
-    this.cx = this.canvas.getContext("2d");
-    
-    this.canvas.width = this.viewport.getWidth();
-    this.canvas.height = this.viewport.getHeight();
-
-    // this.cx.beginPath();
-    // this.cx.rect(20, 20, this.viewport.width-40, this.viewport.height-40);
-    // this.cx.stroke();
-
-    this.selection.scale = this.zs.zoom;
-
-    this.selection.active = false;
-    
-    this.designModeChanged();
-
-    this.rescale(-1);
+    // this.rescale(-1);
 
   }
 
@@ -290,7 +222,6 @@ export class PaletteComponent implements OnInit{
  */
 handlePan(diff: Point){
   const div:HTMLElement = document.getElementById('scrollable-container');  
-  console.log("Offset ", diff, div.offsetParent.scrollLeft)
    div.offsetParent.scrollLeft += diff.x;
    div.offsetParent.scrollTop += diff.y;
 }
@@ -299,7 +230,8 @@ handlePan(diff: Point){
 
   /**
  * when someone zooms in or out, we'd like to keep the center point the same. We do this by scaling the entire palette and 
- * elements and then manually scrolling to the new center point. 
+ * elements and then manually scrolling to the new center point.
+ * TODO, this may not be the case anymore with new scaling 
  * @param data 
  */
    handleScrollFromZoom(old_zoom: number){
@@ -307,10 +239,10 @@ handlePan(diff: Point){
     // console.log(old_center, this.viewport.getCenterPoint());
     const div:HTMLElement = document.getElementById('scrollable-container');  
     const past_scroll_x = div.offsetParent.scrollLeft / old_zoom;
-    const new_scroll_x = past_scroll_x * this.zs.zoom;
+    const new_scroll_x = past_scroll_x * this.zs.getMixerZoom();
 
     const past_scroll_y = div.offsetParent.scrollTop / old_zoom;
-    const new_scroll_y = past_scroll_y * this.zs.zoom;
+    const new_scroll_y = past_scroll_y * this.zs.getMixerZoom();
 
      div.offsetParent.scrollLeft = new_scroll_x;
      div.offsetParent.scrollTop = new_scroll_y;
@@ -324,9 +256,8 @@ handlePan(diff: Point){
  */
    handleWindowScroll(data: any){
 
-
-    const div:HTMLElement = document.getElementById('scrollable-container');
-    this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
+   const div:HTMLElement = document.getElementById('scrollable-container');
+   this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     //update the canvas to this position
   }
 
@@ -347,24 +278,7 @@ handlePan(diff: Point){
    */
   addTimelineState(){
 
-    // version: string,
-    // workspace: any,
-    // type: string,
-    // nodes: Array<NodeComponentProxy>,
-    // tree: Array<TreeNodeProxy>,
-    // drafts: Array<Draft>,
-    // looms: Array<Loom>,
-    // loom_settings: Array<LoomSettings>
-    // ops: Array<any>,
-    // notes: Array<Note>,
-    // materials: Array<Shuttle>,
-    // scale: number
-
-
-   this.fs.saver.ada(
-      'mixer', 
-      true,
-      this.zs.zoom)
+   this.fs.saver.ada()
       .then(so => {
         this.ss.addMixerHistoryState(so);
       });
@@ -378,7 +292,7 @@ handlePan(diff: Point){
 
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
     const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
-    const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsBmp());
+    const functions: Array<Promise<any>> = visible_drafts.map(el => el.draft_rendering.saveAsBmp());
     return Promise.all(functions).then(el =>
       console.log("Downloaded "+functions.length+" files")
     );
@@ -391,13 +305,13 @@ handlePan(diff: Point){
    */
    async downloadVisibleDraftsAsWif() : Promise<any>{
 
-    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-    const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
-    const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsWif());
-    return Promise.all(functions)
-    .then(el =>
-      console.log("Downloaded "+functions.length+" files")
-    );
+    // const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+    // const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
+    // const functions: Array<Promise<any>> = visible_drafts.map(el => el.saveAsWif());
+    // return Promise.all(functions)
+    // .then(el =>
+    //   console.log("Downloaded "+functions.length+" files")
+    // );
 
   }
   
@@ -411,6 +325,10 @@ handlePan(diff: Point){
       
       const opcomp:OperationComponent = this.createOperation(name);
       this.performAndUpdateDownstream(opcomp.id).then(el => {
+        let children = this.tree.getNonCxnOutputs(opcomp.id);
+       
+        if(children.length > 0) this.revealDraftDetails(children[0]);
+      
         this.addTimelineState();
       });
 
@@ -440,6 +358,9 @@ handlePan(diff: Point){
     
 }
 
+  centerView(){
+    this.rescale();
+  }
 
 
 
@@ -447,40 +368,17 @@ handlePan(diff: Point){
    * redraws each operation and subdraft at the new scale, then redraws each of their connections
    * @param scale 
    */
-  rescale(prev_zoom: number){
+  rescale(){
 
-    //this.scale = scale;
-    const zoom_factor: number = this.zs.zoom / this.default_cell_size;
-   
-     const container: HTMLElement = document.getElementById('palette');
-     container.style.transformOrigin = 'top left';
-     container.style.transform = 'scale(' + zoom_factor + ')';
-  
-     
+    const container: HTMLElement = document.getElementById('palette-scale-container');
+    if(container === null) return;
 
-    //these subdrafts are all rendered independely of the canvas and need to indivdiually rescalled. This 
-    //essentially rerenders (but does not redraw them) and updates their top/lefts to scaled points
-    this.tree.nodes.forEach(node => {
-        if(node.type !== "cxn"){
-          node.component.scale = this.zs.zoom;
-        } 
-      });
+    container.style.transformOrigin = 'top left';
+    container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
 
 
-    this.tree.getConnections().forEach(sd => {
 
-      sd.rescale(this.zs.zoom);
-    });
-
-    this.notes.getComponents().forEach(el => {
-      el.scale = this.zs.zoom;
-    });
-
-  
-
-     if(this.tree.getPreview() !== undefined) this.tree.getPreviewComponent().scale = this.zs.zoom;
-
-    this.handleScrollFromZoom(prev_zoom);
+    // this.handleScrollFromZoom(prev_zoom);
 
   }
 
@@ -496,7 +394,7 @@ handlePan(diff: Point){
       data: {
         message: this.snack_message,
         bounds: this.snack_bounds,
-        scale: this.zs.zoom
+        scale: this.zs.getMixerZoom()
       }
     });
   }
@@ -531,8 +429,7 @@ handlePan(diff: Point){
    * @param name - the mode to switchh to
    */
   changeDesignmode(name: string) {
-    this.dm.selectDesignMode(name, 'design_modes');
-    const mode = this.dm.getDesignMode(name, 'design_modes');
+    this.dm.selectMixerEditingMode(name);
     this.onDesignModeChange.emit(name);
   }
 
@@ -558,13 +455,40 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
-    this.subdraftSubscriptions.push(sd.onShowDetails.subscribe(this.revealDraftDetails.bind(this)));
+    this.subdraftSubscriptions.push(sd.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
+    this.subdraftSubscriptions.push(sd.onSelectForView.subscribe(this.forceFocus.bind(this)));
+    this.subdraftSubscriptions.push(sd.onFocus.subscribe(this.setFocus.bind(this)));
+
+  }
+
+  openInEditor(id: number){
+    this.onOpenInEditor.emit(id);
   }
 
 
-
+  /**
+   * A change has been made that, in the default condiiton, would trigger it to show up
+   * in the viewer. This checks if no other item is holding focus, and if not, updates. 
+   * @param id 
+   */
   revealDraftDetails(id: number){
-    this.onRevealDraftDetails.emit(id);
+
+    console.log("______________")
+    console.log("Reveal Draft Details")
+
+    this.selected_draft_id = id;
+    
+    if(this.has_viewer_focus == -1 || id == -1) this.onRevealDraftDetails.emit(id);
+    if(id == -1) return;
+
+    if(this.tree.hasParent(id)){
+      let parent = this.tree.getSubdraftParent(id);
+      if(parent == this.has_viewer_focus) this.onRevealDraftDetails.emit(id);
+
+    }else{
+      if(this.has_viewer_focus == id) this.onRevealDraftDetails.emit(id);
+    }
+  
   }
 
   /**
@@ -573,24 +497,25 @@ handlePan(diff: Point){
    */
    createNote(note: Note):NoteComponent{
 
-    let tl: Interlacement = null;
+  
+    let tl: Point = null;
+
 
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
     this.setNoteSubscriptions(notecomp.instance);
 
-    if(note === null || note.interlacement == null){
-      tl = utilInstance.resolvePointToAbsoluteNdx(this.viewport.getCenterPoint(), this.zs.zoom);
+    if(note === null || note.topleft == null || note.topleft === undefined){
+      tl = this.viewport.getCenterPoint();
     }else{
-      tl = note.interlacement
+      tl = {
+        x: tl.x, 
+        y: tl.y
+      }
     }
     let id = this.notes.createNote(tl,  notecomp.instance, notecomp.hostView, note);
 
     notecomp.instance.id = id;
-    notecomp.instance.scale = this.zs.zoom;
-    notecomp.instance.default_cell = this.default_cell_size;
-
-
     this.changeDesignmode('move');
     return notecomp.instance;
   }
@@ -656,6 +581,7 @@ handlePan(diff: Point){
    */
   createSubDraft(d: Draft, parent: number) : Promise<SubdraftComponent>{
     
+
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
@@ -663,9 +589,7 @@ handlePan(diff: Point){
    
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
-    subdraft.instance.default_cell = this.default_cell_size;
-    subdraft.instance.scale = this.zs.zoom;
-    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
+    subdraft.instance.scale = this.zs.getMixerZoom();
 
 
     return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true)
@@ -687,9 +611,7 @@ handlePan(diff: Point){
 
     subdraft.instance.id = id;
     subdraft.instance.draft = this.tree.getDraft(id);
-    subdraft.instance.default_cell = this.default_cell_size;
-    subdraft.instance.scale = this.zs.zoom;
-    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
+    subdraft.instance.scale = this.zs.getMixerZoom();
 
     return Promise.resolve(subdraft.instance);
 
@@ -703,8 +625,10 @@ handlePan(diff: Point){
    * @param id the node id assigned to this element on load
    * @param d the draft object to load into this subdraft
    * @param nodep the component proxy used to define
+   * TODO, this likely is not positioning correctly
    */
-   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy,  saved_scale: number){
+   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy){
+
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
@@ -713,20 +637,15 @@ handlePan(diff: Point){
     node.ref = subdraft.hostView;
     this.setSubdraftSubscriptions(subdraft.instance);
     subdraft.instance.id = id;
-    subdraft.instance.default_cell = this.default_cell_size;
-    subdraft.instance.scale = this.zs.zoom;
+    subdraft.instance.scale = this.zs.getMixerZoom();
     subdraft.instance.draft_visible = true;
     subdraft.instance.use_colors = true;
-    subdraft.instance.ink = this.inks.getSelected(); //default to the currently selected ink
     subdraft.instance.draft = d;
     subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
 
     if(nodep !== null && nodep.topleft !== null){
+      const adj_topleft: Point = {x: nodep.topleft.x, y: nodep.topleft.y};
       
-      const topleft_ilace = {j: nodep.topleft.x/saved_scale, i: nodep.topleft.y/saved_scale};
-      const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
-      
-    
       subdraft.instance.topleft = adj_topleft;
 
       if(draftp !== null && draftp !== undefined){
@@ -756,10 +675,13 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
     this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
     this.operationSubscriptions.push(op.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
+    this.operationSubscriptions.push(op.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.operationSubscriptions.push(op.onInputAdded.subscribe(this.connectionMade.bind(this)));
     this.operationSubscriptions.push(op.onInputVisibilityChange.subscribe(this.updateVisibility.bind(this)));
     this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
+    this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.setFocus.bind(this)));
+    this.operationSubscriptions.push(op.onSelectForView.subscribe(this.forceFocus.bind(this)));
   }
 
 
@@ -782,11 +704,10 @@ handlePan(diff: Point){
       op.instance.name = name;
       op.instance.id = id;
       op.instance.zndx = this.layers.createLayer();
-      op.instance.scale =this.zs.zoom ;
       op.instance.default_cell = this.default_cell_size;
 
-      const tr =  this.viewport.getTopRight()
-      op.instance.topleft ={x: tr.x - 340, y: tr.y+120};
+      let tr = this.calculateInitialLocation();
+      op.instance.topleft ={x: tr.x, y: tr.y};
 
      
 
@@ -814,7 +735,6 @@ handlePan(diff: Point){
         op.instance.name = name;
         op.instance.id = id;
         op.instance.zndx = this.layers.createLayer();
-        op.instance.scale = this.zs.zoom;
         op.instance.default_cell = this.default_cell_size;
         op.instance.loaded_inputs = params;
         op.instance.topleft = {x: topleft.x, y: topleft.y};
@@ -874,8 +794,7 @@ handlePan(diff: Point){
       node.ref = cxn.hostView;
         
       cxn.instance.id = id;
-      cxn.instance.scale = this.zs.zoom;
-      cxn.instance.default_cell_size = this.default_cell_size;
+      cxn.instance.scale = this.zs.getMixerZoom();
 
     }
 
@@ -893,8 +812,7 @@ handlePan(diff: Point){
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, 0, id_to, to_ndx, id);
       
       cxn.instance.id = id;
-      cxn.instance.scale = this.zs.zoom;
-      cxn.instance.default_cell_size = this.default_cell_size;
+      cxn.instance.scale = this.zs.getMixerZoom();
 
       this.setConnectionSubscriptions(cxn.instance);
 
@@ -912,9 +830,8 @@ handlePan(diff: Point){
    */
   addSubdraftFromDraft(d: Draft){
     this.createSubDraft(d, -1).then(sd => {
-      sd.setPosition({x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + 60});
-      // const interlacement = utilInstance.resolvePointToAbsoluteNdx(sd.bounds.topleft, this.scale); 
-      // this.viewport.addObj(sd.id, interlacement);
+      let tr = this.calculateInitialLocation();
+      sd.topleft ={x: tr.x, y: tr.y};
       this.addTimelineState();
     });
     
@@ -933,9 +850,8 @@ handlePan(diff: Point){
 
 
     return this.createSubDraft(d, -1).then(sd => {
-      sd.setPosition({x: this.viewport.getTopLeft().x + 60, y: this.viewport.getTopLeft().y + 60});
-      sd.topleft = {x: draftnode.component.topleft.x+100, y:draftnode.component.topleft.y+100};
-
+      let tr = this.calculateInitialLocation();
+      sd.topleft ={x: tr.x, y: tr.y};
       this.addTimelineState();
       return Promise.resolve(sd.id);
     });
@@ -953,6 +869,17 @@ handlePan(diff: Point){
 
 
     if(id === undefined) return;
+
+    if(this.has_viewer_focus == id){
+      this.has_viewer_focus = -1;
+      this.revealDraftDetails(-1);
+
+    }
+
+    if(this.selected_draft_id == id){
+      this.selected_draft_id = -1;
+      this.revealDraftDetails(-1);
+    }
 
     const outputs = this.tree.getNonCxnOutputs(id);
     const delted_nodes = this.tree.removeSubdraftNode(id);
@@ -978,7 +905,16 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
+    if(this.has_viewer_focus == id){
+      this.has_viewer_focus = -1;
+    }
+
+    if(this.selected_draft_id == id){
+      this.selected_draft_id = -1;
+    }
+
     const drafts_out = this.tree.getNonCxnOutputs(id);
+
 
     const outputs:Array<number> = drafts_out.reduce((acc, el) => {
       return acc.concat(this.tree.getNonCxnOutputs(el));
@@ -997,49 +933,8 @@ handlePan(diff: Point){
 
   }
 
-    /**
-   * dynamically creates a subdraft component with specific requirements of the intersection, adds its inputs and event listeners, pushes the subdraft to the list of references
-   * @param d a Draft object for this component to contain
-   * @returns the created subdraft instance
-   */
-  createAndSetPreview(d: Draft) : Promise<DraftNode> {
-
-      const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
-      const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
-
-      return this.tree.setPreview(subdraft, d).then( dn=> {
-          //note, the preview is not added to the tree, as it will only be added if it eventually accepted by droppings
-          const sd: SubdraftComponent = <SubdraftComponent> dn.component;
-         
-          sd.id = -1;
-          sd.default_cell = this.default_cell_size;
-          sd.scale = this.zs.zoom;
-          sd.draft = d;
-          sd.ink = this.inks.getSelected(); //default to the currently selected ink
-          sd.setAsPreview();
-          // sd.disableDrag();
-          
-          return dn;
-
-      });
 
 
-    }
-
-
-  /**
-   * destorys the preview component
-   */
-  removePreview(){
-
-      const preview = this.tree.getPreview();
-
-      const ndx = this.vc.indexOf(this.tree.getPreview().ref);
-      this.vc.remove(ndx);
-
-      this.tree.unsetPreview();
-   
-  }
 
   /**
    * Called from mixer when it receives a change from the design mode tool or keyboard press
@@ -1047,7 +942,7 @@ handlePan(diff: Point){
    */
   public designModeChanged(){
 
-    if(this.dm.getDesignMode('move', 'design_modes').selected){
+    if(this.dm.isSelectedMixerEditingMode('move')){
       this.unfreezePaletteObjects();
 
     }else{
@@ -1079,189 +974,30 @@ handlePan(diff: Point){
    */
   private drawSelection(ndx: Interlacement){
 
+    // //instantiate the canvas at this point
+    // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // const bounds ={
+    //   left: this.selection.start.j*this.zs.zoom,
+    //   top: this.selection.start.i*this.zs.zoom,
+    //   right: ndx.j *this.zs.zoom,
+    //   bottom: ndx.i*this.zs.zoom
+    // };
 
-    const bounds ={
-      left: this.selection.start.j*this.zs.zoom,
-      top: this.selection.start.i*this.zs.zoom,
-      right: ndx.j *this.zs.zoom,
-      bottom: ndx.i*this.zs.zoom
-    };
-
-    //will draw on outside of selection
-    this.cx.beginPath();
-    this.cx.strokeStyle = "#ff4081";
-    this.cx.lineWidth = 1;
-    this.cx.setLineDash([this.zs.zoom, 2]);
-    this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
-    this.cx.fillStyle = "#ff4081";
-    this.cx.font = "12px Arial";
-    const w = Math.round(this.selection.bounds.width /this.zs.zoom);
-    const h = Math.round(this.selection.bounds.height / this.zs.zoom);
-    this.cx.fillText(w.toString()+"x"+h.toString(),  bounds.left- this.viewport.getTopLeft().x, bounds.bottom+16-this.viewport.getTopLeft().y);
+    // //will draw on outside of selection
+    // this.cx.beginPath();
+    // this.cx.strokeStyle = "#ff4081";
+    // this.cx.lineWidth = 1;
+    // this.cx.setLineDash([this.zs.zoom, 2]);
+    // this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
+    // this.cx.fillStyle = "#ff4081";
+    // this.cx.font = "12px Arial";
+    // const w = Math.round(this.selection.bounds.width /this.zs.zoom);
+    // const h = Math.round(this.selection.bounds.height / this.zs.zoom);
+    // this.cx.fillText(w.toString()+"x"+h.toString(),  bounds.left- this.viewport.getTopLeft().x, bounds.bottom+16-this.viewport.getTopLeft().y);
 
   }
 
-  /**
-   * Takes an absolute index and returns it to an index relative to the viewport. 
-   * @param abs 
-   * @returns 
-   */
-  private getRelativeInterlacement(abs: Interlacement) : Interlacement {
-    const i_offset: number = Math.floor(this.viewport.getTopLeft().y / this.zs.zoom);
-    const j_offset: number = Math.floor(this.viewport.getTopLeft().x / this.zs.zoom);
-    const rel: Interlacement = {
-      i: abs.i - i_offset,
-      j: abs.j - j_offset,
-      si: -1
-    }
-
-    return rel;
-  }
-
-
-  /**
-   * sets the value of the scratchpad cell at ndx
-   * checks for self interselcting 
-   * @param ndx (i,j)
-   */
-  private setCell(ndx: Interlacement){
-
-    const rel: Interlacement = this.getRelativeInterlacement(ndx);
-    let c: Cell = this.scratch_pad[rel.i][rel.j];
-
-    const selected: string = this.dm.getSelectedDesignMode('draw_modes').value;
-
-    switch(selected){
-      case 'toggle':
-        const cur: boolean = getCellValue(c);
-        if(cur == null)  c = setCellValue(c, true);
-        else c = setCellValue(c, !cur)
-        break;
-      case 'down':
-        c = setCellValue(c, false)
-        break;
-      case 'up':
-        c = setCellValue(c, true)
-      break;
-      case 'unset':
-        c = setCellValue(c, null);
-      break;
-    }
-
-
-    //use the code below to use past scratchpad values, but this seems wrong
-    // console.log(c);
-    // const val: boolean = c.isSet(); //check for a previous value
-    // c.setHeddle(true);
-
-    // if(val){
-    //   const newval:boolean = this.computeCellValue(this.inks.getSelected(), c, val);
-    //   console.log("setting to", newval);
-    //   c.setHeddle(newval);
-    // } 
-  }
-
-  /**
-   * called by drawcell. Draws on screen based on the current ink
-   * @param ink 
-   * @param over 
-   * @param under 
-   * @returns 
-   */
-  private computeCellColor(ink: string, over: Cell, under: boolean): string{
-
-    const res: boolean = this.computeCellValue(ink, over, under);
-    if(ink === 'unset' && res == true) return "#cccccc"; 
-    if(res ===null) return "#fafafa";
-    if(res) return "#000000";
-    return "#ffffff";      
-  }
-
-  /**
-   * applies the filter betetween over and under and returns the result
-   * @param ink the ink with which to compute the transition
-   * @param over the value of the primary (top) cell
-   * @param under the value of the intersecting (bottom) cell 
-   * @returns 
-   */
-  private computeCellValue(ink: string, over: Cell, under: boolean): boolean{
-    
-    let res: boolean = utilInstance.computeFilter(ink, getCellValue(over), under);
-    return res;   
-  }
-
-  /**
-   * called when creating a subdraft from the drawing on the screen. Computes the resulting value based on
-   * all intersections with the drawing
-   * @param ndx the i,j location of the cell we are checking
-   * @param ink the currently selected ink
-   * @param over the Cell we are checking against
-   * @returns true/false or null
-   */
-  private getScratchpadProduct(ndx: Interlacement, ink: string, over: Cell): boolean{
-    
-    switch(ink){
-      case 'neq':
-      case 'and':
-      case 'or':
-
-        const p = {x: ndx.j *this.zs.zoom, y: ndx.i * this.zs.zoom};
-        // const isect = this.getIntersectingSubdraftsForPoint(p);
-  
-        // if(isect.length > 0){
-        //   const prev: boolean = isect[0].resolveToValue(p);
-        //   return this.computeCellValue(ink, over, prev);
-        // }else{
-        //   return this.computeCellValue(ink, over, null);
-        // }
-      break;
-
-      default: 
-        return this.computeCellValue(ink, over, null);
-      break;
-    }
-   return null; 
-  }
- 
-
-  /**
-   * draw the cell at position ndx
-   * @param ndx (i,j)
-   */
-  private drawCell(ndx: Interlacement){
-
-    const rel: Interlacement = this.getRelativeInterlacement(ndx);
-    const c: Cell = this.scratch_pad[rel.i][rel.j];
-    this.cx.fillStyle = "#cccccc";
-  
-    const selected_ink:string = this.inks.getSelected();
-
-    switch(selected_ink){
-      case 'neq':
-      case 'and':
-      case 'or':
-
-        const p = {x: ndx.j * this.zs.zoom, y: ndx.i * this.zs.zoom};
-        // const isect = this.getIntersectingSubdraftsForPoint(p);
-
-        // if(isect.length > 0){
-        //   const prev: boolean = isect[0].resolveToValue(p);
-        //   this.cx.fillStyle = this.computeCellColor(selected_ink, c, prev);
-        // }else{
-        //   this.cx.fillStyle =  this.computeCellColor(selected_ink, c, null);;
-        // }
-      break;
-
-      default: 
-        this.cx.fillStyle = this.computeCellColor(selected_ink, c, null);
-      break;
-
-    }
-
-      this.cx.fillRect(rel.j*this.zs.zoom, rel.i*this.zs.zoom, this.zs.zoom, this.zs.zoom);      
-  }
 
   /**
    * Deletes the subdraft that called this function.
@@ -1284,7 +1020,7 @@ handlePan(diff: Point){
      }
 
    /**
-   * Duplicates the operation that called this function.
+   * TO DO: Duplicates the operation that called this function.
    */
     onDuplicateOpCalled(obj: any){
       if(obj === null) return;
@@ -1296,11 +1032,11 @@ handlePan(diff: Point){
       let new_tl: Point = null;
 
 
-      if(this.tree.hasSingleChild(obj.id) && this.tree.opHasHiddenChild(obj.id)){
+      if(this.tree.hasSingleChild(obj.id)){
           new_tl = {x: op_comp.topleft.x + 200, y: op_comp.topleft.y}
       }else{
         let container = document.getElementById('scale-'+obj.id);
-          new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.zoom/this.default_cell_size, y: op_comp.topleft.y}
+          new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.getMixerZoom()/this.default_cell_size, y: op_comp.topleft.y}
       }
 
 
@@ -1388,12 +1124,8 @@ handlePan(diff: Point){
         .then(new_sd => {
 
           const orig_size = document.getElementById('scale-'+obj.id);
-
-          new_sd.setPosition({
-            x: sd.topleft.x + orig_size.offsetWidth*(this.zs.zoom/this.default_cell_size) + this.zs.zoom *2, 
-            y: sd.topleft.y});  
-          //const interlacement = utilInstance.resolvePointToAbsoluteNdx(new_sd.bounds.topleft, this.scale); 
-          //this.viewport.addObj(new_sd.id, interlacement);
+          let tr = this.calculateInitialLocation();
+          new_sd.topleft ={x: tr.x, y: tr.y};
           this.addTimelineState();
         }).catch(console.error);
        
@@ -1407,36 +1139,38 @@ handlePan(diff: Point){
   subdraftStarted(obj: any){
     if(obj === null) return;
 
-    if(this.dm.isSelected("move",  'design_modes')){
+    if(this.dm.isSelectedMixerEditingMode("move")){
   
       //get the reference to the draft that's moving
       const moving = <SubdraftComponent> this.tree.getComponent(obj.id);
       
       if(moving === null) return; 
 
-
-      // // this.startSnackBar("Using Ink: "+moving.ink, null);
-      
-      // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
-      // const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
-
-      // if(seed_drafts.length === 0) return;
-      
-      // const bounds: any = utilInstance.getCombinedBounds(moving, seed_drafts);
-      // const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
-
-
-
-      // this.createAndSetPreview(temp).then(dn => {
-      //   this.tree.getPreviewComponent().setPosition(bounds.topleft);
-      // }).catch(console.error);
-      
-    }else if(this.dm.isSelected("marquee",  'design_modes')){
-      this.selectionStarted();
-    }else if(this.dm.isSelected("draw",  'design_modes')){
-      this.drawStarted();
     }
 
+ }
+
+ /**
+  * when the connection is started, this manually adjusts styling on the outlet component 
+  * @param id 
+  * @param active 
+  */
+ setOutletStylingOnConnection(id: number, active: boolean){
+  if(id == -1) return;
+
+  let sd_container = document.getElementById(id+'-out')
+  if(active) sd_container.style.backgroundColor = "#ff4081";
+  else{
+    if(this.tree.getNonCxnOutputs(id).length > 0){
+      sd_container.style.backgroundColor = "black";
+      sd_container.style.color = "white";
+    }    
+    else{
+      sd_container.style.backgroundColor = "white";
+      sd_container.style.color="black";
+    } 
+
+  } 
  }
 
  /**
@@ -1446,51 +1180,65 @@ handlePan(diff: Point){
   */
  onConnectionStarted(obj: any){
 
-  if(obj.type == 'stop'){
+
+  if(obj.type == 'stop' || (this.tree.getOpenConnectionId() !== -1)){
     this.selecting_connection = false;
+    this.setOutletStylingOnConnection(this.tree.getOpenConnectionId(), false);
     this.tree.unsetOpenConnection();
     this.processConnectionEnd();
-    return;
+    if(obj.type == 'stop') return;
   }
+
 
 
   const valid = this.tree.setOpenConnection(obj.id);
   if(!valid) return;
 
-  this.changeDesignmode('operation');
   this.selecting_connection = true;
 
   //make sure to unselect anything else that had previously been selected
-  const all_drafts = this.tree.getDraftNodes();
-  const not_selected = all_drafts.filter(el => el.id !== obj.id);
-  not_selected.forEach(node => {
-    let comp = <SubdraftComponent>node.component;
-    comp.selecting_connection = false;
-  })
+  // const all_drafts = this.tree.getDraftNodes();
+  // const not_selected = all_drafts.filter(el => el.id !== obj.id);
+  // not_selected.forEach(node => {
+  //   let comp = <SubdraftComponent>node.component;
+  //   if(comp !== null) comp.selecting_connection = false;
+  // })
 
 
 
-  const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(obj.id);
+  //const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(obj.id);
 
   let adj: Point;
 
-  if(sd.draft_visible){
-    const from = document.getElementById('scale-'+obj.id);
-   adj = {
-    x: sd.topleft.x - this.viewport.getTopLeft().x + 8, 
-    y: (sd.topleft.y+from.offsetHeight*(this.zs.zoom/this.default_cell_size)) - this.viewport.getTopLeft().y}
-   }else{
-   adj = {
-    x: sd.topleft.x - this.viewport.getTopLeft().x + 10, 
-    y: (sd.topleft.y) - this.viewport.getTopLeft().y}
-   }
+
+  let parent = document.getElementById('scrollable-container');
+  let parent_rect = parent.getBoundingClientRect();
+  let sd_container = document.getElementById(obj.id+'-out')
+  let sd_rect = sd_container.getBoundingClientRect();
+
+  this.setOutletStylingOnConnection(obj.id, true);
+
+  const zoom_factor =  1 / this.zs.getMixerZoom();
+  //on screen position relative to palette
+  let screenX = sd_rect.x - parent_rect.x + parent.scrollLeft;
+  let scaledX = screenX * zoom_factor;
+
+  //on screen position relative to palette
+  let screenY = sd_rect.y - parent_rect.y + parent.scrollTop;
+  let scaledY = screenY * zoom_factor;
+
+ adj = {
+   x: scaledX,
+   y: scaledY
+ }
+
 
   this.unfreezePaletteObjects();
 
-  this.shape_bounds = {
+  this.active_connection = {
     topleft: adj,
-    width: this.zs.zoom,
-    height: this.zs.zoom
+    width: this.default_cell_size,
+    height: this.default_cell_size
   };
 
   this.startSnackBar("select an input or click an empty space to stop selecting", null);
@@ -1631,24 +1379,45 @@ handlePan(diff: Point){
    * @param mouse the absolute position of the mouse on screen
    * @param shift boolean representing if shift is pressed as well 
    */
-connectionDragged(mouse: Point, shift: boolean){
+connectionDragged(mouse: Point){
+
+
+
+  let parent = document.getElementById('scrollable-container');
+  let rect_palette = parent.getBoundingClientRect();
+
+  const zoom_factor = 1 / this.zs.getMixerZoom();
+
+  //on screen position relative to palette
+  let screenX = mouse.x-rect_palette.x+parent.scrollLeft; //position of mouse relative to the palette sidebar - takes scroll into account
+  let scaledX = screenX * zoom_factor;
+
+  //on screen position relative to palette
+  let screenY = mouse.y-rect_palette.y+parent.scrollTop;
+  let scaledY = screenY * zoom_factor;
+  
 
   //get the mouse position relative to the view frame
-  const adj: Point = {x: mouse.x - this.viewport.getTopLeft().x, y: mouse.y - this.viewport.getTopLeft().y}
-  this.shape_bounds.width =  (adj.x - this.shape_bounds.topleft.x);
-  this.shape_bounds.height =  (adj.y - this.shape_bounds.topleft.y);
+  const adj: Point  = {
+    x: scaledX,
+    y: scaledY
+  }
 
+
+  //get the mouse position relative to the view frame
+  this.active_connection.width =  (adj.x - this.active_connection.topleft.x);
+  this.active_connection.height =  (adj.y - this.active_connection.topleft.y);
 
   const svg = document.getElementById('scratch_svg');
-  svg.style.top = (this.viewport.getTopLeft().y+this.shape_bounds.topleft.y)+"px";
-  svg.style.left = (this.viewport.getTopLeft().x+this.shape_bounds.topleft.x)+"px"
+  svg.style.top = (this.active_connection.topleft.y)+"px";
+  svg.style.left = (this.active_connection.topleft.x)+"px"
 
  
   svg.innerHTML = ' <path d="M 0 0 C 0 50,'
-  +(this.shape_bounds.width)+' '
-  +(this.shape_bounds.height-50)+', '
-  +(this.shape_bounds.width)+' '
-  +(this.shape_bounds.height)
+  +(this.active_connection.width)+' '
+  +(this.active_connection.height-50)+', '
+  +(this.active_connection.width)+' '
+  +(this.active_connection.height)
   +'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
 
  
@@ -1662,78 +1431,39 @@ connectionDragged(mouse: Point, shift: boolean){
  processConnectionEnd(){
   this.closeSnackBar();
   this.selecting_connection = false;
+  this.setOutletStylingOnConnection(this.tree.getOpenConnectionId(), false);
   const svg = document.getElementById('scratch_svg');
   svg.innerHTML = ' ' ;
 
-  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.changeDesignmode('move');
 
   if(!this.tree.hasOpenConnection()) return;
 
-  
+
   const sd: SubdraftComponent = this.tree.getOpenConnection();
   if(sd !== null) sd.connectionEnded();
   this.tree.unsetOpenConnection();
+
 } 
 
 
 /**
- * calculates the default topleft position for this node based on the width and size of its parent and/or neighbors
- * @param id the id of the component to position
- * @returns a promise for the updated point
+ * Optimized this to work with adding of operations
+ * @returns 
  */
-calculateInitialLocaiton(id: number) : Point {
-  
-  console.log("CALC INIT LOCATION")
+calculateInitialLocation() : Point {
 
-  let new_tl =  this.viewport.getTopLeft(); 
-  
+  const container = document.getElementById('scrollable-container');
+  const container_rect = container.getBoundingClientRect();
 
-  //if it has a parent, align it to the bottom edge
-  if(this.tree.hasParent(id)){
-
-    const parent_id = this.tree.getSubdraftParent(id);
-    const opnode = this.tree.getNode(parent_id);
-    const topleft = opnode.component.topleft;
-
-    const container: HTMLElement = document.getElementById('scale-'+parent_id);
-
-    //this component was just generated and needs a postion
-    if(container == null){
-      new_tl = {x: topleft.x, y: topleft.y};
-
-
-      // //component is not yet initalized on this calculation so we do it manually
-      const default_height =  100 * this.zs.zoom/this.default_cell_size;
-      new_tl = {x: topleft.x, y: topleft.y+default_height};
-
-    }else{
-
-      const container: HTMLElement = document.getElementById('scale-'+parent_id);
-      console.log("scale-", parent_id, container)
-      const parent_height = container.offsetHeight * (this.zs.zoom/this.default_cell_size);  
-      new_tl = {x: topleft.x, y: topleft.y + parent_height};
-    }
-
-    const outs = this.tree.getNonCxnOutputs(parent_id);
-    if(outs.length > 1){
-      const this_child = outs.findIndex(el => el === id);
-      if(this_child === -1){ console.error("subdraft not found in parent output list")};
-      
-      const updated_point: Point = outs
-      .filter((el, ndx) => (ndx < this_child))
-      .reduce((acc, el, ndx) => {
-        const el_draft = this.tree.getDraft(el);
-         acc.x = acc.x + (warps(el_draft.drawdown) + 2)*this.default_cell_size;
-         return acc;
-      }, topleft);
-      
-      new_tl = updated_point;
-
-    }
-
+  let tl = {
+    x: (container.scrollLeft  + container_rect.x) * 1/this.zs.getMixerZoom(),
+    y: (container.scrollTop +  container_rect.y) * 1/this.zs.getMixerZoom(),
   }
-  return new_tl;
+
+  return tl;
+
+
 }
 
 
@@ -1753,29 +1483,36 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
   return this.tree.performGenerationOps([op_id])
   .then(draft_ids => {
 
+    const all_ops = this.tree.getOpNodes();
+    all_ops.forEach(op =>{
+      let children = this.tree.getNonCxnOutputs(op.id);
+      (<OperationComponent> op.component).updateChildren(children);
+
+    })
+
+
     const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
-      .map(el => (<SubdraftComponent> el.component).drawDraft((<DraftNode>el).draft));
+      .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
 
 
 
     //create any new subdrafts nodes
-    const new_drafts = this.tree.getDraftNodes()
-      .filter(el => el.component === null)
-      .map(el => {
-        //console.log("loading new subdraft", (<DraftNode>el).draft);
-        return this.loadSubDraft(
-          el.id, 
-          (<DraftNode>el).draft, 
-          {
-            node_id: el.id,
-            type: el.type,
-            topleft: this.calculateInitialLocaiton(el.id),
-          }, null,this.zs.zoom);
-        });
+    // const new_drafts = this.tree.getDraftNodes()
+    //   .filter(el => el.component === null)
+    //   .map(el => {
+    //     return this.loadSubDraft(
+    //       el.id, 
+    //       (<DraftNode>el).draft, 
+    //       {
+    //         node_id: el.id,
+    //         type: el.type,
+    //         topleft: this.calculateInitialLocaiton(el.id),
+    //       }, null,this.zs.zoom);
+    //     });
       
 
-        return  Promise.all([Promise.all(fns), Promise.all(new_drafts)]);
+    //    return  Promise.all([Promise.all(fns), Promise.all(new_drafts)]);
         
        
   }).then(el => {
@@ -1785,17 +1522,17 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
       const from_node:Array<number> = this.tree.getInputs(cxn.id);
       const to_node:Array<number> = this.tree.getOutputs(cxn.id);
       if(from_node.length !== 1 || to_node.length !== 1) Promise.reject("connection has zero or more than one input or output");
-      loads.push(this.loadConnection(cxn.id));
+     // loads.push(this.loadConnection(cxn.id));
     })
 
     //update the positions of the connections
-    let all_cxns = this.tree.getConnections();
-    all_cxns.forEach(cxn => {
-      let to = this.tree.getOutputs(cxn.id);
-      to.forEach(id => {
-        cxn.updateToPosition(id, this.zs.zoom)
-      })
-    })
+    // let all_cxns = this.tree.getConnections();
+    // all_cxns.forEach(cxn => {
+    //   let to = this.tree.getOutputs(cxn.id);
+    //   to.forEach(id => {
+    //     cxn.updateToPosition(id, this.zs.zoom)
+    //   })
+    // })
 
     return Promise.all(loads);
 
@@ -1824,7 +1561,7 @@ updateDownstream(subdraft_id: number) {
 
     const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
-      .map(el => (<SubdraftComponent> el.component).drawDraft((<DraftNode>el).draft));
+      .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
 
 
 
@@ -1839,8 +1576,8 @@ updateDownstream(subdraft_id: number) {
           {
             node_id: el.id,
             type: el.type,
-            topleft: this.calculateInitialLocaiton(el.id),
-          }, null,this.zs.zoom);
+            topleft:{x: 0, y: 0},
+          }, null);
         });
       
 
@@ -1923,7 +1660,7 @@ const op_children = this.tree.getNonCxnOutputs(op_id);
     if(div !== null) div.style.opacity = ".2";
   }else{
     cxn.show_path_text = true;
-    cxn.drawConnection(this.zs.zoom);
+    cxn.drawConnection();
   }
  })
 
@@ -1947,7 +1684,7 @@ resetOpacity(){
     const div = document.getElementById("scale-"+cxn.id);
     if(div !== null)  div.style.opacity = "1"
     cxn.show_path_text = false;
-    cxn.drawConnection(this.zs.zoom);
+    cxn.drawConnection();
 
   });
 
@@ -2014,22 +1751,13 @@ inletLoaded(obj: any){
 }
 
 /**
- * called from an operation or inlet to allow for the inlighting of all upstream operations and drafts
+ * called from an operation or inlet to allow for the highlighting of all upstream operations and drafts
  * @param obj 
  */
 opCompLoaded(obj: any){
   //redraw the inlet
-  let opid = obj.id;
-
-  const cxns = this.tree.getInputsWithNdx(opid);
-
-  cxns.forEach((cxn, input_ndx) => {
-    const cxn_comp = <ConnectionComponent>this.tree.getComponent(cxn.tn.node.id)
-    cxn_comp.updateToPosition(opid,this.zs.zoom)
-  })
-
-
-
+  // let opid = obj.id;
+  // const cxns = this.tree.getInputsWithNdx(opid);
 
 
 }
@@ -2048,11 +1776,13 @@ connectionMade(obj: any){
 
   //this is defined in the order that the line was drawn
   const op:OperationComponent = <OperationComponent>this.tree.getComponent(obj.id);
-  const sd: SubdraftComponent = <SubdraftComponent> this.tree.getOpenConnection();
+  const sd: number = this.tree.getOpenConnectionId();
   
-  this.createConnection(sd.id, obj.id, obj.ndx);
-  
+  this.createConnection(sd, obj.id, obj.ndx);
+
   this.performAndUpdateDownstream(obj.id).then(el => {
+    let children = this.tree.getNonCxnOutputs(obj.id);
+    if(children.length > 0) this.revealDraftDetails(children[0]);
     this.addTimelineState();
   });
 
@@ -2072,10 +1802,12 @@ pasteConnection(from: number, to: number, inlet: number){
 
 /**
  * Called when a connection is explicitly deleted
+ * id refers to the id of the connection that is being deleted. 
 */
  removeConnection(obj: {id: number}){
 
-  let to = this.tree.getConnectionOutput(obj.id)
+  let to = this.tree.getConnectionOutput(obj.id);
+  let from = this.tree.getConnectionInput(obj.id);
 
   const to_delete = this.tree.removeConnectionNodeById(obj.id);  
   to_delete.forEach(node => this.removeFromViewContainer(node.ref));
@@ -2084,11 +1816,15 @@ pasteConnection(from: number, to: number, inlet: number){
  // if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
 
    this.processConnectionEnd();
-  
+   this.setOutletStylingOnConnection(from, false);
+
    if(this.tree.getType(to)==="op"){
-     this.performAndUpdateDownstream(to);
+     this.performAndUpdateDownstream(to).then(done => {
+      this.refreshViewer.emit();
+     }); 
    }
   
+
   this.addTimelineState();
 
 
@@ -2096,243 +1832,194 @@ pasteConnection(from: number, to: number, inlet: number){
 
  
 
- selectionStarted(){
-
-  this.selection.start = this.last;
-  this.selection.active = true;
- }
-
  panStarted(mouse_pos: Point){
-  console.log("PAN STARTED")
   this.last_point = mouse_pos;
   this.freezePaletteObjects();
 
  }
 
  /**
+  * set focus sets the draft in the viewer and editor (as long as nothing is already forced in the focus)
+  * @param id 
+  */
+ setFocus(id: number){
+  this.revealDraftDetails(id);
+ }
+
+ /**
+ * the id of the operation or subdraft that is now selected
+ * @param id 
+ */
+ forceFocus(id: number){
+
+  if(this.has_viewer_focus !== -1){
+    const el = document.getElementById('scale-'+this.has_viewer_focus);
+    el.style.border = "none";
+  }
+
+  if(this.has_viewer_focus == id){
+   id = -1;
+  }
+
+  if(id !== -1){
+    const el = document.getElementById('scale-'+id);
+    el.style.border = "thick solid black";
+  }
+
+  this.has_viewer_focus = id;
+  if(this.has_viewer_focus == -1) return;
+
+  //get node - if its an op, get the children, if its a draft, just send it. 
+  let type = this.tree.getType(id);
+
+  if(type == 'op'){
+    let children = this.tree.getNonCxnOutputs(id);
+    if(children.length > 0) this.revealDraftDetails(children[0]);
+  }else{
+    this.revealDraftDetails(id);
+  }
+  
+}
+
+
+ /**
  * brings the base canvas to view and begins to render the
  * @param mouse the absolute position of the mouse on screen
  */
-shapeStarted(mouse: Point){
+// shapeStarted(mouse: Point){
 
-  const rel:Point = {
-    x: mouse.x - this.viewport.getTopLeft().x,
-    y: mouse.y - this.viewport.getTopLeft().y
-  }
+//   const rel:Point = {
+//     x: mouse.x - this.viewport.getTopLeft().x,
+//     y: mouse.y - this.viewport.getTopLeft().y
+//   }
   
-  this.shape_bounds = {
-    topleft: rel,
-    width: this.zs.zoom,
-    height: this.zs.zoom
-  };
+//   this.shape_bounds = {
+//     topleft: rel,
+//     width: this.zs.zoom,
+//     height: this.zs.zoom
+//   };
 
 
-  this.shape_vtxs = [];
-  this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
-  this.cx.fillStyle = "#ff4081";
-  this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
+//   this.shape_vtxs = [];
+//   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
+//   this.cx.fillStyle = "#ff4081";
+//   this.cx.fillRect( this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width,this.shape_bounds.height);
   
-  if(this.dm.isSelected('free', 'shapes')){
-    this.startSnackBar("CTRL+Click to end drawing", this.shape_bounds);
-  }else{
-    this.startSnackBar("Press SHIFT while dragging to constrain shape", this.shape_bounds);
-  }
+//   if(this.dm.isSelected('free', 'shapes')){
+//     this.startSnackBar("CTRL+Click to end drawing", this.shape_bounds);
+//   }else{
+//     this.startSnackBar("Press SHIFT while dragging to constrain shape", this.shape_bounds);
+//   }
  
 
-}
+// }
 
   /**
    * resizes and redraws the shape between the the current mouse and where the shape started
    * @param mouse the absolute position of the mouse on screen
    */
-shapeDragged(mouse: Point, shift: boolean){
+// shapeDragged(mouse: Point, shift: boolean){
 
-  const rel:Point = {
-    x: mouse.x - this.viewport.getTopLeft().x,
-    y: mouse.y - this.viewport.getTopLeft().y
-  }
+//   const rel:Point = {
+//     x: mouse.x - this.viewport.getTopLeft().x,
+//     y: mouse.y - this.viewport.getTopLeft().y
+//   }
 
-  this.shape_bounds.width =  (rel.x - this.shape_bounds.topleft.x);
-  this.shape_bounds.height =  (rel.y - this.shape_bounds.topleft.y);
+//   this.shape_bounds.width =  (rel.x - this.shape_bounds.topleft.x);
+//   this.shape_bounds.height =  (rel.y - this.shape_bounds.topleft.y);
 
-  if(shift){
-    const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
+//   if(shift){
+//     const max: number = Math.max(this.shape_bounds.width, this.shape_bounds.height);
     
-    //allow lines to snap to coords
-    if(this.dm.isSelected('line', 'shapes')){
-        if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
-          this.shape_bounds.height = max;
-          this.shape_bounds.width = this.zs.zoom;
-        }else if(Math.abs(this.shape_bounds.height) < Math.abs(this.shape_bounds.width/2)){
-          this.shape_bounds.width = max;
-          this.shape_bounds.height = this.zs.zoom;
-        }else{
-          this.shape_bounds.width = max;
-          this.shape_bounds.height = max;  
-        }
+//     //allow lines to snap to coords
+//     if(this.dm.isSelected('line', 'shapes')){
+//         if(Math.abs(this.shape_bounds.width) < Math.abs(this.shape_bounds.height/2)){
+//           this.shape_bounds.height = max;
+//           this.shape_bounds.width = this.zs.zoom;
+//         }else if(Math.abs(this.shape_bounds.height) < Math.abs(this.shape_bounds.width/2)){
+//           this.shape_bounds.width = max;
+//           this.shape_bounds.height = this.zs.zoom;
+//         }else{
+//           this.shape_bounds.width = max;
+//           this.shape_bounds.height = max;  
+//         }
         
-    }else{
-      this.shape_bounds.width = max;
-      this.shape_bounds.height = max;    
+//     }else{
+//       this.shape_bounds.width = max;
+//       this.shape_bounds.height = max;    
   
-    }
-  }
+//     }
+//   }
 
-  this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  this.cx.beginPath();
-  this.cx.fillStyle = "#ff4081";
-  this.cx.strokeStyle = "#ff4081";
-  this.cx.setLineDash([]);
-  this.cx.lineWidth = this.zs.zoom;
+//   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+//   this.cx.beginPath();
+//   this.cx.fillStyle = "#ff4081";
+//   this.cx.strokeStyle = "#ff4081";
+//   this.cx.setLineDash([]);
+//   this.cx.lineWidth = this.zs.zoom;
 
-  if(this.dm.isSelected('line', 'shapes')){
-    this.cx.moveTo(this.shape_bounds.topleft.x+this.zs.zoom, this.shape_bounds.topleft.y+this.zs.zoom);
-    this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
-    this.cx.stroke();
-  }else if(this.dm.isSelected('fill_circle','shapes')){
-    this.shape_bounds.width = Math.abs(this.shape_bounds.width);
-    this.shape_bounds.height = Math.abs(this.shape_bounds.height);
-    this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
-    this.cx.fill();
-  }else if(this.dm.isSelected('stroke_circle','shapes')){
-    this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
-    this.cx.stroke();
-  }else if(this.dm.isSelected('fill_rect','shapes')){
-    this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
+//   if(this.dm.isSelected('line', 'shapes')){
+//     this.cx.moveTo(this.shape_bounds.topleft.x+this.zs.zoom, this.shape_bounds.topleft.y+this.zs.zoom);
+//     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+//     this.cx.stroke();
+//   }else if(this.dm.isSelected('fill_circle','shapes')){
+//     this.shape_bounds.width = Math.abs(this.shape_bounds.width);
+//     this.shape_bounds.height = Math.abs(this.shape_bounds.height);
+//     this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
+//     this.cx.fill();
+//   }else if(this.dm.isSelected('stroke_circle','shapes')){
+//     this.cx.ellipse(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y, this.shape_bounds.width, this.shape_bounds.height, 2 * Math.PI, 0,  this.shape_bounds.height/2);
+//     this.cx.stroke();
+//   }else if(this.dm.isSelected('fill_rect','shapes')){
+//     this.cx.fillRect(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y,this.shape_bounds.width,this.shape_bounds.height);
   
-  }else if(this.dm.isSelected('stroke_rect','shapes')){
-    this.cx.strokeRect(this.shape_bounds.topleft.x + this.zs.zoom, this.shape_bounds.topleft.y+ this.zs.zoom,this.shape_bounds.width-this.zs.zoom,this.shape_bounds.height-this.zs.zoom);
+//   }else if(this.dm.isSelected('stroke_rect','shapes')){
+//     this.cx.strokeRect(this.shape_bounds.topleft.x + this.zs.zoom, this.shape_bounds.topleft.y+ this.zs.zoom,this.shape_bounds.width-this.zs.zoom,this.shape_bounds.height-this.zs.zoom);
 
-  }else{
+//   }else{
 
-    if(this.shape_vtxs.length > 1){
-      this.cx.moveTo(this.shape_vtxs[0].x, this.shape_vtxs[0].y);
+//     if(this.shape_vtxs.length > 1){
+//       this.cx.moveTo(this.shape_vtxs[0].x, this.shape_vtxs[0].y);
 
-      for(let i = 1; i < this.shape_vtxs.length; i++){
-        this.cx.lineTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
-        //this.cx.moveTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
-      }
+//       for(let i = 1; i < this.shape_vtxs.length; i++){
+//         this.cx.lineTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+//         //this.cx.moveTo(this.shape_vtxs[i].x, this.shape_vtxs[i].y);
+//       }
 
-    }else{
-      this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
-    }
+//     }else{
+//       this.cx.moveTo(this.shape_bounds.topleft.x, this.shape_bounds.topleft.y);
+//     }
 
-    this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
-    this.cx.stroke();
-    this.cx.fill();
+//     this.cx.lineTo(this.shape_bounds.topleft.x + this.shape_bounds.width, this.shape_bounds.topleft.y + this.shape_bounds.height);
+//     this.cx.stroke();
+//     this.cx.fill();
     
-  }
+//   }
 
-  if(this.dm.isSelected('free', 'shapes')){
-    this.updateSnackBar("CTRL+click to end drawing", this.shape_bounds);
-  }else{
-    this.updateSnackBar("Press SHIFT to contstrain shape", this.shape_bounds);
-  }
-}
+// }
 
 
 /**
  * clears the scratchpad for the new drawing event
  */
-drawStarted(){
+// drawStarted(){
 
 
-  this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
+//   this.canvas_zndx = this.layers.createLayer(); //bring this canvas forward
   
-  this.scratch_pad = [];
-  for(let i = 0; i < this.canvas.height; i+=this.zs.zoom ){
-      const row = [];
-      for(let j = 0; j< this.canvas.width; j+=this.zs.zoom ){
-          row.push(createCell(null));
-      }
-    this.scratch_pad.push(row);
-    }
+//   this.scratch_pad = [];
+//   for(let i = 0; i < this.canvas.height; i+=this.zs.zoom ){
+//       const row = [];
+//       for(let j = 0; j< this.canvas.width; j+=this.zs.zoom ){
+//           row.push(createCell(null));
+//       }
+//     this.scratch_pad.push(row);
+//     }
 
-    this.startSnackBar("Drag to Draw", null);
-  }
-
-
-  /**
-   * gets the bounds of a drawing on the scratchpad, a drawing is represented by set cells
-   * @returns an object representing the bounds in the format of i, j (the row, column index of the pad)
-   */
-  getScratchPadBounds(): Array<Interlacement>{
-    let bottom: number = 0;
-    let right: number = 0;
-    let top: number = this.scratch_pad.length-1;
-    let left: number = this.scratch_pad[0].length-1;
-
-    for(let i = 0; i < this.scratch_pad.length; i++ ){
-      for(let j = 0; j<  this.scratch_pad[0].length; j++){
-        if((this.scratch_pad[i][j].is_set)){
-          if(i < top) top = i;
-          if(j < left) left = j;
-          if(i > bottom) bottom = i;
-          if(j > right) right = j;
-        } 
-      }
-    }
-
-    return [{i: top, j: left, si: -1}, {i: bottom, j: right, si: -1}];
-
-  }
-
-  /**
-   * handles checks and actions to take when drawing event ends
-   * gets the boudary of drawn segment and creates a subdraft containing that drawing
-   * if the drawing sits on top of an existing subdraft, merge the drawing into that subdraft (extending the original if neccessary)
-   * @returns 
-   */
-  processDrawingEnd (): Promise<any> {
+//     this.startSnackBar("Drag to Draw", null);
+//   }
 
 
-    this.canvas_zndx = -1;
-
-    if(this.scratch_pad === undefined) return;
-    if(this.scratch_pad[0] === undefined) return;
-    
-    const corners: Array<Interlacement> = this.getScratchPadBounds();
-    const warps = corners[1].j - corners[0].j + 1;
-    const wefts = corners[1].i - corners[0].i + 1;
-
-
-    //there must be at least one cell selected
-    if(warps < 1 || wefts < 1){
-      this.scratch_pad = undefined;
-      return;
-    } 
-
-
-    const pattern: Array<Array<Cell>> = [];
-    for(let i = 0; i < wefts; i++ ){
-      pattern.push([]);
-      for(let j = 0; j< warps; j++){
-        const c = this.scratch_pad[corners[0].i+i][corners[0].j+j];
-        const b = this.getScratchpadProduct({i:i, j:j, si:-1}, this.inks.getSelected(),c);
-        pattern[i].push(createCell(b));
-      }
-    }
-
-    //if this drawing does not intersect with any existing subdrafts, 
-    return this.createSubDraft(initDraftWithParams({wefts: wefts,  warps: warps, pattern: pattern}), -1)
-    .then(sd => {
-      const pos = {
-        topleft: {x: this.viewport.getTopLeft().x + (corners[0].j * this.zs.zoom), y: this.viewport.getTopLeft().y + (corners[0].i * this.zs.zoom)},
-        width: warps * this.zs.zoom,
-        height: wefts * this.zs.zoom
-      }
-  
-      sd.setPosition(pos.topleft);
-      //sd.setComponentSize(pos.width, pos.height);
-      sd.disableDrag();
-
-  
-    //  const had_merge = this.mergeSubdrafts(sd);
-      this.addTimelineState();
-    });
-   
-
-  }
 
   /**
    * update the viewport when the window is resized
@@ -2344,8 +2031,6 @@ drawStarted(){
       this.viewport.setWidth(event.target.innerWidth);
       this.viewport.setHeight(event.target.innerHeight);
 
-      this.canvas.width = this.viewport.getWidth();
-      this.canvas.height = this.viewport.getHeight();
     }
 
 
@@ -2366,73 +2051,30 @@ drawStarted(){
         ops.forEach(op => {
           this.opCompLoaded(op);
   
-          let drafts = this.tree.getDraftOutputs(op.id);
-          drafts.forEach((draft, ndx) => {
-            let draftcomp = <SubdraftComponent> this.tree.getComponent(draft);
-            draftcomp.updatePositionFromParent(<OperationComponent>op.component, ndx)
-          })
+          // let drafts = this.tree.getDraftOutputs(op.id);
+          // drafts.forEach((draft, ndx) => {
+          //   let draftcomp = <SubdraftComponent> this.tree.getComponent(draft);
+          //   draftcomp.updatePositionFromParent(<OperationComponent>op.component, ndx)
+          // })
   
           }
         );
         this.needs_init = false;
       }
 
-      const ctrl: boolean = event.ctrlKey;
-      const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-      const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
+  
 
-      //use this to snap the mouse to the nearest coord
-      mouse.x = ndx.j * this.zs.zoom;
-      mouse.y = ndx.i * this.zs.zoom;
-
-      
-      this.last = ndx;
-      this.selection.start = this.last;
+  
       this.removeSubscription();    
       
      
 
-      if(this.dm.getDesignMode("marquee",'design_modes').selected){
-          this.selectionStarted();
-          this.moveSubscription = 
-          fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
-    
-      // }else if(this.dm.isSelected("draw",'design_modes')){
-      //   this.moveSubscription = 
-      //   fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
-  
-      //     this.drawStarted();    
-      //     this.setCell(ndx);
-      //     this.drawCell(ndx); 
-      // }else if(this.dm.isSelected("shape",'design_modes')){
-      //   this.moveSubscription = 
-      //   fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e)); 
-  
-
-      //   if(this.dm.isSelected('free','shapes')){
-      //     if(ctrl){
-      //       this.processShapeEnd().then(el => {
-      //         this.changeDesignmode('move');
-      //         this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      //       });
-      //     }else{
-      //       if(this.shape_vtxs.length == 0) this.shapeStarted(mouse);
-      //       this.shape_vtxs.push(mouse);
-      //     }
-            
-          
-      //   }else{
-      //     this.shapeStarted(mouse);
-      //   }
-      // }else if(this.dm.isSelected("operation",'design_modes')){
-        // this.processConnectionEnd();
-        // this.changeDesignmode('move');
-      }else if(this.dm.isSelected("move", "design_modes")){
+      if(this.dm.isSelectedMixerEditingMode("move")){
 
        if(event.shiftKey) return;
         this.multiselect.clearSelections();
 
-      }else if(this.dm.isSelected("pan", 'design_modes')){
+      }else if(this.dm.isSelectedMixerEditingMode("pan")){
 
         this.panStarted({x: event.clientX, y: event.clientY});
         this.moveSubscription = 
@@ -2445,46 +2087,16 @@ drawStarted(){
   @HostListener('mousemove', ['$event'])
   private onMove(event) {
 
+    const mouse:Point = {
+      x: event.clientX, 
+      y: event.clientY
+    };
 
-
-
-
-    const shift: boolean = event.shiftKey;
-    const mouse:Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:any = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
-    mouse.x = ndx.j * this.zs.zoom;
-    mouse.y = ndx.i *this.zs.zoom;
-
-    if(this.dm.isSelected('free','shapes') && this.shape_vtxs.length > 0){
-     this.shapeDragged(mouse, shift);
-    }else if(this.selecting_connection){
-      this.connectionDragged(mouse, shift);
+    if(this.selecting_connection){
+      this.connectionDragged(mouse);
     }
   }
   
- /**
-  * called when the operation input is selected and used to draw
-   * @param event the event object
-   */
-  mouseSelectingDraft(event: any, id: number){
-
-    const shift: boolean = event.shiftKey;
-    const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
-    //use this to snap the mouse to the nearest coord
-    mouse.x = ndx.j * this.zs.zoom;
-    mouse.y = ndx.i * this.zs.zoom;
-
-    if(utilInstance.isSameNdx(this.last, ndx)) return;
-
-    // if(this.dm.getDesignMode("operation",'design_modes').selected){
-
-     
-    
-    // }
-    
-    this.last = ndx;
-  }
 
   /**
    * called form the subscription created on start, checks the index of the location and returns null if its the same
@@ -2493,22 +2105,9 @@ drawStarted(){
   onDrag(event){
 
 
-    const shift: boolean = event.shiftKey;
     const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-    const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
 
-    //use this to snap the mouse to the nearest coord
-    mouse.x = ndx.j *this.zs.zoom;
-    mouse.y = ndx.i * this.zs.zoom;
-
-    if(utilInstance.isSameNdx(this.last, ndx)) return;
-
-    if(this.dm.getDesignMode("marquee",'design_modes').selected){
-
-     this.drawSelection(ndx);
-     const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
-     this.selection.setPositionAndSize(bounds);
-    }else if(this.dm.getDesignMode("pan",'design_modes').selected){
+    if(this.dm.isSelectedMixerEditingMode("pan")){
       
       const diff = {
         x:  (this.last_point.x-event.clientX), 
@@ -2517,15 +2116,6 @@ drawStarted(){
       this.handlePan(diff);
 
     }
-    
-    // }else if(this.dm.getDesignMode("draw", 'design_modes').selected){
-    //   this.setCell(ndx);
-    //   this.drawCell(ndx);
-    // }else if(this.dm.getDesignMode("shape",'design_modes').selected){
-    //   this.shapeDragged(mouse, shift);
-    // }
-    
-    this.last = ndx;
     this.last_point = {x: event.clientX, y: event.clientY};
   }
 
@@ -2540,107 +2130,22 @@ drawStarted(){
   @HostListener('mouseup', ['$event'])
      private onEnd(event) {
 
-      //if this.last is null, we have a mouseleave with no mousestart
-      if(this.last === undefined) return;
-    
-      const mouse: Point = {x: this.viewport.getTopLeft().x + event.clientX, y:this.viewport.getTopLeft().y+event.clientY};
-      const ndx:Interlacement = utilInstance.resolveCoordsToNdx(mouse, this.zs.zoom);
-      //use this to snap the mouse to the nearest coord
-      mouse.x = ndx.j * this.zs.zoom;
-      mouse.y = ndx.i * this.zs.zoom;
 
       this.removeSubscription();   
 
-      if(this.dm.getDesignMode("marquee",'design_modes').selected){
-        if(this.selection.active) this.processSelection();
-        this.closeSnackBar();
-        this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.changeDesignmode('move');
-        this.unfreezePaletteObjects();
-      }else if(this.dm.isSelected('pan', 'design_modes')){
+      if(this.dm.isSelectedMixerEditingMode('pan')){
         const div:HTMLElement = document.getElementById('scrollable-container');
         this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
 
       }
 
 
-      // }else if(this.dm.isSelected("draw",'design_modes')){
-       
-      //   this.processDrawingEnd().then(el => {
-      //     this.closeSnackBar();
-      //     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      //     this.changeDesignmode('move');
-      //     this.scratch_pad = undefined;
-      //   }).catch(console.error);
-      
-
-
-
-      // }else if(this.dm.isSelected("shape",'design_modes')){
-      //   if(!this.dm.isSelected('free','shapes')){
-          
-      //     this.processShapeEnd().then(el => {
-      //       this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      //       this.changeDesignmode('move');
-           
-      //    });
-      //   }
-          
-      // }
 
       //unset vars that would have been created on press
-      this.last = undefined;
       this.last_point = undefined;
-      this.selection.active = false;
-      this.canvas_zndx = -1; 
   }
   
  
-  /**
-   * Called when a selection operation ends. Checks to see if this selection intersects with any subdrafts and 
-   * merges and or splits as required. 
-   */
-  processSelection(){
-
-    this.closeSnackBar();
-
-    //create the selection as subdraft
-    const bounds:Bounds = this.getSelectionBounds(this.selection.start,  this.last);    
-    
-    
-    this.createSubDraft(initDraftWithParams({wefts: bounds.height/this.zs.zoom, warps: bounds.width/this.zs.zoom}), -1)
-    .then(sc => {
-      sc.setPosition(bounds.topleft);
-      //const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(sc);
-      const isect = [];
-      if(isect.length === 0){
-        this.addTimelineState();
-        return;
-      } 
-
-       //get a draft that reflects only the poitns in the selection view
-      // const new_draft: Draft = this.getCombinedDraft(bounds, sc, isect);
-      // this.tree.setDraftOnly(sc.id, new_draft)
-    
-
-    // isect.forEach(el => {
-    //   const ibound = utilInstance.getIntersectionBounds(sc, el);
-
-    //   if(el.isSameBoundsAs(ibound)){
-    //      console.log("Component had same Bounds as Intersection, Consumed");
-    //      this.removeSubdraft(el.id);
-    //   }
-
-    // });
-    })
-    .catch(console.error);
-   
-    
-    
-   
-
-  }
-
 
   /**
    * this function will update any components that should move when the compoment passed by obj moves
@@ -2655,12 +2160,15 @@ drawStarted(){
 
     this.tree.getInputs(id).forEach(cxn => {
        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-       comp.updateToPosition(id, this.zs.zoom);
+       if(comp !== null){
+        const tuple = this.tree.getConnectionOutputWithIndex(cxn);
+        comp.updateToPosition(tuple.id, tuple.inlet, tuple.arr);
+       } 
     });
 
     this.tree.getOutputs(id).forEach(cxn => {
       const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-      comp.updateFromPosition(id, this.zs.zoom);
+      if(comp !== null) comp.updateFromPosition(id);
    });
 
    if(!follow) return;
@@ -2671,9 +2179,9 @@ drawStarted(){
    if(this.tree.getType(moving.id) === "op" ){
 
       outs.forEach((out, ndx) => {
-        const out_comp = <SubdraftComponent> this.tree.getComponent(out);
-        if(this.tree.getType(out_comp.id) === 'draft') out_comp.updatePositionFromParent(moving, ndx);
-        this.updateAttachedComponents(out_comp.id, false);
+        //const out_comp = <SubdraftComponent> this.tree.getComponent(out);
+       // if(this.tree.getType(out_comp.id) === 'draft') out_comp.updatePositionFromParent(moving, ndx);
+        this.updateAttachedComponents(out, false);
       })
 
     
@@ -2683,9 +2191,8 @@ drawStarted(){
     //if this is a draft with a parent, move the parent as well 
     if(this.tree.getType(moving.id) === "draft" && !this.tree.isSibling(moving.id)){
       ins.forEach(input => {
-        const in_comp: OperationComponent = <OperationComponent> this.tree.getComponent(input);
-        in_comp.updatePositionFromChild(moving);
-        this.updateAttachedComponents(in_comp.id, false);
+       // in_comp.updatePositionFromChild(moving);
+        this.updateAttachedComponents(input, false);
       });
     }
       
@@ -2733,6 +2240,8 @@ drawStarted(){
         return this.performAndUpdateDownstream(obj.id)
       } )
       .then(el => {
+        let children = this.tree.getNonCxnOutputs(obj.id);
+        if(children.length > 0) this.revealDraftDetails(children[0]);
         return this.tree.sweepOutlets(obj.id)
       })
       .then(viewRefs => {
@@ -2740,6 +2249,7 @@ drawStarted(){
           this.removeFromViewContainer(el)
         });
         this.addTimelineState();
+        this.refreshViewer.emit();
       })
       .catch(console.error);
    
@@ -2830,7 +2340,6 @@ drawStarted(){
    */
   subdraftMoved(obj: any){
 
-
       if(obj === null) return;
   
       //get the reference to the draft that's moving
@@ -2839,40 +2348,8 @@ drawStarted(){
       if(moving === null) return; 
 
       this.moveAllSelections(obj.id);
-  
-    
+      this.updateAttachedComponents(moving.id, true);
 
-
-      // // this.updateSnackBar("Using Ink: "+moving.ink,null);
-       this.updateAttachedComponents(moving.id, true);
-
-
-      // const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(moving);
-      // const seed_drafts = isect.filter(el => !this.tree.hasParent(el.id)); //filter out drafts that were generated
-
-      // if(seed_drafts.length === 0){
-      //   if(this.tree.hasPreview()) this.removePreview();
-      //   return;
-      // } 
-
-      // const bounds: Bounds = utilInstance.getCombinedBounds(moving, seed_drafts);
-      // const temp: Draft = this.getCombinedDraft(bounds, moving, seed_drafts);
-      
-
-
-      // if(this.tree.hasPreview()) {
-       
-      //   this.tree.setPreviewDraft(temp).then(dn => {
-      //     dn.component.bounds = bounds;
-      //    (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
-      //   });
-      // }else{
-      //   this.createAndSetPreview(temp).then(dn => {
-      //     dn.component.bounds = bounds;
-      //     (<SubdraftComponent> dn.component).setPosition(bounds.topleft)
-      //   }).catch(console.error);
-      // } 
-    
     }
 
 
@@ -2885,152 +2362,21 @@ drawStarted(){
 
     this.closeSnackBar();
 
-     if(obj === null) return;
-     this.updateSelectionPositions(obj.id);
+    if(obj === null) return;
+    this.updateSelectionPositions(obj.id);
 
+    this.addTimelineState();
+    this.tree.unsetPreview();
   
-      //creaet a subdraft of this intersection
-      if(this.tree.hasPreview()){
-
-        const preview_node = this.tree.getPreview();
-        const preview_draft = preview_node.draft;
-        let to_right = (<SubdraftComponent> preview_node.component).getTopleft();
-
-        this.createSubDraft(initDraftWithParams({wefts: wefts(preview_draft.drawdown), warps: warps(preview_draft.drawdown)}), -1)
-        .then(component => {
-          this.tree.setDraftPattern(component.id, preview_draft.drawdown);
-          //this.redrawDirtyDrafts();
-          // to_right.x += preview_node.component.bounds.width + this.zs.zoom *4;
-          // component.setPosition(to_right);
-          component.zndx = this.layers.createLayer();
-          this.removePreview();
-          const interlacement = utilInstance.resolvePointToAbsoluteNdx(component.topleft, this.zs.zoom);
-          this.viewport.addObj(component.id, interlacement);
-          this.addTimelineState();
-          this.tree.unsetPreview();
-        })
-        .catch(console.error);
-
-      } else{
-        this.addTimelineState();
-        this.tree.unsetPreview();
+    //get the reference to the draft that's moving
+    const moving = this.tree.getComponent(obj.id);
+    //const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
+   // this.viewport.updatePoint(moving.id, interlacement);
       
-        //get the reference to the draft that's moving
-        const moving = this.tree.getComponent(obj.id);
-        const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
-        this.viewport.updatePoint(moving.id, interlacement);
-      }
 
 
   }
 
-  /**
-   * merges a collection of subdraft components into the primary component, deletes the merged components
-   * @param primary the draft to merge into
-   * @returns true or false to describe if a merge took place. 
-   */
-  // mergeSubdrafts(primary: SubdraftComponent): boolean{
-
-  //   const isect:Array<SubdraftComponent> = this.getIntersectingSubdrafts(primary);
-
-  //     if(isect.length == 0){
-  //       return false;
-  //     }   
-
-  //     const bounds: Bounds = utilInstance.getCombinedBounds(primary, isect);
-  //     const temp: Draft = this.getCombinedDraft(bounds, primary, isect);
-
-  //     this.tree.setDraftOnly(primary.id, temp);
-  //     primary.setPosition(bounds.topleft);
-  //     //primary.drawDraft();
-  //     const interlacement = utilInstance.resolvePointToAbsoluteNdx(primary.bounds.topleft, this.zs.zoom);
-
-  //     this.viewport.updatePoint(primary.id, interlacement);
-
-
-  //   //remove the intersecting drafts from the view containier and from subrefts
-  //   isect.forEach(element => {
-  //     this.removeSubdraft(element.id);
-  //   });
-  //   return true;
-  // }
-
-  computeHeddleValue(p:Point, main: SubdraftComponent, isect: Array<SubdraftComponent>):boolean{
-    const a:boolean = main.resolveToValue(p);
-    //this may return an empty array, because the intersection might not have the point
-    const b_array:Array<SubdraftComponent> = isect.filter(el => el.hasPoint(p));
-
-    //should never have more than one value in barray
-    // if(b_array.length > 1) console.log("WARNING: Intersecting with Two Elements");
-
-    const val:boolean = b_array.reduce((acc:boolean, arr) => arr.resolveToValue(p), null);   
-    
-    return utilInstance.computeFilter(main.ink, a, val);
-  }
-
-
-
-  // getSubdraftsIntersectingSelection(selection: MarqueeComponent){
-
-  //   //find intersections between main and the others
-  //   const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-  //   const isect:Array<SubdraftComponent> = drafts.filter(sr => (utilInstance.doOverlap(
-  //     selection.bounds.topleft, 
-  //     {x:  selection.bounds.topleft.x + selection.bounds.width, y: selection.bounds.topleft.y + selection.bounds.height}, 
-  //     sr.getTopleft(), 
-  //     {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height}
-  //     ) ? sr : null));
-
-  //   return isect;
-  
-  // }
-
-
- /**
-   * get any subdrafts that intersect a given screen position
-   * @param p the x, y position of this cell 
-   * @returns 
-   */
-  // getIntersectingSubdraftsForPoint(p: any){
-
-  //   const primary_topleft = {x:  p.x, y: p.y };
-  //   const primary_bottomright = {x:  p.x + this.zs.zoom, y: p.y + this.zs.zoom};
-
-  //   const isect:Array<SubdraftComponent> = [];
-  //   const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-  //   drafts.forEach(sr => {
-  //     let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
-  //     const b: boolean = utilInstance.doOverlap(primary_topleft, primary_bottomright, sr.getTopleft(), sr_bottomright);
-  //     if(b) isect.push(sr);
-  //    });
-
-  //   return isect;
-  // }
-
-  /**
-   * get any subdrafts that intersect primary based on checks on their boundaries
-   * @param primary 
-   * @returns 
-   */
-  // getIntersectingSubdrafts(primary: SubdraftComponent){
-
-  //   const primary_draft = this.tree.getDraft(primary.id);
-  //   const drafts:Array<DraftNode> =  this.tree.getDraftNodes(); 
-  //   const to_check:Array<DraftNode> =  drafts.filter(sr => (sr.draft.id.toString() !== primary_draft.id.toString()));
-  //   const primary_bottomright = {x:  primary.getTopleft().x + primary.bounds.width, y: primary.getTopleft().y + primary.bounds.height};
-
-
-  //    const isect:Array<SubdraftComponent> = [];
-  //    to_check
-  //    .map(el => <SubdraftComponent> this.tree.getComponent(el.id))
-  //    .forEach(sr => {
-  //     let sr_bottomright = {x: sr.getTopleft().x + sr.bounds.width, y: sr.getTopleft().y + sr.bounds.height};
-  //     const b: boolean = utilInstance.doOverlap(primary.getTopleft(), primary_bottomright, sr.getTopleft(), sr_bottomright);
-  //     if(b) isect.push(sr);
-  //    });
-
-  //   return isect;
-  // }
 
   getSelectionBounds(c1: any, c2: any): Bounds{
       let bottomright = {x: 0, y:0};
@@ -3040,19 +2386,19 @@ drawStarted(){
         height: 0
       }
       if(c1.i < c2.i){
-        bounds.topleft.y = c1.i * this.zs.zoom;
-        bottomright.y = c2.i * this.zs.zoom;
+        bounds.topleft.y = c1.i * this.zs.getMixerZoom();
+        bottomright.y = c2.i * this.zs.getMixerZoom();
       }else{
-        bounds.topleft.y = c2.i * this.zs.zoom;
-        bottomright.y = c1.i * this.zs.zoom;
+        bounds.topleft.y = c2.i * this.zs.getMixerZoom();
+        bottomright.y = c1.i * this.zs.getMixerZoom();
       }
 
       if(c1.j < c2.j){
-        bounds.topleft.x = c1.j * this.zs.zoom;
-        bottomright.x = c2.j * this.zs.zoom;
+        bounds.topleft.x = c1.j * this.zs.getMixerZoom();
+        bottomright.x = c2.j * this.zs.getMixerZoom();
       }else{
-        bounds.topleft.x = c1.j * this.zs.zoom;
-        bottomright.x = c2.j * this.zs.zoom;
+        bounds.topleft.x = c1.j * this.zs.getMixerZoom();
+        bottomright.x = c2.j * this.zs.getMixerZoom();
       }
 
       bounds.width = bottomright.x - bounds.topleft.x;
@@ -3061,36 +2407,6 @@ drawStarted(){
       return bounds;
   }
 
-      /**
-     * creates a draft in size bounds that contains all of the computed points of its intersections
-     * @param bounds the boundary of all the intersections
-     * @param primary the primary draft that we are checking for intersections
-     * @param isect an Array of the intersecting components
-     * @returns 
-     */
-       getCombinedDraft(bounds: Bounds, primary: SubdraftComponent, isect: Array<SubdraftComponent>):Draft{
-  
-        const primary_draft = this.tree.getDraft(primary.id);
-
-        const temp: Draft = initDraftWithParams({
-          id: primary_draft.id, 
-          gen_name: getDraftName(primary_draft), 
-          warps: Math.floor(bounds.width / this.zs.zoom), 
-          wefts: Math.floor(bounds.height / this.zs.zoom)});
-    
-        for(var i = 0; i < wefts(temp.drawdown); i++){
-          const top: number = bounds.topleft.y + (i * this.zs.zoom);
-          for(var j = 0; j < warps(temp.drawdown); j++){
-            const left: number = bounds.topleft.x + (j * this.zs.zoom);
-    
-            const p = {x: left, y: top};
-            const val = this.computeHeddleValue(p, primary, isect);
-            if(val != null) temp.drawdown[i][j] = setCellValue(temp.drawdown[i][j], val);
-            else setCellValue(temp.drawdown[i][j], null);
-          }
-        }
-        return temp;
-      }
 
 
 
@@ -3099,35 +2415,33 @@ drawStarted(){
        * @param obj 
        * @returns 
        */
-  getPrintableCanvas(obj): HTMLCanvasElement{
+  // getPrintableCanvas(obj): HTMLCanvasElement{
 
-    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-    drafts.forEach(sd => {
-      sd.drawForPrint(this.canvas, this.cx, this.zs.zoom);
-    });
+  //   this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  //   const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
+  //   drafts.forEach(sd => {
+  //     sd.drawForPrint(this.canvas, this.cx, this.zs.zoom);
+  //   });
 
-    const ops: Array<OperationComponent> = this.tree.getOperations();
-    ops.forEach(op => {
-      op.drawForPrint(this.canvas, this.cx, this.zs.zoom);
-    });
+  //   const ops: Array<OperationComponent> = this.tree.getOperations();
+  //   ops.forEach(op => {
+  //     op.drawForPrint(this.canvas, this.cx, this.zs.zoom);
+  //   });
 
-    const cxns: Array<ConnectionComponent> = this.tree.getConnections();
-    cxns.forEach(cxn => {
-      cxn.drawForPrint(this.canvas, this.cx, this.zs.zoom);
-    });
+  //   const cxns: Array<ConnectionComponent> = this.tree.getConnections();
+  //   cxns.forEach(cxn => {
+  //     cxn.drawForPrint(this.canvas, this.cx, this.zs.zoom);
+  //   });
 
-    // this.note_components.forEach(note =>{
-    //   note.drawForPrint(this.canvas, this.cx, this.scale);
-    // })
+  //   // this.note_components.forEach(note =>{
+  //   //   note.drawForPrint(this.canvas, this.cx, this.scale);
+  //   // })
 
-    return this.canvas;
+  //   return this.canvas;
 
-  }
+  // }
 
-  clearCanvas(){
-    this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
+
 
   // redrawOpenModals(){
   //   const comps = this.tree.getDrafts();
@@ -3141,7 +2455,7 @@ drawStarted(){
   redrawAllSubdrafts(){
       const comps = this.tree.getDrafts();
       comps.forEach(sd => {
-        sd.redrawExistingDraft();
+        if(sd !== null && sd!== undefined) sd.redrawExistingDraft();
       })
     }
   }
