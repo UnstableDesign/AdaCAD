@@ -97,7 +97,6 @@ export class UploadFormComponent implements OnInit {
 
   
   upload() {
-    console.log("UPLOAD SINGLE", this.type)
 
     this.uploading = true;
 

@@ -10,4 +10,8 @@ export class WelcomeComponent {
   constructor(public dialogRef: MatDialogRef<WelcomeComponent>) { 
     
   }
+
+  loadOlderBeta(){
+    window.location.href = "https://adacad-beta-fa4dc.web.app/";
+  }
 }

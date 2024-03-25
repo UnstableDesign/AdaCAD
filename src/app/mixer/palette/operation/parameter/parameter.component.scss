@@ -1,90 +1,75 @@
 
 
-.param-row{
-    display: flex;
-    vertical-align:middle;
-    flex-direction: row;
-    text-align: left;
-    width: 100%;
-    padding:.25em 0em 0em 0.5em;
-    font-size: 1.5em;
-    gap: 10px;
-}
+// .param-row{
+//     display: flex;
+//     vertical-align:middle;
+//     flex-direction: row;
+//     text-align: left;
+//     width: 100%;
+//     padding:.25em 0em 0em 0.5em;
+//     gap: 10px;
+// }
 
-.number_input{
-    display: flex;
-    flex-direction: column;
+
+.mat-mdc-form-field-hint-wrapper{
     color: white;
-    height: fit-content;
-
+    font-size: 18px;
+    padding-top: 2px;
 }
 
-.number-label,
-.select-label,
-.boolean-label,
-.string-label{
-    color: white;
-    height: fit-content;
-    font-size: .8em;
-    font-size: 1.2em;
+.mat-mdc-form-field-error{
+    color: black;
+    font-size: 18px;
 }
 
-.boolean-input{
-    display: flex;
-    flex-direction: column;
-    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-slide-toggle-bar{
-        position: relative;
-        width: 30px !important;
-        height: 15px !important;
-        flex-shrink: 0;
-        border-radius: 6px;
-    }
-    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-slide-toggle-content {
-        font-size: 1.2;
-    }
-    /* TODO(mdc-migration): The following rule targets internal classes of slide-toggle that may no longer apply for the MDC version.*/
-    .mat-slide-toggle-thumb {
-        height: 18px !important;
-        width: 18px !important;
-    }
+// .mat-mdc-select-value {
+//     width: 100%;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//     white-space: nowrap;
+//     color: black;
+//     font-size: 18px;
+// }
 
+.mat-mdc-select-trigger {
+    font-weight: bold;
 }
 
-
-.select-input{
-    margin-right: 20px;
-    flex-grow: 2;
-    display: flex;
-    flex-direction: column;
-    color: white;
-    height: fit-content;
-    width: fit-content;
-
-   .mat-mdc-select {
-        height: 100%;
-        align-content: baseline;
-        flex-basis: 0;
-        color: white;
-        font-weight: bolder;
-        font-size: 1.5em;
-    }
-
-    /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
-    .mat-select-arrow{
-        color: white;
-    }
-    /* TODO(mdc-migration): The following rule targets internal classes of option that may no longer apply for the MDC version.*/
-    .mat-option-text{
-
-    }
+.mat-mdc-form-field-infix {
+    font-size: 18px;
+    font-weight: bold;
+    min-width:  max-content;
 }
+
+// .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label{
+//     font-size: 24px;
+// }
+
+
+// .select-input{
+
+
+//    .mat-mdc-select {
+//         height: 100%;
+//         align-content: baseline;
+//         flex-basis: 0;
+//         font-weight: bolder;
+//         font-size: 1.5em;
+//     }
+
+//     /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
+//     .mat-select-arrow{
+//         color: white;
+//     }
+//     /* TODO(mdc-migration): The following rule targets internal classes of option that may no longer apply for the MDC version.*/
+//     .mat-option-text{
+//         width: fit-content;
+//     }
+// }
 
 
 .file-input-param{
-    width: fit-content;
-    flex-grow: 4;
+
 
     .form-and-image{
         display: flex;
@@ -92,7 +77,6 @@
     }
 
     .upload-form-box{
-        flex-grow: 4;
         width: fit-content;
         height: fit-content;
     }
@@ -103,132 +87,40 @@
 
     .has_image{
         height: max-content;
+        padding: 12px;
     }
 }
 
 
 
-.string-input{
-    margin-right: 20px;
-    flex-grow: 2;
-    display: flex;
-    flex-direction: column;
-    color: white;
-    height: fit-content;
-    width: 100%;
-
-    .string-and-refresh{
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-    }
-
-    .param-text{
-        font-size: 1.2em;
-        font-weight: bolder;
-        font-size: 1.5em;
-    }
 
 
 
-    .refresh,
-    .mat-mdc-icon-button{
-        color: white;
-        top: -1px;
-        font-size: 1.2em;
-        width: fit-content;
-    }
-    
-    .dirty{
-        color: rgb(255, 64, 129) !important; 
-    }
-  
-}
-
-
-
-
-
-
-
-
-
-
-
-.param-slider{
-    width: 50%;
-}
-
-.param-select{
-    width: 70%;
-    text-align: left;
-    position: relative;
-    left: 10px;
-
-}
-
-
-
-// .param-label{
-//     width: 60px;
+// .param-inputs{
+//     min-width: 75%;
+//     overflow: visible;
+//     text-align: left;
+//     margin-left: 6px;
 // }
 
-// .param-row input{
-//     width: 60px;
+
+
+// button.is-primary.is-active{
+//     background-color: rgb(255, 64, 129);
 // }
 
-// .param-row .param-text input{
-//     width: 100%;
+
+
+// .text-err,
+// .error{
+//     color:  rgb(255, 64, 129);
 // }
 
-.input-color{
-    width: 30px;
-    height: 30px;
-    border: thin solid white;
-}
-
-
-.param-toggle{
-    width: 70%;
-    text-align: left;
-    position: relative;
-    left: 10px;
-    overflow: hidden;
-}
-
-.param-inputs{
-    min-width: 75%;
-    overflow: visible;
-    text-align: left;
-    margin-left: 6px;
-}
-
-.mat-mdc-slider{
-    height: 40px;
-    padding: 0px;
-}
-
-.mat-mdc-icon-button{
-    position: relative;
-    top: -9px;
-}
-
-button.is-primary.is-active{
-    background-color: rgb(255, 64, 129);
-}
-
-
-
-.text-err,
-.error{
-    color:  rgb(255, 64, 129);
-}
-
-.inputs{
-    display: flex;
-    justify-content: flex-start;
-    text-align: center;
-}
+// .inputs{
+//     display: flex;
+//     justify-content: flex-start;
+//     text-align: center;
+// }
 
 
 
@@ -236,16 +128,16 @@ button.is-primary.is-active{
 
 
 
-.slider-label,
-.param-name{
-    font-size: 11pt;
-    font-weight: bold;
-    color: #ddd;
-    text-overflow: ellipsis;
-}
+// .slider-label,
+// .param-name{
+//     font-size: 11pt;
+//     font-weight: bold;
+//     color: #ddd;
+//     text-overflow: ellipsis;
+// }
 
-.stringandrefresh{
-    display: flex;
-    flex-direction: row;
-}
+// .stringandrefresh{
+//     display: flex;
+//     flex-direction: row;
+// }
 

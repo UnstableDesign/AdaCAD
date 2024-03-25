@@ -28,10 +28,10 @@ const selection: NumParam =
 
 const download: BoolParam = 
     {
-    name: 'download all',
+    name: 'download?',
     type: 'boolean',
-    falsestate: '',
-    truestate: 'downloading',
+    falsestate: 'no',
+    truestate: 'yes',
     value: 0,
     dx: "when this is set to true, it will trigger download of an image of the whole set everytime it recomputes, this may result in multiple downloads"
     }

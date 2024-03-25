@@ -1,7 +1,8 @@
 
-<h2 mat-dialog-title>Select Your Version</h2>
+<h2 mat-dialog-title>We've been making changes to our Beta Release!</h2>
 <mat-dialog-content>
-  <p>We've been making changes to our Beta Release!</p>
+  <p> The newest version of our beta has a significant interface redesign that is intended to help make it more understandable by beginners. We are in the process of moving all features of the old beta into the new beta. You can still use the old beta, but we will no longer make updates to it. Questions and comments are always welcome via <a href="https://groups.google.com/g/adacad-forum">the AdaCAD forum</a> or <a href="https://github.com/UnstableDesign/AdaCAD/issues">Github</a></p>
+ 
   <div class="container">
     <div class="left">
       Would you like to use the newest beta release (currently loaded)
@@ -9,14 +10,14 @@
 
     </div>
     <div class="right">
-      Or would you prefer to use the older beta release?
-      <button mat-raised-button >Use Older Beta</button>
+      Or, would you prefer to use the older beta release?
+      <button mat-raised-button (click)="loadOlderBeta()" >Use Older Beta</button>
     </div>
   </div>
-<p>questions and comments are always welcome via <a href="https://groups.google.com/g/adacad-forum">the AdaCAD forum</a> or <a href="https://github.com/UnstableDesign/AdaCAD/issues">Github</a></p>
+
 
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button >Close</button>
+  <button mat-button mat-dialog-close >Close</button>
 </mat-dialog-actions>
 

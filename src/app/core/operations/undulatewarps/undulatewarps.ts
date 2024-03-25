@@ -12,7 +12,7 @@ const old_names = [];
 const shift_pattern:StringParam =  
     {name: 'undulation pattern',
     type: 'string',
-    regex: /(\d+)/,
+    regex: /^(\d+\s)*\d+\s*$/i,
     value: '1 1 1 2 2 3',
     error: '',
     dx: 'shifts each end of the input draft according to the number sequence specified.'

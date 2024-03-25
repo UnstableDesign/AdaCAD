@@ -149,18 +149,13 @@ button.cxn{
     background-color: #fff;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
-.mat-select-value{
-    color: #fff !important;
-}
 
-
-.inlet-label{
-    color: #fff;
-    line-height: 30px;
-    display: flex;
-    padding-right: 6px;
-}
+// .inlet-label{
+//     color: #fff;
+//     line-height: 30px;
+//     display: flex;
+//     padding-right: 6px;
+// }
 
 
 // .param-image{
@@ -213,15 +208,16 @@ button.is-primary.is-active{
 .params{
         display: flex;
         flex-direction: row;
-        padding: 16px 8px;
+        padding: 16px;
         width: 100%;
         gap: 16px;
+        font-size: 14px;
+        flex: 1 1 auto;
 
 
 }
 
 .param{
-    padding: 0px 8px;
     display: flex;
 }
 

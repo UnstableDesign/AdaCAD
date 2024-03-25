@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
-import { AbstractControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { BoolParam, FileParam, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
 import { ImageService } from '../../../../core/provider/image.service';
+import { map, startWith } from 'rxjs/operators';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -88,7 +89,12 @@ export class ParameterComponent implements OnInit {
 
         case 'string':
           this.stringparam = <StringParam> this.param;
-          this.fc = new UntypedFormControl(this.stringparam.value, [Validators.required, regexValidator((<StringParam>this.param).regex)]);
+         // this.fc = new UntypedFormControl(this.stringparam.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
+          this.fc = new UntypedFormControl(this.stringparam.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
+    
+          this.fc.valueChanges.forEach(el => {this._updateString(el.trim())})
+
+    
           break;
 
         case 'notation_toggle':
@@ -104,9 +110,16 @@ export class ParameterComponent implements OnInit {
        
       }
 
+
+
    
   
 
+  }
+
+  _updateString(val: string){
+    this.onParamChange(val);
+    return val;
   }
 
 
@@ -143,8 +156,8 @@ export class ParameterComponent implements OnInit {
       case 'string':
         if(value == null) value = '';
         opnode.params[this.paramid] = value;
-        this.fc.setValue(value);
-        if(!this.fc.hasError('forbiddenInput'))this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
+        //this.fc.setValue(value); //this is being handled in the form input
+        if(!this.fc.hasError('pattern'))this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
         break;
 
       case 'select':

@@ -1,9 +1,15 @@
 .upload-container{
     display: flex;
     flex-direction: row;
+    align-items: center;
+    gap: 18px;
 }
 
-.progress-bar,
-.upload-button{
-    width: 90px;
+.upload_field{
+    width: 300px;
 }
+
+// .progress-bar,
+// .upload-button{
+//     width: 100%;
+// }

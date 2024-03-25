@@ -34,6 +34,9 @@ export class ViewerComponent {
   vis_mode: string = 'color'; //sim, draft, structure, color
   view_expanded: boolean = false;
 
+  warps: number = 0;
+  wefts: number = 0;
+
 
   constructor(
     public auth: AuthService,
@@ -114,6 +117,14 @@ getVisVariables(){
    */
   redraw(id: number){
     let vars = this.getVisVariables();
+    const draft = this.tree.getDraft(id);
+    if(draft !== null){
+    this.warps = warps(draft.drawdown);
+    this.wefts = wefts(draft.drawdown);
+    }else{
+      this.warps = 0;
+      this.wefts = 0;
+    }
     if(this.vis_mode != 'sim') this.drawDraft(id, vars. floats, vars.use_colors);        
     else this.sim.loadNewDraft(this.id);
   }

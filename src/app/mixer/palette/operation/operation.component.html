@@ -60,6 +60,12 @@ cdkDragBoundary=".palette"
         
         </mat-menu>
        
+        <button mat-icon-button
+        [matMenuTriggerFor]="editOptions"
+        class="is-small fa-solid fa-ellipsis"
+        matTooltip ="View Options">
+        </button>
+
         <button 
         mat-icon-button
         (click)="delete()">
@@ -67,11 +73,7 @@ cdkDragBoundary=".palette"
 
         </button>
 
-        <button mat-icon-button
-        [matMenuTriggerFor]="editOptions"
-        class="is-small fa-solid fa-ellipsis"
-        matTooltip ="View Options">
-        </button>
+  
 
       </div>
 

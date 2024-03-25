@@ -8,10 +8,16 @@
 
 .inlet_connector{
     display: flex;
+    flex-direction: row;
+    align-items: center;
+
 }
 
 .open_inlet{
     font-size: 1.5em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     
 }
 
@@ -21,78 +27,32 @@
 
 .has_connection{
     font-size: 1.5em;
-
     background-color: black;
     color: white;
     margin-right: 12px;
 }
 
 
-// button.input{
-//     position: relative;
-// 	background-color: #333333;
-// 	color: rgb(68, 61, 61);
-// 	border: 1px solid white;
-//     display: flex;
-//     flex-direction: row;
-//     border-bottom: none;
-
-//     .inlet_arrow{
-//        margin-right: 4px;
-//     }
-// }
-
-
-
-// button.open_inlet,
-// button.toggle_visibility{
-//     background-color: transparent;
-//     border: none;
-     
-//     i{
-//         position: relative;
-//         top: -9px;
-//         font-size: 36px;
-//     }
-// }
-
-// button.open_inlet i{
-//     color: black;
-// }
-// button.toggle_visibility i{
-//     color: #ff3860;
-// }
-
-
-
-
-
-// button.open_inlet:active,
-// button.open_inlet:hover,
-// button.toggle_visibility:active,
-// button.toggle_visibility:hover{
-//     i{
-//         color:#ff3860;
-//     }
-// }
-
-.inlet_type{
-    display: inline-block;
-    padding-left: 8px;
-    font-size: 14px;
-}
-
 .inlet_block{
     display: flex;
     flex-direction: row;
     padding-right: 12px;
-    align-items: flex-end;
     position: relative;
     top: -24px;
 }
 
+.inlet_block  .mat-mdc-raised-button{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
 
 
+.input-color{
+    width: 30px;
+    height: 15px;
+    border: thin solid white;
+}
 
 
 
@@ -110,10 +70,6 @@
     background-color: #fff;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
-.mat-select-value{
-    color: #fff !important;
-}
 
 input{
     width: 35px;

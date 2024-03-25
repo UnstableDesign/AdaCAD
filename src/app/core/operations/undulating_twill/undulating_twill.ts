@@ -12,7 +12,7 @@ const old_names = [];
 const string_input:StringParam =  
     {name: 'first pic pattern',
     type: 'string',
-    regex: /(\d+)/,
+    regex: /^(\d+\s)*\d+\s*$/i,
     value: '1 3 1 3',
     error: '',
     dx: 'the under over pattern of this twill'
@@ -21,7 +21,7 @@ const string_input:StringParam =
 const shift_pattern:StringParam =  
     {name: 'shift pattern',
     type: 'string',
-    regex: /(\d+)/,
+    regex: /^(\d+\s)*\d+\s*$/i,
     value: '1 1 1 2 2 3',
     error: '',
     dx: 'shifts the starting row by the amount specified on each subsequent pic to create undulating patterns'

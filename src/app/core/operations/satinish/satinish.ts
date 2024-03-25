@@ -11,7 +11,7 @@ const old_names = [];
 const string_input:StringParam =  
     {name: 'pattern',
     type: 'string',
-    regex: /(\d+)/,
+    regex: /^(\d+\s)*\d+\s*$/i,
     value: '2 2 3 3',
     error: '',
     dx: 'the under over pattern of this twill'

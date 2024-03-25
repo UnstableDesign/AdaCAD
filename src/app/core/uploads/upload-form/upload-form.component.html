@@ -1,8 +1,12 @@
 <div class="upload-container">
+   <mat-form-field>
+      <input class="upload_field" matInput type="file" [multiple]="multiple" [accept]="accepts" (change)="detectFiles($event)">
+      <div *ngIf="uploading" class="progress-bar">
+         <mat-progress-bar mode="determinate" [value]="upSvc.progress"></mat-progress-bar>
+      </div>
 
-   <label>
-      <input type="file" [multiple]="multiple" [accept]="accepts" (change)="detectFiles($event)">
-   </label>
+      <mat-hint>choose a file to upload</mat-hint>
+   </mat-form-field>
 
    <div *ngIf="!uploading" class="upload-button">
       <button mat-raised-button
@@ -12,8 +16,6 @@
             Upload
       </button>
    </div>
-   <div *ngIf="uploading" class="progress-bar">
-      <mat-progress-bar mode="determinate" [value]="upSvc.progress"></mat-progress-bar>
-   </div>
+
 </div>
 <canvas #uploadImage class="hidden"></canvas>

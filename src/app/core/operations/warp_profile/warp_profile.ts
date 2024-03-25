@@ -15,7 +15,7 @@ const pattern:StringParam =
     {name: 'pattern',
     type: 'string',
     value: 'a b c a b c',
-    regex: /\S+/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+    regex: /\S+/, 
     error: 'invalid entry',
     dx: 'all entries must be letters separated by a space'
   }
