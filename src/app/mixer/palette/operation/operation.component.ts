@@ -316,6 +316,10 @@ export class OperationComponent implements OnInit {
 
   }
 
+  openInEditor(){
+    console.log("OPEN HIT ")
+  }
+
 
 
   /**
@@ -494,6 +498,9 @@ export class OperationComponent implements OnInit {
     this.onOperationMove.emit({id: this.id, point: this.topleft});
 
   }
+
+
+
 
 
   dragEnd($event: any) {

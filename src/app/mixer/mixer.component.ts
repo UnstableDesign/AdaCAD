@@ -55,30 +55,20 @@ export class MixerComponent  {
   @Output() refreshViewer: any = new EventEmitter();
 
 
-  origin_options: any = null;
-    
+  origin_options: any = null; 
   loading: boolean = false;
-  
   manual_scroll: boolean = false;
-  
   scrollingSubscription: any;
-
   selected_nodes_copy: any = null;
 
 
   /** variables for operation search */
 
   classifications: any = [];
-  
   op_tree: any = [];
-
   filteredOptions: any = [];
-  
   myControl: FormControl;
-  
   search_error: any; 
-
-
 
   /// ANGULAR FUNCTIONS
   /**
@@ -105,14 +95,12 @@ export class MixerComponent  {
     ) {
 
       this.myControl = new FormControl();
-
    
-    this.classifications = this.op_desc.getOpClassifications();
+      this.classifications = this.op_desc.getOpClassifications();
 
-    this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
+      this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
 
-    this.op_tree = this.makeOperationsList();
- 
+      this.op_tree = this.makeOperationsList();
   }
 
 

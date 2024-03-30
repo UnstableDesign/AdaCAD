@@ -194,6 +194,8 @@ export class DraftrenderingComponent {
   drawWarpData(draft: Draft) : Promise<boolean>{
     // set the width and height
 
+    console.log("DRAW WARP DATA ", draft)
+
     draft =  this.tree.getDraft(this.id);
     let cell_size = this.calculateCellSize(draft);
 
