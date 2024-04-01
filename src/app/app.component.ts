@@ -263,7 +263,7 @@ export class AppComponent implements OnInit{
         break;
       case 'mixer':
         this.editor.onClose();
-        this.mixer.onFocus();
+        this.mixer.onFocus(this.selected_draft_id);
 
       //  this.mixer.recenterViews();
         break;
@@ -1088,7 +1088,7 @@ saveFile(){
 
 setDraftsViewable(val: boolean){
   this.ws.hide_mixer_drafts = val;
-  this.mixer.onFocus();
+  this.mixer.redrawAllSubdrafts();
 }
 
 openInEditor(id: number){
@@ -1178,8 +1178,9 @@ showDraftDetails(id: number){
   updateMixer(){
   }
 
-    /**
+  /**
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
+   * this also needs to trigger a redraw within the mixer, but we don't want to do that if the mixer isn't visible
    */
   onRefreshViewer(){
     this.viewer.redraw(this.selected_draft_id);

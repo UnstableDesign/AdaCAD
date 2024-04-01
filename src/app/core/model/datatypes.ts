@@ -862,6 +862,14 @@ export type Example = {
   desc: string
 }
 
+export type DraftCellColor = {
+  id: string,
+  r: number,
+  g: number,
+  b: number,
+  a: number
+}
+
 
 
 

@@ -1,7 +1,7 @@
 import { drawdown } from "../operations/drawdown/drawdown";
 import { createCell, getCellValue, setCellValue } from "./cell";
-import { Draft, Drawdown, YarnFloat, Cell, CompressedDraft, Material } from "./datatypes";
-import { defaults } from "./defaults";
+import { Draft, Drawdown, YarnFloat, Cell, CompressedDraft, Material, DraftCellColor } from "./datatypes";
+import { defaults, rendering_color_defaults } from "./defaults";
 import utilInstance from "./util";
 
 /**
@@ -398,125 +398,82 @@ export const createDraft = (
    
   }
 
+  /**
+   * when drafts are rendered to the screen they are drawn pixel by pixel to an Image element and rendered on the canvas. This is a much faster process than drawing as lines and shapes on a canvas. 
+   * @param draft the draft we will convert to an image
+   * @param pix_per_cell the maximum cell size for each interlacement, calculated based on draft size and maximum canvas dimensions
+   * @param floats boolean to render cells of the same value as floats (rather than bounded cells)
+   * @param use_color boolean to render the color of the yarn
+   * @param mats an array of the materials currently in use in the workspace
+   * @returns 
+   */
   export const getDraftAsImage = (draft: Draft, pix_per_cell: number, floats: boolean, use_color: boolean, mats: Array<Material>) : ImageData => {
 
-    console.log("GET DRAFT AS IMAGE ")
 
     pix_per_cell = Math.floor(pix_per_cell);
-    
+
+    const warp_num = warps(draft.drawdown)
     const length = wefts(draft.drawdown) * warps(draft.drawdown) * Math.pow(pix_per_cell, 2) * 4;
-    const uint8c = new Uint8ClampedArray(length);
+    let uint8c = new Uint8ClampedArray(length);
 
-    for(let i = 0; i < wefts(draft.drawdown) * pix_per_cell; i++){
-      for(let j = 0; j < warps(draft.drawdown) * pix_per_cell; j++){
-       
-        let array_ndx = (i * (warps(draft.drawdown) * pix_per_cell) + j) * 4;
-        let adj_i = Math.floor(i / pix_per_cell);
-        let adj_j = Math.floor(j / pix_per_cell);
+    for(let i = 0; i < wefts(draft.drawdown); i++){
+      for(let j = 0; j < warps(draft.drawdown); j++){
 
-
-        let cell_val = getCellValue(draft.drawdown[adj_i][adj_j]);
+        let cell_val = getCellValue(draft.drawdown[i][j]);
        
         let warp_float = false;
-        if(adj_i > 0 && cell_val === getCellValue(draft.drawdown[adj_i-1][adj_j])){
+        if(i > 0 && cell_val === getCellValue(draft.drawdown[i-1][j])){
           warp_float = true;
         }
 
         let weft_float = false;
-        if(adj_j > 0 && cell_val === getCellValue(draft.drawdown[adj_i][adj_j-1])){
+        if(j > 0 && cell_val === getCellValue(draft.drawdown[i][j-1])){
           weft_float = true;
         }
+
+
+        // let is_weftwise_edge = 
+        // (i % pix_per_cell == 0) || 
+        // (i ==  wefts(draft.drawdown) * pix_per_cell -1);
+
+        // let is_warpwise_edge = 
+        // (j % pix_per_cell == 0) ||
+        // (j ==  warps(draft.drawdown) * pix_per_cell -1);
         
+       let weft_mat: Material = mats.find(el => el.id == draft.rowShuttleMapping[i]);
+       let warp_mat: Material = mats.find(el => el.id == draft.colShuttleMapping[j]);
+       let warp_col: DraftCellColor;
+       let weft_col: DraftCellColor;
+       if(warp_mat !== undefined){
+        warp_col= {
+          id: 'warp', 
+          r: warp_mat.rgb.r, 
+          g: warp_mat.rgb.g,
+          b: warp_mat.rgb.b,
+          a: 255};
+       }else{
+        warp_col = rendering_color_defaults[0];
+       }
 
-        let is_weftwise_edge = 
-        (i % pix_per_cell == 0) || 
-        (i ==  wefts(draft.drawdown) * pix_per_cell -1);
+       if(weft_mat !== undefined){
+        weft_col= {
+          id: 'weft', 
+          r: weft_mat.rgb.r, 
+          g: weft_mat.rgb.g,
+          b: weft_mat.rgb.b,
+          a: 255};
+       }else{
+        weft_col = rendering_color_defaults[0];
+       }
 
-        let is_warpwise_edge = 
-        (j % pix_per_cell == 0) ||
-        (j ==  warps(draft.drawdown) * pix_per_cell -1);
-
+       if(!floats && !use_color){
+        uint8c = drawDraftViewCell(uint8c, i, j, cell_val, pix_per_cell,warp_num, use_color, warp_col, weft_col)
+       }
+       else {
+        uint8c = drawFloatViewCell(uint8c, i, j, cell_val, pix_per_cell,warp_num, use_color, warp_col, weft_col)
+       }
+       
         
-        if((is_weftwise_edge || is_warpwise_edge) && pix_per_cell > 4 && (!use_color && !floats)){
-            uint8c[array_ndx] = 150;
-            uint8c[array_ndx+1] = 150;
-            uint8c[array_ndx+2] = 150;
-            uint8c[array_ndx+3] = 255;
-            // array_vals.push(150);
-            // array_vals.push(150);
-            // array_vals.push(150);
-            // array_vals.push(255);
-          
-
-        }else if(cell_val){
-         
-          let mat: Material = mats.find(el => el.id == draft.colShuttleMapping[adj_j]);
-          if(floats && mat !== undefined){
-            
-            if(pix_per_cell > 4 && (is_warpwise_edge || (is_weftwise_edge && !warp_float))){
-              uint8c[array_ndx] = 150;
-              uint8c[array_ndx+1] = 150;
-              uint8c[array_ndx+2] = 150;
-              uint8c[array_ndx+3] = 255;
-
-            
-            }else{
-  
-              if(!use_color){
-                uint8c[array_ndx] = 255;
-                uint8c[array_ndx+1] = 255;
-                uint8c[array_ndx+2] = 255;
-                uint8c[array_ndx+3] = 255;
-
-              }else{
-                uint8c[array_ndx] = mat.rgb.r;
-                uint8c[array_ndx+1] = mat.rgb.g;
-                uint8c[array_ndx+2] = mat.rgb.b;
-                uint8c[array_ndx+3] = 255;
-              }
-              
-            }
-
-          }else{
-            uint8c[array_ndx] = 0;
-            uint8c[array_ndx+1] = 0;
-            uint8c[array_ndx+2] = 0;
-            uint8c[array_ndx+3] = 255;
-          }
-
-        }else{
-          //weft over warp or weft unset
-          let mat: Material = mats.find(el => el.id == draft.rowShuttleMapping[adj_i]);
-          if(mat !== undefined && floats){    
-
-            if(pix_per_cell > 4 && (is_weftwise_edge || (is_warpwise_edge && !weft_float))){
-              uint8c[array_ndx] = 150;
-              uint8c[array_ndx+1] = 150;
-              uint8c[array_ndx+2] = 150;
-              uint8c[array_ndx+3] = 255;
-            
-            }else{
-
-              if(!use_color){
-                uint8c[array_ndx] = 255;
-                uint8c[array_ndx+1] = 255;
-                uint8c[array_ndx+2] = 255;
-                uint8c[array_ndx+3] = 255;
-
-              }else{
-                uint8c[array_ndx] = mat.rgb.r;
-                uint8c[array_ndx+1] = mat.rgb.g;
-                uint8c[array_ndx+2] = mat.rgb.b;
-                uint8c[array_ndx+3] = 255;
-              }
-            }
-          }else{
-            uint8c[array_ndx] = 255;
-            uint8c[array_ndx+1] = 255;
-            uint8c[array_ndx+2] = 255;
-            uint8c[array_ndx+3] = 255;
-          }
-        } 
       }
     }
 
@@ -526,6 +483,169 @@ export const createDraft = (
 
   }
 
+  export const drawDraftViewCell = (arr: Uint8ClampedArray, i: number, j: number, val: boolean, dim: number, warp_num: number, use_color: boolean, warp: DraftCellColor, weft: DraftCellColor) : Uint8ClampedArray => {
+    let color_id = 0; 
+
+    let cols = rendering_color_defaults.concat([warp, weft])
+
+    for(let y = 0; y < dim; y++){
+      for(let x = 0; x < dim; x++){
+
+        let row_factor =  (i * Math.pow(dim, 2) * 4 * warp_num)+(y*dim * 4 * warp_num);
+        let col_factor =  (j * 4 * dim)+(x*4);
+
+        let ndx = row_factor + col_factor;
+
+        //make anything on an edge grey
+        if(y == 0 || y == dim -1 || x == 0 || x == dim -1){
+          color_id = 3; 
+        }else{
+          switch(val){
+            case true: 
+             if(use_color) color_id = 4;
+             else color_id = 1;
+            break;
+
+            case false: 
+            if(use_color) color_id = 5;
+            else color_id = 0;
+            break
+
+            case null:
+              if(Math.abs(y-x) < 2 ) color_id = 3;
+              else  color_id = 0;
+            break;
+          }
+        }
+        arr[ndx] = cols[color_id].r;
+        arr[ndx+1] = cols[color_id].g;
+        arr[ndx+2] = cols[color_id].b;
+        arr[ndx+3] = cols[color_id].a;
+      }
+    }
+    return arr;
+  }
+
+
+  const drawFloatViewCell = (arr: Uint8ClampedArray, i: number, j: number, val: boolean, dim: number, warp_num: number, use_color: boolean, warp: DraftCellColor, weft: DraftCellColor) : Uint8ClampedArray => {
+    let color_id = 0; 
+
+    let cols = rendering_color_defaults.concat([warp, weft])
+
+       //split the space into 3x3 and do nothing in the corners. 
+       
+    let margin_tl = Math.floor(dim/8);
+    let margin_bl = Math.floor(7*dim/8);
+
+    for(let y = 0; y < dim; y++){
+      for(let x = 0; x < dim; x++){
+
+
+        let row_factor =  (i * Math.pow(dim, 2) * 4 * warp_num)+(y*dim * 4 * warp_num);
+        let col_factor =  (j * 4 * dim)+(x*4);
+
+        let ndx = row_factor + col_factor;
+
+        //top left
+        if(y < margin_tl && x >= 0 && x < margin_tl){
+          color_id = 0;
+        }
+
+        //top center
+        else if(y < margin_tl && x >= margin_tl && x < margin_bl){
+          if(x == margin_tl) color_id = 3;
+          else if(use_color) color_id = 4;
+          else color_id = 0
+        }
+
+        //top right
+        else if(y < margin_tl && x >= margin_bl && x < dim){
+          if(x == margin_bl) color_id = 3;
+          else color_id = 0;
+        }
+
+        /*******/
+
+        //center left
+        else if(y >= margin_tl && y < margin_bl && x >= 0 && x < margin_tl){
+          if(y == margin_tl) color_id = 3;
+          else if(use_color) color_id = 5;
+          else color_id = 0
+        }
+
+        //center center
+        else if(y >= margin_tl && y < margin_bl && x >=margin_tl && x < margin_bl){
+
+    
+          if(val == true || val == null){
+            if(x == margin_tl) color_id = 3;
+            else if(use_color) color_id = 4;
+            else color_id = 0
+          
+          }else{
+            if(y == margin_tl) color_id = 3;
+            else if(use_color) color_id = 5;
+            else color_id = 0
+          }
+
+       
+         }
+
+        //center right
+        else if(y >= margin_tl && y < margin_bl && x >= margin_bl && x < dim){
+          if(y == margin_tl) color_id = 3;
+          else if((val == true || val == null) && x == margin_bl) color_id = 3;
+          else if(use_color) color_id = 5;
+          else color_id = 0
+        }
+
+
+
+        // /*******/
+
+        //bottom left
+        else if(y >= margin_bl && x >= 0 && x < margin_tl){
+          if(y == margin_bl) color_id = 3;
+          else color_id = 0;
+        }
+
+        //bottom center
+        else if(y >= margin_bl && x >= margin_tl && x < margin_bl){
+          if((val == false) && y == margin_bl) color_id = 3;
+          else if(x == margin_tl) color_id = 3;
+          else if(use_color) color_id = 4;
+          else color_id = 0 
+        }
+
+        //bottom right
+        else if(y >= margin_bl && x >=  margin_bl && x <dim){
+          if(x == margin_bl) color_id = 3;
+          else if(y == margin_bl) color_id = 3;
+          else color_id = 0;
+        }
+        else{
+          if(y == margin_bl) color_id = 3;
+          else color_id = 0;
+        }
+            
+        
+     
+        arr[ndx] = cols[color_id].r;
+        arr[ndx+1] = cols[color_id].g;
+        arr[ndx+2] = cols[color_id].b;
+        arr[ndx+3] = cols[color_id].a;
+
+
+      }
+    }
+
+    //draw the separating lines
+    for(let x = 0; x < dim; x++){
+      
+    }
+
+    return arr;
+  }
 
 
   /**

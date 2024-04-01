@@ -192,9 +192,7 @@ export class DraftrenderingComponent {
   }
 
   drawWarpData(draft: Draft) : Promise<boolean>{
-    // set the width and height
 
-    console.log("DRAW WARP DATA ", draft)
 
     draft =  this.tree.getDraft(this.id);
     let cell_size = this.calculateCellSize(draft);
@@ -304,7 +302,6 @@ export class DraftrenderingComponent {
       this.draft_canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
       this.draft_canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
  
-      console.log(" calling from draft rendering")
       let img = getDraftAsImage(draft, cell_size, use_colors, use_colors, this.ms.getShuttles());
       this.draft_cx.putImageData(img, 0, 0);
       this.tree.setDraftClean(this.id);

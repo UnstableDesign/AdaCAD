@@ -4,7 +4,7 @@ import { FormControl, NgForm, UntypedFormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
-import { DesignMode, Draft, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Operation, Point } from '../core/model/datatypes';
+import { DesignMode, Draft, DraftNode, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Operation, Point } from '../core/model/datatypes';
 import { defaults, loom_types } from '../core/model/defaults';
 import { getDraftName, warps, wefts } from '../core/model/drafts';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -20,6 +20,7 @@ import { ViewportService } from './provider/viewport.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { map, startWith } from 'rxjs/operators';
 import { OperationService } from '../core/provider/operation.service';
+import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -214,28 +215,26 @@ onRefreshViewer(){
 }
 
 
-
-  performAndUpdateDownstream(obj_id: number){
-    this.palette.performAndUpdateDownstream(obj_id);
-  }
-
-
-  addOp(event: any){
-    this.palette.addOperation(event)
-  }
+performAndUpdateDownstream(obj_id: number){
+  this.palette.performAndUpdateDownstream(obj_id);
+}
 
 
-  zoomIn(){
-    this.zs.zoomInMixer();
-    this.renderChange();
-
-  }
+addOp(event: any){
+  this.palette.addOperation(event)
+}
 
 
-  zoomOut(){
-    this.zs.zoomOutMixer();
-    this.renderChange();
-    
+zoomIn(){
+  this.zs.zoomInMixer();
+  this.renderChange();
+
+}
+
+
+zoomOut(){
+  this.zs.zoomOutMixer();
+  this.renderChange();
 }
 
 createNewDraft(){
@@ -250,9 +249,26 @@ createNewDraft(){
 
 /**
  * called when toggled to mixer
+ *
  */
-onFocus(){
-  this.palette.redrawAllSubdrafts();
+
+/**
+ * triggers a series of actions to occur when the view is switched from editor to mixer
+ * @param edited_id the id of the draft that was last edited in the other mode. 
+ */
+onFocus(edited_draft_id: number){
+
+  if(edited_draft_id == -1 || edited_draft_id == null) return;
+
+  const sd: SubdraftComponent = <SubdraftComponent> this.tree.getComponent(edited_draft_id); 
+  if(sd !== null && sd!== undefined) sd.redrawExistingDraft();
+
+
+  const outlet_ops_connected = this.tree.getNonCxnOutputs(edited_draft_id);
+  let fns = outlet_ops_connected.map(el => this.performAndUpdateDownstream(el));
+
+  Promise.all(fns);
+
 }
 
 /**
@@ -553,6 +569,10 @@ zoomChange(zoom_index:any){
     this.palette.redrawAllSubdrafts();
 
 
+ }
+
+ public redrawAllSubdrafts(){
+  this.palette.redrawAllSubdrafts();
  }
 
 

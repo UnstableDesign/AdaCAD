@@ -1,8 +1,5 @@
-import { create } from "domain";
-import { row } from "mathjs";
-import { createCell } from "../../model/cell";
 import { BoolParam, Operation, OperationInlet, OpInput, OpParamVal, SelectParam } from "../../model/datatypes";
-import { initDraftFromDrawdown, initDraftWithParams, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
+import { initDraftFromDrawdown } from "../../model/drafts";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 
@@ -45,7 +42,7 @@ const params = [corner, remove_center];
 
 //INLETS
 const draft_inlet: OperationInlet = {
-    name: 'input draft', 
+    name: 'draft', 
     type: 'static',
     value: null,
     dx: 'the draft you would like to modify',
@@ -58,9 +55,13 @@ const draft_inlet: OperationInlet = {
 /**TODO - make this support systems as well */
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
+
+
   let input_draft = getInputDraft(op_inputs);
   let sym_mode = getOpParamValById(0, op_params);
   let remove_center = getOpParamValById(1, op_params);
+
+  console.log("INPUT TO SYMMETRIC IS ", input_draft)
 
   if(input_draft == null) return Promise.resolve([]);
 
@@ -266,10 +267,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             
             break;              
           }
-
-    
-          console.log("WARP MATS and Systems ", warp_mats, warp_systems, pattern)
-
 
   let d = initDraftFromDrawdown(pattern.export())
     d.colShuttleMapping = warp_mats.val();

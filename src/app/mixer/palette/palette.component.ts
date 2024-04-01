@@ -1477,6 +1477,8 @@ calculateInitialLocation() : Point {
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
 
+  console.log("PERFORM AND UPDATE")
+
   this.tree.getOpNode(op_id).dirty = true;
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
 
@@ -1820,6 +1822,7 @@ pasteConnection(from: number, to: number, inlet: number){
 
    if(this.tree.getType(to)==="op"){
      this.performAndUpdateDownstream(to).then(done => {
+      console.log("AFTER PERFORM ", this.tree)
       this.refreshViewer.emit();
      }); 
    }

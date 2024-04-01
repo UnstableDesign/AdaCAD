@@ -1,3 +1,5 @@
+import { DraftCellColor } from "./datatypes";
+
 export const defaults = {
     editor: 'draft',
     max_simulation_area: 10000,
@@ -43,6 +45,39 @@ export const defaults = {
       show_advanced_operations: false
 
 }
+
+/** sets the default cell color for cells in the drawdown */
+export const rendering_color_defaults: Array<DraftCellColor> =  [
+    {
+      id: 'down',
+      r: 255, 
+      g: 255, 
+      b: 255, 
+      a: 255 
+    },
+    {
+      id: 'up',
+      r: 0, 
+      g: 0, 
+      b: 0, 
+      a: 255 
+    },
+    {
+      id: 'unset',
+      r: 0, 
+      g: 0, 
+      b: 0, 
+      a: 255 
+    },
+    {
+      id: 'edge',
+      r: 150, 
+      g: 150, 
+      b: 150, 
+      a: 255 
+    } 
+  ];
+
 
 
 export const origin_option_list: Array<{value: number, view: string}> = 

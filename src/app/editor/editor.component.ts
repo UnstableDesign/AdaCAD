@@ -282,7 +282,6 @@ export class EditorComponent implements OnInit {
 
 
   public drawdownUpdated(){
-
     this.redrawViewer.emit();    
   }  
 

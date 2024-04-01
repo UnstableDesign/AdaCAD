@@ -1375,7 +1375,6 @@ export class DraftComponent implements OnInit {
     .then(draft => {
       this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
       this.tree.setDraftOnly(this.id, draft);
-      console.log("on drawdown updated called from draw on tieups")
       this.onDrawdownUpdated.emit(draft);
     })
      
@@ -1426,7 +1425,6 @@ export class DraftComponent implements OnInit {
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
         this.tree.setDraftOnly(this.id, draft);
-        console.log("on drawdown updated called from draw on threading")
         this.onDrawdownUpdated.emit(draft);
       });
     }
@@ -1473,7 +1471,6 @@ export class DraftComponent implements OnInit {
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true});
         this.tree.setDraftOnly(this.id, draft);
-        console.log("on drawdown updated called from draw on treadling")
         this.onDrawdownUpdated.emit(draft);
       })
     }
@@ -1970,8 +1967,6 @@ public clearAll(){
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
-    console.log("REDRAWING WITH FLAGS ", flags)
-
     var base_dims = this.render.getCellDims("base");
     this.colSystemMapping = draft.colSystemMapping;
     this.rowSystemMapping = draft.rowSystemMapping;
@@ -1991,7 +1986,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
   
     if(flags.loom !== undefined){
-      console.log("LOOM IS ", loom)
        this.redrawLoom(draft, loom, loom_settings);
     }
 

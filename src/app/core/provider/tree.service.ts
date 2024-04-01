@@ -1164,6 +1164,17 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
   }
 
 
+//if an operation results in an empty draft, then it is reset here
+clearDraft(dn: DraftNode){
+
+  dn.draft = null;
+  dn.draft.rowShuttleMapping = [];
+  dn.draft.rowSystemMapping = [];
+  dn.draft.colShuttleMapping = [];
+  dn.draft.colSystemMapping = [];
+
+}
+
 /**
    * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
    * since this function cannot delete nodes, it makes nodes that no longer need to exist as null for later collection
@@ -1173,6 +1184,7 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
    */
  async updateDraftsFromResults(parent: number, res: Array<Draft>, inputs: Array<OpInput>) : Promise<Array<number>>{
 
+
   const out = this.getNonCxnOutputs(parent);
   const op_outlets = this.getOutputsWithNdx(parent);
   const touched: Array<number> = [];
@@ -1181,7 +1193,10 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
   const update_looms = [];
   const new_draft_fns = [];
 
-  //first, cycle through the existing nodes: 
+  console.log("RESULTS and EXISTING ", res, out)
+
+
+  //first, cycle through the resulting nodes: 
   for(let i = 0; i < res.length; i++){
 
     //get the output associated with the ndx "i"
@@ -1212,6 +1227,8 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
     if(touched.find(el => el == output) === undefined){
       const dn = <DraftNode> this.getNode(output);
       dn.mark_for_deletion = true;
+      this.clearDraft(dn);
+      //THIS IS MARKING FOR DELETION BUT I DON"T THINK IT"S EVER DELETING...why can't I just
     }
   });
   
@@ -1343,9 +1360,12 @@ isValidIOTuple(io: IOTuple) : boolean {
  */
  async performOp(id:number) : Promise<Array<number>> {
 
+
   const opnode = <OpNode> this.getNode(id);
   const op = this.ops.getOp(opnode.name);
   const all_inputs = this.getInputsWithNdx(id);
+
+  console.log("PERFORMING ", opnode.name)
 
   
   if(op === null || op === undefined) return Promise.reject("Operation is null")
@@ -1386,6 +1406,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     
     return op.perform(param_vals, cleaned_inputs)
     .then(res => {
+        console.log("OP RETURNED ", res)
         opnode.dirty = false;
         return this.updateDraftsFromResults(id, res, inputs);
       })
