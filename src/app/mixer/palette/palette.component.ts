@@ -376,9 +376,19 @@ handlePan(diff: Point){
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
 
+    this.redrawConnections();
 
 
     // this.handleScrollFromZoom(prev_zoom);
+
+  }
+
+  
+  redrawConnections(){
+    const ops = this.tree.getOperations();
+    ops.forEach(el => {
+      this.updateAttachedComponents(el.id, false);
+    })
 
   }
 
@@ -472,9 +482,6 @@ handlePan(diff: Point){
    * @param id 
    */
   revealDraftDetails(id: number){
-
-    console.log("______________")
-    console.log("Reveal Draft Details")
 
     this.selected_draft_id = id;
     
@@ -682,6 +689,7 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
     this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.setFocus.bind(this)));
     this.operationSubscriptions.push(op.onSelectForView.subscribe(this.forceFocus.bind(this)));
+    this.operationSubscriptions.push(op.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
   }
 
 
@@ -1477,45 +1485,22 @@ calculateInitialLocation() : Point {
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
 
-  console.log("PERFORM AND UPDATE")
-
   this.tree.getOpNode(op_id).dirty = true;
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
+  const all_ops = this.tree.getDownstreamOperations(op_id).concat(op_id);
 
   return this.tree.performGenerationOps([op_id])
   .then(draft_ids => {
 
-    const all_ops = this.tree.getOpNodes();
     all_ops.forEach(op =>{
-      let children = this.tree.getNonCxnOutputs(op.id);
-      (<OperationComponent> op.component).updateChildren(children);
-
+      let children = this.tree.getNonCxnOutputs(op);
+      (<OperationComponent> this.tree.getComponent(op)).updateChildren(children);
     })
 
 
     const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
       .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
-
-
-
-    //create any new subdrafts nodes
-    // const new_drafts = this.tree.getDraftNodes()
-    //   .filter(el => el.component === null)
-    //   .map(el => {
-    //     return this.loadSubDraft(
-    //       el.id, 
-    //       (<DraftNode>el).draft, 
-    //       {
-    //         node_id: el.id,
-    //         type: el.type,
-    //         topleft: this.calculateInitialLocaiton(el.id),
-    //       }, null,this.zs.zoom);
-    //     });
-      
-
-    //    return  Promise.all([Promise.all(fns), Promise.all(new_drafts)]);
-        
        
   }).then(el => {
     const loads =[];
@@ -1528,13 +1513,12 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
     })
 
     //update the positions of the connections
-    // let all_cxns = this.tree.getConnections();
-    // all_cxns.forEach(cxn => {
-    //   let to = this.tree.getOutputs(cxn.id);
-    //   to.forEach(id => {
-    //     cxn.updateToPosition(id, this.zs.zoom)
-    //   })
-    // })
+    let all_cxns = this.tree.getConnections().filter(el => el !== null);
+    all_cxns.forEach(cxn => {
+        const outs = this.tree.getConnectionOutputWithIndex(cxn.id);
+        cxn.updateToPosition(outs.id, outs.inlet, outs.arr);
+      
+    })
 
     return Promise.all(loads);
 
@@ -2460,5 +2444,8 @@ pasteConnection(from: number, to: number, inlet: number){
       comps.forEach(sd => {
         if(sd !== null && sd!== undefined) sd.redrawExistingDraft();
       })
+
+      this.redrawConnections();
+
     }
   }

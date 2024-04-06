@@ -260,8 +260,6 @@ export class SubdraftComponent implements OnInit {
 
 setFocus(){
 
-  console.log("SET FOCUS on SUBDRAFT")
-
   this.onFocus.emit(this.id);
 
 }  
@@ -421,7 +419,6 @@ openInEditor(event: any){
    * @param e 
    */
     mousedown(e: any){
-      console.log("MOUSE DOWN")
     this.onFocus.emit(this.id);
     e.stopPropagation();
   }

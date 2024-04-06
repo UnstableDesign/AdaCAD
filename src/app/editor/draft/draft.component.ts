@@ -2009,7 +2009,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
     this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
 
-    console.log("calling redraw from editor, redrawDraft")
     let img = getDraftAsImage(draft, cell_size, false, false, this.ms.getShuttles());
     draft_cx.putImageData(img, cell_size, cell_size);
     this.tree.setDraftClean(this.id);

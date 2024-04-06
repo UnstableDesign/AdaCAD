@@ -115,7 +115,7 @@ export class EditorComponent implements OnInit {
 
 
   clearAll(){
-    console.log("Clearing Detail Viewer ");
+    // console.log("Clearing Detail Viewer ");
     this.id == -1;
     this.weaveRef.id == -1;
     this.weaveRef.clearAll();
@@ -230,7 +230,7 @@ export class EditorComponent implements OnInit {
    */
   loadDraft(id: number) : Promise<any> {
 
-    console.log("Loading Draft ", id)
+    // console.log("Loading Draft ", id)
     this.id = id;
 
     if(id == -1) return Promise.resolve();
@@ -270,7 +270,7 @@ export class EditorComponent implements OnInit {
 
   public designModeChange(e:any) {
    // this.simRef.unsetSelection();
-    console.log("Selecting mode ", e)
+    // console.log("Selecting mode ", e)
     this.weaveRef.unsetSelection();
 
   }

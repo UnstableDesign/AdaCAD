@@ -114,12 +114,17 @@ export class MixerComponent  {
 
   operationLevelToggleChange(event: any){
     this.ws.show_advanced_operations = event.checked;
+    this.refreshOperations();
+
+  }
+
+  refreshOperations(){
+
     this.op_tree = this.makeOperationsList();
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
-
   }
 
   makeOperationsList(){
@@ -590,6 +595,10 @@ originChange(value: number){
 }
 
 
+/**
+ * communicates an id of a subdraft upstream to open it within the editor 
+ * @param id 
+ */
 openDraftInEditor(id: number){
   this.onOpenInEditor.emit(id);
 }

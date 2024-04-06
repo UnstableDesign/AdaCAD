@@ -47,7 +47,7 @@ export class DraftrenderingComponent {
 
   draft_visible: boolean = true;
 
-  use_colors: boolean = true;
+  use_colors: boolean = false;
 
   outlet_connected: boolean = true;
 
@@ -81,7 +81,7 @@ export class DraftrenderingComponent {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['dirty']) {
-
+      console.log("DRAFT DIRTY @ ", this.id)
       if(this.dm.isSelectedDraftEditSource('drawdown')) return;
 
       let draft = this.tree.getDraft(this.id);
@@ -278,8 +278,8 @@ export class DraftrenderingComponent {
     let cell_size = this.calculateCellSize(draft);
 
     draft =  this.tree.getDraft(this.id);
-    const use_colors =(<DraftNode>this.tree.getNode(this.id)).render_colors;
-
+    //const use_colors =(<DraftNode>this.tree.getNode(this.id)).render_colors;
+    const use_colors =false;
 
     if(this.draft_canvas === undefined) return;
     this.draft_cx = this.draft_canvas.getContext("2d");

@@ -92,7 +92,13 @@
       <mat-menu #showDrafts="matMenu">
         <button [class.active]="!this.ws.hide_mixer_drafts" mat-menu-item (click)="setDraftsViewable(false)">yes</button>
         <button [class.active]="this.ws.hide_mixer_drafts" mat-menu-item (click)="setDraftsViewable(true)">no</button>
-      </mat-menu>         
+      </mat-menu>    
+
+      <button mat-menu-item [matMenuTriggerFor]="showAdvancedOps">Show Advanced Operations</button>
+      <mat-menu #showAdvancedOps="matMenu">
+        <button [class.active]="this.ws.show_advanced_operations" mat-menu-item (click)="setAdvancedOperations(true)">yes</button>
+        <button [class.active]="!this.ws.show_advanced_operations" mat-menu-item (click)="setAdvancedOperations(false)">no</button>
+      </mat-menu>   
 
 
 
@@ -158,8 +164,8 @@
     #mixer
     id="mixer" 
     cdkScrollable
-    (onDraftFocused)="onSetViewer($event)"
-    (refreshViewer)="onRefreshViewer()"
+    (onDraftFocused)="onSetViewer($event, 'mixer')"
+    (refreshViewer)="onRefreshViewer('mixer')"
     (onOpenInEditor)="openInEditor($event)"
 
     >
@@ -173,7 +179,7 @@
     [class.hide]="selected_editor_mode !== 'draft'"
     [class.show]="selected_editor_mode === 'draft'" 
     (saveChanges)="saveFile()"
-    (redrawViewer)="onRefreshViewer()"
+    (redrawViewer)="onRefreshViewer('editor')"
     (createNewDraftOnMixer)="createNewDraftOnMixer($event)"
     (updateMixer)="updateMixer()"
       ></app-editor>
@@ -181,7 +187,6 @@
      
      <app-viewer 
      #viewer
-     [id]="selected_draft_id"
      class="static-container"
      (onClearWorkspace)="clearAll()"
      (onOpenMaterials)="openMaterials()"

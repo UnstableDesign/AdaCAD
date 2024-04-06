@@ -1193,7 +1193,7 @@ clearDraft(dn: DraftNode){
   const update_looms = [];
   const new_draft_fns = [];
 
-  console.log("RESULTS and EXISTING ", res, out)
+  // console.log("RESULTS and EXISTING ", res, out)
 
 
   //first, cycle through the resulting nodes: 
@@ -1365,7 +1365,7 @@ isValidIOTuple(io: IOTuple) : boolean {
   const op = this.ops.getOp(opnode.name);
   const all_inputs = this.getInputsWithNdx(id);
 
-  console.log("PERFORMING ", opnode.name)
+  // console.log("PERFORMING ", opnode.name)
 
   
   if(op === null || op === undefined) return Promise.reject("Operation is null")
@@ -1406,7 +1406,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     
     return op.perform(param_vals, cleaned_inputs)
     .then(res => {
-        console.log("OP RETURNED ", res)
+        // console.log("OP RETURNED ", res)
         opnode.dirty = false;
         return this.updateDraftsFromResults(id, res, inputs);
       })

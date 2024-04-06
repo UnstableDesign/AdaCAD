@@ -506,8 +506,6 @@ export class FileService {
 
      }
 
-     console.log("MOVING ON", loom)
-
       const shuttles: Array<Material> = this.ms.getShuttles();
         //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
       var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=4.0\n[CONTENTS]";
@@ -634,7 +632,6 @@ export class FileService {
   }
 
   clearAll(){
-    console.log("Clearing all in FS")
     this.tree.clear();
     this.ms.reset();
     this.ss.reset(),

@@ -14,7 +14,6 @@ import { ZoomService } from '../core/provider/zoom.service';
   styleUrls: ['./viewer.component.scss']
 })
 export class ViewerComponent {
-  @Input() id;
   @Output() onLoadBlankFile: any = new EventEmitter();
   @Output() onClearWorkspace: any = new EventEmitter();
   @Output() onOpenExamples: any = new EventEmitter();
@@ -26,7 +25,7 @@ export class ViewerComponent {
 
   @ViewChild(SimulationComponent) sim;
 
-
+  id: number;
   draft_canvas: HTMLCanvasElement;
   draft_cx: any;
   pixel_ratio: number = 1;
@@ -46,12 +45,6 @@ export class ViewerComponent {
     private zs: ZoomService){
     
   }
-
-  // ngOnChanges(changes: SimpleChanges) {
-  //   if (changes['id'] || changes['dirty']) {
-  //     //this.redraw(this.id);
-  //   }
-  // }
 
 
 
@@ -116,6 +109,7 @@ getVisVariables(){
    * redraws the current draft, usually following an update from the drawdown
    */
   redraw(id: number){
+    this.id = id;
     let vars = this.getVisVariables();
     const draft = this.tree.getDraft(id);
     if(draft !== null){
@@ -212,7 +206,9 @@ getVisVariables(){
     }
 
 
+    this.id = id;
     const draft:Draft = this.tree.getDraft(id);
+
 
     this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
     if(this.draft_canvas == null) return;

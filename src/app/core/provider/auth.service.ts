@@ -27,7 +27,6 @@ export class AuthService {
     if (auth) {
 
        this.userDisposable = authState(this.auth).subscribe(user => {
-        console.log("AUTH SUBSCRIBE CALLED")
         this.showLoginButton = (user === null);
         this.showLogoutButton = (user !== null);
         this.isLoggedIn = (user !== null);

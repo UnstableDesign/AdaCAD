@@ -75,7 +75,7 @@ export class SimulationComponent implements OnInit {
     const parent_rect = parent_div.getBoundingClientRect();
 
     const div = document.getElementById('simulation_container');
-    console.log("size ", parent_rect.width, parent_rect.height)
+    // console.log("size ", parent_rect.width, parent_rect.height)
 
     let width = parent_rect.width;
     let height = parent_rect.height;

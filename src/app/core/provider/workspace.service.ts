@@ -47,6 +47,7 @@ export class WorkspaceService {
     this.number_threading = defaults.number_threading;
     this.selected_origin_option = defaults.selected_origin_option;
     this.hide_mixer_drafts = defaults.hide_mixer_drafts;
+    this.show_advanced_operations = defaults.show_advanced_operations;
 
   }
 
@@ -62,6 +63,7 @@ export class WorkspaceService {
     this.selected_origin_option = data.selected_origin_option;
     this.file_favorites = (data.file_favorites === undefined) ? [] : data.file_favorites;
     this.hide_mixer_drafts = (data.hide_mixer_drafts === undefined) ? true : data.hide_mixer_drafts;
+    this.show_advanced_operations = (data.show_advanced_operations === undefined) ? false : data.show_advanced_operations;
   }
 
 
@@ -115,7 +117,8 @@ export class WorkspaceService {
       number_threading: this.number_threading,
       selected_origin_option: this.selected_origin_option,
       file_favorites: this.file_favorites.slice(),
-      hide_mixer_drafts: this.hide_mixer_drafts
+      hide_mixer_drafts: this.hide_mixer_drafts,
+      show_advanced_operations: this.show_advanced_operations
 
     }
   }

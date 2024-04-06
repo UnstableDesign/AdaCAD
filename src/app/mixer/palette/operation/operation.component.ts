@@ -62,6 +62,7 @@ export class OperationComponent implements OnInit {
    @Output() onOpLoaded = new EventEmitter <any> ();
    @Output() onShowChildDetails = new EventEmitter <any> ();
    @Output() onSelectForView = new EventEmitter <any> ();
+   @Output() onOpenInEditor = new EventEmitter <any> ();
 
 
    params_visible: boolean = true;
@@ -127,7 +128,7 @@ export class OperationComponent implements OnInit {
 
    children: Array<number> = []; //a list of references to any drafts produced by this operation
 
-   redrawchildren: number = 0;
+   redrawchildren: number = 0; //changing this number will flag a redraw from the draft rendering child
 
    selecting_connection: boolean = false;
 
@@ -279,7 +280,6 @@ export class OperationComponent implements OnInit {
   updateChildren(children: Array<number>){
         this.children = children;
         this.redrawchildren++;
-  
   }
 
   /**
@@ -317,7 +317,13 @@ export class OperationComponent implements OnInit {
   }
 
   openInEditor(){
-    console.log("OPEN HIT ")
+    let children = this.tree.getNonCxnOutputs(this.id);
+    console.log("OPEN HIT ", children);
+    if(children.length > 0){
+      let child = children[0];
+      console.log("CHILD ID ", child)
+      this.onOpenInEditor.emit(child);
+    }
   }
 
 

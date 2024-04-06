@@ -69,7 +69,8 @@ export class AppComponent implements OnInit{
   
   ui = {
     main: 'mixer',
-    fullscreen: false
+    fullscreen: false,
+    id: -1
   };
 
   views = [];
@@ -86,7 +87,9 @@ export class AppComponent implements OnInit{
 
   selected_editor_mode: any;
 
-  selected_draft_id: number =1;
+  selected_mixer_draft_id: number =1;
+  selected_editor_draft_id: number =1;
+
 
   redraw_viewer: boolean = false;
 
@@ -176,7 +179,8 @@ export class AppComponent implements OnInit{
 
   clearAll() : void{
 
-    this.selected_draft_id = -1;
+    this.selected_mixer_draft_id = -1;
+    this.selected_editor_draft_id = -1;
     this.mixer.clearView();
     this.editor.clearAll();
     this.viewer.clearView();
@@ -204,7 +208,8 @@ export class AppComponent implements OnInit{
     this.tree.setLoom(id, loom);
     this.tree.setLoomSettings(id, loom_settings);
     this.editor.loadDraft(id);
-    this.selected_draft_id = id;
+    this.selected_mixer_draft_id = id;
+    this.selected_editor_draft_id = id;
 
   }
 
@@ -257,13 +262,14 @@ export class AppComponent implements OnInit{
       case 'draft':
         this.mixer.onClose();
         this.editor.onFocus();
-        this.editor.loadDraft(this.selected_draft_id)
+        this.editor.loadDraft(this.selected_editor_draft_id);
+      
         //this.editor.centerView();
 
         break;
       case 'mixer':
         this.editor.onClose();
-        this.mixer.onFocus(this.selected_draft_id);
+        this.mixer.onFocus(this.selected_mixer_draft_id);
 
       //  this.mixer.recenterViews();
         break;
@@ -1091,9 +1097,15 @@ setDraftsViewable(val: boolean){
   this.mixer.redrawAllSubdrafts();
 }
 
+setAdvancedOperations(val: boolean){
+  this.ws.show_advanced_operations = val;
+  this.mixer.refreshOperations();
+}
+
+
 openInEditor(id: number){
    this.editor.loadDraft(id);
-   this.selected_draft_id = id;
+   this.selected_editor_draft_id = id;
    this.selected_editor_mode = 'draft';
    this.toggleEditorMode();
 }
@@ -1128,10 +1140,10 @@ collapseViewer(){
   }
 }
 
+
 showDraftDetails(id: number){
-  console.log("SHOW DRAFT DETAILS")
   this.editor.loadDraft(id);
-  this.selected_draft_id = id;
+  this.selected_editor_draft_id = id;
   this.dm.selectPencil('toggle');
 }
 
@@ -1182,8 +1194,9 @@ showDraftDetails(id: number){
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    * this also needs to trigger a redraw within the mixer, but we don't want to do that if the mixer isn't visible
    */
-  onRefreshViewer(){
-    this.viewer.redraw(this.selected_draft_id);
+  onRefreshViewer(source: string){
+    if(source == 'mixer') this.viewer.redraw(this.selected_mixer_draft_id);
+    else this.viewer.redraw(this.selected_editor_draft_id);
   }
 
 
@@ -1191,9 +1204,12 @@ showDraftDetails(id: number){
    * Set view is only called from the mixer when a new draft is focused. 
    * @param id 
    */
-  onSetViewer(id: number){
-    this.selected_draft_id = id;
-    this.onRefreshViewer();
+  onSetViewer(id: number, source: string){
+    if(source == 'mixer'){
+      this.selected_mixer_draft_id = id;
+    } 
+    this.selected_editor_draft_id = id;
+    this.onRefreshViewer(source);
   }
 
    /**
@@ -1264,10 +1280,10 @@ showDraftDetails(id: number){
 
   saveDraftAs(format: string){
 
-    let draft:Draft = this.tree.getDraft(this.selected_draft_id);
+    let draft:Draft = this.tree.getDraft(this.selected_mixer_draft_id);
     let b = this.bitmap.nativeElement;
 
-    if(this.selected_draft_id == -1) return;
+    if(this.selected_mixer_draft_id == -1) return;
 
     switch(format){
       case 'bmp':
@@ -1277,8 +1293,8 @@ showDraftDetails(id: number){
         utilInstance.saveAsPrint(b, draft, true, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
         break;
       case 'wif':
-        let loom = this.tree.getLoom(this.selected_draft_id);
-        let loom_settings = this.tree.getLoomSettings(this.selected_draft_id);
+        let loom = this.tree.getLoom(this.selected_mixer_draft_id);
+        let loom_settings = this.tree.getLoomSettings(this.selected_mixer_draft_id);
         utilInstance.saveAsWif(this.fs, draft, loom, loom_settings)
       break;
     }
