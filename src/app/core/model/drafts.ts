@@ -409,6 +409,8 @@ export const createDraft = (
    */
   export const getDraftAsImage = (draft: Draft, pix_per_cell: number, floats: boolean, use_color: boolean, mats: Array<Material>) : ImageData => {
 
+    console.log("GET DRAFT AS IMAGE ", pix_per_cell, floats, use_color)
+
 
     pix_per_cell = Math.floor(pix_per_cell);
 
@@ -497,7 +499,7 @@ export const createDraft = (
         let ndx = row_factor + col_factor;
 
         //make anything on an edge grey
-        if(y == 0 || y == dim -1 || x == 0 || x == dim -1){
+        if(dim >= 4 && (y == 0 || y == dim -1 || x == 0 || x == dim -1)){
           color_id = 3; 
         }else{
           switch(val){
@@ -537,6 +539,8 @@ export const createDraft = (
     let margin_tl = Math.floor(dim/8);
     let margin_bl = Math.floor(7*dim/8);
 
+    let use_margins = (dim >= 5);
+
     for(let y = 0; y < dim; y++){
       for(let x = 0; x < dim; x++){
 
@@ -546,86 +550,97 @@ export const createDraft = (
 
         let ndx = row_factor + col_factor;
 
-        //top left
-        if(y < margin_tl && x >= 0 && x < margin_tl){
-          color_id = 0;
-        }
+        if(!use_margins){
+          if(val || null){
+            if(use_color) color_id = 4;
+            else color_id = 0;
+          }else{
+            if(use_color) color_id = 5;
+            else color_id = 1;
+          }
+        }else{
 
-        //top center
-        else if(y < margin_tl && x >= margin_tl && x < margin_bl){
-          if(x == margin_tl) color_id = 3;
-          else if(use_color) color_id = 4;
-          else color_id = 0
-        }
+          //top left
+          if(y < margin_tl && x >= 0 && x < margin_tl){
+            color_id = 0;
+          }
 
-        //top right
-        else if(y < margin_tl && x >= margin_bl && x < dim){
-          if(x == margin_bl) color_id = 3;
-          else color_id = 0;
-        }
-
-        /*******/
-
-        //center left
-        else if(y >= margin_tl && y < margin_bl && x >= 0 && x < margin_tl){
-          if(y == margin_tl) color_id = 3;
-          else if(use_color) color_id = 5;
-          else color_id = 0
-        }
-
-        //center center
-        else if(y >= margin_tl && y < margin_bl && x >=margin_tl && x < margin_bl){
-
-    
-          if(val == true || val == null){
+          //top center
+          else if(y < margin_tl && x >= margin_tl && x < margin_bl){
             if(x == margin_tl) color_id = 3;
             else if(use_color) color_id = 4;
             else color_id = 0
-          
-          }else{
+          }
+
+          //top right
+          else if(y < margin_tl && x >= margin_bl && x < dim){
+            if( x == margin_bl) color_id = 3;
+            else color_id = 0;
+          }
+
+          /*******/
+
+          //center left
+          else if(y >= margin_tl && y < margin_bl && x >= 0 && x < margin_tl){
             if(y == margin_tl) color_id = 3;
             else if(use_color) color_id = 5;
             else color_id = 0
           }
 
-       
-         }
+          //center center
+          else if(y >= margin_tl && y < margin_bl && x >=margin_tl && x < margin_bl){
 
-        //center right
-        else if(y >= margin_tl && y < margin_bl && x >= margin_bl && x < dim){
-          if(y == margin_tl) color_id = 3;
-          else if((val == true || val == null) && x == margin_bl) color_id = 3;
-          else if(use_color) color_id = 5;
-          else color_id = 0
-        }
+      
+            if(val == true || val == null){
+              if(x == margin_tl) color_id = 3;
+              else if(use_color) color_id = 4;
+              else color_id = 0
+            
+            }else{
+              if(y == margin_tl) color_id = 3;
+              else if(use_color) color_id = 5;
+              else color_id = 0
+            }
+
+        
+          }
+
+          //center right
+          else if(y >= margin_tl && y < margin_bl && x >= margin_bl && x < dim){
+            if(y == margin_tl) color_id = 3;
+            else if((val == true || val == null) && x == margin_bl) color_id = 3;
+            else if(use_color) color_id = 5;
+            else color_id = 0
+          }
 
 
 
-        // /*******/
+          // /*******/
 
-        //bottom left
-        else if(y >= margin_bl && x >= 0 && x < margin_tl){
-          if(y == margin_bl) color_id = 3;
-          else color_id = 0;
-        }
+          //bottom left
+          else if(y >= margin_bl && x >= 0 && x < margin_tl){
+            if(y == margin_bl) color_id = 3;
+            else color_id = 0;
+          }
 
-        //bottom center
-        else if(y >= margin_bl && x >= margin_tl && x < margin_bl){
-          if((val == false) && y == margin_bl) color_id = 3;
-          else if(x == margin_tl) color_id = 3;
-          else if(use_color) color_id = 4;
-          else color_id = 0 
-        }
+          //bottom center
+          else if(y >= margin_bl && x >= margin_tl && x < margin_bl){
+            if((val == false) && y == margin_bl) color_id = 3;
+            else if(x == margin_tl) color_id = 3;
+            else if(use_color) color_id = 4;
+            else color_id = 0 
+          }
 
-        //bottom right
-        else if(y >= margin_bl && x >=  margin_bl && x <dim){
-          if(x == margin_bl) color_id = 3;
-          else if(y == margin_bl) color_id = 3;
-          else color_id = 0;
-        }
-        else{
-          if(y == margin_bl) color_id = 3;
-          else color_id = 0;
+          //bottom right
+          else if(y >= margin_bl && x >=  margin_bl && x <dim){
+            if(x == margin_bl) color_id = 3;
+            else if(y == margin_bl) color_id = 3;
+            else color_id = 0;
+          }
+          else{
+            if(y == margin_bl) color_id = 3;
+            else color_id = 0;
+          }
         }
             
         
