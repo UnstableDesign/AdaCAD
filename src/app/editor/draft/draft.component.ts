@@ -14,7 +14,7 @@ import { StateService } from '../../core/provider/state.service';
 import { SystemsService } from '../../core/provider/systems.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
-import { RenderService } from '../provider/render.service';
+import { RenderService } from '../../core/provider/render.service';
 import { SelectionComponent } from './selection/selection.component';
 
 @Component({
@@ -1993,6 +1993,28 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
 
   /**
+   * the canvas object is limited in how many pixels it can render. 
+   * Adjust the draft cell size based on the number of cells in the draft
+   * @param draft 
+   */
+  calculateCellSize(draft: Draft): number{
+    var base_dims = this.render.getCellDims("base");
+    if(draft == null) return 8;
+    let cell_size = base_dims.w;
+
+    let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
+    if(max_bound*cell_size < 4096){
+      return Math.floor(cell_size);
+    }else if(max_bound < 4096){
+      return  Math.floor(4096/max_bound);
+    }else{
+      return 1;
+    }
+
+  }
+
+
+  /**
    * Redraws the entire canvas based on weave pattern.
    * @extends WeaveDirective
    * @returns {void}
@@ -2001,7 +2023,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
 
 
     var base_dims = this.render.getCellDims("base");
-    let cell_size = base_dims.w;
+    let cell_size = this.calculateCellSize(draft);
+   // let cell_size = base_dims.w;
     const draft_cx = this.canvasEl.getContext("2d");
 
     this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;

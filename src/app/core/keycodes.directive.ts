@@ -1,8 +1,5 @@
 import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
-import { Subject } from 'rxjs';
-import { RenderService } from '../editor/provider/render.service';
 import { ZoomService } from '../core/provider/zoom.service';
-import { DesignMode } from './model/datatypes';
 import { DesignmodesService } from './provider/designmodes.service';
 import { FileService } from './provider/file.service';
 import { StateService } from './provider/state.service';
@@ -29,7 +26,6 @@ export class KeycodesDirective {
     private zs: ZoomService, 
     private fs: FileService,
     private ss: StateService,
-    private render: RenderService,
     private dm: DesignmodesService) { 
     }
 

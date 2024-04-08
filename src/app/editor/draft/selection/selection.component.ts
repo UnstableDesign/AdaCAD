@@ -3,7 +3,7 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { Interlacement } from '../../../core/model/datatypes';
 import { numFrames, numTreadles } from '../../../core/model/looms';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
-import { RenderService } from '../../provider/render.service';
+import { RenderService } from '../../../core/provider/render.service';
 import { defaults, paste_options } from '../../../core/model/defaults';
 
 @Component({

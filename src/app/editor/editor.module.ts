@@ -29,7 +29,6 @@ import { CoreModule } from '../core/core.module';
 import { EditorComponent } from './editor.component';
 import { DraftComponent } from './draft/draft.component';
 import { RepeatsComponent } from './repeats/repeats.component';
-import { RenderService } from './provider/render.service';
 import { SelectionComponent } from './draft/selection/selection.component';
 import { LoomComponent } from './loom/loom.component';
 
@@ -74,9 +73,6 @@ import { LoomComponent } from './loom/loom.component';
     ],
     exports:[
         EditorComponent
-    ],
-    providers: [
-        RenderService
     ]
 })
 export class EditorModule { }

@@ -3,7 +3,11 @@
   <mat-expansion-panel expanded>
     <mat-expansion-panel-header>
       <mat-panel-title class="small-text">
+    
         <i class="fa-solid fa-magnifying-glass"></i> Preview
+
+     
+
         </mat-panel-title>
         <mat-panel-description>
       </mat-panel-description>
@@ -113,11 +117,14 @@
 
       <button 
       *ngIf="view_expanded"  
-      mat-icon-button
+      mat-flat-button
       matTooltip="collapse view" 
       (click)="onCollapse()" >
-      <i class="fa fa-window-close"></i>
+      <i class="fa fa-times"></i> Close Preview
       </button>
+   
+
+
   </div>
   
   </mat-expansion-panel>

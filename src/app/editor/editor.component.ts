@@ -18,9 +18,9 @@ import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { RepeatsComponent } from './repeats/repeats.component';
 import { DraftComponent } from './draft/draft.component';
-import { RenderService } from './provider/render.service';
 import { MaterialModal } from '../core/modal/material/material.modal';
 import { LoomComponent } from './loom/loom.component';
+import { RenderService } from '../core/provider/render.service';
 
 
 

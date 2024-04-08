@@ -48,6 +48,7 @@ import { LoadfileComponent } from './modal/loadfile/loadfile.component';
 import { FilebrowserComponent } from './filebrowser/filebrowser.component';
 import { KeycodesDirective } from './keycodes.directive';
 import { WelcomeComponent } from './modal/welcome/welcome.component';
+import { RenderService } from './provider/render.service';
 
 @NgModule({
     imports: [
@@ -104,7 +105,8 @@ import { WelcomeComponent } from './modal/welcome/welcome.component';
         FileService,
         VaeService,
         PatternfinderService,
-        AuthService
+        AuthService,
+        RenderService
     ],
     exports: [
         CommonModule,

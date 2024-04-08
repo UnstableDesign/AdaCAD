@@ -200,7 +200,6 @@ getVisVariables(){
    * @returns 
    */
   async drawDraft(id: number, floats: boolean, use_colors: boolean) : Promise<any> {
-    console.log("DRAW DRAFT ", id)
 
     if(id === -1){
       this.clearView();
@@ -227,7 +226,6 @@ getVisVariables(){
     this.pixel_ratio = dpr/bsr;
 
     let cell_size = this.calculateCellSize(draft);
-    console.log("CELL SIZE ", cell_size)
 
     if(this.draft_canvas === undefined) return;
     this.draft_cx = this.draft_canvas.getContext("2d");
@@ -264,10 +262,16 @@ getVisVariables(){
       let width_adj = rect_viewer.width / canvas_width;
       let height_adj = rect_viewer.height / canvas_height;
 
-      //make the zoom the smaller of the width or height
+      //make the zoom the larger of the width or height
       adj = Math.min(width_adj, height_adj);
 
-      if(adj < 1) this.draft_canvas.style.transform = 'scale('+adj+')';
+      if(adj < 1){
+        this.draft_canvas.style.transform = 'scale('+adj+')';
+        // this.draft_canvas.width = (warps(draft.drawdown)*cell_size*adj);
+        // this.draft_canvas.height = (wefts(draft.drawdown)*cell_size*adj);
+        // this.draft_canvas.style.width = (warps(draft.drawdown)*cell_size*adj)+"px";
+        // this.draft_canvas.style.height = (wefts(draft.drawdown)*cell_size*adj)+"px";
+      } 
       else  this.draft_canvas.style.transform = 'scale(1)';
     }else{
       this.draft_canvas.style.transform = 'scale(1)'
