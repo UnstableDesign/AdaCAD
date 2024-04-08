@@ -221,7 +221,7 @@ export class DraftComponent implements OnInit {
 
   expanded: boolean = false;
 
-  cell_size: number = 10;
+  cell_size: number = 40;
 
   system_codes: Array<string> = [];
 

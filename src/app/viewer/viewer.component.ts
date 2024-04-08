@@ -29,7 +29,7 @@ export class ViewerComponent {
   draft_canvas: HTMLCanvasElement;
   draft_cx: any;
   pixel_ratio: number = 1;
-  draft_cell_size: number = 8;
+  draft_cell_size: number = 40;
   vis_mode: string = 'color'; //sim, draft, structure, color
   view_expanded: boolean = false;
 
@@ -63,7 +63,8 @@ getVisVariables(){
 
 
   /**
-   * the canvas object is limited in how many pixels it can render. Adjust the draft cell size based on the number of cells in the draft
+   * the canvas object is limited in how many pixels it can render. 
+   * Adjust the draft cell size based on the number of cells in the draft
    * @param draft 
    */
   calculateCellSize(draft: Draft): number{
@@ -199,6 +200,7 @@ getVisVariables(){
    * @returns 
    */
   async drawDraft(id: number, floats: boolean, use_colors: boolean) : Promise<any> {
+    console.log("DRAW DRAFT ", id)
 
     if(id === -1){
       this.clearView();
@@ -225,6 +227,7 @@ getVisVariables(){
     this.pixel_ratio = dpr/bsr;
 
     let cell_size = this.calculateCellSize(draft);
+    console.log("CELL SIZE ", cell_size)
 
     if(this.draft_canvas === undefined) return;
     this.draft_cx = this.draft_canvas.getContext("2d");

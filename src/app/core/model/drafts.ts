@@ -532,7 +532,17 @@ export const createDraft = (
   const drawFloatViewCell = (arr: Uint8ClampedArray, i: number, j: number, val: boolean, dim: number, warp_num: number, use_color: boolean, warp: DraftCellColor, weft: DraftCellColor) : Uint8ClampedArray => {
     let color_id = 0; 
 
-    let cols = rendering_color_defaults.concat([warp, weft])
+    let bg: DraftCellColor = {
+      id: 'background',
+      r: 100,
+      g: 100,
+      b: 100,
+      a: 255
+    }
+
+    let cols = rendering_color_defaults.concat([warp, weft, bg])
+
+ 
 
        //split the space into 3x3 and do nothing in the corners. 
        
@@ -562,7 +572,7 @@ export const createDraft = (
 
           //top left
           if(y < margin_tl && x >= 0 && x < margin_tl){
-            color_id = 0;
+            color_id = 6;
           }
 
           //top center
@@ -575,7 +585,7 @@ export const createDraft = (
           //top right
           else if(y < margin_tl && x >= margin_bl && x < dim){
             if( x == margin_bl) color_id = 3;
-            else color_id = 0;
+            else color_id = 6;
           }
 
           /*******/
@@ -620,7 +630,7 @@ export const createDraft = (
           //bottom left
           else if(y >= margin_bl && x >= 0 && x < margin_tl){
             if(y == margin_bl) color_id = 3;
-            else color_id = 0;
+            else color_id = 6;
           }
 
           //bottom center
@@ -635,11 +645,11 @@ export const createDraft = (
           else if(y >= margin_bl && x >=  margin_bl && x <dim){
             if(x == margin_bl) color_id = 3;
             else if(y == margin_bl) color_id = 3;
-            else color_id = 0;
+            else color_id = 6;
           }
           else{
             if(y == margin_bl) color_id = 3;
-            else color_id = 0;
+            else color_id = 6;
           }
         }
             

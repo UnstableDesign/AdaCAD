@@ -58,13 +58,13 @@ canvas{
 }
 
 #threading{
-  margin: 0px 15px;
+  margin: 0px 30px;
   background-color: white;
   //width: fit-content;
 }
 
 #treadling{
-  margin-top: 15px;
+  margin-top: 30px;
   background-color: white;
 
 }
@@ -144,7 +144,7 @@ canvas{
 
 
 .warp-systems-container{
-  padding: 15px;
+  padding: 30px;
   display: flex;
 }
 
@@ -382,7 +382,7 @@ canvas{
 
 .weft-systems-container{
   display: flex;
-  padding: 15px 15px 0px 15px; 
+  padding: 30px 30px 0px 30px; 
 }
 
 .weft-systems-container.origin0,
@@ -405,8 +405,8 @@ canvas{
 
 .warp-systems-text {
       cursor: pointer;
-      font-size: 14px;
-      line-height: 14px;
+      font-size: 24px;
+      line-height: 24px;
             color: #333;
       z-index: 1;
       display: flex;
@@ -437,7 +437,7 @@ canvas{
     
     
     .warp-system-col{
-        width: 15px;
+        width: 30px;
         flex-grow: 1;
         color: #000;
         z-index: 1;
@@ -507,7 +507,7 @@ canvas{
       display: block;
       color: black;
       position: relative;
-      height: 15px;
+      height: 30px;
       padding-left: 2px;
       border-left: thin solid black;
       user-select: none;
@@ -534,7 +534,7 @@ canvas{
       display: block;
       /* position: relative; */
       left: 10px;
-      height: 15px;
+      height: 30px;
     
     }
 
@@ -599,8 +599,8 @@ canvas{
   
   .weft-systems-text {
     cursor: pointer;
-    font-size: 14px;
-    line-height: 14px;
+    font-size: 24px;
+    line-height: 24px;
     color: #333;
     z-index: 2;
     display: flex;
@@ -629,19 +629,16 @@ canvas{
   }
 
   .weft-system-row{
-    height: 15px;
     display: flex;
     flex-grow: 1;
     color: #333;
     z-index: 1;
     opacity: 1;
-    text-align: center;
-    vertical-align: middle;
     justify-content: flex-start;
-    line-height: 8px;
+    line-height: 24px;
 
     .weft_indicies{
-      width: 20px;
+      width: 48px;
       display: block;
     }
   
@@ -754,7 +751,7 @@ canvas{
 
 .warp-system{
   display: block;
-  padding: 4px 0px;
+  padding: 12px 0px;
   user-select: none;
 
 }
@@ -766,7 +763,7 @@ canvas{
 .weft-material,
 .weft-system{
   display: inline-block;
-  margin: 0px 2px;
+  margin: 0px 4px;
   user-select: none;
 
 }

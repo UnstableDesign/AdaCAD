@@ -35,7 +35,7 @@ export class DraftrenderingComponent {
 
   pixel_ratio: number = 1;
 
-  draft_cell_size: number = 8;
+  draft_cell_size: number = 40;
 
   exceeds_size: boolean = false;
 
