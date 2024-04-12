@@ -462,7 +462,7 @@ export interface FileSaver{
  */
 export type OperationParam = {
   name: string,
-  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle';
+  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle' | 'jslib';
   value: any,
   dx: string
 }
@@ -868,6 +868,35 @@ export type DraftCellColor = {
   g: number,
   b: number,
   a: number
+}
+
+export type CanvasList = {
+  id: number,
+  drawdown: HTMLCanvasElement,
+  threading: HTMLCanvasElement,
+  tieup: HTMLCanvasElement, 
+  treadling: HTMLCanvasElement, 
+  warp_systems: HTMLCanvasElement,
+  warp_mats: HTMLCanvasElement,
+  weft_systems: HTMLCanvasElement,
+  weft_mats: HTMLCanvasElement
+}
+
+/**
+ * used to tell the draft renderer what to redraw and what settings to use
+ */
+export type RenderingFlags = {
+ u_drawdown: boolean, 
+ u_threading: boolean, 
+ u_treadling: boolean, 
+ u_tieups: boolean,
+ u_warp_sys: boolean,
+ u_warp_mats: boolean,
+ u_weft_sys: boolean,
+ u_weft_mats: boolean,
+ use_colors: boolean,
+ use_floats: boolean,
+ show_loom: boolean
 }
 
 

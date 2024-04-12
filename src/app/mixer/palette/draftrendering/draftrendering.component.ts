@@ -1,6 +1,6 @@
 import { Component, Input, Output, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
 import { FileService } from '../../../core/provider/file.service';
-import { Draft, DraftNode } from '../../../core/model/datatypes';
+import { CanvasList, Draft, DraftNode, Loom, LoomSettings, RenderingFlags } from '../../../core/model/datatypes';
 import { flipDraft, getDraftAsImage, getDraftName, initDraft, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { SystemsService } from '../../../core/provider/systems.service';
@@ -8,6 +8,8 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import utilInstance from '../../../core/model/util';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { RenderService } from '../../../core/provider/render.service';
+import { promise } from 'protractor';
 
 @Component({
   selector: 'app-draftrendering',
@@ -32,8 +34,6 @@ export class DraftrenderingComponent {
 
   warp_data_canvas: HTMLCanvasElement;
   warp_data_cx: any;
-
-  pixel_ratio: number = 1;
 
   draft_cell_size: number = 40;
 
@@ -60,6 +60,7 @@ export class DraftrenderingComponent {
     private ms: MaterialsService,
     private fs: FileService,
     public tree: TreeService,
+    public render: RenderService,
     private ss: SystemsService,
     public ws: WorkspaceService){
 
@@ -111,226 +112,58 @@ export class DraftrenderingComponent {
   }
 
 
+  drawDraft(draft: Draft) : Promise<boolean>{
+    if(this.hasParent && this.ws.hide_mixer_drafts) return Promise.resolve(false);
 
-  async drawCell(draft:Draft, cell_size:number, i:number, j:number, usecolor:boolean, forprint:boolean){
+    this.draft_canvas = <HTMLCanvasElement> document.getElementById(this.id.toString()+'-mixer');
 
-    cell_size *= this.pixel_ratio;
-    let is_up = isUp(draft.drawdown, i,j);
-    let is_set = isSet(draft.drawdown, i, j);
-    let color = "#ffffff"
-    if(is_set){
+    if(this.draft_canvas == null) return Promise.resolve(false);
 
-      if(is_up){
-        color = usecolor ? this.ms.getColor(draft.colShuttleMapping[j]) : '#000000';
-      }else{
-        color = usecolor ? this.ms.getColor(draft.rowShuttleMapping[i]) : '#ffffff';
-      }
-      this.draft_cx.fillStyle = color;
-      
-    } else{
-      if(forprint) this.draft_cx.fillStyle =  '#ffffff'
-      else this.draft_cx.fillStyle =  '#ADD8E6';
-    // this.cx.fillStyle =  '#ff0000';
+
+    const warp_systems_canvas =  
+    <HTMLCanvasElement> document.getElementById('warp-systems-'+this.id.toString()+'-mixer');
+    const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.id.toString()+'-mixer');
+    const weft_systems_canvas =  <HTMLCanvasElement> document.getElementById('weft-systems-'+this.id.toString()+'-mixer');
+    const weft_mats_canvas =  <HTMLCanvasElement> document.getElementById('weft-materials-'+this.id.toString()+'-mixer');
+
+
+
+    let canvases: CanvasList = {
+      id: this.id,
+      drawdown: this.draft_canvas,
+      threading: null,
+      tieup: null, 
+      treadling: null, 
+      warp_systems: warp_systems_canvas,
+      warp_mats: warp_mats_canvas,
+      weft_systems: weft_systems_canvas,
+      weft_mats: weft_mats_canvas
+    };
+
+    let flags: RenderingFlags = {
+      u_drawdown: true, 
+      u_threading: false,
+      u_tieups: false,
+      u_treadling: false,
+      u_warp_mats: true,
+      u_weft_mats: true,
+      u_warp_sys: true,
+      u_weft_sys: true,
+      use_colors: false,
+      use_floats: false, 
+      show_loom: false
 
     }
 
-    this.draft_cx.strokeStyle = "#666666"
-    this.draft_cx.lineWidth = 1;
 
-    if(!forprint && cell_size > 1 && usecolor === false) this.draft_cx.strokeRect(j*cell_size, i*cell_size, cell_size, cell_size);
-    this.draft_cx.fillRect(j*cell_size, i*cell_size, cell_size, cell_size);
-  }
-
-  drawWeftData(draft: Draft) : Promise<boolean>{
-    let cell_size = this.calculateCellSize(draft);
-
-    const weft_systems_canvas =  <HTMLCanvasElement> document.getElementById('weft-systems-'+this.id.toString());
-    const weft_mats_canvas =  <HTMLCanvasElement> document.getElementById('weft-materials-'+this.id.toString());
-    if(weft_systems_canvas === undefined) return;
-
-    const weft_systems_cx = weft_systems_canvas.getContext("2d");
-    const weft_mats_cx = weft_mats_canvas.getContext("2d");
-
-    weft_systems_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
-    weft_systems_canvas.width = cell_size * this.pixel_ratio
-    weft_systems_canvas.style.height = (wefts(draft.drawdown) * cell_size)+"px";
-    weft_systems_canvas.style.width = cell_size+"px";
-    weft_mats_canvas.height = wefts(draft.drawdown) * cell_size * this.pixel_ratio;
-    weft_mats_canvas.width =  cell_size*this.pixel_ratio;
-    weft_mats_canvas.style.height =(wefts(draft.drawdown) * cell_size)+"px";
-    weft_mats_canvas.style.width =  cell_size+"px";
-    let system = null;
-
-      for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
-
-        switch(this.ws.selected_origin_option){
-          case 1:
-          case 2: 
-          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length-1 - j]);
-
-          break;
-          case 0: 
-          case 3: 
-          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
-
-          break;
-        }
-
-        let color = this.ms.getColor(draft.rowShuttleMapping[j]);
-        weft_mats_cx.fillStyle = color;
-        weft_mats_cx.fillRect(1, j* cell_size*this.pixel_ratio+1,  cell_size*this.pixel_ratio-2,  cell_size*this.pixel_ratio-2);
-        
-        weft_systems_cx.font = cell_size*this.pixel_ratio+"px Arial";
-        weft_systems_cx.fillStyle = "#666666";
-        weft_systems_cx.fillText(system, 5, (j+1)*cell_size*this.pixel_ratio - 5)
-
-
-      }
-    
-    
-
-  }
-
-  drawWarpData(draft: Draft) : Promise<boolean>{
-
-
-    draft =  this.tree.getDraft(this.id);
-    let cell_size = this.calculateCellSize(draft);
-
-
-    const warp_systems_canvas =  <HTMLCanvasElement> document.getElementById('warp-systems-'+this.id.toString());
-    const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.id.toString());
-
-    if(this.warp_data_canvas === undefined) return;
-    const warp_mats_cx = warp_mats_canvas.getContext("2d");
-    const warp_systems_cx = warp_systems_canvas.getContext("2d");
-
-    warp_mats_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
-    warp_mats_canvas.height =  cell_size * this.pixel_ratio;
-    warp_mats_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
-    warp_mats_canvas.style.height =  cell_size+"px";
-
-    warp_systems_canvas.width = warps(draft.drawdown) * cell_size * this.pixel_ratio;
-    warp_systems_canvas.height =  cell_size * this.pixel_ratio;
-    warp_systems_canvas.style.width = (warps(draft.drawdown) * cell_size)+"px";
-    warp_systems_canvas.style.height =  cell_size+"px";
-
-    let system = null;
-
-      for (let j = 0; j < draft.colShuttleMapping.length; j++) {
-        let color = this.ms.getColor(draft.colShuttleMapping[j]);
-        switch(this.ws.selected_origin_option){
-          case 0:
-          case 1: 
-          system = this.ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length-1 - j]);
-
-          break;
-          case 2: 
-          case 3: 
-          system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
-
-          break;
-        }
-      
-        //cell_size *= this.pixel_ratio
-        warp_mats_cx.fillStyle = color;
-        warp_mats_cx.fillRect(j* cell_size*this.pixel_ratio+1, 1,  cell_size*this.pixel_ratio-2,  cell_size*this.pixel_ratio-2);
-        
-        //need to flip this on certain origins. 
-        warp_systems_cx.font = cell_size*this.pixel_ratio+"px Arial";
-        warp_systems_cx.fillStyle = "#666666";
-        warp_systems_cx.fillText(system, j*cell_size*this.pixel_ratio+2, cell_size*this.pixel_ratio-5)
-
-      
-      }
-    
-
-  }
-
-
-  /**
-   * draw whatever is stored in the draft object to the screen
-   * @returns 
-   */
-  private async drawDraft(draft: Draft) : Promise<any> {
-
-    if(this.hasParent && this.ws.hide_mixer_drafts) return;
-
-    this.draft_canvas = <HTMLCanvasElement> document.getElementById(this.id.toString());
-    if(this.draft_canvas == null) return;
-    this.draft_cx = this.draft_canvas.getContext("2d");
-
-    this.warp_data_canvas = <HTMLCanvasElement> document.getElementById('warp-data-'+this.id.toString());
-    this.warp_data_cx = this.draft_canvas.getContext("2d");
-
-        // set the width and height
-    let dpr = window.devicePixelRatio || 1;
-    let bsr =  this.draft_cx.webkitBackingStorePixelRatio ||
-    this.draft_cx.mozBackingStorePixelRatio ||
-    this.draft_cx.msBackingStorePixelRatio ||
-    this.draft_cx.oBackingStorePixelRatio ||
-    this.draft_cx.backingStorePixelRatio || 1;
-    this.pixel_ratio = dpr/bsr;
-
-
-
-
-    let cell_size = this.calculateCellSize(draft);
-
-    draft =  this.tree.getDraft(this.id);
-    //const use_colors =(<DraftNode>this.tree.getNode(this.id)).render_colors;
-    const use_colors =false;
-
-    if(this.draft_canvas === undefined) return;
-    this.draft_cx = this.draft_canvas.getContext("2d");
-
-   
-    if(draft === null){
-      this.draft_canvas.width = 0;
-      this.draft_canvas.height = 0;
+    return this.render.drawDraft(draft, null, null,  canvases, flags).then(el => {
       this.tree.setDraftClean(this.id);
-      return Promise.resolve("complete");
- //   }else if(cell_size === 0){
-    }else{
+      return Promise.resolve(true);
+    })
 
-     const fns = [this.drawWarpData(draft), this.drawWeftData(draft)];
-      return Promise.all(fns).then(el => {
-
-
-      this.draft_canvas.width = warps(draft.drawdown)*cell_size;
-      this.draft_canvas.height = wefts(draft.drawdown)*cell_size;
-      this.draft_canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
-      this.draft_canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
- 
-      let img = getDraftAsImage(draft, cell_size, use_colors, use_colors, this.ms.getShuttles());
-      this.draft_cx.putImageData(img, 0, 0);
-      this.tree.setDraftClean(this.id);
-      });
-
-    }
-  }
-
-
-  /**
-   * the canvas object is limited in how many pixels it can render. Adjust the draft cell size based on the number of cells in the draft
-   * @param draft 
-   */
-  calculateCellSize(draft: Draft): number{
-
-    let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
-    if(max_bound*this.draft_cell_size < 4096){
-      return Math.floor(this.draft_cell_size);
-    }else if(max_bound < 4096){
-      return  Math.floor(4096/max_bound);
-    }else{
-      this.draft_cell_size = 1;
-      return 1;
-    }
+    
 
   }
-
-
-
  
   
   updateName(){
@@ -379,8 +212,6 @@ export class DraftrenderingComponent {
 
     async designActionChange(e){
   
-      console.log("DESIGN ACTION ", e)
-
       switch(e){
         case 'duplicate':   
         this.onDuplicateCalled.emit({event: e, id: this.id});

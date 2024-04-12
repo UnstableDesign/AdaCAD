@@ -245,7 +245,6 @@ export class EditorComponent implements OnInit {
     }
 
     this.draftname = getDraftName(draft)
-    this.render.loadNewDraft(draft);
     this.weaveRef.onNewDraftLoaded(id);
 
     return Promise.resolve(null);
@@ -302,7 +301,6 @@ export class EditorComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    this.render.updateVisible(draft);
 
     this.weaveRef.redraw(draft, loom, loom_settings, {
               drawdown: true, 

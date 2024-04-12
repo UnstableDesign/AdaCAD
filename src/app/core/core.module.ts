@@ -148,7 +148,7 @@ import { RenderService } from './provider/render.service';
         MaterialModal,
         FilebrowserComponent,
         ExamplesComponent,
-        KeycodesDirective
-        ]
+        KeycodesDirective    
+    ]
 })
 export class CoreModule { }

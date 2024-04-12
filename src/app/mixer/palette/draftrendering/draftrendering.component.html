@@ -82,19 +82,19 @@
 
     <div *ngIf="!exceeds_size" class="warp-systems-container origin{{ws.selected_origin_option}} ">
 
-        <canvas id="warp-systems-{{id}}" class="warp-systems">  </canvas>
-        <canvas id ="warp-materials-{{id}}" class="warp-materials">  </canvas>
+        <canvas id="warp-systems-{{id}}-mixer" class="warp-systems">  </canvas>
+        <canvas id ="warp-materials-{{id}}-mixer" class="warp-materials">  </canvas>
 
     </div>
 
     <div class="drawdown-container origin{{ws.selected_origin_option}}" >
-        <canvas class="maindraft" id="{{id}}" >  </canvas>
+        <canvas class="maindraft" id="{{id}}-mixer" >  </canvas>
 
         
         <div *ngIf="!exceeds_size" class="weft-systems-container origin{{ws.selected_origin_option}}">
           
-          <canvas id="weft-materials-{{id}}" class="weft-materials">  </canvas>
-          <canvas id="weft-systems-{{id}}" class="weft-systems" >  </canvas>
+          <canvas id="weft-materials-{{id}}-mixer" class="weft-materials">  </canvas>
+          <canvas id="weft-systems-{{id}}-mixer" class="weft-systems" >  </canvas>
         </div>
     </div>
 

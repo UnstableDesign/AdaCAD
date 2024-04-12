@@ -2,7 +2,7 @@ import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild
 import { fromEvent, Subject, Subscription } from 'rxjs';
 import { ZoomService } from '../../core/provider/zoom.service';
 import { createCell, getCellValue, setCellValue } from '../../core/model/cell';
-import { Cell, Draft, Drawdown, Interlacement, Loom, LoomSettings } from '../../core/model/datatypes';
+import { CanvasList, Cell, Draft, Drawdown, Interlacement, Loom, LoomSettings, RenderingFlags } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { copyDraft, createBlankDrawdown, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getDraftAsImage, hasCell, initDraftWithParams, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isSet, isUp, pasteIntoDrawdown, setHeddle, warps, wefts } from '../../core/model/drafts';
 import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../core/model/looms';
@@ -32,6 +32,7 @@ export class DraftComponent implements OnInit {
    * @property {string} will be "weaver" or "mixer"
    */
    @Input('source') source: string;
+   @Input('current_view') current_view: string;
 
  
  /**
@@ -62,13 +63,6 @@ export class DraftComponent implements OnInit {
   colSystemMapping: Array<number>= [];
   rowSystemMapping: Array<number>= [];
 
- /**
-    * The HTML canvas element within the weave draft.
-    * @property {HTMLCanvasElement}
-   */ 
-   canvasEl: HTMLCanvasElement;
- 
- 
    /**
     * flag defining if there needs to be a recomputation of the draft on Mouse Up
     */
@@ -79,49 +73,6 @@ export class DraftComponent implements OnInit {
     * flag defining if there needs to be a recomputation of the draft on Mouse Up
     */
    flag_history: boolean;
- 
- 
-   /**
-    * The 2D context of the canvas
-    * @property {any}
-    */
-   cx: any;
- 
-   /**
-    * The 2D context of the threading canvas
-    * @property {any}
-    */
-   cxThreading: any;
- 
-   /**
-    * The 2D context of the treadling canvas
-    * @property {any}
-    */
-   cxTreadling: any;
- 
-   /**
-    * The 2D context of the treadling canvas
-    * @property {any}
-    */
-   cxTieups: any;
- 
-   /**
-    * The 2D context of the weft_systems canvas
-    * @property {any}
-    */
-   cxWeftSystems: any;
- 
-   /**
-    * The 2D context of the warp_systems canvas
-    * @property {any}
-    */
-   cxWarpSystems: any;
- 
- 
-   cxWarpMaterials: any;
- 
- 
-   cxWeftMaterials: any;
 
 
    copy: Drawdown;
@@ -149,13 +100,7 @@ export class DraftComponent implements OnInit {
     */
    divWasy: HTMLElement;
  
- 
-   /**
-    * The HTML div element used to show and hide the frames.
-    * @property {HTMLElement}
-    */
-   divViewFrames: HTMLElement;
- 
+
  
   /**
     * The HTML SVG element used to show the row
@@ -171,28 +116,8 @@ export class DraftComponent implements OnInit {
    svgSelectCol: HTMLElement;
  
  
-   /**
-    * The HTML canvas element within the weave draft for threading.
-    * @property {HTMLCanvasElement}
-    * 
-    */
-   threadingCanvas: HTMLCanvasElement;
  
-     /**
-    * The HTML canvas element within the weave draft for treadling.
-    * @property {HTMLCanvasElement}
-    * 
-    */
-   treadlingCanvas: HTMLCanvasElement;
- 
-   /**
-    * The HTML canvas element within the weave draft for tieups.
-    * @property {HTMLCanvasElement}
-    * 
-    */
-   tieupsCanvas: HTMLCanvasElement;
- 
- 
+   canvases: CanvasList = null;
  
  
   //  weftMaterialsCanvas: HTMLCanvasElement;
@@ -221,11 +146,7 @@ export class DraftComponent implements OnInit {
 
   expanded: boolean = false;
 
-  cell_size: number = 40;
-
   system_codes: Array<string> = [];
-
-  pixel_ratio: number = 1;
 
   id: number = -1;
 
@@ -255,7 +176,6 @@ export class DraftComponent implements OnInit {
 
     this.flag_recompute = false;
     this.flag_history = false;
-    this.cell_size = defaults.draft_detail_cell_size;
     this.system_codes = defaults.weft_system_codes;
 
   }
@@ -267,35 +187,38 @@ export class DraftComponent implements OnInit {
   ngAfterViewInit(){
 
     // define the elements and context of the weave draft, threading, treadling, and tieups.
-    this.canvasEl = <HTMLCanvasElement> document.getElementById('drawdown');
+    const canvasEl = <HTMLCanvasElement> document.getElementById('drawdown-editor');
+    const threadingCanvas = <HTMLCanvasElement> document.getElementById('threading-editor');
+    const tieupsCanvas = <HTMLCanvasElement> document.getElementById('tieups-editor');
+    const treadlingCanvas = <HTMLCanvasElement> document.getElementById('treadling-editor');
+    const warp_systems_canvas =  
+    <HTMLCanvasElement> document.getElementById('warp-systems-editor');
+    const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-editor');
+    const weft_systems_canvas =  <HTMLCanvasElement> document.getElementById('weft-systems-editor');
+    const weft_mats_canvas =  <HTMLCanvasElement> document.getElementById('weft-materials-editor');
 
+
+
+    this.canvases = {
+      id: -1, 
+      drawdown: canvasEl, 
+      threading: threadingCanvas, 
+      tieup: tieupsCanvas, 
+      treadling: treadlingCanvas,
+      warp_systems: warp_systems_canvas, 
+      warp_mats: warp_mats_canvas, 
+      weft_systems: weft_systems_canvas,
+      weft_mats: weft_mats_canvas
+    }
+    
+  
   
     // this.svgSelectRow = el.nativeElement.children[12];
     // this.svgSelectCol = el.nativeElement.children[13];
-    this.divWesy =  document.getElementById('weft-systems-text');
-    this.divWasy =  document.getElementById('warp-systems-text');
-    this.divViewFrames = document.getElementById('view_frames');
+    this.divWesy =  document.getElementById('weft-systems-text-editor');
+    this.divWasy =  document.getElementById('warp-systems-text-editor');
 
-    this.threadingCanvas = <HTMLCanvasElement> document.getElementById('threading');
-    this.tieupsCanvas = <HTMLCanvasElement> document.getElementById('tieups');
-    this.treadlingCanvas = <HTMLCanvasElement> document.getElementById('treadling');
-
-    this.cx = this.canvasEl.getContext('2d');
-    this.cxThreading = this.threadingCanvas.getContext('2d');
-    this.cxTreadling = this.treadlingCanvas.getContext('2d');
-    this.cxTieups = this.tieupsCanvas.getContext('2d');
-
-    // set the width and height
-    let dpr = window.devicePixelRatio || 1;
-    let bsr =  this.cxThreading.webkitBackingStorePixelRatio ||
-    this.cxThreading.mozBackingStorePixelRatio ||
-    this.cxThreading.msBackingStorePixelRatio ||
-    this.cxThreading.oBackingStorePixelRatio ||
-    this.cxThreading.backingStorePixelRatio || 1;
-
-    this.pixel_ratio = dpr/bsr;
-    
-
+   
 
 
     this.rescale();
@@ -339,10 +262,7 @@ export class DraftComponent implements OnInit {
 
     let div_draftviewer = document.getElementById('draft_viewer');
      let rect_draftviewer = div_draftviewer.getBoundingClientRect();
-
-
-    var base_dims = this.render.getCellDims("base_fill");
-    let cell_size = base_dims.w;    
+     let cell_size = this.render.calculateCellSize(draft);
 
     let weft_num = wefts(draft.drawdown);
     let warp_num = warps(draft.drawdown);
@@ -405,15 +325,6 @@ export class DraftComponent implements OnInit {
     this.rowShuttleMapping = draft.rowShuttleMapping.slice();
     this.rowSystemMapping = draft.rowSystemMapping.slice();
 
-    var dims = this.render.getCellDims("base");
-    this.canvasEl.width = warp_num * dims.w;
-    this.canvasEl.height = weft_num * dims.h;
-    this.threadingCanvas.width = warp_num * dims.w;
-    this.threadingCanvas.height = this.frames * dims.h;
-    this.treadlingCanvas.height = weft_num * dims.h;
-    this.treadlingCanvas.width = this.treadles * dims.w;
-    this.tieupsCanvas.width = this.treadles*dims.w;
-    this.tieupsCanvas.height = this.frames * dims.h;
 
     // this.cdRef.detectChanges();
 
@@ -452,19 +363,28 @@ export class DraftComponent implements OnInit {
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
       
+      console.log("TARGET ", target)
+
       const editing_style = this.dm.cur_draft_edit_source
 
-      if (target && target.id =='treadling') {
-        currentPos.i = this.render.visibleRows[currentPos.i];
+      if(target && target.id =='warp-materials-editor'){
+        this.drawOnWarpMaterials(draft, currentPos);
+      }else if(target && target.id =='warp-systems-editor'){
+        
+      }else if(target && target.id =='weft-materials-editor'){
+        this.drawOnWeftMaterials(draft, currentPos)
+
+      } else if(target && target.id =='warp-systems-editor'){
+
+      } else if (target && target.id =='treadling-editor') {
         if(editing_style == "loom") this.drawOnTreadling(loom, loom_settings, currentPos);
-      } else if (target && target.id === 'tieups') {
+      } else if (target && target.id === 'tieups-editor') {
         if(loom_settings.type === "direct") return;
         if(editing_style == "loom") this.drawOnTieups(loom, loom_settings, currentPos);
-      } else if (target && target.id === ('threading')) {
+      } else if (target && target.id === ('threading-editor')) {
         //currentPos.i = this.loom.frame_mapping[currentPos.i];
         if(editing_style == "loom")  this.drawOnThreading(loom, loom_settings, currentPos);
     } else{
-        currentPos.i = this.render.visibleRows[currentPos.i];
         if(editing_style == "drawdown")  this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
       }
 
@@ -490,23 +410,13 @@ export class DraftComponent implements OnInit {
 
     const loom_settings = this.tree.getLoomSettings(this.id);
     const draft = this.tree.getDraft(this.id);
+    let cell_size = this.render.calculateCellSize(draft);
 
     const frames = (loom_settings !== null ) ? loom_settings.frames : 0;
     const treadles = (loom_settings !== null ) ? loom_settings.treadles : 0;
   
-
-  // console.log("DIV COORDS", )
-
-
-    //get dimis based on zoom.
-    // let dims ={
-    //   w:  el.offsetWidth / warps(draft.drawdown),
-    //   h:  el.offsetHeight / this.render.visibleRows.length
-    // }
-
-    let dims = this.render.getCellDims("base");
-    var screen_row = Math.floor(event.offsetY / dims.h);
-    var screen_col = Math.floor(event.offsetX / dims.w);
+    var screen_row = Math.floor(event.offsetY / cell_size);
+    var screen_col = Math.floor(event.offsetX / cell_size);
 
     const currentPos: Interlacement = {
       si: screen_row,
@@ -641,9 +551,8 @@ export class DraftComponent implements OnInit {
   private onMove(event) {
 
     const draft = this.tree.getDraft(this.id);
+    let cell_size = this.render.calculateCellSize(draft);
 
-
-    let dims = this.render.getCellDims("base");
     // var screen_row = Math.floor(event.offsetY / dims.h);
     // var screen_col = Math.floor(event.offsetX / dims.w);
 
@@ -653,13 +562,10 @@ export class DraftComponent implements OnInit {
     // };    
 
     
-
-    var offset = this.render.getCellDims(this.dm.cur_draft_edit_mode);
-
     // set up the point based on touched square.
     //var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
-     var screen_row = Math.floor(event.offsetY / dims.h);
-     var screen_col = Math.floor(event.offsetX / dims.w);
+     var screen_row = Math.floor(event.offsetY / cell_size);
+     var screen_col = Math.floor(event.offsetX / cell_size);
 
     const currentPos: Interlacement = {
       si: screen_row,
@@ -670,10 +576,10 @@ export class DraftComponent implements OnInit {
    
 
 
-    if(event.target && event.target.id==="drawdown"){
-      currentPos.si -=1;
-      currentPos.i -=1;
-      currentPos.j -=1;
+    if(event.target && event.target.id==="drawdown-editor"){
+      // currentPos.si -=1;
+      // currentPos.i -=1;
+      // currentPos.j -=1;
     }
 
    
@@ -692,7 +598,7 @@ export class DraftComponent implements OnInit {
           case 'toggle':
           //this.unsetSelection();
 
-          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;
 
 
@@ -961,20 +867,20 @@ export class DraftComponent implements OnInit {
 
   // }
 
-  private drawWarpMaterialCell(draft:Draft, cx:any, j:number){
+  // private drawWarpMaterialCell(draft:Draft, cx:any, j:number){
 
-        var dims = this.render.getCellDims("base");
-        var margin = this.render.zoom*2;
-       const ndx: number = draft.colShuttleMapping[j];
-        cx.fillStyle = this.ms.getColor(ndx);
-        cx.strokeStyle = "#000000";
-        cx.lineWidth = '1';
+  //       var dims = this.render.getCellDims("base");
+  //       var margin = this.render.zoom*2;
+  //      const ndx: number = draft.colShuttleMapping[j];
+  //       cx.fillStyle = this.ms.getColor(ndx);
+  //       cx.strokeStyle = "#000000";
+  //       cx.lineWidth = '1';
 
-      //  if(j == warps(draft.drawdown)-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
-      //  else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
-      cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
-      cx.strokeRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
-  }
+  //     //  if(j == warps(draft.drawdown)-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
+  //     //  else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
+  //     cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
+  //     cx.strokeRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
+  // }
 
 
   // private drawWarpMaterials(draft:Draft, cx:any,canvas:any){
@@ -1037,23 +943,22 @@ export class DraftComponent implements OnInit {
 
   // }
 
-  private drawWarpSelectorCell(draft:Draft, cx:any, j:number){
+  // private drawWarpSelectorCell(draft:Draft, cx:any, j:number){
 
-        var dims = this.render.getCellDims("base");
-        var margin = this.render.zoom;
-        cx.fillStyle = "#ffffff";
+  //       var dims = this.render.getCellDims("base");
+  //       var margin = this.render.zoom;
+  //       cx.fillStyle = "#ffffff";
 
-        if(j == warps(draft.drawdown)-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
-        else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
+  //       if(j == warps(draft.drawdown)-1) cx.fillRect((dims.w*j)+margin, 0, dims.w-(margin*2), (dims.h) - margin);
+  //       else cx.fillRect( (dims.w*j)+margin, 0, dims.w-margin, (dims.h) - margin);
   
-         cx.fillStyle = "#000000";  
-         cx.font = "10px Arial";
+  //        cx.fillStyle = "#000000";  
+  //        cx.font = "10px Arial";
 
-         const sys = draft.colSystemMapping[j];
-         cx.fillText(this.ss.getWarpSystemCode(sys),(dims.w*j)+dims.w/3, dims.w-(margin*3));
+  //        const sys = draft.colSystemMapping[j];
+  //        cx.fillText(this.ss.getWarpSystemCode(sys),(dims.w*j)+dims.w/3, dims.w-(margin*3));
 
-
-  }
+  // }
 
 
   private drawWarpSystems(draft:Draft, cx:any,canvas:HTMLCanvasElement){
@@ -1091,99 +996,99 @@ export class DraftComponent implements OnInit {
    * @extends WeaveDirective
    * @returns {void}
    */
-  private drawGrid(loom: Loom, loom_settings: LoomSettings, cx:any,canvas:HTMLCanvasElement) {
-    var i,j;
+  // private drawGrid(loom: Loom, loom_settings: LoomSettings, cx:any,canvas:HTMLCanvasElement) {
+  //   var i,j;
 
-    var dims = this.render.getCellDims("base");
-    dims.w *= this.pixel_ratio;
-    dims.h *= this.pixel_ratio;
+  //   var dims = this.render.getCellDims("base");
+  //   dims.w *= this.pixel_ratio;
+  //   dims.h *= this.pixel_ratio;
 
-    cx.fillStyle="black";
-    cx.lineWidth = .5;
-    cx.lineCap = 'round';
-    cx.strokeStyle = '#000';
-
-
-    if(canvas.id=== "drawdown"){
-      cx.fillStyle = "white";
-      cx.strokeRect(dims.w,dims.h,canvas.width-2*dims.w,canvas.height-2*dims.w);
-
-    }else if(canvas.id=== "threading"){
-      cx.fillStyle = "white";
-      cx.fillRect(0,0,canvas.style.width,canvas.style.height);
-      // cx.fillStyle = "#cccccc";
-      // cx.fillRect(0, 0, canvas.width, (frames - loom_settings.frames)*dims.h);
-    }
-    else if (canvas.id=== "treadling"){
-      cx.fillStyle = "white";
-      cx.fillRect(0,0,canvas.width,canvas.height);
-      // cx.fillStyle = "#cccccc";
-      // var start = loom_settings.frames * dims.w;
-      // cx.fillRect(start, 0, canvas.width - start, canvas.height);
-
-    }
-    else if (canvas.id=== "tieups"){
-      cx.fillStyle = "white";
-      cx.fillRect(0,0,canvas.width,canvas.height);
-      // cx.fillStyle = "#cccccc";
-      // var start = loom_settings.treadles * dims.w;
-      // cx.fillRect(start, 0, canvas.width - start, canvas.height);
-      // cx.fillRect(0, 0, canvas.width, (frames -loom_settings.frames)*dims.h);
-
-    }
+  //   cx.fillStyle="black";
+  //   cx.lineWidth = .5;
+  //   cx.lineCap = 'round';
+  //   cx.strokeStyle = '#000';
 
 
-    cx.fillStyle="black";
-    cx.lineWidth = .5;
-    cx.lineCap = 'round';
-    cx.strokeStyle = '#000';
+  //   if(canvas.id=== "drawdown"){
+  //     cx.fillStyle = "white";
+  //     cx.strokeRect(dims.w,dims.h,canvas.width-2*dims.w,canvas.height-2*dims.w);
 
-    //only draw the lines if the zoom is big enough to render them well
+  //   }else if(canvas.id=== "threading"){
+  //     cx.fillStyle = "white";
+  //     cx.fillRect(0,0,canvas.style.width,canvas.style.height);
+  //     // cx.fillStyle = "#cccccc";
+  //     // cx.fillRect(0, 0, canvas.width, (frames - loom_settings.frames)*dims.h);
+  //   }
+  //   else if (canvas.id=== "treadling"){
+  //     cx.fillStyle = "white";
+  //     cx.fillRect(0,0,canvas.width,canvas.height);
+  //     // cx.fillStyle = "#cccccc";
+  //     // var start = loom_settings.frames * dims.w;
+  //     // cx.fillRect(start, 0, canvas.width - start, canvas.height);
+
+  //   }
+  //   else if (canvas.id=== "tieups"){
+  //     cx.fillStyle = "white";
+  //     cx.fillRect(0,0,canvas.width,canvas.height);
+  //     // cx.fillStyle = "#cccccc";
+  //     // var start = loom_settings.treadles * dims.w;
+  //     // cx.fillRect(start, 0, canvas.width - start, canvas.height);
+  //     // cx.fillRect(0, 0, canvas.width, (frames -loom_settings.frames)*dims.h);
+
+  //   }
+
+
+  //   cx.fillStyle="black";
+  //   cx.lineWidth = .5;
+  //   cx.lineCap = 'round';
+  //   cx.strokeStyle = '#000';
+
+  //   //only draw the lines if the zoom is big enough to render them well
 
       
-      // draw vertical lines
-      for (i = 0; i <= canvas.width; i += dims.w) {
+  //     // draw vertical lines
+  //     for (i = 0; i <= canvas.width; i += dims.w) {
         
-          if(canvas.id == 'drawdown'){
-            if(i > dims.w && i < canvas.width - dims.w){
-            cx.beginPath();
-            cx.moveTo(i, dims.h);
-            cx.lineTo(i, canvas.height-dims.h);
-            cx.stroke();
-            }
-          }else{
-            cx.beginPath();
-            cx.moveTo(i, 0);
-            cx.lineTo(i, canvas.height);
-            cx.stroke();
-          }
+  //         if(canvas.id == 'drawdown'){
+  //           if(i > dims.w && i < canvas.width - dims.w){
+  //           cx.beginPath();
+  //           cx.moveTo(i, dims.h);
+  //           cx.lineTo(i, canvas.height-dims.h);
+  //           cx.stroke();
+  //           }
+  //         }else{
+  //           cx.beginPath();
+  //           cx.moveTo(i, 0);
+  //           cx.lineTo(i, canvas.height);
+  //           cx.stroke();
+  //         }
         
 
-      }
+  //     }
 
-      // draw horizontal lines
-      for (i = 0; i <= canvas.height; i += dims.h) {
+  //     // draw horizontal lines
+  //     for (i = 0; i <= canvas.height; i += dims.h) {
 
-        if(canvas.id == "drawdown"){
-          if(i > dims.h && i < canvas.height - dims.h){
-          cx.beginPath();
-          cx.moveTo(dims.w, i);
-          cx.lineTo(canvas.width-dims.w, i);
-          cx.stroke();
-          }
-        }else{
-          cx.beginPath();
-          cx.moveTo(0, i);
-          cx.lineTo(canvas.width, i);
-          cx.stroke();
-        }
-      }
+  //       if(canvas.id == "drawdown"){
+  //         if(i > dims.h && i < canvas.height - dims.h){
+  //         cx.beginPath();
+  //         cx.moveTo(dims.w, i);
+  //         cx.lineTo(canvas.width-dims.w, i);
+  //         cx.stroke();
+  //         }
+  //       }else{
+  //         cx.beginPath();
+  //         cx.moveTo(0, i);
+  //         cx.lineTo(canvas.width, i);
+  //         cx.stroke();
+  //       }
+  //     }
 
 
-      // reset the line dash.
-      //cx.setLineDash([0]);
+  //     // reset the line dash.
+  //     //cx.setLineDash([0]);
     
-  }
+  // }
 
 
 
@@ -1289,7 +1194,7 @@ export class DraftComponent implements OnInit {
     var val  = false;
 
 
-    if (!this.cx || !currentPos) { return; }
+    if (this.canvases.drawdown == null || !currentPos) { return; }
 
 
     
@@ -1297,6 +1202,7 @@ export class DraftComponent implements OnInit {
       this.markDirty();
 
       // Set the heddles based on the brush.
+      console.log("DM CUR PENCIL ", this.dm.cur_pencil)
       switch (this.dm.cur_pencil) {
         case 'up':
           val = true;
@@ -1346,7 +1252,7 @@ export class DraftComponent implements OnInit {
   private drawOnTieups(loom: Loom, loom_settings:LoomSettings, currentPos: Interlacement ) {
     var val = false;
 
-    if (!this.cxTieups || !currentPos) { return; }
+    if (this.canvases.tieup === null || !currentPos) { return; }
 
 
     if (isInUserTieupRange(loom, loom_settings,  currentPos)){
@@ -1390,7 +1296,7 @@ export class DraftComponent implements OnInit {
   private drawOnThreading(loom:Loom, loom_settings: LoomSettings, currentPos: Interlacement ) {
     
 
-    if (!this.cxThreading || !currentPos) { return; }
+    if (this.canvases.threading == null || !currentPos) { return; }
     
     
 
@@ -1439,7 +1345,7 @@ export class DraftComponent implements OnInit {
    */
   private drawOnTreadling(loom: Loom, loom_settings: LoomSettings, currentPos: Interlacement ) {
 
-    if (!this.cxTreadling || !currentPos) { return; }
+    if (this.canvases.treadling == null || !currentPos) { return; }
     this.markDirty();
     const draft = this.tree.getDraft(this.id)
     var val = false;
@@ -1477,241 +1383,9 @@ export class DraftComponent implements OnInit {
    }
 
 
-  private getTransform(target: string) : Array<number> {
-   switch(this.ws.selected_origin_option){
-    case 0: 
-    if(target == 'threading'){
-      return [-1, 0, 0, -1, 0,  0];
-    }
-    if(target == 'treadling'){
-      return [1, 0, 0, 1, 0,  0];
-    }
-    if(target == 'tieup'){
-      return [1, 0, 0, -1, 0,  0];
-    }
-    break;
-
-    case 1: 
-    if(target == 'threading'){
-      return [-1, 0, 0, 1, 0,  0];
-    }
-    if(target == 'treadling'){
-      return [1, 0, 0, -1, 0,  0];
-    }
-    if(target == 'tieup'){
-      return [1, 0, 0, 1, 0,  0];
-    }
-    break;
-
-    case 2: 
-    if(target == 'threading'){
-      return [1, 0, 0, 1, 0,  0];
-    }
-    if(target == 'treadling'){
-      return [-1, 0, 0, -1, 0,  0];
-    }
-    if(target == 'tieup'){
-      return [-1, 0, 0, 1, 0,  0];
-    }
-    break;
-
-    case 3: 
-      if(target == 'threading'){
-        return [1, 0, 0,-1, 0, 0];
-      }
-      if(target == 'treadling'){
-        return [-1, 0, 0, 1, 0,  0];
-      }
-      if(target == 'tieup'){
-        return [-1, 0, 0,-1, 0, 0];
-      }
-      break;
-
-   }
-  }
 
 
 
-
-
-
-//This function draws whatever the current value is at screen coordinates cell i, J
-  private drawCell(draft: Draft, loom: Loom, loom_settings: LoomSettings, cx:any, i:number, j:number, type:string){
-
-    var base_fill = this.render.getCellDims("base_fill");
-    base_fill.w *= this.pixel_ratio;
-    base_fill.h *= this.pixel_ratio;
-
-    var base_dims = this.render.getCellDims("base");
-    base_dims.w *= this.pixel_ratio;
-    base_dims.h *= this.pixel_ratio;
-
-
-
-
-    var is_up = false;
-    var is_set = false;
-    var color = "#FFFFFF";
-    var beyond = false;
-
-    var top = 0; 
-    var left = 0;
-
-
-
-    switch(type){
-      case 'drawdown':
-        var row = this.render.visibleRows[i];
-        
-        is_up = isUp(draft.drawdown, row,j);
-        is_set = isSet(draft.drawdown, row,j);
-
-        if(!this.render.isFront()) is_up = !is_up;
-
-        if(!is_set){
-          color = "#cccccc";
-        }
-        else {
-          if(is_up) color = "#333333";
-        }
-
-        top = base_dims.h;
-        left = base_dims.w;
-
-      break;
-      case 'threading':
-        var frame = loom.threading[j];
-        is_up = (frame == i);
-        beyond = frame > loom_settings.frames; 
-        //i = this.translateThreadingRowForView(loom, loom_settings, i);
-        
-        if(is_up)  color = "#333333";
-        //i = this.loom.frame_mapping[frame];
-
-      break;
-      case 'tieup':
-        is_up = (loom.tieup[i][j]);
-        beyond = i > loom_settings.frames; 
-        if(is_up) color = "#333333";
-        //i = this.loom.frame_mapping[i];
-
-      break;
-      case 'treadling':
-        //i and j is going to come from the UI which is only showing visible rows
-        var row = this.render.visibleRows[i];
-        is_up = (loom.treadling[row].find(el => el == j)) !== undefined;
-        if(is_up)  color = "#333333";
-
-      break;
-
-    }
-
-     //cx.fillStyle = color;
-     cx.fillStyle = color;
-     cx.strokeStyle = "#999999";
-     cx.fillRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
-
-    if(type !== 'drawdown'){
-      cx.strokeRect(left+j*base_dims.w + base_fill.x, top+i*base_dims.h + base_fill.y, base_fill.w, base_fill.h);
-
-      cx.font = "18px Arial";
-      cx.fillStyle = "white";
-
-      let number_val = -1;
-      if(type == "threading") number_val = i+1;
-      else if(type == "treadling") number_val = j+1 ;
-      else if(type == "tieup") number_val = i+1 ;
-
-      //if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = numFrames(loom) - loom.threading[j];
-      let y_margin = 0;
-      if(type == "threading"){
-        y_margin = (this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2 ) ? 3/4 : 1/4;
-      }
-
-      if(type == "treadling"){
-        y_margin = (this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2 ) ? 1/4 : 3/4;
-      }
-
-      if(type == "tieup"){
-        y_margin = (this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2 ) ? 3/4 : 1/4;
-      }
-
-      cx.save();
-      cx.translate(left+ base_dims.w*(j + 1/2) , top+base_dims.h*(i + y_margin));
-      let tx = this.getTransform(type);
-      cx.transform(tx[0], tx[1], tx[2], tx[3], tx[4], tx[5]);
-      cx.textAlign = "center";
-      cx.fillText(number_val, 0, 0);
-      cx.restore();
-      
-    }
-
-  }
-
-  /**This view renders cells based on the relationships with their neighbords */
-  drawCrossingCell(draft:Draft, cx: any, i:number, i_next:number, j:number, type:string){
-    var base_dims = this.render.getCellDims("base");
-    var base_fill = this.render.getCellDims("base_fill");
-    var top = 0; 
-    var left = 0;
-
-    var right_edge: boolean;
-    var right_bot_to_top: boolean;
-    var bottom_edge: boolean;
-    var bottom_bot_to_top: boolean;
-
-
-    right_edge = (isUp(draft.drawdown, i, j) !== isUp(draft.drawdown, i, j+1)) ? true : false;
-
-    if(right_edge){
-      right_bot_to_top = (isUp(draft.drawdown, i, j) && !isUp(draft.drawdown, i, j+1)) ? true : false;
-    }
-
-
-    bottom_edge = (isUp(draft.drawdown, i, j) !== isUp(draft.drawdown, i_next, j)) ? true : false;
-    if(bottom_edge){
-      bottom_bot_to_top = (isUp(draft.drawdown, i, j) && !isUp(draft.drawdown, i_next, j)) ? true : false;
-    }
-
-    j++;
-    i++;
-    
-    if(right_edge){
-      cx.strokeStyle = (right_bot_to_top) ? "#FF0000" : "#00FF00";
-      cx.beginPath();
-      cx.moveTo(left+j*base_dims.w + base_fill.w , top+i*base_dims.h);
-      cx.lineTo(left+j*base_dims.w + base_fill.w , top+i*base_dims.h + base_fill.h);
-      cx.stroke();
-    }
-
-    if(bottom_edge){
-      cx.strokeStyle = (bottom_bot_to_top) ? "#0000FF" : "#FFA500";
-      cx.beginPath();
-      cx.moveTo(left+j*base_dims.w , top+i*base_dims.h + base_fill.h);
-      cx.lineTo(left+j*base_dims.w+ base_fill.w, top+i*base_dims.h + base_fill.h);
-      cx.stroke();
-    }
-  }
-
-  /**
-   * Redraws one row to avoid drawing the entire canvas.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  private redrawRow(draft: Draft, loom: Loom, loom_settings: LoomSettings, y:number, i:number, cx:any) {
- 
-    for (var j = 0; j < warps(draft.drawdown); j++) {
-      //get the system at this warp
-      const sys_id = draft.colSystemMapping[j];
-      const sys = this.ss.getWarpSystem(sys_id)
-    
-      if(sys !== undefined && sys.visible){
-        this.drawCell(draft, loom, loom_settings, this.cx, i, j, "drawdown");
-      }else{
-
-      } 
-    }
-  }
 
 
 
@@ -1750,147 +1424,6 @@ export class DraftComponent implements OnInit {
 
 
 
-  
-
-  
-
-
-
-  //public redrawYarnView(){
-
-    //draw from bottom to top 
-
-
-  //   //first, just draw all the wefts 
-  //  const shuttles: Array<number> =  this.render.visibleRows.map(el => this.weave.rowShuttleMapping[el]);
-
-  //  shuttles.forEach((shuttle, i) => {
-  //     this.drawWeft(i, this.ms.getShuttle(shuttle));
-  //  });
-
-  //   const crossings: Array<Array<Crossing>> = this.weave.getRelationalDraft();
-  //   const visible_crossings = crossings.filter((el, i) => this.render.visibleRows.find(el => el == i) !== -1);
-
-  //   visible_crossings.forEach((row, i) =>{
-
-  //     let cur_j = 0;
-  //     let cur_state: boolean = false;
-
-  //     row.forEach(crossing => {
-
-  //       if(cur_j < crossing.j){
-  //         cur_state = crossing.type.t;
-  //       }
-
-  //     });
-
-
-  //   });  
-
-
-
-    // let started:boolean = false;
-
-    // for(let i = 0; i < this.render.visibleRows.length; i++){
-
-    //   let index_row = this.render.visibleRows[i];
-
-    //   let row_values = this.weave.drawdown[index_row];
-
-    //   let shuttle_id = this.weave.rowShuttleMapping[index_row];
-
-    //   let s = this.ms.getShuttle(shuttle_id);
-
-    //   //iterate through the rows
-    //   for(let j = 0; j < row_values.length; j++){
-        
-    //     let p = row_values[j];
-
-    //   //   if(p.isEastWest())  this.drawWeftOver(i,j,s);
-    //   //   if(p.isSouthWest()) this.drawWeftBottomLeft(i,j,s);
-    //   //  // if(p.isNorthSouth())this.drawWeftUp(i, j, s);
-    //   //   if(p.isSouthEast()) this.drawWeftBottomRight(i,j,s);
-    //   //   if(p.isNorthWest()) this.drawWeftLeftUp(i,j,s);
-    //   //   if(p.isNorthEast()) this.drawWeftRightUp(i, j, s);
-
-    //   }
-    // }
-
-  //}
-
-
-
-
-  /**
-   * redraws the loom provided into the video
-   * @returns 
-   */
-  public redrawLoom(draft: Draft, loom:Loom, loom_settings:LoomSettings) {
-
-
-
-    if(loom === null || loom === undefined){
-      return;
-    }
-
-
-
-
-    const frames = Math.max(numFrames(loom), loom_settings.frames);
-    const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
-
-    var base_dims = this.render.getCellDims("base");
-    var front = this.render.isFront();
-
-    this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
-    this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
-    this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
-
-    this.cxThreading.canvas.width = base_dims.w * loom.threading.length * this.pixel_ratio;
-    this.cxThreading.canvas.height = base_dims.h * frames * this.pixel_ratio;
-    this.cxThreading.canvas.style.width =  (base_dims.w * loom.threading.length)+ "px"
-    this.cxThreading.canvas.style.height =  ( base_dims.h * frames )+ "px"
-    this.drawGrid(loom, loom_settings, this.cxThreading,this.threadingCanvas);
-
-
-    this.cxTreadling.canvas.width = base_dims.w * treadles * this.pixel_ratio;
-    this.cxTreadling.canvas.height = base_dims.h * this.render.visibleRows.length  * this.pixel_ratio;
-    this.cxTreadling.canvas.style.width = (base_dims.w * treadles) + "px";
-    this.cxTreadling.canvas.style.height = (base_dims.h * this.render.visibleRows.length) + "px";
-    this.drawGrid(loom, loom_settings, this.cxTreadling,this.treadlingCanvas);
-
-    this.cxTieups.canvas.width = base_dims.w * treadles  * this.pixel_ratio;
-    this.cxTieups.canvas.height = base_dims.h *frames  * this.pixel_ratio;
-    this.cxTieups.canvas.style.width = (base_dims.w * treadles)+ "px";
-    this.cxTieups.canvas.style.height = (base_dims.h *frames)+ "px";
-    this.drawGrid(loom, loom_settings, this.cxTieups,this.tieupsCanvas);
-    
-
-    for (var j = 0; j < loom.threading.length; j++) {
-      this.drawCell(draft, loom, loom_settings, this.cxThreading, loom.threading[j], j, "threading");
-    }
-
-    //only cycle through the visible rows
-    for (var i = 0; i < this.render.visibleRows.length; i++) {
-      if(this.render.visibleRows[i] < loom.treadling.length){
-        loom.treadling[this.render.visibleRows[i]].forEach(cell => {
-          this.drawCell(draft, loom, loom_settings, this.cxTreadling, i, cell, "treadling");
-        })
-      }
-      
-    }
-
-    for (var i = 0; i < loom.tieup.length; i++) {
-      for(var j = 0; j < loom.tieup[i].length; j++){
-        if(loom.tieup[i][j]){
-          this.drawCell(draft, loom, loom_settings, this.cxTieups, i, j, "tieup");
-        }
-      }
-    }
-
-  }
-
-
   public getTextInterval(){
     let ls = this.tree.getLoomSettings(this.id);
     return ls.epi;
@@ -1908,108 +1441,66 @@ public unsetSelection(){
   this.selection.unsetParameters();
 }
 
-public drawDrawdown(draft: Draft, loom:Loom, loom_settings: LoomSettings){
 
-
-   switch(this.render.getCurrentView()){
-      case 'draft':
-      this.redrawDraft(draft, loom, loom_settings);
-      break;
-
-      case 'structure':
-        this.redrawStructure(draft);
-        break;
-
-      case 'color':
-        this.redrawColor(draft);
-        break;
-  
-    }
-}
 
 public clearAll(){
   this.colSystemMapping = [];
   this.rowSystemMapping = [];
   this.render.visibleRows = [];
 
-      this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
-      this.cx.canvas.width = 0;
-      this.cx.canvas.height = 0;
-      this.cx.canvas.style.width = "0px";
-      this.cx.canvas.style.height = "0px";
-      this.cx.strokeStyle = "#3d3d3d";
-      this.cx.fillStyle = "#f0f0f0";
-      this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
-      this.cx.strokeRect(0,0,this.canvasEl.width,this.canvasEl.height);
+      // this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
+      // this.cx.canvas.width = 0;
+      // this.cx.canvas.height = 0;
+      // this.cx.canvas.style.width = "0px";
+      // this.cx.canvas.style.height = "0px";
+      // this.cx.strokeStyle = "#3d3d3d";
+      // this.cx.fillStyle = "#f0f0f0";
+      // this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
+      // this.cx.strokeRect(0,0,this.canvasEl.width,this.canvasEl.height);
   
-      this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
-      this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
-      this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
+      // this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
+      // this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
+      // this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
   
-      this.cxThreading.canvas.width = 0;
-      this.cxThreading.canvas.height = 0;
-      this.cxThreading.canvas.style.width =  "0px"
-      this.cxThreading.canvas.style.height = "0px"
+      // this.cxThreading.canvas.width = 0;
+      // this.cxThreading.canvas.height = 0;
+      // this.cxThreading.canvas.style.width =  "0px"
+      // this.cxThreading.canvas.style.height = "0px"
   
   
-      this.cxTreadling.canvas.width = 0;
-      this.cxTreadling.canvas.height = 0;
-      this.cxTreadling.canvas.style.width = "0px";
-      this.cxTreadling.canvas.style.height = "0px";
+      // this.cxTreadling.canvas.width = 0;
+      // this.cxTreadling.canvas.height = 0;
+      // this.cxTreadling.canvas.style.width = "0px";
+      // this.cxTreadling.canvas.style.height = "0px";
   
-      this.cxTieups.canvas.width = 0;
-      this.cxTieups.canvas.height = 0;
-      this.cxTieups.canvas.style.width = "0px";
-      this.cxTieups.canvas.style.height = "0px";
+      // this.cxTieups.canvas.width = 0;
+      // this.cxTieups.canvas.height = 0;
+      // this.cxTieups.canvas.style.width = "0px";
+      // this.cxTieups.canvas.style.height = "0px";
     
 }
 
 //takes inputs about what, exactly to redraw
-public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
+public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
 
-    var base_dims = this.render.getCellDims("base");
     this.colSystemMapping = draft.colSystemMapping;
     this.rowSystemMapping = draft.rowSystemMapping;
 
-    if(flags.drawdown !== undefined){
-        this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
-        this.cx.canvas.width = base_dims.w * (warps(draft.drawdown)+2) * this.pixel_ratio;
-        this.cx.canvas.height = base_dims.h * (this.render.visibleRows.length+2) * this.pixel_ratio;
-        this.cx.canvas.style.width = (base_dims.w * (warps(draft.drawdown)+2)) + "px";
-        this.cx.canvas.style.height = (base_dims.h * (this.render.visibleRows.length+2)) +"px"
-        this.cx.strokeStyle = "#3d3d3d";
-        this.cx.fillStyle = "#f0f0f0";
-        this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
-        this.cx.strokeRect(0,0,this.canvasEl.width,this.canvasEl.height);
-        this.drawDrawdown(draft, loom, loom_settings);
+
+    let rf: RenderingFlags = {
+      u_drawdown: (flags.drawdown !== undefined), 
+      u_threading: (flags.loom !== undefined),
+      u_tieups: (flags.loom !== undefined),
+      u_treadling: (flags.loom !== undefined),
+      u_warp_mats: (flags.warp_materials  !== undefined),
+      u_weft_mats: (flags.weft_materials  !== undefined),
+      u_warp_sys: (flags.warp_systems  !== undefined),
+      u_weft_sys: (flags.weft_systems  !== undefined),
+      use_colors: this.current_view == 'color',
+      use_floats: this.current_view !== 'draft', 
+      show_loom: isFrame(loom_settings)
     }
-
-  
-    if(flags.loom !== undefined){
-       this.redrawLoom(draft, loom, loom_settings);
-    }
-
-  }
-
-
-  /**
-   * the canvas object is limited in how many pixels it can render. 
-   * Adjust the draft cell size based on the number of cells in the draft
-   * @param draft 
-   */
-  calculateCellSize(draft: Draft): number{
-    var base_dims = this.render.getCellDims("base");
-    if(draft == null) return 8;
-    let cell_size = base_dims.w;
-
-    let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
-    if(max_bound*cell_size < 4096){
-      return Math.floor(cell_size);
-    }else if(max_bound < 4096){
-      return  Math.floor(4096/max_bound);
-    }else{
-      return 1;
-    }
+    this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf);
 
   }
 
@@ -2019,132 +1510,24 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
    * @extends WeaveDirective
    * @returns {void}
    */
-  public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
+  // public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
 
 
-    var base_dims = this.render.getCellDims("base");
-    let cell_size = this.calculateCellSize(draft);
-   // let cell_size = base_dims.w;
-    const draft_cx = this.canvasEl.getContext("2d");
+  //   var base_dims = this.render.getCellDims("base");
+  //   let cell_size = this.calculateCellSize(draft);
+  //  // let cell_size = base_dims.w;
+  //   const draft_cx = this.canvasEl.getContext("2d");
 
-    this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;
-    this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
-    this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
-    this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
+  //   this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;
+  //   this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
+  //   this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
+  //   this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
 
-    let img = getDraftAsImage(draft, cell_size, false, false, this.ms.getShuttles());
-    draft_cx.putImageData(img, cell_size, cell_size);
-    this.tree.setDraftClean(this.id);
+  //   let img = getDraftAsImage(draft, cell_size, false, false, this.ms.getShuttles());
+  //   draft_cx.putImageData(img, cell_size, cell_size);
+  //   this.tree.setDraftClean(this.id);
 
-  }
-
-  /**
-   * Redraws the entire canvas based on weave pattern.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  public redrawStructure(draft: Draft) {
-    var base_dims = this.render.getCellDims("base");
-    let cell_size = base_dims.w;
-    const draft_cx = this.canvasEl.getContext("2d");
-
-    this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;
-    this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
-    this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
-    this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
-
-    console.log("calling redraw from editor, redrawStructure")
-    let img = getDraftAsImage(draft, cell_size, true, false, this.ms.getShuttles());
-    draft_cx.putImageData(img, cell_size, cell_size);
-    this.tree.setDraftClean(this.id);
-
-  }
-
-
-  /**
-   * Redraws the entire canvas based on weave pattern.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  public redrawColor(draft: Draft) {
-    
-    var base_dims = this.render.getCellDims("base");
-    let cell_size = base_dims.w;
-    const draft_cx = this.canvasEl.getContext("2d");
-
-    this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;
-    this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
-    this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
-    this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
-
-    console.log("calling redraw from editor, redrawColor")
-
-    let img = getDraftAsImage(draft, cell_size, true, true, this.ms.getShuttles());
-    draft_cx.putImageData(img, cell_size, cell_size);
-    this.tree.setDraftClean(this.id);
-
-  }
-
-
-  public drawWarps(draft: Draft, cx:any){
-    //draw all the warps
-
-    var base_dims = this.render.getCellDims("base");
-    var schematic = (this.render.getCurrentView() === "yarn");
-    for (var x = 0; x < draft.colShuttleMapping.length; x++) {
-     
-      let system;
-      var id = draft.colShuttleMapping[x];
-      if(id === undefined) system = this.ss.getFirstWarpSystem();
-      else system = this.ss.getWarpSystem(id);
-
-      var shuttle = this.ms.getShuttle(id);
-
-      if(system !== undefined && system.visible){
-          var c = shuttle.color;
-          var t = shuttle.thickness;
-          var center = base_dims.w/2;
-
-
-          cx.lineWidth = t/100 * .9*base_dims.w;
-          cx.strokeStyle = (shuttle.type > 0 || !schematic) ? c : c+"10";
-          cx.shadowColor = 'white';
-          cx.shadowOffsetX = 0.5;
-          cx.shadowOffsetY = 0;
-
-          cx.beginPath();
-          cx.moveTo((x+1)*base_dims.w + center, 0);
-          cx.lineTo((x+1)*base_dims.w + center, base_dims.h*(this.render.visibleRows.length+2));
-          cx.stroke();
-
-      }
-    }
-  }
-
-
- /**
-   * Highlights intersections between yarns, when they cross from front to back
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  public redrawCrossings(draft: Draft) {
-
-
-    var base_dims = this.render.getCellDims("base");
-    this.cx.fillStyle = "white";
-    this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
-
-    var i,j;
-
-    var color = '#000000';
-    this.cx.fillStyle = color;
-    for (i = 0; i < this.render.visibleRows.length; i++) {
-      for(j = 0; j < warps(draft.drawdown); j ++){
-        this.drawCrossingCell(draft, this.cx, this.render.visibleRows[i], this.render.getNextVisibleRow(i), j, 'crossings');
-      }
-    }
-  }
-
+  // }
 
 
   /**
@@ -2972,12 +2355,20 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
   }
 
   public drawOnWarpMaterials(draft: Draft, currentPos: Interlacement){
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
     draft.colShuttleMapping[currentPos.j] = this.selected_material_id;
+    this.tree.setDraftOnly(this.id, draft);
+    this.redraw(draft, loom, loom_settings, {drawdown: true, warp_systems: true});
     this.onMaterialChange.emit();
   }
 
   public drawOnWeftMaterials(draft: Draft, currentPos: Interlacement){
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
     draft.rowShuttleMapping[currentPos.i] = this.selected_material_id;
+    this.tree.setDraftOnly(this.id, draft);
+    this.redraw(draft, loom, loom_settings, {drawdown: true, weft_systems: true});
     this.onMaterialChange.emit();
   }
 
@@ -3043,9 +2434,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings,  flags:any){
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-
-     this.render.setCurrentView(value);
-
 
     this.redraw(draft, loom, loom_settings,  {
       drawdown: true

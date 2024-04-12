@@ -113,6 +113,10 @@ canvas{
 }
 
 
+.treadling-container{
+  padding-right: 30px;
+}
+
 #draft-scale-container{
   display: flex;
   width: fit-content;
@@ -144,7 +148,6 @@ canvas{
 
 
 .warp-systems-container{
-  padding: 30px;
   display: flex;
 }
 
@@ -180,6 +183,7 @@ canvas{
 
 .threading-tieup-container{
   display: flex;
+  padding: 30px 0px;
   
   // canvas{
   //   padding-right: 10px;
@@ -190,10 +194,7 @@ canvas{
   opacity: 1;
   cursor: pointer;
 
-  canvas{
-    border: thin solid grey;
 
-  }
 
 
 }
@@ -218,6 +219,7 @@ canvas{
 .threading-tieup-spacer.origin3,
 .threading-tieup-spacer.origin2{
   display: block;
+  width: 30px;
 }
 
 .threading-tieup-spacer.origin0,
@@ -316,7 +318,6 @@ canvas{
 .drawdown-container.editable-loom{
   #treadling{
     opacity: 1;
-    border: thin solid grey;
     cursor: pointer;
 
   }
@@ -337,7 +338,6 @@ canvas{
 
   #drawdown{
     opacity: 1;
-    border: thin solid grey;
     cursor: pointer;
   }
 

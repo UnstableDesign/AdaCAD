@@ -373,13 +373,13 @@ export class SelectionComponent implements OnInit {
 
   setStart(start: Interlacement){
 
-    this.hide_parent = false;
-    this.hide_actions = true;
-    this.start = start;
-    this.recalculateSize();
+    // this.hide_parent = false;
+    // this.hide_actions = true;
+    // this.start = start;
+    // this.recalculateSize();
 
-    this.top = this.start.i * this.render.getCellDims('base').h;
-    this.left = this.start.j * this.render.getCellDims('base').w;
+    // this.top = this.start.i * this.render.getCellDims('base').h;
+    // this.left = this.start.j * this.render.getCellDims('base').w;
 
 
   }
@@ -387,24 +387,24 @@ export class SelectionComponent implements OnInit {
   recalculateSize(){
 
 
-    if(!this.force_width) this.width = Math.abs(this.end.j - this.start.j);
-    if(!this.force_height) this.height = Math.abs(this.end.i - this.start.i);
+    // if(!this.force_width) this.width = Math.abs(this.end.j - this.start.j);
+    // if(!this.force_height) this.height = Math.abs(this.end.i - this.start.i);
   
-    this.screen_width = this.width * this.render.getCellDims('base').w;
-    this.screen_height = this.height * this.render.getCellDims('base').h;
+    // this.screen_width = this.width * this.render.getCellDims('base').w;
+    // this.screen_height = this.height * this.render.getCellDims('base').h;
 
 
-    let container_el = document.getElementById("selection-container");
+    // let container_el = document.getElementById("selection-container");
 
-    let parent_el = document.getElementById("expanded-container");
-    let el = document.getElementById("selection");
-    var rect = el.getBoundingClientRect();
-    var parent_rect = parent_el.getBoundingClientRect();
-    let top = (rect.y + rect.height + 20) - parent_rect.y;
-    let left = (rect.x) - parent_rect.x;
+    // let parent_el = document.getElementById("expanded-container");
+    // let el = document.getElementById("selection");
+    // var rect = el.getBoundingClientRect();
+    // var parent_rect = parent_el.getBoundingClientRect();
+    // let top = (rect.y + rect.height + 20) - parent_rect.y;
+    // let left = (rect.x) - parent_rect.x;
 
-    container_el.style.top = top+"px";
-    container_el.style.left = left+"px";
+    // container_el.style.top = top+"px";
+    // container_el.style.left = left+"px";
 
 
    

@@ -164,6 +164,7 @@
   id="draft_viewer"
   #weaveRef
   source = "weaver"
+  [current_view]="current_view"
   (onNewSelection) = "updateSelection($event)"
   (onDrawdownUpdated)="drawdownUpdated()"
   (onDraftChanged)="detailDraftEdited($event)"
