@@ -23,6 +23,14 @@
             ]
         },
         {
+            "category_name": "code",
+            "color":"#F76B15", 
+            "description": "Generate patterns using code libraries",
+            "op_names":[
+                "hydra"
+            ]
+        },
+        {
             "category_name": "transformations",
             "description": "Takes an input structure or draft and transforms it in some way.",
             "color":"#978365",

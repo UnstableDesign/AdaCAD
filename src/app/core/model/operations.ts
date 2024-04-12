@@ -1,4 +1,4 @@
-import { Draft, OperationInlet, OpInput, OpParamVal } from "./datatypes";
+import { Draft, Loom, OperationInlet, OpInput, OpParamVal } from "./datatypes";
 import { generateMappingFromPattern, getDraftName, initDraftWithParams, warps, wefts } from "./drafts";
 
 export const operationHasInputs = (op_inputs : Array<OpInput>) : boolean => {
@@ -7,17 +7,19 @@ export const operationHasInputs = (op_inputs : Array<OpInput>) : boolean => {
 
 export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
     if(!operationHasInputs(op_inputs)) return null;
-    else return op_inputs[0].drafts[0];
+    else return  op_inputs[0].drafts[0];
 }
 
 export const getAllDraftsAtInlet = (op_inputs : Array<OpInput>, inlet_id: number) : Array<Draft> => {
   if(!operationHasInputs(op_inputs) || inlet_id < 0) return [];
   else{
 
-    let req_inputs = op_inputs.filter(el => el.inlet_id == inlet_id);
-    let drafts:Array<Draft> = req_inputs.reduce((acc, el)=> {
+    let req_inputs: Array<OpInput> = op_inputs.filter(el => el.inlet_id == inlet_id);
+   
+    let drafts:Array<Draft> = req_inputs.reduce((acc, el, ndx)=> {    
       return acc.concat(el.drafts);
     }, []);
+
 
     return drafts;
   } 

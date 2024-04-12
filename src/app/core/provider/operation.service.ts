@@ -74,6 +74,8 @@ import { erase_blank } from '../operations/erase_blank/erase_blank';
 import { shift } from '../operations/shift/shift';
 import {flip} from '../operations/flip/flip'
 import { glitchsatin } from '../operations/glitchsatin/glitchsatin';
+import {hydra} from '../operations/hydra/hydra'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -170,6 +172,7 @@ export class OperationService {
     this.ops.push(sinewave);
     this.ops.push(sawtooth);
     this.ops.push(glitchsatin)
+    this.ops.push(hydra)
     }
 
 

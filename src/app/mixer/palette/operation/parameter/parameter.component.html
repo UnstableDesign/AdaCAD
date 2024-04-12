@@ -119,7 +119,37 @@
 </ng-container>
 
       
-  
+<ng-container  *ngIf="param.type == 'code'">
+  <div class="code-input">
+    <mat-form-field>
+
+      <textarea matInput
+            cdkTextareaAutosize
+            #autosize="cdkTextareaAutosize"
+            cdkAutosizeMinRows="1"
+            cdkAutosizeMaxRows="5">{{opnode.params[paramid]}}</textarea>
+
+
+
+
+      <!-- <input 
+      matInput
+      [formControl]="fc"
+      [matTooltip]="description" 
+      [(ngModel)] = "opnode.params[paramid]"
+       > -->
+      <mat-hint>{{param.name}}</mat-hint>
+
+
+
+    </mat-form-field> 
+    <button mat-flat-button>run</button>
+
+  </div>
+  <div class="canvas-container" id="testing123">
+  </div>
+</ng-container>
+
 
 
     <ng-container  *ngIf="param.type == 'file'">

@@ -1,12 +1,15 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { AbstractControl, FormControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { BoolParam, FileParam, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
+import { BoolParam, CodeParam, FileParam, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
 import { ImageService } from '../../../../core/provider/image.service';
 import { map, startWith } from 'rxjs/operators';
+import { CdkTextareaAutosize } from '@angular/cdk/text-field';
+import {NgZone} from '@angular/core';
+import {take} from 'rxjs/operators';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -34,11 +37,13 @@ export class ParameterComponent implements OnInit {
   opnode: OpNode;
   name: any;
 
-  @Input() param:  NumParam | StringParam | SelectParam | BoolParam | FileParam;
+  @Input() param:  NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam;
   @Input() opid:  number;
   @Input() paramid:  number;
   @Output() onOperationParamChange = new EventEmitter <any>(); 
   @Output() onFileUpload = new EventEmitter <any>(); 
+
+
 
   //you need these to access values unique to each type.
   numparam: NumParam;
@@ -50,12 +55,23 @@ export class ParameterComponent implements OnInit {
   has_image_preview: boolean = false;
   filewarning: string = '';
 
+  @ViewChild('autosize') autosize: CdkTextareaAutosize;
 
   constructor(
     public tree: TreeService, 
     public ops: OperationService,
     public op_desc: OperationDescriptionsService,
-    public imageService: ImageService) { 
+    public imageService: ImageService,
+    private _ngZone: NgZone) { 
+
+
+
+
+  }
+
+  triggerResize() {
+    // Wait for changes to be applied, then trigger textarea resize.
+    this._ngZone.onStable.pipe(take(1)).subscribe(() => this.autosize.resizeToFitContent(true));
   }
 
   ngOnInit(): void {

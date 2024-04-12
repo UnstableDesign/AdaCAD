@@ -462,7 +462,7 @@ export interface FileSaver{
  */
 export type OperationParam = {
   name: string,
-  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle' | 'jslib';
+  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle' | 'code';
   value: any,
   dx: string
 }
@@ -501,6 +501,14 @@ export type BoolParam = OperationParam & {
 */
 export type FileParam = OperationParam & {
 }
+
+/**
+* An extension of Param that handles extra requirements for blocks that interpret code
+*/
+export type CodeParam = OperationParam & {
+  docs: string;
+}
+
 
 
 /**
