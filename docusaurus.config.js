@@ -10,6 +10,7 @@ const config = {
   tagline: 'AdaCAD is an experimental workspace that applies parametric design to the domain of weave drafting. It supports algorithmic and playful approaches to developing woven structures and cloth, for shaft and jacquard looms.',
   favicon: 'img/favicon.ico',
 
+
   // Set the production url of your site here
   url: 'https://unstabledesign.github.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
@@ -40,9 +41,13 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
+          editUrl:
+            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
         blog: {
           showReadingTime: true,
+          editUrl:
+          'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
