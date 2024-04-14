@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/warp-raised",
+  "title": "Warp Raised",
+  "description": "Another way to refer to black cells in a drawdown. We use this term to highlight the relationship between cells in a drawdown and actions on a loom. Specifically, it tells us that a black cell is a location where the warp end is raised. This is in contrast to white cells, which describe locations where the  “warp is lowered”.",
+  "source": "@site/docs/howtouse/glossary/warp-raised.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/warp-raised",
+  "permalink": "/docs/howtouse/glossary/warp-raised",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Warp Lowered",
+    "permalink": "/docs/howtouse/glossary/warp-lowered"
+  },
+  "next": {
+    "title": "Warp System",
+    "permalink": "/docs/howtouse/glossary/warp-system"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "unversionedId": "howtouse/lessons/lattice-tutorial",
+  "id": "howtouse/lessons/lattice-tutorial",
+  "title": "Create Lattice Structures Using Layer Notation",
+  "description": "In this tutorial, we are taking inspiration from one of Elizabeth Meiklejohn's samples from the 2023 Experimental Weaving Residency. In this sample, four layers interlock to create a lattice structure. Elizabeth wove in Elastic floats between layers to pull the ends together and puffing up the structure. The elastic also allows you to pull out the sides to collapse the structure.",
+  "source": "@site/docs/howtouse/lessons/lattice-tutorial.md",
+  "sourceDirName": "howtouse/lessons",
+  "slug": "/howtouse/lessons/lattice-tutorial",
+  "permalink": "/docs/howtouse/lessons/lattice-tutorial",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3
+  },
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Weave Images",
+    "permalink": "/docs/howtouse/lessons/picture-weaving"
+  },
+  "next": {
+    "title": "Basics",
+    "permalink": "/docs/howtouse/basics/"
+  }
+}

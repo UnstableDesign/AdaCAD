@@ -1,0 +1,23 @@
+{
+  "unversionedId": "howtodevelop/reference/draft/wefts",
+  "id": "howtodevelop/reference/draft/wefts",
+  "title": "wefts",
+  "description": "",
+  "source": "@site/docs/howtodevelop/reference/draft/wefts.md",
+  "sourceDirName": "howtodevelop/reference/draft",
+  "slug": "/howtodevelop/reference/draft/wefts",
+  "permalink": "/docs/howtodevelop/reference/draft/wefts",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "initDraftWithParams",
+    "permalink": "/docs/howtodevelop/reference/draft/initDraftWithParams"
+  },
+  "next": {
+    "title": "Cell",
+    "permalink": "/docs/howtodevelop/reference/cell/"
+  }
+}

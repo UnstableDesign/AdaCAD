@@ -1,0 +1,16 @@
+{
+  "title": "Getting Started with AdaCAD - for Weavers",
+  "description": "start here if you are new to drafting.",
+  "slug": "/category/getting-started-with-adacad---for-weavers",
+  "permalink": "/AdaCAD/docs/category/getting-started-with-adacad---for-weavers",
+  "navigation": {
+    "previous": {
+      "title": "Tutorial Intro",
+      "permalink": "/AdaCAD/docs/intro"
+    },
+    "next": {
+      "title": "Create a Page",
+      "permalink": "/AdaCAD/docs/getstarted-weavers/create-a-page"
+    }
+  }
+}

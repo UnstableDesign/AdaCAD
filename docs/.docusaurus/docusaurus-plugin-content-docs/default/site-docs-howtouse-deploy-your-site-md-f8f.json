@@ -1,0 +1,26 @@
+{
+  "unversionedId": "howtouse/deploy-your-site",
+  "id": "howtouse/deploy-your-site",
+  "title": "Deploy your site",
+  "description": "Docusaurus is a static-site-generator (also called Jamstack).",
+  "source": "@site/docs/howtouse/deploy-your-site.md",
+  "sourceDirName": "howtouse",
+  "slug": "/howtouse/deploy-your-site",
+  "permalink": "/AdaCAD/docs/howtouse/deploy-your-site",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Markdown Features",
+    "permalink": "/AdaCAD/docs/howtouse/markdown-features"
+  },
+  "next": {
+    "title": "Congratulations!",
+    "permalink": "/AdaCAD/docs/howtouse/congratulations"
+  }
+}

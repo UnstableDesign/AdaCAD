@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/cloth",
+  "title": "Cloth",
+  "description": "The product of weaving as well as other textile processes such as knitting or crochet.",
+  "source": "@site/docs/howtouse/glossary/cloth.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/cloth",
+  "permalink": "/docs/howtouse/glossary/cloth",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Bitmap Image",
+    "permalink": "/docs/howtouse/glossary/bitmap-image"
+  },
+  "next": {
+    "title": "Direct Tie Loom / Dobby",
+    "permalink": "/docs/howtouse/glossary/direct-tie-loom"
+  }
+}

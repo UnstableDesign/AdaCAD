@@ -1,0 +1,44 @@
+{
+  "permalink": "/blog/2021/07/15/electrodes",
+  "source": "@site/blog/2021-07-15-electrodes.md",
+  "title": "Making Woven Electrodes",
+  "description": "This video shares more information on how we generated drafts to test the effectiveness of different structures for weaving dry electrodes, based on the research by Katya Arquilla. In Katya's research, she was interested in using weaving to create non-adhesive electrodes to monitor the electrical signals created by ones heart beat. With the guidance of the lab and a timely visit by Cathryn Amidei, Katya tested several structures for the electrodes, attempting to maximize contact with the skin using long floats, while reducing \"noise\" in the signal that would be created by the yarns moving. She tested the following structures: 1/15 sateen, 1/15 twill, 1/15 broken twill, and 1/15 birdseye structure, with both steel and silver yarns. She woven them on the lab's TC2, which is warped at 30 epi.",
+  "date": "2021-07-15T00:00:00.000Z",
+  "formattedDate": "July 15, 2021",
+  "tags": [
+    {
+      "label": "mixer",
+      "permalink": "/blog/tags/mixer"
+    },
+    {
+      "label": "electrodes",
+      "permalink": "/blog/tags/electrodes"
+    }
+  ],
+  "readingTime": 1.925,
+  "hasTruncateMarker": false,
+  "authors": [
+    {
+      "name": "laura"
+    }
+  ],
+  "frontMatter": {
+    "title": "Making Woven Electrodes",
+    "author": "laura",
+    "tags": [
+      "mixer",
+      "electrodes"
+    ],
+    "image": "assets/images/steel_pattern_diagstripes_ld_detail.jpg",
+    "featured": false
+  },
+  "unlisted": false,
+  "prevItem": {
+    "title": "AdaCAD Release Progress Update",
+    "permalink": "/blog/2024/02/22/progress-update"
+  },
+  "nextItem": {
+    "title": "How to Weave a Press Button",
+    "permalink": "/blog/2021/04/21/press-button"
+  }
+}

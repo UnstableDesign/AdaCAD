@@ -82,7 +82,6 @@ export class DraftrenderingComponent {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['dirty']) {
-      console.log("DRAFT DIRTY @ ", this.id)
       if(this.dm.isSelectedDraftEditSource('drawdown')) return;
 
       let draft = this.tree.getDraft(this.id);
@@ -118,7 +117,6 @@ export class DraftrenderingComponent {
     this.draft_canvas = <HTMLCanvasElement> document.getElementById(this.id.toString()+'-mixer');
 
     if(this.draft_canvas == null) return Promise.resolve(false);
-
 
     const warp_systems_canvas =  
     <HTMLCanvasElement> document.getElementById('warp-systems-'+this.id.toString()+'-mixer');

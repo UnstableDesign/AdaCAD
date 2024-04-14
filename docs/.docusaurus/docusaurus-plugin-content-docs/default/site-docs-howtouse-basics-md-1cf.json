@@ -1,0 +1,23 @@
+{
+  "unversionedId": "howtouse/basics",
+  "id": "howtouse/basics",
+  "title": "Basics",
+  "description": "",
+  "source": "@site/docs/howtouse/basics.md",
+  "sourceDirName": "howtouse",
+  "slug": "/howtouse/basics",
+  "permalink": "/docs/howtouse/basics",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Create Lattice Structures Using Layer Notation",
+    "permalink": "/docs/howtouse/learn/lattice-tutorial"
+  },
+  "next": {
+    "title": "Glossary",
+    "permalink": "/docs/howtouse/glossary/"
+  }
+}

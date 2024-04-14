@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/layer-notation",
+  "title": "Layer Notation",
+  "description": "Layer notation emerged in conversation with Kathryn Walters, who wanted AdaCAD to help her manage complex structures that could arbitrarily map warp and weft systems to different layers, layer orders, or even different numbers of layers (e.g. a structure that goes from 2 to 4 to 3 layers for instance.) Beyond her immediate needs, we found it to be a useful system for describing the relationship between different cloth layers.",
+  "source": "@site/docs/howtouse/glossary/layer-notation.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/layer-notation",
+  "permalink": "/docs/howtouse/glossary/layer-notation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Jacquard Loom",
+    "permalink": "/docs/howtouse/glossary/jacquard-loom"
+  },
+  "next": {
+    "title": "Loom",
+    "permalink": "/docs/howtouse/glossary/loom"
+  }
+}

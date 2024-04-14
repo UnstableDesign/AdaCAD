@@ -1,0 +1,12 @@
+{
+  "title": "How to Use AdaCAD",
+  "description": "This category holds resources for learning AdaCAD and lessons for common tasks, like making drafts based on images or making quick samplers for the TC2.",
+  "slug": "/category/how-to-use-adacad-1",
+  "permalink": "/AdaCAD/docs/category/how-to-use-adacad-1",
+  "navigation": {
+    "next": {
+      "title": "Getting Started",
+      "permalink": "/AdaCAD/docs/howtouse/getting-started"
+    }
+  }
+}

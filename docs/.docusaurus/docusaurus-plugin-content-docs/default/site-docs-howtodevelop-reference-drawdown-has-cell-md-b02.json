@@ -1,0 +1,23 @@
+{
+  "id": "howtodevelop/reference/drawdown/hasCell",
+  "title": "hasCell",
+  "description": "Returns true if a given index exists within a drawdown.",
+  "source": "@site/docs/howtodevelop/reference/drawdown/hasCell.md",
+  "sourceDirName": "howtodevelop/reference/drawdown",
+  "slug": "/howtodevelop/reference/drawdown/hasCell",
+  "permalink": "/docs/howtodevelop/reference/drawdown/hasCell",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "Drawdown",
+    "permalink": "/docs/howtodevelop/reference/drawdown/"
+  },
+  "next": {
+    "title": "isUp",
+    "permalink": "/docs/howtodevelop/reference/drawdown/isUp"
+  }
+}

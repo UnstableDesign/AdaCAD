@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/parameter",
+  "title": "Parameter",
+  "description": "Coming soon.",
+  "source": "@site/docs/howtouse/glossary/parameter.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/parameter",
+  "permalink": "/docs/howtouse/glossary/parameter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Outlet",
+    "permalink": "/docs/howtouse/glossary/outlet"
+  },
+  "next": {
+    "title": "Parametric Design",
+    "permalink": "/docs/howtouse/glossary/parametric-design"
+  }
+}

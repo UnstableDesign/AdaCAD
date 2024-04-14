@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/structure",
+  "title": "Structure",
+  "description": "Coming soon.",
+  "source": "@site/docs/howtouse/glossary/structure.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/structure",
+  "permalink": "/docs/howtouse/glossary/structure",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Pick",
+    "permalink": "/docs/howtouse/glossary/pick"
+  },
+  "next": {
+    "title": "Warp Lowered",
+    "permalink": "/docs/howtouse/glossary/warp-lowered"
+  }
+}

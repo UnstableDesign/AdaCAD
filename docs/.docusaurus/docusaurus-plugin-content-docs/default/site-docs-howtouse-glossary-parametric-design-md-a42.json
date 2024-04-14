@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/parametric-design",
+  "title": "Parametric Design",
+  "description": "Coming soon.",
+  "source": "@site/docs/howtouse/glossary/parametric-design.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/parametric-design",
+  "permalink": "/docs/howtouse/glossary/parametric-design",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Parameter",
+    "permalink": "/docs/howtouse/glossary/parameter"
+  },
+  "next": {
+    "title": "Pick",
+    "permalink": "/docs/howtouse/glossary/pick"
+  }
+}

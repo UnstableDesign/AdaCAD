@@ -1,0 +1,51 @@
+{
+  "permalink": "/blog/2021/04/21/press-button",
+  "source": "@site/blog/2021-04-21-press-button.md",
+  "title": "How to Weave a Press Button",
+  "description": "press button action",
+  "date": "2021-04-21T00:00:00.000Z",
+  "formattedDate": "April 21, 2021",
+  "tags": [
+    {
+      "label": "double weaving",
+      "permalink": "/blog/tags/double-weaving"
+    },
+    {
+      "label": "press button",
+      "permalink": "/blog/tags/press-button"
+    },
+    {
+      "label": "circuitry",
+      "permalink": "/blog/tags/circuitry"
+    }
+  ],
+  "readingTime": 0.18,
+  "hasTruncateMarker": false,
+  "authors": [
+    {
+      "name": "laura"
+    }
+  ],
+  "frontMatter": {
+    "title": "How to Weave a Press Button",
+    "author": "laura",
+    "categories": [
+      "how to"
+    ],
+    "image": "assets/images/press-button-made-hand.jpg",
+    "tags": [
+      "double weaving",
+      "press button",
+      "circuitry"
+    ]
+  },
+  "unlisted": false,
+  "prevItem": {
+    "title": "Making Woven Electrodes",
+    "permalink": "/blog/2021/07/15/electrodes"
+  },
+  "nextItem": {
+    "title": "Make a Waffle Woven Force Sensor",
+    "permalink": "/blog/wafflesensor"
+  }
+}

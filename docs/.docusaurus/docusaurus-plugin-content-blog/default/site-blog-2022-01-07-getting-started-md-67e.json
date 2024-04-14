@@ -1,0 +1,33 @@
+{
+  "permalink": "/AdaCAD/blog/2022/01/07/getting-started",
+  "source": "@site/blog/2022-01-07-getting-started.md",
+  "title": "Getting Started",
+  "description": "Welcome to AdaCAD. This resources on this page will give you an overview of the interface and a few tips on how to get started drafting.There are three primary ways to go about drafting with AdaCAD. First, you can add OPERATIONS that generate and combine drafts in particular ways. You can connect these operations together to make more complex structures and drafts. Second, you can design graphically, by drawing shapes onto the screen and manually overlaying them or moving them to create new graphical shapes. Third, you can use the select tool to create an empty draft, expand it, and then draw manually draw in the drawdown (or threading, tieup and treadling if you're using a floor loom).",
+  "date": "2022-01-07T00:00:00.000Z",
+  "formattedDate": "January 7, 2022",
+  "tags": [],
+  "readingTime": 4.72,
+  "hasTruncateMarker": false,
+  "authors": [
+    {
+      "name": "laura"
+    }
+  ],
+  "frontMatter": {
+    "layout": "howto",
+    "title": "Getting Started",
+    "author": "laura",
+    "categories": [
+      "how to"
+    ],
+    "file": "intro",
+    "image": "assets/images/Mixer_Overview.jpeg",
+    "video": "https://www.youtube.com/embed/LZy9ME3Tr54",
+    "featured": true,
+    "comments": true
+  },
+  "nextItem": {
+    "title": "Making Woven Electrodes",
+    "permalink": "/AdaCAD/blog/2021/07/15/electrodes"
+  }
+}

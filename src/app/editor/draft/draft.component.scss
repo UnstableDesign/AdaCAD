@@ -234,6 +234,7 @@ canvas{
 {
   #threading-canvas{
     //flip x and y
+    padding-left: 30px;
      transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
   }
@@ -246,6 +247,7 @@ canvas{
 .drawdown-container.origin0{
 
   #drawdown-canvas{
+    padding-left: 30px;
     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
@@ -256,6 +258,7 @@ canvas{
 {
   #threading-canvas{
     //flip x and y
+    padding-left: 30px;
      transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
   }
@@ -265,6 +268,7 @@ canvas{
 
   //flip x and y
   #drawdown-canvas{
+    padding-left: 30px;
     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
@@ -316,13 +320,13 @@ canvas{
 }
 
 .drawdown-container.editable-loom{
-  #treadling{
+  #treadling-editor{
     opacity: 1;
     cursor: pointer;
 
   }
 
-  #drawdown{
+  #drawdown-editor{
     opacity: 0.2;
     cursor: not-allowed;
 
@@ -331,12 +335,12 @@ canvas{
 }
 
 .drawdown-container.editable-drawdown{
-  #treadling{
+  #treadling-editor{
     opacity: .2;
     cursor: not-allowed;
   }
 
-  #drawdown{
+  #drawdown-editor{
     opacity: 1;
     cursor: pointer;
   }

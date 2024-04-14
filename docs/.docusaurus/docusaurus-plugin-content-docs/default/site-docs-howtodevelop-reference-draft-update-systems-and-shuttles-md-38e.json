@@ -1,0 +1,23 @@
+{
+  "unversionedId": "howtodevelop/reference/draft/updateSystemsAndShuttles",
+  "id": "howtodevelop/reference/draft/updateSystemsAndShuttles",
+  "title": "updateSystemsAndShuttles",
+  "description": "",
+  "source": "@site/docs/howtodevelop/reference/draft/updateSystemsAndShuttles.md",
+  "sourceDirName": "howtodevelop/reference/draft",
+  "slug": "/howtodevelop/reference/draft/updateSystemsAndShuttles",
+  "permalink": "/docs/howtodevelop/reference/draft/updateSystemsAndShuttles",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "initDraftWithParams",
+    "permalink": "/docs/howtodevelop/reference/draft/initDraftWithParams"
+  },
+  "next": {
+    "title": "Cell",
+    "permalink": "/docs/howtodevelop/reference/cell/"
+  }
+}

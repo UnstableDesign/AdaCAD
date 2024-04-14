@@ -1,0 +1,16 @@
+{
+  "title": "Learn",
+  "description": "Projects to get you started using AdaCAD",
+  "slug": "/category/learn",
+  "permalink": "/docs/category/learn",
+  "navigation": {
+    "previous": {
+      "title": "Getting Started",
+      "permalink": "/docs/howtouse/getting-started"
+    },
+    "next": {
+      "title": "Make A Draft for the TC2",
+      "permalink": "/docs/howtouse/learn/quick-tc2"
+    }
+  }
+}

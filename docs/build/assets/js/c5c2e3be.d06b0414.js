@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkada_ca_ddocs=self.webpackChunkada_ca_ddocs||[]).push([[9879],{6785:a=>{a.exports=JSON.parse('{"label":"circuitry","permalink":"/blog/tags/circuitry","allTagsPath":"/blog/tags","count":1,"unlisted":false}')}}]);

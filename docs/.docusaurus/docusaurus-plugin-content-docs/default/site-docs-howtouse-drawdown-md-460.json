@@ -1,0 +1,19 @@
+{
+  "unversionedId": "howtouse/drawdown",
+  "id": "howtouse/drawdown",
+  "title": "drawdown",
+  "description": "",
+  "source": "@site/docs/howtouse/drawdown.md",
+  "sourceDirName": "howtouse",
+  "slug": "/howtouse/drawdown",
+  "permalink": "/docs/howtouse/drawdown",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Weaving Images",
+    "permalink": "/docs/howtouse/picture-weaving"
+  }
+}

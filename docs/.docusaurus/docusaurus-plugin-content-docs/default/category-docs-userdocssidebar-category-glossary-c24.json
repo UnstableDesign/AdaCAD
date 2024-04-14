@@ -1,0 +1,16 @@
+{
+  "title": "Glossary",
+  "description": "A collection of the terms we use in AdaCAD and what they refer to.",
+  "slug": "/category/glossary",
+  "permalink": "/docs/category/glossary",
+  "navigation": {
+    "previous": {
+      "title": "Create Lattice Structures Using Layer Notation",
+      "permalink": "/docs/howtouse/learn/lattice-tutorial"
+    },
+    "next": {
+      "title": "Bitmap Image",
+      "permalink": "/docs/howtouse/glossary/bitmap-image"
+    }
+  }
+}

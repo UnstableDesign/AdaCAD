@@ -1,0 +1,23 @@
+{
+  "id": "howtodevelop/reference/draft/initDraft",
+  "title": "initDraft",
+  "description": "Initializes an empty draft object with a unique id with the following default values.",
+  "source": "@site/docs/howtodevelop/reference/draft/initDraft.md",
+  "sourceDirName": "howtodevelop/reference/draft",
+  "slug": "/howtodevelop/reference/draft/initDraft",
+  "permalink": "/docs/howtodevelop/reference/draft/initDraft",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "copyDraft",
+    "permalink": "/docs/howtodevelop/reference/draft/copyDraft"
+  },
+  "next": {
+    "title": "initDraftFromDrawdown",
+    "permalink": "/docs/howtodevelop/reference/draft/initDraftFromDrawdown"
+  }
+}

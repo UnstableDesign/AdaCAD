@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/warp",
+  "title": "Warp",
+  "description": "The collection of parallel yarns held in tension across the loom. Cloth is made by working weft yarns into the warp.",
+  "source": "@site/docs/howtouse/glossary/warp.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/warp",
+  "permalink": "/docs/howtouse/glossary/warp",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Warp System",
+    "permalink": "/docs/howtouse/glossary/warp-system"
+  },
+  "next": {
+    "title": "Weft System",
+    "permalink": "/docs/howtouse/glossary/weft-system"
+  }
+}

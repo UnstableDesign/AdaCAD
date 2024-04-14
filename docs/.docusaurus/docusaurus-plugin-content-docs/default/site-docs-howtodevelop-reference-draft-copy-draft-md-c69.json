@@ -1,0 +1,23 @@
+{
+  "id": "howtodevelop/reference/draft/copyDraft",
+  "title": "copyDraft",
+  "description": "Copies a draft to a new draft object while retaining the old draft id. Functionally, this creates a deep copy of the input draft.",
+  "source": "@site/docs/howtodevelop/reference/draft/copyDraft.md",
+  "sourceDirName": "howtodevelop/reference/draft",
+  "slug": "/howtodevelop/reference/draft/copyDraft",
+  "permalink": "/docs/howtodevelop/reference/draft/copyDraft",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "Draft",
+    "permalink": "/docs/howtodevelop/reference/draft/"
+  },
+  "next": {
+    "title": "initDraft",
+    "permalink": "/docs/howtodevelop/reference/draft/initDraft"
+  }
+}

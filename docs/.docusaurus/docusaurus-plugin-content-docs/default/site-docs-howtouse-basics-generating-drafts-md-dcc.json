@@ -1,0 +1,23 @@
+{
+  "unversionedId": "howtouse/basics/generating_drafts",
+  "id": "howtouse/basics/generating_drafts",
+  "title": "Generating Drafts",
+  "description": "In AdaCAD, you generate drafts by connecting different input drafts, into different operations, which perform computations on those drafts and generate new drafts.",
+  "source": "@site/docs/howtouse/basics/generating_drafts.md",
+  "sourceDirName": "howtouse/basics",
+  "slug": "/howtouse/basics/generating_drafts",
+  "permalink": "/docs/howtouse/basics/generating_drafts",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Basics",
+    "permalink": "/docs/howtouse/basics/"
+  },
+  "next": {
+    "title": "Getting Started",
+    "permalink": "/docs/howtouse/getting-started"
+  }
+}

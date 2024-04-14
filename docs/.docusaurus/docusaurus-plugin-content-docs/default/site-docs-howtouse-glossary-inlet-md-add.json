@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/inlet",
+  "title": "Inlet",
+  "description": "Coming soon.",
+  "source": "@site/docs/howtouse/glossary/inlet.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/inlet",
+  "permalink": "/docs/howtouse/glossary/inlet",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Harness Loom",
+    "permalink": "/docs/howtouse/glossary/harness-loom"
+  },
+  "next": {
+    "title": "Jacquard Loom",
+    "permalink": "/docs/howtouse/glossary/jacquard-loom"
+  }
+}

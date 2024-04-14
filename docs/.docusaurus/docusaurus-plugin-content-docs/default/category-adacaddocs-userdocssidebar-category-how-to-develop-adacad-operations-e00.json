@@ -1,0 +1,15 @@
+{
+  "title": "How to Develop AdaCAD Operations",
+  "slug": "/category/how-to-develop-adacad-operations",
+  "permalink": "/AdaCAD/docs/category/how-to-develop-adacad-operations",
+  "navigation": {
+    "previous": {
+      "title": "Weaving Images",
+      "permalink": "/AdaCAD/docs/howtouse/picture-weaving"
+    },
+    "next": {
+      "title": "Install AdaCAD",
+      "permalink": "/AdaCAD/docs/howtodevelop/install"
+    }
+  }
+}

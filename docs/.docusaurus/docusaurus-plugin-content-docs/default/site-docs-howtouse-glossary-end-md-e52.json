@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/end",
+  "title": "End",
+  "description": "Refers to a single warp within the collection of warps",
+  "source": "@site/docs/howtouse/glossary/end.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/end",
+  "permalink": "/docs/howtouse/glossary/end",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Drawdown",
+    "permalink": "/docs/howtouse/glossary/drawdown"
+  },
+  "next": {
+    "title": "Harness Loom",
+    "permalink": "/docs/howtouse/glossary/harness-loom"
+  }
+}

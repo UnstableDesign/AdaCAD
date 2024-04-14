@@ -1,0 +1,23 @@
+{
+  "id": "howtodevelop/reference/draft/initDraftFromDrawdown",
+  "title": "initDraftFromDrawdown",
+  "description": "In many operations, you'll design the drawdown first, and then want to create a draft based on the data in that drawdown.",
+  "source": "@site/docs/howtodevelop/reference/draft/initDraftFromDrawdown.md",
+  "sourceDirName": "howtodevelop/reference/draft",
+  "slug": "/howtodevelop/reference/draft/initDraftFromDrawdown",
+  "permalink": "/docs/howtodevelop/reference/draft/initDraftFromDrawdown",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "initDraft",
+    "permalink": "/docs/howtodevelop/reference/draft/initDraft"
+  },
+  "next": {
+    "title": "initDraftWithParams",
+    "permalink": "/docs/howtodevelop/reference/draft/initDraftWithParams"
+  }
+}

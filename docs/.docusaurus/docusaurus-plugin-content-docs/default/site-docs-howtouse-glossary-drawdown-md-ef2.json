@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/drawdown",
+  "title": "Drawdown",
+  "description": "We use the term drawdown to describe the part of the draft that represents the structure of the resulting cloth.",
+  "source": "@site/docs/howtouse/glossary/drawdown.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/drawdown",
+  "permalink": "/docs/howtouse/glossary/drawdown",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Draft",
+    "permalink": "/docs/howtouse/glossary/draft"
+  },
+  "next": {
+    "title": "End",
+    "permalink": "/docs/howtouse/glossary/end"
+  }
+}

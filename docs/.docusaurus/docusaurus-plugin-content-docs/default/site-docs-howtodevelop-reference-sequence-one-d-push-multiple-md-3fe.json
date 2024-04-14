@@ -1,0 +1,23 @@
+{
+  "id": "howtodevelop/reference/sequence/OneD/pushMultiple",
+  "title": "pushMultiple",
+  "description": "Pushes one value, multiple times, to the back of the current sequence.",
+  "source": "@site/docs/howtodevelop/reference/sequence/OneD/pushMultiple.md",
+  "sourceDirName": "howtodevelop/reference/sequence/OneD",
+  "slug": "/howtodevelop/reference/sequence/OneD/pushMultiple",
+  "permalink": "/docs/howtodevelop/reference/sequence/OneD/pushMultiple",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "push",
+    "permalink": "/docs/howtodevelop/reference/sequence/OneD/push"
+  },
+  "next": {
+    "title": "resize",
+    "permalink": "/docs/howtodevelop/reference/sequence/OneD/resize"
+  }
+}

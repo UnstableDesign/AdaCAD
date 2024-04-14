@@ -1,0 +1,26 @@
+{
+  "unversionedId": "howtodevelop/manage-docs-versions",
+  "id": "howtodevelop/manage-docs-versions",
+  "title": "Manage Docs Versions",
+  "description": "Docusaurus can manage multiple versions of your docs.",
+  "source": "@site/docs/howtodevelop/manage-docs-versions.md",
+  "sourceDirName": "howtodevelop",
+  "slug": "/howtodevelop/manage-docs-versions",
+  "permalink": "/AdaCAD/docs/howtodevelop/manage-docs-versions",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Install AdaCAD",
+    "permalink": "/AdaCAD/docs/howtodevelop/install"
+  },
+  "next": {
+    "title": "Translate your site",
+    "permalink": "/AdaCAD/docs/howtodevelop/translate-your-site"
+  }
+}

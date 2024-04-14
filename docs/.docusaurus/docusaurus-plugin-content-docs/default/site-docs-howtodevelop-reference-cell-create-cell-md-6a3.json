@@ -1,0 +1,23 @@
+{
+  "id": "howtodevelop/reference/cell/createCell",
+  "title": "createCell",
+  "description": "Creates a cell object with a specific value:",
+  "source": "@site/docs/howtodevelop/reference/cell/createCell.md",
+  "sourceDirName": "howtodevelop/reference/cell",
+  "slug": "/howtodevelop/reference/cell/createCell",
+  "permalink": "/docs/howtodevelop/reference/cell/createCell",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "Cell",
+    "permalink": "/docs/howtodevelop/reference/cell/"
+  },
+  "next": {
+    "title": "getCellValue",
+    "permalink": "/docs/howtodevelop/reference/cell/getCellValue"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "unversionedId": "getstarted-weavers/deploy-your-site",
+  "id": "getstarted-weavers/deploy-your-site",
+  "title": "Deploy your site",
+  "description": "Docusaurus is a static-site-generator (also called Jamstack).",
+  "source": "@site/docs/getstarted-weavers/deploy-your-site.md",
+  "sourceDirName": "getstarted-weavers",
+  "slug": "/getstarted-weavers/deploy-your-site",
+  "permalink": "/AdaCAD/docs/getstarted-weavers/deploy-your-site",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Markdown Features",
+    "permalink": "/AdaCAD/docs/getstarted-weavers/markdown-features"
+  },
+  "next": {
+    "title": "Congratulations!",
+    "permalink": "/AdaCAD/docs/getstarted-weavers/congratulations"
+  }
+}

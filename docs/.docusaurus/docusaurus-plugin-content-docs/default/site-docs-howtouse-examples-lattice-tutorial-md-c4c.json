@@ -1,0 +1,26 @@
+{
+  "id": "howtouse/examples/lattice-tutorial",
+  "title": "Create Lattice Structures Using Layer Notation",
+  "description": "In this tutorial, we are taking inspiration from one of Elizabeth Meiklejohn's samples from the 2023 Experimental Weaving Residency. In this sample, four layers interlock to create a lattice structure. Elizabeth wove in Elastic floats between layers to pull the ends together and puffing up the structure. The elastic also allows you to pull out the sides to collapse the structure.",
+  "source": "@site/docs/howtouse/examples/lattice-tutorial.md",
+  "sourceDirName": "howtouse/examples",
+  "slug": "/howtouse/examples/lattice-tutorial",
+  "permalink": "/docs/howtouse/examples/lattice-tutorial",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3
+  },
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Drafting Inlay for Jacquard and Harness Looms",
+    "permalink": "/docs/howtouse/examples/inlay"
+  },
+  "next": {
+    "title": "Glossary",
+    "permalink": "/docs/howtouse/glossary/"
+  }
+}

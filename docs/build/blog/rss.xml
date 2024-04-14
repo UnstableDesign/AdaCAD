@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>AdaCAD Blog</title>
+        <link>https://docs.adacad.org/blog</link>
+        <description>AdaCAD Blog</description>
+        <lastBuildDate>Thu, 22 Feb 2024 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <language>en</language>
+        <item>
+            <title><![CDATA[AdaCAD Release Progress Update]]></title>
+            <link>https://docs.adacad.org/blog/2024/02/22/progress-update</link>
+            <guid>https://docs.adacad.org/blog/2024/02/22/progress-update</guid>
+            <pubDate>Thu, 22 Feb 2024 00:00:00 GMT</pubDate>
+            <description><![CDATA[Since making our beta release of AdaCAD 4.0 available almost one year ago, we have been testing it in various contexts, from classroom teaching, workshops, and within our own practice. This exploration has given rise to several new areas of focus and directions for the future of AdaCAD. As a result, we have taken on a dramatic new redesign the redesign that we have no released yet, but want to preview here to get your feedback. This new version will do 90% of the same things as the current stable version, but it includes new features and ways of representing the different design elements. This includes methods for loading and saving multiple files to an online directory, simulating your structures, and new operations for making playful algorithmic drafts (e.g. "glitch satin").]]></description>
+            <content:encoded><![CDATA[<p>Since making our beta release of AdaCAD 4.0 available almost one year ago, we have been testing it in various contexts, from classroom teaching, workshops, and within our own practice. This exploration has given rise to several new areas of focus and directions for the future of AdaCAD. As a result, we have taken on a dramatic new redesign the redesign that we have no released yet, but want to preview here to get your feedback. This new version will do 90% of the same things as the current stable version, but it includes new features and ways of representing the different design elements. This includes methods for loading and saving multiple files to an online directory, simulating your structures, and new operations for making playful algorithmic drafts (e.g. "glitch satin").</p>
+<p><img alt="Mixer 4.0" src="https://docs.adacad.org/assets/images/AdaBeta_Mixer-9582ec5d99eefbeb398ade5c9e441801.png" width="3322" height="1658">
+</p><p>This is a screen shot of the new interface for the AdaCAD mixer, which emphasizes the relationship of operations in AdaCAD as similar to programming blocks (like those in Scratch), which can be arranged and connected to generate different results, shown in the view on the right. We see this view being ideal for people familiar with parametric design (but new to weaving) or complex weavers who are looking to manage multiple structures and relationships between structures. We aim for this view to emphasize playfulness while also opening pathways to document multi-layer or otherwise complex weave structures.</p><p></p>
+<p><img alt="Mixer 4.0" src="https://docs.adacad.org/assets/images/AdaBeta_Editor-782ae6ce80bcc047878cae35e5400c41.png" width="3322" height="1664">
+</p><p>We offer two modes of working in AdaCAD 4.0, the first emphasizes traditional modes of draft making while the second emphasizes AdaCAD's parametric design functionality. This is the "Editor" view that allows one to specify different threading and treadling patterns for different loom configurations. </p><p></p>
+<h3 id="wed-love-your-feedback">We'd love your feedback!</h3>
+<p>As we said before, this new user interface is unreleased, and before we overwrite the current beta version, we'd like to know what you think. What new features would you love to see? What features should we make sure to keep? Any and all thoughts and feedback are welcome at <a href="mailto:unstabledesignlab@gmail.com">unstabledesignlab@gmail.com</a>.</p>]]></content:encoded>
+            <category>adacad 4.0</category>
+            <category>software updates</category>
+        </item>
+        <item>
+            <title><![CDATA[Making Woven Electrodes]]></title>
+            <link>https://docs.adacad.org/blog/2021/07/15/electrodes</link>
+            <guid>https://docs.adacad.org/blog/2021/07/15/electrodes</guid>
+            <pubDate>Thu, 15 Jul 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[This video shares more information on how we generated drafts to test the effectiveness of different structures for weaving dry electrodes, based on the research by Katya Arquilla. In Katya's research, she was interested in using weaving to create non-adhesive electrodes to monitor the electrical signals created by ones heart beat. With the guidance of the lab and a timely visit by Cathryn Amidei, Katya tested several structures for the electrodes, attempting to maximize contact with the skin using long floats, while reducing "noise" in the signal that would be created by the yarns moving. She tested the following structures: 1/15 sateen, 1/15 twill, 1/15 broken twill, and 1/15 birdseye structure, with both steel and silver yarns. She woven them on the lab's TC2, which is warped at 30 epi.]]></description>
+            <content:encoded><![CDATA[<iframe width="560" height="315" src="https://www.youtube.com/embed/Z8sA4OFuccQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+<p>This video shares more information on how we generated drafts to test the effectiveness of different structures for weaving dry electrodes, based on the research by <a target="_blank" href="https://scholar.google.com/citations?user=hhbNjTcAAAAJ&amp;hl=en">Katya Arquilla</a>. In Katya's research, she was interested in using weaving to create non-adhesive electrodes to monitor the electrical signals created by ones heart beat. With the guidance of the lab and a timely visit by <a target="_blank" href="https://www.cathrynamidei.com/">Cathryn Amidei</a>, Katya tested several structures for the electrodes, attempting to maximize contact with the skin using long floats, while reducing "noise" in the signal that would be created by the yarns moving. She tested the following structures: 1/15 sateen, 1/15 twill, 1/15 broken twill, and 1/15 birdseye structure, with both steel and silver yarns. She woven them on the lab's TC2, which is warped at 30 epi. </p>
+<p><img alt="electrodeoverview" src="https://docs.adacad.org/assets/images/electrodeoverview-963a42b566361e1dac9319746ae917f2.PNG" width="1166" height="698">
+</p><p>This image shows an overview of the patterns tested</p><p></p>
+<p><img alt="file" src="https://docs.adacad.org/assets/images/steel_pattern_diagstripes_ld_detail-90a825fed4ce06010f260d758a841114.jpg" width="400" height="400">
+</p><p>Here is a detail of the twill variation, showing how the conductive yarns are integrated with the base yarns</p><p></p>
+<p><img alt="file" src="https://docs.adacad.org/assets/images/detectonrates-e34c06538fb40b72bf9711b35058effd.png" width="1922" height="1280">
+</p><p>The image above shows the detection rates of each swatch (how many heartbeats the electrodes could detect). This revealed that satin structures yeilded the most reliable detections, she reasoned this is because they can make good surfce contact with the skin. Her findings showed that "silver thread may be less prone than steel thread to detecting false positives, which is a benefit for using these electrodes in conjunction with an automated detection system." and "the silver thread integrated into the 1/15 sateen structure provided data that was only slightly noisier than data collected with adhesive electrodes on most subjects and able to produce the smaller parts of the ECG waveform that allow the measurement of HRV. We expected to see more differences between the patterns and we think one possibility for the small differences has to do with the size at which we tested. We suspect that testing larger sizes of each pattern would reveal more variability between the patterns." (quoting a draft in preparation). </p><p></p>
+<i>Full citation for the research performed with these electrodes: Arquilla, Katya, Laura Devendorf, Andrea K. Webb, and Allison P. Anderson. 2021. "Detection of the Complete ECG Waveform with Woven Textile Electrodes" Biosensors 11, no. 9: 331. <a href="https://doi.org/10.3390/bios11090331">https://doi.org/10.3390/bios11090331</a></i>]]></content:encoded>
+            <category>mixer</category>
+            <category>electrodes</category>
+        </item>
+        <item>
+            <title><![CDATA[How to Weave a Press Button]]></title>
+            <link>https://docs.adacad.org/blog/2021/04/21/press-button</link>
+            <guid>https://docs.adacad.org/blog/2021/04/21/press-button</guid>
+            <pubDate>Wed, 21 Apr 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[press button action]]></description>
+            <content:encoded><![CDATA[<iframe width="560" height="315" src="https://www.youtube.com/embed/yLwk0MpJawQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+<p><img alt="press button action" src="https://docs.adacad.org/assets/images/press-button-made-hand-082fb21ee1b2be07879e0934acd518b7.jpg" width="2500" height="1667"></p>
+<p><img alt="press button back" src="https://docs.adacad.org/assets/images/press-button-made-3ecf7a2ff24b401b262b285848616019.jpg" width="2500" height="1667"></p>
+<p><img alt="press button full render" src="https://docs.adacad.org/assets/images/press-button-all-8cf6967c3e10f23b4280c6c56234161d.jpg" width="1170" height="1340"></p>
+<p><img alt="press button bottom render" src="https://docs.adacad.org/assets/images/press-button-bottom-c7b2ac2d5f65b5cde05126c4cd90f00c.jpg" width="1170" height="1340"></p>]]></content:encoded>
+            <category>double weaving</category>
+            <category>press button</category>
+            <category>circuitry</category>
+        </item>
+        <item>
+            <title><![CDATA[Make a Waffle Woven Force Sensor]]></title>
+            <link>https://docs.adacad.org/blog/wafflesensor</link>
+            <guid>https://docs.adacad.org/blog/wafflesensor</guid>
+            <pubDate>Tue, 20 Apr 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[This video walks you through the process of drafting a force sensor using a waffle structure. The images below show details from different phases in the project.]]></description>
+            <content:encoded><![CDATA[<p></p>
+<p>This video walks you through the process of drafting a force sensor using a waffle structure. The images below show details from different phases in the project.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/O9fLz6R60NA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+<p><img alt="multcomponent" src="https://docs.adacad.org/assets/images/multicomponent_stitch-46e7bd006c9f8cd372b063a5ed256a13.png" width="800" height="278"></p>
+<p><img alt="image" src="https://docs.adacad.org/assets/images/waffle-force-sensor-all-5dec747bfb45bf2b3c28c4eba9f87fd6.jpg" width="1230" height="800"></p>
+<p><img alt="image" src="https://docs.adacad.org/assets/images/waffle-force-sensor-circuit-76145d3963bceb5628816f8243c0693a.jpg" width="1230" height="800"></p>
+<p><img alt="image" src="https://docs.adacad.org/assets/images/waffle-force-sensor-draft-070dd9c00ad3b659b73390b0bb4b5197.jpg" width="1230" height="800"></p>
+<p><img alt="image" src="https://docs.adacad.org/assets/images/waffle-force-sensor-9292c2fc302afa6279343f20ffa682d4.jpg" width="1110" height="700"></p>]]></content:encoded>
+            <category>howto</category>
+            <category>docusaurus</category>
+            <category>version-2.0</category>
+        </item>
+    </channel>
+</rss>

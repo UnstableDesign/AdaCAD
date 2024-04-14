@@ -1,0 +1,23 @@
+{
+  "unversionedId": "howtodevelop/reference/drawdown/hascell",
+  "id": "howtodevelop/reference/drawdown/hascell",
+  "title": "hasCell",
+  "description": "Parameters",
+  "source": "@site/docs/howtodevelop/reference/drawdown/hascell.md",
+  "sourceDirName": "howtodevelop/reference/drawdown",
+  "slug": "/howtodevelop/reference/drawdown/hascell",
+  "permalink": "/docs/howtodevelop/reference/drawdown/hascell",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "Drawdown",
+    "permalink": "/docs/howtodevelop/reference/drawdown/"
+  },
+  "next": {
+    "title": "isUp",
+    "permalink": "/docs/howtodevelop/reference/drawdown/isUp"
+  }
+}

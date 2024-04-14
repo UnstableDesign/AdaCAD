@@ -1232,6 +1232,7 @@ showDraftDetails(id: number){
     if(this.viewer !== undefined && this.viewer.view_expanded){
       return this.zs.zoom_table_ndx_viewer;
     }else if(this.selected_editor_mode == 'mixer'){
+      console.log('MIXER ZOOM ', this.zs.zoom_table_ndx_mixer)
       return this.zs.zoom_table_ndx_mixer;
     } else {
       return this.zs.zoom_table_ndx_editor;

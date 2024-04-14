@@ -1,0 +1,23 @@
+{
+  "id": "howtodevelop/install",
+  "title": "Install AdaCAD",
+  "description": "AdaCAD is built with Angular, a web development framework for progressive web apps. This project was generated with Angular CLI version 7.3.8.",
+  "source": "@site/docs/howtodevelop/install.md",
+  "sourceDirName": "howtodevelop",
+  "slug": "/howtodevelop/install",
+  "permalink": "/docs/howtodevelop/install",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "sidebar_label": "Install AdaCAD"
+  },
+  "sidebar": "devDocsSidebar",
+  "next": {
+    "title": "How to Make an Operation",
+    "permalink": "/docs/howtodevelop/makeanoperation"
+  }
+}

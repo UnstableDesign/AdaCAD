@@ -1,0 +1,16 @@
+{
+  "title": "Examples",
+  "description": "Projects to get you started using AdaCAD",
+  "slug": "/category/examples",
+  "permalink": "/docs/category/examples",
+  "navigation": {
+    "previous": {
+      "title": "Getting Started",
+      "permalink": "/docs/howtouse/getting-started"
+    },
+    "next": {
+      "title": "Make A Draft for the TC2",
+      "permalink": "/docs/howtouse/examples/quick-tc2"
+    }
+  }
+}

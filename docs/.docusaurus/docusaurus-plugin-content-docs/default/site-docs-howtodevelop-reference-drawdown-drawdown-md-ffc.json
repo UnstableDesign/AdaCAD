@@ -1,0 +1,23 @@
+{
+  "id": "howtodevelop/reference/drawdown/drawdown",
+  "title": "Drawdown",
+  "description": "The drawdown type refers to the 2D array used to store the cells that make up the draft pattern or drawdown. The drawdown is used as the primary representation of cloth structure within a draft in AdaCAD.",
+  "source": "@site/docs/howtodevelop/reference/drawdown/drawdown.md",
+  "sourceDirName": "howtodevelop/reference/drawdown",
+  "slug": "/howtodevelop/reference/drawdown/",
+  "permalink": "/docs/howtodevelop/reference/drawdown/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "updateWeftSystemsAndShuttles",
+    "permalink": "/docs/howtodevelop/reference/draft/updateWeftSystemsAndShuttles"
+  },
+  "next": {
+    "title": "hasCell",
+    "permalink": "/docs/howtodevelop/reference/drawdown/hasCell"
+  }
+}

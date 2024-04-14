@@ -1,0 +1,17 @@
+{
+  "unversionedId": "reference/drawdown",
+  "id": "reference/drawdown",
+  "title": "Drawdown",
+  "description": "A drawdown is a type that just simply refers to the 2D array used to store the pattern that will be translated to the loom. The drawdown is used as the primary representation within a draft in AdaCAD. Different Loom objects can take a drawdown as input and create the corresponding threading, tieup and treadling required to produce that drawdown.",
+  "source": "@site/docs/reference/drawdown.md",
+  "sourceDirName": "reference",
+  "slug": "/reference/drawdown",
+  "permalink": "/AdaCAD/docs/reference/drawdown",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3
+  }
+}

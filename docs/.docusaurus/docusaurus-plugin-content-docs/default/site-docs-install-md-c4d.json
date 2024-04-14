@@ -1,0 +1,22 @@
+{
+  "unversionedId": "install",
+  "id": "install",
+  "title": "Install AdaCAD",
+  "description": "If you are looking to use AdaCAD to make some drafts, you can do so for free online here:",
+  "source": "@site/docs/install.md",
+  "sourceDirName": ".",
+  "slug": "/install",
+  "permalink": "/AdaCAD/docs/install",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "next": {
+    "title": "Tutorial Intro",
+    "permalink": "/AdaCAD/docs/intro"
+  }
+}

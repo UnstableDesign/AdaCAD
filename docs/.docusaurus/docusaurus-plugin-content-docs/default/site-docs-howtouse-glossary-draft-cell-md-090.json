@@ -1,0 +1,23 @@
+{
+  "unversionedId": "howtouse/glossary/draft-cell",
+  "id": "howtouse/glossary/draft-cell",
+  "title": "Draft Cell",
+  "description": "A draft cell describes one square within the draft. Each draft cell represents a location at which the warp and weft cross.",
+  "source": "@site/docs/howtouse/glossary/draft-cell.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/draft-cell",
+  "permalink": "/docs/howtouse/glossary/draft-cell",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Cloth",
+    "permalink": "/docs/howtouse/glossary/cloth"
+  },
+  "next": {
+    "title": "Draft",
+    "permalink": "/docs/howtouse/glossary/draft"
+  }
+}

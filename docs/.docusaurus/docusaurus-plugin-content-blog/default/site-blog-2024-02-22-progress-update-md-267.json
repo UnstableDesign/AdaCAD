@@ -1,0 +1,39 @@
+{
+  "permalink": "/blog/2024/02/22/progress-update",
+  "source": "@site/blog/2024-02-22-progress-update.md",
+  "title": "AdaCAD Release Progress Update",
+  "description": "Since making our beta release of AdaCAD 4.0 available almost one year ago, we have been testing it in various contexts, from classroom teaching, workshops, and within our own practice. This exploration has given rise to several new areas of focus and directions for the future of AdaCAD. As a result, we have taken on a dramatic new redesign the redesign that we have no released yet, but want to preview here to get your feedback. This new version will do 90% of the same things as the current stable version, but it includes new features and ways of representing the different design elements. This includes methods for loading and saving multiple files to an online directory, simulating your structures, and new operations for making playful algorithmic drafts (e.g. \"glitch satin\").",
+  "date": "2024-02-22T00:00:00.000Z",
+  "formattedDate": "February 22, 2024",
+  "tags": [
+    {
+      "label": "adacad 4.0",
+      "permalink": "/blog/tags/adacad-4-0"
+    },
+    {
+      "label": "software updates",
+      "permalink": "/blog/tags/software-updates"
+    }
+  ],
+  "readingTime": 1.665,
+  "hasTruncateMarker": false,
+  "authors": [
+    {
+      "name": "laura"
+    }
+  ],
+  "frontMatter": {
+    "title": "AdaCAD Release Progress Update",
+    "author": "laura",
+    "tags": [
+      "adacad 4.0",
+      "software updates"
+    ],
+    "featured": true
+  },
+  "unlisted": false,
+  "nextItem": {
+    "title": "Making Woven Electrodes",
+    "permalink": "/blog/2021/07/15/electrodes"
+  }
+}

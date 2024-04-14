@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/direct-tie-loom",
+  "title": "Direct Tie Loom / Dobby",
+  "description": "A horizontal loom where each warp is threaded through a heddle, and each heddle belongs to one of a given set of frames. When a frame is raised, so too are the heddles and warps within those frames.",
+  "source": "@site/docs/howtouse/glossary/direct-tie-loom.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/direct-tie-loom",
+  "permalink": "/docs/howtouse/glossary/direct-tie-loom",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Cloth",
+    "permalink": "/docs/howtouse/glossary/cloth"
+  },
+  "next": {
+    "title": "Draft",
+    "permalink": "/docs/howtouse/glossary/draft"
+  }
+}

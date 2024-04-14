@@ -1,0 +1,19 @@
+{
+  "unversionedId": "howtouse/operations/rectangle",
+  "id": "howtouse/operations/rectangle",
+  "title": "Rectangle",
+  "description": "",
+  "source": "@site/docs/howtouse/operations/rectangle.md",
+  "sourceDirName": "howtouse/operations",
+  "slug": "/howtouse/operations/rectangle",
+  "permalink": "/docs/howtouse/operations/rectangle",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Operations",
+    "permalink": "/docs/howtouse/operations/"
+  }
+}

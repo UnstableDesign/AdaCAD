@@ -1,0 +1,19 @@
+{
+  "id": "howtouse/glossary/weft",
+  "title": "Weft",
+  "description": "The weft or \"filling\" yarn describes the yarn worked into warp. It is typically inserted perpendicularly to the warp and interlaced over and under the warp.",
+  "source": "@site/docs/howtouse/glossary/weft.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/weft",
+  "permalink": "/docs/howtouse/glossary/weft",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Weft System",
+    "permalink": "/docs/howtouse/glossary/weft-system"
+  }
+}

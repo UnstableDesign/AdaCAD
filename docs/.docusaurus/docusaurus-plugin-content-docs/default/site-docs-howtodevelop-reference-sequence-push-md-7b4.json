@@ -1,0 +1,19 @@
+{
+  "unversionedId": "howtodevelop/reference/sequence/push",
+  "id": "howtodevelop/reference/sequence/push",
+  "title": "push",
+  "description": "",
+  "source": "@site/docs/howtodevelop/reference/sequence/push.md",
+  "sourceDirName": "howtodevelop/reference/sequence",
+  "slug": "/howtodevelop/reference/sequence/push",
+  "permalink": "/docs/howtodevelop/reference/sequence/push",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "TwoD",
+    "permalink": "/docs/howtodevelop/reference/sequence/TwoD/"
+  }
+}

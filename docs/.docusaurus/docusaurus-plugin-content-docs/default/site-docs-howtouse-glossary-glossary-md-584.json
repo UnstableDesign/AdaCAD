@@ -1,0 +1,23 @@
+{
+  "id": "howtouse/glossary/glossary",
+  "title": "Glossary",
+  "description": "Need help understanding what a term means? Look it up in our glossary!",
+  "source": "@site/docs/howtouse/glossary/glossary.md",
+  "sourceDirName": "howtouse/glossary",
+  "slug": "/howtouse/glossary/",
+  "permalink": "/docs/howtouse/glossary/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Create Lattice Structures Using Layer Notation",
+    "permalink": "/docs/howtouse/examples/lattice-tutorial"
+  },
+  "next": {
+    "title": "Bitmap Image",
+    "permalink": "/docs/howtouse/glossary/bitmap-image"
+  }
+}

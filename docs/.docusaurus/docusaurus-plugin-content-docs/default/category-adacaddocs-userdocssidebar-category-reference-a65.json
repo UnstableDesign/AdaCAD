@@ -1,0 +1,16 @@
+{
+  "title": "Reference",
+  "description": "References to the most commonly used data types used in AdaCAD. All of these datatypes are stored in /core/model/datatypes.ts",
+  "slug": "/category/reference",
+  "permalink": "/AdaCAD/docs/category/reference",
+  "navigation": {
+    "previous": {
+      "title": "How to Make an Operation",
+      "permalink": "/AdaCAD/docs/howtodevelop/makeanoperation"
+    },
+    "next": {
+      "title": "Draft",
+      "permalink": "/AdaCAD/docs/reference/draft"
+    }
+  }
+}

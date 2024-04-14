@@ -1,0 +1,23 @@
+{
+  "unversionedId": "howtouse/operations/operations",
+  "id": "howtouse/operations/operations",
+  "title": "Operations",
+  "description": "",
+  "source": "@site/docs/howtouse/operations/operations.md",
+  "sourceDirName": "howtouse/operations",
+  "slug": "/howtouse/operations/",
+  "permalink": "/docs/howtouse/operations/",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Weft",
+    "permalink": "/docs/howtouse/glossary/weft"
+  },
+  "next": {
+    "title": "Rectangle",
+    "permalink": "/docs/howtouse/operations/rectangle"
+  }
+}

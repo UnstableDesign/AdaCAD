@@ -1,0 +1,26 @@
+{
+  "id": "howtouse/examples/picture-weaving",
+  "title": "Weave Images",
+  "description": "The video below shows how you can upload indexed color images and map drafts to the color regions. We can't yet process full color images, but if you have an indexed color image, with less than 100 colors, it should work!",
+  "source": "@site/docs/howtouse/examples/picture-weaving.md",
+  "sourceDirName": "howtouse/examples",
+  "slug": "/howtouse/examples/picture-weaving",
+  "permalink": "/docs/howtouse/examples/picture-weaving",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2
+  },
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Make A Draft for the TC2",
+    "permalink": "/docs/howtouse/examples/quick-tc2"
+  },
+  "next": {
+    "title": "Drafting Inlay for Jacquard and Harness Looms",
+    "permalink": "/docs/howtouse/examples/inlay"
+  }
+}

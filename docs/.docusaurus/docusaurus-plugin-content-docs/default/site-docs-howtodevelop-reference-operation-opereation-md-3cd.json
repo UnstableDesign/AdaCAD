@@ -1,0 +1,26 @@
+{
+  "unversionedId": "howtodevelop/reference/operation/opereation",
+  "id": "howtodevelop/reference/operation/opereation",
+  "title": "Opeartion",
+  "description": "Operations perform computations upon a draft. They are the core of AdaCAD, as they can be combined and arranged to \"grow\" different kinds of drafts. Operations each contain a set of data, which the software can interpret into an on screen element the user can add to their data flow. Each operation has a name which must be a unique name that is only used internally to locate this specific operation. old_names is a field I made when the name changes or when you no longer want to support an old operation and want to load this operation instead.",
+  "source": "@site/docs/howtodevelop/reference/operation/opereation.md",
+  "sourceDirName": "howtodevelop/reference/operation",
+  "slug": "/howtodevelop/reference/operation/opereation",
+  "permalink": "/docs/howtodevelop/reference/operation/opereation",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5
+  },
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "Loom",
+    "permalink": "/docs/howtodevelop/reference/loom/"
+  },
+  "next": {
+    "title": "DynamicOperation",
+    "permalink": "/docs/howtodevelop/reference/operation/dynamicoperation"
+  }
+}

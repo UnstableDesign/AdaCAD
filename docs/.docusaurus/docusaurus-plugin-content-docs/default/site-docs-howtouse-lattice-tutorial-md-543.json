@@ -1,0 +1,26 @@
+{
+  "unversionedId": "howtouse/lattice-tutorial",
+  "id": "howtouse/lattice-tutorial",
+  "title": "Creating Lattice Structures With AdaCAD",
+  "description": "In this tutorial, we are taking inspiration from one of Elizabeth Meiklejohn's samples from the 2023 Experimental Weaving Residency. In this sample, four layers are interlocking to create a lattice structure. Elastic foats are placed between the layers to pull the ends together (puffing up the structure), allowing you to pull out the sides to collapse the structure.",
+  "source": "@site/docs/howtouse/lattice-tutorial.md",
+  "sourceDirName": "howtouse",
+  "slug": "/howtouse/lattice-tutorial",
+  "permalink": "/docs/howtouse/lattice-tutorial",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3
+  },
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Weft",
+    "permalink": "/docs/howtouse/glossary/weft"
+  },
+  "next": {
+    "title": "Weaving Images",
+    "permalink": "/docs/howtouse/picture-weaving"
+  }
+}

@@ -1,0 +1,364 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/docs",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/docs",
+          "mainDocId": "howtouse/getting-started",
+          "docs": [
+            {
+              "id": "howtodevelop/install",
+              "path": "/docs/howtodevelop/install",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/makeanoperation",
+              "path": "/docs/howtodevelop/makeanoperation",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/cell/cell",
+              "path": "/docs/howtodevelop/reference/cell/",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/cell/createCell",
+              "path": "/docs/howtodevelop/reference/cell/createCell",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/cell/getCellValue",
+              "path": "/docs/howtodevelop/reference/cell/getCellValue",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/cell/setCellValue",
+              "path": "/docs/howtodevelop/reference/cell/setCellValue",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/draft/copyDraft",
+              "path": "/docs/howtodevelop/reference/draft/copyDraft",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/draft/draft",
+              "path": "/docs/howtodevelop/reference/draft/",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/draft/initDraft",
+              "path": "/docs/howtodevelop/reference/draft/initDraft",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/draft/initDraftFromDrawdown",
+              "path": "/docs/howtodevelop/reference/draft/initDraftFromDrawdown",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/draft/initDraftWithParams",
+              "path": "/docs/howtodevelop/reference/draft/initDraftWithParams",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/draft/updateWarpSystemsAndShuttles",
+              "path": "/docs/howtodevelop/reference/draft/updateWarpSystemsAndShuttles",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/draft/updateWeftSystemsAndShuttles",
+              "path": "/docs/howtodevelop/reference/draft/updateWeftSystemsAndShuttles",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/drawdown/drawdown",
+              "path": "/docs/howtodevelop/reference/drawdown/",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/drawdown/hasCell",
+              "path": "/docs/howtodevelop/reference/drawdown/hasCell",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/drawdown/isUp",
+              "path": "/docs/howtodevelop/reference/drawdown/isUp",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/drawdown/setCellValue",
+              "path": "/docs/howtodevelop/reference/drawdown/setCellValue",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/drawdown/warps",
+              "path": "/docs/howtodevelop/reference/drawdown/warps",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/drawdown/wefts",
+              "path": "/docs/howtodevelop/reference/drawdown/wefts",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/loom/loom",
+              "path": "/docs/howtodevelop/reference/loom/",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/operation/dynamicoperation",
+              "path": "/docs/howtodevelop/reference/operation/dynamicoperation",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/operation/operation",
+              "path": "/docs/howtodevelop/reference/operation/",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/computerFilter",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/computerFilter",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/import",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/import",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/invert",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/invert",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/matchSize",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/matchSize",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/OneD",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/padTo",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/padTo",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/push",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/push",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/pushMultiple",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/pushMultiple",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/resize",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/resize",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/unshift",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/unshift",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/unshiftMultiple",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/unshiftMultiple",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/OneD/val",
+              "path": "/docs/howtodevelop/reference/sequence/OneD/val",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/sequence",
+              "path": "/docs/howtodevelop/reference/sequence/",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtodevelop/reference/sequence/TwoD/TwoD",
+              "path": "/docs/howtodevelop/reference/sequence/TwoD/",
+              "sidebar": "devDocsSidebar"
+            },
+            {
+              "id": "howtouse/examples/inlay",
+              "path": "/docs/howtouse/examples/inlay",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/examples/lattice-tutorial",
+              "path": "/docs/howtouse/examples/lattice-tutorial",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/examples/picture-weaving",
+              "path": "/docs/howtouse/examples/picture-weaving",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/examples/quick-tc2",
+              "path": "/docs/howtouse/examples/quick-tc2",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/getting-started",
+              "path": "/docs/howtouse/getting-started",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/bitmap-image",
+              "path": "/docs/howtouse/glossary/bitmap-image",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/cloth",
+              "path": "/docs/howtouse/glossary/cloth",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/direct-tie-loom",
+              "path": "/docs/howtouse/glossary/direct-tie-loom",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/draft",
+              "path": "/docs/howtouse/glossary/draft",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/drawdown",
+              "path": "/docs/howtouse/glossary/drawdown",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/end",
+              "path": "/docs/howtouse/glossary/end",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/glossary",
+              "path": "/docs/howtouse/glossary/",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/harness-loom",
+              "path": "/docs/howtouse/glossary/harness-loom",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/inlet",
+              "path": "/docs/howtouse/glossary/inlet",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/jacquard-loom",
+              "path": "/docs/howtouse/glossary/jacquard-loom",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/layer-notation",
+              "path": "/docs/howtouse/glossary/layer-notation",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/loom",
+              "path": "/docs/howtouse/glossary/loom",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/operation",
+              "path": "/docs/howtouse/glossary/operation",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/outlet",
+              "path": "/docs/howtouse/glossary/outlet",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/parameter",
+              "path": "/docs/howtouse/glossary/parameter",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/parametric-design",
+              "path": "/docs/howtouse/glossary/parametric-design",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/pick",
+              "path": "/docs/howtouse/glossary/pick",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/structure",
+              "path": "/docs/howtouse/glossary/structure",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/warp",
+              "path": "/docs/howtouse/glossary/warp",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/warp-lowered",
+              "path": "/docs/howtouse/glossary/warp-lowered",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/warp-raised",
+              "path": "/docs/howtouse/glossary/warp-raised",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/warp-system",
+              "path": "/docs/howtouse/glossary/warp-system",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/weft",
+              "path": "/docs/howtouse/glossary/weft",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "howtouse/glossary/weft-system",
+              "path": "/docs/howtouse/glossary/weft-system",
+              "sidebar": "userDocsSidebar"
+            },
+            {
+              "id": "/category/examples",
+              "path": "/docs/category/examples",
+              "sidebar": "userDocsSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "userDocsSidebar": {
+              "link": {
+                "path": "/docs/howtouse/getting-started",
+                "label": "howtouse/getting-started"
+              }
+            },
+            "devDocsSidebar": {
+              "link": {
+                "path": "/docs/howtodevelop/install",
+                "label": "Install AdaCAD"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

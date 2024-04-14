@@ -1,0 +1,26 @@
+{
+  "unversionedId": "tutorial-basics/install",
+  "id": "tutorial-basics/install",
+  "title": "Install AdaCAD",
+  "description": "If you are looking to use AdaCAD to make some drafts, you can do so for free online here:",
+  "source": "@site/docs/tutorial-basics/install.md",
+  "sourceDirName": "tutorial-basics",
+  "slug": "/tutorial-basics/install",
+  "permalink": "/AdaCAD/docs/tutorial-basics/install",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Create a Page",
+    "permalink": "/AdaCAD/docs/tutorial-basics/create-a-page"
+  },
+  "next": {
+    "title": "Create a Document",
+    "permalink": "/AdaCAD/docs/tutorial-basics/create-a-document"
+  }
+}

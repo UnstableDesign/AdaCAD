@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkada_ca_ddocs=self.webpackChunkada_ca_ddocs||[]).push([[7946],{9611:a=>{a.exports=JSON.parse('{"label":"electrodes","permalink":"/blog/tags/electrodes","allTagsPath":"/blog/tags","count":1,"unlisted":false}')}}]);

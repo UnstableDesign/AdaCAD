@@ -1,0 +1,19 @@
+{
+  "unversionedId": "howtodevelop/reference/README",
+  "id": "howtodevelop/reference/README",
+  "title": "README",
+  "description": "This is my category page",
+  "source": "@site/docs/howtodevelop/reference/README.md",
+  "sourceDirName": "howtodevelop/reference",
+  "slug": "/howtodevelop/reference/",
+  "permalink": "/docs/howtodevelop/reference/",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "devDocsSidebar",
+  "previous": {
+    "title": "DynamicOperation",
+    "permalink": "/docs/howtodevelop/reference/dynamicoperation"
+  }
+}

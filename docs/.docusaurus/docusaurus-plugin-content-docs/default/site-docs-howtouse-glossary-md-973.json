@@ -1,0 +1,26 @@
+{
+  "unversionedId": "howtouse/glossary",
+  "id": "howtouse/glossary",
+  "title": "Weaving Terms",
+  "description": "To ensure consistency across the AdaCAD Interface, we try to adhere to some consistent rules in how we refer to different parts of weaving and draft making:",
+  "source": "@site/docs/howtouse/glossary.md",
+  "sourceDirName": "howtouse",
+  "slug": "/howtouse/glossary",
+  "permalink": "/docs/howtouse/glossary",
+  "draft": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2
+  },
+  "sidebar": "userDocsSidebar",
+  "previous": {
+    "title": "Getting Started",
+    "permalink": "/docs/howtouse/getting-started"
+  },
+  "next": {
+    "title": "Making Drafts for the TC2",
+    "permalink": "/docs/howtouse/quick-tc2"
+  }
+}

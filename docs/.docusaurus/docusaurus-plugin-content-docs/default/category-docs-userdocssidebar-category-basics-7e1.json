@@ -1,0 +1,12 @@
+{
+  "title": "Basics",
+  "description": "Concepts You'll Need to Know to Use AdaCAD",
+  "slug": "/category/basics",
+  "permalink": "/docs/category/basics",
+  "navigation": {
+    "next": {
+      "title": "Basics",
+      "permalink": "/docs/howtouse/basics/"
+    }
+  }
+}
