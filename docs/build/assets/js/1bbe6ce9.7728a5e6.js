@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkada_ca_ddocs=self.webpackChunkada_ca_ddocs||[]).push([[6595],{8065:a=>{a.exports=JSON.parse('{"label":"double weaving","permalink":"/blog/tags/double-weaving","allTagsPath":"/blog/tags","count":1,"unlisted":false}')}}]);

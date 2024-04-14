@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkada_ca_ddocs=self.webpackChunkada_ca_ddocs||[]).push([[8086],{4968:a=>{a.exports=JSON.parse('{"label":"software updates","permalink":"/blog/tags/software-updates","allTagsPath":"/blog/tags","count":1,"unlisted":false}')}}]);

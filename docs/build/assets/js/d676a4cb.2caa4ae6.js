@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkada_ca_ddocs=self.webpackChunkada_ca_ddocs||[]).push([[1489],{3808:a=>{a.exports=JSON.parse('{"permalink":"/blog/tags/adacad-4-0","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);
