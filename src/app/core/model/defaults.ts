@@ -3,7 +3,7 @@ import { DraftCellColor } from "./datatypes";
 export const defaults = {
     editor: 'draft',
     max_simulation_area: 10000,
-    draft_detail_cell_size: 30,
+    draft_detail_cell_size: 20,
     draft_detail_zoom: 1,
     draft_name: 'drafty',
     row_shuttle: 1,

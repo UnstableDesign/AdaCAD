@@ -111,6 +111,7 @@ export class DraftrenderingComponent {
   }
 
 
+
   drawDraft(draft: Draft) : Promise<boolean>{
     if(this.hasParent && this.ws.hide_mixer_drafts) return Promise.resolve(false);
 
@@ -225,9 +226,12 @@ export class DraftrenderingComponent {
     }
 
 
-    zoomChange(event: any){
-      this.draft_cell_size = event;
-      this.drawDraft(this.tree.getDraft(this.id));
+    localZoomChange(event: any){
+
+      const div = document.getElementById('subdraft-container-'+this.id);
+    //  div.style.transform = 'scale('+event+')';
+      div.style.scale = event;
+
     }
   
 

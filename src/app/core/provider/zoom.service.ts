@@ -8,8 +8,8 @@ export class ZoomService {
   //current zoom scale
   
 
-  num_steps: number = 15;
-  zoom_min: number = .2;
+  num_steps: number = 20;
+  zoom_min: number = .1;
   zoom_step: number = .004;
   zoom_table: Array<number> = [];
 

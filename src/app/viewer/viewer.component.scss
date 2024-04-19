@@ -6,6 +6,13 @@
     margin: 16px;
 }
 
+.viewer-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
 
 
 .mat-expansion-panel-header i{
@@ -13,7 +20,7 @@
 }
 
 .current_view{
-    background-color: rgb(100, 100, 100);
+    background-color:whitesmoke;
     display: flex;
     align-items: center;
     margin-bottom: 12px;
@@ -25,10 +32,28 @@
     justify-content: center;
 }
 
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+    height: 7px;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .5);
+    -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+  }
+
 .view_standard{
-    width: 14vw;
+    // width: fit-content;
+    // height: fit-content;
     height: 14vw; 
-    overflow: hidden;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column;
+}
+
+#viewer_canvas{
+    transform-origin: left top;
 }
 
 .view_expanded{
@@ -37,17 +62,25 @@
     overflow: scroll;
 }
 
-.dims{
+.dims,
+.draft_name{
     width: 100%;
-    text-align: center;
+    text-align: left;
 }
 
 
-#viewer_canvas{
-    transform-origin: top left;
-    transform: scale(1);
-    border: thin solid grey;
-    margin: auto;
+
+.slider{
+    width: 100%
+}
+
+.scale-container{
+    width: 100%;
+    height: 100%;
+}
+
+.mat-expansion-panel-body {
+    padding: 0 0px 16px 0px;
 }
 
 .filelist{

@@ -1025,7 +1025,8 @@ async processFileData(data: FileObj) : Promise<string|void>{
   })
   .catch(e => {
     this.loading = false;
-    console.log("ERROR THOWN in process", e)
+    console.log("ERROR THOWN in process", e);
+    this.clearAll();
   });
 
 
@@ -1232,7 +1233,6 @@ showDraftDetails(id: number){
     if(this.viewer !== undefined && this.viewer.view_expanded){
       return this.zs.zoom_table_ndx_viewer;
     }else if(this.selected_editor_mode == 'mixer'){
-      console.log('MIXER ZOOM ', this.zs.zoom_table_ndx_mixer)
       return this.zs.zoom_table_ndx_mixer;
     } else {
       return this.zs.zoom_table_ndx_editor;

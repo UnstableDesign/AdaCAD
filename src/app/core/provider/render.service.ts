@@ -255,7 +255,6 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
       }
   
       cx.fillStyle = "#333333";
-      console.log("CELL SIZE ", cell_size)
       cx.fillRect(j*cell_size, i*cell_size,cell_size, cell_size);
 
       cx.font = cell_size/2+"px Arial";
@@ -526,18 +525,44 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
       return Promise.resolve('draft or drawdown was null');
     }else{
 
-      canvas.width = warps(draft.drawdown)*cell_size;
-      canvas.height = wefts(draft.drawdown)*cell_size;
+      canvas.width = warps(draft.drawdown)*cell_size * pixel_ratio;
+      canvas.height = wefts(draft.drawdown)*cell_size * pixel_ratio;
       canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
       canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
 
-      let img = getDraftAsImage(draft, cell_size, rf.use_floats, rf.use_colors, this.ms.getShuttles());
+      let img = getDraftAsImage(draft, cell_size*pixel_ratio, rf.use_floats, rf.use_colors, this.ms.getShuttles());
       draft_cx.putImageData(img, 0, 0);
       return Promise.resolve('');
     }
   }
-  
 
+
+  /**
+ * gets the default canvas width (before scaling) of rendering this draft in the current context 
+ * which is used to make the canvas fit the scaled content
+ */
+  getBaseDimensions(draft: Draft, canvas: HTMLCanvasElement) : {width: number, height: number} {
+    let cell_size = this.calculateCellSize(draft);
+    let pixel_ratio = this.getPixelRatio(canvas);
+
+    return {width: warps(draft.drawdown)*cell_size*pixel_ratio, 
+        height: wefts(draft.drawdown) * cell_size * pixel_ratio};
+
+  }
+
+
+
+  
+  getPixelRatio(canvas: HTMLCanvasElement){
+    const draft_cx: any = canvas.getContext("2d");
+    let dpr = window.devicePixelRatio || 1;
+    let bsr =  draft_cx.webkitBackingStorePixelRatio ||
+    draft_cx.mozBackingStorePixelRatio ||
+    draft_cx.msBackingStorePixelRatio ||
+    draft_cx.oBackingStorePixelRatio ||
+    draft_cx.backingStorePixelRatio || 1;
+    return dpr/bsr;
+  }
 
   /**
    * draw whatever is stored in the draft object to the screen
@@ -547,16 +572,7 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
 
     let fns = [];
     // set the width and height
-    const draft_cx: any = canvases.drawdown.getContext("2d");
-    let dpr = window.devicePixelRatio || 1;
-    let bsr =  draft_cx.webkitBackingStorePixelRatio ||
-    draft_cx.mozBackingStorePixelRatio ||
-    draft_cx.msBackingStorePixelRatio ||
-    draft_cx.oBackingStorePixelRatio ||
-    draft_cx.backingStorePixelRatio || 1;
-    const pixel_ratio = dpr/bsr;
-
-
+    let pixel_ratio = this.getPixelRatio(canvases.drawdown);
     let cell_size = this.calculateCellSize(draft);
 
     if(rf.u_drawdown){
@@ -596,8 +612,46 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     
   }
 
+  
 
 
+  /**
+   * given a canvas and a container, this view calculates how much the object should be scaled in order to fit into the canvas. 
+   * @param container 
+   * @param canvas 
+   * @returns 
+   */
+getInitialTransform(container: HTMLElement,canvas: HTMLCanvasElement) : number{
+ /* now recalc the scale based on the draft size: */
+//  let div_draftviewer = document.getElementById('static_draft_view');
+ let rect_viewer = container.getBoundingClientRect();
+
+   let adj = 1;
+   let canvas_width =  canvas.width;
+   let canvas_height = canvas.height;
 
 
+   //get the ration of the view to the item
+   let width_adj = rect_viewer.width / canvas_width;
+   let height_adj = rect_viewer.height / canvas_height;
+
+   //make the zoom the larger of the width or height
+   adj = Math.min(width_adj, height_adj);
+
+   if(adj < 1){
+    return adj;
+     //canvas.style.transform = 'scale('+adj+')';
+     // this.draft_canvas.width = (warps(draft.drawdown)*cell_size*adj);
+     // this.draft_canvas.height = (wefts(draft.drawdown)*cell_size*adj);
+     // this.draft_canvas.style.width = (warps(draft.drawdown)*cell_size*adj)+"px";
+     // this.draft_canvas.style.height = (wefts(draft.drawdown)*cell_size*adj)+"px";
+   } 
+   else return 1;
+ }
 }
+
+
+
+
+
+

@@ -263,7 +263,6 @@ h3{
 }
 
 .local_zoom{
-	transform-origin: top center;
 	display: flex;
 }
 
@@ -278,6 +277,21 @@ h3{
 	flex-direction: column;
 }
 
+.header-container{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	margin: 0px 16px;
+}
+
+.rendering-view-opts{
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	height: max-content;
+}
+
+
 .subdraft-contents{
 	display: flex;
 	flex-direction: column;
@@ -286,6 +300,7 @@ h3{
 	justify-content: center;
 	padding: 4px 15px 4px 15px;
 	border: none;
+	transform-origin: top left;
 	background-color: transparent;
 }
 	

@@ -409,7 +409,7 @@ export const createDraft = (
    */
   export const getDraftAsImage = (draft: Draft, pix_per_cell: number, floats: boolean, use_color: boolean, mats: Array<Material>) : ImageData => {
 
-    console.log("GET DRAFT AS IMAGE ", pix_per_cell, floats, use_color)
+    // console.log("GET DRAFT AS IMAGE ", pix_per_cell, floats, use_color)
 
 
     pix_per_cell = Math.floor(pix_per_cell);
@@ -534,9 +534,9 @@ export const createDraft = (
 
     let bg: DraftCellColor = {
       id: 'background',
-      r: 100,
-      g: 100,
-      b: 100,
+      r: 245,
+      g: 245,
+      b: 245,
       a: 255
     }
 

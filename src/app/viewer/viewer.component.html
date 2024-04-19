@@ -13,6 +13,37 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
 
+
+    <div class="viewer-header">
+      <div class="slider">
+        <mat-slider 
+        min="0"
+        [max]="zs.num_steps"  
+        step="1" 
+       >
+        <input matSliderThumb [(ngModel)]="zs.zoom_table_ndx_viewer"  (valueChange)="renderChange()" >
+      </mat-slider>
+      </div>
+
+      <button 
+      *ngIf="!view_expanded"  
+      matTooltip="expand view"
+      mat-icon-button 
+      (click)="onExpand()" >
+        <i class="fa-solid fa-expand"></i>
+      </button>
+
+      <button 
+      *ngIf="view_expanded"  
+      mat-flat-button
+      matTooltip="collapse view" 
+      (click)="onCollapse()" >
+      <i class="fa fa-times"></i> Close
+      </button>
+
+      
+    </div>
+
     <div 
     class="current_view" 
     id="static_draft_view"
@@ -29,52 +60,75 @@
       >
     </app-simulation>
   
+    <div class="scale-container" id="viewer-scale-container">
         <canvas [class.hidden]="vis_mode == 'sim'" id="viewer_canvas"></canvas>
+    </div>
   
   </div>
 
-  <div class="dims">{{warps}} ends x {{wefts}} pics</div>
+  
+
+ 
+
+
 
   <div 
   class="view_options"
   >
-      <!-- <button  
-      mat-icon-button 
+
+  <button  
+  mat-flat-button 
+  [matMenuTriggerFor]="viewOptions"
+  matTooltip="view options" >
+  <i class="fa-regular fa-eye"></i>  
+  </button>
+
+  <mat-menu #viewOptions>
+
+      <button  
+      mat-flat-button
       [class.active]="vis_mode == 'sim'"
       matTooltip="view in 3D" 
       (click)="viewAsSimulation()">
-        <i class="fa-solid fa-cube"></i>
-      </button> -->
+        <i class="fa-solid fa-cube"></i> simulation
+      </button> 
       
-      <button  
-      mat-icon-button 
-      [class.active]="vis_mode == 'draft'"
-      matTooltip="view draft" 
-      (click)="viewAsDraft()">
-        <i class="fa-solid fa-chess-board"></i>
-      </button>
-      
-      <button  
-      mat-icon-button 
-      [class.active]="vis_mode == 'structure'"
-      matTooltip="view structure" 
-      (click)="viewAsStructure()">
-        <i class="fa-solid fa-hashtag"></i>
-      </button>
-      
-      <button  
-      mat-icon-button 
-      [class.active]="vis_mode == 'color'"
-      matTooltip="view colors" 
-      (click)="viewAsColor()">
-        <i class="fa-solid fa-paint-roller">
-      </i></button>
+    
+    <button mat-flat-button
+    [class.active]="vis_mode == 'draft'"
+    (click)="viewAsDraft()">
+    <i class="fa-solid fa-chess-board"></i>  draft
+    </button>
+
+    <button mat-flat-button
+    [class.active]="vis_mode == 'structure'"
+    (click)="viewAsStructure()">
+    <i class="fa-solid fa-hashtag"></i>  structure
+    </button>
+
+    <button mat-flat-button
+    [class.active]="vis_mode == 'color'"
+    (click)="viewAsColor()">
+    <i class="fa-solid fa-paint-roller"></i>  color pattern
+    </button>
+
+  </mat-menu>
+
+
+
+  <button  
+  mat-flat-button  
+  (click)="openEditor()"
+  matTooltip="edit this draft">
+  <i class="fa-solid fa-pen-to-square"></i> 
+  </button>
+
 
       <button  
-      mat-icon-button  
+      mat-flat-button  
       matTooltip="download this draft"
       [matMenuTriggerFor]="subdraftOptions">
-      <i class="fa-solid fa-download"></i>
+      <i class="fa-solid fa-download"></i> 
       </button>
 
 
@@ -107,23 +161,14 @@
 
 
 
-      <button 
-      *ngIf="!view_expanded"  
-      matTooltip="expand view"
-      mat-icon-button 
-      (click)="onExpand()" >
-        <i class="fa-solid fa-expand"></i>
-      </button>
-
-      <button 
-      *ngIf="view_expanded"  
-      mat-flat-button
-      matTooltip="collapse view" 
-      (click)="onCollapse()" >
-      <i class="fa fa-times"></i> Close Preview
-      </button>
+      
    
 
+
+  </div>
+  <div class="draft-data">
+    <div class="draft_name">name: {{draft_name}}</div>
+    <div class="dims">{{warps}} ends x {{wefts}} pics</div>
 
   </div>
   

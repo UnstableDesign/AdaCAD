@@ -5,6 +5,7 @@ import { SimulationComponent } from './simulation/simulation.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { CoreModule } from '../core/core.module';
 
 
 
@@ -14,6 +15,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
     SimulationComponent
   ],
   imports: [
+    CoreModule,
     CommonModule,
     MatButtonModule,
     MatMenuModule,
