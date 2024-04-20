@@ -307,6 +307,7 @@ export class DraftComponent implements OnInit {
     this.resetDirty();
     
     this.selected_loom_type = loom_settings.type;
+    if(this.selected_loom_type == 'jacquard') this.dm.selectDraftEditSource('drawdown')
 
     this.frames = Math.max(numFrames(loom), loom_settings.frames);
     this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);

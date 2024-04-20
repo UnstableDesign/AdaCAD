@@ -67,7 +67,7 @@
     <div id="threading-canvas">
       <canvas id="threading-editor" class=""></canvas>
     </div>
-    <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div>
+    <!-- <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div> -->
     <div id="tieups-canvas">
       <canvas id="tieups-editor" ></canvas>
     </div>
@@ -78,7 +78,7 @@
     <div id="drawdown-canvas">
         <canvas id="drawdown-editor">  </canvas>
     </div>
-    <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div>
+    <!-- <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div> -->
 
     <div class="treadling-container" id="treadling-canvas">
 
@@ -92,33 +92,18 @@
         <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text-editor">
           <div class="weft-system-row origin{{ws.selected_origin_option}}" 
           [style.height.px]="cell_size"
-          *ngFor="let i of (render?.visibleRows); let j = index;" >
-              
-          <a class="weft-material" 
-          id="weft-material-{{j}}"
-          [style.background-color]="this.ms.getColor(rowShuttleMapping[i])" 
-          [style.width.px]="cell_size-1"
-          [style.height.px]="cell_size-1"
-          (mouseover)="checkForPaint('weft', j, $event)"
-          (click)="incrementWeftMaterial(j)"> 
-          </a>
-          
-          <a class="weft-system" (click)="incrementWeftSystem(j)"> 
-                {{ system_codes[rowSystemMapping[i]]}}</a>
-
-              
-
+          *ngFor="let i of rowSystemMapping; let j = index;" >
 
               <div class="weft_indicies">
 
               <ng-container *ngIf="ws.selected_origin_option == 1 || ws.selected_origin_option == 2">
-                <span *ngIf="(i % getTextInterval() == 0)" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
-                <!-- <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)-1}}</span>       -->
+                <span *ngIf="(j % getTextInterval() == 0)" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+                <span *ngIf="(isLastRow(j))" class="weft_number_last origin{{ws.selected_origin_option}}">{{getFlippedWeftNum(j)-1}}</span>      
               </ng-container>  
               <ng-container *ngIf="ws.selected_origin_option == 0 || ws.selected_origin_option == 3">
 
-              <span *ngIf="i % getTextInterval() == 0" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
-              <!-- <span *ngIf="(isLastRow(i))" class="weft_number_last origin{{ws.selected_origin_option}}">{{i+1}}</span>       -->
+              <span *ngIf="j % getTextInterval() == 0" class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>      
+              <span *ngIf="(isLastRow(j))" class="weft_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>      
             </ng-container>  
               </div>
 
