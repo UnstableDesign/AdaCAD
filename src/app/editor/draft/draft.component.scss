@@ -4,6 +4,15 @@ canvas{
   height: fit-content;
 }
 
+.draft-top{
+  display: flex;
+  flex-direction: row;
+}
+
+.weft-systems-spacer{
+  flex: 0 0 148px;
+}
+
 
 
 
@@ -150,35 +159,30 @@ canvas{
 
 .warp-systems-container{
   display: flex;
+  width: 100%;
   padding: 0px var(--cell-width);
 }
 
 .warp-systems-container.origin0
 {
   flex-direction: column;
-  align-items: flex-start;
 }
 
 
 .warp-systems-container.origin3
 {
   flex-direction: column;
-  align-items: flex-end;
 }
 
 .warp-systems-container.origin1{
 
   flex-direction: column-reverse;
-  align-items: flex-start;
-
 }
 
 
 .warp-systems-container.origin2
 {
   flex-direction: column-reverse;
-  align-items: flex-end;
-
 }
 
 
@@ -415,10 +419,8 @@ canvas{
       line-height: 14px;
       color: #333;
       z-index: 1;
-      display: flex;
-      width: fit-content;
-      
-    
+      display: flex;   
+      flex: 1 1 auto;   
     
     }
   
@@ -443,8 +445,7 @@ canvas{
     
     
     .warp-system-col{
-        width: var(--cell-width);
-        flex-grow: 1;
+        flex: 1 1 var(--cell-width);
         color: #000;
         z-index: 1;
         opacity: 1;
@@ -465,6 +466,24 @@ canvas{
         .warp_delete{
             display: block;
         }
+
+
+       
+      }
+
+      .warp_insert,
+      .warp_clone,
+      .warp_delete{
+        align-items: left;
+        justify-content: left;
+        cursor: pointer;
+        z-index: 2;
+        display: none;
+        height: 20px;
+        font-size: 14px;
+        padding-bottom: 5px;
+        
+      
       }
 
       // &:last-child{
@@ -573,20 +592,6 @@ canvas{
     
     // }
     
-    .warp_insert,
-    .warp_clone,
-    .warp_delete{
-      align-items: left;
-      justify-content: left;
-      cursor: pointer;
-      z-index: 2;
-      display: none;
-      height: 20px;
-      font-size: 14px;
-      padding-bottom: 5px;
-      
-    
-    }
     
     
     
@@ -613,7 +618,7 @@ canvas{
     z-index: 2;
     display: flex;
     justify-content: flex-start;
-    height: fit-content;
+    flex: 0 0 100%;
   }
 
   
@@ -640,13 +645,12 @@ canvas{
 
   .weft-system-row{
     display: flex;
-    flex-grow: 1;
+    flex: 1 1 auto;
     color: #333;
     height: var(--cell-width);
     z-index: 1;
     opacity: 1;
     justify-content: flex-start;
-    line-height:var(--cell-width);;
 
     .weft_indicies{
       width: 48px;

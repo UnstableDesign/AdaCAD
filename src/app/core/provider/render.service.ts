@@ -113,13 +113,13 @@ draft_cell_size: number;
 
 
       weft_systems_canvas.height = draft.rowSystemMapping.length * cell_size * pixel_ratio;
-      weft_systems_canvas.width = cell_size * pixel_ratio
+      weft_systems_canvas.width = defaults.draft_detail_cell_size * pixel_ratio
       weft_systems_canvas.style.height = (draft.rowSystemMapping.length * cell_size)+"px";
-      weft_systems_canvas.style.width = cell_size+"px";
+      weft_systems_canvas.style.width = defaults.draft_detail_cell_size+"px";
       weft_mats_canvas.height = draft.rowShuttleMapping.length * cell_size * pixel_ratio;
-      weft_mats_canvas.width =  cell_size*pixel_ratio;
+      weft_mats_canvas.width =  defaults.draft_detail_cell_size*pixel_ratio;
       weft_mats_canvas.style.height =(draft.rowShuttleMapping.length * cell_size)+"px";
-      weft_mats_canvas.style.width =  cell_size+"px";
+      weft_mats_canvas.style.width =  defaults.draft_detail_cell_size+"px";
       let system = null;
 
       for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
@@ -139,7 +139,7 @@ draft_cell_size: number;
 
         let color = this.ms.getColor(draft.rowShuttleMapping[j]);
         weft_mats_cx.fillStyle = color;
-        weft_mats_cx.fillRect(1, j* cell_size*pixel_ratio+1,  cell_size*pixel_ratio-2,  cell_size*pixel_ratio-2);
+        weft_mats_cx.fillRect(1, j* cell_size*pixel_ratio+1,  defaults.draft_detail_cell_size*pixel_ratio-2,  cell_size*pixel_ratio-2);
         
         weft_systems_cx.font = 1.5*cell_size+"px Arial";
         weft_systems_cx.fillStyle = "#666666";
@@ -171,14 +171,14 @@ draft_cell_size: number;
     }else{
 
       warp_mats_canvas.width = draft.colShuttleMapping.length * cell_size * pixel_ratio;
-      warp_mats_canvas.height =  cell_size * pixel_ratio;
+      warp_mats_canvas.height =  defaults.draft_detail_cell_size * pixel_ratio;
       warp_mats_canvas.style.width = (draft.colShuttleMapping.length * cell_size)+"px";
-      warp_mats_canvas.style.height =  cell_size+"px";
+      warp_mats_canvas.style.height =  defaults.draft_detail_cell_size+"px";
   
       warp_sys_canvas.width = draft.colSystemMapping.length * cell_size * pixel_ratio;
-      warp_sys_canvas.height =  cell_size * pixel_ratio;
+      warp_sys_canvas.height =  defaults.draft_detail_cell_size * pixel_ratio;
       warp_sys_canvas.style.width = (draft.colSystemMapping.length * cell_size)+"px";
-      warp_sys_canvas.style.height =  cell_size+"px";
+      warp_sys_canvas.style.height =  defaults.draft_detail_cell_size+"px";
 
        let system = null;
 
@@ -199,12 +199,12 @@ draft_cell_size: number;
       
         //cell_size *= this.pixel_ratio
         warp_mats_cx.fillStyle = color;
-        warp_mats_cx.fillRect(j* cell_size*pixel_ratio+1, 1,  cell_size*pixel_ratio-2,  cell_size*pixel_ratio-2);
+        warp_mats_cx.fillRect(j* cell_size*pixel_ratio+1, 1,  cell_size*pixel_ratio-2,  defaults.draft_detail_cell_size*pixel_ratio-2);
         
         //need to flip this on certain origins. 
         warp_systems_cx.font = 1.5*cell_size+"px Arial";
         warp_systems_cx.fillStyle = "#666666";
-        warp_systems_cx.fillText(system, j*cell_size*pixel_ratio+10, cell_size*pixel_ratio-5)
+        warp_systems_cx.fillText(system, j*cell_size*pixel_ratio+10, defaults.draft_detail_cell_size*pixel_ratio-5)
 
       
       }

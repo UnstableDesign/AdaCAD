@@ -10,54 +10,58 @@
   ></app-selection>
 
 
+  <div class="draft-top">
 
-  <div class="warp-systems-container origin{{ws.selected_origin_option}}" id="warp-systems-container-editor">
+    <div class="weft-systems-spacer"></div>
 
+    <div class="warp-systems-container origin{{ws.selected_origin_option}}" id="warp-systems-container-editor">
+    
 
-    <div class="warp-systems-text origin{{ws.selected_origin_option}}"  id="warp-systems-text-editor">
-         
-      <div class="warp-system-col origin{{ws.selected_origin_option}}" 
-          [style.width.px] = "cell_size"
-          *ngFor="let i of colSystemMapping; let j = index;" >
-               
-        <div class="warp-number-container">
-            <span *ngIf="j % getTextInterval() == 0" class="warp_number origin{{ws.selected_origin_option}}">
-              {{j}}
-            </span>      
+      <div class="warp-systems-text origin{{ws.selected_origin_option}}"  id="warp-systems-text-editor">
           
-            <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">
-              <ng-container *ngIf='ws.selected_origin_option == 2 || ws.selected_origin_option == 3'>{{j+1}}</ng-container>
-              <ng-container *ngIf='ws.selected_origin_option == 0 || ws.selected_origin_option == 1'>{{getFlippedWarpNum(j) - 1}}</ng-container>
-              
-            </span>       
-        </div>
+        <div class="warp-system-col origin{{ws.selected_origin_option}}" 
+            [style.width.px] = "cell_size"
+            *ngFor="let i of colSystemMapping; let j = index;" >
+                
+          <div class="warp-number-container">
+              <span *ngIf="j % getTextInterval() == 0" class="warp_number origin{{ws.selected_origin_option}}">
+                {{j}}
+              </span>      
+            
+              <span *ngIf="isLastCol(j)" class="warp_number_last origin{{ws.selected_origin_option}}">
+                <ng-container *ngIf='ws.selected_origin_option == 2 || ws.selected_origin_option == 3'>{{j+1}}</ng-container>
+                <ng-container *ngIf='ws.selected_origin_option == 0 || ws.selected_origin_option == 1'>{{getFlippedWarpNum(j) - 1}}</ng-container>
+                
+              </span>       
+          </div>
 
-        <div  class="warp_selectors">
-            <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
+          <div  class="warp_selectors">
+              <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
+                </span>
+        
+              <span class="warp_clone"
+              (click)="cloneCol(j);">
+                <i class="fa fa-clone"></i>
               </span>
-      
-            <span class="warp_clone"
-            (click)="cloneCol(j);">
-              <i class="fa fa-clone"></i>
-            </span>
-      
-      
-            <span class="warp_insert" 
-            (click)="insertCol(j + 1);">
-            <i class="fa fa-plus-circle"></i></span>
+        
+        
+              <span class="warp_insert" 
+              (click)="insertCol(j + 1);">
+              <i class="fa fa-plus-circle"></i></span>
+          </div>
+          
         </div>
-         
-      </div>
 
-            <!-- <div class="warp-system-col" >
-              <span class="last-warp">{{draft?.warps}}</span>
-            </div>  -->
+              <!-- <div class="warp-system-col" >
+                <span class="last-warp">{{draft?.warps}}</span>
+              </div>  -->
 
-    </div>   
-    <canvas id="warp-systems-editor" class="warp-systems">  </canvas>
-    <canvas id ="warp-materials-editor" class="warp-materials">  </canvas>
+      </div>   
+      <canvas id="warp-systems-editor" class="warp-systems">  </canvas>
+      <canvas id ="warp-materials-editor" class="warp-materials">  </canvas>
 
-  </div>
+    </div>
+</div>
 
   <div [class.hidden]="!isFrame" class="threading-tieup-container 
     origin{{ws.selected_origin_option}} 
