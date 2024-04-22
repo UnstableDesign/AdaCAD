@@ -1488,6 +1488,9 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
     this.rowSystemMapping = draft.rowSystemMapping;
 
 
+ 
+
+
     let rf: RenderingFlags = {
       u_drawdown: (flags.drawdown !== undefined), 
       u_threading: (flags.loom !== undefined),
@@ -1502,6 +1505,13 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
       show_loom: isFrame(loom_settings)
     }
     this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf);
+
+   
+    let warpdatadiv = document.getElementById('warp-systems-text-editor');
+    const pr = this.render.getPixelRatio(this.canvases.warp_mats);
+    warpdatadiv.style.width = this.canvases.warp_mats.width/pr+'px';
+
+
 
   }
 

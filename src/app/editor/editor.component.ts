@@ -311,6 +311,10 @@ export class EditorComponent implements OnInit {
               weft_materials:true
             });    
     this.weaveRef.isFrame = isFrame(loom_settings);
+    this.weaveRef.selected_loom_type = loom_settings.type;
+    if(loom_settings.type == 'jacquard')
+        this.dm.selectDraftEditSource('drawdown')
+
     this.saveChanges.emit();
 
   }

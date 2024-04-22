@@ -6,14 +6,29 @@ canvas{
 
 .draft-top{
   display: flex;
-  flex-direction: row;
+  justify-content: flex-end;
 }
 
-.weft-systems-spacer{
-  flex: 0 0 148px;
+.draft-top.origin3,
+.draft-top.origin0{
+  flex-direction: column;
+
 }
 
+.draft-top.origin1,
+.draft-top.origin2{
+  flex-direction: column-reverse;
 
+}
+
+.warp-data-and-threading{
+  display: flex;
+  flex-direction: column;
+}
+
+#warp-data-and-threading{
+  width: inherit;
+}
 
 
 
@@ -122,7 +137,14 @@ canvas{
 }
 
 
-.treadling-container{
+.treadling-container.loomtype-frame,
+.treadling-container.loomtype-direct{
+  display: flex;
+  padding-right: var(--cell-width);
+}
+
+.treadling-container.loomtype-jacquard{
+  display: none;
 }
 
 #draft-scale-container{
@@ -159,7 +181,6 @@ canvas{
 
 .warp-systems-container{
   display: flex;
-  width: 100%;
   padding: 0px var(--cell-width);
 }
 
@@ -172,6 +193,7 @@ canvas{
 .warp-systems-container.origin3
 {
   flex-direction: column;
+  align-items: flex-end;
 }
 
 .warp-systems-container.origin1{
@@ -183,6 +205,7 @@ canvas{
 .warp-systems-container.origin2
 {
   flex-direction: column-reverse;
+  align-items: flex-end;
 }
 
 
@@ -191,13 +214,26 @@ canvas{
 }
 
 
-.threading-tieup-container{
+.threading-tieup-container.loomtype-frame,
+.threading-tieup-container.loomtype-direct{
+
   display: flex;
-  padding: 30px 0px;
+  padding-top: var(--cell-width);
+
+  &.origin1,
+  &.origin2{
+    padding: 0px var(--cell-width) var(--cell-width) var(--cell-width);
+  }
+
+  &.origin0,
+  &.origin3{
+    padding-top: var(--cell-width);
+  }
   
-  // canvas{
-  //   padding-right: 10px;
-  // }
+}
+
+.threading-tieup-container.loomtype-jacquard{
+  display: none;  
 }
 
 .threading-tieup-container.editable-loom{
@@ -208,8 +244,8 @@ canvas{
 .threading-tieup-container.editable-loom.loomtype-direct{
   
   #tieups{
-  opacity:  .2;
-  cursor: not-allowed;
+    opacity:  .2;
+    cursor: not-allowed;
   }
 
 }
@@ -236,13 +272,15 @@ canvas{
 }
 
 
+#tieups-canvas{}
+
 
 .threading-tieup-container.origin0
 {
   #threading-canvas{
     //flip x and y
-    padding-left: var(--cell-width);
-     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    padding: 0px var(--cell-width);
 
   }
   #tieups-canvas{
@@ -265,7 +303,7 @@ canvas{
   #threading-canvas{
     //flip x and y
     padding-left: var(--cell-width);
-     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
   }
 }
@@ -287,6 +325,10 @@ canvas{
 {
   #tieups-canvas{
      transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  #threading-canvas{
+    //flip x and y
+    padding-left: var(--cell-width);
   }
 }
 
@@ -314,7 +356,8 @@ canvas{
   }
 
   #threading-canvas{
-     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    padding: 0px var(--cell-width);
+    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
@@ -567,7 +610,7 @@ canvas{
     .warp_number_last.origin0,
     .warp_number_last.origin1
     {
-      border-left: thin solid black;
+      border-left: thin solid #333;
       padding-left: 2px;
 
     }
@@ -575,7 +618,7 @@ canvas{
     .warp_number_last.origin2,
     .warp_number_last.origin3
     {
-      border-right: thin solid black;
+      border-right: thin solid #333;
       padding-left: 0px;
 
     }
@@ -736,7 +779,7 @@ canvas{
   .weft_number_last.origin1,
   .weft_number_last.origin2
   {
-    border-top: thin solid white;
+    border-top: thin solid #333;
 
   }
   
