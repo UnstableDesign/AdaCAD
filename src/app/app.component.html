@@ -180,7 +180,7 @@
     [class.show]="selected_editor_mode === 'draft'" 
     (saveChanges)="saveFile()"
     (redrawViewer)="onRefreshViewer('editor')"
-    (createNewDraftOnMixer)="createNewDraftOnMixer($event)"
+    (cloneDraft)="cloneDraft($event)"
     (updateMixer)="updateMixer()"
       ></app-editor>
 

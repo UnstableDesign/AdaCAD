@@ -1,7 +1,7 @@
 import { DraftCellColor } from "./datatypes";
 
 export const defaults = {
-    editor: 'draft',
+    editor: 'mixer',
     max_simulation_area: 10000,
     draft_detail_cell_size: 20,
     draft_detail_zoom: 1,

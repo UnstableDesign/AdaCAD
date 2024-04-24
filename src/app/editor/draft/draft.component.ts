@@ -295,6 +295,8 @@ export class DraftComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {  
 
+    console.log("ON DRAFT LOAD in drafts.ts ", id, this.tree.nodes)
+
     this.id = id;  
 
     if(id == -1) return;
@@ -408,9 +410,9 @@ export class DraftComponent implements OnInit {
     this.mouse_pressed = true;
 
 
-
     const loom_settings = this.tree.getLoomSettings(this.id);
     const draft = this.tree.getDraft(this.id);
+    console.log("GOT DRAFT ", this.id, draft, this.tree.nodes)
     let cell_size = this.render.calculateCellSize(draft);
 
     const frames = (loom_settings !== null ) ? loom_settings.frames : 0;
@@ -514,6 +516,7 @@ export class DraftComponent implements OnInit {
         break;
         case 'select':
         case 'copy':
+          console.log("SELECT");
 
             if(event.shiftKey){
               this.selection.onSelectDrag(currentPos);

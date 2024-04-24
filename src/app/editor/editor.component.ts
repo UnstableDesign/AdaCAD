@@ -43,7 +43,7 @@ export class EditorComponent implements OnInit {
   @Output() saveChanges: any = new EventEmitter();
   @Output() redrawViewer: any = new EventEmitter();
   @Output() updateMixer: any = new EventEmitter();
-  @Output() createNewDraftOnMixer: any = new EventEmitter();
+  @Output() cloneDraft: any = new EventEmitter();
   @Output() onFocusView: any = new EventEmitter();
   @Output() onCollapseView: any = new EventEmitter();
 
@@ -105,7 +105,6 @@ export class EditorComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.generateNewBlankDraft();
   }
 
 
@@ -126,34 +125,7 @@ export class EditorComponent implements OnInit {
     this.viewer_expanded = !this.viewer_expanded;
   }
 
-  /**
-   * generates a draft, loom, and loom settings before sending back to the app component to initate it 
-   * within both draft detail and the mixer view
-   * @returns 
-   */
-  generateNewBlankDraft(){
-
-
-  //if it has a parent and it does not yet have a view ref. 
- //this.tree.setSubdraftParent(id, -1)
-  const draft = initDraftWithParams({warps: this.loom.warps, wefts: this.loom.wefts});
-
-  //use the local loom settings
-    const loom_settings:LoomSettings = {
-      type: this.loom.type,
-      epi: this.loom.epi,
-      units: <"cm" | "in" >this.loom.units,
-      frames: this.loom.frames,
-      treadles: this.loom.treadles
-  }
-
-   let loom_util = getLoomUtilByType(loom_settings.type);
-    loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
-    .then(loom => {
-      this.createNewDraftOnMixer.emit({draft, loom, loom_settings});
-    })
   
-  }
 
   createDraftCopy(id:number){
 
@@ -171,22 +143,15 @@ export class EditorComponent implements OnInit {
       }
 
       let loom = this.tree.getLoom(id);
-      this.createNewDraftOnMixer.emit({draft, loom, loom_settings});
+      this.cloneDraft.emit({draft, loom, loom_settings});
   }
 
 
   /**
-   * any time this page is focused, it has to assess if a new draft needs to be created. 
-   * if there is no id present, generate a draft and assign an id. 
-   * @returns 
+   * placholder for any code we need to run when we focus on this view
    */
-  onFocus(){
-    if(this.id == -1){
-      this.generateNewBlankDraft();
-      this.renderChange();
-    }
-  
-  
+  onFocus()  {
+    this.renderChange();
   }
 
   onClose(){
@@ -230,12 +195,13 @@ export class EditorComponent implements OnInit {
    */
   loadDraft(id: number) : Promise<any> {
 
-    // console.log("Loading Draft ", id)
+    console.log("Loading Draft ", id)
     this.id = id;
 
     if(id == -1) return Promise.resolve();
 
     const draft = this.tree.getDraft(id);
+    console.log("LOADED DRAFT " ,draft)
 
     //reset the dirty value every time the window is open
     this.weaveRef.is_dirty = false;
