@@ -79,7 +79,8 @@ export class LoomComponent {
 
   public warpNumChange(e:any) {
   
-    if(e.warps == "") return;
+
+
   
     const draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
@@ -137,7 +138,8 @@ export class LoomComponent {
   
   warpChange(f: NgForm) {
   
-  
+    if(this.tree.hasParent(this.id)) return;
+
     if(!f.value.warps){
      f.value.warps = 2;
      this.warps = f.value.warps;
@@ -156,6 +158,9 @@ export class LoomComponent {
   }
 
   weftChange(f: NgForm) {
+
+    if(this.tree.hasParent(this.id)) return;
+
     if(!f.value.wefts){
       f.value.wefts = 2;
       this.wefts = 2;

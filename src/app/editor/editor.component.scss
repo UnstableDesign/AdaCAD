@@ -87,6 +87,18 @@ h1{
     overflow: scroll;
   }
 
+.draft-container{
+    display: flex;
+    flex-direction: column;
+}
+
+.locked_draft{
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
 .mat-form-field{
     width: 100%;
 }

@@ -294,8 +294,8 @@ export class AppComponent implements OnInit{
    * @param obj 
    */
     cloneDraft(obj:any){
-
       let draft = copyDraft(obj.draft);
+      draft.gen_name = 'copy of '+getDraftName(draft);
       let loom = copyLoom(obj.loom)
       let loom_settings = copyLoomSettings(obj.loom_settings);
       //make sure this create a deep copy first

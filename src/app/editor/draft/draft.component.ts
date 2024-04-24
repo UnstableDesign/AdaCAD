@@ -41,7 +41,6 @@ export class DraftComponent implements OnInit {
    */
   //  @Input('timeline') timeline: any;
  
-   @Input() viewonly: boolean;
    @Input() hasFocus: boolean;
 
  
@@ -69,10 +68,13 @@ export class DraftComponent implements OnInit {
    flag_recompute: boolean;
  
  
+
    /**
     * flag defining if there needs to be a recomputation of the draft on Mouse Up
     */
    flag_history: boolean;
+
+  view_only: boolean = false;
 
 
    copy: Drawdown;
@@ -362,11 +364,13 @@ export class DraftComponent implements OnInit {
    * @param currentPos the position of the click within the target
    */
   setPosAndDraw(target:HTMLElement, shift: boolean, currentPos:Interlacement){
+
+      if(this.view_only) return;
+
       const draft = this.tree.getDraft(this.id);
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
       
-      console.log("TARGET ", target)
 
       const editing_style = this.dm.cur_draft_edit_source
 
@@ -1746,6 +1750,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
    * @param i the absolute (not screen) index of the row we'll insert
    */
   public insertRow(si:number) {
+    if(this.view_only) return;
 
     const draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
@@ -1791,6 +1796,9 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
    * @param i the absolute (not screen) index of the row we'll insert
    */
   public cloneRow(si: number) {
+
+    if(this.view_only) return;
+
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     let loom = this.tree.getLoom(this.id);
@@ -1832,6 +1840,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
   }
 
   public deleteRow(si:number) {
+    if(this.view_only) return;
 
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -1879,6 +1888,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
    * @returns {void}
    */
   public insertCol(j: number) {
+    if(this.view_only) return;
+
     const draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -1919,6 +1930,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
   }
 
   public cloneCol(j: number) {
+    if(this.view_only) return;
+
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     let loom = this.tree.getLoom(this.id);
@@ -1967,6 +1980,8 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
 
 
   public deleteCol(j: number) {
+    if(this.view_only) return;
+
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     let loom = this.tree.getLoom(this.id);
