@@ -185,6 +185,7 @@ export class SelectionComponent implements OnInit {
    * @returns 
    */
   onSelectStart(target: HTMLElement, start: Interlacement){
+    console.log("ON SELECT START ", target)
     if(!target) return;
 
     this.hide_actions = true;
@@ -200,6 +201,7 @@ export class SelectionComponent implements OnInit {
     this.selectionEl = document.getElementById("selection");
     this.selectionContainerEl = document.getElementById("selection-container");
   
+    console.log("THIS TARGET PARENT ", this.target.parentNode)
     this.target.parentNode.appendChild( this.selectionContainerEl);
     
     //pad the selection container to match the padding of the parent. 

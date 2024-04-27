@@ -281,7 +281,12 @@ canvas{
 
 #threading-canvas,
 #tieups-canvas,
-#treadling-canvas{
+#treadling-canvas,
+#drawdown-canvas,
+#weft-materials-canvas,
+#weft-systems-canvas,
+#warp-materials-canvas,
+#warp-systems-canvas{
   position: relative;
   display: flex;
 }

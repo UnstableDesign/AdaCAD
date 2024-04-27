@@ -453,26 +453,28 @@ export class DraftComponent implements OnInit {
         case 'drawdown-editor':
 
           if(!this.dm.isSelectedDraftEditSource('drawdown')) return;
-          currentPos.i -= 1;
-          currentPos.j -= 1;
-          currentPos.si -=1;
+          // currentPos.i -= 1;
+          // currentPos.j -= 1;
+          // currentPos.si -=1;
 
-          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break;
 
         case 'threading-editor':
-
+          if(this.dm.isSelectedDraftEditSource('drawdown')) return;
           if(currentPos.i < 0 || currentPos.i >= frames) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break; 
 
         case 'treadling-editor':
-          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(this.dm.isSelectedDraftEditSource('drawdown')) return;
+          if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
           if(currentPos.j < 0 || currentPos.j >= treadles) return;    
           break;
 
         case 'tieups-editor':
+          if(this.dm.isSelectedDraftEditSource('drawdown')) return;
           if(currentPos.i < 0 || currentPos.i >= frames) return;
           if(currentPos.j < 0 || currentPos.j >= treadles) return;    
         break;
@@ -484,7 +486,7 @@ export class DraftComponent implements OnInit {
 
         case 'weft-materials-editor':
         case 'weft-systems-editor':
-          if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
+          if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
           break;
       }
 

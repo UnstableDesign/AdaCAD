@@ -57,8 +57,13 @@
                 </div>  -->
 
         </div>   
+
+        <div id="warp-systems-canvas">
         <canvas id="warp-systems-editor" class="warp-systems">  </canvas>
+        </div>
+        <div id="warp-materials-canvas">
         <canvas id ="warp-materials-editor" class="warp-materials">  </canvas>
+        </div>
 
       </div>
 
@@ -87,13 +92,16 @@
         <canvas id="drawdown-editor">  </canvas>
     </div>
     <!-- <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div> -->
-
     <div class="treadling-container loomtype-{{selected_loom_type}}" id="treadling-canvas">
       <canvas [class.hidden]="!isFrame" id="treadling-editor" #treadling></canvas>
     </div>
-        
+      
+    <div id="weft-materials-canvas">
       <canvas id ="weft-materials-editor" class="weft-materials">  </canvas>
+    </div>
+    <div id="weft-systems-canvas">
       <canvas id="weft-systems-editor" class="weft-systems">  </canvas>
+      </div>
 
       <div class="weft-systems-container origin{{ws.selected_origin_option}}">
         <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text-editor">
