@@ -168,7 +168,6 @@ export class EditorComponent implements OnInit {
     */
     
     detailDraftEdited(id:number){
-      console.log("DRAFT EDITED")
       this.addTimelineState();
       
     }

@@ -4,6 +4,11 @@ canvas{
   height: fit-content;
 }
 
+#app-selection{
+  display: block;
+  position: absolute;
+}
+
 .draft-top{
   display: flex;
   justify-content: flex-end;
@@ -259,6 +264,8 @@ canvas{
 
 
 
+
+
 .threading-tieup-spacer.origin3,
 .threading-tieup-spacer.origin2{
   display: block;
@@ -272,7 +279,13 @@ canvas{
 }
 
 
-#tieups-canvas{}
+#threading-canvas,
+#tieups-canvas,
+#treadling-canvas{
+  position: relative;
+  display: flex;
+}
+
 
 
 .threading-tieup-container.origin0
@@ -281,8 +294,9 @@ canvas{
     //flip x and y
     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     padding: 0px var(--cell-width);
-
   }
+
+
   #tieups-canvas{
     //flip y only
      transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -302,9 +316,8 @@ canvas{
 {
   #threading-canvas{
     //flip x and y
-    padding-left: var(--cell-width);
     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-
+    padding: 0px var(--cell-width);
   }
 }
 
@@ -330,6 +343,8 @@ canvas{
     //flip x and y
     padding-left: var(--cell-width);
   }
+
+  
 }
 
 .drawdown-container.origin2
@@ -340,7 +355,6 @@ canvas{
 
   #drawdown-canvas{
     position: relative;
-    
     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
   

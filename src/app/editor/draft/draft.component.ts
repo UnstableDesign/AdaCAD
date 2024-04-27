@@ -416,7 +416,6 @@ export class DraftComponent implements OnInit {
 
     const loom_settings = this.tree.getLoomSettings(this.id);
     const draft = this.tree.getDraft(this.id);
-    console.log("GOT DRAFT ", this.id, draft, this.tree.nodes)
     let cell_size = this.render.calculateCellSize(draft);
 
     const frames = (loom_settings !== null ) ? loom_settings.frames : 0;
@@ -447,10 +446,11 @@ export class DraftComponent implements OnInit {
       if(!event.target) return;
       console.log("__________________________________ ")
       console.log("EVENT TARGET ID ", event.target.id)
+      console.log("POS: ", event.offsetY, currentPos)
 
       //reject out of bounds requests
       switch(event.target.id){
-        case 'drawdown':
+        case 'drawdown-editor':
 
           if(!this.dm.isSelectedDraftEditSource('drawdown')) return;
           currentPos.i -= 1;
@@ -461,29 +461,29 @@ export class DraftComponent implements OnInit {
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break;
 
-        case 'threading':
+        case 'threading-editor':
 
           if(currentPos.i < 0 || currentPos.i >= frames) return;
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break; 
 
-        case 'treadling':
+        case 'treadling-editor':
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
           if(currentPos.j < 0 || currentPos.j >= treadles) return;    
           break;
 
-        case 'tieups':
+        case 'tieups-editor':
           if(currentPos.i < 0 || currentPos.i >= frames) return;
           if(currentPos.j < 0 || currentPos.j >= treadles) return;    
         break;
 
-        case 'warp-materials':
-        case 'warp-systems':
+        case 'warp-materials-editor':
+        case 'warp-systems-editor':
           if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
           break;
 
-        case 'weft-materials':
-        case 'weft-systems':
+        case 'weft-materials-editor':
+        case 'weft-systems-editor':
           if(currentPos.i < 0 || currentPos.i >= this.render.visibleRows.length) return;
           break;
       }
@@ -520,7 +520,6 @@ export class DraftComponent implements OnInit {
         break;
         case 'select':
         case 'copy':
-          console.log("SELECT");
 
             if(event.shiftKey){
               this.selection.onSelectDrag(currentPos);
@@ -571,9 +570,10 @@ export class DraftComponent implements OnInit {
 
     
     // set up the point based on touched square.
-    //var screen_row = Math.floor((event.offsetY + offset.y) / dims.h);
-     var screen_row = Math.floor(event.offsetY / cell_size);
-     var screen_col = Math.floor(event.offsetX / cell_size);
+    // this takes the transform into account so offset is always correct to the data 
+    var screen_row = Math.floor(event.offsetY / cell_size);
+    var screen_col = Math.floor(event.offsetX / cell_size);
+
 
     const currentPos: Interlacement = {
       si: screen_row,

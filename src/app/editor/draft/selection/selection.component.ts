@@ -5,6 +5,7 @@ import { numFrames, numTreadles } from '../../../core/model/looms';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { RenderService } from '../../../core/provider/render.service';
 import { defaults, paste_options } from '../../../core/model/defaults';
+import { ZoomService } from '../../../core/provider/zoom.service';
 
 @Component({
   selector: 'app-selection',
@@ -24,6 +25,7 @@ export class SelectionComponent implements OnInit {
   private end: Interlacement;
   public width: number;
   public height: number;
+  public cell_size: number;
 
   private has_selection = false;
 
@@ -31,9 +33,6 @@ export class SelectionComponent implements OnInit {
 
   screen_width: number;
   screen_height: number;
-
-  top:number;
-  left: number;
 
   force_height:boolean;
   force_width:boolean;
@@ -44,6 +43,7 @@ export class SelectionComponent implements OnInit {
   has_copy: boolean = false;
 
   selectionEl: HTMLElement = null;
+  selectionContainerEl: HTMLElement = null;
   /**
    * reference to the parent div
    */
@@ -55,7 +55,8 @@ export class SelectionComponent implements OnInit {
   constructor(
     public dm: DesignmodesService,
     private tree: TreeService,
-    public render: RenderService
+    public render: RenderService,
+    public zs: ZoomService,
     ) { 
 
    this.design_actions = paste_options;
@@ -67,11 +68,10 @@ export class SelectionComponent implements OnInit {
 
     this.start = {i: 0, si:0, j: 0};
     this.end = {i: 0, si:0, j: 0};
-    this.top = 0;
-    this.left = 0;
 
     this.screen_height = 0;
     this.screen_width = 0;
+    this.cell_size = defaults.draft_detail_cell_size;
    
 
   }
@@ -87,8 +87,7 @@ export class SelectionComponent implements OnInit {
   clearSelection(){
     this.start = {i: 0, si:0, j: 0};
     this.end = {i: 0, si:0, j: 0};
-    this.top = 0;
-    this.left = 0;
+
 
   }
 
@@ -189,6 +188,8 @@ export class SelectionComponent implements OnInit {
     if(!target) return;
 
     this.hide_actions = true;
+    const draft = this.tree.getDraft(this.id);
+    this.cell_size = this.render.calculateCellSize(draft);
 
     //clear existing params
     this.unsetParameters();
@@ -196,63 +197,71 @@ export class SelectionComponent implements OnInit {
     this.target = target;
     if(!this.isTargetEnabled(target.id)) return;
 
-    if(this.selectionEl == null)  this.selectionEl = document.createElement("div");
+    this.selectionEl = document.getElementById("selection");
+    this.selectionContainerEl = document.getElementById("selection-container");
+  
+    this.target.parentNode.appendChild( this.selectionContainerEl);
     
-    this.selectionEl.id = 'selection'
-    this.selectionEl.classList.add('selection');
-    this.selectionEl.style.display = 'block';
-    this.selectionEl .style.position ='absolute';
-    this.selectionEl.style.border = "dashed #ff4081 4px";
-    this.selectionEl.style.display = "none"
-    this.selectionEl.style.pointerEvents = 'none';
-    this.target.parentNode.appendChild( this.selectionEl);
+    //pad the selection container to match the padding of the parent. 
+    var style = window.getComputedStyle(this.target.parentElement);
+    var matrix = new WebKitCSSMatrix(style.transform);
+
+    const size_row = document.getElementById('size-row-id');
+    const action_row = document.getElementById('action-row-id');
+
+
+    //make sure the transform is applied to correct the origination of the text and action icons
+    console.log("PADDING ADD ", style.padding);
+    this.selectionContainerEl.style.padding = style.padding;
+    size_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
+    action_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
+
     
- 
 
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    
-
+  
     
     this.start = start;
     this.hide_parent = false;
 
     switch(target.id){
       
-      case 'treadling':    
+      case 'treadling-editor':    
         this.start.j = 0;
         this.width =  Math.max(numTreadles(loom), loom_settings.treadles);
         this.force_width = true;
       break;
 
-      case 'threading':
+      case 'threading-editor':
         this.start.i = 0;
         this.start.si = 0;
         this.height = Math.max(numFrames(loom), loom_settings.frames);
         this.force_height = true;
       break;
 
-      case 'weft-systems':
-      case 'weft-materials':
+      case 'weft-system-editor':
+      case 'weft-materials-editor':
         this.force_width = true;
         this.width = 1;
       break;
 
-      case 'warp-systems':
-      case 'warp-materials':
+      case 'warp-systems-editor':
+      case 'warp-materials-editor':
         this.force_height = true;
         this.height = 1;
       break;
 
-      case 'drawdown':
+      case 'drawdown-editor':
 
         break;
-      case 'tieups':
+      case 'tieups-editor':
       break;
 
     }
 
-    this.end = start;
+    this.end = this.start;
+    
     this.recalculateSize();
 
 
@@ -282,32 +291,31 @@ export class SelectionComponent implements OnInit {
     } 
 
 
-    if(pos.si > this.render.visibleRows.length){
-      pos.si = this.render.visibleRows.length;
-      return false
-    } 
+    // if(pos.si > this.render.visibleRows.length){
+    //   pos.si = this.render.visibleRows.length;
+    //   return false
+    // } 
   
 
     this.end = pos;
 
-
     switch(this.target.id){
       
-      case 'treadling':    
+      case 'treadling-editor':    
         this.end.i = pos.i;
         this.end.si = pos.si;
       break;
 
-      case 'threading':
+      case 'threading-editor':
         this.end.j = pos.j;
       break;
 
-      // case 'weft-systems':
-      // case 'weft-materials':
-      // case 'warp-systems':
-      // case 'warp-materials':
-      case 'drawdown':
-      case 'tieups':
+      case 'weft-systems':
+      case 'weft-materials':
+      case 'warp-systems':
+      case 'warp-materials':
+      case 'drawdown-editor':
+      case 'tieups-editor':
       
       break;
     }
@@ -373,52 +381,38 @@ export class SelectionComponent implements OnInit {
 
   setStart(start: Interlacement){
 
-    // this.hide_parent = false;
-    // this.hide_actions = true;
-    // this.start = start;
-    // this.recalculateSize();
 
-    // this.top = this.start.i * this.render.getCellDims('base').h;
-    // this.left = this.start.j * this.render.getCellDims('base').w;
+    this.hide_parent = false;
+    this.hide_actions = true;
+    this.start = start;
+    this.recalculateSize();
 
-
+    
   }
 
   recalculateSize(){
 
-
-    // if(!this.force_width) this.width = Math.abs(this.end.j - this.start.j);
-    // if(!this.force_height) this.height = Math.abs(this.end.i - this.start.i);
+    if(!this.force_width){
+      this.width = Math.abs(this.end.j - this.start.j)+1; //make this inclusive
+    } 
+    if(!this.force_height){
+      this.height = Math.abs(this.end.i - this.start.i) + 1;
+    } 
   
-    // this.screen_width = this.width * this.render.getCellDims('base').w;
-    // this.screen_height = this.height * this.render.getCellDims('base').h;
-
-
-    // let container_el = document.getElementById("selection-container");
-
-    // let parent_el = document.getElementById("expanded-container");
-    // let el = document.getElementById("selection");
-    // var rect = el.getBoundingClientRect();
-    // var parent_rect = parent_el.getBoundingClientRect();
-    // let top = (rect.y + rect.height + 20) - parent_rect.y;
-    // let left = (rect.x) - parent_rect.x;
-
-    // container_el.style.top = top+"px";
-    // container_el.style.left = left+"px";
-
-
-   
+    this.screen_width = this.width * this.cell_size;
+    this.screen_height = this.height * this.cell_size;   
   
+
   }
 
 
 
   unsetParameters() {
 
-    if(this.selectionEl !== null){
-      this.selectionEl.remove(); 
-      this.selectionEl = null;
-    }
+    // if(this.selectionEl !== null){
+    //   this.selectionEl.remove(); 
+    //   this.selectionEl = null;
+    // }
 
     this.has_selection = false;
     this.width = -1;
@@ -460,31 +454,25 @@ export class SelectionComponent implements OnInit {
 
     if(this.hasSelection()){
 
-      this.selectionEl.style.display = "block";
       this.hide_parent = false;
+
+
       let top_ndx = Math.min(this.start.si, this.end.si);
       let left_ndx = Math.min(this.start.j, this.end.j);
 
+      //this needs to take the transform of the current element into account
+      let in_div_top:number = top_ndx * this.cell_size;
+      let in_div_left:number = left_ndx * this.cell_size;
 
-      let in_div_top:number = top_ndx * defaults.draft_detail_cell_size;
-      let in_div_left:number = left_ndx * defaults.draft_detail_cell_size;
 
-      let abs_top = this.target.offsetTop;
-      let abs_left = this.target.offsetLeft;
+      if(this.selectionContainerEl !== null && this.selectionEl !== null){
 
-      if(this.target.id == 'drawdown'){
-        abs_top+=defaults.draft_detail_cell_size;
-        abs_left+=defaults.draft_detail_cell_size;
-      } 
-
-      if(this.selectionEl !== null){
-      this.selectionEl.style.top = abs_top+in_div_top+"px"
-      this.selectionEl.style.left = abs_left+in_div_left+"px";
-      this.selectionEl.style.width = this.screen_width + "px";
-      this.selectionEl.style.height = this.screen_height + "px";
+        this.selectionContainerEl.style.top = in_div_top+"px"
+        this.selectionContainerEl.style.left = in_div_left+"px";
+        this.selectionEl.style.width = this.screen_width -5 + "px";
+        this.selectionEl.style.height = this.screen_height -5 + "px";
       }
-      // this.parent.style.top = abs_top+in_div_top+"px";
-      // this.parent.style.left = abs_left+in_div_left+"px";
+    
     }else{
       this.hide_parent = true;
     }

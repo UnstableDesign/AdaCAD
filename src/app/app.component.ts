@@ -159,10 +159,10 @@ export class AppComponent implements OnInit{
       items: [{ uid: this.auth.uid }]
     });
 
-    let dialogRef = this.dialog.open(WelcomeComponent, {
-      height: '400px',
-      width: '600px',
-    });
+    // let dialogRef = this.dialog.open(WelcomeComponent, {
+    //   height: '400px',
+    //   width: '600px',
+    // });
 
   
 
@@ -251,7 +251,6 @@ export class AppComponent implements OnInit{
 
   toggleEditorMode(){
 
-    console.log("SELECTED EDITOR MODE ", this.selected_editor_mode)
 
     if(this.viewer.view_expanded){
       this.viewer.onCollapse();
@@ -264,7 +263,6 @@ export class AppComponent implements OnInit{
 
         if(this.selected_editor_draft_id == -1){
           this.generateBlankDraftAndPlaceInMixer(this.editor.loom).then(id => {
-            console.log("UPDATED DRAFT AT ", this.tree.getNode(id));
             this.selected_mixer_draft_id = id;
             this.selected_editor_draft_id = id;
             this.editor.loadDraft(id);
@@ -272,7 +270,6 @@ export class AppComponent implements OnInit{
           })
 
         }else{
-          console.log("LOAD DRAFT CALLED FROM TOGGLE ", this.selected_editor_draft_id)
           if(this.editor.id !== this.selected_editor_draft_id) this.editor.loadDraft(this.selected_editor_draft_id);
           this.editor.onFocus(); 
         }
@@ -298,7 +295,6 @@ export class AppComponent implements OnInit{
       draft.gen_name = 'copy of '+getDraftName(draft);
       let loom = copyLoom(obj.loom)
       let loom_settings = copyLoomSettings(obj.loom_settings);
-      //make sure this create a deep copy first
       this.createNewDraftOnMixer(draft, loom, loom_settings).then(id => {
         this.selected_editor_draft_id = id;
         this.editor.loadDraft(id);
@@ -315,7 +311,6 @@ export class AppComponent implements OnInit{
    */
   generateBlankDraftAndPlaceInMixer(obj: any ) : Promise<number>{
 
-    console.log("GENERATING NEW DRAFT WITH LOOM ", obj.loom)
     //if it has a parent and it does not yet have a view ref. 
    //this.tree.setSubdraftParent(id, -1)
     const draft = initDraftWithParams({warps: obj.warps, wefts: obj.wefts});
@@ -579,7 +574,6 @@ export class AppComponent implements OnInit{
    */
   loadStarterFile(){
 
-    console.log("LOADING STARTER FILE");
     this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '').then(res => {
       this.generateBlankDraftAndPlaceInMixer(this.editor.loom).then(id => {
         this.selected_mixer_draft_id = id;

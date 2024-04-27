@@ -1,10 +1,4 @@
-#selection-container{
-    display: flex;
-    flex-direction: row;
-    z-index: 4;
-    position: absolute;
-    color: #ff4081;
-}
+
 
 .selection-parent{
     display: flex;
@@ -28,6 +22,20 @@
     background: white;
     opacity: 0.8;
     pointer-events: all;
+}
+
+.selection{
+    display: block;
+    border: dashed #ff4081 4px;
+}
+
+#selection-container{
+    display: flex;
+    flex-direction: column;
+    z-index: 4;
+    position: absolute;
+    pointer-events: none;
+    color: #ff4081;
 }
 
 

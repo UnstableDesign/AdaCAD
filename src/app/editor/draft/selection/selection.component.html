@@ -2,11 +2,18 @@
 [style.display]="dm.isSelectedDraftEditingMode('draw')? 'none' : 'flex'"
 >
 
-<div class="size-row" *ngIf="width !== -1">
+<div id="selection" class="selection">
+
+
+
+</div>
+
+
+<div class="size-row" id="size-row-id" *ngIf="width !== -1">
     <span>{{width}} x {{height}} </span>
 </div>
 
-<div class="selection-row" *ngIf="!hide_actions">
+<div class="selection-row" id="action-row-id">
 
 
     <div id="selection-actions" class="selection-actions">

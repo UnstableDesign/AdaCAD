@@ -2,6 +2,7 @@
 
   <app-selection
   #selection
+  id="app-selection"
   [id]="id"
   (onCopy)="onCopy()"
   (onClear)="onClear($event)"
@@ -67,7 +68,7 @@
       loomtype-{{selected_loom_type}}"
       >
       <div id="threading-canvas">
-        <canvas id="threading-editor" class=""></canvas>
+          <canvas id="threading-editor" class=""></canvas>
       </div>
       <!-- <div class="threading-tieup-spacer origin{{ws.selected_origin_option}}"></div> -->
       <div id="tieups-canvas">
