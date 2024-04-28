@@ -720,7 +720,7 @@ export class DraftComponent implements OnInit {
    */
   private copyArea() {
 
-    
+    console.log("COPY AREA ", this.selection)
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -731,31 +731,33 @@ export class DraftComponent implements OnInit {
     var w = this.selection.getWidth();
     var h = this.selection.getHeight();
 
+    console.log("DIMS ", screen_i, draft_j, w, h)
+
     this.copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[createCell(false)]]}).drawdown;
     const temp_copy: Array<Array<boolean>> = [];
 
-    if(this.selection.getTargetId() === 'weft-systems'){
+    if(this.selection.getTargetId() === 'weft-systems-editor'){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
         for(var j = 0; j < this.ss.weft_systems.length; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.selection.getTargetId()=== 'warp-systems'){
+    }else if(this.selection.getTargetId()=== 'warp-systems-editor'){
       for(var i = 0; i < this.ss.warp_systems.length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.selection.getTargetId()=== 'weft-materials'){
+    }else if(this.selection.getTargetId()=== 'weft-materials-editor'){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
         for(var j = 0; j < this.ms.getShuttles().length; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.selection.getTargetId() === 'warp-materials'){
+    }else if(this.selection.getTargetId() === 'warp-materials-editor'){
       for(var i = 0; i < this.ms.getShuttles().length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
@@ -771,43 +773,40 @@ export class DraftComponent implements OnInit {
        }
     }
 
-
-
     //iterate through the selection
     for (var i = 0; i < temp_copy.length; i++) {
       for(var j = 0; j < temp_copy[0].length; j++) {
 
         var screen_row = screen_i + i;
-        var draft_row = this.render.visibleRows[screen_row];
+        var draft_row = screen_row;
         var col = draft_j + j;
 
         switch(this.selection.getTargetId()){
-          case 'drawdown':
+          case 'drawdown-editor':
             temp_copy[i][j]= isUp(draft.drawdown, draft_row, col);
           break;
-          case 'threading':
+          case 'threading-editor':
             //  var frame = this.loom.frame_mapping[screen_row];
             //  temp_copy[i][j]= this.loom.isInFrame(col,frame);
              temp_copy[i][j]= (loom.threading[col] === screen_row);
 
           break;
-          case 'treadling':
+          case 'treadling-editor':
             temp_copy[i][j] = (loom.treadling[screen_row].find(el => el === col) !== undefined);
           break;
-          case 'tieups':
-           // console.log("COPYING ", i, j, loom.tieup)
+          case 'tieups-editor':
               temp_copy[i][j] = loom.tieup[screen_row][col];
           break;  
-          case 'warp-systems':
+          case 'warp-systems-editor':
             temp_copy[i][j]= (draft.colSystemMapping[col] == i);
           break;
-          case 'weft-systems':
+          case 'weft-systems-editor':
             temp_copy[i][j]= (draft.rowSystemMapping[draft_row] == j);
           break;
-          case 'warp-materials':
+          case 'warp-materials-editor':
             temp_copy[i][j]= (draft.colShuttleMapping[col] == i);
           break;
-          case 'weft-materials':
+          case 'weft-materials-editor':
             temp_copy[i][j]= (draft.rowShuttleMapping[draft_row] == j);
           break;
           default:
@@ -827,6 +826,7 @@ export class DraftComponent implements OnInit {
     })
 
     this.copy = initDraftWithParams({warps: warps(temp_dd), wefts: wefts(temp_dd), drawdown: temp_dd}).drawdown;
+    console.log("HAS COPY ", this.copy)
    // document.getElementById("has_selection").style.display = 'flex';
 
     this.onNewSelection.emit({copy: this.copy});
@@ -2188,11 +2188,13 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
    public onPaste(e) {
 
 
+    console.log("PASTE ", e, this.copy);
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     const loom_util = getLoomUtilByType(loom_settings.type);
+
     let pattern:Array<number> = [];
     let mapping:Array<number> = [];
 
@@ -2211,18 +2213,17 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
     // const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
     // const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
 
-    const height = this.selection.getEndingRowScreenIndex() - this.selection.getStartingRowScreenIndex();
 
 
     switch(this.selection.getTargetId()){    
-      case 'drawdown':
+      case 'drawdown-editor':
         draft.drawdown = pasteIntoDrawdown(
           draft.drawdown, 
           this.copy, 
           this.selection.getStartingRowScreenIndex(), 
           this.selection.getStartingColIndex(),
           this.selection.getWidth(),
-          height);
+          this.selection.getHeight());
     
         
         //if you do this when updates come from loom, it will erase those updates
@@ -2233,30 +2234,30 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
         });
        break;
 
-      case 'threading':
-        loom_util.pasteThreading(loom, this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
+      case 'threading-editor':
+        loom_util.pasteThreading(loom, this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), this.selection.getHeight());
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
         });
         break;
-      case 'tieups':
+      case 'tieups-editor':
         
-        loom_util.pasteTieup(loom,this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
+        loom_util.pasteTieup(loom,this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), this.selection.getHeight());
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
         });
         break;
-      case 'treadling':
-        loom_util.pasteTreadling(loom, this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), height);
+      case 'treadling-editor':
+        loom_util.pasteTreadling(loom, this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), this.selection.getHeight());
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
         });
         break;
 
-      case 'warp-systems':
+      case 'warp-systems-editor':
 
          pattern = []; 
           for(let j = 0; j < this.copy[0].length; j++){
@@ -2276,7 +2277,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
             this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
 
           break;
-      case 'warp-materials':
+      case 'warp-materials-editor':
 
         pattern = []; 
         for(let j = 0; j < this.copy[0].length; j++){
@@ -2298,7 +2299,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
 
         break;
 
-        case 'weft-systems':
+        case 'weft-systems-editor':
 
           pattern = []; 
           for(let i = 0; i < this.copy.length; i++){
@@ -2308,7 +2309,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
             mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
 
            draft.rowSystemMapping = mapping.map((el, ndx) => {
-              if(ndx >= this.selection.getStartingRowScreenIndex() && ndx < this.selection.getStartingRowScreenIndex() + height){
+              if(ndx >= this.selection.getStartingRowScreenIndex() && ndx < this.selection.getStartingRowScreenIndex() + this.selection.getHeight()){
                 return el;
               }else{
                 return draft.rowSystemMapping[ndx];
@@ -2319,7 +2320,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
 
           break;
 
-          case 'weft-materials':
+          case 'weft-materials-editor':
           
             pattern = []; 
             for(let i = 0; i < this.copy.length; i++){
@@ -2329,7 +2330,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
               mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
   
              draft.rowShuttleMapping = mapping.map((el, ndx) => {
-                if(ndx >= this.selection.getStartingRowScreenIndex() && ndx < this.selection.getStartingRowScreenIndex() + height){
+                if(ndx >= this.selection.getStartingRowScreenIndex() && ndx < this.selection.getStartingRowScreenIndex() + this.selection.getHeight()){
                   return el;
                 }else{
                   return draft.rowShuttleMapping[ndx];

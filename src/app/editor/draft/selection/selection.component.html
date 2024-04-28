@@ -1,11 +1,10 @@
 <div id="selection-container" 
-[style.display]="dm.isSelectedDraftEditingMode('draw')? 'none' : 'flex'"
->
-
+class="selection-container-div" 
+[class.hasSelection] = "has_selection">
 <div id="selection" class="selection">
-
-
-
+    
+    
+    
 </div>
 
 
@@ -14,38 +13,34 @@
 </div>
 
 <div class="selection-row" id="action-row-id">
-
-
+    
+    
     <div id="selection-actions" class="selection-actions">
         
+    
+        <button mat-icon-button  matTooltip="copy this region" (click)="copyEvent()" [color]= "!has_copy ? 'primary' : 'accent'" ><i class="fas fa-clipboard"></i></button>
         
-        <!-- <ng-container *ngIf="!hide_actions">
+        <button mat-icon-button color="primary" [disabled]="!has_copy" [color]= "!has_copy ? 'primary' : 'accent'"  matTooltip="paste into this region" (click)="pasteEvent('original')"><i class="fas fa-paste"></i></button>
+        
         <button mat-icon-button
+        [disabled]="!has_copy"
         matTooltip="edit design in this region"
         [matMenuTriggerFor]="actions"
         ><i class="fas fa-magic"></i></button>
-        </ng-container>
-
-        <mat-menu #actions="matMenu">
-        <ng-container *ngFor="let action of design_actions">
-        <button class="menu-button" 
-        mat-menu-item 
-        (click)="designActionChange(action.value)">
-        <span class="{{action.icon}}"></span>
-        <span>{{action.viewValue}}</span>
-        </button>
-
-        </ng-container>
-         </mat-menu> -->
-
-
-
         
-        <button mat-icon-button  matTooltip="copy this region" (click)="copyEvent()" [color]= "!has_copy ? 'primary' : 'accent'" ><i class="fas fa-clipboard"></i></button>
-
-        <button mat-icon-button color="primary" [disabled]="!has_copy" [color]= "!has_copy ? 'primary' : 'accent'"  matTooltip="paste into this region" (click)="pasteEvent('original')"><i class="fas fa-paste"></i></button>
-
-    </div>
+        <mat-menu #actions="matMenu">
+            <ng-container *ngFor="let action of design_actions">
+                <button class="menu-button" 
+                mat-menu-item 
+                (click)="designActionChange(action.value)">
+                <span class="{{action.icon}}"></span>
+                <span>{{action.viewValue}}</span>
+            </button>
+            
+        </ng-container>
+    </mat-menu>
+    
+</div>
 </div>
 
 

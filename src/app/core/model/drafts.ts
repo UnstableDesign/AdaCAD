@@ -381,6 +381,8 @@ export const createDraft = (
     let rows = wefts(fill_pattern);
     let cols = warps(fill_pattern);
 
+    console.log("***PASTE INTO DRAWDOWN ", fill_pattern, rows, cols, width, height)
+
 
     //cycle through each visible row/column of the selection
     for (var i = 0; i < height; i++ ) {

@@ -206,10 +206,27 @@ const jacquard_utils: LoomUtil = {
       return loom;
     },
     pasteThreading: (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
+      
      return pasteDirectAndFrameThreading(loom, drawdown, ndx, width, height);
     },
     pasteTreadling: (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
-      return pasteDirectAndFrameTreadling(loom, drawdown, ndx, width, height);
+
+      //a direct loom can have multiple values per pic and can accept selections that do not span the full width of the treadling list. Therefore, we have to splice in the selected pattern into treadling rows. 
+      for(let i = 0; i < height; i++){
+        const pattern_ndx_i = i % wefts(drawdown);
+        //clears out treadles within the paste region
+        const treadle_list =  loom.treadling[ndx.i + i].filter(el => el < ndx.j || el > ndx.j+width-1);
+      
+
+        for(let j = 0; j < width; j++){
+          const pattern_ndx_j = j % warps(drawdown);
+          if(getCellValue(drawdown[pattern_ndx_i][pattern_ndx_j]) == true) treadle_list.push(j + ndx.j);
+        }
+        //
+        loom.treadling[ndx.i + i] = treadle_list.slice(); //this will overwrite whatever was there 
+    }
+    return loom;
+
     },
     pasteTieup: (loom:Loom, drawdown: Drawdown,  ndx: InterlacementVal, width: number, height: number) : Loom => {
       return loom;
@@ -389,7 +406,22 @@ const jacquard_utils: LoomUtil = {
       return pasteDirectAndFrameThreading(loom, drawdown, ndx, width, height);
     },
     pasteTreadling: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
-      return pasteDirectAndFrameTreadling(loom, drawdown, ndx, width, height);
+      //this acknowledges that there can only be one selected treadle per pic so it overwrites whatever is already present with the pasted option 
+     
+      for(let i = 0; i < height; i++){
+        const pattern_ndx_i = i % wefts(drawdown);
+        const treadle_list = [];
+        for(let j = 0; j < width; j++){
+          const pattern_ndx_j = j % warps(drawdown);
+          if(getCellValue(drawdown[pattern_ndx_i][pattern_ndx_j]) == true) treadle_list.push(ndx.j + j);
+        }
+        //ensures every row only has one value
+        if(treadle_list.length > 0) loom.treadling[ndx.i + i] = treadle_list.slice(0, 1);
+        else  loom.treadling[ndx.i + i] = [];
+      }
+    
+      return loom;
+     
     },
     
     pasteTieup: (loom:Loom,drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
@@ -435,48 +467,23 @@ const jacquard_utils: LoomUtil = {
 
 export const pasteDirectAndFrameThreading = (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
     
+  //update this function so that it doesn't assume the selection has been the full frame threading
+
   for(let j = 0; j < width; j++){
-    const pattern_ndx = j % drawdown[0].length;
-    const column_vals = drawdown.map(row => row[pattern_ndx]);
-    const frame = column_vals.findIndex(cell => getCellValue(cell) == true);
-    if(frame < numFrames(loom)) loom.threading[ndx.j + j] = frame;
-  }
-
-  return loom;
-
-}
-
-
-
-export const pasteDirectAndFrameTreadling= (loom:Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) : Loom => {
-    
-  for(let i = 0; i < height; i++){
-    const pattern_ndx = i % drawdown.length;
-    const treadle_list = [];
-    for(let j = 0; j < numTreadles(loom); j++){
-      if(getCellValue(drawdown[pattern_ndx][j]) == true) treadle_list.push(j);
+    const pattern_ndx_j = j % warps(drawdown);
+    const col: Array<number> = [];
+    for(let i = 0; i < height; i++){
+      const pattern_ndx_i = i % wefts(drawdown);
+      if(getCellValue(drawdown[pattern_ndx_i][pattern_ndx_j]) == true) col.push(ndx.i + i);
     }
-    loom.treadling[ndx.i + i] = treadle_list.slice();
+
+    if(col.length == 0) loom.threading[ndx.j + j] = -1;
+    else loom.threading[ndx.j + j] = col.shift();
   }
 
   return loom;
 
 }
-
-
-/**
-   * flips the loom according to the origin and then calls functions to recalculate drawdown
-   * @param l a loom to use when computing
-   * @returns the computed draft
-   */
- export const flipAndComputeDrawdown = (l: Loom, horiz: boolean, vert:boolean) : Promise<Drawdown> => {
-    
-  return flipLoom(l, horiz, vert).then(loom => {
-      return computeDrawdown(loom);
-    }).then(drawdown => {
-       return drawdown
-    });
-  }
 
   
   /**

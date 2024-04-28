@@ -4,6 +4,9 @@
     display: flex;
     flex-direction: column;
 }
+.noSelection{
+    display: none;
+}
 
 .size-row{
     display: flex;
@@ -29,14 +32,20 @@
     border: dashed #ff4081 4px;
 }
 
-#selection-container{
-    display: flex;
+
+.selection-container-div{
+    display: none;
     flex-direction: column;
     z-index: 4;
     position: absolute;
     pointer-events: none;
     color: #ff4081;
 }
+
+.selection-container-div.hasSelection{
+    display: flex;
+}
+
 
 
   span{
