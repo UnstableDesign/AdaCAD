@@ -56,10 +56,10 @@
 
         </div>   
 
-        <div id="warp-systems-canvas">
+        <div id="warp-systems-canvas" class="origin{{ws.selected_origin_option}} ">
         <canvas id="warp-systems-editor" class="warp-systems">  </canvas>
         </div>
-        <div id="warp-materials-canvas">
+        <div id="warp-materials-canvas" class="origin{{ws.selected_origin_option}} ">
         <canvas id ="warp-materials-editor" class="warp-materials">  </canvas>
         </div>
 
@@ -94,10 +94,10 @@
       <canvas [class.hidden]="!isFrame" id="treadling-editor" #treadling></canvas>
     </div>
       
-    <div id="weft-materials-canvas">
+    <div id="weft-materials-canvas" class="origin{{ws.selected_origin_option}}">
       <canvas id ="weft-materials-editor" class="weft-materials">  </canvas>
     </div>
-    <div id="weft-systems-canvas">
+    <div id="weft-systems-canvas" class="origin{{ws.selected_origin_option}}">
       <canvas id="weft-systems-editor" class="weft-systems">  </canvas>
       </div>
 
@@ -132,7 +132,7 @@
                 </span>
                 
                 <span class="weft_delete" 
-                  (click)="deleteRow(i);">
+                  (click)="deleteRow(j);">
                   <i class="fa fa-trash"></i>
                 </span>
               </div>

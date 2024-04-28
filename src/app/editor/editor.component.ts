@@ -266,6 +266,10 @@ export class EditorComponent implements OnInit {
       });
     }
     
+
+    public redraw(){
+      this.weaveRef.redrawAll();
+    }
     
     public loomSettingsUpdated(){
       

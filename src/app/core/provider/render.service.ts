@@ -22,7 +22,7 @@ current_view: string;
   
 view_front: boolean;
 
-visibleRows: Array<number>; 
+// visibleRows: Array<number>; 
 
 zoom: number;
 
@@ -50,26 +50,26 @@ draft_cell_size: number;
    * given the ndx, get the next visible row or -1 if there isn't a next
    * @param ndx 
    */
-  getNextVisibleRow(ndx: number) : number {
+  // getNextVisibleRow(ndx: number) : number {
 
-    const next: number = ndx ++;
-    if(next >= this.visibleRows.length) return -1;
+  //   const next: number = ndx ++;
+  //   if(next >= this.visibleRows.length) return -1;
 
-    return this.visibleRows[next];
+  //   return this.visibleRows[next];
 
-  }
+  // }
 
   
 
-  updateVisible(draft: Draft) {
+  // updateVisible(draft: Draft) {
 
-    this.visibleRows = 
-      draft.rowSystemMapping.map((val, ndx) => {
-        return (this.ss.weftSystemIsVisible(val)) ? ndx : -1;  
-      })
-      .filter(el => el !== -1);
+  //   this.visibleRows = 
+  //     draft.rowSystemMapping.map((val, ndx) => {
+  //       return (this.ss.weftSystemIsVisible(val)) ? ndx : -1;  
+  //     })
+  //     .filter(el => el !== -1);
 
-  }
+  // }
 
 
 
@@ -123,26 +123,23 @@ draft_cell_size: number;
 
       for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
 
-        switch(this.ws.selected_origin_option){
-          case 1:
-          case 2: 
-          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length-1 - j]);
-
-          break;
-          case 0: 
-          case 3: 
-          system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
-
-          break;
-        }
-
+        system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
         let color = this.ms.getColor(draft.rowShuttleMapping[j]);
         weft_mats_cx.fillStyle = color;
         weft_mats_cx.fillRect(1, j* cell_size*pixel_ratio+1,  defaults.draft_detail_cell_size*pixel_ratio-2,  cell_size*pixel_ratio-2);
         
         weft_systems_cx.font = 1.5*cell_size+"px Arial";
         weft_systems_cx.fillStyle = "#666666";
-        weft_systems_cx.fillText(system, 5, (j+1)*cell_size*pixel_ratio - 10)
+
+        weft_systems_cx.save();
+        weft_systems_cx.translate(5,  (j+1)*cell_size*pixel_ratio - 10);
+        let tx = this.getTransform('weft-systems');
+        weft_systems_cx.transform(tx[0], tx[1], tx[2], tx[3], tx[4], tx[5]);
+        weft_systems_cx.textAlign = "center";
+        weft_systems_cx.fillText(system, 0, 0);
+        weft_systems_cx.restore();
+
+
 
 
        }
@@ -183,18 +180,7 @@ draft_cell_size: number;
 
       for (let j = 0; j < draft.colShuttleMapping.length; j++) {
         let color = this.ms.getColor(draft.colShuttleMapping[j]);
-        switch(this.ws.selected_origin_option){
-          case 0:
-          case 1: 
-          system = this.ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length-1 - j]);
-
-          break;
-          case 2: 
-          case 3: 
-          system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
-
-          break;
-        }
+        system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]); 
       
         //cell_size *= this.pixel_ratio
         warp_mats_cx.fillStyle = color;
@@ -203,7 +189,16 @@ draft_cell_size: number;
         //need to flip this on certain origins. 
         warp_systems_cx.font = 1.5*cell_size+"px Arial";
         warp_systems_cx.fillStyle = "#666666";
-        warp_systems_cx.fillText(system, j*cell_size*pixel_ratio+10, defaults.draft_detail_cell_size*pixel_ratio-5)
+
+        warp_systems_cx.save();
+        warp_systems_cx.translate(j*cell_size*pixel_ratio+10 ,  defaults.draft_detail_cell_size*pixel_ratio-5);
+        let tx = this.getTransform('warp-systems');
+        warp_systems_cx.transform(tx[0], tx[1], tx[2], tx[3], tx[4], tx[5]);
+        warp_systems_cx.textAlign = "center";
+        warp_systems_cx.fillText(system, 0, 0);
+        warp_systems_cx.restore();
+
+
 
       
       }
@@ -228,14 +223,7 @@ draft_cell_size: number;
  */
 private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number, cx:any, i:number, j:number, type:string){
   
-
-  
       var is_up = false;
-  
-      var top = 0; 
-      var left = 0;
-  
-  
   
       switch(type){
 
@@ -264,8 +252,9 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
       else if(type == "treadling") number_val = j+1 ;
       else if(type == "tieup") number_val = i+1 ;
 
-      //if(this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2) thread_val = numFrames(loom) - loom.threading[j];
+
       let y_margin = 0;
+
       if(type == "threading"){
         y_margin = (this.ws.selected_origin_option == 1 || this.ws.selected_origin_option == 2 ) ? 3/4 : 1/4;
       }
@@ -302,6 +291,12 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
      if(target == 'tieup'){
        return [1, 0, 0, -1, 0,  0];
      }
+     if(target == 'warp-systems'){
+      return [-1, 0, 0, 1, 0,  0];
+    }
+    if(target == 'weft-systems'){
+      return [1, 0, 0, 1, 0,  0];
+    }
      break;
  
      case 1: 
@@ -314,6 +309,12 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
      if(target == 'tieup'){
        return [1, 0, 0, 1, 0,  0];
      }
+     if(target == 'warp-systems'){
+      return [-1, 0, 0, 1, 0,  0];
+    }
+    if(target == 'weft-systems'){
+      return [1, 0, 0, -1, 0,  0];
+    }
      break;
  
      case 2: 
@@ -326,6 +327,12 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
      if(target == 'tieup'){
        return [-1, 0, 0, 1, 0,  0];
      }
+     if(target == 'warp-systems'){
+      return [1, 0, 0, 1, 0,  0];
+    }
+    if(target == 'weft-systems'){
+      return [1, 0, 0, -1, 0,  0];
+    }
      break;
  
      case 3: 
@@ -338,6 +345,12 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
        if(target == 'tieup'){
          return [-1, 0, 0,-1, 0, 0];
        }
+       if(target == 'warp-systems'){
+        return [1, 0, 0, 1, 0,  0];
+      }
+      if(target == 'weft-systems'){
+        return [1, 0, 0, 1, 0,  0];
+      }
        break;
  
     }

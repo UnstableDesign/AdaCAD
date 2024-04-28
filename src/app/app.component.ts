@@ -874,6 +874,7 @@ originChange(e:any){
   this.selected_origin = e.value;
   this.ws.selected_origin_option = this.selected_origin;
   this.mixer.originChange(); //force a redraw so that the weft/warp system info is up to date
+  this.editor.redraw();
   this.saveFile();
 }
 

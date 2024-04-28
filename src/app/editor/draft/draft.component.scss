@@ -292,21 +292,31 @@ canvas{
 }
 
 
+  #warp-systems-canvas.origin0,
+  #warp-materials-canvas.origin0{
+
+    canvas{
+      transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    }
+  }
 
 .threading-tieup-container.origin0
 {
+
+
   #threading-canvas{
     //flip x and y
     transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     padding: 0px var(--cell-width);
   }
 
-
   #tieups-canvas{
     //flip y only
      transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
+
+
 
 .drawdown-container.origin0{
 
@@ -316,13 +326,29 @@ canvas{
 
 }
 
+#warp-systems-canvas.origin1,
+#warp-materials-canvas.origin1{
+  canvas{
+   transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
 
 .threading-tieup-container.origin1
 {
   #threading-canvas{
     //flip x and y
     transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    padding: 0px var(--cell-width);
+    padding: 0px 0px 0px var(--cell-width);
+  }
+
+
+  
+}
+#weft-systems-canvas.origin1,
+#weft-materials-canvas.origin1{
+
+  canvas{
+    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
@@ -339,6 +365,14 @@ canvas{
 
 }
 
+#warp-systems-canvas.origin2,
+#warp-materials-canvas.origin2{
+
+  canvas{
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
 .threading-tieup-container.origin2
 {
   #tieups-canvas{
@@ -350,6 +384,14 @@ canvas{
   }
 
   
+}
+
+#weft-systems-canvas.origin2,
+#weft-materials-canvas.origin2{
+
+  canvas{
+    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
 }
 
 .drawdown-container.origin2
@@ -368,6 +410,15 @@ canvas{
  
 }
 
+#warp-systems-canvas.origin3,
+#warp-materials-canvas.origin3{
+
+  canvas{
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+
 .threading-tieup-container.origin3
 {
   #tieups-canvas{
@@ -378,7 +429,12 @@ canvas{
     padding: 0px var(--cell-width);
     transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
+
+ 
+
 }
+
+
 
 .drawdown-container.origin3
 {
