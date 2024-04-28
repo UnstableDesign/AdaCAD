@@ -39,7 +39,6 @@ draft_cell_size: number;
     private ws: WorkspaceService
     ) { 
  //max values
-  this.zoom = defaults.draft_detail_zoom; //zoom can range from .1 to 2
   this.draft_cell_size = defaults.draft_detail_cell_size; 
   this.current_view = 'draft';
   this.view_front = true;

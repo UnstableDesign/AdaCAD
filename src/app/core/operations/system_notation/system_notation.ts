@@ -97,8 +97,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
        let d: Draft = initDraftFromDrawdown(composite.export());
-       d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col', 3);
-       d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row', 3);
+       d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col');
+       d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row');
 
       
       return  Promise.resolve([d]);

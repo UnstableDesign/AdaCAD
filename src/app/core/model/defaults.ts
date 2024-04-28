@@ -4,13 +4,11 @@ export const defaults = {
     editor: 'mixer',
     max_simulation_area: 10000,
     draft_detail_cell_size: 20,
-    draft_detail_zoom: 1,
     draft_name: 'drafty',
     row_shuttle: 1,
     row_system: 0, 
     col_shuttle: 0, 
     col_system: 0,
-    mixer_cell_size: 5,
     mixer_canvas_width: 16380,
     mixer_canvas_height: 16380,
     inlet_button_width: 50,
@@ -39,8 +37,8 @@ export const defaults = {
       pencil: 'toggle',
       draft_edit_mode: 'draw',
       mixer_mode: 'move',
-      zoom_ndx_mixer: 7,
-      zoom_ndx_editor: 7,
+      zoom_ndx_mixer: 10,
+      zoom_ndx_editor: 12,
       zoom_ndx_viewer: 7,
       show_advanced_operations: true
 
@@ -137,14 +135,12 @@ export const mixer_edit_mode = [
 ]
 
 export const paste_options = [
-  {value: 'toggle', viewValue: 'Invert Region', icon: "fas fa-adjust"},
-  {value: 'up', viewValue: 'Set Region Heddles Up', icon: "fas fa-square"},
-  {value: 'down', viewValue: 'Set Region Heddles Down', icon: "far fa-square"},
-  {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v"},
-  {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h"},
-  {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left"},
-  {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up"},
-  {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone"},
-  {value: 'paste', viewValue: 'Paste Copyed Pattern to Selected Region', icon: "fa fa-paste"}
+  {value: 'invert', viewValue: 'Invert Region', icon: "fas fa-adjust", drawdown: true, threading: false, treadling: true, tieups: true, materials: false, systems: false},
+  {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v",drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false},
+  {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h",drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false},
+  {value: 'shift_left', viewValue: 'Shift 1 Warp Left', icon: "fas fa-arrow-left",drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false},
+  {value: 'shift_up', viewValue: 'Shift 1 Pic Up', icon: "fas fa-arrow-up",drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false},
+  {value: 'copy', viewValue: 'Copy Selected Region', icon: "fa fa-clone",drawdown: true, threading: true, treadling: true, tieups: true, materials: true, systems: true},
+  {value: 'paste', viewValue: 'Paste Copied Pattern to Selected Region', icon: "fa fa-paste",drawdown: true, threading: true, treadling: true, tieups: true, materials: true, systems: true}
   ];
   

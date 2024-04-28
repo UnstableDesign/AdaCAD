@@ -411,8 +411,6 @@ export const createDraft = (
    */
   export const getDraftAsImage = (draft: Draft, pix_per_cell: number, floats: boolean, use_color: boolean, mats: Array<Material>) : ImageData => {
 
-    // console.log("GET DRAFT AS IMAGE ", pix_per_cell, floats, use_color)
-
 
     pix_per_cell = Math.floor(pix_per_cell);
 
@@ -881,20 +879,17 @@ export const createDraft = (
    * @param type specify if this is a 'row'/weft or 'col'/warp mapping
    * @returns the mapping to use
    */
-  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<number>, type: string, origin: number) : Array<any> => {
+  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<number>, type: string) : Array<any> => {
 
     const mapping: Array<number> = [];
     if(type == 'row'){
 
-        if(origin == 1 || origin == 2) pattern = pattern.slice().reverse();
 
         for(let i = 0; i < wefts(drawdown); i++){
           mapping.push(pattern[i%pattern.length]);
         }
 
     }else{
-
-        if(origin == 0 || origin == 1) pattern = pattern.slice().reverse();
 
         for(let j = 0; j < warps(drawdown); j++){
           mapping.push(pattern[j%pattern.length]);
@@ -915,9 +910,9 @@ export const createDraft = (
 
     if(from == null || from == undefined) from = initDraftWithParams({wefts: 1, warps: 1, drawdown: [[createCell(false)]]});
 
-    to.rowShuttleMapping =  generateMappingFromPattern(to.drawdown, from.rowShuttleMapping,'row', 3);
+    to.rowShuttleMapping =  generateMappingFromPattern(to.drawdown, from.rowShuttleMapping,'row');
 
-    to.rowSystemMapping =  generateMappingFromPattern(to.drawdown, from.rowSystemMapping,'row', 3);
+    to.rowSystemMapping =  generateMappingFromPattern(to.drawdown, from.rowSystemMapping,'row');
 
     return to;
   }
@@ -927,9 +922,9 @@ export const createDraft = (
 
     if(from == null || from == undefined) from = initDraftWithParams({wefts: 1, warps: 1, drawdown: [[createCell(false)]]});
 
-    to.colShuttleMapping =  generateMappingFromPattern(to.drawdown, from.colShuttleMapping,'col', 3);
+    to.colShuttleMapping =  generateMappingFromPattern(to.drawdown, from.colShuttleMapping,'col');
 
-    to.colSystemMapping =  generateMappingFromPattern(to.drawdown, from.colSystemMapping,'col', 3);
+    to.colSystemMapping =  generateMappingFromPattern(to.drawdown, from.colSystemMapping,'col');
 
     return to;
   }

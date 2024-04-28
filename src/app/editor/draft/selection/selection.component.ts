@@ -1,11 +1,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TreeService } from '../../../core/provider/tree.service';
-import { Interlacement } from '../../../core/model/datatypes';
-import { numFrames, numTreadles } from '../../../core/model/looms';
+import { Drawdown, Interlacement, OpInput, OpParamVal, Operation, OperationParam } from '../../../core/model/datatypes';
+import { getLoomUtilByType, numFrames, numTreadles } from '../../../core/model/looms';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { RenderService } from '../../../core/provider/render.service';
 import { defaults, paste_options } from '../../../core/model/defaults';
 import { ZoomService } from '../../../core/provider/zoom.service';
+import { createBlankDrawdown, generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, isUp, pasteIntoDrawdown, warps, wefts } from '../../../core/model/drafts';
+import { createCell, getCellValue, setCellValue } from '../../../core/model/cell';
+import { MaterialsService } from '../../../core/provider/materials.service';
+import { SystemsService } from '../../../core/provider/systems.service';
+import { OperationService } from '../../../core/provider/operation.service';
 
 @Component({
   selector: 'app-selection',
@@ -15,29 +20,32 @@ import { ZoomService } from '../../../core/provider/zoom.service';
 export class SelectionComponent implements OnInit {
   
   @Input('id') id: number;
-  @Output() onFill: any = new EventEmitter();
-  @Output() onCopy: any = new EventEmitter();
-  @Output() onClear: any = new EventEmitter();
-  @Output() onPaste: any = new EventEmitter();
   @Output() onSelectionEnd: any = new EventEmitter();
-  
+  @Output() forceRedraw: any = new EventEmitter();
+
+
+
+  //core selection variables
   private start: Interlacement;
   private end: Interlacement;
   public width: number;
   public height: number;
-  public cell_size: number;
-  
-  public has_selection = false;
-  
+  public target: HTMLElement;
+
   public design_actions: Array<any>;
-  
   screen_width: number;
   screen_height: number;
   
   hide_parent:boolean;
   hide_actions: boolean;
+
+
+  public cell_size: number;
+  public has_selection = false;
+  
   
   has_copy: boolean = false;
+  copy: Drawdown = [];
   
   selectionEl: HTMLElement = null;
   selectionContainerEl: HTMLElement = null;
@@ -46,11 +54,13 @@ export class SelectionComponent implements OnInit {
   */
   parent: HTMLElement;
   
-  target: HTMLElement;
   
   
   constructor(
     public dm: DesignmodesService,
+    public ms: MaterialsService,
+    public ss: SystemsService,
+    public ops: OperationService,
     private tree: TreeService,
     public render: RenderService,
     public zs: ZoomService,
@@ -75,8 +85,7 @@ export class SelectionComponent implements OnInit {
   }
   
   ngAfterViewInit(){
-    // this.selectionEl = document.getElementById('selection');
-    // this.parent = document.getElementById('selection-container');
+   
   }
   
   clearSelection(){
@@ -88,34 +97,41 @@ export class SelectionComponent implements OnInit {
   
   
   designActionChange(action : string){
-    
-    
+    console.log("DESIGN ACTION SELECTED ", action)
+
     switch(action){
-      case 'up': this.clearEvent(true);
+      
+      case 'copy': 
+      this.copyArea();
       break;
       
-      case 'down': this.clearEvent(false);
+      case 'paste': 
+      this.onPaste('original');
       break;
       
-      case 'copy': this.copyEvent();
+      case 'invert': 
+      this.copyArea();
+      this.onPaste('invert');
       break;
       
-      case 'paste': this.pasteEvent('original');
+      case 'flip_x': 
+      this.copyArea();
+      this.onPaste('flip_x');
       break;
       
-      case 'toggle': this.pasteEvent('invert');
+      case 'flip_y': 
+      this.copyArea();
+      this.onPaste('flip_y');
       break;
       
-      case 'flip_x': this.pasteEvent('mirrorX');
+      case 'shift_left': 
+      this.copyArea();
+      this.onPaste('shift_left');
       break;
       
-      case 'flip_y': this.pasteEvent('mirrorY');
-      break;
-      
-      case 'shift_left': this.pasteEvent('shiftLeft');
-      break;
-      
-      case 'shift_up': this.pasteEvent('shiftUp');
+      case 'shift_up': 
+      this.copyArea();
+      this.onPaste('shift_up');
       break;
       
     }
@@ -129,24 +145,419 @@ export class SelectionComponent implements OnInit {
   fillEvent(id) {
     var obj: any = {};
     obj.id = id;
-    this.onFill.emit(obj);
   }
   
-  copyEvent() {
+
+  /**
+   * Creates the copied pattern. Hack for warp and weft shuttles is that it creates a 2d array representing the 
+   * threading or treadling with "true" in the frame/treadle associated with that col/row. 
+   */
+  public copyArea() {
+
+    console.log("COPY AREA ", this)
     this.has_copy = true;
-    this.onCopy.emit();
+
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+
+   const screen_i = this.getStartingRowScreenIndex();    
+   const draft_j = this.getStartingColIndex();
+  
+    var w = this.getWidth();
+    var h = this.getHeight();
+
+    console.log("DIMS ", screen_i, draft_j, w, h)
+
+   // const copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[createCell(false)]]}).drawdown;
+    const temp_copy: Array<Array<boolean>> = [];
+
+    if(this.getTargetId() === 'weft-systems-editor'){
+      for(var i = 0; i < h; i++){
+        temp_copy.push([]);
+        for(var j = 0; j < this.ss.weft_systems.length; j++){
+          temp_copy[i].push(false);
+        }
+      }
+    }else if(this.getTargetId()=== 'warp-systems-editor'){
+      for(var i = 0; i < this.ss.warp_systems.length; i++){
+        temp_copy.push([]);
+        for(var j = 0; j < w; j++){
+          temp_copy[i].push(false);
+        }
+      }
+    }else if(this.getTargetId()=== 'weft-materials-editor'){
+      for(var i = 0; i < h; i++){
+        temp_copy.push([]);
+        for(var j = 0; j < this.ms.getShuttles().length; j++){
+          temp_copy[i].push(false);
+        }
+      }
+    }else if(this.getTargetId() === 'warp-materials-editor'){
+      for(var i = 0; i < this.ms.getShuttles().length; i++){
+        temp_copy.push([]);
+        for(var j = 0; j < w; j++){
+          temp_copy[i].push(false);
+        }
+      }
+    }else{
+       for (var i = 0; i < h; i++){
+        temp_copy.push([]);
+        for (var j = 0; j < w; j++){
+          temp_copy[i].push(false);
+        }
+       }
+    }
+
+    //iterate through the selection
+    for (var i = 0; i < temp_copy.length; i++) {
+      for(var j = 0; j < temp_copy[0].length; j++) {
+
+        var screen_row = screen_i + i;
+        var draft_row = screen_row;
+        var col = draft_j + j;
+
+        switch(this.getTargetId()){
+          case 'drawdown-editor':
+            temp_copy[i][j]= isUp(draft.drawdown, draft_row, col);
+          break;
+          case 'threading-editor':
+             temp_copy[i][j]= (loom.threading[col] === screen_row);
+
+          break;
+          case 'treadling-editor':
+            temp_copy[i][j] = (loom.treadling[screen_row].find(el => el === col) !== undefined);
+          break;
+          case 'tieups-editor':
+              temp_copy[i][j] = loom.tieup[screen_row][col];
+          break;  
+          case 'warp-systems-editor':
+            temp_copy[i][j]= (draft.colSystemMapping[col] == i);
+          break;
+          case 'weft-systems-editor':
+            temp_copy[i][j]= (draft.rowSystemMapping[draft_row] == j);
+          break;
+          case 'warp-materials-editor':
+            temp_copy[i][j]= (draft.colShuttleMapping[col] == i);
+          break;
+          case 'weft-materials-editor':
+            temp_copy[i][j]= (draft.rowShuttleMapping[draft_row] == j);
+          break;
+          default:
+          break;
+        }
+
+      }
+    }
+
+    if(temp_copy.length == 0) return;
+
+    const temp_dd: Drawdown = createBlankDrawdown(temp_copy.length, temp_copy[0].length);
+     temp_copy.forEach((row,i) => {
+      row.forEach((cell, j) => {
+        temp_dd[i][j] = setCellValue( temp_dd[i][j], cell);
+      })
+    })
+
+    this.copy = initDraftWithParams({warps: warps(temp_dd), wefts: wefts(temp_dd), drawdown: temp_dd}).drawdown;
+
   }
+
+
+  /**
+   * applies a manipulation to the copied draft based on a type. The type is used to call an operation that manipulates the drawdown and then returns the resulting drawdown. 
+   * @param op_name 
+   * @returns a promise for a drawdown
+   */
+  public applyManipulation(op_name) : Promise<Drawdown>{
+
+    const copy_draft = initDraftWithParams({warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy});
+
+    let op: Operation;
+    let drafts: Array<OpInput> = [];
+    let params: Array<OpParamVal> = [];
+    
+        switch(op_name){
+          case 'original':
+            return Promise.resolve(this.copy);
+            break;
+          case 'invert':
+            op = this.ops.getOp('invert');
+            params = [];
+            drafts = [{
+              drafts: [copy_draft],
+              inlet_id: 0,
+              params: []
+            }]
+
+          break;
+          case 'flip_x':
+            op = this.ops.getOp('flip');
+            params = [{
+              param: op.params[0],
+              val: 0
+            }, 
+            {
+              param: op.params[1],
+              val: 1
+            }, ];
+            drafts = [{
+              drafts: [copy_draft],
+              inlet_id: 0,
+              params: []
+            }]
+            break;
+            case 'flip_y':
+              op = this.ops.getOp('flip');
+              params = [{
+                param: op.params[0],
+                val: 1
+              }, 
+              {
+                param: op.params[1],
+                val: 0
+              }, ];
+              drafts = [{
+                drafts: [copy_draft],
+                inlet_id: 0,
+                params: []
+              }]
+              break;
+         
+          case 'shift_left':
+            op = this.ops.getOp('shift');
+            params = [{
+              param: op.params[0],
+              val: 1
+            }, 
+            {
+              param: op.params[1],
+              val: 0
+            }, ];
+            drafts = [{
+              drafts: [copy_draft],
+              inlet_id: 0,
+              params: []
+            }]
+            break;
+            case 'shift_up':
+            op = this.ops.getOp('shift');
+            params = [{
+              param: op.params[0],
+              val: 0
+            }, 
+            {
+              param: op.params[1],
+              val: 1
+            }, ];
+            drafts = [{
+              drafts: [copy_draft],
+              inlet_id: 0,
+              params: []
+            }]
+            break;
+        }
+        return op.perform(params, drafts)
+        .then(manipulated_draft => {
+          return Promise.resolve(manipulated_draft[0].drawdown) 
+      })
+     
+
+  
+  
+     
+    
+  }
+
+  /**
+   * Tells weave reference to paste copied pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - paste event from design component.
+   * @returns {void}
+   */
+  public onPaste(type: string){
+
+    
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom_util = getLoomUtilByType(loom_settings.type);
+
+    let pattern:Array<number> = [];
+    let mapping:Array<number> = [];
+
+    //manipulate the copy in any way required 
+    this.applyManipulation(type)
+    .then(manipulated_copy => {
+      this.copy = manipulated_copy;
+
+    switch(this.getTargetId()){    
+      case 'drawdown-editor':
+        draft.drawdown = pasteIntoDrawdown(
+          draft.drawdown, 
+          this.copy, 
+          this.getStartingRowScreenIndex(), 
+          this.getStartingColIndex(),
+          this.getWidth(),
+          this.getHeight());
+    
+        
+        //if you do this when updates come from loom, it will erase those updates
+        this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+        .then(loom => {
+          this.tree.setLoom(this.id, loom);
+          this.forceRedraw.emit();
+        });
+       break;
+
+      case 'threading-editor':
+        loom_util.pasteThreading(loom, this.copy, {i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null}, this.getWidth(), this.getHeight());
+        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+        .then(draft => {
+          this.tree.setDraftOnly(this.id, draft);
+          this.forceRedraw.emit();
+        });
+        break;
+      case 'tieups-editor':
+        
+        loom_util.pasteTieup(loom,this.copy, {i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null}, this.getWidth(), this.getHeight());
+        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+        .then(draft => {
+          this.tree.setLoom(this.id, loom);
+          this.forceRedraw.emit();        
+        });
+        break;
+      case 'treadling-editor':
+
+        loom_util.pasteTreadling(loom, this.copy, {i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null}, this.getWidth(), this.getHeight());
+        
+        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+        .then(draft => {
+          this.tree.setLoom(this.id, loom);
+          this.forceRedraw.emit();
+  
+        });
+        break;
+
+      case 'warp-systems-editor':
+
+         pattern = []; 
+          for(let j = 0; j < this.copy[0].length; j++){
+              const assigned_to = this.copy.findIndex(sys => getCellValue(sys[j]) == true);
+              pattern.push(assigned_to);
+           }
+            mapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
+
+           draft.colSystemMapping = mapping.map((el, ndx) => {
+              if(ndx >= this.getStartingColIndex() && ndx < this.getStartingColIndex() + this.getWidth()){
+                return el;
+              }else{
+                return draft.colSystemMapping[ndx];
+              }
+            });
+
+            this.tree.setDraftOnly(this.id, draft);
+            this.forceRedraw.emit();
+
+          break;
+      case 'warp-materials-editor':
+
+        pattern = []; 
+        for(let j = 0; j < this.copy[0].length; j++){
+            const assigned_to = this.copy.findIndex(sys => getCellValue(sys[j]) == true);
+            pattern.push(assigned_to);
+         }
+          mapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
+
+         draft.colShuttleMapping = mapping.map((el, ndx) => {
+            if(ndx >= this.getStartingColIndex() && ndx < this.getStartingColIndex() + this.getWidth()){
+              return el;
+            }else{
+              return draft.colShuttleMapping[ndx];
+            }
+          });
+
+          this.tree.setDraftOnly(this.id, draft);
+          this.forceRedraw.emit();
+
+        break;
+
+        case 'weft-systems-editor':
+
+          pattern = []; 
+          for(let i = 0; i < this.copy.length; i++){
+              const assigned_to = this.copy[i].findIndex(sys => getCellValue(sys) == true);
+              pattern.push(assigned_to);
+           }
+            mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
+
+           draft.rowSystemMapping = mapping.map((el, ndx) => {
+              if(ndx >= this.getStartingRowScreenIndex() && ndx < this.getStartingRowScreenIndex() + this.getHeight()){
+                return el;
+              }else{
+                return draft.rowSystemMapping[ndx];
+              }
+            });
+
+            this.tree.setDraftOnly(this.id, draft);
+            this.forceRedraw.emit();
+
+          break;
+
+          case 'weft-materials-editor':
+          
+            pattern = []; 
+            for(let i = 0; i < this.copy.length; i++){
+                const assigned_to = this.copy[i].findIndex(sys => getCellValue(sys) == true);
+                pattern.push(assigned_to);
+             }
+              mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
+  
+             draft.rowShuttleMapping = mapping.map((el, ndx) => {
+                if(ndx >= this.getStartingRowScreenIndex() && ndx < this.getStartingRowScreenIndex() + this.getHeight()){
+                  return el;
+                }else{
+                  return draft.rowShuttleMapping[ndx];
+                }
+              });
+  
+              this.tree.setDraftOnly(this.id, draft);
+              this.forceRedraw.emit();
+  
+            break;
+     }
+    })
+
+  }
+
+
+  /**
+   * Tell the weave directive to fill selection with pattern.
+   * @extends WeaveComponent
+   * @param {Event} e - fill event from design component.
+   * @returns {void}
+   */
+  //  public onFill(e) {
+    
+  //   let p:Pattern = this.ps.getPattern(e.id);
+    
+  //   this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom);
+
+  //   this.loom.recomputeLoom(this.weave, this.loom.type);
+
+  //   if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
+    
+  //   this.copyArea();
+
+  //   this.redraw({drawdown:true, loom:true});
+
+  //   this.timeline.addHistoryState(this.weave);
+    
+  // }
   
   clearEvent(b:boolean) {
-    this.onClear.emit(b);
   }
   
-  pasteEvent(type) {
-    var obj: any = {};
-    obj.type = type;
-    this.has_copy = false;
-    this.onPaste.emit(obj);
-  }
+ 
   
   
   /**
@@ -173,6 +584,52 @@ export class SelectionComponent implements OnInit {
     return true;
   }
   
+  
+  /**
+   * different areas of the draft allow for different kinds of actions. This updates the action list based on the 
+   * target of the selection. 
+   * @param target 
+   */
+  updateActions(target: string){
+    
+    switch(target){
+      case 'drawdown-editor':
+      this.design_actions = paste_options.filter(opt => opt.drawdown == true);
+      break;
+
+
+      case 'threading-editor':
+      this.design_actions = paste_options.filter(opt => opt.threading == true);
+      break;
+
+
+      case 'tieups-editor':
+      this.design_actions = paste_options.filter(opt => opt.tieups == true);
+      break;
+
+
+      case 'treadling-editor':    
+      this.design_actions = paste_options.filter(opt => opt.treadling == true);
+      break;
+
+
+      
+      case 'weft-system-editor':
+      case 'warp-systems-editor':
+        this.design_actions = paste_options.filter(opt => opt.systems == true);
+        break;
+
+
+
+      case 'weft-materials-editor':  
+      case 'warp-materials-editor':
+        this.design_actions = paste_options.filter(opt => opt.systems == true);
+        break;
+
+
+    }
+  }
+  
   /**
   * set parameters and view when starting a new selections
   * @param target he HTML target that receieved the mouse down event
@@ -191,6 +648,8 @@ export class SelectionComponent implements OnInit {
     
     this.target = target;
     if(!this.isTargetEnabled(target.id)) return;
+
+    this.updateActions(this.target.id);
     
     this.selectionEl = document.getElementById("selection");
     this.selectionContainerEl = document.getElementById("selection-container");
@@ -207,8 +666,8 @@ export class SelectionComponent implements OnInit {
     
     //make sure the transform is applied to correct the origination of the text and action icons
     this.selectionContainerEl.style.padding = style.padding;
-    size_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
-    action_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
+    if(size_row !== null) size_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
+    if(action_row !== null) action_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
     
     
     
@@ -319,8 +778,7 @@ export class SelectionComponent implements OnInit {
     if(this.target === undefined) return;
     if(this.target !== null && !this.isTargetEnabled(this.target.id)) return;
     this.hide_actions = false;
-    this.onSelectionEnd.emit();
-    
+    this.onSelectionEnd.emit();    
   }
   
   onSelectCancel(){

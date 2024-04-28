@@ -122,7 +122,7 @@ export class PaletteComponent implements OnInit{
  */
   ngOnInit(){
     this.vc.clear();
-    this.default_cell_size = defaults.mixer_cell_size; 
+    this.default_cell_size = defaults.draft_detail_cell_size; 
 
 
     

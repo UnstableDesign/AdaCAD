@@ -51,8 +51,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
 
 
     let d: Draft = initDraftFromDrawdown(composite.export());
-    d.colSystemMapping =  generateMappingFromPattern(d.drawdown, sys_seq.val(),'col', 3);
-    d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, sys_seq.val(),'row', 3);
+    d.colSystemMapping =  generateMappingFromPattern(d.drawdown, sys_seq.val(),'col');
+    d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, sys_seq.val(),'row');
 
 
 

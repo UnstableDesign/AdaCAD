@@ -1,48 +1,40 @@
 <div id="selection-container" 
 class="selection-container-div" 
 [class.hasSelection] = "has_selection">
+
 <div id="selection" class="selection">
     
     
     
 </div>
 
-
-<div class="size-row" id="size-row-id" *ngIf="width !== -1">
-    <span>{{width}} x {{height}} </span>
-</div>
-
-<div class="selection-row" id="action-row-id">
+<div class="meta">
     
+    <div class="size-row" id="size-row-id" *ngIf="width !== -1">
+        <span>{{width}} x {{height}} </span>
+    </div>
     
-    <div id="selection-actions" class="selection-actions">
+    <div class="selection-row" id="action-row-id">
         
-    
-        <button mat-icon-button  matTooltip="copy this region" (click)="copyEvent()" [color]= "!has_copy ? 'primary' : 'accent'" ><i class="fas fa-clipboard"></i></button>
         
-        <button mat-icon-button color="primary" [disabled]="!has_copy" [color]= "!has_copy ? 'primary' : 'accent'"  matTooltip="paste into this region" (click)="pasteEvent('original')"><i class="fas fa-paste"></i></button>
-        
-        <button mat-icon-button
-        [disabled]="!has_copy"
+        <button mat-fab
         matTooltip="edit design in this region"
         [matMenuTriggerFor]="actions"
         ><i class="fas fa-magic"></i></button>
         
-        <mat-menu #actions="matMenu">
-            <ng-container *ngFor="let action of design_actions">
-                <button class="menu-button" 
-                mat-menu-item 
-                (click)="designActionChange(action.value)">
-                <span class="{{action.icon}}"></span>
-                <span>{{action.viewValue}}</span>
+        <mat-menu #actions="matMenu"
+        yPosition="below"
+        xPosition="before">
+        <ng-container *ngFor="let action of design_actions">
+            <button class="menu-button" 
+            mat-menu-item 
+            (click)="designActionChange(action.value)">
+            <span class="{{action.icon}}"></span>
+            <span>{{action.viewValue}}</span>
             </button>
-            
         </ng-container>
-    </mat-menu>
-    
+        </mat-menu>
+    </div>
 </div>
-</div>
-
-
 
 </div>

@@ -4,10 +4,8 @@
   #selection
   id="app-selection"
   [id]="id"
-  (onCopy)="onCopy()"
-  (onClear)="onClear($event)"
-  (onPaste)="onPaste($event)"
   (onSelectionEnd)="onSelectionEnd()"
+  (forceRedraw)="redrawAll()"
   ></app-selection>
 
 

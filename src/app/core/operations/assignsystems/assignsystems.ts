@@ -103,10 +103,10 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
 
 
    let d: Draft = initDraftFromDrawdown(composite.export());
-   d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col', 3);
-   d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row', 3);
-   d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, warp_shuttle_map.val(),'col', 3);
-   d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, weft_shuttle_map.val(),'row', 3);
+   d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col');
+   d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row');
+   d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, warp_shuttle_map.val(),'col');
+   d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, weft_shuttle_map.val(),'row');
 
   
   

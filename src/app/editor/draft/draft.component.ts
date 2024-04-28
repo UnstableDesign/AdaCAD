@@ -77,7 +77,7 @@ export class DraftComponent implements OnInit {
   view_only: boolean = false;
 
 
-   copy: Drawdown;
+  //  copy: Drawdown;
 
 
    mouse_pressed: boolean = false; 
@@ -416,6 +416,7 @@ export class DraftComponent implements OnInit {
 
     const loom_settings = this.tree.getLoomSettings(this.id);
     const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
     let cell_size = this.render.calculateCellSize(draft);
 
     const frames = (loom_settings !== null ) ? loom_settings.frames : 0;
@@ -449,46 +450,46 @@ export class DraftComponent implements OnInit {
       console.log("POS: ", event.offsetY, currentPos)
 
       //reject out of bounds requests
-      switch(event.target.id){
-        case 'drawdown-editor':
+      // switch(event.target.id){
+      //   case 'drawdown-editor':
 
-          if(!this.dm.isSelectedDraftEditSource('drawdown')) return;
-          // currentPos.i -= 1;
-          // currentPos.j -= 1;
-          // currentPos.si -=1;
+      //     if(!this.dm.isSelectedDraftEditSource('drawdown')) return;
+      //     // currentPos.i -= 1;
+      //     // currentPos.j -= 1;
+      //     // currentPos.si -=1;
 
-          if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
-          if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
-          break;
+      //     if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
+      //     if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
+      //     break;
 
-        case 'threading-editor':
-          if(this.dm.isSelectedDraftEditSource('drawdown')) return;
-          if(currentPos.i < 0 || currentPos.i >= frames) return;
-          if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
-          break; 
+      //   case 'threading-editor':
+      //     if(this.dm.isSelectedDraftEditSource('drawdown')) return;
+      //     if(currentPos.i < 0 || currentPos.i >= numFrames(loom)) return;
+      //     if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
+      //     break; 
 
-        case 'treadling-editor':
-          if(this.dm.isSelectedDraftEditSource('drawdown')) return;
-          if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
-          if(currentPos.j < 0 || currentPos.j >= treadles) return;    
-          break;
+      //   case 'treadling-editor':
+      //     if(this.dm.isSelectedDraftEditSource('drawdown')) return;
+      //     if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
+      //     if(currentPos.j < 0 || currentPos.j >= numTreadles(loom)) return;    
+      //     break;
 
-        case 'tieups-editor':
-          if(this.dm.isSelectedDraftEditSource('drawdown')) return;
-          if(currentPos.i < 0 || currentPos.i >= frames) return;
-          if(currentPos.j < 0 || currentPos.j >= treadles) return;    
-        break;
+      //   case 'tieups-editor':
+      //     if(this.dm.isSelectedDraftEditSource('drawdown')) return;
+      //     if(currentPos.i < 0 || currentPos.i >= numFrames(loom)) return;
+      //     if(currentPos.j < 0 || currentPos.j >= numTreadles(loom)) return;    
+      //   break;
 
-        case 'warp-materials-editor':
-        case 'warp-systems-editor':
-          if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
-          break;
+      //   case 'warp-materials-editor':
+      //   case 'warp-systems-editor':
+      //     if(currentPos.j < 0 || currentPos.j >= warps(draft.drawdown)) return;    
+      //     break;
 
-        case 'weft-materials-editor':
-        case 'weft-systems-editor':
-          if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
-          break;
-      }
+      //   case 'weft-materials-editor':
+      //   case 'weft-systems-editor':
+      //     if(currentPos.i < 0 || currentPos.i >= wefts(draft.drawdown)) return;
+      //     break;
+      // }
 
 
 
@@ -522,6 +523,7 @@ export class DraftComponent implements OnInit {
         break;
         case 'select':
         case 'copy':
+          console.log("SELECT")
 
             if(event.shiftKey){
               this.selection.onSelectDrag(currentPos);
@@ -712,129 +714,7 @@ export class DraftComponent implements OnInit {
     return this.selection.hasSelection();
   }
 
-  /**
-   * Creates the copied pattern. Hack for warp and weft shuttles is that it creates a 2d arrray representing the 
-   * threading or treadling with "true" in the frame/threadle associated with that col/row. 
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  private copyArea() {
-
-    console.log("COPY AREA ", this.selection)
-
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-
-   const screen_i = this.selection.getStartingRowScreenIndex();    
-   const draft_j = this.selection.getStartingColIndex();
   
-    var w = this.selection.getWidth();
-    var h = this.selection.getHeight();
-
-    console.log("DIMS ", screen_i, draft_j, w, h)
-
-    this.copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[createCell(false)]]}).drawdown;
-    const temp_copy: Array<Array<boolean>> = [];
-
-    if(this.selection.getTargetId() === 'weft-systems-editor'){
-      for(var i = 0; i < h; i++){
-        temp_copy.push([]);
-        for(var j = 0; j < this.ss.weft_systems.length; j++){
-          temp_copy[i].push(false);
-        }
-      }
-    }else if(this.selection.getTargetId()=== 'warp-systems-editor'){
-      for(var i = 0; i < this.ss.warp_systems.length; i++){
-        temp_copy.push([]);
-        for(var j = 0; j < w; j++){
-          temp_copy[i].push(false);
-        }
-      }
-    }else if(this.selection.getTargetId()=== 'weft-materials-editor'){
-      for(var i = 0; i < h; i++){
-        temp_copy.push([]);
-        for(var j = 0; j < this.ms.getShuttles().length; j++){
-          temp_copy[i].push(false);
-        }
-      }
-    }else if(this.selection.getTargetId() === 'warp-materials-editor'){
-      for(var i = 0; i < this.ms.getShuttles().length; i++){
-        temp_copy.push([]);
-        for(var j = 0; j < w; j++){
-          temp_copy[i].push(false);
-        }
-      }
-    }else{
-       for (var i = 0; i < h; i++){
-        temp_copy.push([]);
-        for (var j = 0; j < w; j++){
-          temp_copy[i].push(false);
-        }
-       }
-    }
-
-    //iterate through the selection
-    for (var i = 0; i < temp_copy.length; i++) {
-      for(var j = 0; j < temp_copy[0].length; j++) {
-
-        var screen_row = screen_i + i;
-        var draft_row = screen_row;
-        var col = draft_j + j;
-
-        switch(this.selection.getTargetId()){
-          case 'drawdown-editor':
-            temp_copy[i][j]= isUp(draft.drawdown, draft_row, col);
-          break;
-          case 'threading-editor':
-            //  var frame = this.loom.frame_mapping[screen_row];
-            //  temp_copy[i][j]= this.loom.isInFrame(col,frame);
-             temp_copy[i][j]= (loom.threading[col] === screen_row);
-
-          break;
-          case 'treadling-editor':
-            temp_copy[i][j] = (loom.treadling[screen_row].find(el => el === col) !== undefined);
-          break;
-          case 'tieups-editor':
-              temp_copy[i][j] = loom.tieup[screen_row][col];
-          break;  
-          case 'warp-systems-editor':
-            temp_copy[i][j]= (draft.colSystemMapping[col] == i);
-          break;
-          case 'weft-systems-editor':
-            temp_copy[i][j]= (draft.rowSystemMapping[draft_row] == j);
-          break;
-          case 'warp-materials-editor':
-            temp_copy[i][j]= (draft.colShuttleMapping[col] == i);
-          break;
-          case 'weft-materials-editor':
-            temp_copy[i][j]= (draft.rowShuttleMapping[draft_row] == j);
-          break;
-          default:
-          break;
-        }
-
-      }
-    }
-
-    if(temp_copy.length == 0) return;
-
-    const temp_dd: Drawdown = createBlankDrawdown(temp_copy.length, temp_copy[0].length);
-     temp_copy.forEach((row,i) => {
-      row.forEach((cell, j) => {
-        temp_dd[i][j] = setCellValue( temp_dd[i][j], cell);
-      })
-    })
-
-    this.copy = initDraftWithParams({warps: warps(temp_dd), wefts: wefts(temp_dd), drawdown: temp_dd}).drawdown;
-    console.log("HAS COPY ", this.copy)
-   // document.getElementById("has_selection").style.display = 'flex';
-
-    this.onNewSelection.emit({copy: this.copy});
-
-
-
-  }
-
 
 
   // private drawWeftMaterialCell(draft:Draft, cx:any, i:number){
@@ -1212,7 +1092,6 @@ export class DraftComponent implements OnInit {
       this.markDirty();
 
       // Set the heddles based on the brush.
-      console.log("DM CUR PENCIL ", this.dm.cur_pencil)
       switch (this.dm.cur_pencil) {
         case 'up':
           val = true;
@@ -1490,6 +1369,16 @@ public clearAll(){
     
 }
 
+public redrawAll(){
+   const draft = this.tree.getDraft(this.id)
+   const loom = this.tree.getLoom(this.id)
+   const loom_settings = this.tree.getLoomSettings(this.id)
+    this.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, warp_systems: true, warp_materials: true, weft_systems: true, weft_materials:true});
+    this.onDrawdownUpdated.emit(draft);
+
+  
+}
+
 //takes inputs about what, exactly to redraw
 public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
 
@@ -1524,30 +1413,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
 
   }
 
-
-  /**
-   * Redraws the entire canvas based on weave pattern.
-   * @extends WeaveDirective
-   * @returns {void}
-   */
-  // public redrawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
-
-
-  //   var base_dims = this.render.getCellDims("base");
-  //   let cell_size = this.calculateCellSize(draft);
-  //  // let cell_size = base_dims.w;
-  //   const draft_cx = this.canvasEl.getContext("2d");
-
-  //   this.canvasEl.width = (warps(draft.drawdown)+2)*cell_size;
-  //   this.canvasEl.height = (wefts(draft.drawdown)+2)*cell_size;
-  //   this.canvasEl.style.width = ((warps(draft.drawdown)+2)*cell_size)+"px";
-  //   this.canvasEl.style.height = ((wefts(draft.drawdown)+2)*cell_size)+"px";
-
-  //   let img = getDraftAsImage(draft, cell_size, false, false, this.ms.getShuttles());
-  //   draft_cx.putImageData(img, cell_size, cell_size);
-  //   this.tree.setDraftClean(this.id);
-
-  // }
 
 
   /**
@@ -1865,8 +1730,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.rowShuttleMapping = draft.rowShuttleMapping;
-        console.log("on drawdown updated called from draw on delete row")
-
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -1876,8 +1739,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
         this.render.updateVisible(draft);
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, weft_systems: true, weft_materials:true});
         this.rowShuttleMapping = draft.rowShuttleMapping;
-        console.log("on drawdown updated called from draw on delete row")
-
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -1909,8 +1770,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.colShuttleMapping = draft.colShuttleMapping;
-        console.log("on drawdown updated called from draw on insert col")
-
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -1921,8 +1780,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.colShuttleMapping = draft.colShuttleMapping;
-        console.log("on drawdown updated called from draw on insert col")
-
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -1957,8 +1814,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
       .then(loom => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.colShuttleMapping = draft.colShuttleMapping;
-        console.log("on drawdown updated called from draw on clone col")
-
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -1970,8 +1825,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
       .then(draft => {
         this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
         this.colShuttleMapping = draft.colShuttleMapping;
-        console.log("on drawdown updated called from draw on clone col")
-
         this.onDrawdownUpdated.emit(draft);
 
       })
@@ -2035,328 +1888,6 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
 
 
 
-  /**
-   * Tell the weave directive to fill selection with pattern.
-   * @extends WeaveComponent
-   * @param {Event} e - fill event from design component.
-   * @returns {void}
-   */
-  //  public onFill(e) {
-    
-  //   let p:Pattern = this.ps.getPattern(e.id);
-    
-  //   this.weave.fillArea(this.selection, p, 'original', this.render.visibleRows, this.loom);
-
-  //   this.loom.recomputeLoom(this.weave, this.loom.type);
-
-  //   if(this.render.isYarnBasedView()) this.weave.computeYarnPaths(this.ms.getShuttles());
-    
-  //   this.copyArea();
-
-  //   this.redraw({drawdown:true, loom:true});
-
-  //   this.timeline.addHistoryState(this.weave);
-    
-  // }
-
-  // /**
-  //  * Tell weave reference to clear selection.
-  //  * @extends WeaveComponent
-  //  * @param {Event} Delte - clear event from design component.
-  //  * @returns {void}
-  //  */
-  public onClear(b:boolean) {
-
-    const draft = this.tree.getDraft(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    const loom = this.tree.getLoom(this.id);
-
-    let width = this.selection.getWidth();
-    let height = this.selection.getHeight();
-    draft.drawdown = pasteIntoDrawdown(draft.drawdown,[[createCell(b)]],this.selection.getStartingRowScreenIndex(),this.selection.getStartingColIndex(), width, height);
-    
-    switch(this.selection.getTargetId()){    
-      case 'drawdown':
-        this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-        .then(loom => {
-          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-
-        });
-       break;
-
-      case 'treading':
-      case 'tieup':
-      case 'treadling':
-        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
-        .then(draft => {
-          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-
-        });
-
-      break;
-    }
-
-  
-    this.copyArea();
-
-  }
-
-
-
-  // public pasteViaOperation(type){
-
-  //   const draft =  this.tree.getDraft(this.id);
-  //   const copy_draft = initDraftWithParams({warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy});
-  //   const loom_settings = this.tree.getLoomSettings(this.id);
-
-  //   const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
-  //   const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
-  //   const height = adj_end_i - adj_start_i;
-  //   let op: Operation;
-
-  //   let inputs: Array<OpInput> = [];
-  
-  
-  //     const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-      
-
-
-  //     return flipDraft(copy_draft, flips.horiz, flips.vert)
-  //     .then(flipped_draft => {
-
-  //       // switch(type){
-  //       //   case 'invert':
-  //       //     op = this.ops.getOp('invert');
-  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-  //       //   break;
-  //       //   case 'mirrorX':
-  //       //     op = this.ops.getOp('flip horiz');
-  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-  //       //     break;
-  //       //   case 'mirrorY':
-  //       //     op = this.ops.getOp('flip vert');
-  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: []});
-  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-  //       //     break;
-  //       //   case 'shiftLeft':
-  //       //     op = this.ops.getOp('shift left');
-  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
-  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-  //       //     break;
-  //       //   case 'shiftUp':
-  //       //     op = this.ops.getOp('shift up');
-  //       //     inputs.push({op_name: op.name, drafts: [], inlet: -1, params: [1]});
-  //       //     inputs.push({op_name:'child', drafts: [flipped_draft], inlet: 0, params: []});
-  //       //     break;
-  //       // }
-  //       // return op.perform(inputs);
-  //     })
-  //     .then(res => {
-  //       return flipDraft(res[0], flips.horiz, flips.vert);
-  //     })
-  //     .then(finalres => {
-  //       draft.drawdown = pasteIntoDrawdown(
-  //         draft.drawdown, 
-  //         finalres.drawdown, 
-  //         adj_start_i, 
-  //         this.selection.getStartingColIndex(),
-  //         this.selection.getWidth(),
-  //         height);
-    
-  //       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings).then(loom => {
-  //         this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-
-  //       })
-
-  //     })
-     
-
-  
-  
-     
-    
-  // }
-
-  /**
-   * Tells weave reference to paste copied pattern.
-   * @extends WeaveComponent
-   * @param {Event} e - paste event from design component.
-   * @returns {void}
-   */
-   public onPaste(e) {
-
-
-    console.log("PASTE ", e, this.copy);
-
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    const loom_util = getLoomUtilByType(loom_settings.type);
-
-    let pattern:Array<number> = [];
-    let mapping:Array<number> = [];
-
-    this.hold_copy_for_paste = false;
-
-    var type;
-
-    if(e.type === undefined) type = "original";
-    else type =  e.type;
-
-    // if(type !== 'original'){
-    //   this.pasteViaOperation(type);
-    // }
-
-
-    // const adj_start_i = this.render.visibleRows[this.selection.getStartingRowScreenIndex()];
-    // const adj_end_i = this.render.visibleRows[this.selection.getEndingRowScreenIndex()];
-
-
-
-    switch(this.selection.getTargetId()){    
-      case 'drawdown-editor':
-        draft.drawdown = pasteIntoDrawdown(
-          draft.drawdown, 
-          this.copy, 
-          this.selection.getStartingRowScreenIndex(), 
-          this.selection.getStartingColIndex(),
-          this.selection.getWidth(),
-          this.selection.getHeight());
-    
-        
-        //if you do this when updates come from loom, it will erase those updates
-        this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
-        .then(loom => {
-          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-
-        });
-       break;
-
-      case 'threading-editor':
-        loom_util.pasteThreading(loom, this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), this.selection.getHeight());
-        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
-        .then(draft => {
-          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-        });
-        break;
-      case 'tieups-editor':
-        
-        loom_util.pasteTieup(loom,this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), this.selection.getHeight());
-        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
-        .then(draft => {
-          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-        });
-        break;
-      case 'treadling-editor':
-        loom_util.pasteTreadling(loom, this.copy, {i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex(), val: null}, this.selection.getWidth(), this.selection.getHeight());
-        this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
-        .then(draft => {
-          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-        });
-        break;
-
-      case 'warp-systems-editor':
-
-         pattern = []; 
-          for(let j = 0; j < this.copy[0].length; j++){
-              const assigned_to = this.copy.findIndex(sys => getCellValue(sys[j]) == true);
-              pattern.push(assigned_to);
-           }
-            mapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
-
-           draft.colSystemMapping = mapping.map((el, ndx) => {
-              if(ndx >= this.selection.getStartingColIndex() && ndx < this.selection.getStartingColIndex() + this.selection.getWidth()){
-                return el;
-              }else{
-                return draft.colSystemMapping[ndx];
-              }
-            });
-
-            this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-
-          break;
-      case 'warp-materials-editor':
-
-        pattern = []; 
-        for(let j = 0; j < this.copy[0].length; j++){
-            const assigned_to = this.copy.findIndex(sys => getCellValue(sys[j]) == true);
-            pattern.push(assigned_to);
-         }
-          mapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
-
-         draft.colShuttleMapping = mapping.map((el, ndx) => {
-            if(ndx >= this.selection.getStartingColIndex() && ndx < this.selection.getStartingColIndex() + this.selection.getWidth()){
-              return el;
-            }else{
-              return draft.colShuttleMapping[ndx];
-            }
-          });
-
-          this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-
-
-        break;
-
-        case 'weft-systems-editor':
-
-          pattern = []; 
-          for(let i = 0; i < this.copy.length; i++){
-              const assigned_to = this.copy[i].findIndex(sys => getCellValue(sys) == true);
-              pattern.push(assigned_to);
-           }
-            mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
-
-           draft.rowSystemMapping = mapping.map((el, ndx) => {
-              if(ndx >= this.selection.getStartingRowScreenIndex() && ndx < this.selection.getStartingRowScreenIndex() + this.selection.getHeight()){
-                return el;
-              }else{
-                return draft.rowSystemMapping[ndx];
-              }
-            });
-
-            this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-
-          break;
-
-          case 'weft-materials-editor':
-          
-            pattern = []; 
-            for(let i = 0; i < this.copy.length; i++){
-                const assigned_to = this.copy[i].findIndex(sys => getCellValue(sys) == true);
-                pattern.push(assigned_to);
-             }
-              mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
-  
-             draft.rowShuttleMapping = mapping.map((el, ndx) => {
-                if(ndx >= this.selection.getStartingRowScreenIndex() && ndx < this.selection.getStartingRowScreenIndex() + this.selection.getHeight()){
-                  return el;
-                }else{
-                  return draft.rowShuttleMapping[ndx];
-                }
-              });
-  
-              this.redraw(draft, loom, loom_settings, {drawdown:true, loom:true, weft_materials: true, warp_materials:true, weft_systems:true, warp_systems:true});
-  
-            break;
-    }
-
-  
-    this.copyArea();
-
- 
-
-  }
-
-  onCopy(){
-    this.copyArea();
-    this.hold_copy_for_paste = true;
-  }
-
- 
-
-
 
   swapEditingStyle(){
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -2410,7 +1941,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
+    draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
     this.tree.setDraftOnly(this.id, draft);
     this.redraw(draft, loom, loom_settings, {drawdown: true, warp_systems: true});
     
@@ -2420,7 +1951,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.rowSystemMapping =  generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
+    draft.rowSystemMapping =  generateMappingFromPattern(draft.drawdown, pattern, 'row');
     this.rowSystemMapping = draft.rowSystemMapping.slice();
     this.tree.setDraftOnly(this.id, draft);
      this.redraw(draft, loom, loom_settings, {drawdown: true, weft_systems: true});
@@ -2432,7 +1963,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     
-    draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col', this.ws.selected_origin_option);
+    draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
     this.tree.setDraftOnly(this.id, draft);
     this.colShuttleMapping = draft.colShuttleMapping.slice();
 
@@ -2445,7 +1976,7 @@ public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any){
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row', this.ws.selected_origin_option);
+    draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
     this.tree.setDraftOnly(this.id, draft);
     this.rowShuttleMapping = draft.rowShuttleMapping.slice();
      this.redraw(draft, loom, loom_settings,{drawdown: true, weft_materials: true});

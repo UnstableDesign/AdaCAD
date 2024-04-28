@@ -9,13 +9,13 @@
 }
 
 .size-row{
-    display: flex;
-    flex-direction: row;
     pointer-events: none;
-    justify-content: flex-start;
-    background: white;
-    opacity: 0.8;
+    font-size: 20px;
     padding: 2px 6px 2px 6px;
+}
+
+.action-row{
+    pointer-events: all;
 }
 
 .selection-actions{
@@ -35,10 +35,11 @@
 
 .selection-container-div{
     display: none;
+    min-width: 128px;
+    pointer-events: none;
     flex-direction: column;
     z-index: 4;
     position: absolute;
-    pointer-events: none;
     color: #ff4081;
 }
 
@@ -53,6 +54,13 @@
   }
 
 
+  .meta{
+    display: flex;
+    pointer-events: all;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #ffffffaa;
+  }
 
   
   .menu-button{

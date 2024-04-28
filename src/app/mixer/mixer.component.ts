@@ -305,61 +305,61 @@ zoomChange(zoom_index:any){
    */
   loadDrafts(drafts: any){
 
-    const loom:Loom = {
-      threading:[],
-      tieup:[],
-      treadling: []
-    };
+    // const loom:Loom = {
+    //   threading:[],
+    //   tieup:[],
+    //   treadling: []
+    // };
 
-    const loom_settings:LoomSettings = {
-      type:this.ws.type,
-      epi: this.ws.epi,
-      units: this.ws.units,
-      frames: this.ws.min_frames,
-      treadles: this.ws.min_treadles
+    // const loom_settings:LoomSettings = {
+    //   type:this.ws.type,
+    //   epi: this.ws.epi,
+    //   units: this.ws.units,
+    //   frames: this.ws.min_frames,
+    //   treadles: this.ws.min_treadles
       
-    }
+    // }
 
-    let topleft = this.vp.getTopLeft();
+    // let topleft = this.vp.getTopLeft();
 
-    let max_h = 0;
-    let cur_h = topleft.y + 20; //start offset from top
-    let cur_w = topleft.x + 50;
-    let zoom_factor = defaults.mixer_cell_size / this.zs.getMixerZoom();
-    let x_margin = 20 / zoom_factor;
-    let y_margin = 40 / zoom_factor;
+    // let max_h = 0;
+    // let cur_h = topleft.y + 20; //start offset from top
+    // let cur_w = topleft.x + 50;
+    // let zoom_factor = defaults.mixer_cell_size / this.zs.getMixerZoom();
+    // let x_margin = 20 / zoom_factor;
+    // let y_margin = 40 / zoom_factor;
 
-    let view_width = this.vp.getWidth() * zoom_factor;
+    // let view_width = this.vp.getWidth() * zoom_factor;
 
-    drafts.forEach(draft => {
+    // drafts.forEach(draft => {
       
       
-      const id = this.tree.createNode("draft", null, null);
-      this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
-      this.palette.loadSubDraft(id, draft, null, null, this.zs.getMixerZoom());
+    //   const id = this.tree.createNode("draft", null, null);
+    //   this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
+    //   this.palette.loadSubDraft(id, draft, null, null, this.zs.getMixerZoom());
 
-      //position the drafts so that they don't all overlap. 
-       max_h = (wefts(draft.drawdown)*defaults.mixer_cell_size > max_h) ? wefts(draft.drawdown)*defaults.mixer_cell_size : max_h;
+    //   //position the drafts so that they don't all overlap. 
+    //    max_h = (wefts(draft.drawdown)*defaults.mixer_cell_size > max_h) ? wefts(draft.drawdown)*defaults.mixer_cell_size : max_h;
       
-       let approx_w = warps(draft.drawdown);
+    //    let approx_w = warps(draft.drawdown);
 
-       //300 because each draft is defined as having min-width of 300pm
-       let w = (approx_w*defaults.mixer_cell_size > 300) ? approx_w *defaults.mixer_cell_size : 300 / zoom_factor;
+    //    //300 because each draft is defined as having min-width of 300pm
+    //    let w = (approx_w*defaults.mixer_cell_size > 300) ? approx_w *defaults.mixer_cell_size : 300 / zoom_factor;
 
-       let dn = this.tree.getNode(id);
-       dn.component.topleft = {x: cur_w, y: cur_h};
+    //    let dn = this.tree.getNode(id);
+    //    dn.component.topleft = {x: cur_w, y: cur_h};
        
-       cur_w += (w + x_margin);
-       if(cur_w > view_width){
-        cur_w = topleft.x + 50;
-        cur_h += (max_h+y_margin);
-        max_h = 0;
-       }
+    //    cur_w += (w + x_margin);
+    //    if(cur_w > view_width){
+    //     cur_w = topleft.x + 50;
+    //     cur_h += (max_h+y_margin);
+    //     max_h = 0;
+    //    }
 
 
-    });
+    // });
 
-    this.palette.addTimelineState();
+    // this.palette.addTimelineState();
 
     
   }
