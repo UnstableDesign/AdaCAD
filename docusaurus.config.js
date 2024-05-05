@@ -12,10 +12,10 @@ const config = {
 
 
   // Set the production url of your site here
-  url: 'https://unstabledesign.github.io/',
+  url: 'https://docs.adacad.org',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/AdaCADdocs/',
+  baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -42,12 +42,12 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/UnstableDesign/AdaCAD_Documentation/tree/main',
         },
         blog: {
           showReadingTime: true,
           editUrl:
-          'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          'https://github.com/UnstableDesign/AdaCAD_Documentation/tree/main',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -82,7 +82,7 @@ const config = {
           },
           {to: '/blog', label: 'Blog', position: 'left'},
           {
-            href: 'https://github.com/UnstableDesign/AdaCAD',
+            href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
             label: 'GitHub',
             position: 'right',
           },
@@ -141,7 +141,7 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/UnstableDesign/AdaCAD',
+                href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
               },
               {
                 label: 'AdaCAD Forum',
