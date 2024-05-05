@@ -62,14 +62,19 @@
       <div class="draft_tools">
 
         <div *ngIf="loom.type !== 'jacquard'" class="editing-mode-toggle">
-        <mat-label>design from: </mat-label>
-        <mat-slide-toggle
-        [disabled]="id === -1"
-        hideIcon
-        (change)="swapEditingStyleClicked()">
-        </mat-slide-toggle>
-        <div class="selected_mode">{{dm.cur_draft_edit_source}}
-        </div>
+          <mat-form-field>
+            <mat-label>design source: </mat-label>
+            <mat-select [(value)]="dm.cur_draft_edit_source" (selectionChange)="swapEditingStyleClicked()">
+                <mat-option value="loom">Threading and Tieup</mat-option>
+                <mat-option value="drawdown">Drawdown</mat-option>
+            </mat-select>
+            </mat-form-field>
+          <!-- <mat-slide-toggle
+          [disabled]="id === -1"
+          hideIcon
+          (change)="swapEditingStyleClicked()">
+          </mat-slide-toggle> -->
+
         </div>
 
         <div class="select">

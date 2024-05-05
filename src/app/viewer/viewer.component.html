@@ -86,7 +86,7 @@
   <mat-menu #viewOptions>
 
       <button  
-      mat-flat-button
+      mat-menu-item
       [class.active]="vis_mode == 'sim'"
       matTooltip="view in 3D" 
       (click)="viewAsSimulation()">
@@ -94,19 +94,19 @@
       </button> 
       
     
-    <button mat-flat-button
+    <button mat-menu-item
     [class.active]="vis_mode == 'draft'"
     (click)="viewAsDraft()">
     <i class="fa-solid fa-chess-board"></i>  draft
     </button>
 
-    <button mat-flat-button
+    <button mat-menu-item
     [class.active]="vis_mode == 'structure'"
     (click)="viewAsStructure()">
     <i class="fa-solid fa-hashtag"></i>  structure
     </button>
 
-    <button mat-flat-button
+    <button mat-menu-item
     [class.active]="vis_mode == 'color'"
     (click)="viewAsColor()">
     <i class="fa-solid fa-paint-roller"></i>  color pattern
@@ -135,19 +135,19 @@
       <mat-menu #subdraftOptions>
   
     
-        <button mat-flat-button
+        <button mat-menu-item
         (click)="saveAs('bmp')"
         matTooltip ="Download as Bitmap">
         <i class="fa-solid fa-download"></i> download as bitmap
         </button>
   
-        <button mat-flat-button
+        <button mat-menu-item
         (click)="saveAs('jpg')"
         matTooltip ="Download as Printable Image">
         <i class="fa-solid fa-image"></i> download as image
         </button>
   
-        <button mat-flat-button
+        <button mat-menu-item
         (click)="saveAs('wif')"
         matTooltip ="Download as .WIF file">
         <i class="fa-solid fa-file"></i> download as .WIF file

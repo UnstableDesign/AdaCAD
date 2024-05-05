@@ -36,34 +36,41 @@ cdkDragBoundary=".palette"
           
         </div>
 
-        <button
-        mat-icon-button
-        matTooltip ="Select Draft"
-        (click)="openInEditor()">
-          <i class="fa-solid fa-pen-to-square"></i>    
-        </button> 
-
-        <button 
-        mat-icon-button
-        (click)="selectForView()">
-        <i class="fa-solid fa-eye"></i>
-        </button> 
-
 
         <mat-menu #editOptions>
 
-        <button 
-        mat-flat-button
-        (click)="openHelpDialog()">
-        <i class="fa-solid fa-circle-info"></i> help
-        </button> 
 
-        <button 
-        mat-flat-button
-        matTooltip= "Duplicate"
-        (click)="duplicate()">
-        <i class="fa-solid fa-clone"></i> duplicate
-        </button>
+          <button 
+          mat-menu-item
+          (click)="selectForView()">
+          <i class="fa-solid fa-map-pin"></i> pin for view
+          </button> 
+  
+          <button
+          mat-menu-item
+          (click)="openInEditor()">
+            <i class="fa-solid fa-pen-to-square"></i> open in editor
+          </button> 
+
+          <button 
+          mat-menu-item
+          matTooltip= "Duplicate"
+          (click)="duplicate()">
+          <i class="fa-solid fa-clone"></i> duplicate
+          </button>
+
+          <button 
+          mat-menu-item
+          (click)="openHelpDialog()">
+          <i class="fa-solid fa-circle-info"></i> help
+          </button> 
+
+          <button 
+          mat-menu-item
+          (click)="delete()">
+          <i class="fa-solid fa-times"></i> delete  
+  
+          </button>
         
         </mat-menu>
        
@@ -73,12 +80,7 @@ cdkDragBoundary=".palette"
         matTooltip ="View Options">
         </button>
 
-        <button 
-        mat-icon-button
-        (click)="delete()">
-        <i class="fa-solid fa-times"></i>  
-
-        </button>
+      
 
   
 

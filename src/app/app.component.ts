@@ -340,6 +340,11 @@ export class AppComponent implements OnInit{
     // this.sim.centerView();
   }
 
+
+  public async downloadSelectedDraft(type: any) : Promise<any>{
+    
+  }
+
   /**
    * this is called when a user pushes save from the topbar
    * @param event 

@@ -42,6 +42,9 @@
         
         <mat-menu #downloadMenu="matMenu">
           <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
+          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('bmp')">Selected Draft as Bitmap</button>
+          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('jpg')">Selected Draft as Image</button>
+          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('wif')">Selected Draft as .WIF</button>
           <!-- <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button> -->
         </mat-menu>
 

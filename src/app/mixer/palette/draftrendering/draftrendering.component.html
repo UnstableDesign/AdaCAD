@@ -16,54 +16,62 @@
   <div *ngIf="!hasParent" class="options">
 
 
-    <button
-    mat-icon-button
-    matTooltip ="Select Draft"
-    (click)="openInEditor()">
-      <i class="fa-solid fa-pen-to-square"></i>    
-    </button> 
 
 
     <mat-menu #subdraftOptions>
+
+      <button *ngIf="!exceeds_size && !hasParent"
+      mat-menu-item
+      class="is-small fa-solid"
+      matTooltip ="Select Draft"
+      (click)="selectForView()">
+      <i class="fa-solid fa-map-pin"></i> pin for view
+      </button> 
+      <button
+      mat-menu-item
+      matTooltip ="Select Draft"
+      (click)="openInEditor()">
+        <i class="fa-solid fa-pen-to-square"></i>  open in editor   
+      </button> 
   
   
-      <button mat-flat-button
+      <button  mat-menu-item
       matTooltip= "Duplicate"
       name="duplicate"
       (click)="designActionChange('duplicate')">
       <i class="fa-solid fa-clone"></i> duplicate
       </button>
       
-      <button mat-flat-button
+      <button  mat-menu-item
       (click)="saveAsBmp()"
       matTooltip ="Download as Bitmap">
       <i class="fa-solid fa-download"></i> download as bitmap
       </button>
 
-      <button mat-flat-button
+      <button  mat-menu-item
       (click)="saveAsPrint()"
       matTooltip ="Download as Printable Image">
       <i class="fa-solid fa-image"></i> download as image
       </button>
 
-      <button mat-flat-button
+      <button  mat-menu-item
       (click)="saveAsWif()"
       matTooltip ="Download as .WIF file">
       <i class="fa-solid fa-file"></i> download as .WIF file
       </button>
 
+      <button  mat-menu-item *ngIf='!hasParent'
+      matTooltip= "Delete"
+      [name]="delete"
+      (click)="designActionChange('delete')">
+      <i class="fa-solid fa-times"></i> delete
+      </button>
 
       
     </mat-menu>
 
 
-    <button *ngIf="!exceeds_size && !hasParent"
-    mat-icon-button
-    class="is-small fa-solid"
-    matTooltip ="Select Draft"
-    (click)="selectForView()">
-    <i class="fa-solid fa-eye"></i>
-    </button> 
+
 
 
     <button mat-icon-button
@@ -72,12 +80,6 @@
     matTooltip ="View Options">
     </button>
 
-    <button  mat-icon-button *ngIf='!hasParent'
-    matTooltip= "Delete"
-    [name]="delete"
-    (click)="designActionChange('delete')">
-    <i class="fa-solid fa-times"></i> 
-    </button>
 
   </div>
 
