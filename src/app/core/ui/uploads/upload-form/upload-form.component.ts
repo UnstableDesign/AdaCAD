@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef, Output, Input, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { UploadService } from '../../provider/upload.service';
-import { Draft, Drawdown, Upload } from '../../model/datatypes';
-import { ImageService } from '../../provider/image.service';
-import { Sequence } from '../../model/sequence';
-import { initDraftFromDrawdown } from '../../model/drafts';
+import { UploadService } from '../../../provider/upload.service';
+import { Draft, Drawdown, Upload } from '../../../model/datatypes';
+import { ImageService } from '../../../provider/image.service';
+import { Sequence } from '../../../model/sequence';
+import { initDraftFromDrawdown } from '../../../model/drafts';
 
 @Component({
   selector: 'upload-form',

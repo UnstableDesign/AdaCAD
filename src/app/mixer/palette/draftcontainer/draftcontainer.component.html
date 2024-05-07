@@ -87,32 +87,20 @@
 
 
 
+<app-draft-rendering
+*ngIf="!hasParent || !ws.hide_mixer_drafts"
+#draftRendering
+source = "mixer"
+[id]="id"
+[current_view]="current_view"
+(onNewSelection) = "updateSelection($event)"
+(onDrawdownUpdated)="drawdownUpdated()"
+(onDraftChanged)="detailDraftEdited($event)"
+(onLoomSettingsUpdated)="loomSettingsUpdated()"
+(onMaterialChange)="materialChange()"
+(onViewerExpanded)="expandViewer()">
+</app-draft-rendering>
 
-
-<div *ngIf="!hasParent || !ws.hide_mixer_drafts" [class.hidden]="!draft_visible" id="subdraft-container-{{id}}" class="subdraft-contents origin{{ws.selected_origin_option}}" >
-
-  <div id="local-zoom-{{id}}" class="local_zoom origin{{ws.selected_origin_option}}">
-
-    <div *ngIf="!exceeds_size" class="warp-systems-container origin{{ws.selected_origin_option}} ">
-
-        <canvas id="warp-systems-{{id}}-mixer" class="warp-systems">  </canvas>
-        <canvas id ="warp-materials-{{id}}-mixer" class="warp-materials">  </canvas>
-
-    </div>
-
-    <div class="drawdown-container origin{{ws.selected_origin_option}}" >
-        <canvas class="maindraft" id="{{id}}-mixer" >  </canvas>
-
-        
-        <div *ngIf="!exceeds_size" class="weft-systems-container origin{{ws.selected_origin_option}}">
-          
-          <canvas id="weft-materials-{{id}}-mixer" class="weft-materials">  </canvas>
-          <canvas id="weft-systems-{{id}}-mixer" class="weft-systems" >  </canvas>
-        </div>
-    </div>
-
-  </div>
-</div>
 
 
 <div class="single_line">

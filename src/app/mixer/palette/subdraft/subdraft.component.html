@@ -18,8 +18,8 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 	(cdkDragStarted)="dragStart($event)">
 
 
-	<app-draftrendering 
-	#draftrendering 
+	<app-draftcontainer
+	#draftcontainer 
 	class="from_subdraft"
 	[id]="id" 
 	[dirty]="false"
@@ -29,7 +29,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 	(onSelectCalled)="selectForView()"
 	(onDuplicateCalled)="designAction($event)"
 	(onDeleteCalled)="designAction($event)"
-	></app-draftrendering>
+	></app-draftcontainer>
 
 
 </div>

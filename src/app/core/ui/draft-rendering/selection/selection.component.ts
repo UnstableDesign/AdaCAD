@@ -1,17 +1,17 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TreeService } from '../../../core/provider/tree.service';
-import { Drawdown, Interlacement, OpInput, OpParamVal, Operation, OperationParam } from '../../../core/model/datatypes';
-import { getLoomUtilByType, numFrames, numTreadles } from '../../../core/model/looms';
-import { DesignmodesService } from '../../../core/provider/designmodes.service';
-import { RenderService } from '../../../core/provider/render.service';
-import { defaults, paste_options } from '../../../core/model/defaults';
-import { ZoomService } from '../../../core/provider/zoom.service';
-import { createBlankDrawdown, generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, isUp, pasteIntoDrawdown, warps, wefts } from '../../../core/model/drafts';
-import { createCell, getCellValue, setCellValue } from '../../../core/model/cell';
-import { MaterialsService } from '../../../core/provider/materials.service';
-import { SystemsService } from '../../../core/provider/systems.service';
-import { OperationService } from '../../../core/provider/operation.service';
-
+import { TreeService } from '../../../provider/tree.service';
+import { Drawdown, Interlacement, OpInput, OpParamVal, Operation, OperationParam } from '../../../model/datatypes';
+import { getLoomUtilByType, numFrames, numTreadles } from '../../../model/looms';
+import { DesignmodesService } from '../../../provider/designmodes.service';
+import { RenderService } from '../../../provider/render.service';
+import { defaults, paste_options } from '../../../model/defaults';
+import { ZoomService } from '../../../provider/zoom.service';
+import { createBlankDrawdown, generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, isUp, pasteIntoDrawdown, warps, wefts } from '../../../model/drafts';
+import { createCell, getCellValue, setCellValue } from '../../../model/cell';
+import { MaterialsService } from '../../../provider/materials.service';
+import { SystemsService } from '../../../provider/systems.service';
+import { OperationService } from '../../../provider/operation.service';
+import { MatMenu } from '@angular/material/menu';
 @Component({
   selector: 'app-selection',
   templateUrl: './selection.component.html',

@@ -172,10 +172,10 @@
 
 
 
-  <app-draft 
+  <app-draft-rendering
   id="draft_viewer"
   #weaveRef
-  source = "weaver"
+  source = "editor"
   [current_view]="current_view"
   (onNewSelection) = "updateSelection($event)"
   (onDrawdownUpdated)="drawdownUpdated()"
@@ -183,7 +183,7 @@
   (onLoomSettingsUpdated)="loomSettingsUpdated()"
   (onMaterialChange)="materialChange()"
   (onViewerExpanded)="expandViewer()">
-  </app-draft>
+  </app-draft-rendering>
 </div>
       
 

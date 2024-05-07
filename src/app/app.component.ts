@@ -23,7 +23,7 @@ import { ViewportService } from './mixer/provider/viewport.service';
 import { FormControl } from '@angular/forms';
 import { LoginComponent } from './core/modal/login/login.component';
 import { MatDialog } from '@angular/material/dialog';
-import { FilebrowserComponent } from './core/filebrowser/filebrowser.component';
+import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.component';
 import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { ExamplesComponent } from './core/modal/examples/examples.component';
 import { DesignmodesService } from './core/provider/designmodes.service';

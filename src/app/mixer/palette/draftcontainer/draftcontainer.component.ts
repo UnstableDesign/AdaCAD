@@ -9,14 +9,14 @@ import { WorkspaceService } from '../../../core/provider/workspace.service';
 import utilInstance from '../../../core/model/util';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { RenderService } from '../../../core/provider/render.service';
-import { promise } from 'protractor';
+import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
 
 @Component({
-  selector: 'app-draftrendering',
-  templateUrl: './draftrendering.component.html',
-  styleUrls: ['./draftrendering.component.scss']
+  selector: 'app-draftcontainer',
+  templateUrl: './draftcontainer.component.html',
+  styleUrls: ['./draftcontainer.component.scss']
 })
-export class DraftrenderingComponent {
+export class DraftContainerComponent {
 
   @Input() id;
   @Input() dirty;
@@ -28,12 +28,9 @@ export class DraftrenderingComponent {
   @Output() onSelectCalled = new EventEmitter();
   @Output() onOpenInEditor = new EventEmitter();
   @ViewChild('bitmapImage') bitmap: any;
+  @ViewChild('draftRendering') draft_rendering: DraftRenderingComponent;
 
-  draft_canvas: HTMLCanvasElement;
-  draft_cx: any;
 
-  warp_data_canvas: HTMLCanvasElement;
-  warp_data_cx: any;
 
   draft_cell_size: number = 40;
 
@@ -64,6 +61,10 @@ export class DraftrenderingComponent {
     private ss: SystemsService,
     public ws: WorkspaceService){
 
+  }
+
+  ngOnInit(){
+    console.log('ON INIT ID IS ', this.id)
   }
 
   ngAfterViewInit() {
@@ -114,48 +115,18 @@ export class DraftrenderingComponent {
 
   drawDraft(draft: Draft) : Promise<boolean>{
     if(this.hasParent && this.ws.hide_mixer_drafts) return Promise.resolve(false);
+    if(this.draft_rendering == null || this.draft_rendering == undefined)return Promise.resolve(false);
 
-    this.draft_canvas = <HTMLCanvasElement> document.getElementById(this.id.toString()+'-mixer');
-
-    if(this.draft_canvas == null) return Promise.resolve(false);
-
-    const warp_systems_canvas =  
-    <HTMLCanvasElement> document.getElementById('warp-systems-'+this.id.toString()+'-mixer');
-    const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.id.toString()+'-mixer');
-    const weft_systems_canvas =  <HTMLCanvasElement> document.getElementById('weft-systems-'+this.id.toString()+'-mixer');
-    const weft_mats_canvas =  <HTMLCanvasElement> document.getElementById('weft-materials-'+this.id.toString()+'-mixer');
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
 
 
-
-    let canvases: CanvasList = {
-      id: this.id,
-      drawdown: this.draft_canvas,
-      threading: null,
-      tieup: null, 
-      treadling: null, 
-      warp_systems: warp_systems_canvas,
-      warp_mats: warp_mats_canvas,
-      weft_systems: weft_systems_canvas,
-      weft_mats: weft_mats_canvas
-    };
-
-    let flags: RenderingFlags = {
-      u_drawdown: true, 
-      u_threading: false,
-      u_tieups: false,
-      u_treadling: false,
-      u_warp_mats: true,
-      u_weft_mats: true,
-      u_warp_sys: true,
-      u_weft_sys: true,
-      use_colors: false,
-      use_floats: false, 
-      show_loom: false
-
+    let flags = {
+      drawdown: true
     }
 
 
-    return this.render.drawDraft(draft, null, null,  canvases, flags).then(el => {
+    return this.draft_rendering.redraw(draft, loom, loom_settings, flags ).then(el => {
       this.tree.setDraftClean(this.id);
       return Promise.resolve(true);
     })

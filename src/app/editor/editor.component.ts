@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -17,7 +17,7 @@ import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
-import { DraftComponent } from './draft/draft.component';
+import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
 
@@ -30,14 +30,13 @@ import { RepeatsComponent } from './repeats/repeats.component';
 })
 export class EditorComponent implements OnInit {
   
-  /**
-  * The reference to the weave directive.
-  * @property {WeaveDirective}
-  */
-  @ViewChild(DraftComponent, {static: true}) weaveRef;
+
+  @ViewChild(DraftRenderingComponent, {static: true}) weaveRef;
   @ViewChild(LoomComponent) loom;
   
-  
+  @Input() hasFocus: boolean;
+  @Input('id') id: number;
+
   @Output() closeDrawer: any = new EventEmitter();
   @Output() saveChanges: any = new EventEmitter();
   @Output() redrawViewer: any = new EventEmitter();
@@ -46,9 +45,8 @@ export class EditorComponent implements OnInit {
   @Output() onFocusView: any = new EventEmitter();
   @Output() onCollapseView: any = new EventEmitter();
   
-  
-  id: number = -1; 
-  
+
+    
   parentOp: string = '';
   
   actions_modal: MatDialogRef<RepeatsComponent, any>;
@@ -78,6 +76,7 @@ export class EditorComponent implements OnInit {
   current_view = 'draft';
   
   
+  
   constructor(
     private dialog: MatDialog, 
     private fs: FileService,
@@ -92,7 +91,7 @@ export class EditorComponent implements OnInit {
     private zs: ZoomService) {
       
       
-      
+
       this.copy = [[createCell(false)]];
       this.draw_modes = draft_pencil;
     }

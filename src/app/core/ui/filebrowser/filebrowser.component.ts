@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation } from '@angular/core';
-import { AuthService } from '../provider/auth.service';
-import { FilesystemService } from '../provider/filesystem.service';
+import { AuthService } from '../../provider/auth.service';
+import { FilesystemService } from '../../provider/filesystem.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { WorkspaceService } from '../provider/workspace.service';
-import { FileService } from '../provider/file.service';
+import { WorkspaceService } from '../../provider/workspace.service';
+import { FileService } from '../../provider/file.service';
 
 @Component({
   selector: 'app-filebrowser',
