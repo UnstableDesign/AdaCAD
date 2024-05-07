@@ -20,7 +20,7 @@ export class ViewerComponent {
   @Output() onClearWorkspace: any = new EventEmitter();
   @Output() onOpenExamples: any = new EventEmitter();
   @Output() onOpenMaterials: any = new EventEmitter();
-  @Output() onManageFiles: any = new EventEmitter();
+  @Output() openHelp: any = new EventEmitter();
   @Output() onViewerExpanded: any = new EventEmitter();
   @Output() onViewerCollapsed: any = new EventEmitter();
   @Output() onSave: any = new EventEmitter();
@@ -34,6 +34,7 @@ export class ViewerComponent {
   draft_name: string = '';
   vis_mode: string = 'color'; //sim, draft, structure, color
   view_expanded: boolean = false;
+  filename: string = '';
 
   warps: number = 0;
   wefts: number = 0;
@@ -46,10 +47,13 @@ export class ViewerComponent {
     private render: RenderService,
     private tree: TreeService,
     public zs: ZoomService){
-    
+
   }
 
+ngOnInit(){
+  this.filename = this.files.getCurrentFileName();
 
+}
 
 
 getVisVariables(){
@@ -74,8 +78,8 @@ getVisVariables(){
     this.onClearWorkspace.emit();
   }
 
-  manageFiles(){
-    this.onManageFiles.emit();
+  openHelpDialog(){
+    this.openHelp.emit();
   }
 
   openExamples(){
@@ -116,10 +120,15 @@ getVisVariables(){
     let rect = document.getElementById('viewer-scale-container').getBoundingClientRect();
     // div.scrollTop = div.scrollHeight/2;
     // div.scrollLeft = div.scrollWidth/2;
-    div.scrollTo({
-      top: rect.height/2,
-      left: rect.width/2
-    })
+    // div.scrollTo({
+    //   top: rect.height/2,
+    //   left: rect.width/2
+    // })
+  }
+
+  filenameChange(){
+    const id = this.files.getCurrentFileId();
+    this.files.renameFile(id, this.filename);
   }
 
 

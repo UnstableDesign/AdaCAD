@@ -175,6 +175,31 @@
   </mat-expansion-panel>
 
 
+<!-- <mat-expansion-panel *ngIf="!view_expanded" expanded>
+  <mat-expansion-panel-header>
+    <mat-panel-title class="small-text">
+      <i class="fa-solid fa-file"></i> Workspaces
+      </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <mat-form-field>
+    <mat-label>Current Filename</mat-label>
+    <input matInput [(ngModel)]="filename" (input)="filenameChange()">
+  </mat-form-field>
+
+  <button  mat-flat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> Create New</button>
+  
+  <button 
+      mat-flat-button  
+      [disabled] = "!auth.isLoggedIn"
+      matTooltip="you must be logged in to save projects"
+      (click)="manageFiles()" >
+      <i class="fa-solid fa-file"></i> Open
+     </button>
+
+
+  </mat-expansion-panel> -->
+
 
 <mat-expansion-panel *ngIf="!view_expanded" expanded>
   <mat-expansion-panel-header>
@@ -189,17 +214,7 @@
     <button mat-menu-item (click)="clearWorkspace()">are you sure?</button>
   </mat-menu>   
 
-    <button  mat-flat-button (click)="loadBlankFile()" ><i class="fa-solid fa-plus"></i> New Project</button>
 
-
-
-      <button 
-      mat-flat-button  
-      [disabled] = "!auth.isLoggedIn"
-      matTooltip="you must be logged in to save projects"
-      (click)="manageFiles()" >
-      <i class="fa-solid fa-file"></i> Manage Projects
-     </button>
 
       <button  
       mat-flat-button
@@ -207,8 +222,11 @@
       <i class="fa-solid fa-palette"></i> Manage Materials
     </button> 
 
-       <!-- <button  mat-flat-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button>  -->
-        
+       <button  mat-flat-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
+
+       <button  mat-flat-button (click)="openHelpDialog()"><i class="fa-solid fa-question"></i> Get Help</button> 
+
+
   </mat-expansion-panel>
 
   

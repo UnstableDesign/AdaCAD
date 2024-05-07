@@ -488,7 +488,6 @@ export class EditorComponent implements OnInit {
         
         
         swapEditingStyleClicked(){
-          console.log("CHANGED", this.dm.cur_draft_edit_source, this.id)
           if(this.id == -1) return;
           
           if(this.loom.type !== 'jacquard'){

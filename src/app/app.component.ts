@@ -65,6 +65,8 @@ export class AppComponent implements OnInit{
   
   loading: boolean;
 
+  filename: string = '';
+
   selected_origin: number;
   
   ui = {
@@ -341,9 +343,6 @@ export class AppComponent implements OnInit{
   }
 
 
-  public async downloadSelectedDraft(type: any) : Promise<any>{
-    
-  }
 
   /**
    * this is called when a user pushes save from the topbar
@@ -643,7 +642,7 @@ export class AppComponent implements OnInit{
         }else{
           this.selected_editor_mode = 'draft';
         }
-
+          this.filename = result.name;
           this.saveFile();
       }).catch(e => {
         console.log(e, "CAUGHT ERROR through from process file data")
@@ -791,9 +790,11 @@ onPasteSelections(){
   }
 
   openAboutDialog() {
-
     window.open('https://docs.adacad.org', '_blank');
+  }
 
+  openHelp() {
+    window.open('https://docs.adacad.org/docs/howtouse/getting-started', '_blank');
   }
 
   /**
@@ -1137,6 +1138,9 @@ printTreeStatus(name: string, treenode: Array<TreeNode>){
   });
 }
 
+filenameChange(){
+
+}
 
 redo() {
 
