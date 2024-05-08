@@ -318,10 +318,8 @@ export class OperationComponent implements OnInit {
 
   openInEditor(){
     let children = this.tree.getNonCxnOutputs(this.id);
-    console.log("OPEN HIT ", children);
     if(children.length > 0){
       let child = children[0];
-      console.log("CHILD ID ", child)
       this.onOpenInEditor.emit(child);
     }
   }

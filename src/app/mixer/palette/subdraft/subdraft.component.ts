@@ -208,7 +208,6 @@ export class SubdraftComponent implements OnInit {
 
   nameFocusOut(){
     this.onNameChange.emit(this.id);
-    const scale = document.getElementById('scale-'+this.id);
   }
 
 
@@ -400,13 +399,7 @@ openInEditor(event: any){
   redrawExistingDraft(){
 
     const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-
-   const flags = {
-     drawdown: true
-   }
-   this.draft_rendering.redraw(draft, loom, loom_settings, flags);
+    this.draftcontainer.drawDraft(draft);
 
   }
 

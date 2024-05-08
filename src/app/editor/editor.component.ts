@@ -205,16 +205,18 @@ export class EditorComponent implements OnInit {
     * @returns 
     */
     loadDraft(id: number) : Promise<any> {
-      
+      console.log("EDITOR LOAD DRAFT, ", id)
       this.id = id;
       
       if(id == -1) return Promise.resolve();
       
       const draft = this.tree.getDraft(id);
       this.getParentOp(id);
+
       if(this.parentOp !== '') this.weaveRef.view_only = true;
       else this.weaveRef.view_only = false;
       
+
       //reset the dirty value every time the window is open
       this.weaveRef.resetDirty();
       
@@ -224,6 +226,7 @@ export class EditorComponent implements OnInit {
       
       this.draftname = getDraftName(draft)
       this.weaveRef.onNewDraftLoaded(id);
+
       return Promise.resolve(null);
       
       

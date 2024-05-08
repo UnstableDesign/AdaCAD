@@ -1,150 +1,3 @@
-
-canvas{
-	width: fit-content;
-	height: fit-content;
-  }
-
-.top-half-draft{
-	display: flex;
-	flex-direction: row;
-}
-
-
-.local_zoom.origin0,
-.local_zoom.origin3
-{
-  flex-direction: column;
-  padding-left: 25px;
-}
-
-.local_zoom.origin1,
-.local_zoom.origin2
-{
-  padding-top: 25px;
-  flex-direction: column-reverse;
-}
-
-
-
-.warp-systems-container{
-	display: flex;
-	margin: 10px 0px;
-  }
-  
-  .warp-systems-container.origin0
-  {
-	flex-direction: column;
-	align-items: flex-start;
-
-	.warp-materials{
-		transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	}
-
-  }
-  
-  
-  .warp-systems-container.origin3
-  {
-
-	
-	flex-direction: column;
-	align-items: flex-end;
-
-  }
-  
-  .warp-systems-container.origin1{
-  
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    padding-right: 10px;
-
-	.warp-materials{
-		transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	}
-
-  
-  }
-  
-  
-  .warp-systems-container.origin2
-  {
-    flex-direction: column-reverse;
-    align-items: flex-end;
-  
-  }
-
-
-.drawdown-container{
-	display: flex;
-  }
-  
-  .drawdown-container.origin0{
-
-	flex-direction: row; 
-
-	.maindraft{
-	transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	}
-
-  }
-
-
-  .drawdown-container.origin1
-  {
-	flex-direction: row; 
-
-	.maindraft{
-	transform: matrix3d(-1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	}
-  }
-  
-  .drawdown-container.origin2{
-	flex-direction: row-reverse; 
-
-	.maindraft{
-	transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	}
-  }
-  
-  .drawdown-container.origin3
-  {
-	flex-direction: row-reverse; 
-  }
-
-
-
-.weft-systems-container{
-	display: flex;
-	margin: 0px 10px;
-  }
-
-  .weft-systems-container.origin0
-  {
-	flex-direction: row; 
-  }
-  
-  .weft-systems-container.origin1
-  {
-	flex-direction: row; 
-
-	.weft-materials{
-		transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	}
-  }
-  
-  .weft-systems-container.origin2{
-	flex-direction: row-reverse; 
-
-	.weft-materials{
-		transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-	}
-  }
-  .weft-systems-container.origin3
-  {
-	flex-direction: row-reverse; 
-  }
-
-
 button.output{
 	font-size: 28px;
 	color: "#33333";
@@ -160,9 +13,6 @@ button.output{
 	flex-direction: row;
 	justify-content: center;
 }
-
-
-
 
 
 
@@ -193,9 +43,9 @@ button.output{
 .subdraft-container{
 	display: flex;
 	flex-direction: column;
-	justify-content:flex-start;
 	min-width: 300px;
 	height: fit-content;
+	align-items: center;
 	padding: 0px 10px 0px 0px;
 }
 
@@ -222,17 +72,6 @@ button.output{
 	align-items: center;
 }
 
-
-.scale-container{
-
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	color: grey;
-	display: flex;
-	flex-direction: row;
-	justify-content:flex-end;
-}
 
 
 h3{

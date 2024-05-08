@@ -1,14 +1,14 @@
-import { Component, Input, Output, SimpleChanges, EventEmitter, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Draft, DraftNode } from '../../../core/model/datatypes';
+import { getDraftName, initDraft, warps, wefts } from '../../../core/model/drafts';
+import utilInstance from '../../../core/model/util';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { FileService } from '../../../core/provider/file.service';
-import { CanvasList, Draft, DraftNode, Loom, LoomSettings, RenderingFlags } from '../../../core/model/datatypes';
-import { flipDraft, getDraftAsImage, getDraftName, initDraft, isSet, isUp, warps, wefts } from '../../../core/model/drafts';
 import { MaterialsService } from '../../../core/provider/materials.service';
+import { RenderService } from '../../../core/provider/render.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
-import utilInstance from '../../../core/model/util';
-import { DesignmodesService } from '../../../core/provider/designmodes.service';
-import { RenderService } from '../../../core/provider/render.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
 
 @Component({
@@ -50,6 +50,10 @@ export class DraftContainerComponent {
 
   draft_name: string = "";
 
+  local_zoom: number = 5;
+
+  current_view: string = 'draft';
+
 
 
   constructor(
@@ -64,7 +68,6 @@ export class DraftContainerComponent {
   }
 
   ngOnInit(){
-    console.log('ON INIT ID IS ', this.id)
   }
 
   ngAfterViewInit() {
@@ -79,6 +82,8 @@ export class DraftContainerComponent {
     this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
     this.draft_name = this.tree.getDraftName(this.id)
 
+    this.draft_rendering.onNewDraftLoaded(this.id);
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -86,8 +91,10 @@ export class DraftContainerComponent {
       if(this.dm.isSelectedDraftEditSource('drawdown')) return;
 
       let draft = this.tree.getDraft(this.id);
-      
       if(draft == undefined) draft = initDraft();
+    
+     if(this.draft_rendering !== undefined) this.draft_rendering.onNewDraftLoaded(this.id);
+     else console.log("Draft rendering underfined on mixer", this.id)
       
       this.ud_name = getDraftName(draft);
       this.warps = warps(draft.drawdown);
@@ -198,11 +205,7 @@ export class DraftContainerComponent {
 
 
     localZoomChange(event: any){
-
-      const div = document.getElementById('subdraft-container-'+this.id);
-    //  div.style.transform = 'scale('+event+')';
-      div.style.scale = event;
-
+        this.draft_rendering.rescale(event);
     }
   
 

@@ -13,6 +13,9 @@ canvas{
     display: flex;
     justify-content: flex-end;
   }
+
+
+  
   
   .draft-top.origin3,
   .draft-top.origin0{
@@ -44,10 +47,16 @@ canvas{
   .hide{
     display: none !important;
   }
+
+  .treadling-container.mixer{
+    display: none;
+  }
   
 
   .treadling-container.loomtype-frame,
   .treadling-container.loomtype-direct{
+    
+
     display: flex;
     padding-right: var(--cell-width);
   }
@@ -63,6 +72,11 @@ canvas{
     --cell-width: 20px;
   
   }
+
+  .draft-container.mixer{
+    padding: 24px;
+  
+  }
   
   
   .draft-container.origin0,
@@ -76,7 +90,7 @@ canvas{
   {
     flex-direction: column-reverse;
   }
-  
+
   
   
   .warp-systems-container{
@@ -131,8 +145,12 @@ canvas{
     }
     
   }
+
+
   
-  .threading-tieup-container.loomtype-jacquard{
+  .threading-tieup-container.loomtype-jacquard,
+  .threading-tieup-container.mixer
+  {
     display: none;  
   }
   
@@ -176,7 +194,6 @@ canvas{
   
   .threading-canvas,
   .tieups-canvas,
-  .treadling-canvas,
   .drawdown-canvas,
   .weft-materials-canvas,
   .weft-systems-canvas,
@@ -184,6 +201,15 @@ canvas{
   .warp-systems-canvas{
     position: relative;
     display: flex;
+  }
+
+  .treadling-canvas.editor{
+    display: flex;
+    position: relative;
+  }
+
+  .treadling-canvas.mixer{
+    display: none;
   }
   
   
@@ -345,10 +371,9 @@ canvas{
   
     }
   
-    .drawdown-editor{
+    .drawdown-editor.editor{
       opacity: 0.2;
       cursor: not-allowed;
-  
     }
   
   }
@@ -425,8 +450,12 @@ canvas{
     display: flex;
     font-size: 14px;
   }
+
+  .warp-systems-text.mixer{
+    display: none;
+  }
   
-  .warp-systems-text {
+  .warp-systems-text.editor {
         cursor: pointer;
         font-size: 14px;
         line-height: 14px;
@@ -455,8 +484,7 @@ canvas{
       }
       
       
-      
-      
+
       .warp-system-col{
           flex: 1 1 var(--cell-width);
           color: #000;
@@ -472,17 +500,16 @@ canvas{
           flex-direction: column;
           height: 90px;
         }
-      
         &:hover {
-          .warp_insert,
-          .warp_clone,
-          .warp_delete{
-              display: block;
-          }
-  
-  
-         
+            .warp_insert,
+            .warp_clone,
+            .warp_delete{
+                display: block;
+            }
         }
+    
+
+    }
   
         .warp_insert,
         .warp_clone,
@@ -506,7 +533,7 @@ canvas{
         // &:first-child{
         //   border-right:thin solid pink;
         // }
-      }
+      
   
       .warp-system-col.origin0,
       .warp-system-col.origin3
@@ -606,10 +633,14 @@ canvas{
       .fa-trash {
          color: hsl(348, 100%, 61%);
       }
+
+      .weft-systems-text.mixer{
+        display: none;
+      }
       
       
     
-    .weft-systems-text {
+    .weft-systems-text.editor {
       cursor: pointer;
       font-size: 24px;
       line-height: 24px;
@@ -651,18 +682,19 @@ canvas{
       opacity: 1;
       justify-content: flex-start;
   
-      .weft_indicies{
+      .weft_indicies {
         width: 48px;
         display: block;
       }
-    
-      &:hover {
-        .weft_insert,
-        .weft_clone,
-        .weft_delete{
-            display: block;
+
+        &:hover {
+            .weft_insert,
+            .weft_clone,
+            .weft_delete{
+                display: block;
+            }
         }
-      }
+     
     
     }
   

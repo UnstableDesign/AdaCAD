@@ -89,8 +89,8 @@ export class AppComponent implements OnInit{
 
   selected_editor_mode: any;
 
-  selected_mixer_draft_id: number =1;
-  selected_editor_draft_id: number =1;
+  selected_mixer_draft_id: number = -1;
+  selected_editor_draft_id: number = -1;
 
 
   redraw_viewer: boolean = false;
@@ -584,6 +584,7 @@ export class AppComponent implements OnInit{
         this.selected_editor_draft_id = id;
         this.editor.loadDraft(id);
         this.editor.onFocus();
+        this.filename = this.files.getCurrentFileName();
       })
       this.saveFile();
     });
@@ -1174,9 +1175,8 @@ setAdvancedOperations(val: boolean){
 
 
 openInEditor(id: number){
-  console.log("OPEN IN EDITOR CALLED LOAD DRAFT ON ", id)
-   //this.editor.loadDraft(id);
    this.selected_editor_draft_id = id;
+   this.editor.loadDraft(id);
    this.selected_editor_mode = 'draft';
    this.toggleEditorMode();
 }

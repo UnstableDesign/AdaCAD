@@ -176,6 +176,8 @@
   id="draft_viewer"
   #weaveRef
   source = "editor"
+  [id]="id"
+  [view_only] = "false"
   [current_view]="current_view"
   (onNewSelection) = "updateSelection($event)"
   (onDrawdownUpdated)="drawdownUpdated()"

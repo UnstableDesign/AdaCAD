@@ -179,6 +179,7 @@
     <app-editor id="draftdetail"
     class="detail-container"
     #details 
+    [id]="selected_editor_draft_id"
     [class.hide]="selected_editor_mode !== 'draft'"
     [class.show]="selected_editor_mode === 'draft'" 
     (saveChanges)="saveFile()"

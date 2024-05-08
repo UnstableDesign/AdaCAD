@@ -33,6 +33,7 @@ export class DraftRenderingComponent implements OnInit {
   @Input('source') source: string;
   @Input('current_view') current_view: string;
   @Input('view_only') view_only: boolean;
+
   @Output() onNewSelection = new EventEmitter();
   @Output() onDrawdownUpdated = new EventEmitter();
   @Output() onViewerExpanded = new EventEmitter();
@@ -192,11 +193,8 @@ export class DraftRenderingComponent implements OnInit {
     this.divWesy =  document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
     this.divWasy =  document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
     
-    
-    
-    
-    this.rescale();
-    
+  
+        
   }
   
 
@@ -216,35 +214,34 @@ export class DraftRenderingComponent implements OnInit {
   */
   computeAndSetScale(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
     
-    let adj = 1;
-    let margin = 160;
+    // let adj = 1;
+    // let margin = 160;
     
-    let div_draftviewer = document.getElementById('draft_viewer');
-    let rect_draftviewer = div_draftviewer.getBoundingClientRect();
-    let cell_size = this.render.calculateCellSize(draft);
+    // let div_draftviewer = document.getElementById('draft_viewer');
+    // let rect_draftviewer = div_draftviewer.getBoundingClientRect();
+    // let cell_size = this.render.calculateCellSize(draft);
     
-    let weft_num = wefts(draft.drawdown);
-    let warp_num = warps(draft.drawdown);
-    let treadles = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
-    let frames = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
-    let draft_width = (isFrame(loom_settings)) ? (warp_num + treadles) * cell_size : (warp_num)  * cell_size; 
-    let draft_height = (isFrame(loom_settings)) ? (weft_num + frames)* cell_size : (weft_num)  * cell_size; 
+    // let weft_num = wefts(draft.drawdown);
+    // let warp_num = warps(draft.drawdown);
+    // let treadles = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
+    // let frames = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
+    // let draft_width = (isFrame(loom_settings)) ? (warp_num + treadles) * cell_size : (warp_num)  * cell_size; 
+    // let draft_height = (isFrame(loom_settings)) ? (weft_num + frames)* cell_size : (weft_num)  * cell_size; 
     
-    //add 100 to make space for the warp and weft selectors
-    draft_width += margin;
-    draft_height += margin;
+    // //add 100 to make space for the warp and weft selectors
+    // draft_width += margin;
+    // draft_height += margin;
     
     
-    //get the ration of the view to the item
-    let width_adj = rect_draftviewer.width / draft_width;
-    let height_adj = rect_draftviewer.height /draft_height;
+    // //get the ration of the view to the item
+    // let width_adj = rect_draftviewer.width / draft_width;
+    // let height_adj = rect_draftviewer.height /draft_height;
     
-    //make the zoom the smaller of the width or height
-    adj = Math.min(width_adj, height_adj);
+    // //make the zoom the smaller of the width or height
+    // adj = Math.min(width_adj, height_adj);
     
-    if(adj !== 0) this.zs.setEditorIndexFromZoomValue(adj);
+    // if(adj !== 0) this.zs.setEditorIndexFromZoomValue(adj);
     
-    this.rescale();     
     
   }
   
@@ -254,7 +251,7 @@ export class DraftRenderingComponent implements OnInit {
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {  
     
-    console.log("ON DRAFT LOAD in drafts.ts ", id, this.tree.nodes)
+    console.log("ON DRAFT LOAD in Rendering ", id, this.tree.nodes)
     
     this.id = id;  
     
@@ -264,9 +261,9 @@ export class DraftRenderingComponent implements OnInit {
     const draft = this.tree.getDraft(id);
     const loom = this.tree.getLoom(id);
     this.isFrame = isFrame(loom_settings);
+    this.epi = loom_settings.epi;
     
     this.resetDirty();
-    
     this.selected_loom_type = loom_settings.type;
     if(this.selected_loom_type == 'jacquard') this.dm.selectDraftEditSource('drawdown')
       
@@ -279,8 +276,6 @@ export class DraftRenderingComponent implements OnInit {
     if(loom_settings.units == 'cm') this.width *= 10;
     this.selected_units = loom_settings.units;
     
-    const warp_num:number = warps(draft.drawdown);
-    const weft_num:number = wefts(draft.drawdown);
     
     this.colShuttleMapping = draft.colShuttleMapping.slice();
     this.colSystemMapping = draft.colSystemMapping.slice();
@@ -297,9 +292,10 @@ export class DraftRenderingComponent implements OnInit {
       weft_systems: true, 
       warp_materials: true,
       weft_materials:true
-    });
+    }).then(res => {
+      this.computeAndSetScale(draft, loom, loom_settings);
+    })
     
-    this.computeAndSetScale(draft, loom, loom_settings);
     
   }
   
@@ -321,6 +317,8 @@ export class DraftRenderingComponent implements OnInit {
   * @param currentPos the position of the click within the target
   */
   setPosAndDraw(target:HTMLElement, shift: boolean, currentPos:Interlacement){
+
+    console.log("SET POS ", this.view_only)
     
     if(this.view_only) return;
     
@@ -355,7 +353,7 @@ export class DraftRenderingComponent implements OnInit {
     } else if (target && target.id === ('threading-'+this.source+'-'+this.id)) {
       if(editing_style == "loom")  this.drawOnThreading(loom, loom_settings, currentPos);
     } else{
-      if(editing_style == "drawdown")  this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
+      if(editing_style == "drawdown" || (this.source == 'mixer' && !this.tree.hasParent(this.id)))  this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
     }
     
     this.flag_history = true;
@@ -372,7 +370,7 @@ export class DraftRenderingComponent implements OnInit {
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
     
-    if(this.id == -1) return;
+    if(this.id == -1 || this.view_only) return;
     
     this.mouse_pressed = true;
     
@@ -547,8 +545,8 @@ export class DraftRenderingComponent implements OnInit {
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
     this.mouse_pressed = false;
-    
-    if(this.id == -1) return;
+    if(this.id == -1 || this.view_only) return;
+
     
     this.lastPos = {
       si: -1,
@@ -932,7 +930,6 @@ export class DraftRenderingComponent implements OnInit {
         
         const draft = this.tree.getDraft(this.id);
         var newSystem = this.ss.getNextWarpSystem(j,draft);
-        console.log("INCREMENTING WARP ", j, draft.colSystemMapping)
         draft.colSystemMapping[j] = newSystem;
         this.colSystemMapping = draft.colSystemMapping.slice();
         
@@ -982,7 +979,7 @@ export class DraftRenderingComponent implements OnInit {
       private drawOnDrawdown(draft:Draft, loom_settings: LoomSettings,  currentPos: Interlacement, shift: boolean) {
         
         var val  = false;
-        
+
         
         if (this.canvases.drawdown == null || !currentPos) { return; }
         
@@ -1202,14 +1199,16 @@ export class DraftRenderingComponent implements OnInit {
       * receives offset of the scroll from the CDKScrollable created when the scroll was initiated
       */
       //this does not draw on canvas but just rescales the canvas
-      public rescale(){
+      public rescale(scale: number){
         
         const container: HTMLElement = document.getElementById('draft-scale-container-'+this.source+'-'+this.id);
-        console.log('LOOKING FOR draft-scale-container-'+this.source+'-'+this.id)
-        container.style.transformOrigin = 'top left';
-        container.style.transform = 'scale(' + this.zs.getEditorZoom() + ')';
-        
-        
+        if(container == null){
+          console.log("Container is null ");
+        }else{
+          container.style.transformOrigin = 'top left';
+          container.style.transform = 'scale(' + scale + ')';
+        }
+           
       }
       
       
@@ -1272,8 +1271,20 @@ export class DraftRenderingComponent implements OnInit {
       public redrawAll(){
         const draft = this.tree.getDraft(this.id)
         const loom = this.tree.getLoom(this.id)
-        const loom_settings = this.tree.getLoomSettings(this.id)
-        this.redraw(draft, loom, loom_settings,{drawdown: true, loom:true, warp_systems: true, warp_materials: true, weft_systems: true, weft_materials:true, use_colors: true});
+        const loom_settings = this.tree.getLoomSettings(this.id);
+
+        let flags = {
+          drawdown: true, 
+          loom:true, 
+          warp_systems: true, 
+          warp_materials: true, 
+          weft_systems: true, 
+          weft_materials:true, 
+          use_floats: (this.current_view == 'color'),
+          use_colors: (this.current_view != 'draft')
+        }
+
+        this.redraw(draft, loom, loom_settings,flags);
         this.onDrawdownUpdated.emit(draft);
         
         
@@ -1287,22 +1298,22 @@ export class DraftRenderingComponent implements OnInit {
         
         
         let rf: RenderingFlags = {
-          u_drawdown: (flags.drawdown !== undefined), 
-          u_threading: (flags.loom !== undefined),
-          u_tieups: (flags.loom !== undefined),
-          u_treadling: (flags.loom !== undefined),
-          u_warp_mats: (flags.warp_materials  !== undefined),
-          u_weft_mats: (flags.weft_materials  !== undefined),
-          u_warp_sys: (flags.warp_systems  !== undefined),
-          u_weft_sys: (flags.weft_systems  !== undefined),
-          use_colors: (flags.use_colors  !== undefined),
-          use_floats: (flags.use_floats  !== undefined), 
-          show_loom: (flags.show_loom  !== undefined)
+          u_drawdown: (flags.drawdown !== undefined && flags.drawdown == true), 
+          u_threading: (flags.loom !== undefined  && flags.loom == true),
+          u_tieups: (flags.loom !== undefined  && flags.loom == true),
+          u_treadling: (flags.loom !== undefined &&  flags.loom == true),
+          u_warp_mats: (flags.warp_materials  !== undefined &&  flags.warp_materials == true),
+          u_weft_mats: (flags.weft_materials  !== undefined &&  flags.weft_materials == true),
+          u_warp_sys: (flags.warp_systems  !== undefined &&  flags.warp_systems == true),
+          u_weft_sys: (flags.weft_systems  !== undefined &&  flags.weft_systems == true),
+          use_colors: (flags.use_colors  !== undefined && flags.use_colors == true),
+          use_floats: (flags.use_floats  !== undefined && flags.use_floats == true), 
+          show_loom: (flags.show_loom  !== undefined && flags.show_loom == true)
         }
         return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
-          let warpdatadiv = document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
           const pr = this.render.getPixelRatio(this.canvases.warp_mats);
-          warpdatadiv.style.width = this.canvases.warp_mats.width/pr+'px';
+          let warpdatadiv = document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
+          if(warpdatadiv !== null) warpdatadiv.style.width = this.canvases.warp_mats.width/pr+'px';
           return Promise.resolve(res);
         })
         
@@ -1556,9 +1567,7 @@ export class DraftRenderingComponent implements OnInit {
       
       public deleteRow(i:number) {
         if(this.view_only) return;
-        
-        console.log("i ", i)
-        
+                
         const draft = this.tree.getDraft(this.id);
         const loom_settings = this.tree.getLoomSettings(this.id);
         let loom = this.tree.getLoom(this.id);
@@ -1692,9 +1701,7 @@ export class DraftRenderingComponent implements OnInit {
           this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
           .then(loom => {
             this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-            this.colShuttleMapping = draft.colShuttleMapping;
-            console.log("on drawdown updated called from draw on delete col")
-            
+            this.colShuttleMapping = draft.colShuttleMapping;            
             this.onDrawdownUpdated.emit(draft);
             
           })
@@ -1703,9 +1710,7 @@ export class DraftRenderingComponent implements OnInit {
           this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
           .then(draft => {
             this.redraw(draft, loom, loom_settings, {drawdown: true, loom:true, warp_systems: true, warp_materials:true});
-            this.colShuttleMapping = draft.colShuttleMapping;
-            console.log("on drawdown updated called from draw on delete col")
-            
+            this.colShuttleMapping = draft.colShuttleMapping;            
             this.onDrawdownUpdated.emit(draft);
             
           })
@@ -1835,7 +1840,6 @@ export class DraftRenderingComponent implements OnInit {
       public renderChange(){
         
         
-        this.rescale();     
         
       }
       

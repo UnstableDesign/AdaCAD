@@ -1,4 +1,4 @@
-<div class="draft-container origin{{ws.selected_origin_option}}"  id="draft-scale-container-{{source}}-{{id}}">
+<div class="draft-container {{source}} origin{{ws.selected_origin_option}}"  id="draft-scale-container-{{source}}-{{id}}">
 
     <app-selection
     #selection
@@ -8,14 +8,13 @@
     (forceRedraw)="redrawAll()"
     ></app-selection>
   
-  
     <div class="draft-top origin{{ws.selected_origin_option}}">
   
   
         <div class="warp-systems-container origin{{ws.selected_origin_option}}">
         
   
-          <div class="warp-systems-text origin{{ws.selected_origin_option}}"  id="warp-systems-text-{{source}}-{{id}}">
+          <div class="warp-systems-text {{source}} origin{{ws.selected_origin_option}}"  id="warp-systems-text-{{source}}-{{id}}">
               
             <div class="warp-system-col origin{{ws.selected_origin_option}}" 
                 [style.width.px] = "cell_size"
@@ -32,7 +31,7 @@
                   </span>       
               </div>
   
-              <div  class="warp_selectors">
+              <div  class="warp_selectors {{source}}">
                   <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
                     </span>
             
@@ -62,6 +61,7 @@
         </div>
   
         <div class="threading-tieup-container 
+        {{source}}
         origin{{ws.selected_origin_option}} 
         editable-{{dm.cur_draft_edit_source}}
         loomtype-{{selected_loom_type}}"
@@ -86,12 +86,13 @@
     editable-{{dm.cur_draft_edit_source}}" >
       
       <div class="drawdown-canvas">
-          <canvas class="drawdown-editor" id="drawdown-{{source}}-{{id}}">  </canvas>
+          <canvas class="drawdown-editor {{source}}" id="drawdown-{{source}}-{{id}}">  </canvas>
       </div>
 
 
       <div 
       class="treadling-container 
+      {{source}}
       loomtype-{{selected_loom_type}}
       treadling-canvas">
         <canvas class="treadling-editor" 
@@ -108,7 +109,7 @@
   
         <div class="weft-systems-container origin{{ws.selected_origin_option}}">
 
-          <div class="weft-systems-text origin{{ws.selected_origin_option}}" id="weft-systems-text-{{source}}-{{id}}">
+          <div class="weft-systems-text {{source}} origin{{ws.selected_origin_option}}" id="weft-systems-text-{{source}}-{{id}}">
 
             <div class="weft-system-row origin{{ws.selected_origin_option}}" 
             [style.height.px]="cell_size"
