@@ -199,6 +199,7 @@ export class PaletteComponent implements OnInit{
    clearComponents(){
     this.unsubscribeFromAll();
 
+    console.log("CLEARING NOTES ", this.notes)
     this.notes.getRefs().forEach(ref => this.removeFromViewContainer(ref));
 
     this.vc.clear();

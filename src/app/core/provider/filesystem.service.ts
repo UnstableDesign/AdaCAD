@@ -24,6 +24,7 @@ export class FilesystemService {
 
 
   private current_file_id: number = -1;
+  public current_file_name: string = '';
 
 
   connected: boolean = false;
@@ -241,7 +242,7 @@ export class FilesystemService {
     if(name === null || name === undefined) name = 'no name'; 
    
     this.setCurrentFileId(fileid);
-
+    this.current_file_name = name;
 
     const item = this.getLoadedFile(this.current_file_id);
     if(item == null){
@@ -280,7 +281,9 @@ export class FilesystemService {
     if(fileid === null || fileid == undefined) return; 
     if(newname === null || newname === undefined) newname = 'no name'; 
 
+    if(fileid == this.getCurrentFileId()) this.current_file_name = newname;
     const item = this.getLoadedFile(fileid);
+
     if(item == null){
         //this file is not currently loaded but we can still rename it
     }else{

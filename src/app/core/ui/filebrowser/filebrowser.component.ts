@@ -83,9 +83,11 @@ export class FilebrowserComponent implements OnInit {
     this.file_list = [];
     data.forEach(file => {
       this.file_list.push(file);
-      if(this.files.loaded_files.find(el => el.id == file.id) == undefined){
+      // if(this.files.loaded_files.find(el => el.id == file.id) == undefined){
+      //   this.unopened_filelist.push(file);
+      // }
         this.unopened_filelist.push(file);
-      }
+      
     })
   }
 

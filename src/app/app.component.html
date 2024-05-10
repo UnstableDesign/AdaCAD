@@ -60,7 +60,7 @@
           <button mat-menu-item (click)="undo()">Undo (ctrl-z)</button>
           <button mat-menu-item (click)="redo()" >Redo</button>
 
-          <!-- <button mat-menu-item >Select</button>
+         <button mat-menu-item >Select</button>
           <button mat-menu-item >Copy</button>
           <button mat-menu-item >Paste</button>
           <button mat-menu-item >Add Blank Draft</button>
@@ -191,6 +191,7 @@
      
      <app-viewer 
      #viewer
+     [id]="selected_editor_draft_id"
      class="static-container"
      (onClearWorkspace)="clearAll()"
      (onOpenMaterials)="openMaterials()"
@@ -241,7 +242,7 @@
     </div>
 
     <div class="footer-center">
-      <span>current workspace: {{filename}}.ada</span>  
+      <span>current workspace: {{files.current_file_name}}.ada</span>  
     
     <button 
       mat-icon-button  

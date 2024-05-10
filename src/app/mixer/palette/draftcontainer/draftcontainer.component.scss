@@ -45,7 +45,7 @@ button.output{
 	flex-direction: column;
 	min-width: 300px;
 	height: fit-content;
-	align-items: center;
+	align-items: flex-start;
 	padding: 0px 10px 0px 0px;
 }
 
@@ -137,9 +137,8 @@ h3{
 	position: relative;
 	align-items: center;
 	justify-content: center;
-	padding: 4px 15px 4px 15px;
 	border: none;
-	transform-origin: top left;
+	transform-origin: center;
 	background-color: transparent;
 }
 	

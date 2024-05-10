@@ -544,7 +544,6 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
       canvas.height = wefts(draft.drawdown)*cell_size * pixel_ratio;
       canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
       canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
-
       let img = getDraftAsImage(draft, cell_size*pixel_ratio, rf.use_floats, rf.use_colors, this.ms.getShuttles());
       draft_cx.putImageData(img, 0, 0);
       return Promise.resolve('');
@@ -625,6 +624,50 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     });
 
     
+  }
+
+
+  /**
+   * when the parent div is rescaled on zoom in and out, the container does not change size unless the canvases change size as well. 
+   * @param draft 
+   * @param factor 
+   * @param canvases 
+   */
+  rescale(draft: Draft, loom: Loom, factor: number, canvases: CanvasList){
+    let cell_size = this.calculateCellSize(draft);
+
+    canvases.drawdown.style.width = (warps(draft.drawdown)*cell_size* factor)+"px";
+    canvases.drawdown.style.height = (wefts(draft.drawdown)*cell_size* factor)+"px";
+
+    if(loom !== null){
+      let frames = numFrames(loom);
+      let treadles = numTreadles(loom);
+
+      canvases.threading.style.width =  (cell_size * loom.threading.length)*factor+ "px"
+      canvases.threading.style.height =  (cell_size * frames )*factor+ "px"
+
+      canvases.treadling.style.width = (cell_size * treadles)*factor + "px";
+      canvases.treadling.style.height = (cell_size * loom.treadling.length)*factor + "px";
+
+      canvases.tieup.style.width = (cell_size * treadles)*factor+ "px";
+      canvases.tieup.style.height = (cell_size *frames)*factor+ "px";
+
+
+    }
+
+    canvases.warp_mats.style.width = (draft.colShuttleMapping.length * cell_size)* factor+"px";
+    canvases.warp_mats.style.height =  defaults.draft_detail_cell_size* factor+"px";
+
+
+    canvases.warp_systems.style.width = (draft.colSystemMapping.length * cell_size* factor)+"px";
+    canvases.warp_systems.style.height =  defaults.draft_detail_cell_size* factor+"px";
+
+    canvases.weft_mats.style.height = (draft.rowSystemMapping.length * cell_size)*factor+"px";
+    canvases.weft_mats.style.width = defaults.draft_detail_cell_size*factor+"px";
+
+    canvases.weft_systems.style.height =(draft.rowShuttleMapping.length * cell_size)*factor+"px";
+    canvases.weft_systems.style.width =  defaults.draft_detail_cell_size*factor+"px";
+
   }
 
   

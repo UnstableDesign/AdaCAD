@@ -1,8 +1,8 @@
 
-canvas{
-    width: fit-content;
-    height: fit-content;
-  }
+// canvas{
+//     width: fit-content;
+//     height: fit-content;
+//   }
   
 .app-selection{
     display: block;
@@ -14,7 +14,20 @@ canvas{
     justify-content: flex-end;
   }
 
+    
+  .draft-top.viewer{
+    display: none;
+  }
 
+
+  .treadling-container.viewer,
+  .weft-systems-container.viewer, 
+  .weft-systems-canvas.viewer,
+  .weft-systems-container.viewer,
+  .weft-materials-canvas.viewer
+  {
+    display: none;
+  }
   
   
   .draft-top.origin3,
@@ -48,7 +61,8 @@ canvas{
     display: none !important;
   }
 
-  .treadling-container.mixer{
+  .treadling-container.mixer,
+  .treadling-container.viewer{
     display: none;
   }
   
@@ -149,7 +163,8 @@ canvas{
 
   
   .threading-tieup-container.loomtype-jacquard,
-  .threading-tieup-container.mixer
+  .threading-tieup-container.mixer,
+  .threading-tieup-container.viewer
   {
     display: none;  
   }
@@ -208,7 +223,8 @@ canvas{
     position: relative;
   }
 
-  .treadling-canvas.mixer{
+  .treadling-canvas.mixer,
+  .treadling-canvas.viewer{
     display: none;
   }
   
@@ -451,7 +467,8 @@ canvas{
     font-size: 14px;
   }
 
-  .warp-systems-text.mixer{
+  .warp-systems-text.mixer,
+  .warp-systems-text.viewer{
     display: none;
   }
   
@@ -634,7 +651,9 @@ canvas{
          color: hsl(348, 100%, 61%);
       }
 
-      .weft-systems-text.mixer{
+      .weft-systems-text.mixer,
+      .weft-systems-text.viewer
+      {
         display: none;
       }
       

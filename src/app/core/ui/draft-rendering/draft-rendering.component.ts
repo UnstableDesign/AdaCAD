@@ -29,7 +29,7 @@ export class DraftRenderingComponent implements OnInit {
   
   @ViewChild('bitmapImage') bitmap;
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
-  @Input('id') id: number;
+  @Input('id') id: number = -1;
   @Input('source') source: string;
   @Input('current_view') current_view: string;
   @Input('view_only') view_only: boolean;
@@ -173,8 +173,11 @@ export class DraftRenderingComponent implements OnInit {
     const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.source+'-'+this.id);
     const weft_systems_canvas =  <HTMLCanvasElement> document.getElementById('weft-systems-'+this.source+'-'+this.id);
     const weft_mats_canvas =  <HTMLCanvasElement> document.getElementById('weft-materials-'+this.source+'-'+this.id);
+    console.log("Looking for", 'drawdown-'+this.source+'-'+this.id)
+
     
-    
+    console.log("AFTER VIEW INIT ", canvasEl)
+
     
     this.canvases = {
       id: -1, 
@@ -928,13 +931,17 @@ export class DraftRenderingComponent implements OnInit {
       //this does not draw on canvas but just rescales the canvas
       public rescale(scale: number){
         
-        const container: HTMLElement = document.getElementById('draft-scale-container-'+this.source+'-'+this.id);
-        if(container == null){
-          console.log("Container is null ");
-        }else{
-          container.style.transformOrigin = 'top left';
-          container.style.transform = 'scale(' + scale + ')';
-        }
+        //const container: HTMLElement = document.getElementById('draft-scale-container-'+this.source+'-'+this.id);
+        // if(container == null){
+        //   console.log("Container is null ");
+        // }else{
+          // container.style.transformOrigin = 'top left';
+          // container.style.transform = 'scale(' + scale + ')';
+
+          const draft = this.tree.getDraft(this.id);
+          const loom = this.tree.getLoom(this.id);
+          this.render.rescale(draft, loom, scale, this.canvases)
+       // }
            
       }
       
@@ -1019,7 +1026,6 @@ export class DraftRenderingComponent implements OnInit {
       
       //takes inputs about what to redraw
       public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any) : Promise<boolean>{
-        
         this.colSystemMapping = draft.colSystemMapping;
         this.rowSystemMapping = draft.rowSystemMapping;
         

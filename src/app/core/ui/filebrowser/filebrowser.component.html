@@ -2,8 +2,8 @@
 cdkDrag
  cdkDragRootElement=".cdk-overlay-pane" 
  cdkDragHandle>
- <span *ngIf="data.selectOnly" >Load File From AdaCAD</span>
- <span *ngIf="!data.selectOnly">Manage Files</span>
+ <span *ngIf="data.selectOnly" >Load Workspaces From AdaCAD</span>
+ <span *ngIf="!data.selectOnly">Manage Workspaces</span>
 
 
 
@@ -137,6 +137,7 @@ cdkDrag
 
 
       <!-- HEADER ROW -->
+     <div class="browser_list">
       <div class="file-item-block">
         <div class="filename">
           Name
@@ -152,16 +153,17 @@ cdkDrag
 
 
 
-      <div  class="file-item-block" *ngFor="let file of unopened_filelist" >
+      <div  class="file-item-block" [class.current]="file.id == this.files.current_file_id" *ngFor="let file of unopened_filelist" >
           
             <div class="filename">
 
 
-                <mat-form-field *ngIf="rename_mode_id == file.id">
-                  <mat-label>Rename File</mat-label>
+                <mat-form-field *ngIf="rename_mode_id == file.id" appearance="outline">
+                  <mat-label>Rename Workspace</mat-label>
                  <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
 
                   <button 
+                  matSuffix
                   mat-icon-button 
                   [class.primary]="file.id == this.files.current_file_id" 
                   (click) = "rename(file.id)">
@@ -173,8 +175,7 @@ cdkDrag
                 </mat-form-field>
 
 
-                <span *ngIf="rename_mode_id !== file.id"
-                [class.current]="file.id == this.files.current_file_id" >  {{file.meta.name}}</span>
+                <span *ngIf="rename_mode_id !== file.id" >  {{file.meta.name}}</span>
 
             </div>
     
@@ -264,6 +265,7 @@ cdkDrag
       <div mat-line> {{folder.updated | date}} </div>
     </mat-list-item> -->
 
+  </div>
 
 
 </mat-dialog-content>

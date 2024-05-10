@@ -17,27 +17,36 @@ h3{
 }
 
 
+.browser_list{
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    gap: 10px;
+}
+
+
 .folder{
     display: flex;
     flex-direction: column;
 }
 
 .lastviewed{
-    width: 30%;
-    text-align: left;
+    flex: 0 1 95px;
+    justify-content: flex-end;
+
 }
 
 .filename{
-    width: 30%;
     text-align: left;
-    text-wrap: pretty;
+    justify-content: flex-start;
+    flex: 1 1 auto;
 }
 
 
 .file-item-block{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-evenly;
     width: 100%;
     align-items: center;
 }
@@ -47,13 +56,10 @@ h3{
 }
 
 
-.mat-mdc-form-field{
-    width: 100%;
-}
-
 .actions{
-    flex: 1 1 auto;
+    flex: 0 1 192px;
     display: flex;
+    justify-content: center;
     flex-direction: row;
     
     i{

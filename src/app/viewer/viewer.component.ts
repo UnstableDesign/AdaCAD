@@ -8,6 +8,7 @@ import { SimulationComponent } from './simulation/simulation.component';
 import { AuthService } from '../core/provider/auth.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { RenderService } from '../core/provider/render.service';
+import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 
 @Component({
   selector: 'app-viewer',
@@ -15,6 +16,9 @@ import { RenderService } from '../core/provider/render.service';
   styleUrls: ['./viewer.component.scss']
 })
 export class ViewerComponent {
+
+ @Input() id: number;
+
   @Output() onLoadBlankFile: any = new EventEmitter();
   @Output() onOpenEditor: any = new EventEmitter();
   @Output() onClearWorkspace: any = new EventEmitter();
@@ -26,8 +30,8 @@ export class ViewerComponent {
   @Output() onSave: any = new EventEmitter();
 
   @ViewChild(SimulationComponent) sim;
+  @ViewChild('view_rendering') view_rendering: DraftRenderingComponent;
 
-  id: number;
   draft_canvas: HTMLCanvasElement;
   draft_cx: any;
   pixel_ratio: number = 1;
@@ -116,8 +120,8 @@ getVisVariables(){
 
 
   centerScrollbars(){
-    let div = document.getElementById('static_draft_view');
-    let rect = document.getElementById('viewer-scale-container').getBoundingClientRect();
+    // let div = document.getElementById('static_draft_view');
+    // let rect = document.getElementById('viewer-scale-container').getBoundingClientRect();
     // div.scrollTop = div.scrollHeight/2;
     // div.scrollLeft = div.scrollWidth/2;
     // div.scrollTo({
@@ -198,20 +202,21 @@ getVisVariables(){
   renderChange(){
 
     if(this.id == -1) return;
-   const container =  document.getElementById('viewer-scale-container');
-    container.style.transform = 'scale('+this.zs.getViewerZoom()+')';
+    this.view_rendering.rescale(this.zs.getViewerZoom())
+
+  //  const container =  document.getElementById('viewer-scale-container');
+  //   container.style.transform = 'scale('+this.zs.getViewerZoom()+')';
    
 
-    //resize the canvas
-    this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
-    const pr = this.render.getPixelRatio(this.draft_canvas)
+  //   //resize the canvas
+  //   const pr = this.render.getPixelRatio(this.draft_canvas)
 
 
-    const draft:Draft = this.tree.getDraft(this.id);
+  //   const draft:Draft = this.tree.getDraft(this.id);
 
-    const base_dims = this.render.getBaseDimensions(draft, this.draft_canvas)
-    const scaled_width = this.zs.getViewerZoom() * base_dims.width;
-    const scaled_height = this.zs.getViewerZoom() * base_dims.height;
+  //   const base_dims = this.render.getBaseDimensions(draft, this.draft_canvas)
+  //   const scaled_width = this.zs.getViewerZoom() * base_dims.width;
+  //   const scaled_height = this.zs.getViewerZoom() * base_dims.height;
 
     // this.draft_canvas.width = scaled_width;
     // this.draft_canvas.height = scaled_height;
@@ -236,42 +241,16 @@ getVisVariables(){
     const draft:Draft = this.tree.getDraft(id);
     this.draft_name = getDraftName(draft);
 
-    this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
 
-    if(this.draft_canvas == null || this.draft_canvas == undefined) return Promise.resolve(false);
-
-
-
-    let canvases: CanvasList = {
-      id: this.id,
-      drawdown: this.draft_canvas,
-      threading: null,
-      tieup: null, 
-      treadling: null, 
-      warp_systems: null,
-      warp_mats: null,
-      weft_systems: null,
-      weft_mats: null
-    };
-
-
-    let flags: RenderingFlags = {
-      u_drawdown: true, 
-      u_threading: false,
-      u_tieups: false,
-      u_treadling: false,
-      u_warp_mats: false,
-      u_weft_mats: false,
-      u_warp_sys: false,
-      u_weft_sys: false,
+    let flags =  {
+      drawdown: true, 
       use_colors: (this.vis_mode == 'color'),
       use_floats: (this.vis_mode != 'draft'), 
       show_loom: false
-
     }
 
-    return this.render.drawDraft(draft, null, null,  canvases, flags).then(el => {
-      this.renderChange();
+    return this.view_rendering.redraw(draft, null, null, flags).then(el => {
+      this.view_rendering.rescale(this.zs.getViewerZoom())
       return Promise.resolve(true);
     })
 

@@ -65,8 +65,6 @@ export class AppComponent implements OnInit{
   
   loading: boolean;
 
-  filename: string = '';
-
   selected_origin: number;
   
   ui = {
@@ -554,7 +552,6 @@ export class AppComponent implements OnInit{
     this.clearAll();
     this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'new file', '')
     .then(res => {
-
       this.saveFile();
     });
   }
@@ -572,7 +569,6 @@ export class AppComponent implements OnInit{
         this.selected_editor_draft_id = id;
         this.editor.loadDraft(id);
         this.editor.onFocus();
-        this.filename = this.files.getCurrentFileName();
         this.onSetViewer(id, 'mixer');        
         this.saveFile();
 
@@ -866,7 +862,6 @@ prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>
   this.clearAll();
     return this.fs.loader.ada(name, id,desc, ada).then(lr => {
       this.loadNewFile(lr, 'prepAndLoad');
-      this.filename = name;
     });
 }
 

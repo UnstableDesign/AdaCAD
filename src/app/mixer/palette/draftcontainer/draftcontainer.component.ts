@@ -134,7 +134,11 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
     let flags = {
-      drawdown: true
+      drawdown: true,
+      warp_materials: true, 
+      warp_systems: true,
+      weft_materials: true, 
+      weft_systems: true
     }
 
 

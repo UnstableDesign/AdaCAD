@@ -9,7 +9,7 @@
     (forceRedraw)="redrawAll()"
     ></app-selection>
   
-    <div class="draft-top origin{{ws.selected_origin_option}}">
+    <div class="draft-top {{source}} origin{{ws.selected_origin_option}}">
   
   
         <div class="warp-systems-container origin{{ws.selected_origin_option}}">
@@ -90,7 +90,7 @@
           <canvas class="drawdown-editor {{source}}" id="drawdown-{{source}}-{{id}}">  </canvas>
       </div>
 
-
+      
       <div 
       class="treadling-container 
       {{source}}
@@ -100,15 +100,15 @@
         id="treadling-{{source}}-{{id}}"></canvas>
       </div>
         
-      <div class="weft-materials-canvas origin{{ws.selected_origin_option}}">
+      <div class="weft-materials-canvas {{source}} origin{{ws.selected_origin_option}}">
         <canvas id ="weft-materials-{{source}}-{{id}}" class="weft-materials">  </canvas>
       </div>
 
-      <div class="weft-systems-canvas origin{{ws.selected_origin_option}}">
+      <div class="weft-systems-canvas {{source}} origin{{ws.selected_origin_option}}">
         <canvas id="weft-systems-{{source}}-{{id}}" class="weft-systems">  </canvas>
         </div>
   
-        <div class="weft-systems-container origin{{ws.selected_origin_option}}">
+        <div class="weft-systems-container  {{source}} origin{{ws.selected_origin_option}}">
 
           <div class="weft-systems-text {{source}} origin{{ws.selected_origin_option}}" id="weft-systems-text-{{source}}-{{id}}">
 
