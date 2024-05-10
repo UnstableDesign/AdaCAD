@@ -11,7 +11,7 @@ import { createCell, getCellValue, setCellValue } from '../../../model/cell';
 import { MaterialsService } from '../../../provider/materials.service';
 import { SystemsService } from '../../../provider/systems.service';
 import { OperationService } from '../../../provider/operation.service';
-import { MatMenu } from '@angular/material/menu';
+
 @Component({
   selector: 'app-selection',
   templateUrl: './selection.component.html',
@@ -20,6 +20,7 @@ import { MatMenu } from '@angular/material/menu';
 export class SelectionComponent implements OnInit {
   
   @Input('id') id: number;
+  @Input('source') source: string;
   @Output() onSelectionEnd: any = new EventEmitter();
   @Output() forceRedraw: any = new EventEmitter();
 
@@ -49,6 +50,10 @@ export class SelectionComponent implements OnInit {
   
   selectionEl: HTMLElement = null;
   selectionContainerEl: HTMLElement = null;
+      
+   size_row: HTMLElement = null;
+   action_row: HTMLElement = null;
+  
   /**
   * reference to the parent div
   */
@@ -85,7 +90,13 @@ export class SelectionComponent implements OnInit {
   }
   
   ngAfterViewInit(){
-   
+    this.selectionEl = document.getElementById("selection-"+this.id);
+    this.selectionContainerEl = document.getElementById("selection-container-"+this.id);
+        
+    this.size_row = document.getElementById('size-row-id-'+this.id);
+    this.action_row = document.getElementById('action-row-id-'+this.id);
+    
+    
   }
   
   clearSelection(){
@@ -97,7 +108,6 @@ export class SelectionComponent implements OnInit {
   
   
   designActionChange(action : string){
-    console.log("DESIGN ACTION SELECTED ", action)
 
     switch(action){
       
@@ -154,7 +164,6 @@ export class SelectionComponent implements OnInit {
    */
   public copyArea() {
 
-    console.log("COPY AREA ", this)
     this.has_copy = true;
 
     const draft = this.tree.getDraft(this.id);
@@ -166,33 +175,32 @@ export class SelectionComponent implements OnInit {
     var w = this.getWidth();
     var h = this.getHeight();
 
-    console.log("DIMS ", screen_i, draft_j, w, h)
 
    // const copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[createCell(false)]]}).drawdown;
     const temp_copy: Array<Array<boolean>> = [];
 
-    if(this.getTargetId() === 'weft-systems-editor'){
+    if(this.getTargetId() === 'weft-systems-'+this.source+"-"+this.id){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
         for(var j = 0; j < this.ss.weft_systems.length; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.getTargetId()=== 'warp-systems-editor'){
+    }else if(this.getTargetId()=== 'warp-systems-'+this.source+"-"+this.id){
       for(var i = 0; i < this.ss.warp_systems.length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.getTargetId()=== 'weft-materials-editor'){
+    }else if(this.getTargetId()=== 'weft-materials-'+this.source+"-"+this.id){
       for(var i = 0; i < h; i++){
         temp_copy.push([]);
         for(var j = 0; j < this.ms.getShuttles().length; j++){
           temp_copy[i].push(false);
         }
       }
-    }else if(this.getTargetId() === 'warp-materials-editor'){
+    }else if(this.getTargetId() === 'warp-materials-'+this.source+"-"+this.id){
       for(var i = 0; i < this.ms.getShuttles().length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
@@ -217,29 +225,29 @@ export class SelectionComponent implements OnInit {
         var col = draft_j + j;
 
         switch(this.getTargetId()){
-          case 'drawdown-editor':
+          case 'drawdown-'+this.source+"-"+this.id:
             temp_copy[i][j]= isUp(draft.drawdown, draft_row, col);
           break;
-          case 'threading-editor':
+          case 'threading-'+this.source+"-"+this.id:
              temp_copy[i][j]= (loom.threading[col] === screen_row);
 
           break;
-          case 'treadling-editor':
+          case 'treadling-'+this.source+"-"+this.id:
             temp_copy[i][j] = (loom.treadling[screen_row].find(el => el === col) !== undefined);
           break;
-          case 'tieups-editor':
+          case 'tieups-'+this.source+"-"+this.id:
               temp_copy[i][j] = loom.tieup[screen_row][col];
           break;  
-          case 'warp-systems-editor':
+          case 'warp-systems-'+this.source+"-"+this.id:
             temp_copy[i][j]= (draft.colSystemMapping[col] == i);
           break;
-          case 'weft-systems-editor':
+          case 'weft-systems-'+this.source+"-"+this.id:
             temp_copy[i][j]= (draft.rowSystemMapping[draft_row] == j);
           break;
-          case 'warp-materials-editor':
+          case 'warp-materials'+this.source+"-"+this.id:
             temp_copy[i][j]= (draft.colShuttleMapping[col] == i);
           break;
-          case 'weft-materials-editor':
+          case 'weft-materials'+this.source+"-"+this.id:
             temp_copy[i][j]= (draft.rowShuttleMapping[draft_row] == j);
           break;
           default:
@@ -391,7 +399,7 @@ export class SelectionComponent implements OnInit {
       this.copy = manipulated_copy;
 
     switch(this.getTargetId()){    
-      case 'drawdown-editor':
+      case 'drawdown-'+this.source+"-"+this.id:
         draft.drawdown = pasteIntoDrawdown(
           draft.drawdown, 
           this.copy, 
@@ -409,7 +417,7 @@ export class SelectionComponent implements OnInit {
         });
        break;
 
-      case 'threading-editor':
+      case 'threading-'+this.source+"-"+this.id:
         loom_util.pasteThreading(loom, this.copy, {i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null}, this.getWidth(), this.getHeight());
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
@@ -417,7 +425,7 @@ export class SelectionComponent implements OnInit {
           this.forceRedraw.emit();
         });
         break;
-      case 'tieups-editor':
+      case 'tieups-'+this.source+"-"+this.id:
         
         loom_util.pasteTieup(loom,this.copy, {i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null}, this.getWidth(), this.getHeight());
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
@@ -426,7 +434,7 @@ export class SelectionComponent implements OnInit {
           this.forceRedraw.emit();        
         });
         break;
-      case 'treadling-editor':
+      case 'treadling-'+this.source+"-"+this.id:
 
         loom_util.pasteTreadling(loom, this.copy, {i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null}, this.getWidth(), this.getHeight());
         
@@ -438,7 +446,7 @@ export class SelectionComponent implements OnInit {
         });
         break;
 
-      case 'warp-systems-editor':
+      case 'warp-systems-'+this.source+"-"+this.id:
 
          pattern = []; 
           for(let j = 0; j < this.copy[0].length; j++){
@@ -459,7 +467,7 @@ export class SelectionComponent implements OnInit {
             this.forceRedraw.emit();
 
           break;
-      case 'warp-materials-editor':
+      case 'warp-materials-'+this.source+"-"+this.id:
 
         pattern = []; 
         for(let j = 0; j < this.copy[0].length; j++){
@@ -481,7 +489,7 @@ export class SelectionComponent implements OnInit {
 
         break;
 
-        case 'weft-systems-editor':
+        case 'weft-systems-'+this.source+"-"+this.id:
 
           pattern = []; 
           for(let i = 0; i < this.copy.length; i++){
@@ -503,7 +511,7 @@ export class SelectionComponent implements OnInit {
 
           break;
 
-          case 'weft-materials-editor':
+          case 'weft-materials-'+this.source+"-"+this.id:
           
             pattern = []; 
             for(let i = 0; i < this.copy.length; i++){
@@ -564,19 +572,23 @@ export class SelectionComponent implements OnInit {
   * given the target of a mouse event, check if it is currently enabled (as indicated by the drawdown editing style)
   */
   isTargetEnabled(target: string):boolean{
+
+    console.log("CHECK IF SOURCE IS ENABLED for SElect", this.source, this.target)
+
+
     const editing_mode = this.dm.cur_draft_edit_source;
     const loom_settings = this.tree.getLoomSettings(this.id);
     switch(target){
-      case 'treadling-editor':    
-      case 'threading-editor':
+      case 'treadling-'+this.source+"-"+this.id:    
+      case 'threading-'+this.source+"-"+this.id:
       if(this.dm.cur_draft_edit_source === "drawdown") return false;
       break;
-      case 'tieups-editor':
+      case 'tieups-'+this.source+"-"+this.id:
       if(this.dm.cur_draft_edit_source === "drawdown") return false;
       if(loom_settings.type === "direct") return false;
       break;
       
-      case 'drawdown-editor':
+      case 'drawdown'+this.source+"-"+this.id:
       if(this.dm.cur_draft_edit_source  === "loom") return false;
       break;
     }
@@ -593,36 +605,36 @@ export class SelectionComponent implements OnInit {
   updateActions(target: string){
     
     switch(target){
-      case 'drawdown-editor':
+      case 'drawdown-'+this.source+"-"+this.id:
       this.design_actions = paste_options.filter(opt => opt.drawdown == true);
       break;
 
 
-      case 'threading-editor':
+      case 'threading-'+this.source+"-"+this.id:
       this.design_actions = paste_options.filter(opt => opt.threading == true);
       break;
 
 
-      case 'tieups-editor':
+      case 'tieups-'+this.source+"-"+this.id:
       this.design_actions = paste_options.filter(opt => opt.tieups == true);
       break;
 
 
-      case 'treadling-editor':    
+      case 'treadling-'+this.source+"-"+this.id:    
       this.design_actions = paste_options.filter(opt => opt.treadling == true);
       break;
 
 
       
-      case 'weft-system-editor':
-      case 'warp-systems-editor':
+      case 'weft-system-'+this.source+"-"+this.id:
+      case 'warp-systems-'+this.source+"-"+this.id:
         this.design_actions = paste_options.filter(opt => opt.systems == true);
         break;
 
 
 
-      case 'weft-materials-editor':  
-      case 'warp-materials-editor':
+      case 'weft-materials-'+this.source+"-"+this.id:  
+      case 'warp-materials-'+this.source+"-"+this.id:
         this.design_actions = paste_options.filter(opt => opt.systems == true);
         break;
 
@@ -638,6 +650,8 @@ export class SelectionComponent implements OnInit {
   */
   onSelectStart(target: HTMLElement, start: Interlacement){
     if(!target) return;
+
+
     
     this.hide_actions = true;
     const draft = this.tree.getDraft(this.id);
@@ -651,23 +665,17 @@ export class SelectionComponent implements OnInit {
 
     this.updateActions(this.target.id);
     
-    this.selectionEl = document.getElementById("selection");
-    this.selectionContainerEl = document.getElementById("selection-container");
-    
     this.target.parentNode.appendChild( this.selectionContainerEl);
-    
+
     //pad the selection container to match the padding of the parent. 
     var style = window.getComputedStyle(this.target.parentElement);
     var matrix = new WebKitCSSMatrix(style.transform);
-    
-    const size_row = document.getElementById('size-row-id');
-    const action_row = document.getElementById('action-row-id');
-    
+
     
     //make sure the transform is applied to correct the origination of the text and action icons
     this.selectionContainerEl.style.padding = style.padding;
-    if(size_row !== null) size_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
-    if(action_row !== null) action_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
+    if(this.size_row !== null) this.size_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
+    if(this.action_row !== null) this.action_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
     
     
     
@@ -678,30 +686,31 @@ export class SelectionComponent implements OnInit {
     this.start = start;
     this.hide_parent = false;
     
+    console.log("TARGET ID ", target.id)
     switch(target.id){
       
-      case 'treadling-editor':    
+      case 'treadling-'+this.source+"-"+this.id:    
       this.width =  Math.max(numTreadles(loom), loom_settings.treadles);
       break;
       
-      case 'threading-editor':
+      case 'threading-'+this.source+"-"+this.id:
       this.height = Math.max(numFrames(loom), loom_settings.frames);
       break;
       
-      case 'weft-system-editor':
-      case 'weft-materials-editor':
+      case 'weft-system-'+this.source+"-"+this.id:
+      case 'weft-materials-'+this.source+"-"+this.id:
       this.width = 1;
       break;
       
-      case 'warp-systems-editor':
-      case 'warp-materials-editor':
+      case 'warp-systems-'+this.source+"-"+this.id:
+      case 'warp-materials-'+this.source+"-"+this.id:
       this.height = 1;
       break;
       
-      case 'drawdown-editor':
-      
+      case 'drawdown-'+this.source+"-"+this.id:
+        console.log("LINKED WITH CASE "+'drawdown-'+this.source+"-"+this.id)
       break;
-      case 'tieups-editor':
+      case 'tieups-'+this.source+"-"+this.id:
       break;
       
     }
@@ -747,12 +756,12 @@ export class SelectionComponent implements OnInit {
     
     switch(this.target.id){
       
-      case 'treadling-editor':    
+      case 'treadling-'+this.source+"-"+this.id:    
       this.end.i = pos.i;
       this.end.si = pos.si;
       break;
       
-      case 'threading-editor':
+      case 'threading-'+this.source+"-"+this.id:
       this.end.j = pos.j;
       break;
       
@@ -848,8 +857,8 @@ export class SelectionComponent implements OnInit {
   
   
   unsetParameters() {
-    
-    
+    if(this.target !== null && this.target !== undefined) this.target.parentNode.removeChild( this.selectionContainerEl);
+
     this.has_selection = false;
     this.width = -1;
     this.height = -1;

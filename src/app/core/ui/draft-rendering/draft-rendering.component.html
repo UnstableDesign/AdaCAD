@@ -2,8 +2,9 @@
 
     <app-selection
     #selection
-    id="app-selection"
+    class="app-selection"
     [id]="id"
+    [source]="source"
     (onSelectionEnd)="onSelectionEnd()"
     (forceRedraw)="redrawAll()"
     ></app-selection>

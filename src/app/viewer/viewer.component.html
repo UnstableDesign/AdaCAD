@@ -116,12 +116,12 @@
 
 
 
-  <button  
-  mat-flat-button  
-  (click)="openEditor()"
-  matTooltip="edit this draft">
-  <i class="fa-solid fa-pen-to-square"></i> 
-  </button>
+      <button  
+      mat-flat-button  
+      (click)="openEditor()"
+      matTooltip="edit this draft">
+      <i class="fa-solid fa-pen-to-square"></i> 
+      </button>
 
 
       <button  
@@ -208,24 +208,31 @@
       </mat-panel-title>
   </mat-expansion-panel-header>
 
-
+<!-- 
   <button  mat-flat-button [matMenuTriggerFor]="clearWorkspaceMenu" ><i class="fa-solid fa-eraser"></i> Clear Workspace</button>
   <mat-menu #clearWorkspaceMenu="matMenu">
     <button mat-menu-item (click)="clearWorkspace()">are you sure?</button>
   </mat-menu>   
+ -->
 
 
-
-      <button  
-      mat-flat-button
+ <div class="quicklinks">
+    <button 
+      class="fullwidth"
+      mat-raised-button
       (click)="openMaterials()">
       <i class="fa-solid fa-palette"></i> Manage Materials
     </button> 
 
-       <button  mat-flat-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
 
-       <button  mat-flat-button (click)="openHelpDialog()"><i class="fa-solid fa-question"></i> Get Help</button> 
 
+       <button  mat-raised-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
+
+
+       <button  mat-raised-button (click)="openHelpDialog()"><i class="fa-solid fa-question"></i> Get Help</button> 
+
+
+      </div>
 
   </mat-expansion-panel>
 

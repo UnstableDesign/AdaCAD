@@ -27,6 +27,7 @@ export class DraftContainerComponent {
   @Output() onDeleteCalled = new EventEmitter();
   @Output() onSelectCalled = new EventEmitter();
   @Output() onOpenInEditor = new EventEmitter();
+  @Output() onRecomputeChildren = new EventEmitter();
   @ViewChild('bitmapImage') bitmap: any;
   @ViewChild('draftRendering') draft_rendering: DraftRenderingComponent;
 
@@ -88,13 +89,12 @@ export class DraftContainerComponent {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['dirty']) {
-      if(this.dm.isSelectedDraftEditSource('drawdown')) return;
+      // if(this.dm.isSelectedDraftEditSource('drawdown')) return;
 
       let draft = this.tree.getDraft(this.id);
       if(draft == undefined) draft = initDraft();
     
      if(this.draft_rendering !== undefined) this.draft_rendering.onNewDraftLoaded(this.id);
-     else console.log("Draft rendering underfined on mixer", this.id)
       
       this.ud_name = getDraftName(draft);
       this.warps = warps(draft.drawdown);
@@ -173,7 +173,11 @@ export class DraftContainerComponent {
     )
   }
 
-
+  drawdownUpdated(){
+    if(!this.tree.hasParent(this.id)){
+     this.onRecomputeChildren.emit({event: 'edit', id: this.id});
+    }
+  }
     /**
    * Draws to hidden bitmap canvas a file in which each draft cell is represented as a single pixel. 
    * @returns 

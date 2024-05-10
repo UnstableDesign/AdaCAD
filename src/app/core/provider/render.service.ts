@@ -126,13 +126,15 @@ draft_cell_size: number;
         system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
         let color = this.ms.getColor(draft.rowShuttleMapping[j]);
         weft_mats_cx.fillStyle = color;
+        weft_mats_cx.strokeStyle = "#666666";
         weft_mats_cx.fillRect(1, j* cell_size*pixel_ratio+1,  defaults.draft_detail_cell_size*pixel_ratio-2,  cell_size*pixel_ratio-2);
+        weft_mats_cx.strokeRect(1, j* cell_size*pixel_ratio+1,  defaults.draft_detail_cell_size*pixel_ratio-2,  cell_size*pixel_ratio-2);
         
         weft_systems_cx.font = 1.5*cell_size+"px Arial";
         weft_systems_cx.fillStyle = "#666666";
 
         weft_systems_cx.save();
-        weft_systems_cx.translate(5,  (j+1)*cell_size*pixel_ratio - 10);
+        weft_systems_cx.translate(10,  (j+1)*cell_size*pixel_ratio - 10);
         let tx = this.getTransform('weft-systems');
         weft_systems_cx.transform(tx[0], tx[1], tx[2], tx[3], tx[4], tx[5]);
         weft_systems_cx.textAlign = "center";
@@ -184,8 +186,9 @@ draft_cell_size: number;
       
         //cell_size *= this.pixel_ratio
         warp_mats_cx.fillStyle = color;
+        warp_mats_cx.strokeStyle = "#666666";
         warp_mats_cx.fillRect(j* cell_size*pixel_ratio+1, 1,  cell_size*pixel_ratio-2,  defaults.draft_detail_cell_size*pixel_ratio-2);
-        
+        warp_mats_cx.strokeRect(j* cell_size*pixel_ratio+1, 1,  cell_size*pixel_ratio-2,  defaults.draft_detail_cell_size*pixel_ratio-2);
         //need to flip this on certain origins. 
         warp_systems_cx.font = 1.5*cell_size+"px Arial";
         warp_systems_cx.fillStyle = "#666666";

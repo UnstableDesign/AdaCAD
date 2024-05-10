@@ -150,7 +150,11 @@ export class EditorComponent implements OnInit {
     * placholder for any code we need to run when we focus on this view
     */
     onFocus()  {
+      if(this.id != -1){
+        this.loadDraft(this.id);
+      }
       this.renderChange();
+
     }
     
     onClose(){

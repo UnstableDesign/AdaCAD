@@ -274,6 +274,10 @@ onFocus(edited_draft_id: number){
 
   Promise.all(fns);
 
+  //DO TO MAKE SURE USERS CAN TOGGLE ON MIXER DRAFTS
+  this.dm.selectDraftEditingMode('draw');
+  this.dm.selectPencil('toggle');
+
 }
 
 /**

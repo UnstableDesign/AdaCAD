@@ -292,7 +292,7 @@ handlePan(diff: Point){
 
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
     const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
-    const functions: Array<Promise<any>> = visible_drafts.map(el => el.draft_rendering.saveAsBmp());
+    const functions: Array<Promise<any>> = visible_drafts.map(el => el.draftcontainer.saveAsBmp());
     return Promise.all(functions).then(el =>
       console.log("Downloaded "+functions.length+" files")
     );
@@ -1485,23 +1485,19 @@ calculateInitialLocation() : Point {
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
 
+
   this.tree.getOpNode(op_id).dirty = true;
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
   const all_ops = this.tree.getDownstreamOperations(op_id).concat(op_id);
 
   return this.tree.performGenerationOps([op_id])
   .then(draft_ids => {
-
     all_ops.forEach(op =>{
       let children = this.tree.getNonCxnOutputs(op);
       (<OperationComponent> this.tree.getComponent(op)).updateChildren(children);
     })
 
 
-    const fns = this.tree.getDraftNodes()
-      .filter(el => el.component !== null && el.dirty)
-      .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
-       
   }).then(el => {
     const loads =[];
     const new_cxns = this.tree.nodes.filter(el => el.type === 'cxn' && el.component === null);   
@@ -1547,7 +1543,7 @@ updateDownstream(subdraft_id: number) {
 
     const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
-      .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
+      .map(el => (<SubdraftComponent> el.component).draftcontainer.drawDraft((<DraftNode>el).draft));
 
 
 
@@ -2194,6 +2190,7 @@ pasteConnection(from: number, to: number, inlet: number){
    * @returns 
    */
   onSubdraftAction(obj: any){
+    console.log("palette -  action ", obj);
 
     if(obj === null) return;
 
@@ -2201,7 +2198,6 @@ pasteConnection(from: number, to: number, inlet: number){
     const fns = outputs.map(out => this.performAndUpdateDownstream(out));
     Promise.all(fns).then(el => {
       this.addTimelineState();
-      this.changeDesignmode('move')
     })
 
 
