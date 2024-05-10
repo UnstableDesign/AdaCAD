@@ -609,9 +609,6 @@ export class AppComponent implements OnInit{
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string){
-
-    //this file is already open in a different tab window 
-   // if(this.files.getLoadedFile(result.id) !== null){
   
    this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
    .then(res => {
@@ -629,25 +626,6 @@ export class AppComponent implements OnInit{
           this.selected_editor_mode = 'mixer'
        }
       });
-    // }else{
-    //   this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
-    //   .then(res => {
-    //     return this.processFileData(result.data)
-    //   }).then(data => {
-    //     if(this.tree.nodes.length > 0){
-    //       this.selected_editor_mode = 'mixer';
-    //     }else{
-    //       this.selected_editor_mode = 'draft';
-    //     }
-    //       this.filename = result.name;
-    //       this.saveFile();
-    //   }).catch(e => {
-    //     console.log(e, "CAUGHT ERROR through from process file data")
-    //   });
-    //}
-
-
-
     
   }
 
@@ -901,8 +879,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
   let entry_mapping = [];
 
 
-  this.updateOrigin(this.ws.selected_origin_option)
-
   //start processing images first thing 
   const images_to_load = [];
   
@@ -1085,6 +1061,9 @@ async processFileData(data: FileObj) : Promise<string|void>{
   .then(res => {
     // this.palette.rescale(data.scale);
     this.loading = false;
+    this.updateOrigin(this.ws.selected_origin_option);
+    this.mixer.refreshOperations();
+  
     return Promise.resolve('alldone')
   })
   .catch(e => {

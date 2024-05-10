@@ -21,6 +21,7 @@ import { ZoomService } from '../core/provider/zoom.service';
 import { map, startWith } from 'rxjs/operators';
 import { OperationService } from '../core/provider/operation.service';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
+import { Observable } from 'rxjs';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -67,7 +68,7 @@ export class MixerComponent  {
 
   classifications: any = [];
   op_tree: any = [];
-  filteredOptions: any = [];
+  filteredOptions: Observable<any>;
   myControl: FormControl;
   search_error: any; 
 
@@ -106,6 +107,7 @@ export class MixerComponent  {
 
 
   ngOnInit(){
+
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
@@ -167,8 +169,29 @@ export class MixerComponent  {
   }
 
 
+  /**
+   * adds the first of the filtered list of operations to the workspace
+   */
+  public enter(){
+
+    const value = this.myControl.value.toLowerCase();
+
+    //run the filter function again without the classification titles
+    let tree = this.op_tree.reduce((acc, classification) => {
+        return acc.concat(classification.ops
+          .filter(option => option.display_name.toLowerCase().includes(value)));
+    }, []);
+
+    if(tree.length > 0) this.addOp(tree[0].name);
+
+    this.myControl.setValue('');
+
+
+  }
+
 
   private _filter(value: string): any[] {
+
     const filterValue = value.toLowerCase();
 
     let tree =  this.op_tree.map(classification => {
@@ -214,6 +237,8 @@ addOperation(name: string){
   if(outputs.length > 0) this.onDraftFocused.emit(outputs[0]);
   //focus this is the detail view
 }
+
+
 
 onRefreshViewer(){
   this.refreshViewer.emit();
