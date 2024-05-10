@@ -250,9 +250,7 @@ export class DraftRenderingComponent implements OnInit {
   
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {  
-    
-    console.log("ON DRAFT LOAD in Rendering ", id, this.tree.nodes)
-    
+        
     this.id = id;  
     
     if(id == -1) return;
@@ -317,8 +315,6 @@ export class DraftRenderingComponent implements OnInit {
   * @param currentPos the position of the click within the target
   */
   setPosAndDraw(target:HTMLElement, shift: boolean, currentPos:Interlacement){
-
-    console.log("SET POS ", this.view_only)
     
     if(this.view_only) return;
     
@@ -399,9 +395,9 @@ export class DraftRenderingComponent implements OnInit {
       
       
       if(!event.target) return;
-      console.log("__________________________________ ")
-      console.log("EVENT TARGET ID ", event.target.id)
-      console.log("POS: ", event.offsetY, currentPos)
+      // console.log("__________________________________ ")
+      // console.log("EVENT TARGET ID ", event.target.id)
+      // console.log("POS: ", event.offsetY, currentPos)
   
       
       

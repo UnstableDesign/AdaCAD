@@ -11,13 +11,20 @@ cdkDrag
 
 <mat-dialog-content class="filebrowser">
 
-  <button mat-raised-button (click)="createBlankFile()">Create A New File</button>
+  <!-- <button mat-raised-button (click)="createBlankFile()">Create A New File</button>
 
+  <button mat-raised-button (click)="createBlankFile()">Open a .ada File</button>
+
+  <button mat-raised-button (click)="createBlankFile()">Open a .wif File</button>
+
+  <button mat-raised-button (click)="createBlankFile()">Open a Bitmap Image</button>
+
+  <button mat-raised-button (click)="createBlankFile()">Open Multiple Bitmap Images</button> -->
 
 
       <!-- files-->
   <div *ngIf="!auth.isLoggedIn">
-    <button mat-flat-button  color="primary" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
+    <button mat-flat-button  color="primary" matTooltip="login" (click)="openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
   </div>
 
 
@@ -27,10 +34,8 @@ cdkDrag
   </ng-container>
 
 
-    <ng-container *ngIf="auth.isLoggedIn && files.connected">
+    <!-- <ng-container *ngIf="auth.isLoggedIn && files.connected">
 
-
-      <!-- begin loaded files section -->
 
       <h3> Loaded Files</h3>
 
@@ -48,7 +53,6 @@ cdkDrag
       </div>
 
 
-      <!-- display loaded files -->
       <div  class="file-item-block current" *ngFor="let file of files.loaded_files">
           
         <div class="filename">
@@ -81,13 +85,12 @@ cdkDrag
         <div class="lastviewed"> {{formatDate(file.last_saved_time)}} </div>
 
 
-          <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
+           <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
 
 
-        <div class="actions"> 
+        <!-- <div class="actions"> 
 
         
-
           <button 
           mat-icon-button 
           matListItemIcon
@@ -127,7 +130,7 @@ cdkDrag
 
           
   
-  </div>
+  </div> -->
 
 
     <h3> Files Saved on AdaCAD Server</h3>
@@ -170,13 +173,8 @@ cdkDrag
                 </mat-form-field>
 
 
-                <button *ngIf="rename_mode_id !== file.id"
-                mat-raised-button
-                [class.primary]="file.id == this.files.current_file_id" 
-                (click) = openFile(file.id)
-                class="file_name">
-                 {{file.meta.name}}
-                </button>
+                <span *ngIf="rename_mode_id !== file.id"
+                [class.current]="file.id == this.files.current_file_id" >  {{file.meta.name}}</span>
 
             </div>
     
@@ -188,7 +186,15 @@ cdkDrag
 
 
             <div class="actions"> 
-
+              <button 
+              [disabled]="file.id ==this.files.current_file_id"
+              mat-icon-button 
+              matListItemIcon
+              matTooltip="open this file"
+              (click)="openFile(file.id)"
+              ><i class="fas fa-folder-open"></i>
+            </button>
+    
             
 
               <button 
@@ -212,6 +218,8 @@ cdkDrag
           
               <button 
               mat-icon-button 
+              [disabled]="file.id ==this.files.current_file_id"
+
               [matMenuTriggerFor]="deleteConfirm"
               >
               <i class="fa-solid fa-trash"></i>
@@ -219,8 +227,7 @@ cdkDrag
 
               <mat-menu #deleteConfirm>
                 <button 
-                mat-icon-button 
-                matListItemIcon
+                mat-flat-button
                 (click) = "remove(file.id)"
                 >
                   Are you sure?
@@ -237,7 +244,6 @@ cdkDrag
               
       
       </div>
-    </ng-container>
 
        
 

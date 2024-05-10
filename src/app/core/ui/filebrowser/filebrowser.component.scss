@@ -9,20 +9,13 @@ h3{
     font-weight: bold;
 }
 
-.file-browser{
+.filebrowser{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     width: max-content;
 }
 
-.mat-mdc-outlined-button{
-     margin: 4px 0px;
-}
-
-
-.mat-mdc-icon-button{
-    font-size: 14px;
-    position: relative;
-    top: 0px;
-  }
 
 .folder{
     display: flex;
@@ -30,27 +23,22 @@ h3{
 }
 
 .lastviewed{
-    width: 25%;
+    width: 30%;
     text-align: left;
 }
 
 .filename{
-    width: 50%;
+    width: 30%;
     text-align: left;
     text-wrap: pretty;
 }
 
-.actions{
-    width: 25%;
-}
 
 .file-item-block{
-    font-size: .8em;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
-    padding: 4px 0px;
     align-items: center;
 }
 
@@ -59,15 +47,20 @@ h3{
 }
 
 
-.actions{
-    display: flex;
-    flex-direction: row;
-    color: grey;
-}
-
 .mat-mdc-form-field{
     width: 100%;
 }
+
+.actions{
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    
+    i{
+        font-size: .6em;
+    }
+}
+
 
 
 
@@ -90,28 +83,5 @@ h3{
 
 .accent{
     color:#ff4081;
-}
-
-.details .mat-mdc-button{
-    height: fit-content !important;
-    display: flex;
-    flex-direction: column;
-
-}
-
-/* TODO(mdc-migration): The following rule targets internal classes of button that may no longer apply for the MDC version.*/
-.details .mat-button-wrapper{
-    display: flex;
-    white-space:normal;
-    text-overflow: clip ;
-    overflow-wrap: anywhere;
-    overflow: hidden;
-    line-height: 1em;
-    width: inherit;
-}
-
-.details .mat-mdc-icon-button{
-    width: 30px;
-    height: 30px;
 }
 

@@ -224,6 +224,7 @@
       <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
       <button  
       mat-icon-button 
+      [disabled]="ss.undo_disabled"
       matTooltip="undo"
       (click)="undo()" >
       <i class="fa-solid fa-rotate-left"></i>
@@ -231,8 +232,9 @@
 
       <button  
       mat-icon-button 
+      [disabled]="ss.redo_disabled"
       matTooltip="redo"
-      (click)="redo">
+      (click)="redo()">
       <i class="fa-solid fa-rotate-right"></i>
       </button>
 

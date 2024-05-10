@@ -99,7 +99,7 @@ export class AppComponent implements OnInit{
     public auth: AuthService,
     private dialog: MatDialog,
     private dm: DesignmodesService,
-    private ss: StateService,
+    public ss: StateService,
     @Optional() private fbauth: Auth,
     public files: FilesystemService,
     private fs: FileService,
@@ -300,6 +300,7 @@ export class AppComponent implements OnInit{
       this.createNewDraftOnMixer(draft, loom, loom_settings).then(id => {
         this.selected_editor_draft_id = id;
         this.editor.loadDraft(id);
+        this.saveFile();
   
       })
     }
@@ -329,7 +330,7 @@ export class AppComponent implements OnInit{
      let loom_util = getLoomUtilByType(loom_settings.type);
       return loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
       .then(loom => {
-        return this.createNewDraftOnMixer(draft, loom, loom_settings)});
+        return this.createNewDraftOnMixer(draft, loom, loom_settings)})
     
     }
 
@@ -396,6 +397,8 @@ export class AppComponent implements OnInit{
       .then( data => {
         this.mixer.changeDesignmode('move')
         this.clearAll();
+
+        
   
         console.log("imported new file", result, result.data)
         })
@@ -504,11 +507,8 @@ export class AppComponent implements OnInit{
 
   insertPasteFile(result: LoadResponse){
     this.processFileData(result.data).then(data => {
-      this.mixer.changeDesignmode('move');
       this.saveFile();
-
     }
-
     ).catch(console.error);
   }
 
@@ -536,22 +536,6 @@ export class AppComponent implements OnInit{
 
   }
 
-  async switchFile(id: any){
-    
-    let loaded: LoadedFile = this.files.getLoadedFile(id);
-
-    if(loaded == null) return;
-    let so: SaveObj = loaded.ada;
-
-    if(so === null || so === undefined) return;
-    
-    this.clearAll();
-    this.fs.loader.ada(loaded.name, loaded.id,loaded.desc, so).then(lr => {
-      this.loadNewFile(lr);
-    });
-
-  
-  }
 
   //must be online
   async loadFromDB(fileid: number){
@@ -585,8 +569,10 @@ export class AppComponent implements OnInit{
         this.editor.loadDraft(id);
         this.editor.onFocus();
         this.filename = this.files.getCurrentFileName();
+        this.onSetViewer(id, 'mixer');        
+        this.saveFile();
+
       })
-      this.saveFile();
     });
 
     
@@ -607,7 +593,7 @@ export class AppComponent implements OnInit{
       this.clearAll();
       return this.fs.loader.ada(name, -1, '', res.body)
      .then(loadresponse => {
-       this.loadNewFile(loadresponse)
+       this.loadNewFile(loadresponse, 'loadURL')
      });
     }); 
   }
@@ -618,37 +604,42 @@ export class AppComponent implements OnInit{
   /**
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
-  loadNewFile(result: LoadResponse){
+  loadNewFile(result: LoadResponse, source: string){
 
     //this file is already open in a different tab window 
-    if(this.files.getLoadedFile(result.id) !== null){
+   // if(this.files.getLoadedFile(result.id) !== null){
       this.files.setCurrentFileId(result.id);
       this.processFileData(result.data)
       .then(data => {
 
-        if(this.tree.nodes.length > 0){
-          this.selected_editor_mode = 'mixer';
-        }else{
-          this.selected_editor_mode = 'draft'; 
-        }
-        this.saveFile();
-      })
-    }else{
-      this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
-      .then(res => {
-        return this.processFileData(result.data)
-      }).then(data => {
-        if(this.tree.nodes.length > 0){
-          this.selected_editor_mode = 'mixer';
-        }else{
-          this.selected_editor_mode = 'draft';
-        }
-          this.filename = result.name;
-          this.saveFile();
-      }).catch(e => {
-        console.log(e, "CAUGHT ERROR through from process file data")
+       
+       if(source !== 'statechange'){
+          if(this.tree.nodes.length > 0){
+            this.selected_editor_mode = 'mixer';
+          }else{
+            this.selected_editor_mode = 'draft'; 
+          }
+       }else{
+          this.selected_editor_mode = 'mixer'
+       }
+        // this.saveFile();
       });
-    }
+    // }else{
+    //   this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
+    //   .then(res => {
+    //     return this.processFileData(result.data)
+    //   }).then(data => {
+    //     if(this.tree.nodes.length > 0){
+    //       this.selected_editor_mode = 'mixer';
+    //     }else{
+    //       this.selected_editor_mode = 'draft';
+    //     }
+    //       this.filename = result.name;
+    //       this.saveFile();
+    //   }).catch(e => {
+    //     console.log(e, "CAUGHT ERROR through from process file data")
+    //   });
+    //}
 
 
 
@@ -864,7 +855,7 @@ onPasteSelections(){
 
   this.upload_modal.afterClosed().subscribe(loadResponse => {
     if(loadResponse !== undefined && loadResponse != true) 
-    this.loadNewFile(loadResponse);
+    this.loadNewFile(loadResponse, 'openFile');
 
   });
 }
@@ -891,7 +882,7 @@ originChange(e:any){
 prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
   this.clearAll();
     return this.fs.loader.ada(name, id,desc, ada).then(lr => {
-      this.loadNewFile(lr);
+      this.loadNewFile(lr, 'prepAndLoad');
     });
 }
 
@@ -1143,16 +1134,7 @@ filenameChange(){
 
 }
 
-redo() {
 
-  let so: SaveObj = this.ss.restoreNextMixerHistoryState();
-  if(so === null || so === undefined) return;
-  this.clearAll();
-  this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(),this.files.getCurrentFileDesc(),  so)
-  .then(lr =>  this.loadNewFile(lr));
-
- 
-}
 
 
 saveFile(){
@@ -1213,22 +1195,51 @@ collapseViewer(){
 
 
 showDraftDetails(id: number){
-  console.log("Show Draft Details CALLED LOAD DRAFT ON ", id)
-
   this.editor.loadDraft(id);
   this.selected_editor_draft_id = id;
   this.dm.selectPencil('toggle');
 }
 
 
+/**
+ * TODO: because it reloads the file, and reassigns IDs to drafts, there is no way to link the previous draft detail in the editor
+ * with what it's new counterpart will be. For now, I'll just force to mixer view
+ */
+redo() {
 
+  let so: SaveObj = this.ss.restoreNextMixerHistoryState();
+  if(so === null || so === undefined) return;
+
+    this.mixer.clearView();
+    this.editor.clearAll();
+    this.viewer.clearView();
+    this.tree.clear();
+    
+  this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(),this.files.getCurrentFileDesc(),  so)
+  .then(lr =>  this.loadNewFile(lr, 'statechange'));
+
+ 
+}
+
+
+/**
+ * TODO: because it reloads the file, and reassigns IDs to drafts, there is no way to link the previous draft detail in the editor
+ * with what it's new counterpart will be. For now, I'll just force to mixer view
+ */
   undo() {
-
+  
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
-    this.clearAll();
+    
+    this.mixer.clearView();
+    this.editor.clearAll();
+    this.viewer.clearView();
+    this.tree.clear();
+
     this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(), this.files.getCurrentFileDesc(), so).then(lr => {
-      this.loadNewFile(lr)
+      this.loadNewFile(lr, 'statechange');
+
+
     }
     
     );

@@ -4,6 +4,7 @@ import { FilesystemService } from '../../provider/filesystem.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { FileService } from '../../provider/file.service';
+import { LoginComponent } from '../../modal/login/login.component';
 
 @Component({
   selector: 'app-filebrowser',
@@ -60,6 +61,12 @@ export class FilebrowserComponent implements OnInit {
     
     
     
+  }
+
+  openLoginDialog() {
+    const dialogRef = this.dialog.open(LoginComponent, {
+      width: '600px',
+    });
   }
 
   createBlankFile(){
