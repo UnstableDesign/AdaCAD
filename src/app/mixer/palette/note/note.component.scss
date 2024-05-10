@@ -6,18 +6,17 @@
 	position: absolute;
 	display: flex;
 	flex-direction: column;
-	width: 400px;
-	height: 400px;
+	gap: 16px;
+	min-width: 400px;
+	padding: 24px;
 }
 
-.scale-conatiner{
-	display: flex;
-    flex-direction: column;
-}
+
 
 .notetitle{
 	font-weight: bold;
 	width: 100%;
+	background-color: transparent;
 }
 
 .expand{
@@ -43,10 +42,6 @@ img{
 }
 
 
-.mat-mdc-icon-button{
-	opacity: .6;
-}
-
 
 .handle{
 	padding: 0;
@@ -61,14 +56,6 @@ img{
 
 
 
-.text-entry{
-	display: flex;
-	flex-direction: column;
-	flex-grow: 3;
-	font-size: 24px;
-}
-
-
 .note-opts{
 	width: 100%;
 	display: flex;
@@ -76,11 +63,6 @@ img{
 	justify-content: space-between;
 }
 
-.url{
-	width: 100%;
-	padding: 8px;
-	border: thin solid black;
-}
 
 
 

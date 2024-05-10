@@ -504,9 +504,9 @@ handlePan(diff: Point){
    */
    createNote(note: Note):NoteComponent{
 
+    console.log("CREATE NOTE ", note);
   
     let tl: Point = null;
-
 
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
@@ -514,16 +514,19 @@ handlePan(diff: Point){
 
     if(note === null || note.topleft == null || note.topleft === undefined){
       tl = this.viewport.getCenterPoint();
-    }else{
       tl = {
         x: tl.x, 
         y: tl.y
+      }
+    }else{
+      tl = {
+        x: note.topleft.x, 
+        y: note.topleft.y
       }
     }
     let id = this.notes.createNote(tl,  notecomp.instance, notecomp.hostView, note);
 
     notecomp.instance.id = id;
-    this.changeDesignmode('move');
     return notecomp.instance;
   }
 
