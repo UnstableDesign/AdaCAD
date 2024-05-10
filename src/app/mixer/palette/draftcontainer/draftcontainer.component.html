@@ -1,5 +1,5 @@
 
-<div class="subdraft-container" *ngIf="!hasParent || !ws.hide_mixer_drafts" >
+<div class="subdraft-container" [class.hidden]="hasParent && ws.hide_mixer_drafts" >
 
 
   <div class="header-container">
@@ -88,8 +88,7 @@
 
 
 <app-draft-rendering
-*ngIf="!hasParent || !ws.hide_mixer_drafts"
-#draftRendering
+#draft_rendering
 source = "mixer"
 [id]="id"
 [view_only]="hasParent"

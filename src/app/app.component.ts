@@ -440,9 +440,13 @@ export class AppComponent implements OnInit{
             const ada = await this.files.getFile(fileid).catch(e => {
               console.error("error on get file ", e)
             });
+
+
             const meta = await this.files.getFileMeta(fileid).catch(console.error);           
-             
-              if(ada === undefined){
+            console.log("FIRST SESSION", ada, meta)
+
+
+            if(ada === undefined){
                 this.loadBlankFile();
 
               }else if(meta === undefined){
@@ -608,9 +612,11 @@ export class AppComponent implements OnInit{
 
     //this file is already open in a different tab window 
    // if(this.files.getLoadedFile(result.id) !== null){
-      this.files.setCurrentFileId(result.id);
-      this.processFileData(result.data)
-      .then(data => {
+  
+   this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
+   .then(res => {
+    return this.processFileData(result.data)
+   }).then(data => {
 
        
        if(source !== 'statechange'){
@@ -622,7 +628,6 @@ export class AppComponent implements OnInit{
        }else{
           this.selected_editor_mode = 'mixer'
        }
-        // this.saveFile();
       });
     // }else{
     //   this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
@@ -883,6 +888,7 @@ prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>
   this.clearAll();
     return this.fs.loader.ada(name, id,desc, ada).then(lr => {
       this.loadNewFile(lr, 'prepAndLoad');
+      this.filename = name;
     });
 }
 

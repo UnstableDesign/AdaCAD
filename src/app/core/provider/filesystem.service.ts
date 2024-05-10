@@ -443,7 +443,11 @@ getFile(fileid: number) : Promise<any> {
     update(ref,{ada: cur_state})
     .then(success => {
       const item = this.getLoadedFile(fileid);
-      item.last_saved_time = Date.now();
+      if(item !== null){
+        item.last_saved_time = Date.now();
+      }else{
+        console.error("could not get loaded file after save")
+      }
 
     })
     .catch(err => {

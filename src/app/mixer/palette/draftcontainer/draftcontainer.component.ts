@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Draft, DraftNode } from '../../../core/model/datatypes';
 import { getDraftName, initDraft, warps, wefts } from '../../../core/model/drafts';
 import utilInstance from '../../../core/model/util';
@@ -16,7 +16,7 @@ import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-
   templateUrl: './draftcontainer.component.html',
   styleUrls: ['./draftcontainer.component.scss']
 })
-export class DraftContainerComponent {
+export class DraftContainerComponent implements AfterViewInit{
 
   @Input() id;
   @Input() dirty;
@@ -28,8 +28,9 @@ export class DraftContainerComponent {
   @Output() onSelectCalled = new EventEmitter();
   @Output() onOpenInEditor = new EventEmitter();
   @Output() onRecomputeChildren = new EventEmitter();
+ 
   @ViewChild('bitmapImage') bitmap: any;
-  @ViewChild('draftRendering') draft_rendering: DraftRenderingComponent;
+  @ViewChild('draft_rendering') draft_rendering: DraftRenderingComponent;
 
 
 
@@ -82,19 +83,23 @@ export class DraftContainerComponent {
 
     this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
     this.draft_name = this.tree.getDraftName(this.id)
-
     this.draft_rendering.onNewDraftLoaded(this.id);
 
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['dirty']) {
-      // if(this.dm.isSelectedDraftEditSource('drawdown')) return;
+       //if(this.source == 'editor' && this.dm.isSelectedDraftEditSource('drawdown')) return;
+
 
       let draft = this.tree.getDraft(this.id);
+      
       if(draft == undefined) draft = initDraft();
+
+      if(this.draft_rendering == undefined) 
     
      if(this.draft_rendering !== undefined) this.draft_rendering.onNewDraftLoaded(this.id);
+
       
       this.ud_name = getDraftName(draft);
       this.warps = warps(draft.drawdown);

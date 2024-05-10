@@ -2436,10 +2436,20 @@ pasteConnection(from: number, to: number, inlet: number){
   // }
     
   redrawAllSubdrafts(){
-      const comps = this.tree.getDrafts();
-      comps.forEach(sd => {
-        if(sd !== null && sd!== undefined) sd.redrawExistingDraft();
+      const dns = this.tree.getDraftNodes();
+      dns.forEach(dn => {
+        if(dn !== null && dn.component !== null){
+          (<SubdraftComponent>dn.component).redrawExistingDraft();
+        }else{
+          let parent = this.tree.getSubdraftParent(dn.id);
+          let comp = this.tree.getComponent(parent);
+          if(comp !== null){
+            (<OperationComponent> comp).redrawchildren++;
+          }
+          
+        }
       })
+
 
       this.redrawConnections();
 
