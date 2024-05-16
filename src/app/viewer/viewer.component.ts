@@ -42,6 +42,7 @@ export class ViewerComponent {
 
   warps: number = 0;
   wefts: number = 0;
+  scale: number = 0;
 
 
   constructor(
@@ -56,7 +57,7 @@ export class ViewerComponent {
 
 ngOnInit(){
   this.filename = this.files.getCurrentFileName();
-
+  this.scale = this.zs.getViewerZoom();
 }
 
 
@@ -201,28 +202,10 @@ getVisVariables(){
   //this is called, then, to rescale the view
   renderChange(){
 
+    this.scale = this.zs.getViewerZoom();
+
     if(this.id == -1) return;
-    this.view_rendering.rescale(this.zs.getViewerZoom())
-
-  //  const container =  document.getElementById('viewer-scale-container');
-  //   container.style.transform = 'scale('+this.zs.getViewerZoom()+')';
-   
-
-  //   //resize the canvas
-  //   const pr = this.render.getPixelRatio(this.draft_canvas)
-
-
-  //   const draft:Draft = this.tree.getDraft(this.id);
-
-  //   const base_dims = this.render.getBaseDimensions(draft, this.draft_canvas)
-  //   const scaled_width = this.zs.getViewerZoom() * base_dims.width;
-  //   const scaled_height = this.zs.getViewerZoom() * base_dims.height;
-
-    // this.draft_canvas.width = scaled_width;
-    // this.draft_canvas.height = scaled_height;
-    // this.draft_canvas.style.width = scaled_width/pr+"px";
-    // this.draft_canvas.style.height = scaled_height/pr+"px";
-
+    this.view_rendering.redrawAll();
   }
 
   /**
@@ -250,7 +233,6 @@ getVisVariables(){
     }
 
     return this.view_rendering.redraw(draft, null, null, flags).then(el => {
-      this.view_rendering.rescale(this.zs.getViewerZoom())
       return Promise.resolve(true);
     })
 

@@ -6,7 +6,7 @@
     <div class="rendering-view-opts">
       <!-- set local zoom -->
     <mat-slider min=".1" max="1" step="0.1">
-      <input matSliderThumb  value="1" (valueChange)="localZoomChange($event)">
+      <input matSliderThumb  [value]="local_zoom" (valueChange)="localZoomChange($event)">
     </mat-slider>
     
     </div>
@@ -93,6 +93,7 @@ source = "mixer"
 [id]="id"
 [view_only]="hasParent"
 [current_view]="current_view"
+[scale]="local_zoom"
 (onDrawdownUpdated)="drawdownUpdated()"
 >
 </app-draft-rendering>

@@ -633,15 +633,15 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
    * @param factor 
    * @param canvases 
    */
-  rescale(draft: Draft, loom: Loom, factor: number, canvases: CanvasList){
+  rescale(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList){
     let cell_size = this.calculateCellSize(draft);
 
     canvases.drawdown.style.width = (warps(draft.drawdown)*cell_size* factor)+"px";
     canvases.drawdown.style.height = (wefts(draft.drawdown)*cell_size* factor)+"px";
 
     if(loom !== null){
-      let frames = numFrames(loom);
-      let treadles = numTreadles(loom);
+      let frames = Math.max(numFrames(loom), loom_settings.frames);
+      let treadles = Math.max(numTreadles(loom), loom_settings.treadles);
 
       canvases.threading.style.width =  (cell_size * loom.threading.length)*factor+ "px"
       canvases.threading.style.height =  (cell_size * frames )*factor+ "px"

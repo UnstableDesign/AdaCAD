@@ -74,6 +74,8 @@ export class EditorComponent implements OnInit {
   selected_material_id: any = -1;
   
   current_view = 'draft';
+
+  scale: number = 0;
   
   
   
@@ -94,6 +96,7 @@ export class EditorComponent implements OnInit {
 
       this.copy = [[createCell(false)]];
       this.draw_modes = draft_pencil;
+
     }
     
     
@@ -103,6 +106,7 @@ export class EditorComponent implements OnInit {
     }
     
     ngAfterViewInit() {
+      this.scale = this.zs.getEditorZoom();
     }
     
     
@@ -480,7 +484,8 @@ export class EditorComponent implements OnInit {
         }
         
         renderChange(){
-          this.weaveRef.renderChange();
+          this.scale = this.zs.getEditorZoom();
+          // this.weaveRef.redrawAll();
         }
         
         

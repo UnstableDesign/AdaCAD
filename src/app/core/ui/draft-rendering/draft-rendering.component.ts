@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { fromEvent, Subject, Subscription } from 'rxjs';
 import { ZoomService } from '../../provider/zoom.service';
 import { createCell, getCellValue, setCellValue } from '../../model/cell';
@@ -33,6 +33,7 @@ export class DraftRenderingComponent implements OnInit {
   @Input('source') source: string;
   @Input('current_view') current_view: string;
   @Input('view_only') view_only: boolean;
+  @Input('scale') scale: number;
 
   @Output() onNewSelection = new EventEmitter();
   @Output() onDrawdownUpdated = new EventEmitter();
@@ -173,10 +174,6 @@ export class DraftRenderingComponent implements OnInit {
     const warp_mats_canvas =  <HTMLCanvasElement> document.getElementById('warp-materials-'+this.source+'-'+this.id);
     const weft_systems_canvas =  <HTMLCanvasElement> document.getElementById('weft-systems-'+this.source+'-'+this.id);
     const weft_mats_canvas =  <HTMLCanvasElement> document.getElementById('weft-materials-'+this.source+'-'+this.id);
-    console.log("Looking for", 'drawdown-'+this.source+'-'+this.id)
-
-    
-    console.log("AFTER VIEW INIT ", canvasEl)
 
     
     this.canvases = {
@@ -195,9 +192,15 @@ export class DraftRenderingComponent implements OnInit {
   
     this.divWesy =  document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
     this.divWasy =  document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
-    
-  
+      
         
+  }
+
+  ngOnChanges(changes:SimpleChanges){
+    if (changes['scale']) {
+     if(!changes['scale'].isFirstChange()) this.redrawAll();
+    }
+
   }
   
 
@@ -377,8 +380,8 @@ export class DraftRenderingComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     let cell_size = this.render.calculateCellSize(draft);
     
-    var screen_row = Math.floor(event.offsetY / cell_size);
-    var screen_col = Math.floor(event.offsetX / cell_size);
+    var screen_row = Math.floor(event.offsetY / (cell_size*this.scale));
+    var screen_col = Math.floor(event.offsetX / (cell_size*this.scale));
     
     const currentPos: Interlacement = {
       si: screen_row,
@@ -476,8 +479,8 @@ export class DraftRenderingComponent implements OnInit {
     
     // set up the point based on touched square.
     // this takes the transform into account so offset is always correct to the data 
-    var screen_row = Math.floor(event.offsetY / cell_size);
-    var screen_col = Math.floor(event.offsetX / cell_size);
+    var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
+    var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
     
     
     const currentPos: Interlacement = {
@@ -929,21 +932,17 @@ export class DraftRenderingComponent implements OnInit {
       * receives offset of the scroll from the CDKScrollable created when the scroll was initiated
       */
       //this does not draw on canvas but just rescales the canvas
-      public rescale(scale: number){
+      // public rescale(scale: number){
         
-        //const container: HTMLElement = document.getElementById('draft-scale-container-'+this.source+'-'+this.id);
-        // if(container == null){
-        //   console.log("Container is null ");
-        // }else{
-          // container.style.transformOrigin = 'top left';
-          // container.style.transform = 'scale(' + scale + ')';
+      //   if(this.id == -1) return;
 
-          const draft = this.tree.getDraft(this.id);
-          const loom = this.tree.getLoom(this.id);
-          this.render.rescale(draft, loom, scale, this.canvases)
-       // }
+      //     const draft = this.tree.getDraft(this.id);
+      //     const loom = this.tree.getLoom(this.id);
+      //     const loom_settings = this.tree.getLoomSettings(this.id);
+      //     this.render.rescale(draft, loom, loom_settings, scale, this.canvases);
+
            
-      }
+      // }
       
       
       
@@ -1003,6 +1002,8 @@ export class DraftRenderingComponent implements OnInit {
       }
       
       public redrawAll(){
+
+        if(this.id == -1) return;
         const draft = this.tree.getDraft(this.id)
         const loom = this.tree.getLoom(this.id)
         const loom_settings = this.tree.getLoomSettings(this.id);
@@ -1018,17 +1019,18 @@ export class DraftRenderingComponent implements OnInit {
           use_colors: (this.current_view != 'draft')
         }
 
-        this.redraw(draft, loom, loom_settings,flags);
+        this.redraw(draft, loom, loom_settings, flags);
         this.onDrawdownUpdated.emit(draft);
         
         
       }
+
       
       //takes inputs about what to redraw
       public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any) : Promise<boolean>{
         this.colSystemMapping = draft.colSystemMapping;
         this.rowSystemMapping = draft.rowSystemMapping;
-        
+
         
         let rf: RenderingFlags = {
           u_drawdown: (flags.drawdown !== undefined && flags.drawdown == true), 
@@ -1044,9 +1046,11 @@ export class DraftRenderingComponent implements OnInit {
           show_loom: (flags.show_loom  !== undefined && flags.show_loom == true)
         }
         return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
-          const pr = this.render.getPixelRatio(this.canvases.warp_mats);
+          this.render.rescale(draft, loom, loom_settings, this.scale, this.canvases)
           let warpdatadiv = document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
-          if(warpdatadiv !== null) warpdatadiv.style.width = this.canvases.warp_mats.width/pr+'px';
+          let weftdatadiv = document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
+          if(warpdatadiv !== null) warpdatadiv.style.width = this.canvases.warp_mats.style.width;
+          if(weftdatadiv !== null) weftdatadiv.style.height = this.canvases.weft_mats.style.height;
           return Promise.resolve(res);
         })
         
@@ -1553,28 +1557,28 @@ export class DraftRenderingComponent implements OnInit {
       }
       
       
-      /**
-      * Updates the canvas based on the weave view.
-      * @extends WeaveComponent
-      * @param {Event} e - view change event from design component.
-      * @returns {void}
-      */
-      public viewChange(value: any) {
+      // /**
+      // * Updates the canvas based on the weave view.
+      // * @extends WeaveComponent
+      // * @param {Event} e - view change event from design component.
+      // * @returns {void}
+      // */
+      // public viewChange(value: any) {
         
-        const draft = this.tree.getDraft(this.id);
-        const loom = this.tree.getLoom(this.id);
-        const loom_settings = this.tree.getLoomSettings(this.id);
+      //   const draft = this.tree.getDraft(this.id);
+      //   const loom = this.tree.getLoom(this.id);
+      //   const loom_settings = this.tree.getLoomSettings(this.id);
         
-        this.redraw(draft, loom, loom_settings,  {
-          drawdown: true
-        });
-      }
+      //   this.redraw(draft, loom, loom_settings,  {
+      //     drawdown: true
+      //   });
+      // }
       
-      public renderChange(){
+      // public renderChange(){
         
         
         
-      }
+      // }
       
       
       // public redrawLoomAndDraft(){

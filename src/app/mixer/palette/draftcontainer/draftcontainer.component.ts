@@ -52,7 +52,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
   draft_name: string = "";
 
-  local_zoom: number = 5;
+  local_zoom: number = 1;
 
   current_view: string = 'draft';
 
@@ -218,7 +218,8 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
     localZoomChange(event: any){
-        this.draft_rendering.rescale(event);
+        this.local_zoom = event;
+        this.draft_rendering.redrawAll();
     }
   
 
