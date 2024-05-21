@@ -346,6 +346,7 @@ export interface NodeComponentProxy{
     loom: Loom;
     loom_settings: LoomSettings;
     render_colors: boolean;
+    scale: number;
    }
 
  /**
@@ -678,6 +679,7 @@ export type OpNode = BaseNode & {
   loom: Loom,
   loom_settings: LoomSettings,
   render_colors: boolean,
+  scale: number,
   mark_for_deletion: boolean
  }
 

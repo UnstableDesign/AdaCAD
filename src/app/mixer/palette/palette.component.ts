@@ -603,7 +603,7 @@ handlePan(diff: Point){
     subdraft.instance.scale = this.zs.getMixerZoom();
 
 
-    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true, 1)
       .then(d => {
         return Promise.resolve(subdraft.instance);
         }

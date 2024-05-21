@@ -589,7 +589,6 @@ export class AppComponent implements OnInit{
     this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
       console.log(res);
       if(res.status == 404) return;
-
       this.clearAll();
       return this.fs.loader.ada(name, -1, '', res.body)
      .then(loadresponse => {
@@ -873,8 +872,9 @@ async processFileData(data: FileObj) : Promise<string|void>{
   this.loading = true;
   let entry_mapping = [];
 
+  console.log("PROCESSING ", data)
 
-  //start processing images first thing 
+  //1. filter any operations with a parameter of type file, and load the associated file. 
   const images_to_load = [];
   
   data.ops.forEach(op => {
@@ -891,6 +891,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
 
   return this.image.loadFiles(images_to_load).then(el => {
+    //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
     return this.tree.replaceOutdatedOps(data.ops);
   })
   .then(correctedOps => {    
@@ -907,13 +908,14 @@ async processFileData(data: FileObj) : Promise<string|void>{
       .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
       .map(tn => tn.entry);
     
-    const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors}> = seednodes
+    const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors, scale}> = seednodes
     .map(sn =>  {
 
 
         let d:Draft =null;
         let loom:Loom = null;
         let render_colors = true;
+        let scale = 1;
 
       const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
@@ -938,6 +940,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
           ls = copyLoomSettings(located_draft.loom_settings);
           loom = copyLoom(located_draft.loom);
           if(located_draft.render_colors !== undefined) render_colors = located_draft.render_colors; 
+          if(located_draft.scale !== undefined) scale = located_draft.scale; 
         } 
 
       }else{
@@ -958,12 +961,13 @@ async processFileData(data: FileObj) : Promise<string|void>{
           draft: d,
           loom: loom,
           loom_settings: ls,
-          render_colors: render_colors
+          render_colors: render_colors,
+          scale: scale
           }
       
     });
 
-    const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors));
+    const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors, seed.scale));
 
     const op_fns = data.ops.map(op => {
       const entry = entry_mapping.find(el => el.prev_id == op.node_id);
@@ -1001,11 +1005,11 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
       const entry = entry_mapping.find(el => el.cur_id === node.id);
       if(entry === undefined) return;
-
       switch (node.type){
         case 'draft':
-          if(!this.tree.hasParent(node.id))
-          this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id), data.scale);
+          if(!this.tree.hasParent(node.id)){
+            this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id), data.scale);
+          }
           break;
         case 'op':
           const op = this.tree.getOpNode(node.id);
@@ -1031,11 +1035,11 @@ async processFileData(data: FileObj) : Promise<string|void>{
       const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
       const node = this.tree.getNode(new_id.cur_id);
       if(node === undefined) return;
-
       (<DraftNode> node).draft.ud_name = np.draft_name;
       (<DraftNode> node).loom_settings = np.loom_settings; 
       (<DraftNode> node).loom = copyLoom(np.loom); 
       if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
+      if(np.scale !== undefined) (<DraftNode> node).scale = np.scale; 
     })
 
    this.tree.getOpNodes().forEach(op => {

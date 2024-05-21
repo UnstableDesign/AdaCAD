@@ -82,7 +82,11 @@ export class DraftContainerComponent implements AfterViewInit{
     this.wefts = wefts(draft.drawdown);
 
     this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
-    this.draft_name = this.tree.getDraftName(this.id)
+    this.draft_name = this.tree.getDraftName(this.id);
+    this.local_zoom = this.tree.getDraftScale(this.id);
+    console.log("LOCAL ZOOM ", this.local_zoom)
+
+
     this.draft_rendering.onNewDraftLoaded(this.id);
 
   }
@@ -219,6 +223,8 @@ export class DraftContainerComponent implements AfterViewInit{
 
     localZoomChange(event: any){
         this.local_zoom = event;
+        const dn = <DraftNode> this.tree.getNode(this.id);
+        dn.scale = this.local_zoom;
         this.draft_rendering.redrawAll();
     }
   

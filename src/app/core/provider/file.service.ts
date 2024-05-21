@@ -87,14 +87,10 @@ export class FileService {
         }
       }
 
-      const flips_required = utilInstance.getFlips(3, this.ws.selected_origin_option);
-
       const loom_elements = []
       const loom_fns = []
       const draft_elements = [];
       const draft_fns = [];
-
-
 
 
       if(!utilInstance.sameOrNewerVersion(version, '3.4.9')){
@@ -113,15 +109,15 @@ export class FileService {
 
             if(el.draft == undefined && el.compressed_draft !== undefined && el.compressed_draft !== null){
 
-              draft_fns.push(loadDraftFromFile(el.compressed_draft, flips_required, version));
+              draft_fns.push(loadDraftFromFile(el.compressed_draft, version));
               draft_elements.push(el);
             }else if(el.draft !== null && el.draft !== undefined){
-              draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
+              draft_fns.push(loadDraftFromFile(el.draft, version));
               draft_elements.push(el);
             }
 
             if(el.loom !== null && el.loom !== undefined){
-              loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.draft_id));
+              loom_fns.push(loadLoomFromFile(el.loom, version, el.draft_id));
               loom_elements.push(el);
             }
 
@@ -155,15 +151,16 @@ export class FileService {
               ? {type: this.ws.type, epi: this.ws.epi, units: this.ws.units, frames: this.ws.min_frames, treadles: this.ws.min_treadles } 
               : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles},
             render_colors: (node === undefined || node.render_colors === undefined) ? true : node.render_colors,
+            scale: (node === undefined || node.scale === undefined) ? 1 : node.scale,
           }
 
           draft_nodes.push(dn);
 
           if(draft !== null && draft !== undefined){
-            draft_fns.push(loadDraftFromFile(draft, flips_required, version));
+            draft_fns.push(loadDraftFromFile(draft, version));
 
             if(loom !== null && loom !== undefined){
-              loom_fns.push(loadLoomFromFile(loom, flips_required, version, draft.id));
+              loom_fns.push(loadLoomFromFile(loom, version, draft.id));
             }
           }
         });
@@ -172,8 +169,10 @@ export class FileService {
 
       return Promise.all(draft_fns)
       .then( res => {
+
           
         res.forEach(result => {
+          console.log("DRAFT RETURNED IS ", result.draft)
           let draft_ndx = draft_nodes.findIndex(el => el.draft_id == result.id);
           if(draft_ndx !== -1)  draft_nodes[draft_ndx].draft = result.draft;
         })
@@ -268,11 +267,11 @@ export class FileService {
 
       draft_nodes.forEach(el => {
         if(el.compressed_draft !== null && el.compressed_draft !== undefined){
-          draft_fns.push(loadDraftFromFile(el.compressed_draft, flips_required, version));
+          draft_fns.push(loadDraftFromFile(el.compressed_draft, version));
           draft_elements.push(el);
 
           if(el.loom !== null && el.loom !== undefined){
-            loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.compressed_draft.id));
+            loom_fns.push(loadLoomFromFile(el.loom, version, el.compressed_draft.id));
             loom_elements.push(el);
           }
         }

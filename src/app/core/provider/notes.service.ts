@@ -24,7 +24,8 @@ export class NotesService {
     this.notes = [];
   }
 
-  createNote(tl: Point, component: NoteComponent, ref: ViewRef, note: Note) : number{
+  createNote(tl: Point, component: NoteComponent, ref: ViewRef, note: any) : number{
+
     let gennote: Note = null;
     if(note == null){
      gennote = {
@@ -43,6 +44,13 @@ export class NotesService {
         height: 200
       }
     }else{
+
+      if(note.interlacement !== undefined){
+        console.log("has interlacement ", tl, note)
+        tl.x = note.interlacement.j * 10;
+        tl.y = note.interlacement.i * 10;
+      }
+
       gennote = {
         id: utilInstance.generateId(8),
         topleft: {

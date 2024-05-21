@@ -565,10 +565,11 @@ zoomChange(zoom_index:any){
       draft_visible: !defaults.hide_mixer_drafts,
       loom: loom,
       loom_settings: loom_settings,
-      render_colors: true
+      render_colors: true,
+      scale: 1
     }
 
-    this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
+    this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true, 1);
     this.palette.loadSubDraft(id, draft, nodep, dnproxy);
     return id;
   }

@@ -259,7 +259,8 @@ export class TreeService {
       loom: null,
       loom_settings: null,
       render_colors: false,
-      mark_for_deletion: false
+      mark_for_deletion: false,
+      scale: 1
     }
 
     sd.dirty = true;
@@ -316,7 +317,7 @@ export class TreeService {
   * @param loom the loom to associate with this node
   * @returns the created draft node and the entry associated with this
   */
-  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
+  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -355,7 +356,12 @@ export class TreeService {
 
    if(render_colors === undefined || render_colors === null)  (<DraftNode> nodes[0]).render_colors = false;
    else (<DraftNode> nodes[0]).render_colors = render_colors;
-   //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode> nodes[0]))
+
+   if(scale === undefined || scale === null)  (<DraftNode> nodes[0]).scale = 1;
+   else (<DraftNode> nodes[0]).scale = scale;
+
+
+   //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode>nodes[0]))
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
   }
@@ -1167,11 +1173,12 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
 //if an operation results in an empty draft, then it is reset here
 clearDraft(dn: DraftNode){
 
+
   dn.draft = null;
-  dn.draft.rowShuttleMapping = [];
-  dn.draft.rowSystemMapping = [];
-  dn.draft.colShuttleMapping = [];
-  dn.draft.colSystemMapping = [];
+  // dn.draft.rowShuttleMapping = [];
+  // dn.draft.rowSystemMapping = [];
+  // dn.draft.colShuttleMapping = [];
+  // dn.draft.colSystemMapping = [];
 
 }
 
@@ -1213,7 +1220,7 @@ clearDraft(dn: DraftNode){
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
       this.addConnection(parent, i,  id, 0,  cxn);
-      new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true)); 
+      new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true, 1)); 
       update_looms.push({id: id, draft:  res[i]});
       touched.push(id);
 
@@ -1481,6 +1488,12 @@ isValidIOTuple(io: IOTuple) : boolean {
     return (dn.draft.ud_name === "") ?  dn.draft.gen_name : dn.draft.ud_name; 
   }
 
+  getDraftScale(id: number): number{
+    if(id === -1) return 1;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined || dn.draft === null || dn.scale === undefined) return 1;
+    return  dn.scale; 
+  }
 
   getConnections():Array<ConnectionComponent>{
     const draft_nodes: Array<Node> = this.nodes.filter(el => el.type === 'cxn');
@@ -2044,7 +2057,8 @@ isValidIOTuple(io: IOTuple) : boolean {
           draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
           loom: (loom_export === null) ? null :loom_export,
           loom_settings: node.loom_settings,
-          render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors
+          render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors,
+          scale: ((<DraftNode>node).scale == undefined ) ? 1 :  (<DraftNode>node).scale
         }
         objs.push(savable);
       }
@@ -2129,7 +2143,8 @@ isValidIOTuple(io: IOTuple) : boolean {
       draft_visible: true,
       loom: null, 
       loom_settings:null,
-      render_colors: true
+      render_colors: true,
+      scale: 1
     };
 
     const treenode: TreeNodeProxy = {
