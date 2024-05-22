@@ -10,6 +10,7 @@ import { SystemsService } from './systems.service';
 import { TreeService } from './tree.service';
 import { VersionService } from './version.service';
 import { WorkspaceService } from './workspace.service';
+import { ZoomService } from './zoom.service';
 
 
 
@@ -38,6 +39,7 @@ export class FileService {
     private ss: SystemsService,
     private vs: VersionService,
     private ws: WorkspaceService,
+    private zs: ZoomService,
     private files: FilesystemService) { 
 
   
@@ -71,6 +73,10 @@ export class FileService {
       if(data == undefined) return Promise.reject(" there is no data")
 
       if(data.version !== undefined) version = data.version;
+
+      if(data.zoom !== undefined){
+        this.zs.import(data.zoom)
+      }
 
       if(data.workspace !== undefined){
         this.ws.loadWorkspace(data.workspace);
@@ -172,7 +178,6 @@ export class FileService {
 
           
         res.forEach(result => {
-          console.log("DRAFT RETURNED IS ", result.draft)
           let draft_ndx = draft_nodes.findIndex(el => el.draft_id == result.id);
           if(draft_ndx !== -1)  draft_nodes[draft_ndx].draft = result.draft;
         })
@@ -221,13 +226,13 @@ export class FileService {
           const envt: FileObj = {
             version: data.version,
             workspace: data.workspace,
+            zoom: data.zoom,
             filename: filename,
             nodes: (data.nodes === undefined) ? [] : data.nodes,
             treenodes: (data.tree === undefined) ? [] : data.tree,
             draft_nodes: draft_nodes,
             notes: (data.notes === undefined) ? [] : data.notes,
             ops: ops,
-            scale: (data.scale === undefined) ? 5 : data.scale,
           }
 
           return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
@@ -328,13 +333,13 @@ export class FileService {
           const envt: FileObj = {
             version: '0.0.0',
             workspace: null,
+            zoom: null,
             filename: 'paste',
             nodes: (data.nodes === undefined) ? [] : data.nodes,
             treenodes: (data.tree === undefined) ? [] : data.tree,
             draft_nodes: draft_nodes,
             notes:  [],
-            ops: ops,
-            scale: 5,
+            ops: ops
           }
     
           return Promise.resolve({data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id:-1 }); 
@@ -448,6 +453,7 @@ export class FileService {
         type: 'partial',
         version: this.vs.currentVersion(),
         workspace: null,
+        zoom: null,
         nodes: this.tree.exportNodesForSaving(),
         tree: this.tree.exportTreeForSaving(),
         draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
@@ -476,6 +482,7 @@ export class FileService {
         const out: SaveObj = {
           version: this.vs.currentVersion(),
           workspace: this.ws.exportWorkspace(),
+          zoom: this.zs.export(),
           type: 'mixer',
           nodes: this.tree.exportNodesForSaving(),
           tree: this.tree.exportTreeForSaving(),
@@ -491,9 +498,6 @@ export class FileService {
 
     },
    wif: async (draft: Draft, loom: Loom, loom_settings:LoomSettings) : Promise<string> => {
-
-
-      console.log("WIF ", draft, loom, loom_settings)
 
 
 

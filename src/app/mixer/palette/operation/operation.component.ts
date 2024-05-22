@@ -63,7 +63,7 @@ export class OperationComponent implements OnInit {
    @Output() onShowChildDetails = new EventEmitter <any> ();
    @Output() onSelectForView = new EventEmitter <any> ();
    @Output() onOpenInEditor = new EventEmitter <any> ();
-
+   @Output() onRedrawOutboundConnections= new EventEmitter <any> ();
 
    params_visible: boolean = true;
     /**
@@ -281,6 +281,14 @@ export class OperationComponent implements OnInit {
         this.children = children;
         this.redrawchildren++;
   }
+
+    /**
+   * this is called when the draft container displaying this draft has had a size change 
+   */
+    updateOutboundConnections(sd_id: number){
+      this.onRedrawOutboundConnections.emit(sd_id);
+    }
+  
 
   /**
    * resets the visibility on any inlet in the attached list

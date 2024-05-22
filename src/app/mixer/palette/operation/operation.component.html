@@ -32,7 +32,7 @@ cdkDragBoundary=".palette"
         <div class="top-row" >
 
         <div class="operation-details">
-            <div class="name no-text-select">{{displayname}}</div>
+            <div class="name no-text-select">{{displayname}} - {{id}}</div>
           
         </div>
 
@@ -117,6 +117,7 @@ cdkDragBoundary=".palette"
         (connectionSelected)="connectionStarted($event)"
         (onDuplicateCalled)="designActionChange($event)"
 				(onDeleteCalled)="designActionChange($event)"
+        (onDrawdownSizeChanged)="updateOutboundConnections($event)"
         >
         </app-draftcontainer>
       </div>

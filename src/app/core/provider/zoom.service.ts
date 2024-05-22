@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { defaults } from '../model/defaults';
+import { ZoomProxy } from '../model/datatypes';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,26 @@ export class ZoomService {
       const raw = this.zoom_min + this.zoom_step*(i*i);
       this.zoom_table.push(this.manageZoomRounding(raw));
     }
+  }
+
+  /**
+   * exports the current vale used to scale the designated workspace: 
+   * NOTE: this does not return the index value of the zoom table, but the resulting value itself
+   * @returns 
+   */
+  export(): ZoomProxy {
+    return {
+      editor: this.getEditorZoom(), 
+      mixer: this.getMixerZoom()
+    }
+
+  }
+
+  import(zp: ZoomProxy){
+
+   this.setEditorIndexFromZoomValue(zp.editor);
+   this.setMixerIndexFromZoomValue(zp.mixer);
+
   }
 
   getZoomMax(): number{
@@ -91,7 +112,7 @@ export class ZoomService {
 
     let closest = this.zoom_table.reduce((acc, val, ndx) => {
       let diff = zoom - val;
-      if(diff > 0 && diff < acc.min) return {min: diff, ndx: ndx}
+      if(diff >= 0 && diff < acc.min) return {min: diff, ndx: ndx}
       else return acc;
 
     }, {min: 1000000, ndx: 0})
@@ -102,14 +123,12 @@ export class ZoomService {
   }
 
   setMixerIndexFromZoomValue(zoom: number){
-
     let closest = this.zoom_table.reduce((acc, val, ndx) => {
       let diff = zoom - val;
-      if(diff > 0 && diff < acc.min) return {min: diff, ndx: ndx}
+      if(diff >= 0 && diff < acc.min) return {min: diff, ndx: ndx}
       else return acc;
 
     }, {min: 1000000, ndx: 0})
-
 
     this.zoom_table_ndx_mixer=  closest.ndx;
 

@@ -17,7 +17,8 @@ export class ConnectionComponent implements OnInit {
   @Output() onConnectionRemoved = new EventEmitter <any>();
 
 
-
+  from: number;
+  to: number;
   b_from: Point;
   b_to: Point;
 
@@ -52,11 +53,11 @@ export class ConnectionComponent implements OnInit {
     const from_io = treenode.inputs[0];
     const to_io = treenode.outputs[0];
 
-    const from = from_io.tn.node.id;
-    const to = to_io.tn.node.id;
+    this.from = from_io.tn.node.id;
+    this.to = to_io.tn.node.id;
 
-    this.no_draw = this.tree.getType(from) === 'op' && this.tree.hasSingleChild(from);
-    this.show_disconnect = !(this.tree.getType(from) === 'op' && !(this.tree.hasSingleChild(from)));
+    this.no_draw = this.tree.getType(this.from) === 'op' && this.tree.hasSingleChild(this.from);
+    this.show_disconnect = !(this.tree.getType(this.from) === 'op' && !(this.tree.hasSingleChild(this.from)));
 
     this.updatePathText()
 
@@ -68,12 +69,14 @@ export class ConnectionComponent implements OnInit {
     this.svg = document.getElementById('svg-'+this.id.toString());
     this.connector = document.getElementById('connector-'+this.id.toString());
 
-    const to = this.tree.getConnectionOutputWithIndex(this.id);
-    const from = this.tree.getConnectionInput(this.id);
+
+    let to_withdata = this.tree.getConnectionOutputWithIndex(this.id);
+    this.to = to_withdata.id;
+    this.from = this.tree.getConnectionInput(this.id);
 
 
-     this.updateFromPosition(from);
-     this.updateToPosition(to.id, to.inlet, to.arr);
+     this.updateFromPosition();
+     this.updateToPosition(to_withdata.inlet, to_withdata.arr);
 
      this.drawConnection()
 
@@ -120,13 +123,13 @@ export class ConnectionComponent implements OnInit {
    * unless the to node is a dynamic operation, in which case we must move to an inlet. 
    * @param to the id of the component this connection goes to
    */
-  updateToPosition(op_id: number, inlet_id: number, arr_id: number){
+  updateToPosition(inlet_id: number, arr_id: number){
 
     let parent = document.getElementById('scrollable-container');
     let parent_rect = parent.getBoundingClientRect();
 
 
-    let to_container = document.getElementById("inlet"+op_id+"-"+inlet_id+"-"+arr_id);
+    let to_container = document.getElementById("inlet"+this.to+"-"+inlet_id+"-"+arr_id);
     if(to_container == null || to_container == undefined) return;
     
     let to_rect = to_container.getBoundingClientRect();
@@ -157,14 +160,17 @@ export class ConnectionComponent implements OnInit {
    * connections can come from a subdraft or an operation component 
    * @param from the id of the component this connection goes to
    */
-  updateFromPosition(from: number){
-
+  updateFromPosition(){
+    console.log("UPDATE FROM")
     let parent = document.getElementById('scrollable-container');
     let parent_rect = parent.getBoundingClientRect();
-    let sd_container = document.getElementById(from+'-out').getBoundingClientRect();
+    let sd_element = document.getElementById(this.from+'-out');
 
 
+    if(sd_element === null ) return;
 
+    let sd_container =sd_element.getBoundingClientRect();
+    console.log("SD CONTAINER", sd_container)
 
     const zoom_factor =  1/this.zs.getMixerZoom();
    //on screen position relative to palette

@@ -44,7 +44,6 @@ export class StateService {
 
 
   clearTimeline(){
-    console.log("CLEAR TIMELINE CALLED")
     this.active_id = 0;
     this.undo_disabled = true;
     this.redo_disabled = true;
@@ -68,7 +67,7 @@ export class StateService {
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
 
-     console.log("adding mixer history state ", this.files.getCurrentFileId(), ada.file.draft_nodes);
+     console.log("adding mixer history state ", ada.file.zoom.mixer);
 
     this.files.updateCurrentStateInLoadedFiles(this.files.getCurrentFileId(), ada.file);
 
@@ -77,6 +76,7 @@ export class StateService {
       ada: {
         version: ada.file.version,
         workspace: ada.file.workspace,
+        zoom: ada.file.zoom,
         type: ada.file.type,
         nodes: ada.file.nodes.slice(),
         tree: ada.file.tree.slice(),

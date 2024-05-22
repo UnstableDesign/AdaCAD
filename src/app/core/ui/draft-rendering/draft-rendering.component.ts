@@ -712,6 +712,7 @@ export class DraftRenderingComponent implements OnInit {
       private drawOnDrawdown(draft:Draft, loom_settings: LoomSettings,  currentPos: Interlacement, shift: boolean) {
         
         var val  = false;
+        console.log("DRAW ON DRAWDOWN")
 
         
         if (this.canvases.drawdown == null || !currentPos) { return; }
@@ -1019,10 +1020,7 @@ export class DraftRenderingComponent implements OnInit {
           use_colors: (this.current_view != 'draft')
         }
 
-        this.redraw(draft, loom, loom_settings, flags);
-        this.onDrawdownUpdated.emit(draft);
-        
-        
+        this.redraw(draft, loom, loom_settings, flags);        
       }
 
       

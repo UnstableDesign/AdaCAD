@@ -296,7 +296,7 @@ onFocus(edited_draft_id: number){
 
   const outlet_ops_connected = this.tree.getNonCxnOutputs(edited_draft_id);
   let fns = outlet_ops_connected.map(el => this.performAndUpdateDownstream(el));
-
+  console.log("NON CONNECTION OUTPUTS IS ", outlet_ops_connected)
   Promise.all(fns);
 
   //DO TO MAKE SURE USERS CAN TOGGLE ON MIXER DRAFTS
@@ -578,8 +578,8 @@ zoomChange(zoom_index:any){
     this.palette.loadSubDraft(id, d, nodep, draftp);
   }
 
-  loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point, saved_scale: number){
-    this.palette.loadOperation(id, name, params, inlets, topleft, saved_scale)
+  loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point){
+    this.palette.loadOperation(id, name, params, inlets, topleft)
   }
 
   loadConnection(id: number){

@@ -1008,12 +1008,12 @@ async processFileData(data: FileObj) : Promise<string|void>{
       switch (node.type){
         case 'draft':
           if(!this.tree.hasParent(node.id)){
-            this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id), data.scale);
+            this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id));
           }
           break;
         case 'op':
           const op = this.tree.getOpNode(node.id);
-          this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).topleft, data.scale);
+          this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).topleft);
           break;
         case 'cxn':
 
@@ -1062,6 +1062,8 @@ async processFileData(data: FileObj) : Promise<string|void>{
     this.loading = false;
     this.updateOrigin(this.ws.selected_origin_option);
     this.mixer.refreshOperations();
+    this.mixer.renderChange();
+    this.editor.renderChange();
   
     return Promise.resolve('alldone')
   })

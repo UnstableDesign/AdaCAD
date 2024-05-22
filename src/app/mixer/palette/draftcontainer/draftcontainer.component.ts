@@ -28,6 +28,7 @@ export class DraftContainerComponent implements AfterViewInit{
   @Output() onSelectCalled = new EventEmitter();
   @Output() onOpenInEditor = new EventEmitter();
   @Output() onRecomputeChildren = new EventEmitter();
+  @Output() onDrawdownSizeChanged = new EventEmitter();
  
   @ViewChild('bitmapImage') bitmap: any;
   @ViewChild('draft_rendering') draft_rendering: DraftRenderingComponent;
@@ -56,6 +57,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
   current_view: string = 'draft';
 
+  size_observer: any;
 
 
   constructor(
@@ -84,11 +86,15 @@ export class DraftContainerComponent implements AfterViewInit{
     this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
     this.draft_name = this.tree.getDraftName(this.id);
     this.local_zoom = this.tree.getDraftScale(this.id);
-    console.log("LOCAL ZOOM ", this.local_zoom)
-
-
     this.draft_rendering.onNewDraftLoaded(this.id);
 
+    this.startSizeObserver();
+
+  }
+
+
+  ngOnDestroy(){
+    this.closeSizeObserver();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -111,6 +117,30 @@ export class DraftContainerComponent implements AfterViewInit{
       this.drawDraft(draft);    
     }
 }
+
+
+  startSizeObserver(){
+
+    const targetNode = document.getElementById("drawdown-mixer-"+this.id);
+    const config = { attributes: true,characterData: true, childList: false, subtree: false };
+    const callback = (mutationList, observer) => {
+      for (const mutation of mutationList) {
+      if (mutation.type === "attributes") {
+          console.log(`The ${mutation.attributeName} attribute was modified.`);
+          this.onDrawdownSizeChanged.emit(this.id);
+        }
+      }
+    };
+
+    this.size_observer = new MutationObserver(callback);
+    this.size_observer.observe(targetNode, config);
+
+
+  }
+
+  closeSizeObserver(){
+    this.size_observer.disconnect();
+  }
 
   nameFocusOut(event){
   }

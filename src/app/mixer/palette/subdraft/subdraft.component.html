@@ -30,6 +30,7 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 	(onDuplicateCalled)="designAction($event)"
 	(onDeleteCalled)="designAction($event)"
 	(onRecomputeChildren)="designAction($event)"
+	(onDrawdownSizeChanged)="updateOutboundConnections()"
 	></app-draftcontainer>
 
 

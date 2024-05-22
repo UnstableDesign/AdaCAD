@@ -469,7 +469,7 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
     this.subdraftSubscriptions.push(sd.onSelectForView.subscribe(this.forceFocus.bind(this)));
     this.subdraftSubscriptions.push(sd.onFocus.subscribe(this.setFocus.bind(this)));
-
+    this.subdraftSubscriptions.push(sd.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
   }
 
   openInEditor(id: number){
@@ -504,8 +504,6 @@ handlePan(diff: Point){
    * @returns the created note instance
    */
    createNote(note: Note):NoteComponent{
-
-    console.log("CREATE NOTE ", note);
   
     let tl: Point = null;
 
@@ -694,6 +692,8 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.setFocus.bind(this)));
     this.operationSubscriptions.push(op.onSelectForView.subscribe(this.forceFocus.bind(this)));
     this.operationSubscriptions.push(op.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
+    this.operationSubscriptions.push(op.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
+
   }
 
 
@@ -734,7 +734,7 @@ handlePan(diff: Point){
    * @params params the input data to be used in this operation
    * @returns the id of the node this has been assigned to
    */
-    loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point, saved_scale: number){
+    loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point){
 
         const factory = this.resolver.resolveComponentFactory(OperationComponent);
         const op = this.vc.createComponent<OperationComponent>(factory);
@@ -823,6 +823,7 @@ handlePan(diff: Point){
       const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, 0, id_to, to_ndx, id);
       
+      console.log("on create connection")
       cxn.instance.id = id;
       cxn.instance.scale = this.zs.getMixerZoom();
 
@@ -1048,6 +1049,7 @@ handlePan(diff: Point){
           new_tl = {x: op_comp.topleft.x + 200, y: op_comp.topleft.y}
       }else{
         let container = document.getElementById('scale-'+obj.id);
+        console.log("from duplicate op")
           new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.getMixerZoom()/this.default_cell_size, y: op_comp.topleft.y}
       }
 
@@ -1230,6 +1232,7 @@ handlePan(diff: Point){
 
   this.setOutletStylingOnConnection(obj.id, true);
 
+  console.log("from connection started")
   const zoom_factor =  1 / this.zs.getMixerZoom();
   //on screen position relative to palette
   let screenX = sd_rect.x - parent_rect.x + parent.scrollLeft;
@@ -1398,6 +1401,7 @@ connectionDragged(mouse: Point){
   let parent = document.getElementById('scrollable-container');
   let rect_palette = parent.getBoundingClientRect();
 
+  console.log("from connection dragged")
   const zoom_factor = 1 / this.zs.getMixerZoom();
 
   //on screen position relative to palette
@@ -1467,6 +1471,7 @@ calculateInitialLocation() : Point {
 
   const container = document.getElementById('scrollable-container');
   const container_rect = container.getBoundingClientRect();
+  console.log("from calc init location")
 
   let tl = {
     x: (container.scrollLeft  + container_rect.x) * 1/this.zs.getMixerZoom(),
@@ -1478,6 +1483,23 @@ calculateInitialLocation() : Point {
 
 }
 
+/**
+ * this is called from a operation or subdraft that has changed size. This means that it's connection needs to be redrawn such that 
+ * it properly displays the from position on the connection
+ * @param sd_id : the subdraft id associated with the change
+ */
+redrawOutboundConnections(sd_id: number){
+  let connections = this.tree.getOutputs(sd_id);
+
+
+  connections.forEach(cxn => {
+    let comp = this.tree.getComponent(cxn);
+    if(comp !== null){
+      (<ConnectionComponent> comp).updateFromPosition();
+    }
+  }) 
+
+}
 
 
 
@@ -1500,30 +1522,7 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
       let children = this.tree.getNonCxnOutputs(op);
       (<OperationComponent> this.tree.getComponent(op)).updateChildren(children);
     })
-
-
-  }).then(el => {
-    const loads =[];
-    const new_cxns = this.tree.nodes.filter(el => el.type === 'cxn' && el.component === null);   
-    new_cxns.forEach(cxn => {
-      const from_node:Array<number> = this.tree.getInputs(cxn.id);
-      const to_node:Array<number> = this.tree.getOutputs(cxn.id);
-      if(from_node.length !== 1 || to_node.length !== 1) Promise.reject("connection has zero or more than one input or output");
-     // loads.push(this.loadConnection(cxn.id));
-    })
-
-    //update the positions of the connections
-    let all_cxns = this.tree.getConnections().filter(el => el !== null);
-    all_cxns.forEach(cxn => {
-        const outs = this.tree.getConnectionOutputWithIndex(cxn.id);
-        cxn.updateToPosition(outs.id, outs.inlet, outs.arr);
-      
-    })
-
-    return Promise.all(loads);
-
-    }
-  );
+  });
 
 }
 
@@ -1534,7 +1533,6 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
 updateDownstream(subdraft_id: number) {
 
   let out = this.tree.getNonCxnOutputs(subdraft_id);
-  console.log("out ", out)
   
   out.forEach(op_id => {
     this.tree.getOpNode(op_id).dirty = true;
@@ -2149,13 +2147,13 @@ pasteConnection(from: number, to: number, inlet: number){
        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
        if(comp !== null){
         const tuple = this.tree.getConnectionOutputWithIndex(cxn);
-        comp.updateToPosition(tuple.id, tuple.inlet, tuple.arr);
+        comp.updateToPosition(tuple.inlet, tuple.arr);
        } 
     });
 
     this.tree.getOutputs(id).forEach(cxn => {
       const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-      if(comp !== null) comp.updateFromPosition(id);
+      if(comp !== null) comp.updateFromPosition();
    });
 
    if(!follow) return;
@@ -2365,34 +2363,34 @@ pasteConnection(from: number, to: number, inlet: number){
   }
 
 
-  getSelectionBounds(c1: any, c2: any): Bounds{
-      let bottomright = {x: 0, y:0};
-      let bounds:Bounds = {
-        topleft:{x: 0, y:0},
-        width: 0,
-        height: 0
-      }
-      if(c1.i < c2.i){
-        bounds.topleft.y = c1.i * this.zs.getMixerZoom();
-        bottomright.y = c2.i * this.zs.getMixerZoom();
-      }else{
-        bounds.topleft.y = c2.i * this.zs.getMixerZoom();
-        bottomright.y = c1.i * this.zs.getMixerZoom();
-      }
+  // getSelectionBounds(c1: any, c2: any): Bounds{
+  //     let bottomright = {x: 0, y:0};
+  //     let bounds:Bounds = {
+  //       topleft:{x: 0, y:0},
+  //       width: 0,
+  //       height: 0
+  //     }
+  //     if(c1.i < c2.i){
+  //       bounds.topleft.y = c1.i * this.zs.getMixerZoom();
+  //       bottomright.y = c2.i * this.zs.getMixerZoom();
+  //     }else{
+  //       bounds.topleft.y = c2.i * this.zs.getMixerZoom();
+  //       bottomright.y = c1.i * this.zs.getMixerZoom();
+  //     }
 
-      if(c1.j < c2.j){
-        bounds.topleft.x = c1.j * this.zs.getMixerZoom();
-        bottomright.x = c2.j * this.zs.getMixerZoom();
-      }else{
-        bounds.topleft.x = c1.j * this.zs.getMixerZoom();
-        bottomright.x = c2.j * this.zs.getMixerZoom();
-      }
+  //     if(c1.j < c2.j){
+  //       bounds.topleft.x = c1.j * this.zs.getMixerZoom();
+  //       bottomright.x = c2.j * this.zs.getMixerZoom();
+  //     }else{
+  //       bounds.topleft.x = c1.j * this.zs.getMixerZoom();
+  //       bottomright.x = c2.j * this.zs.getMixerZoom();
+  //     }
 
-      bounds.width = bottomright.x - bounds.topleft.x;
-      bounds.height = bottomright.y - bounds.topleft.y;
+  //     bounds.width = bottomright.x - bounds.topleft.x;
+  //     bounds.height = bottomright.y - bounds.topleft.y;
 
-      return bounds;
-  }
+  //     return bounds;
+  // }
 
 
 
