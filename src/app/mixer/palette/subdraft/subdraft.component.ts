@@ -147,43 +147,23 @@ export class SubdraftComponent implements OnInit {
     sd_container.style.top =  this.topleft.y+"px";
     sd_container.style.left =  this.topleft.x+"px";
 
-
-
-    /**
-     * when loading a draft from a file, the connections won't match if the connection is drawn before this
-     * function executes. For this reason, I made these sequential function and then they manually call updates
-     */
-     if(this.tree.hasParent(this.id) && this.ws.hide_mixer_drafts) return;
-
-     const draft = this.tree.getDraft(this.id);
-  
-
-    this.draftcontainer.drawDraft(draft).then(out => {
-      this.updateViewport(this.topleft);
-      this.onSubdraftMove.emit({id: this.id, point: this.topleft});
-
-    });
-
   }
 
   ngOnChanges(changes: SimpleChanges){
   
-
+    
     //if scale is changed, automatically call the function to rescale
     if(changes['scale']){
       this.rescale().catch(e => console.log(e))
     }
 
     //if something new is assigned to the draft value for this subdraft, draw it. 
-    if(changes['draft']){
+    if(changes['draft']){      
+
       if(this.draftcontainer){
         this.draftcontainer.drawDraft(changes['draft'].currentValue);
       }
     }
-
-    if(changes['topleft']){
-    }
-
   }
 
   /**
@@ -392,6 +372,7 @@ openInEditor(event: any){
   redrawExistingDraft(){
 
     const draft = this.tree.getDraft(this.id);
+    console.log("redraw existing ")
     this.draftcontainer.drawDraft(draft);
 
   }

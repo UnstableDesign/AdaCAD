@@ -78,8 +78,6 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
     const draft = this.tree.getDraft(this.id);
-    console.log("AFTER VIEW INIT on ", this.id, draft)
-    this.drawDraft(draft);  
     this.ud_name = draft.ud_name;
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
@@ -87,7 +85,10 @@ export class DraftContainerComponent implements AfterViewInit{
     this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
     this.draft_name = this.tree.getDraftName(this.id);
     this.local_zoom = this.tree.getDraftScale(this.id);
+    
     this.draft_rendering.onNewDraftLoaded(this.id);
+    this.drawDraft(draft);  
+   
     this.startSizeObserver();
 
   }
@@ -105,16 +106,16 @@ export class DraftContainerComponent implements AfterViewInit{
       let draft = this.tree.getDraft(this.id);
       
       if(draft == undefined) draft = initDraft();
-
-      if(this.draft_rendering == undefined) 
     
-     if(this.draft_rendering !== undefined) this.draft_rendering.onNewDraftLoaded(this.id);
-
       
       this.ud_name = getDraftName(draft);
       this.warps = warps(draft.drawdown);
       this.wefts = wefts(draft.drawdown);
-      this.drawDraft(draft);    
+
+      if(!changes['dirty'].firstChange){
+        if(this.draft_rendering !== undefined) this.draft_rendering.onNewDraftLoaded(this.id);
+        this.drawDraft(draft);
+      }     
     }
 }
 
@@ -164,6 +165,8 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
   drawDraft(draft: Draft) : Promise<boolean>{
+
+
     if(this.hasParent && this.ws.hide_mixer_drafts) return Promise.resolve(false);
     if(this.draft_rendering == null || this.draft_rendering == undefined)return Promise.resolve(false);
 

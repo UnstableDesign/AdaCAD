@@ -144,6 +144,7 @@ export class ParameterComponent implements OnInit {
    * @param value 
    */
   onParamChange(value: any){
+    console.log("ON PARAM CHANGE")
 
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
 

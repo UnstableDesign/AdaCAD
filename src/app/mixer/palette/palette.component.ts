@@ -2243,6 +2243,7 @@ pasteConnection(from: number, to: number, inlet: number){
         })
 
         this.addTimelineState();
+        console.log("AFTER param change ")
         this.refreshViewer.emit();
       })
       .catch(console.error);

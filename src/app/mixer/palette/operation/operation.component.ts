@@ -252,7 +252,6 @@ export class OperationComponent implements OnInit {
 
 
   mousedown(e: any){
-
     e.stopPropagation();
   }
 
@@ -264,7 +263,6 @@ export class OperationComponent implements OnInit {
 
 
   drop(){
-    console.log("dropped");
   }
 
 

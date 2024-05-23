@@ -1,20 +1,19 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { fromEvent, Subject, Subscription } from 'rxjs';
-import { ZoomService } from '../../provider/zoom.service';
-import { createCell, getCellValue, setCellValue } from '../../model/cell';
-import { CanvasList, Cell, Draft, Drawdown, Interlacement, Loom, LoomSettings, RenderingFlags } from '../../model/datatypes';
+import { Subject, Subscription, fromEvent } from 'rxjs';
+import { CanvasList, Cell, Draft, Interlacement, Loom, LoomSettings, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
-import { copyDraft, createBlankDrawdown, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getDraftAsImage, hasCell, initDraftWithParams, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isSet, isUp, pasteIntoDrawdown, setHeddle, warps, wefts } from '../../model/drafts';
+import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from '../../model/drafts';
 import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../model/looms';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { FileService } from '../../provider/file.service';
 import { MaterialsService } from '../../provider/materials.service';
 import { OperationService } from '../../provider/operation.service';
+import { RenderService } from '../../provider/render.service';
 import { StateService } from '../../provider/state.service';
 import { SystemsService } from '../../provider/systems.service';
 import { TreeService } from '../../provider/tree.service';
 import { WorkspaceService } from '../../provider/workspace.service';
-import { RenderService } from '../../provider/render.service';
+import { ZoomService } from '../../provider/zoom.service';
 import { SelectionComponent } from './selection/selection.component';
 
 
@@ -188,8 +187,6 @@ export class DraftRenderingComponent implements OnInit {
       weft_mats: weft_mats_canvas
     }
     
-    
-  
     this.divWesy =  document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
     this.divWasy =  document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
       
@@ -285,22 +282,6 @@ export class DraftRenderingComponent implements OnInit {
     this.colSystemMapping = draft.colSystemMapping.slice();
     this.rowShuttleMapping = draft.rowShuttleMapping.slice();
     this.rowSystemMapping = draft.rowSystemMapping.slice();
-    
-    
-    // this.cdRef.detectChanges();
-    
-    this.redraw(draft, loom, loom_settings, {
-      drawdown: true, 
-      loom:true, 
-      warp_systems: true, 
-      weft_systems: true, 
-      warp_materials: true,
-      weft_materials:true
-    }).then(res => {
-      this.computeAndSetScale(draft, loom, loom_settings);
-    })
-    
-    
   }
   
   clearSelection(){
@@ -1233,6 +1214,7 @@ export class DraftRenderingComponent implements OnInit {
       * @param i the absolute (not screen) index of the row we'll insert
       */
       public insertRow(i:number) {
+        
         if(this.view_only) return;
         
         const draft = this.tree.getDraft(this.id);

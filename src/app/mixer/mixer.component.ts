@@ -241,6 +241,7 @@ addOperation(name: string){
 
 
 onRefreshViewer(){
+  console.log("on refresh viewer in mixer")
   this.refreshViewer.emit();
 }
 

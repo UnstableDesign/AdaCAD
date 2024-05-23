@@ -1274,11 +1274,17 @@ redo() {
    * @param id 
    */
   onSetViewer(id: number, source: string){
-    if(source == 'mixer'){
-      this.selected_mixer_draft_id = id;
+    if(source == 'mixer'){  
+      if(this.selected_mixer_draft_id !== id){
+         this.selected_mixer_draft_id = id;
+         this.onRefreshViewer(source);
+      }
     } 
-    this.selected_editor_draft_id = id;
-    this.onRefreshViewer(source);
+
+    if(this.selected_editor_draft_id !== id){
+      this.selected_editor_draft_id = id;
+    }
+
   }
 
    /**
