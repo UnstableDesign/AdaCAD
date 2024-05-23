@@ -144,7 +144,6 @@ export class ParameterComponent implements OnInit {
    * @param value 
    */
   onParamChange(value: any){
-    console.log("ON PARAM CHANGE")
 
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
 
@@ -210,7 +209,6 @@ export class ParameterComponent implements OnInit {
     this.filewarning = "";
 
     this.opnode.params[this.paramid] = {id: obj[0].id, data: obj[0]};
-    
     
     this.onOperationParamChange.emit({id: this.paramid, value: this.opnode.params[this.paramid]});
     

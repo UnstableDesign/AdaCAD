@@ -603,7 +603,7 @@ export class AppComponent implements OnInit{
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string){
-  
+
    this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
    .then(res => {
     return this.processFileData(result.data)
@@ -1212,6 +1212,7 @@ redo() {
  * with what it's new counterpart will be. For now, I'll just force to mixer view
  */
   undo() {
+
   
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
@@ -1220,6 +1221,7 @@ redo() {
     this.editor.clearAll();
     this.viewer.clearView();
     this.tree.clear();
+
 
     this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(), this.files.getCurrentFileDesc(), so).then(lr => {
       this.loadNewFile(lr, 'statechange');

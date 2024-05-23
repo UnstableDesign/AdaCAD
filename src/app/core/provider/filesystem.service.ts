@@ -124,9 +124,9 @@ export class FilesystemService {
   public pushToLoadedFilesAndFocus(id: number, name: string, desc: string) : Promise<boolean>{
 
 
-    let item = this.getLoadedFile(id);
+    // let item = this.getLoadedFile(id);
 
-    if(item === null){
+    // if(item === null){
 
       
       return this.getFileMeta(id)
@@ -156,10 +156,10 @@ export class FilesystemService {
         return Promise.resolve(false);
       });
 
-    }else{
-      this.setCurrentFileInfo(item.id, item.name, item.desc);
-      return Promise.reject('this file has already been loaded')
-    }
+    // }else{
+    //   this.setCurrentFileInfo(item.id, item.name, item.desc);
+    //   return Promise.reject('this file has already been loaded')
+    // }
   }
 
   public unloadFile(id: number){

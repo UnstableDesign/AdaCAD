@@ -102,7 +102,6 @@ getVisVariables(){
    * redraws the current draft, usually following an update from the drawdown
    */
   redraw(id: number){
-    console.log("viewer - redraw")
     this.id = id;
     let vars = this.getVisVariables();
     const draft = this.tree.getDraft(id);
@@ -166,7 +165,6 @@ getVisVariables(){
   onExpand(){
     this.view_expanded = true;
     this.onViewerExpanded.emit();
-    console.log("on expand")
     this.redraw(this.id);
 
 
@@ -175,7 +173,6 @@ getVisVariables(){
   onCollapse(){
     this.view_expanded = false;
     this.onViewerCollapsed.emit();
-    console.log("on collapse")
     this.redraw(this.id);
 
   }
@@ -206,8 +203,6 @@ getVisVariables(){
   renderChange(){
     this.scale = this.zs.getViewerZoom();
     if(this.id == -1) return;
-    console.log("viewer - render change")
-
     this.view_rendering.redrawAll();
   }
 
@@ -235,7 +230,6 @@ getVisVariables(){
       show_loom: false
     }
 
-    console.log("viewer - draw draft")
     return this.view_rendering.redraw(draft, null, null, flags).then(el => {
       return Promise.resolve(true);
     })
