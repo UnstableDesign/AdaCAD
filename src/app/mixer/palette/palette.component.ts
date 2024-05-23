@@ -2237,11 +2237,9 @@ pasteConnection(from: number, to: number, inlet: number){
         //update the to positions coming out of this 
         let inputs = this.tree.getInputs(obj.id);
 
-        console.log("PARAM CHANGED ", inputs)
         inputs.forEach(input_cxn => {
           let comp = this.tree.getComponent(input_cxn);
           const tuple = this.tree.getConnectionOutputWithIndex(input_cxn);
-          console.log("UPDATING ", input_cxn, tuple, comp)
           if(comp !== null) (<ConnectionComponent> comp).updateToPosition(tuple.inlet, tuple.arr);
         })
 

@@ -125,20 +125,16 @@ export class ConnectionComponent implements OnInit {
    */
   updateToPosition(inlet_id: number, arr_id: number){
 
-    console.log("UPDATING ", inlet_id, arr_id)
-
     let parent = document.getElementById('scrollable-container');
+
     let parent_rect = parent.getBoundingClientRect();
 
 
     let to_container = document.getElementById("inlet"+this.to+"-"+inlet_id+"-"+arr_id);
 
-    console.log("Container ", "inlet"+this.to+"-"+inlet_id+"-"+arr_id, to_container)
-
     if(to_container == null || to_container == undefined) return;
     
     let to_rect = to_container.getBoundingClientRect();
-    console.log("RECT ", to_rect)
 
     const zoom_factor =  1/this.zs.getMixerZoom();
 
