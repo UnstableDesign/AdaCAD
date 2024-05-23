@@ -93,7 +93,7 @@
 
 <button *ngIf="inlet.num_drafts == -1 || (tree.getInputsAtNdx(opid, inletid).length < inlet.num_drafts)"
 class="open_inlet"
-id = "inlet{{opid}}-{{inletid}}-0"
+id = "inlet{{opid}}-{{inletid}}-{{tree.getInputsAtNdx(opid, inletid).length}}"
 mat-raised-button
 [matTooltip]='inlet.dx'
 (click)="inputSelected()">
