@@ -46,7 +46,6 @@ export class NotesService {
     }else{
 
       if(note.interlacement !== undefined){
-        console.log("has interlacement ", tl, note)
         tl.x = note.interlacement.j * 10;
         tl.y = note.interlacement.i * 10;
       }

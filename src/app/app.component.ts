@@ -278,8 +278,6 @@ export class AppComponent implements OnInit{
       case 'mixer':
         this.editor.onClose();
         this.mixer.onFocus(this.selected_mixer_draft_id);
-
-      //  this.mixer.recenterViews();
         break;
     }
 

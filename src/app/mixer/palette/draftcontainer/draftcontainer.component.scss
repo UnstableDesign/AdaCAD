@@ -10,8 +10,15 @@ button.output{
 .single_line{
 	display: flex;
 	font-size: 24px;
+	padding: 0px 16px;
 	flex-direction: row;
 	justify-content: center;
+}
+
+.show_draft{
+	margin: 0px 16px;
+    color: white;
+    font-size: 1.2em;
 }
 
 

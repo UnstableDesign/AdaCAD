@@ -2192,7 +2192,6 @@ pasteConnection(from: number, to: number, inlet: number){
    * @returns 
    */
   onSubdraftAction(obj: any){
-    console.log("palette -  action ", obj);
 
     if(obj === null) return;
 
@@ -2315,7 +2314,7 @@ pasteConnection(from: number, to: number, inlet: number){
 
       if(this.tree.getType(sel) == 'op' && sel !== moving_id){
         const comp = this.tree.getComponent(sel);
-        comp.topleft = this.multiselect.getNewPosition(sel, diff);
+       (<OperationComponent>comp).setPosition(this.multiselect.getNewPosition(sel, diff))
         this.updateAttachedComponents(sel, true);
       }
       if(this.tree.getType(sel)=='draft' && sel !== moving_id){

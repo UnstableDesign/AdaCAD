@@ -1,3 +1,22 @@
+
+.multiselected{
+    border: thin solid  #ff3860;
+
+    .top-row{
+        background: #ff3860;
+
+        .help{
+            background: #ff3860;
+        }
+
+        .button.is-primary{
+            background-color: #ff3860; 
+        }
+    }
+    
+}
+
+
 .operation-container{
     display: flex;
     flex-direction: column;
@@ -8,22 +27,6 @@
     background-color: #434345;
     color: white;
 
-    .multiselected{
-        border: thin solid  #ff3860;
-
-        .top-row{
-            background: #ff3860;
-
-            .help{
-                background: #ff3860;
-            }
-
-            .button.is-primary{
-                background-color: #ff3860; 
-            }
-        }
-        
-    }
 
    .outlet_row{
         display: flex;

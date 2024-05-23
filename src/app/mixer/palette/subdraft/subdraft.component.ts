@@ -168,7 +168,6 @@ export class SubdraftComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges){
   
-    console.log("CHANGES IN SUBDRAFT ", changes)
 
     //if scale is changed, automatically call the function to rescale
     if(changes['scale']){
@@ -283,8 +282,11 @@ openInEditor(event: any){
    * @param pos 
    */
   setPosition(pos: Point){
-    this.enableDrag();
-    this.topleft = pos;
+    this.topleft =  {x: pos.x, y:pos.y};
+    let sd_container = document.getElementById('scale-'+this.id);
+    sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    sd_container.style.top =  this.topleft.y+"px";
+    sd_container.style.left =  this.topleft.x+"px";
     this.updateViewport(this.topleft);
   }
 

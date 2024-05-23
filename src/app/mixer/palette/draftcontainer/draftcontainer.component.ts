@@ -87,7 +87,6 @@ export class DraftContainerComponent implements AfterViewInit{
     this.draft_name = this.tree.getDraftName(this.id);
     this.local_zoom = this.tree.getDraftScale(this.id);
     this.draft_rendering.onNewDraftLoaded(this.id);
-
     this.startSizeObserver();
 
   }
@@ -140,6 +139,10 @@ export class DraftContainerComponent implements AfterViewInit{
 
   closeSizeObserver(){
     this.size_observer.disconnect();
+  }
+
+  toggleVisibility(){
+    this.draft_visible = !this.draft_visible;
   }
 
   nameFocusOut(event){
