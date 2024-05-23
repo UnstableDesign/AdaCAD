@@ -78,6 +78,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
     const draft = this.tree.getDraft(this.id);
+    console.log("AFTER VIEW INIT on ", this.id, draft)
     this.drawDraft(draft);  
     this.ud_name = draft.ud_name;
     this.warps = warps(draft.drawdown);

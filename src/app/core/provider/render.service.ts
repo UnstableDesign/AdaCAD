@@ -526,6 +526,8 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
 
   private drawDrawdown(draft: Draft, canvas: HTMLCanvasElement,  cell_size: number, pixel_ratio: number, rf: RenderingFlags) : Promise<string>{
     
+
+    console.log("DRAWING ", draft)
     if(canvas == null || canvas == undefined){
       return Promise.resolve('drawdown canvas was null');
     }

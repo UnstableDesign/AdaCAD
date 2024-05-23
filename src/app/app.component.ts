@@ -104,7 +104,7 @@ export class AppComponent implements OnInit{
     private http: HttpClient,
     private image: ImageService,
     private ms: MaterialsService,
-    private multiselect: MultiselectService,
+    public multiselect: MultiselectService,
     private ns: NotesService,
     private ops: OperationService,
     public scroll: ScrollDispatcher,
@@ -506,6 +506,7 @@ export class AppComponent implements OnInit{
 
 
   insertPasteFile(result: LoadResponse){
+    console.log("INSERTING ", result)
     this.processFileData(result.data).then(data => {
       this.saveFile();
     }

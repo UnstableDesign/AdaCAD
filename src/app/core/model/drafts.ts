@@ -221,7 +221,6 @@ export const createDraft = (
    * @param data 
    */
   export const loadDraftFromFile = (data: any, version: string) : Promise<{draft: Draft, id: number}> => {
-
     const draft: Draft = initDraft();
     if(data.id !== undefined) draft.id = data.id;
     draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;

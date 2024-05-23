@@ -248,20 +248,16 @@ export class FileService {
 
     paste: async (data: any) : Promise<LoadResponse> => {
       
+
       let draft_nodes: Array<DraftNodeProxy> = [];
       let ops: Array<OpComponentProxy> = [];
-      let version = "0.0.0";
+      let version = data.version;
       
-      // this.clearAll();
-
      
 
       if(data.shuttles !== undefined){
        //handle shuttles here
       }
-
-      const flips_required = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-
     
       const loom_elements = []
       const loom_fns = []
@@ -288,7 +284,7 @@ export class FileService {
       .then( res => {
 
           for(let i = 0; i < draft_elements.length; i++){
-            draft_elements[i].draft = res[i];
+            draft_elements[i].draft = res[i].draft;
           }
 
       return Promise.all(loom_fns)

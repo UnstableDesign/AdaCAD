@@ -919,6 +919,25 @@ export class TreeService {
     return ops;
   }
 
+   /**
+   * given a node, recusively walks the tree and returns a list of all the nodes that branch from this parent
+   * @param id 
+   * @returns an array of node ids
+   */
+   getAllDownstreamNodes(id: number):Array<number>{
+
+    let nodes: Array<number> = [];
+    const tn: TreeNode = this.getTreeNode(id);
+    if(tn.outputs.length > 0){
+
+      tn.outputs.forEach(el => {
+        nodes.push(el.tn.node.id);  
+        nodes = nodes.concat(this.getAllDownstreamNodes(el.tn.node.id));
+      });
+    }
+    return nodes;
+  }
+
     /**
    * given a node, recusively walks the tree and returns a list of all the operations that are linked up the chain to this component
    * @param id 
@@ -940,6 +959,8 @@ export class TreeService {
       return ops;
     }
 
+
+    
 
     /**
    * given a node, recusively walks the tree and returns a list of all the drafts that are linked up the chain to this component
@@ -1670,10 +1691,66 @@ isValidIOTuple(io: IOTuple) : boolean {
    
    }
 
+
+   /**
+    * if you know two nodes are connected, and which one is the parent of the other, this walks from the parent to the child node and returns everything in between 
+    * @param from
+    * @param to
+    */
+   makeTraceBetween(from: number, to: number) : Array<number>{
+
+    if(from === to) return [];
+
+    let trace = [];
+    let from_children = this.getAllDownstreamNodes(from);
+    from_children.forEach(child => {
+      let child_children = this.getAllDownstreamNodes(child);
+      let in_branch = child_children.find(el => el == to);
+      if(in_branch !== undefined){
+        trace.push(child);
+        return trace.concat(this.makeTraceBetween(child, to));
+      } 
+    });
+
+    return trace;
+
+   }
+
+
+   /**
+    * given two nodes returns all the connection ids between these two nodes. 
+    * @param a 
+    * @param b 
+    */
+   getConnectionsBetween(a: number, b: number) : Array<number> {
+
+    let path = [];
+    //get all connections that branch from a. 
+    //get all connections that branch from b.
+    let a_children = this.getAllDownstreamNodes(a);
+    let b_children = this.getAllDownstreamNodes(b);
+
+    let a_is_parent = a_children.find(el => el === b);
+    let b_is_parent = b_children.find(el => el === a);
+
+    if(a_is_parent !== undefined){
+      console.log("A CHILDREN ", a, a_children);
+      return this.makeTraceBetween(a, b);
+    }
+
+    if(b_is_parent !== undefined){
+      console.log("B CHILDREN ", b_children)
+      return this.makeTraceBetween(b, a);
+
+    }
+
+    return [];
+   }
+
   /**
    * given two nodes, returns the id of the connection node connecting them
    * @param a one node
-   * @param b the otehr node node
+   * @param b the other node
    * @returns the node id of the connection, or -1 if that connection is not found
    */
   getConnection(a: number, b:number) : number{

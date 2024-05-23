@@ -148,8 +148,11 @@ export class MultiselectService {
       node_mirror = node_mirror.filter( el => el.id !== node.id);
 
       node_mirror.forEach(mirror => {
-        let cxn = this.tree.getConnection(node.id, mirror.id);
-        if(cxn !== -1 && relevant_connection_ids.find(el => el == cxn) === undefined) relevant_connection_ids.push(cxn);
+        let cxns = this.tree.getConnectionsBetween(node.id, mirror.id);
+
+        cxns.forEach(cxn => {
+           if(cxn !== -1 && relevant_connection_ids.find(el => el == cxn) === undefined) relevant_connection_ids.push(cxn)
+        })
       });
 
     });

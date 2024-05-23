@@ -252,6 +252,17 @@
      </button>
     </div>
 
+    <div class="copypaste" *ngIf="multiselect.selected.length > 0">
+     
+       <button mat-raised-button color="accent" (click)="onCopySelections()">Copy (ctrl-c)</button>
+      <button mat-raised-button color="accent" [disabled]="multiselect.copy === undefined" (click)="onPasteSelections()">Paste (ctrl-c)</button>
+    </div>
+
+    <div class="copypaste" *ngIf="multiselect.selected.length == 0">
+      hold shift and click to select multiple drafts and operators
+   </div>
+
+
 
     <div class="footer-right">
      <button class="download" mat-raised-button  [matMenuTriggerFor]="downloadMenu" color="primary">Download</button>
