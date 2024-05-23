@@ -126,7 +126,7 @@ export class DraftContainerComponent implements AfterViewInit{
     const callback = (mutationList, observer) => {
       for (const mutation of mutationList) {
       if (mutation.type === "attributes") {
-          console.log(`The ${mutation.attributeName} attribute was modified.`);
+          // console.log(`The ${mutation.attributeName} attribute was modified.`);
           this.onDrawdownSizeChanged.emit(this.id);
         }
       }

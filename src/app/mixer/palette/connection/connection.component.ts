@@ -125,14 +125,21 @@ export class ConnectionComponent implements OnInit {
    */
   updateToPosition(inlet_id: number, arr_id: number){
 
+    console.log("UPDATING ", inlet_id, arr_id)
+
     let parent = document.getElementById('scrollable-container');
     let parent_rect = parent.getBoundingClientRect();
 
 
     let to_container = document.getElementById("inlet"+this.to+"-"+inlet_id+"-"+arr_id);
+
+    console.log("Container ", "inlet"+this.to+"-"+inlet_id+"-"+arr_id, to_container)
+
     if(to_container == null || to_container == undefined) return;
     
     let to_rect = to_container.getBoundingClientRect();
+    console.log("RECT ", to_rect)
+
     const zoom_factor =  1/this.zs.getMixerZoom();
 
     //on screen position relative to palette
@@ -161,7 +168,6 @@ export class ConnectionComponent implements OnInit {
    * @param from the id of the component this connection goes to
    */
   updateFromPosition(){
-    console.log("UPDATE FROM")
     let parent = document.getElementById('scrollable-container');
     let parent_rect = parent.getBoundingClientRect();
     let sd_element = document.getElementById(this.from+'-out');
@@ -170,7 +176,6 @@ export class ConnectionComponent implements OnInit {
     if(sd_element === null ) return;
 
     let sd_container =sd_element.getBoundingClientRect();
-    console.log("SD CONTAINER", sd_container)
 
     const zoom_factor =  1/this.zs.getMixerZoom();
    //on screen position relative to palette

@@ -124,7 +124,6 @@ export class TreeService {
       });
 
 
-      //we need something here that maps the old connection inputs to the new inlets
       inlets = op.onParamChange(param_vals, op.inlets, inlets, param_id, param_val);
 
 
@@ -484,6 +483,7 @@ export class TreeService {
     if(!this.ops.isDynamic(opnode.name)) return Promise.resolve([]);
 
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
+
      const viewRefs:Array<ViewRef> = [];
 
      inputs_to_op.forEach((iotuple) => {

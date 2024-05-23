@@ -89,9 +89,9 @@ export class InletComponent implements OnInit {
   }
 
   ngAfterViewInit(){
-
     this.onInletLoaded.emit({ndx: this.inletid});
   }
+
 
   checkIfInletIsOpen(){
     this.inlet_open = this.inlet.num_drafts == -1 || (this.tree.getInputsAtNdx(this.opid, this.inletid).length < this.inlet.num_drafts);

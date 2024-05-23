@@ -1026,6 +1026,9 @@ export class DraftRenderingComponent implements OnInit {
       
       //takes inputs about what to redraw
       public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any) : Promise<boolean>{
+
+        if(draft == null) return;
+
         this.colSystemMapping = draft.colSystemMapping;
         this.rowSystemMapping = draft.rowSystemMapping;
 
