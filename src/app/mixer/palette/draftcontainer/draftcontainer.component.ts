@@ -10,6 +10,7 @@ import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
+import { ViewerService } from '../../../core/provider/viewer.service';
 
 @Component({
   selector: 'app-draftcontainer',
@@ -25,7 +26,6 @@ export class DraftContainerComponent implements AfterViewInit{
   @Output() connectionSelected = new EventEmitter();
   @Output() onDuplicateCalled = new EventEmitter();
   @Output() onDeleteCalled = new EventEmitter();
-  @Output() onSelectCalled = new EventEmitter();
   @Output() onOpenInEditor = new EventEmitter();
   @Output() onRecomputeChildren = new EventEmitter();
   @Output() onDrawdownSizeChanged = new EventEmitter();
@@ -67,7 +67,14 @@ export class DraftContainerComponent implements AfterViewInit{
     public tree: TreeService,
     public render: RenderService,
     private ss: SystemsService,
+    private vs: ViewerService,
     public ws: WorkspaceService){
+
+    //subscribe to id changes on the view service to update view if this is current selected
+    this.vs.showing_id_change$.subscribe(data => {
+      this.updateStyle(data);
+
+    })
 
   }
 
@@ -93,6 +100,25 @@ export class DraftContainerComponent implements AfterViewInit{
 
   }
 
+  updateStyle(viewer_id: number){
+    const targetNode = document.getElementById("subdraft-container-"+this.id);
+    console.log("UPDATING STYLE ON ", this.id, viewer_id, this.vs.getPin())
+    if(targetNode == null) return;
+
+    if(this.id == viewer_id){
+      targetNode.classList.add('on_view');
+    }else{
+      targetNode.classList.remove('on_view');
+    }
+
+    if(this.id == this.vs.getPin()){
+      targetNode.classList.add('has_pin');
+    }else{
+      targetNode.classList.remove('has_pin');
+    }
+
+  }
+
 
   ngOnDestroy(){
     this.closeSizeObserver();
@@ -100,21 +126,32 @@ export class DraftContainerComponent implements AfterViewInit{
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['dirty']) {
-       //if(this.source == 'editor' && this.dm.isSelectedDraftEditSource('drawdown')) return;
+
 
 
       let draft = this.tree.getDraft(this.id);
-      
-      if(draft == undefined) draft = initDraft();
+
+      if(draft == undefined || draft == null){
+        this.ud_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
+        this.warps = 0;
+        this.wefts = 0;
+      }else{
+        this.ud_name = getDraftName(draft);
+        this.warps = warps(draft.drawdown);
+        this.wefts = wefts(draft.drawdown);
+      }
     
       
-      this.ud_name = getDraftName(draft);
-      this.warps = warps(draft.drawdown);
-      this.wefts = wefts(draft.drawdown);
+
 
       if(!changes['dirty'].firstChange){
-        if(this.draft_rendering !== undefined) this.draft_rendering.onNewDraftLoaded(this.id);
-        this.drawDraft(draft);
+        if(this.draft_rendering !== undefined && draft !== undefined && draft !== null){
+          this.draft_rendering.onNewDraftLoaded(this.id);
+          this.drawDraft(draft);
+        } else{
+          this.draft_rendering.clear();
+        }
+       
       }     
     }
 }
@@ -154,9 +191,23 @@ export class DraftContainerComponent implements AfterViewInit{
     this.connectionSelected.emit({event: event, id: this.id});
   }
 
-  selectForView(){
-    this.onSelectCalled.emit()
+  hasPin() : boolean{
+    if(!this.vs.hasPin()) return false;
+    return this.id === this.vs.getPin()
   }
+
+
+  pinToView(){
+      this.vs.setPin(this.id);
+    
+  }
+
+
+
+  unpinFromView(){
+    this.vs.clearPin();
+  }
+
 
   openInEditor(){
     this.onOpenInEditor.emit(this.id)
@@ -225,6 +276,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
   drawdownUpdated(){
     if(!this.tree.hasParent(this.id)){
+     this.vs.updateViewer();
      this.onRecomputeChildren.emit({event: 'edit', id: this.id});
     }
   }

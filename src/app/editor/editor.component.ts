@@ -20,6 +20,7 @@ import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
+import { ViewerService } from '../core/provider/viewer.service';
 
 
 
@@ -35,17 +36,14 @@ export class EditorComponent implements OnInit {
   @ViewChild(LoomComponent) loom;
   
   @Input() hasFocus: boolean;
-  @Input('id') id: number;
-
   @Output() closeDrawer: any = new EventEmitter();
   @Output() saveChanges: any = new EventEmitter();
-  @Output() redrawViewer: any = new EventEmitter();
   @Output() updateMixer: any = new EventEmitter();
   @Output() cloneDraft: any = new EventEmitter();
   @Output() onFocusView: any = new EventEmitter();
   @Output() onCollapseView: any = new EventEmitter();
   
-
+  id: number = -1;
     
   parentOp: string = '';
   
@@ -90,6 +88,7 @@ export class EditorComponent implements OnInit {
     private ws: WorkspaceService,
     private tree: TreeService,
     public render: RenderService,
+    public vs: ViewerService,
     private zs: ZoomService) {
       
       
@@ -197,6 +196,7 @@ export class EditorComponent implements OnInit {
     
     getParentOp(id: number){
       const hasParent = this.tree.hasParent(id);
+      console.log("HAS PARENT ", hasParent)
       if(!hasParent) this.parentOp = '';
       else{
         let pid = this.tree.getSubdraftParent(id);
@@ -221,6 +221,8 @@ export class EditorComponent implements OnInit {
       const draft = this.tree.getDraft(id);
       this.getParentOp(id);
 
+      console.log("Parent Op", this.parentOp)
+
       if(this.parentOp !== '') this.weaveRef.view_only = true;
       else this.weaveRef.view_only = false;
       
@@ -234,6 +236,7 @@ export class EditorComponent implements OnInit {
       
       this.draftname = getDraftName(draft)
       this.weaveRef.onNewDraftLoaded(id);
+      this.redraw();
 
       return Promise.resolve(null);
       
@@ -264,8 +267,7 @@ export class EditorComponent implements OnInit {
     
     
     public drawdownUpdated(){
-      console.log("editor - drawdown updated ")
-      this.redrawViewer.emit();    
+      this.vs.updateViewer();
     }  
     
     
@@ -359,32 +361,7 @@ export class EditorComponent implements OnInit {
     }
     
     
-    
-    
-    /**
-    * when a change happens to the defaults for looms, we must update all looms on screen
-    */
-    
-    // public globalLoomChange(e: any){
-    
-    //   const dn = this.tree.getDraftNodes();
-    //   dn.forEach(node => {
-    //     const draft = this.tree.getDraft(node.id)
-    //     const loom = this.tree.getLoom(node.id)
-    //     const loom_settings = this.tree.getLoomSettings(node.id);
-    //     (<SubdraftComponent> node.component).draft_rendering.drawDraft(draft);
-    //     if(node.id == this.id){
-    //       this.weaveRef.redraw(draft, loom, loom_settings, {
-    //         drawdown: true, 
-    //         loom:true, 
-    //         warp_systems: true, 
-    //         weft_systems: true, 
-    //         warp_materials: true,
-    //         weft_materials:true
-    //       });
-    //     } 
-    
-    //   });
+  
     
     
     // }
@@ -395,23 +372,10 @@ export class EditorComponent implements OnInit {
       //  this.draft.notes = e;
     }
     
-    // public hideShuttle(e:any) {
-    //   this.draft.updateVisible();
-    //   this.weaveRef.redraw();
-    //   this.weaveRef.redrawLoom();
-    // }
-    
-    // public showShuttle(e:any) {
-    //   this.draft.updateVisible();
-    //   this.weaveRef.redraw();
-    //   this.weaveRef.redrawLoom();
-    // }
+
     
     
-    
-    
-    
-    
+
     public updateSelection(e:any){
       if(!this.weaveRef.hasSelection()) return;
       if(e.copy !== undefined) this.copy = e;

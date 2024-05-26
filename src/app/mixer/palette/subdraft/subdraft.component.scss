@@ -10,7 +10,17 @@
 }
 
 .multiselected{
-	border-top: 16px solid #ff3860;
+
+	.from_subdraft{
+	border: thick dashed  #ff3860;
+	}	
+}
+
+.pinned{
+
+	.from_subdraft{
+	border: thick solid  #ff3860;
+	}	
 }
 
 .is_selected{

@@ -1,19 +1,15 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { SystemsService } from '../../../core/provider/systems.service';
-import { Bounds, Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, ViewRef } from '@angular/core';
+import { Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
 import { isUp, warps, wefts } from '../../../core/model/drafts';
-import { FileService } from '../../../core/provider/file.service';
-import { MaterialsService } from '../../../core/provider/materials.service';
+import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { TreeService } from '../../../core/provider/tree.service';
+import { ViewerService } from '../../../core/provider/viewer.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
+import { ZoomService } from '../../../core/provider/zoom.service';
 import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
-import { ZoomService } from '../../../core/provider/zoom.service';
-import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
-
 
 
 @Component({
@@ -47,8 +43,6 @@ export class SubdraftComponent implements OnInit {
   @Output() createNewSubdraftFromEdits:any = new EventEmitter<any>();
   @Output() onNameChange:any = new EventEmitter<any>();
   @Output() onOpenInEditor:any = new EventEmitter<any>();
-  @Output() onSelectForView = new EventEmitter <any> (); //force this as the sole focus
-  @Output() onFocus = new EventEmitter <any> ();
   @Output() onRedrawOutboundConnections = new EventEmitter <any> ();
 
 
@@ -98,10 +92,6 @@ export class SubdraftComponent implements OnInit {
 
   draft_zoom: number = 1;
 
-
-
-
-
   constructor( 
     private dm: DesignmodesService,
     private layer: LayersService, 
@@ -109,9 +99,12 @@ export class SubdraftComponent implements OnInit {
     private viewport: ViewportService,
     public ws: WorkspaceService,
     private multiselect: MultiselectService,
+    private vs: ViewerService,
     public zs: ZoomService) { 
 
       this.zndx = layer.createLayer();
+
+
 
   }
 
@@ -122,11 +115,10 @@ export class SubdraftComponent implements OnInit {
     const tl_offset = {x: tl.x, y: tl.y};
 
     if(this.topleft.x === 0 && this.topleft.y === 0) this.setPosition(tl_offset);
-   // this.interlacement = utilInstance.resolvePointToAbsoluteNdx(this.topleft, this.scale);
 
     if(!this.is_preview) this.viewport.addObj(this.id, this.interlacement);
 
-
+ 
     const dn:DraftNode = <DraftNode> this.tree.getNode(this.id);
     this.use_colors = dn.render_colors;
 
@@ -165,6 +157,7 @@ export class SubdraftComponent implements OnInit {
       }
     }
   }
+
 
   /**
    * this is called when the draft container displaying this draft has had a size change 
@@ -242,15 +235,6 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-setFocus(){
-
-  this.onFocus.emit(this.id);
-
-}  
-
-selectForView(){
-  this.onSelectForView.emit(this.id);
-}
 
 openInEditor(event: any){
   this.onOpenInEditor.emit(this.id);
@@ -409,8 +393,8 @@ openInEditor(event: any){
    * prevents hits on the operation to register as a palette click, thereby voiding the selection
    * @param e 
    */
-    mousedown(e: any){
-    this.onFocus.emit(this.id);
+   mousedown(e: any){
+    this.vs.setViewer(this.id);
     e.stopPropagation();
   }
 

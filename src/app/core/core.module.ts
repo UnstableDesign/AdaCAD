@@ -51,6 +51,7 @@ import { WelcomeComponent } from './modal/welcome/welcome.component';
 import { RenderService } from './provider/render.service';
 import { DraftRenderingComponent } from './ui/draft-rendering/draft-rendering.component';
 import { SelectionComponent } from './ui/draft-rendering/selection/selection.component';
+import { ViewerService } from './provider/viewer.service';
 
 
 
@@ -113,7 +114,8 @@ import { SelectionComponent } from './ui/draft-rendering/selection/selection.com
         VaeService,
         PatternfinderService,
         AuthService,
-        RenderService
+        RenderService,
+        ViewerService
     ],
     exports: [
         CommonModule,
@@ -157,7 +159,6 @@ import { SelectionComponent } from './ui/draft-rendering/selection/selection.com
         ExamplesComponent,
         KeycodesDirective,
         DraftRenderingComponent,
-        SelectionComponent  
-    ]
+        SelectionComponent     ]
 })
 export class CoreModule { }

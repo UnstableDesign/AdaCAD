@@ -1,7 +1,7 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
 import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
-import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -28,7 +28,6 @@ export class TreeService {
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
   private open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
-  preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
   constructor(
     private ws: WorkspaceService,
@@ -240,61 +239,7 @@ export class TreeService {
   }
 
 
-  /**
-   * a preview is a temporary object that is created when two drafts overlap in drawing mode
-   * it just needs to contain a draft (and no loom as it will be deleted when the active operation ends)
-   * @param sd 
-   * @param draft 
-   * @returns 
-   */
-  setPreview(sd: any, draft: Draft) : Promise<DraftNode>{
-    this.preview = {
-      id: -1,
-      type: "draft",
-      ref: sd.hostView,
-      component: <SubdraftComponent> sd.instance,
-      dirty: true, 
-      draft: copyDraft(draft),
-      loom: null,
-      loom_settings: null,
-      render_colors: false,
-      mark_for_deletion: false,
-      scale: 1
-    }
 
-    sd.dirty = true;
-
-    return Promise.resolve(this.preview);
-  
-  }
-
-  setPreviewDraft(draft: Draft) : Promise<DraftNode>{
-    if(this.preview === undefined) return Promise.reject("preview undefined");
-      this.preview.draft = copyDraft(draft);
-      this.preview.dirty = true;
-      (<SubdraftComponent> this.preview.component).draft = draft;
-      return Promise.resolve(this.preview);
-  }
-
-
-
-  unsetPreview(){
-    this.preview = undefined;
-  }
-
-  hasPreview():boolean{
-      if(this.preview === undefined) return false;
-      return true;
-  }
-
-
-  getPreview() : DraftNode{
-    return this.preview;
-  }
-
-  getPreviewComponent() : SubdraftComponent{
-    return <SubdraftComponent> this.preview.component;
-  }
 
   /**
    * returns a list of all the node ids of drafts that are dirty (including preview)
@@ -302,7 +247,6 @@ export class TreeService {
   getDirtyDrafts() : Array<number> {
 
     return this.nodes.filter(el => el.type === "draft")
-      .concat(this.preview)
       .filter(el => el.dirty)
       .map(el => el.id);
   }
@@ -701,7 +645,9 @@ export class TreeService {
   }
 
   getType(id:number):string{
+
     const node: Node = this.getNode(id);
+    if(node == null) return 'null'
     return node.type;
   }
 
@@ -1195,11 +1141,9 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
 clearDraft(dn: DraftNode){
 
 
-  dn.draft = null;
-  // dn.draft.rowShuttleMapping = [];
-  // dn.draft.rowSystemMapping = [];
-  // dn.draft.colShuttleMapping = [];
-  // dn.draft.colSystemMapping = [];
+  dn.draft = initDraft();
+  dn.draft.ud_name = "This operation needs more inputs to create a draft";
+
 
 }
 
@@ -1221,14 +1165,12 @@ clearDraft(dn: DraftNode){
   const update_looms = [];
   const new_draft_fns = [];
 
-  // console.log("RESULTS and EXISTING ", res, out)
-
-
   //first, cycle through the resulting nodes: 
   for(let i = 0; i < res.length; i++){
 
     //get the output associated with the ndx "i"
     let active_tn_tuple =  op_outlets.find(el => el.ndx == i);
+
     if(active_tn_tuple !== undefined){
       let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
       if(cxn_child.length > 0){
@@ -1244,8 +1186,6 @@ clearDraft(dn: DraftNode){
       new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true, 1)); 
       update_looms.push({id: id, draft:  res[i]});
       touched.push(id);
-
-      //need to reset the count on the outlets here. 
     }
 
   }
@@ -1256,7 +1196,6 @@ clearDraft(dn: DraftNode){
       const dn = <DraftNode> this.getNode(output);
       dn.mark_for_deletion = true;
       this.clearDraft(dn);
-      //THIS IS MARKING FOR DELETION BUT I DON"T THINK IT"S EVER DELETING...why can't I just
     }
   });
   
@@ -1496,14 +1435,12 @@ isValidIOTuple(io: IOTuple) : boolean {
   }
 
   getDraft(id: number):Draft{
-    if(id === -1) return this.preview.draft;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined) return null;
     return dn.draft;
   }
 
   getDraftName(id: number):string{
-    if(id === -1) return this.preview.draft.ud_name;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined || dn.draft === null) return "null draft";
     return (dn.draft.ud_name === "") ?  dn.draft.gen_name : dn.draft.ud_name; 
@@ -2245,7 +2182,6 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   setDraftClean(id: number){
     if(id === -1){
-      this.preview.dirty = false;
       return;
     } 
 

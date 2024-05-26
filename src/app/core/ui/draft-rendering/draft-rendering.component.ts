@@ -15,7 +15,7 @@ import { TreeService } from '../../provider/tree.service';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { ZoomService } from '../../provider/zoom.service';
 import { SelectionComponent } from './selection/selection.component';
-
+import { ViewerService } from '../../provider/viewer.service';
 
 @Component({
   selector: 'app-draft-rendering',
@@ -128,9 +128,9 @@ export class DraftRenderingComponent implements OnInit {
       /**
   * flag defining if there needs to be a recomputation of the draft on Mouse Up
   */
-      flag_recompute: boolean;
-  
-      flag_history: boolean;
+  flag_recompute: boolean;
+
+  flag_history: boolean;
   
   /// ANGULAR FUNCTIONS
   /**
@@ -148,6 +148,7 @@ export class DraftRenderingComponent implements OnInit {
     private tree:TreeService,
     private ops: OperationService,
     public render: RenderService,
+    public vs: ViewerService,
     private zs: ZoomService
   ) { 
     
@@ -352,6 +353,9 @@ export class DraftRenderingComponent implements OnInit {
   */
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
+
+    //show this in the viewer
+    this.vs.setViewer(this.id);
     
     if(this.id == -1 || this.view_only) return;
     
@@ -950,37 +954,8 @@ export class DraftRenderingComponent implements OnInit {
       public clearAll(){
         this.colSystemMapping = [];
         this.rowSystemMapping = [];
-        
-        // this.cx.clearRect(0,0, this.canvasEl.width, this.canvasEl.height);   
-        // this.cx.canvas.width = 0;
-        // this.cx.canvas.height = 0;
-        // this.cx.canvas.style.width = "0px";
-        // this.cx.canvas.style.height = "0px";
-        // this.cx.strokeStyle = "#3d3d3d";
-        // this.cx.fillStyle = "#f0f0f0";
-        // this.cx.fillRect(0,0,this.canvasEl.width,this.canvasEl.height);
-        // this.cx.strokeRect(0,0,this.canvasEl.width,this.canvasEl.height);
-        
-        // this.cxThreading.clearRect(0,0, this.cxThreading.canvas.width, this.cxThreading.canvas.height);
-        // this.cxTreadling.clearRect(0,0, this.cxTreadling.canvas.width, this.cxTreadling.canvas.height);
-        // this.cxTieups.clearRect(0,0, this.cxTieups.canvas.width, this.cxTieups.canvas.height);
-        
-        // this.cxThreading.canvas.width = 0;
-        // this.cxThreading.canvas.height = 0;
-        // this.cxThreading.canvas.style.width =  "0px"
-        // this.cxThreading.canvas.style.height = "0px"
-        
-        
-        // this.cxTreadling.canvas.width = 0;
-        // this.cxTreadling.canvas.height = 0;
-        // this.cxTreadling.canvas.style.width = "0px";
-        // this.cxTreadling.canvas.style.height = "0px";
-        
-        // this.cxTieups.canvas.width = 0;
-        // this.cxTieups.canvas.height = 0;
-        // this.cxTieups.canvas.style.width = "0px";
-        // this.cxTieups.canvas.style.height = "0px";
-        
+        this.render.clear(this.canvases); 
+       
       }
       
       public redrawAll(){
@@ -1041,6 +1016,25 @@ export class DraftRenderingComponent implements OnInit {
         
         
       }
+
+       //takes inputs about what to redraw
+       public clear() : Promise<boolean>{
+
+        this.colSystemMapping = [];
+        this.rowSystemMapping = [];
+
+        
+   
+        return this.render.clear(this.canvases).then(res => {
+          return Promise.resolve(res);
+        })
+        
+        
+        
+        
+        
+      }
+      
       
       
       

@@ -1,17 +1,16 @@
 
 .multiselected{
-    border: thin solid  #ff3860;
 
-    .top-row{
-        background: #ff3860;
+    .operation-container{
+        border: thick dashed  #ff3860;
+    }
+    
+}
 
-        .help{
-            background: #ff3860;
-        }
+.pinned{
 
-        .button.is-primary{
-            background-color: #ff3860; 
-        }
+    .operation-container{
+        border: thick solid  #ff3860;
     }
     
 }

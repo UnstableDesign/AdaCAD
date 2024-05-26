@@ -42,9 +42,9 @@
         
         <mat-menu #downloadMenu="matMenu">
           <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
-          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('bmp')">Selected Draft as Bitmap</button>
-          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('jpg')">Selected Draft as Image</button>
-          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('wif')">Selected Draft as .WIF</button>
+          <button mat-menu-item [disabled]="vs.hasViewer()" (click)="saveDraftAs('bmp')">Selected Draft as Bitmap</button>
+          <button mat-menu-item [disabled]="vs.hasViewer()" (click)="saveDraftAs('jpg')">Selected Draft as Image</button>
+          <button mat-menu-item [disabled]="vs.hasViewer()" (click)="saveDraftAs('wif')">Selected Draft as .WIF</button>
           <!-- <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button> -->
         </mat-menu>
 
@@ -133,11 +133,13 @@
 
         </div>
 
+        
+
        
         <div class="auth" *ngIf="files.connected && (auth.showLogoutButton)">
       
 
-          <button mat-flat-button color="primary" [matMenuTriggerFor]="account"> Hi {{auth.username}} <i class="fa-solid fa-caret-down"></i> </button>
+          <!-- <button mat-flat-button color="primary" [matMenuTriggerFor]="account"> Hi {{auth.username}} <i class="fa-solid fa-caret-down"></i> </button> -->
 
           <mat-menu #account="matMenu">
             <button mat-menu-item (click)="openAdaFiles(false)">Manage Saved Files</button>
@@ -145,8 +147,23 @@
           </mat-menu>
         </div>
 
+        <div class="footer-center">
+          <span>current workspace: {{files.current_file_name}}.ada</span>  
+        
+        <button 
+          mat-icon-button  
+          matTooltip="Manage Files and Settings"
+          (click)="openAdaFiles(false)" >
+          <i class="fa-regular fa-folder-open"></i>
+         </button>
+        </div>
+
         <div *ngIf="files.connected && !auth.isLoggedIn">
           <button mat-raised-button color="primary" class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
+        </div>
+
+        <div *ngIf="files.connected && auth.isLoggedIn">
+          <button mat-raised-button color="primary" class="example-full-width login" matTooltip="logout" (click) = "logout()"><i class="fa fa-sign-out"></i> Log Out</button>
         </div>
       </div>
       
@@ -167,8 +184,6 @@
     #mixer
     id="mixer" 
     cdkScrollable
-    (onDraftFocused)="onSetViewer($event, 'mixer')"
-    (refreshViewer)="onRefreshViewer('mixer')"
     (onOpenInEditor)="openInEditor($event)"
 
     >
@@ -179,11 +194,9 @@
     <app-editor id="draftdetail"
     class="detail-container"
     #details 
-    [id]="selected_editor_draft_id"
     [class.hide]="selected_editor_mode !== 'draft'"
     [class.show]="selected_editor_mode === 'draft'" 
     (saveChanges)="saveFile()"
-    (redrawViewer)="onRefreshViewer('editor')"
     (cloneDraft)="cloneDraft($event)"
     (updateMixer)="updateMixer()"
       ></app-editor>
@@ -191,7 +204,6 @@
      
      <app-viewer 
      #viewer
-     [id]="selected_editor_draft_id"
      class="static-container"
      (onClearWorkspace)="clearAll()"
      (onOpenMaterials)="openMaterials()"
@@ -241,16 +253,7 @@
 
     </div>
 
-    <div class="footer-center">
-      <span>current workspace: {{files.current_file_name}}.ada</span>  
-    
-    <button 
-      mat-icon-button  
-      matTooltip="Manage Files and Settings"
-      (click)="openAdaFiles(false)" >
-      <i class="fa-regular fa-folder-open"></i>
-     </button>
-    </div>
+
 
     <div class="copypaste" *ngIf="multiselect.selected.length > 0">
      

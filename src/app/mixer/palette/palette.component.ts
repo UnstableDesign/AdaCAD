@@ -19,6 +19,7 @@ import { NoteComponent } from './note/note.component';
 import { OperationComponent } from './operation/operation.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
+import { ViewerService } from '../../core/provider/viewer.service';
 
 @Component({
   selector: 'app-palette',
@@ -30,9 +31,7 @@ import { SubdraftComponent } from './subdraft/subdraft.component';
 export class PaletteComponent implements OnInit{
 
 
-  @Output() onDesignModeChange: any = new EventEmitter();  
-  @Output() onRevealDraftDetails: any = new EventEmitter();  
-  @Output() refreshViewer: any = new EventEmitter();  
+  // @Output() onDesignModeChange: any = new EventEmitter();  
   @Output() onOpenInEditor: any = new EventEmitter();  
 
   /**
@@ -94,13 +93,6 @@ export class PaletteComponent implements OnInit{
    visible_op_inlet: number = -1;
 
 
-     /** variables for focused view */
-
-  selected_draft_id: number = -1;
-
-  has_viewer_focus:number = -1;
-
-
   
   constructor(
     public dm: DesignmodesService, 
@@ -111,6 +103,7 @@ export class PaletteComponent implements OnInit{
     private _snackBar: MatSnackBar,
     public viewport: ViewportService,
     private notes: NotesService,
+    private vs: ViewerService,
     private ss: StateService,
     private zs: ZoomService,
     private multiselect: MultiselectService) { 
@@ -132,17 +125,6 @@ export class PaletteComponent implements OnInit{
    * Gets references to view items and adds to them after the view is initialized
    */
    ngAfterViewInit(){
-    
-    // const div:HTMLElement = document.getElementById('scrollable-container');
-    // this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
-
-    // this.selection.scale = this.zs.zoom;
-
-    // this.selection.active = false;
-    
-    // this.designModeChanged();
-
-    // this.rescale(-1);
 
   }
 
@@ -198,10 +180,7 @@ export class PaletteComponent implements OnInit{
    */
    clearComponents(){
     this.unsubscribeFromAll();
-
-    console.log("CLEARING NOTES ", this.notes)
     this.notes.getRefs().forEach(ref => this.removeFromViewContainer(ref));
-
     this.vc.clear();
   }
 
@@ -328,7 +307,7 @@ handlePan(diff: Point){
       this.performAndUpdateDownstream(opcomp.id).then(el => {
         let children = this.tree.getNonCxnOutputs(opcomp.id);
        
-        if(children.length > 0) this.revealDraftDetails(children[0]);
+        if(children.length > 0) this.vs.setViewer(children[0])
       
         this.addTimelineState();
       });
@@ -378,10 +357,6 @@ handlePan(diff: Point){
     container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
 
     this.redrawConnections();
-
-
-    // this.handleScrollFromZoom(prev_zoom);
-
   }
 
   
@@ -436,23 +411,6 @@ handlePan(diff: Point){
 
 
   /**
-   * called when the palette needs to change the design mode, emits output to parent
-   * @param name - the mode to switchh to
-   */
-  changeDesignmode(name: string) {
-    this.dm.selectMixerEditingMode(name);
-    this.onDesignModeChange.emit(name);
-  }
-
-  // disablePointerEvents(){
-  //   this.pointer_events = false;
-  // }
-
-  // enablePointerEvents(){
-  //   this.pointer_events = true;
-  // }
-
-  /**
    * called when a new subdraft is created
    * @param sd 
    */
@@ -467,36 +425,11 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
-    this.subdraftSubscriptions.push(sd.onSelectForView.subscribe(this.forceFocus.bind(this)));
-    this.subdraftSubscriptions.push(sd.onFocus.subscribe(this.setFocus.bind(this)));
     this.subdraftSubscriptions.push(sd.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
   }
 
   openInEditor(id: number){
     this.onOpenInEditor.emit(id);
-  }
-
-
-  /**
-   * A change has been made that, in the default condiiton, would trigger it to show up
-   * in the viewer. This checks if no other item is holding focus, and if not, updates. 
-   * @param id 
-   */
-  revealDraftDetails(id: number){
-
-    this.selected_draft_id = id;
-    
-    if(this.has_viewer_focus == -1 || id == -1) this.onRevealDraftDetails.emit(id);
-    if(id == -1) return;
-
-    if(this.tree.hasParent(id)){
-      let parent = this.tree.getSubdraftParent(id);
-      if(parent == this.has_viewer_focus) this.onRevealDraftDetails.emit(id);
-
-    }else{
-      if(this.has_viewer_focus == id) this.onRevealDraftDetails.emit(id);
-    }
-  
   }
 
   /**
@@ -577,7 +510,6 @@ handlePan(diff: Point){
   }
 
   saveNote(){
-    this.changeDesignmode('move');
     this.addTimelineState();
   }
 
@@ -689,8 +621,6 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onInputVisibilityChange.subscribe(this.updateVisibility.bind(this)));
     this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
-    this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.setFocus.bind(this)));
-    this.operationSubscriptions.push(op.onSelectForView.subscribe(this.forceFocus.bind(this)));
     this.operationSubscriptions.push(op.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
     this.operationSubscriptions.push(op.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
 
@@ -752,22 +682,7 @@ handlePan(diff: Point){
         op.instance.topleft = {x: topleft.x, y: topleft.y};
         op.instance.loaded = true;
   
-        // if(bounds !== null){
-        
-        //   const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
-        //   const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
-          
-        //   const new_bounds: Bounds = {
-        //     topleft: adj_topleft,
-        //     width: bounds.width / saved_scale * this.zs.zoom,
-        //     height: bounds.height / saved_scale * this.zs.zoom,
-        //   }
-    
-        //   op.instance.bounds = new_bounds;
-          
-        // } 
-  
-       
+
       }
 
    
@@ -872,7 +787,6 @@ handlePan(diff: Point){
 }
 
   /**
-   * a subdraft can only have an operation for a parent
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
    * @param id {number}  
@@ -883,16 +797,18 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
-    if(this.has_viewer_focus == id){
-      this.has_viewer_focus = -1;
-      this.revealDraftDetails(-1);
+    this.vs.checkOnDelete(id);
 
-    }
+    // if(this.has_viewer_focus == id){
+    //   this.has_viewer_focus = -1;
+    //   this.revealDraftDetails(-1);
 
-    if(this.selected_draft_id == id){
-      this.selected_draft_id = -1;
-      this.revealDraftDetails(-1);
-    }
+    // }
+
+    // if(this.selected_draft_id == id){
+    //   this.selected_draft_id = -1;
+    //   this.revealDraftDetails(-1);
+    // }
 
     const outputs = this.tree.getNonCxnOutputs(id);
     const delted_nodes = this.tree.removeSubdraftNode(id);
@@ -918,24 +834,19 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
-    if(this.has_viewer_focus == id){
-      this.has_viewer_focus = -1;
-    }
-
-    if(this.selected_draft_id == id){
-      this.selected_draft_id = -1;
-    }
 
     const drafts_out = this.tree.getNonCxnOutputs(id);
-
+    drafts_out.forEach(id => this.vs.checkOnDelete(id));
 
     const outputs:Array<number> = drafts_out.reduce((acc, el) => {
       return acc.concat(this.tree.getNonCxnOutputs(el));
     }, []);
 
 
+    //TODO Make sure this is actually returning all the removed nodes
     const delted_nodes = this.tree.removeOperationNode(id);
     delted_nodes.forEach(node => {
+      if(node.type == 'draft') this.vs.checkOnDelete(id);
       this.removeFromViewContainer(node.ref);
       this.viewport.removeObj(node.id);
     });
@@ -1451,8 +1362,6 @@ connectionDragged(mouse: Point){
   const svg = document.getElementById('scratch_svg');
   svg.innerHTML = ' ' ;
 
-  this.changeDesignmode('move');
-
   if(!this.tree.hasOpenConnection()) return;
 
 
@@ -1766,7 +1675,7 @@ connectionMade(obj: any){
 
   this.performAndUpdateDownstream(obj.id).then(el => {
     let children = this.tree.getNonCxnOutputs(obj.id);
-    if(children.length > 0) this.revealDraftDetails(children[0]);
+    if(children.length > 0) this.vs.setViewer(children[0]);
     this.addTimelineState();
   });
 
@@ -1804,9 +1713,8 @@ pasteConnection(from: number, to: number, inlet: number){
 
    if(this.tree.getType(to)==="op"){
      this.performAndUpdateDownstream(to).then(done => {
-      console.log("AFTER PERFORM ", this.tree)
-      this.refreshViewer.emit();
-     }); 
+      this.vs.updateViewer();
+    }); 
    }
   
 
@@ -1822,49 +1730,6 @@ pasteConnection(from: number, to: number, inlet: number){
   this.freezePaletteObjects();
 
  }
-
- /**
-  * set focus sets the draft in the viewer and editor (as long as nothing is already forced in the focus)
-  * @param id 
-  */
- setFocus(id: number){
-  this.revealDraftDetails(id);
- }
-
- /**
- * the id of the operation or subdraft that is now selected
- * @param id 
- */
- forceFocus(id: number){
-
-  if(this.has_viewer_focus !== -1){
-    const el = document.getElementById('scale-'+this.has_viewer_focus);
-    el.style.border = "none";
-  }
-
-  if(this.has_viewer_focus == id){
-   id = -1;
-  }
-
-  if(id !== -1){
-    const el = document.getElementById('scale-'+id);
-    el.style.border = "thick solid black";
-  }
-
-  this.has_viewer_focus = id;
-  if(this.has_viewer_focus == -1) return;
-
-  //get node - if its an op, get the children, if its a draft, just send it. 
-  let type = this.tree.getType(id);
-
-  if(type == 'op'){
-    let children = this.tree.getNonCxnOutputs(id);
-    if(children.length > 0) this.revealDraftDetails(children[0]);
-  }else{
-    this.revealDraftDetails(id);
-  }
-  
-}
 
 
  /**
@@ -2224,8 +2089,6 @@ pasteConnection(from: number, to: number, inlet: number){
         return this.performAndUpdateDownstream(obj.id)
       } )
       .then(el => {
-        let children = this.tree.getNonCxnOutputs(obj.id);
-        if(children.length > 0) this.revealDraftDetails(children[0]);
         return this.tree.sweepOutlets(obj.id)
       })
       .then(viewRefs => {
@@ -2243,8 +2106,7 @@ pasteConnection(from: number, to: number, inlet: number){
         })
 
         this.addTimelineState();
-        console.log("AFTER param change ")
-        this.refreshViewer.emit();
+        this.vs.updateViewer();
       })
       .catch(console.error);
    
@@ -2361,48 +2223,8 @@ pasteConnection(from: number, to: number, inlet: number){
     this.updateSelectionPositions(obj.id);
 
     this.addTimelineState();
-    this.tree.unsetPreview();
-  
-    //get the reference to the draft that's moving
-    const moving = this.tree.getComponent(obj.id);
-    //const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
-   // this.viewport.updatePoint(moving.id, interlacement);
-      
-
 
   }
-
-
-  // getSelectionBounds(c1: any, c2: any): Bounds{
-  //     let bottomright = {x: 0, y:0};
-  //     let bounds:Bounds = {
-  //       topleft:{x: 0, y:0},
-  //       width: 0,
-  //       height: 0
-  //     }
-  //     if(c1.i < c2.i){
-  //       bounds.topleft.y = c1.i * this.zs.getMixerZoom();
-  //       bottomright.y = c2.i * this.zs.getMixerZoom();
-  //     }else{
-  //       bounds.topleft.y = c2.i * this.zs.getMixerZoom();
-  //       bottomright.y = c1.i * this.zs.getMixerZoom();
-  //     }
-
-  //     if(c1.j < c2.j){
-  //       bounds.topleft.x = c1.j * this.zs.getMixerZoom();
-  //       bottomright.x = c2.j * this.zs.getMixerZoom();
-  //     }else{
-  //       bounds.topleft.x = c1.j * this.zs.getMixerZoom();
-  //       bottomright.x = c2.j * this.zs.getMixerZoom();
-  //     }
-
-  //     bounds.width = bottomright.x - bounds.topleft.x;
-  //     bounds.height = bottomright.y - bounds.topleft.y;
-
-  //     return bounds;
-  // }
-
-
 
 
       /**

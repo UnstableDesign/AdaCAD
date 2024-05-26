@@ -1,10 +1,10 @@
-<button class="show_draft" *ngIf = '!draft_visible' mat-button  (click)="toggleVisibility()">
+<button class="show_draft" *ngIf = '!draft_visible' mat-flat-button  (click)="toggleVisibility()">
   <i class="fa fa-eye" aria-hidden="true"></i> show draft
 </button>
 
 {{id}}
 
-<div class="subdraft-container" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
+<div class="subdraft-container" id="subdraft-container-{{id}}" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
 
 
   <div class="header-container">
@@ -32,13 +32,21 @@
 
     <mat-menu #subdraftOptions>
 
-      <button *ngIf="!exceeds_size && !hasParent"
+      <button *ngIf="!exceeds_size && !hasParent && !hasPin()"
       mat-menu-item
-      class="is-small fa-solid"
-      matTooltip ="Select Draft"
-      (click)="selectForView()">
+      (click)="pinToView()">
       <i class="fa-solid fa-map-pin"></i> pin for view
       </button> 
+
+
+      <button *ngIf="!exceeds_size && !hasParent && hasPin()"
+      mat-menu-item
+      color="accent"
+      (click)="unpinFromView()">
+      <i class="fa-solid fa-map-pin"></i> unpin from view
+      </button> 
+
+
       <button
       mat-menu-item
       matTooltip ="Select Draft"
@@ -107,6 +115,8 @@ source = "mixer"
 [current_view]="current_view"
 [scale]="local_zoom"
 (onDrawdownUpdated)="drawdownUpdated()"
+(onMaterialChange)="drawdownUpdated()"
+
 >
 </app-draft-rendering>
 

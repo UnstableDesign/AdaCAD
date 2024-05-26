@@ -9,6 +9,7 @@ import { AuthService } from '../core/provider/auth.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { RenderService } from '../core/provider/render.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
+import { ViewerService } from '../core/provider/viewer.service';
 
 @Component({
   selector: 'app-viewer',
@@ -16,8 +17,6 @@ import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-render
   styleUrls: ['./viewer.component.scss']
 })
 export class ViewerComponent {
-
- @Input() id: number;
 
   @Output() onLoadBlankFile: any = new EventEmitter();
   @Output() onOpenEditor: any = new EventEmitter();
@@ -28,6 +27,7 @@ export class ViewerComponent {
   @Output() onViewerExpanded: any = new EventEmitter();
   @Output() onViewerCollapsed: any = new EventEmitter();
   @Output() onSave: any = new EventEmitter();
+  @Output() onForceFocus: any = new EventEmitter();
 
   @ViewChild(SimulationComponent) sim;
   @ViewChild('view_rendering') view_rendering: DraftRenderingComponent;
@@ -43,6 +43,7 @@ export class ViewerComponent {
   warps: number = 0;
   wefts: number = 0;
   scale: number = 0;
+  id: number = -1;
 
 
   constructor(
@@ -51,7 +52,17 @@ export class ViewerComponent {
     private ms: MaterialsService,
     private render: RenderService,
     private tree: TreeService,
+    public vs: ViewerService,
     public zs: ZoomService){
+
+      this.vs.showing_id_change$.subscribe(data => {
+        this.id = data;
+        this.redraw(this.id);
+      })
+
+      this.vs.update_viewer$.subscribe(data => {
+        this.redraw(this.id);
+      })
 
   }
 
@@ -102,22 +113,21 @@ getVisVariables(){
    * redraws the current draft, usually following an update from the drawdown
    */
   redraw(id: number){
-    this.id = id;
-    let vars = this.getVisVariables();
-    const draft = this.tree.getDraft(id);
+    console.log("Redrawing ", id)
+    this.id = id;    
+    const draft = this.tree.getDraft(this.id);
+
     if(draft !== null){
-    this.warps = warps(draft.drawdown);
-    this.wefts = wefts(draft.drawdown);
-    }else{
-      this.warps = 0;
-      this.wefts = 0;
+      this.warps = warps(draft.drawdown);
+      this.wefts = wefts(draft.drawdown);
     }
+
     if(this.vis_mode != 'sim') {
-      this.drawDraft(id, vars. floats, vars.use_colors);        
+      this.drawDraft(this.id);        
       this.centerScrollbars();
-  }
-    else this.sim.loadNewDraft(this.id);
-  }
+  } else this.sim.loadNewDraft(this.id);
+ 
+}
 
 
   centerScrollbars(){
@@ -145,21 +155,17 @@ getVisVariables(){
 
   viewAsDraft(){
     this.vis_mode = 'draft';
-    let vars = this.getVisVariables();
-    this.drawDraft(this.id, vars.floats, vars.use_colors);   
+    this.redraw(this.id);   
   }
 
   viewAsStructure(){
     this.vis_mode = 'structure';
-    let vars = this.getVisVariables();
-
-    this.drawDraft(this.id, vars.floats, vars.use_colors);   
+    this.redraw(this.id);   
   }
 
   viewAsColor(){
     this.vis_mode = 'color';
-    let vars = this.getVisVariables();
-    this.drawDraft(this.id, vars.floats, vars.use_colors);   
+    this.redraw(this.id);   
   }
 
   onExpand(){
@@ -181,17 +187,21 @@ getVisVariables(){
     this.onOpenEditor.emit(this.id);
   }
 
+  togglePin(){
+    if(this.vs.hasPin() && this.vs.getPin() == this.id){
+      this.vs.clearPin();
+    }else{
+      this.vs.setPin(this.id);
+    }
+  }
+
 
   clearView(){
-    this.draft_canvas = <HTMLCanvasElement> document.getElementById('viewer_canvas');
-    if(this.draft_canvas == null) return;
-    this.draft_cx = this.draft_canvas.getContext("2d");
 
+    this.view_rendering.clearAll();
     this.draft_name = 'no draft selected';
-    this.draft_canvas.width = 0;
-    this.draft_canvas.height = 0;
-    this.draft_canvas.style.width = "0px";
-    this.draft_canvas.style.height = "0px";
+    this.warps = 0; 
+    this.wefts = 0;
   }
 
   saveAs(format: string){
@@ -207,20 +217,23 @@ getVisVariables(){
   }
 
   /**
-   * draw whetever is stored in the draft object to the screen
+   * draw whatever is stored in the draft object to the screen
    * @returns 
    */
-  async drawDraft(id: number, floats: boolean, use_colors: boolean) : Promise<any> {
+  async drawDraft(id: number) : Promise<any> {
 
     if(id === -1){
       this.clearView();
       return Promise.resolve(false);
     }
 
-
-    this.id = id;
     const draft:Draft = this.tree.getDraft(id);
     this.draft_name = getDraftName(draft);
+
+    if(draft == null || draft == undefined){
+      this.clearView();
+      return Promise.resolve(false);
+    }
 
 
     let flags =  {
@@ -236,7 +249,7 @@ getVisVariables(){
 
    
     
-    }
+   }
 
   }
 

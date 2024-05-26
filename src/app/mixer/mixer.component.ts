@@ -22,6 +22,7 @@ import { map, startWith } from 'rxjs/operators';
 import { OperationService } from '../core/provider/operation.service';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { Observable } from 'rxjs';
+import { ViewerService } from '../core/provider/viewer.service';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -52,9 +53,7 @@ export class MixerComponent  {
 
   @ViewChild(PaletteComponent) palette;
 
-  @Output() onDraftFocused: any = new EventEmitter();
   @Output() onOpenInEditor: any = new EventEmitter();
-  @Output() refreshViewer: any = new EventEmitter();
 
 
   origin_options: any = null; 
@@ -90,8 +89,8 @@ export class MixerComponent  {
     private dialog: MatDialog,
     public ops: OperationService, 
     private op_desc: OperationDescriptionsService,
+    private vs: ViewerService,
     public zs: ZoomService,
-    private files: FilesystemService,
     private multiselect: MultiselectService,
     @Optional() private fbauth: Auth
     ) {
@@ -234,14 +233,13 @@ addOperation(name: string){
   let id = this.palette.addOperation(name);
   this.myControl.setValue('');
   const outputs = this.tree.getNonCxnOutputs(id);
-  if(outputs.length > 0) this.onDraftFocused.emit(outputs[0]);
-  //focus this is the detail view
+  if(outputs.length > 0) this.vs.setViewer(outputs[0])
 }
 
 
 
 onRefreshViewer(){
-  this.refreshViewer.emit();
+  this.vs.updateViewer();
 }
 
 
@@ -296,7 +294,6 @@ onFocus(edited_draft_id: number){
 
   const outlet_ops_connected = this.tree.getNonCxnOutputs(edited_draft_id);
   let fns = outlet_ops_connected.map(el => this.performAndUpdateDownstream(el));
-  console.log("NON CONNECTION OUTPUTS IS ", outlet_ops_connected)
   Promise.all(fns);
 
   //DO TO MAKE SURE USERS CAN TOGGLE ON MIXER DRAFTS
@@ -393,34 +390,6 @@ zoomChange(zoom_index:any){
     
   }
 
-  // onLoadExample(name: string){
-  //   const analytics = getAnalytics();
-
-  //   logEvent(analytics, 'onloadexample', {
-  //     items: [{ uid: this.auth.uid, name: filename }]
-  //   });
-
-  //   this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
-
-  //   this.fls.loader.ada(filename, -1, '', res.body)
-  //       .then(res => {
-  //         this.onLoadExample.emit(res);
-  //         return;
-  //       }
-  //       )
-  //       .catch(e => {
-  //         console.log("CAUGHT ERROR IN FILE LOADER ");
-  //       });
-  //   }); 
-  // }
-
-
-
-
-
-
-
-
 
 
   clearView() : void {
@@ -431,9 +400,6 @@ zoomChange(zoom_index:any){
 
   }
   
-
-
-
   ngOnDestroy(): void {
     // this.unsubscribe$.next(0);
     // this.unsubscribe$.complete();
@@ -453,7 +419,6 @@ zoomChange(zoom_index:any){
       this.dm.selectMixerEditingMode('pan');
     }
     this.palette.designModeChanged();
-    //this.show_viewer = true;
 
   }
 
@@ -632,11 +597,5 @@ originChange(value: number){
 openDraftInEditor(id: number){
   this.onOpenInEditor.emit(id);
 }
-
-
-showDraftDetails(id: number){
-  this.onDraftFocused.emit(id);
-}
-
 
 }

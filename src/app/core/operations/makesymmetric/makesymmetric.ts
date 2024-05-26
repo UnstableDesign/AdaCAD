@@ -61,8 +61,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   let sym_mode = getOpParamValById(0, op_params);
   let remove_center = getOpParamValById(1, op_params);
 
-  console.log("INPUT TO SYMMETRIC IS ", input_draft)
-
   if(input_draft == null) return Promise.resolve([]);
 
     let pattern = new Sequence.TwoD();

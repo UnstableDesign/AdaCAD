@@ -86,6 +86,14 @@
   class="view_options"
   >
 
+  <button 
+  mat-flat-button 
+  matTooltip="pin this draft in the viewer"
+  (click)="togglePin()"
+  >
+  <i   [class.active]="vs.hasPin()" class="fa-solid fa-map-pin"></i>
+  </button> 
+
   <button  
   mat-flat-button 
   [matMenuTriggerFor]="viewOptions"

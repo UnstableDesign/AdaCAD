@@ -579,6 +579,38 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     return dpr/bsr;
   }
 
+
+  clear(canvases: CanvasList) : Promise<boolean> {
+
+  let drawdownCx = canvases.drawdown.getContext('2d');
+   drawdownCx.clearRect(0, 0, drawdownCx.canvas.width, drawdownCx.canvas.height );
+
+   let threadingCx = canvases.threading.getContext('2d');
+   threadingCx.clearRect(0, 0, threadingCx.canvas.width, threadingCx.canvas.height )
+
+   let tieupCx = canvases.tieup.getContext('2d');
+   tieupCx.clearRect(0, 0, tieupCx.canvas.width, tieupCx.canvas.height )
+
+   let treadlingCx = canvases.treadling.getContext('2d');
+   treadlingCx.clearRect(0, 0, treadlingCx.canvas.width, treadlingCx.canvas.height )
+
+   let warpMatCx = canvases.warp_mats.getContext('2d');
+   warpMatCx.clearRect(0, 0, warpMatCx.canvas.width, warpMatCx.canvas.height )
+
+   let warpSysCx = canvases.warp_systems.getContext('2d');
+   warpSysCx.clearRect(0, 0, warpSysCx.canvas.width, warpSysCx.canvas.height )
+
+   let weftMatCx = canvases.weft_mats.getContext('2d');
+   weftMatCx.clearRect(0, 0, weftMatCx.canvas.width, weftMatCx.canvas.height )
+
+   let weftSysCx = canvases.weft_systems.getContext('2d');
+   weftSysCx.clearRect(0, 0, weftSysCx.canvas.width, weftSysCx.canvas.height )
+
+
+   return Promise.resolve(true);
+
+  }
+
   /**
    * draw whatever is stored in the draft object to the screen
    * @returns 
@@ -589,6 +621,8 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     // set the width and height
     let pixel_ratio = this.getPixelRatio(canvases.drawdown);
     let cell_size = this.calculateCellSize(draft);
+    
+    if(draft.drawdown.length == 0) return this.clear(canvases);
 
     if(rf.u_drawdown){
       fns = fns.concat(this.drawDrawdown(draft, canvases.drawdown, cell_size, pixel_ratio, rf));
