@@ -53,14 +53,18 @@ export class NoteComponent implements OnInit {
   }
 
   ngAfterViewInit(){
+    this.setPosition(this.topleft)
+
+  }
+
+  setPosition(topleft: Point){
+    this.topleft = {x: topleft.x, y: topleft.y};
     this.canvas = <HTMLCanvasElement> document.getElementById("notecanvas-"+this.note.id.toString());
     this.cx = this.canvas.getContext("2d");
     let note_container = document.getElementById('note-'+this.id);
     note_container.style.transform = 'none'; //negate angulars default positioning mechanism
     note_container.style.top =  this.topleft.y+"px";
     note_container.style.left =  this.topleft.x+"px";
-
-
   }
 
   /**

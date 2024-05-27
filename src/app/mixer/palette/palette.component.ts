@@ -361,10 +361,23 @@ handlePan(diff: Point){
 
   
   redrawConnections(){
-    const ops = this.tree.getOperations();
-    ops.forEach(el => {
-      this.updateAttachedComponents(el.id, false);
+
+    //this needs something more robust. 
+
+    let cxn:Array<ConnectionComponent> = this.tree.getConnections().filter(el => el !== null);
+    cxn.forEach(el => {
+      el.updateFromPosition();
+      let to = this.tree.getConnectionOutputWithIndex(el.id)
+      el.updateToPosition(to.inlet, to.arr);
     })
+    
+
+
+
+    // const ops = this.tree.getOperations();
+    // ops.forEach(el => {
+    //   this.updateAttachedComponents(el.id, false);
+    // })
 
   }
 
@@ -2223,6 +2236,111 @@ pasteConnection(from: number, to: number, inlet: number){
     this.updateSelectionPositions(obj.id);
 
     this.addTimelineState();
+
+  }
+
+
+  getClosestToTopLeft(topleft: Point, rect_list: Array<any>): any{
+    return rect_list
+    .map(el => {return {id: el.id, rect: el.rect, dist: Math.pow(topleft.y - el.rect.top, 2) + Math.pow(topleft.x - el.rect.left, 2)}})
+    .reduce( (acc, el) => {
+      if(acc == null || el.dist < acc.dist) return el;
+      return acc;
+    }, null);
+  }
+
+  /**
+   * reposition all of the drafts and operations on screen such that none of them overlap. 
+   */
+  explode(){
+
+    //get each element as a dom rect
+    let rect_list = this.tree.nodes
+    .filter(el => (el !== null && el.type !== 'cxn'))
+    .map(el => {return {dom: document.getElementById('scale-'+el.id), id: el.id}})
+    .filter(el => el.dom !== undefined && el.dom !== null);
+    
+    rect_list.forEach(el => {
+      let comp = this.tree.getComponent(el.id);
+      let topleft = comp.topleft;
+      (<SubdraftComponent | OperationComponent> comp).setPosition({x: topleft.x * 3, y: topleft.y * 3});
+    })
+
+
+    this.redrawConnections();
+
+    //redraw notes
+    let notes =  this.notes.getComponents();
+    notes.forEach(el => {
+      let topleft = el.topleft;
+      (<NoteComponent> el).setPosition({x: topleft.x * 3, y: topleft.y * 3});
+    })
+
+
+
+    // //get average width and average height 
+    // const width_sum = rect_list
+    // .map(el => el.rect.width)
+    // .reduce((acc, el) => {
+    //   return acc + el;
+    // }, 0);
+
+    // const avg_width = width_sum / rect_list.length;
+
+    // //get average width and average height 
+    // const height_sum = rect_list
+    // .map(el => el.rect.height)
+    // .reduce((acc, el) => {
+    //   return acc + el;
+    // }, 0);
+
+    // const avg_height = height_sum / rect_list.length;
+
+    // const pallete_rect = document.getElementById('palette-scale-container').getBoundingClientRect();
+    // const plot_units_w = Math.floor(pallete_rect.width / (avg_width+20));
+    // const plot_units_h = Math.floor(pallete_rect.height / (avg_height+20));
+    // const unit_w = pallete_rect.width / plot_units_w;
+    // const unit_h = pallete_rect.height / plot_units_h;
+
+    // if(plot_units_h * plot_units_h < rect_list.length) console.error("there are more elements than space available on the screen")
+    // //create a 2D array of all the spaces for which an element can sit, mark "-1" meaning that nothing is sitting there. later that will be replaced with an id for the element in that position
+    // const plots:Array<Array<number>> = [];
+    // for(let i = 0; i < plot_units_w; i++){
+    //   plots.push([])
+    //   for(let j = 0; j < plot_units_h; j++){
+    //     plots[i].push(-1)
+    //   }
+    // }
+
+
+
+    // //work through the plots and assign the closest operation to the spot (this will )
+    // for(let i = 0; i < plots.length; i++){
+    //   for(let j = 0; j < plots[0].length; j++){
+    //     let topleft: Point = {x: pallete_rect.left + j*unit_w, y: pallete_rect.top + i*unit_h};
+    //     const closest = this.getClosestToTopLeft(topleft, rect_list);
+    //     if(closest !== null ){
+    //       rect_list = rect_list.filter(el => el.id !== closest.id);
+    //       plots[i][j] = closest.id;
+    //       let comp = this.tree.getComponent(closest.id);
+    //       (<SubdraftComponent | OperationComponent> comp).setPosition(topleft);
+    //     }
+    //   }
+    // }
+
+    // console.log("PLOTS ", plots)
+
+
+
+
+
+
+  
+
+
+
+
+
 
   }
 

@@ -598,4 +598,8 @@ openDraftInEditor(id: number){
   this.onOpenInEditor.emit(id);
 }
 
+explode(){
+  this.palette.explode();
+}
+
 }

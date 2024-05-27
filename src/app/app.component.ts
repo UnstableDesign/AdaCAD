@@ -1295,6 +1295,16 @@ redo() {
 
   }
 
+  /**
+   * this function looks at all subdrafts and operations on the palette and repositons them such that they do not overlap eachother.
+   * It works by
+   */
+  onExplode(){
+
+    this.mixer.explode();
+
+  }
+
   zoomChange(ndx: number){
     if(this.viewer.view_expanded){
       this.zs.setZoomIndexOnViewer(ndx);
