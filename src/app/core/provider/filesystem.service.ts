@@ -127,7 +127,6 @@ export class FilesystemService {
     // let item = this.getLoadedFile(id);
 
     // if(item === null){
-
       
       return this.getFileMeta(id)
       .then(res => {
@@ -343,6 +342,20 @@ export class FilesystemService {
    return Promise.resolve(fileid);
     
   }
+
+  /**
+   * takes the current state, gives it a new file ID and pushes it to the database
+   * @returns the id of the file
+   */
+    duplicate(uid: string, name: string, desc: string, ada: any) : Promise<number>{
+    
+      const fileid = this.generateFileId();
+      this.writeFileData(fileid, ada);
+      this.writeNewFileMetaData(uid, fileid, name, desc)
+      return Promise.resolve(fileid);
+       
+     }
+   
 
 
 

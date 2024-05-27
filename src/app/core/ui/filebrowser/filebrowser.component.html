@@ -187,6 +187,8 @@ cdkDrag
 
 
             <div class="actions"> 
+
+              
               <button 
               [disabled]="file.id ==this.files.current_file_id"
               mat-icon-button 
@@ -196,15 +198,23 @@ cdkDrag
               ><i class="fas fa-folder-open"></i>
             </button>
     
-            
+            <button 
+            mat-icon-button 
+            matListItemIcon
+            matTooltip="rename this file"
+            (click)="rename(file.id)"
+            ><i class="fas fa-edit"></i>
+          </button>
+         
+          <button 
+          mat-icon-button 
+          matListItemIcon
+          matTooltip="duplicate this file"
+          (click)="duplicate(file.id)"
+          ><i class="fas fa-copy"></i>
+        </button>
 
-              <button 
-              mat-icon-button 
-              matListItemIcon
-              matTooltip="rename this file"
-              (click)="rename(file.id)"
-              ><i class="fas fa-edit"></i>
-            </button>
+
 
 
               <button 

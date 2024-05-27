@@ -34,10 +34,11 @@
 
         <mat-menu #file="matMenu">
           <button mat-menu-item (click)="loadBlankFile()">New Workspace</button>
+          <button mat-menu-item [disabled]="!files.connected || !auth.isLoggedIn" (click)="openAdaFiles(false)">Manage Saved Files</button>
           <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button >
-            <button mat-menu-item (click)="saveFile()">Save</button>
             <!-- <button mat-menu-item (click)="redo()" >Import Bitmaps</button> -->
             <button mat-menu-item [matMenuTriggerFor]="downloadMenu">Export</button>
+            <button mat-menu-item (click)="saveFile()">Save</button>
           <button mat-menu-item (click)="openAboutDialog()">About</button>
         </mat-menu>
         
@@ -140,32 +141,20 @@
         <div class="auth" *ngIf="files.connected && (auth.showLogoutButton)">
       
 
-          <!-- <button mat-flat-button color="primary" [matMenuTriggerFor]="account"> Hi {{auth.username}} <i class="fa-solid fa-caret-down"></i> </button> -->
+          <button mat-flat-button color="primary" [matMenuTriggerFor]="account"> Hi {{auth.username}} <i class="fa-solid fa-caret-down"></i> </button>
 
           <mat-menu #account="matMenu">
-            <button mat-menu-item (click)="openAdaFiles(false)">Manage Saved Files</button>
             <button mat-menu-item (click)="logout()">Log Off</button>
           </mat-menu>
         </div>
 
-        <div class="footer-center">
-          <span>current workspace: {{files.current_file_name}}.ada</span>  
-        
-        <button 
-          mat-icon-button  
-          matTooltip="Manage Files and Settings"
-          (click)="openAdaFiles(false)" >
-          <i class="fa-regular fa-folder-open"></i>
-         </button>
-        </div>
+
 
         <div *ngIf="files.connected && !auth.isLoggedIn">
           <button mat-raised-button color="primary" class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
         </div>
 
-        <div *ngIf="files.connected && auth.isLoggedIn">
-          <button mat-raised-button color="primary" class="example-full-width login" matTooltip="logout" (click) = "logout()"><i class="fa fa-sign-out"></i> Log Out</button>
-        </div>
+     
       </div>
       
       </mat-toolbar>
@@ -269,7 +258,16 @@
 
 
     <div class="footer-right">
-     <button class="download" mat-raised-button  [matMenuTriggerFor]="downloadMenu" color="primary">Download</button>
+      filename: 
+          <input 
+          class="filename"
+          [formControl]="filename_form" 
+          matInput 
+          placeholder="current filename">
+
+
+     <button class="download" mat-raised-button  
+     [matMenuTriggerFor]="downloadMenu" color="primary">Download</button>
 
       </div>
   </mat-toolbar>

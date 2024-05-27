@@ -35,6 +35,7 @@ import { OperationComponent } from './mixer/palette/operation/operation.componen
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
+import { UntypedFormControl, Validators } from '@angular/forms';
 
 
 
@@ -84,6 +85,8 @@ export class AppComponent implements OnInit{
   editorModes: any;
 
   selected_editor_mode: any;
+
+  filename_form: UntypedFormControl;
 
   constructor(
     public auth: AuthService,
@@ -145,6 +148,10 @@ export class AppComponent implements OnInit{
 
 
   ngOnInit(){
+
+    this.filename_form = new UntypedFormControl(this.files.getCurrentFileName(), [Validators.required]);
+    this.filename_form.valueChanges.forEach(el => {this.renameWorkspace(el.trim())})
+
 
     const analytics = getAnalytics();
     logEvent(analytics, 'onload', {
@@ -248,6 +255,7 @@ export class AppComponent implements OnInit{
       this.viewer.onCollapse();
     }
 
+    console.log("ON TOGGLE ", this.selected_editor_mode)
     switch(this.selected_editor_mode){
       case 'draft':
 
@@ -261,6 +269,7 @@ export class AppComponent implements OnInit{
           })
 
         }else{
+          console.log("LOADING ", this.vs.getViewer())
           this.editor.loadDraft(this.vs.getViewer());
           this.editor.onFocus(); 
         }
@@ -528,6 +537,15 @@ export class AppComponent implements OnInit{
 
   }
 
+  async duplicateFileInDB(fileid: number){
+    const ada = await this.files.getFile(fileid);
+    const meta = await this.files.getFileMeta(fileid); 
+    this.files.duplicate(this.auth.uid, meta.name+"-copy", meta.desc, ada).then(fileid => {
+      this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+      this.saveFile();
+    })
+
+  }
 
   //must be online
   async loadFromDB(fileid: number){
@@ -542,6 +560,7 @@ export class AppComponent implements OnInit{
     this.clearAll();
     this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'new file', '')
     .then(res => {
+      this.filename_form.setValue(this.files.getCurrentFileName())
       this.saveFile();
     });
   }
@@ -555,6 +574,7 @@ export class AppComponent implements OnInit{
 
     this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '').then(res => {
       this.generateBlankDraftAndPlaceInMixer(this.editor.loom).then(id => {
+        this.filename_form.setValue(this.files.getCurrentFileName())
         this.vs.setViewer(id);
         this.editor.loadDraft(id);
         this.editor.onFocus();
@@ -594,6 +614,7 @@ export class AppComponent implements OnInit{
 
    this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
    .then(res => {
+    this.filename_form.setValue(this.files.getCurrentFileName())
     return this.processFileData(result.data)
    }).then(data => {
 
@@ -772,6 +793,11 @@ onPasteSelections(){
 
     this.filebrowser_modal.componentInstance.onCreateFile.subscribe(event => {
       this.loadBlankFile();
+    });
+
+    this.filebrowser_modal.componentInstance.onDuplicateFile.subscribe(event => {
+
+      this.duplicateFileInDB(event);
     });
 
 
@@ -1105,11 +1131,6 @@ printTreeStatus(name: string, treenode: Array<TreeNode>){
   });
 }
 
-filenameChange(){
-
-}
-
-
 
 
 saveFile(){
@@ -1132,9 +1153,10 @@ setAdvancedOperations(val: boolean){
 
 
 openInEditor(id: number){
-   this.editor.loadDraft(id);
-   this.selected_editor_mode = 'draft';
-   this.toggleEditorMode();
+  this.vs.clearPin();
+  this.vs.setViewer(id);
+  this.selected_editor_mode = 'draft';
+  this.toggleEditorMode();
 }
 
 /**
@@ -1242,6 +1264,13 @@ redo() {
    */
   updateMixer(){
   }
+
+  renameWorkspace(name: string){
+    console.log("RENAME", name)
+    let id = this.files.getCurrentFileId();
+    this.files.renameFile(id, name);
+  }
+
 
 
    /**

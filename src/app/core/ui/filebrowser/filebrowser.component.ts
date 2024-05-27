@@ -17,6 +17,7 @@ export class FilebrowserComponent implements OnInit {
 
   @Output() onLoadFromDB: any = new EventEmitter();
   @Output() onCreateFile: any = new EventEmitter();
+  @Output() onDuplicateFile: any = new EventEmitter();
 
   
   unopened_filelist = [];
@@ -96,8 +97,8 @@ export class FilebrowserComponent implements OnInit {
     this.onLoadFromDB.emit(id);
   }
 
-  duplicate(){
-    
+  duplicate(id: number){
+    this.onDuplicateFile.emit(id);
   }
 
 
@@ -106,6 +107,7 @@ export class FilebrowserComponent implements OnInit {
     if(item == null) return;
     this.files.unloadFile(id)
   }
+
 
 
   rename(id: number){
