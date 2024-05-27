@@ -784,12 +784,14 @@ onPasteSelections(){
   openMaterials() {
     if(this.material_modal != undefined && this.material_modal.componentInstance != null) return;
 
-  this.material_modal = this.dialog.open(MaterialModal, {data: {}});
-  this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
-    console.log("MATERIAL CHANGED");
-    //redraw all
+    this.material_modal = this.dialog.open(MaterialModal, {data: {}});
+    this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
+      this.viewer.redraw(this.vs.getViewer());
+      if(this.selected_editor_mode == 'mixer') this.mixer.redrawAllSubdrafts();
+      else this.editor.redraw();
+      this.addTimelineState();
 
-  });
+    });
   }
 
 

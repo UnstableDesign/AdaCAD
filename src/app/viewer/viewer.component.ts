@@ -113,7 +113,6 @@ getVisVariables(){
    * redraws the current draft, usually following an update from the drawdown
    */
   redraw(id: number){
-    console.log("Redrawing ", id)
     this.id = id;    
     const draft = this.tree.getDraft(this.id);
 

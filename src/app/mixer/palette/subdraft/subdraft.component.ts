@@ -356,7 +356,6 @@ openInEditor(event: any){
   redrawExistingDraft(){
 
     const draft = this.tree.getDraft(this.id);
-    console.log("redraw existing ")
     this.draftcontainer.drawDraft(draft);
 
   }

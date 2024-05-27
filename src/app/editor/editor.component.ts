@@ -213,15 +213,12 @@ export class EditorComponent implements OnInit {
     * @returns 
     */
     loadDraft(id: number) : Promise<any> {
-      console.log("EDITOR LOAD DRAFT, ", id)
       this.id = id;
       
       if(id == -1) return Promise.resolve();
       
       const draft = this.tree.getDraft(id);
       this.getParentOp(id);
-
-      console.log("Parent Op", this.parentOp)
 
       if(this.parentOp !== '') this.weaveRef.view_only = true;
       else this.weaveRef.view_only = false;

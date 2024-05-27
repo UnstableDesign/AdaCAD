@@ -102,7 +102,6 @@ export class DraftContainerComponent implements AfterViewInit{
 
   updateStyle(viewer_id: number){
     const targetNode = document.getElementById("subdraft-container-"+this.id);
-    console.log("UPDATING STYLE ON ", this.id, viewer_id, this.vs.getPin())
     if(targetNode == null) return;
 
     if(this.id == viewer_id){

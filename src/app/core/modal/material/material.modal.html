@@ -24,20 +24,20 @@
    
       <mat-form-field  class="is-fullwidth">
         <mat-label>color</mat-label>
-      <input matInput 
-      #colorpicker
-      [cpToggle] = 'false'
-      [cpSaveClickOutside] = 'true'
-      (colorPickerChange) = 'change()' 
-      placeholder="Color" 
-      class="colorpicker" 
-      [(colorPicker)]="shuttle.color" 
-      [style.background]="shuttle.color" 
-      name="color" 
-      [(ngModel)]="shuttle.color"
-      cpDialogDisplay ='inline'
+        <input matInput 
+        #colorpicker
+        [cpToggle] = 'false'
+        [cpSaveClickOutside] = 'true'
+        (colorPickerChange) = 'materialColorChange(shuttle.id, $event)' 
+        placeholder="Color" 
+        class="colorpicker" 
+        [(colorPicker)]="shuttle.color" 
+        [style.background]="shuttle.color" 
+        name="color" 
+        [(ngModel)]="shuttle.color"
+        cpDialogDisplay ='inline'
 
-      />
+        />
 
       </mat-form-field>
 
@@ -68,7 +68,7 @@
         min="0"
         max="100"
         step=".5"
-        (change)="change()"
+        (change)="diameterChange()"
         [(ngModel)]="shuttle.diameter"> 
         <span matTextSuffix>mm</span>
 
@@ -76,12 +76,6 @@
 
      
 
-    <!-- <div class="is-fullwidth">
-       Insert From Left
-       <mat-slide-toggle matInput (change)="change()" [(ngModel)]="shuttle.insert" name="insert" required>
-       </mat-slide-toggle>
-       Insert From Right
-  </div> -->
 
   <div class="is-fullwidth">
       <mat-form-field class="is-fullwidth">
@@ -135,7 +129,6 @@
         
     <input matInput 
     #colorpicker
-    (colorPickerChange) = 'change()' 
     placeholder="Color" 
     class="colorpicker" 
     [(colorPicker)]="newshuttle.color" 
@@ -167,7 +160,7 @@
         min="0"
         max="100"
         step=".5"
-        (change)="change()"
+        (change)="diameterChange()"
         [(ngModel)]="newshuttle.diameter"> 
         <span matTextSuffix>mm</span>
 
@@ -191,5 +184,5 @@
 </mat-accordion>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button mat-dialog-close cdkFocusInitial>Close</button>
+  <button mat-button mat-dialog-close cdkFocusInitial (click)="save()">Save</button>
 </mat-dialog-actions>

@@ -266,6 +266,7 @@ export class DraftRenderingComponent implements OnInit {
     this.epi = loom_settings.epi;
     
     this.resetDirty();
+
     this.selected_loom_type = loom_settings.type;
     if(this.selected_loom_type == 'jacquard') this.dm.selectDraftEditSource('drawdown')
       
@@ -1002,6 +1003,7 @@ export class DraftRenderingComponent implements OnInit {
           use_floats: (flags.use_floats  !== undefined && flags.use_floats == true), 
           show_loom: (flags.show_loom  !== undefined && flags.show_loom == true)
         }
+
         return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
           this.render.rescale(draft, loom, loom_settings, this.scale, this.canvases)
           let warpdatadiv = document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
@@ -1578,11 +1580,7 @@ export class DraftRenderingComponent implements OnInit {
       // }
       
       
-      
-      public createShuttle(e: any) {
-        this.ms.addShuttle(e.shuttle); 
-      }
-      
+    
       // public createWarpSystem(e: any) {
       //   this.draft.addWarpSystem(e.system);
       // }

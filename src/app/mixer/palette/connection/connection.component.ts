@@ -164,7 +164,6 @@ export class ConnectionComponent implements OnInit {
    * @param from the id of the component this connection goes to
    */
   updateFromPosition(){
-    console.log("UPDATE FROM")
     let parent = document.getElementById('scrollable-container');
     let parent_rect = parent.getBoundingClientRect();
     let sd_element = document.getElementById(this.from+'-out');
