@@ -1324,7 +1324,7 @@ redo() {
 
     if(!this.vs.hasViewer()) return;
 
-    let draft:Draft = this.tree.getDraft(this.editor.id);
+    let draft:Draft = this.tree.getDraft(this.vs.getViewer());
     let b = this.bitmap.nativeElement;
 
     switch(format){
