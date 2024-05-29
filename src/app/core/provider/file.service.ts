@@ -614,11 +614,11 @@ export class FileService {
      return Promise.resolve(href);
     },
     bmp: async (canvas:HTMLCanvasElement) : Promise<string> => {
-      return Promise.resolve(canvas.toDataURL("image/jpg"));
+      return Promise.resolve(canvas.toDataURL("image/jpeg", 1));
 
     },
     jpg: async (canvas:HTMLCanvasElement) : Promise<string> => {
-      return Promise.resolve(canvas.toDataURL("image/jpg"));
+      return Promise.resolve(canvas.toDataURL("image/png"));
     }
   }
 

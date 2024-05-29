@@ -1224,9 +1224,6 @@ let system = null;
 
 
     }
-
-
-    console.log("calling redraw from saveAs")
   let img = getDraftAsImage(draft, 10, true, use_colors, ms.getShuttles());  
   context.putImageData(img, 30, 30);
 
@@ -1239,7 +1236,7 @@ let system = null;
   return fs.saver.jpg(b)
   .then(href => {
     a.href =  href;
-    a.download = getDraftName(draft) + ".jpg";
+    a.download = getDraftName(draft) + ".png";
     a.click();  
   });
   
@@ -1266,8 +1263,15 @@ async saveAsBmp(el: any, draft: Draft, selected_origin_option:number, ms :Materi
 
     el.width = warps(draft.drawdown);
     el.height = wefts(draft.drawdown);
-    console.log("calling redraw from saveAs")
     let img = getDraftAsImage(draft, 1, false, false, ms.getShuttles());
+
+    // console.log("IMAGE ", img.colorSpace)
+    // for(let i = 0; i < img.data.length; i+=4){
+    //   console.log(img.data[i], img.data[i+1],img.data[i+2],img.data[i+3])
+    // }
+
+
+
     context.putImageData(img, 0, 0);
 
     const a = document.createElement('a')
