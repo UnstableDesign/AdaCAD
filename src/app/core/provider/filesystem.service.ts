@@ -245,7 +245,7 @@ export class FilesystemService {
 
     const item = this.getLoadedFile(this.current_file_id);
     if(item == null){
-        // console.log("CANNOT FINDING ITEM in LOADED FILES IN SET DCURRENT FILE INFO")
+         console.log("CANNOT FIND ITEM in LOADED FILES IN SET DCURRENT FILE INFO")
     }else{
       item.name = name;
       item.desc = desc;
@@ -449,7 +449,6 @@ getFile(fileid: number) : Promise<any> {
    * @returns 
    */
   writeFileData(fileid: number, cur_state: SaveObj) {
-
 
     if(!this.connected) return;
 

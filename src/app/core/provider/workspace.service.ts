@@ -65,7 +65,6 @@ export class WorkspaceService {
     this.hide_mixer_drafts = (data.hide_mixer_drafts === undefined) ? true : data.hide_mixer_drafts;
     this.show_advanced_operations = (data.show_advanced_operations === undefined) ? false : data.show_advanced_operations;
 
-    console.log("SHOW ADVANCED OPS ON LOAD ", this.show_advanced_operations)
   }
 
 

@@ -541,8 +541,9 @@ export class AppComponent implements OnInit{
     const ada = await this.files.getFile(fileid);
     const meta = await this.files.getFileMeta(fileid); 
     this.files.duplicate(this.auth.uid, meta.name+"-copy", meta.desc, ada).then(fileid => {
-      this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
-      this.saveFile();
+      this.prepAndLoadFile(meta.name, fileid, meta.desc, ada).then(res => {
+        this.saveFile();
+      });
     })
 
   }
@@ -551,8 +552,13 @@ export class AppComponent implements OnInit{
   async loadFromDB(fileid: number){
     const ada = await this.files.getFile(fileid);
     const meta = await this.files.getFileMeta(fileid); 
-    this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
-    this.saveFile();
+    console.log("GOT ADA ", ada, " and META ", meta)
+
+    this.prepAndLoadFile(meta.name, fileid, meta.desc, ada)
+    .then(res => {
+        this.saveFile();
+    });
+  
     
   }
 
@@ -610,9 +616,9 @@ export class AppComponent implements OnInit{
   /**
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
-  loadNewFile(result: LoadResponse, source: string){
+  loadNewFile(result: LoadResponse, source: string) : Promise<any>{
 
-   this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
+   return this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
    .then(res => {
     this.filename_form.setValue(this.files.getCurrentFileName())
     return this.processFileData(result.data)
@@ -875,7 +881,7 @@ originChange(e:any){
 prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
   this.clearAll();
     return this.fs.loader.ada(name, id,desc, ada).then(lr => {
-      this.loadNewFile(lr, 'prepAndLoad');
+      return this.loadNewFile(lr, 'prepAndLoad');
     });
 }
 
@@ -1270,7 +1276,6 @@ redo() {
   }
 
   renameWorkspace(name: string){
-    console.log("RENAME", name)
     let id = this.files.getCurrentFileId();
     this.files.renameFile(id, name);
   }

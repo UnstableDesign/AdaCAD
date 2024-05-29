@@ -425,7 +425,6 @@ export class EditorComponent implements OnInit {
         
         select(){
           this.dm.selectDraftEditingMode('select');
-          //this.weaveRef.designModeChange(obj);
         }
         
         openMaterials() {

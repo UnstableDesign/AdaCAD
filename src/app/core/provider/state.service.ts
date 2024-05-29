@@ -67,7 +67,7 @@ export class StateService {
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
 
-     console.log("adding mixer history state ", ada.file.zoom.mixer);
+     console.log("SAVING", ada.file);
 
     this.files.updateCurrentStateInLoadedFiles(this.files.getCurrentFileId(), ada.file);
 
