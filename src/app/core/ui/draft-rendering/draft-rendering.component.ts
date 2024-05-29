@@ -196,6 +196,7 @@ export class DraftRenderingComponent implements OnInit {
 
   ngOnChanges(changes:SimpleChanges){
     if (changes['scale']) {
+      console.log("IS FIRST CHANGE ", changes['scale'].isFirstChange())
      if(!changes['scale'].isFirstChange()) this.redrawAll();
     }
 
@@ -698,8 +699,6 @@ export class DraftRenderingComponent implements OnInit {
       private drawOnDrawdown(draft:Draft, loom_settings: LoomSettings,  currentPos: Interlacement, shift: boolean) {
         
         var val  = false;
-        console.log("DRAW ON DRAWDOWN")
-
         
         if (this.canvases.drawdown == null || !currentPos) { return; }
         
@@ -977,7 +976,7 @@ export class DraftRenderingComponent implements OnInit {
           use_colors: (this.current_view != 'draft')
         }
 
-        this.redraw(draft, loom, loom_settings, flags);        
+        this.redraw(draft, loom, loom_settings, flags);   
       }
 
       
@@ -1010,6 +1009,8 @@ export class DraftRenderingComponent implements OnInit {
           let weftdatadiv = document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
           if(warpdatadiv !== null) warpdatadiv.style.width = this.canvases.warp_mats.style.width;
           if(weftdatadiv !== null) weftdatadiv.style.height = this.canvases.weft_mats.style.height;
+          this.selection.redraw();     
+
           return Promise.resolve(res);
         })
         

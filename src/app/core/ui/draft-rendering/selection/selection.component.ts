@@ -21,6 +21,7 @@ export class SelectionComponent implements OnInit {
   
   @Input('id') id: number;
   @Input('source') source: string;
+  @Input('scale') scale: number;
   @Output() onSelectionEnd: any = new EventEmitter();
   @Output() forceRedraw: any = new EventEmitter();
 
@@ -49,6 +50,7 @@ export class SelectionComponent implements OnInit {
   copy: Drawdown = [];
   
   selectionEl: HTMLElement = null;
+  selectionMeta: HTMLElement = null;
   selectionContainerEl: HTMLElement = null;
       
    size_row: HTMLElement = null;
@@ -92,6 +94,7 @@ export class SelectionComponent implements OnInit {
   ngAfterViewInit(){
     this.selectionEl = document.getElementById("selection-"+this.id);
     this.selectionContainerEl = document.getElementById("selection-container-"+this.id);
+    this.selectionMeta = document.getElementById("selection-meta");
         
     this.size_row = document.getElementById('size-row-id-'+this.id);
     this.action_row = document.getElementById('action-row-id-'+this.id);
@@ -113,6 +116,10 @@ export class SelectionComponent implements OnInit {
       
       case 'copy': 
       this.copyArea();
+      break;
+
+      case 'erase': 
+      this.onPaste('erase');
       break;
       
       case 'paste': 
@@ -287,6 +294,15 @@ export class SelectionComponent implements OnInit {
         switch(op_name){
           case 'original':
             return Promise.resolve(this.copy);
+            break;
+          case 'erase':
+            op = this.ops.getOp('clear');
+            params = [];
+            drafts = [{
+              drafts: [copy_draft],
+              inlet_id: 0,
+              params: []
+            }];
             break;
           case 'invert':
             op = this.ops.getOp('invert');
@@ -573,7 +589,7 @@ export class SelectionComponent implements OnInit {
   */
   isTargetEnabled(target: string):boolean{
 
-    console.log("CHECK IF SOURCE IS ENABLED for SElect", this.source, this.target)
+    // console.log("CHECK IF SOURCE IS ENABLED for SElect", this.source, this.target)
 
 
     const editing_mode = this.dm.cur_draft_edit_source;
@@ -651,7 +667,7 @@ export class SelectionComponent implements OnInit {
   onSelectStart(target: HTMLElement, start: Interlacement){
     if(!target) return;
 
-
+    console.log("SELECTION STARTED ON ", target, start)
     
     this.hide_actions = true;
     const draft = this.tree.getDraft(this.id);
@@ -665,6 +681,7 @@ export class SelectionComponent implements OnInit {
 
     this.updateActions(this.target.id);
     
+
     this.target.parentNode.appendChild( this.selectionContainerEl);
 
     //pad the selection container to match the padding of the parent. 
@@ -674,6 +691,7 @@ export class SelectionComponent implements OnInit {
     
     //make sure the transform is applied to correct the origination of the text and action icons
     this.selectionContainerEl.style.padding = style.padding;
+    
     if(this.size_row !== null) this.size_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
     if(this.action_row !== null) this.action_row.style.transform = 'matrix('+matrix.a+','+matrix.b+','+matrix.c+','+matrix.d+','+matrix.e+','+matrix.f+')';
     
@@ -857,7 +875,10 @@ export class SelectionComponent implements OnInit {
   
   
   unsetParameters() {
-    if(this.target !== null && this.target !== undefined) this.target.parentNode.removeChild( this.selectionContainerEl);
+    if(this.target !== null && this.target !== undefined){
+      let parent = this.selectionContainerEl.parentNode;
+      if(parent !== null && parent !== undefined) parent.removeChild(this.selectionContainerEl)
+    } 
 
     this.has_selection = false;
     this.width = -1;
@@ -904,16 +925,17 @@ export class SelectionComponent implements OnInit {
       let left_ndx = Math.min(this.start.j, this.end.j);
       
       //this needs to take the transform of the current element into account
-      let in_div_top:number = top_ndx * this.cell_size;
-      let in_div_left:number = left_ndx * this.cell_size;
+      let in_div_top:number = top_ndx * this.cell_size * this.scale;
+      let in_div_left:number = left_ndx * this.cell_size * this.scale;
       
       
       if(this.selectionContainerEl !== null && this.selectionEl !== null){
         
         this.selectionContainerEl.style.top = in_div_top+"px"
         this.selectionContainerEl.style.left = in_div_left+"px";
-        this.selectionEl.style.width = this.screen_width -5 + "px";
-        this.selectionEl.style.height = this.screen_height -5 + "px";
+        this.selectionEl.style.width = this.screen_width* this.scale -5 + "px";
+        this.selectionEl.style.height = this.screen_height* this.scale -5 + "px";
+        this.selectionMeta.style.scale = this.scale+"";
       }
       
     }else{

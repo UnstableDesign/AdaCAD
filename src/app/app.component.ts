@@ -1189,6 +1189,10 @@ collapseViewer(){
   }
 }
 
+drawModeChange(mode: string){
+  this.editor.drawModeChange(mode);
+} 
+
 
 /**
  * TODO: because it reloads the file, and reassigns IDs to drafts, there is no way to link the previous draft detail in the editor

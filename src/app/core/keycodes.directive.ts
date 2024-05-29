@@ -20,6 +20,7 @@ export class KeycodesDirective {
   @Output() updateDetailView: any = new EventEmitter();
   @Output() onCopySelections: any = new EventEmitter();
   @Output() onPasteSelections: any = new EventEmitter();
+  @Output() onDrawModeChange: any = new EventEmitter();
   @Output() onExplode: any = new EventEmitter();
   
   
@@ -81,7 +82,7 @@ export class KeycodesDirective {
       if(e.key =="d" && e.metaKey){
         
         if(this.dm.cur_draft_edit_mode == 'select'){
-          this.dm.selectDraftEditingMode('draw');
+          this.onDrawModeChange.emit('toggle')
         }else if(this.dm.cur_draft_edit_mode == 'draw'){
           this.dm.selectDraftEditingMode('select');
         }
