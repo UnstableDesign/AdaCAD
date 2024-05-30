@@ -1,5 +1,7 @@
 .textfield{
 	width: 100%;
+	font-size: 20px;
+    line-height: 28px;
 }
 
 .note-container{
@@ -11,12 +13,19 @@
 	padding: 24px;
 }
 
+.mat-mdc-icon-button{
+	font-size: 14px;
+}
+
 
 
 .notetitle{
 	font-weight: bold;
 	width: 100%;
 	background-color: transparent;
+	width: 100%;
+	font-size: 20px;
+    line-height: 28px;
 }
 
 .expand{

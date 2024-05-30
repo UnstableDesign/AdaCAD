@@ -60,6 +60,7 @@ export class DraftContainerComponent implements AfterViewInit{
   size_observer: any;
 
 
+
   constructor(
     private dm: DesignmodesService,
     private ms: MaterialsService,
@@ -241,13 +242,14 @@ export class DraftContainerComponent implements AfterViewInit{
     
 
   }
+
+
+  updateName(){
+    let name = this.tree.getDraftName(this.id);
+    this.draft_name = name;
+  }
  
   
-  updateName(){
-    const draft = this.tree.getDraft(this.id);
-    draft.ud_name = this.ud_name;
-
-  }
 
   async saveAsWif() {
 

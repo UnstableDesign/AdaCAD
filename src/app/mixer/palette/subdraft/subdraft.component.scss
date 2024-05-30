@@ -12,20 +12,10 @@
 .multiselected{
 
 	.from_subdraft{
-	border: thick dashed  #ff3860;
+        border: thick dashed black;
 	}	
 }
 
-.pinned{
-
-	.from_subdraft{
-	border: thick solid  #ff3860;
-	}	
-}
-
-.is_selected{
-	border: thick solid black;
-}
 
 .from_subdraft{
 	display: flex;

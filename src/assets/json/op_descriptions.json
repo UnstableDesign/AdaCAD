@@ -58,6 +58,20 @@
             "application": "Complex weavers often generate structures that consider each warp and weft as a logical system that will behave differently in different regions of the cloth. Thus, some operations, like layer notation, require systems to be specified in order to compute complex structures that obey the systems of warps and wefts over the cloth. Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface" 
         },
         {
+            "name":"apply warp materials",
+            "displayname": "set warp materials",
+            "tags": [],
+            "description": "Copies the materials used in the materials draft to the ends of the input draft.",
+            "application": "Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface" 
+        },
+        {
+            "name":"apply weft materials",
+            "displayname": "set weft materials",
+            "tags": [],
+            "description": "Copies the materials used in the materials draft to the picks of the input draft.",
+            "application": "Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface" 
+        },
+        {
             "name":"invert",
             "displayname": "invert",
             "tags": [],

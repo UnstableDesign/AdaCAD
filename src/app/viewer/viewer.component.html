@@ -185,8 +185,18 @@
 
   </div>
   <div class="draft-data">
-    <div class="draft_name">name: {{draft_name}}</div>
-    <div class="dims">{{warps}} ends x {{wefts}} pics</div>
+    <div class="draft_name">
+      <mat-form-field appearance="outline">
+        <mat-label>draft name</mat-label>
+
+        <input matInput  [(ngModel)]="draft_name" 
+        [placeholder]="draft_name"  
+        (change)="updateDraftName()">
+      </mat-form-field>
+      <!-- (focusout)="nameFocusOut($event)" -->
+      
+    </div>
+    <div class="dims">draft size: {{warps}} ends x {{wefts}} pics</div>
 
   </div>
   

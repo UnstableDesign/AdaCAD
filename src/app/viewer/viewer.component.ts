@@ -26,6 +26,7 @@ export class ViewerComponent {
   @Output() openHelp: any = new EventEmitter();
   @Output() onViewerExpanded: any = new EventEmitter();
   @Output() onViewerCollapsed: any = new EventEmitter();
+  @Output() onDraftRename: any = new EventEmitter();
   @Output() onSave: any = new EventEmitter();
   @Output() onForceFocus: any = new EventEmitter();
 
@@ -108,6 +109,13 @@ getVisVariables(){
 
   }
 
+  updateDraftName(){
+    if(this.id == -1) return;
+    const draft = this.tree.getDraft(this.id);
+    draft.ud_name = this.draft_name;
+    this.onDraftRename.emit(this.id);
+    //broadcast that this changed. 
+  }
 
   /**
    * redraws the current draft, usually following an update from the drawdown

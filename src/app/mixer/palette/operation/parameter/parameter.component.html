@@ -4,8 +4,9 @@
         
       <div class="number_input">
         <mat-form-field >
-          <!-- <mat-label>{{param.name}}</mat-label> -->
+          <mat-label>{{param.name}}</mat-label>
             <input 
+            
             matInput
             [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
@@ -18,7 +19,7 @@
             (change)= "onParamChange(fc.value)"
         >
 
-        <mat-hint>{{param.name}}</mat-hint>
+        <!-- <mat-hint>{{param.name}}</mat-hint> -->
 
         </mat-form-field>
       </div>

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
+import { Draft, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
 import { ImageService } from '../../../core/provider/image.service';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../core/provider/operation.service';
@@ -13,6 +13,7 @@ import { InletComponent } from './inlet/inlet.component';
 import { ParameterComponent } from './parameter/parameter.component';
 import { ZoomService } from '../../../core/provider/zoom.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
+import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 
 
 
@@ -26,6 +27,7 @@ export class OperationComponent implements OnInit {
 
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
   @ViewChildren(InletComponent) inletComps!: QueryList<InletComponent>;
+  @ViewChildren(DraftContainerComponent) draftContainers!: QueryList<DraftContainerComponent>;
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;

@@ -2,18 +2,12 @@
 .multiselected{
 
     .operation-container{
-        border: thick dashed  #ff3860;
+        border: thick dashed black;
     }
     
 }
 
-.pinned{
 
-    .operation-container{
-        border: thick solid  #ff3860;
-    }
-    
-}
 
 
 .operation-container{
@@ -52,13 +46,17 @@
   }
 
 
+  .mat-mdc-form-field-hint,
+  .mat-mdc-form-field-subscript-wrapper{
+    font-size: 14px;
+  }
 
 .top-row{
     display: flex;
     flex-direction: row;
     vertical-align: bottom;
     justify-content: flex-start;
-    padding: 8px;
+    padding: 8px 8px 0px 8px;
     
 }
 
@@ -195,7 +193,6 @@ button.is-primary.is-active{
 }
 
 .name{
-    margin: 0px 8px;
     color: white;
     font-size: 1.6em;
     font-weight: bold;
@@ -210,9 +207,9 @@ button.is-primary.is-active{
 .params{
         display: flex;
         flex-direction: row;
-        padding: 16px;
+        padding: 8px;
         width: 100%;
-        gap: 16px;
+        gap: 8px;
         font-size: 14px;
         flex: 1 1 auto;
 
@@ -236,12 +233,16 @@ button.is-primary.is-active{
 .operation-details{
     animation-name: added_to_workspace;
     animation-duration: 4s;
-
     color: white;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    align-items: center;
+
+    .mat-mdc-icon-button{
+        font-size: 14px;
+    }
 }
 
 .outputs{

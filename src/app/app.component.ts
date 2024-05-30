@@ -36,6 +36,7 @@ import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
 import { UntypedFormControl, Validators } from '@angular/forms';
+import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 
 
 
@@ -1273,6 +1274,25 @@ redo() {
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    */
   updateMixer(){
+  }
+
+  updateDraftName(id: any){
+    
+    if(id == -1) return;
+
+    if(this.tree.hasParent(id)){
+      let parent = this.tree.getSubdraftParent(id);
+      let comp= this.tree.getComponent(parent);
+      (<OperationComponent> comp).draftContainers.forEach(el => el.updateName());
+    }else{
+      let comp= this.tree.getComponent(id);
+      (<SubdraftComponent> comp).draftcontainer.updateName();
+    }
+    
+   
+
+
+
   }
 
   renameWorkspace(name: string){

@@ -75,6 +75,8 @@ import { shift } from '../operations/shift/shift';
 import {flip} from '../operations/flip/flip'
 import { glitchsatin } from '../operations/glitchsatin/glitchsatin';
 import {hydra} from '../operations/hydra/hydra'
+import { apply_warp_mats } from '../operations/applywarpmaterials/applywarpmaterials';
+import { apply_weft_mats } from '../operations/applyweftmaterials/applyweftmaterials';
 
 @Injectable({
   providedIn: 'root'
@@ -168,6 +170,8 @@ export class OperationService {
     this.ops.push(directdrawdown);
     this.ops.push(erase_blank);
     this.ops.push(apply_mats);
+    this.ops.push(apply_warp_mats)
+    this.ops.push(apply_weft_mats)
     this.ops.push(combinatorics);
     this.ops.push(sinewave);
     this.ops.push(sawtooth);

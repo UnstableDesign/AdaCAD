@@ -1,19 +1,25 @@
-<button class="show_draft" *ngIf = '!draft_visible' mat-flat-button  (click)="toggleVisibility()">
-  <i class="fa fa-eye" aria-hidden="true"></i> show draft
-</button>
 
-{{id}}
 
-<div class="subdraft-container" id="subdraft-container-{{id}}" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
+<!-- {{id}} -->
+
+<div class="subdraft-container" id="subdraft-container-{{id}}">
 
 
   <div class="header-container">
 
-    <button *ngIf = 'draft_visible' mat-icon-button (click)="toggleVisibility()">
-      <i class="fa fa-eye-slash" aria-hidden="true"></i>
+    <button class="show_draft" *ngIf = '!draft_visible' mat-flat-button  (click)="toggleVisibility()">
+      <i class="fa fa-eye" aria-hidden="true"></i> show draft
     </button>
 
-    <div class="rendering-view-opts">
+    <button class="show_draft" *ngIf = 'draft_visible' mat-flat-button (click)="toggleVisibility()">
+      <i class="fa fa-eye" aria-hidden="true"></i> hide draft
+    </button>
+
+    <!-- <button *ngIf = 'draft_visible' mat-icon-button (click)="toggleVisibility()">
+      <i class="fa fa-eye-slash" aria-hidden="true"></i>
+    </button> -->
+
+    <div class="rendering-view-opts" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
       <!-- set local zoom -->
     <mat-slider min=".1" max="1" step="0.1">
       <input matSliderThumb  [value]="local_zoom" (valueChange)="localZoomChange($event)">
@@ -25,7 +31,7 @@
 
 
 
-  <div *ngIf="!hasParent" class="options">
+  <div  *ngIf="!hasParent" class="options">
 
 
 
@@ -107,7 +113,7 @@
 
 
 
-<app-draft-rendering
+<app-draft-rendering [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible"
 #draft_rendering
 source = "mixer"
 [id]="id"
@@ -122,28 +128,15 @@ source = "mixer"
 
 
 
-<div class="single_line">
+<div class="output_meta">
+  <div class="draftname">{{draft_name}}</div>
+
   <div class="dims">{{warps}} x {{wefts}}</div>
-  <!-- <div >
-    <mat-form-field>
-    <input matInput  [(ngModel)]="ud_name" 
-    [placeholder]="tree.getDraft(id).gen_name"  
-    (focusout)="nameFocusOut($event)"
-    (change)="updateName()">
-  </mat-form-field>
-   </div> -->
-   </div>
-
-
-
-
+ 
 
   <canvas #bitmapImage hidden></canvas>
 
-
-</div>
-
-<div class="outlet_row">
+  <div class="outlet_row">
 
 
     <button 
@@ -157,6 +150,9 @@ source = "mixer"
       <i class="fa-sharp fa-solid fa-circle-down"></i>  
       <!-- {{id}} -->
     </button>
-  </div>
+</div>
+
+
+</div>
 
 
