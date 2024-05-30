@@ -41,14 +41,14 @@
             "displayname": "set interlacements of type to unset",
             "tags": ["advanced"],
             "description": "This sets all interlacements of a particular type (e.g. raised or lowered) in the input draft to unset",
-            "application": "Unset cells allows someone to describe shapeed or inlay elements in a cloth. Set interlacements of one type to unset will have the effect of specifying an area where no weft will travel" 
+            "application": "Unset cells allows someone to describe shaped or inlay elements in a cloth. Set interlacements of one type to unset will have the effect of specifying an area where no weft will travel" 
         },
         {
             "name":"set down to unset",
             "displayname": "set interlacements of type to unset...",
             "tags": ["advanced"],
             "description": "This sets all interlacements of a particular type (e.g. raised or lowered) in the input draft to unset",
-            "application": "Unset cells allows someone to describe shapeed or inlay elements in a cloth. Set interlacements of one type to unset will have the effect of specifying an area where no weft will travel" 
+            "application": "Unset cells allows someone to describe shaped or inlay elements in a cloth. Set interlacements of one type to unset will have the effect of specifying an area where no weft will travel" 
         },
         {
             "name":"apply materials",
@@ -56,6 +56,20 @@
             "tags": [],
             "description": "Adds information to the draft that represents the materials and warp- and weft-systems that will be associated with the draft",
             "application": "Complex weavers often generate structures that consider each warp and weft as a logical system that will behave differently in different regions of the cloth. Thus, some operations, like layer notation, require systems to be specified in order to compute complex structures that obey the systems of warps and wefts over the cloth. Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface" 
+        },
+        {
+            "name":"apply warp materials",
+            "displayname": "set warp materials",
+            "tags": [],
+            "description": "Copies the materials used in the materials draft to the ends of the input draft.",
+            "application": "Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface" 
+        },
+        {
+            "name":"apply weft materials",
+            "displayname": "set weft materials",
+            "tags": [],
+            "description": "Copies the materials used in the materials draft to the picks of the input draft.",
+            "application": "Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface" 
         },
         {
             "name":"invert",
@@ -82,22 +96,22 @@
             "name":"slope",
             "displayname": "slope",
             "tags": [],
-            "description": "Shifts every nth pic by the vaule given in ends",
+            "description": "Shifts every nth pic by the value given in ends",
             "application": "We do not know of an existing reason, but essentially slants the input draft, which can be fun" 
         },
         {
             "name":"undulatewefts",
             "displayname": "undulate wefts",
             "tags": ["advanced"],
-            "description": "Given a user specified input of a series of number, it shifts every pic by the vaule specified in the corresponding location of the user specified input. For example, if 1 3 1 is entered, it shifts the first pic to the right by 1, second to the right by 3, third by 1",
-            "application": "This can be used to create structures that repond to non-linear shift patterns. It could also allow someone to enter a data stream into the input field representing data values, and have the structures generated reflect those values" 
+            "description": "Given a user specified input of a series of number, it shifts every pic by the value specified in the corresponding location of the user specified input. For example, if 1 3 1 is entered, it shifts the first pic to the right by 1, second to the right by 3, third by 1",
+            "application": "This can be used to create structures that respond to non-linear shift patterns. It could also allow someone to enter a data stream into the input field representing data values, and have the structures generated reflect those values" 
         },
         {
             "name":"undulatewarps",
             "displayname": "undulate warps",
             "tags": ["advanced"],
-            "description": "Given a user specified input of a series of number, it shifts every end by the vaule specified in the corresponding location of the user specified input. For example, if 1 3 1 is entered, it shifts the first end to the down by 1, second to the down by 3, third down by 1",
-            "application": "This can be used to create structures that repond to non-linear shift patterns. It could also allow someone to enter a data stream into the input field representing data values, and have the structures generated reflect those values" 
+            "description": "Given a user specified input of a series of number, it shifts every end by the value specified in the corresponding location of the user specified input. For example, if 1 3 1 is entered, it shifts the first end to the down by 1, second to the down by 3, third down by 1",
+            "application": "This can be used to create structures that respond to non-linear shift patterns. It could also allow someone to enter a data stream into the input field representing data values, and have the structures generated reflect those values" 
         },
         {
             "name":"rotate",
@@ -117,21 +131,21 @@
             "name":"interlace",
             "displayname": "interlace wefts",
             "tags": ["advanced"],
-            "description": "Creates a new draft by taking one pic from each input and assigning them to sucessive pics in the output draft.",
-            "application": "Combines two structures into a compound structure. For instance, for overshot, you might interlace a tabby into a floating structure, the alteranting tabby pics would add structure, the floats would add surface color and texture" 
+            "description": "Creates a new draft by taking one pic from each input and assigning them to successive pics in the output draft.",
+            "application": "Combines two structures into a compound structure. For instance, for overshot, you might interlace a tabby into a floating structure, the alternating tabby pics would add structure, the floats would add surface color and texture" 
         },
         {
             "name":"deinterlace",
             "displayname": "deinterlace wefts",
             "tags": ["advanced"],
             "description": "Creates multiple draft by splitting each pic from the input and assigning it to separate drafts. If the factor of two, two drafts are created. The first with all the odd pics and the send with all the even. If 3 is selected, three drafts are created, and so on",
-            "application": "Not sure, but perhaps it is interesting for the purposes of analysing a draft structure or splitting apart layered drafts into their component layer patterns" 
+            "application": "Not sure, but perhaps it is interesting for the purposes of analyzing a draft structure or splitting apart layered drafts into their component layer patterns" 
         },
         {
             "name":"interlacewarps",
             "displayname": "interlace warps",
             "tags": ["advanced"],
-            "description": "Creates a new draft by taking one end from each input and assigning them to sucessive ends in the output draft.",
+            "description": "Creates a new draft by taking one end from each input and assigning and sequencing between those ends in the output draft.",
             "application": "Combines two structures into a compound structure." 
         },
         {
@@ -139,7 +153,7 @@
             "displayname": "splice in pics",
             "tags": ["advanced"],
             "description": "Splices the pics of the second input draft into the first. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in pic by pic and the amount of pics between each insertion.",
-            "application": "Can be used when you need to insert a material with a certain property (say elastic) even so many pics to control the level of stretch. Alterantively, pics can be inserted to bind layers together" 
+            "application": "Can be used when you need to insert a material with a certain property (say elastic) even so many pics to control the level of stretch. Alternatively, pics can be inserted to bind layers together" 
         },
         {
             "name":"splice in warps",
@@ -160,7 +174,7 @@
             "displayname": "notation (assign by layer)",
             "tags": ["advanced"],
             "description": "Developed in collaboration with Kathryn Walters, this operation uses a notation system to assign drafts to different warp and weft patterns on different layers of cloth. Layers are represented by () so (1a)(2b) puts warp 1 and weft a on layer 1, warp 2 and weft b on layer 2. This function is slightly different than notation (assign by system) because it will apply a single input draft across all systems associated with a layer.",
-            "application": "This is used to create differetn structures, with different layer relationships, across an entire cloth. It becomes especially powerful with one changes layer numbers. For example (a1b2)(c2) will place the first layer across two systems, and the second layer across one system. This means that one can arbitrary change both layer order, as well as the association of different warp and weft systems to different layers across different regions of the cloth.", 
+            "application": "This is used to create different structures, with different layer relationships, across an entire cloth. It becomes especially powerful with one changes layer numbers. For example (a1b2)(c2) will place the first layer across two systems, and the second layer across one system. This means that one can arbitrary change both layer order, as well as the association of different warp and weft systems to different layers across different regions of the cloth.", 
             "dynamic":"true"
         },
         {
@@ -168,7 +182,7 @@
             "tags": ["advanced"],
             "displayname": "notation (assign by system)",
             "description": "Developed in collaboration with Kathryn Walters, this operation uses a notation system to assign drafts to different warp and weft patterns on different layers of cloth. Layers are represented by () so (1a)(2b) puts warp 1 and weft a on layer 1, warp 2 and weft b on layer 2. This function is slightly different than notation (assign by layer) because it lets you assign drafts to each individual system within a layer (instead of to the layer as a whole)",
-            "application": "This is used to create differetn structures, with different layer relationships, across an entire cloth. It becomes especially powerful with one changes layer numbers. For example (a1b2)(c2) will place the first layer across two systems, and the second layer across one system. This means that one can arbitrary change both layer order, as well as the association of different warp and weft systems to different layers across different regions of the cloth.", 
+            "application": "This is used to create different structures, with different layer relationships, across an entire cloth. It becomes especially powerful with one changes layer numbers. For example (a1b2)(c2) will place the first layer across two systems, and the second layer across one system. This means that one can arbitrary change both layer order, as well as the association of different warp and weft systems to different layers across different regions of the cloth.", 
             "dynamic":"true"
         },
         {
@@ -190,13 +204,13 @@
             "displayname": "overlay, (a,b) => (a OR b)",
             "tags": ["advanced"],
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If either interlacement a or b are marked as warp lifted, the resulting draft will have a warp raised in that location. ",
-            "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts. Retains the pattern of raised warp ends (black cells) from each input draft when they are overlaid. (Keeps any region that is marked black/true in either draft)" 
+            "application": "No established application, but a fun way to see how to apply binary math to the production of drafts. Retains the pattern of raised warp ends (black cells) from each input draft when they are overlaid. (Keeps any region that is marked black/true in either draft)" 
         },
         {
             "name":"overlay_multiple",
             "displayname": "overlay multiple",
             "tags": ["advanced"],
-            "description": "This function will take the lifted heddles within each draft and combine them to make a composite draft whereby each draft can be understood to be overlayed upon eachother. The resulting draft size is recalculated in order to ensure equal repeats",
+            "description": "This function will take the lifted heddles within each draft and combine them to make a composite draft whereby each draft can be understood to be overlaid upon each other. The resulting draft size is recalculated in order to ensure equal repeats",
             "application": "Can be a useful way to think about the composite structures as independent units, which can then be combined into a composite draft" 
         },
         {
@@ -204,35 +218,35 @@
             "displayname": "set atop, (a, b) => b",
             "tags": ["advanced"],
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a is marked warp raised and b marked warp lowered, or vice versa, it sets the corresponding interlacement in the output draft to warp raised.",
-            "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts." 
+            "application": "No established application, but a fun way to see how to apply binary math to the production of drafts." 
         },
         {
             "name":"cutout",
             "displayname": "cut, (a, b) => (a NAND b)",
             "tags": ["advanced"],
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a and b are both marked as having warped raised, it changes the value to warp lowered, effectively cutting the black cells in b from a. This is the opposite of mask",
-            "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts." 
+            "application": "No established application, but a fun way to see how to apply binary math to the production of drafts." 
         },
         {
             "name":"diff",
             "displayname": "diff, (a, b) => (a NEQ b)",
             "tags": ["advanced"],
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b and it returns a black cell in any location where the two draft cells were different",
-            "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts. Diffs are widly used in computation to compare how two things are similar or different" 
+            "application": "No established application, but a fun way to see how to apply binary math to the production of drafts. Diffs are widely used in computation to compare how two things are similar or different" 
         },
         {
             "name":"mask",
             "displayname": "mask, (a,b) => (a AND b)",
             "tags": ["advanced"],
             "description": "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b  If a is marked warp raised and b marked warp raised, it sets the corresponding interlacement in the output draft to warp raised. Otherwise, the interlacement is marked warp lowered. This effectively masks draft a with draft b",
-            "application": "No esablished application, but a fun way to see how to apply binary math to the production of drafts. Retains input draft b in regions where input draft a has raised warp ends (black cells); draft b is only retained within the area of draft a." 
+            "application": "No established application, but a fun way to see how to apply binary math to the production of drafts. Retains input draft b in regions where input draft a has raised warp ends (black cells); draft b is only retained within the area of draft a." 
         },
         {
             "name":"sine",
             "displayname": "sine wave sample",
             "tags": ["advanced"],
             "description": "Samples a sine wave at a rate specified by the the interval parameter, and stretches the wave to the size of amplitude. Converts this wave to a draft by marking a warp raised in any location where the wave is present",
-            "application": "No esablished application, but an interesting way to create threadings and threadlings for interesting looking drawdowns"
+            "application": "No established application, but an interesting way to create threadings and treadlings for interesting looking drawdowns"
         },
         {
             "name":"sawtooth",
@@ -252,7 +266,7 @@
             "name":"tabbyder",
             "displayname": "tabby",
             "tags": [],
-            "description": "Also known as plain weave. Plain weave is one of the most basic weave structures in which each weft thread passes over one warp end and under one warp end; the next weft pick follows the pattern on the alternate warp threads (over/under/over/under). Tabby variations include basket weave, rib weave, and rep weave. These dervicatives can be generated by modifying the parameters",
+            "description": "Also known as plain weave. Plain weave is one of the most basic weave structures in which each weft thread passes over one warp end and under one warp end; the next weft pick follows the pattern on the alternate warp threads (over/under/over/under). Tabby variations include basket weave, rib weave, and rep weave. These derivatives can be generated by modifying the parameters",
             "application": "Generates a tabby or tabby derivative structure that can be modified as needed as ones design evolves." 
         },
         {
@@ -294,7 +308,7 @@
             "name":"shaded_satin",
             "displayname": "shaded satin",
             "tags": ["advanced"],
-            "description": "Satin is a family of weave structures that create cloth with weft floats on one face of the fabric and warp floats on the other. The succeeding interlacements of warp and weft threads in each row occur on non-adjacent warp threads, creating a smooth surface of floating threads on each face. The number of ends between succeeding warp interlacements is consistent in each row (i.e. a 1/8 satin will have one raised warp end followed by a weft float over 8 warp ends in each row). Shaded satins typically use more than just one raised warp on each pic to control the visiblity of the warp or weft colors proportionally",
+            "description": "Satin is a family of weave structures that create cloth with weft floats on one face of the fabric and warp floats on the other. The succeeding interlacements of warp and weft threads in each row occur on non-adjacent warp threads, creating a smooth surface of floating threads on each face. The number of ends between succeeding warp interlacements is consistent in each row (i.e. a 1/8 satin will have one raised warp end followed by a weft float over 8 warp ends in each row). Shaded satins typically use more than just one raised warp on each pic to control the visibility of the warp or weft colors proportionally",
             "application": "Generates a satin or shaded satin structure that can be modified as needed as ones design evolves." 
         },
         {
@@ -329,7 +343,7 @@
             "name":"resize",
             "displayname": "resize",
             "tags": ["advanced"],
-            "description": "Stretches or compresses the draft to fit the boundary defined by the values given in the parameters. It does so by adding or removing whole pics and ends every in constent intervals.",
+            "description": "Stretches or compresses the draft to fit the boundary defined by the values given in the parameters. It does so by adding or removing whole pics and ends every in consistent intervals.",
             "application": "Resize can help one convert artwork to a boundary size different then what was originally intended. We suggest playing with the boundary size until the resize generates a desirable draft" 
         },
         {
@@ -424,7 +438,7 @@
             "displayname": "erase blank rows",
             "tags": ["advanced"],
             "description": "Erases any rows that are entirely unset.",
-            "application": "Blank rows can emerge when working across multiple systems. Erasing blank rows, then, can speed up weaving by avoiding picing blank rows"
+            "application": "Blank rows can emerge when working across multiple systems. Erasing blank rows, then, can speed up weaving by avoiding picking blank rows"
 
         },
         {
@@ -457,7 +471,7 @@
             "displayname": "subdivide length",
             "tags": ["advanced"],
             "description": "Subdivides the length (number of pics) of the draft into equal-sized sections, then, takes each input draft and assigns it a division",
-            "application": "Simplifies the ability to evenly split structures, one ontop of another, across a particular number of pics",
+            "application": "Simplifies the ability to evenly split structures, one on top of another, across a particular number of pics",
             "dynamic":"true"
 
         },
@@ -540,7 +554,7 @@
         },
         {
             "name":"calculate repeats",
-            "description":"automatically repeats the input drafts by the amount neccessary to ensure that each draft repeats in even intervals"
+            "description":"automatically repeats the input drafts by the amount necessary to ensure that each draft repeats in even intervals"
         },
         {
             "name":"shift ends",

@@ -19,6 +19,7 @@ import { NoteComponent } from './note/note.component';
 import { OperationComponent } from './operation/operation.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
+import { ViewerService } from '../../core/provider/viewer.service';
 
 @Component({
   selector: 'app-palette',
@@ -30,9 +31,7 @@ import { SubdraftComponent } from './subdraft/subdraft.component';
 export class PaletteComponent implements OnInit{
 
 
-  @Output() onDesignModeChange: any = new EventEmitter();  
-  @Output() onRevealDraftDetails: any = new EventEmitter();  
-  @Output() refreshViewer: any = new EventEmitter();  
+  // @Output() onDesignModeChange: any = new EventEmitter();  
   @Output() onOpenInEditor: any = new EventEmitter();  
 
   /**
@@ -94,13 +93,6 @@ export class PaletteComponent implements OnInit{
    visible_op_inlet: number = -1;
 
 
-     /** variables for focused view */
-
-  selected_draft_id: number = -1;
-
-  has_viewer_focus:number = -1;
-
-
   
   constructor(
     public dm: DesignmodesService, 
@@ -111,6 +103,7 @@ export class PaletteComponent implements OnInit{
     private _snackBar: MatSnackBar,
     public viewport: ViewportService,
     private notes: NotesService,
+    private vs: ViewerService,
     private ss: StateService,
     private zs: ZoomService,
     private multiselect: MultiselectService) { 
@@ -132,17 +125,6 @@ export class PaletteComponent implements OnInit{
    * Gets references to view items and adds to them after the view is initialized
    */
    ngAfterViewInit(){
-    
-    // const div:HTMLElement = document.getElementById('scrollable-container');
-    // this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
-
-    // this.selection.scale = this.zs.zoom;
-
-    // this.selection.active = false;
-    
-    // this.designModeChanged();
-
-    // this.rescale(-1);
 
   }
 
@@ -198,9 +180,7 @@ export class PaletteComponent implements OnInit{
    */
    clearComponents(){
     this.unsubscribeFromAll();
-
     this.notes.getRefs().forEach(ref => this.removeFromViewContainer(ref));
-
     this.vc.clear();
   }
 
@@ -292,7 +272,7 @@ handlePan(diff: Point){
 
     const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
     const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
-    const functions: Array<Promise<any>> = visible_drafts.map(el => el.draft_rendering.saveAsBmp());
+    const functions: Array<Promise<any>> = visible_drafts.map(el => el.draftcontainer.saveAsBmp());
     return Promise.all(functions).then(el =>
       console.log("Downloaded "+functions.length+" files")
     );
@@ -327,7 +307,7 @@ handlePan(diff: Point){
       this.performAndUpdateDownstream(opcomp.id).then(el => {
         let children = this.tree.getNonCxnOutputs(opcomp.id);
        
-        if(children.length > 0) this.revealDraftDetails(children[0]);
+        if(children.length > 0) this.vs.setViewer(children[0])
       
         this.addTimelineState();
       });
@@ -377,18 +357,27 @@ handlePan(diff: Point){
     container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
 
     this.redrawConnections();
-
-
-    // this.handleScrollFromZoom(prev_zoom);
-
   }
 
   
   redrawConnections(){
-    const ops = this.tree.getOperations();
-    ops.forEach(el => {
-      this.updateAttachedComponents(el.id, false);
+
+    //this needs something more robust. 
+
+    let cxn:Array<ConnectionComponent> = this.tree.getConnections().filter(el => el !== null);
+    cxn.forEach(el => {
+      el.updateFromPosition();
+      let to = this.tree.getConnectionOutputWithIndex(el.id)
+      el.updateToPosition(to.inlet, to.arr);
     })
+    
+
+
+
+    // const ops = this.tree.getOperations();
+    // ops.forEach(el => {
+    //   this.updateAttachedComponents(el.id, false);
+    // })
 
   }
 
@@ -435,23 +424,6 @@ handlePan(diff: Point){
 
 
   /**
-   * called when the palette needs to change the design mode, emits output to parent
-   * @param name - the mode to switchh to
-   */
-  changeDesignmode(name: string) {
-    this.dm.selectMixerEditingMode(name);
-    this.onDesignModeChange.emit(name);
-  }
-
-  // disablePointerEvents(){
-  //   this.pointer_events = false;
-  // }
-
-  // enablePointerEvents(){
-  //   this.pointer_events = true;
-  // }
-
-  /**
    * called when a new subdraft is created
    * @param sd 
    */
@@ -466,36 +438,11 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
-    this.subdraftSubscriptions.push(sd.onSelectForView.subscribe(this.forceFocus.bind(this)));
-    this.subdraftSubscriptions.push(sd.onFocus.subscribe(this.setFocus.bind(this)));
-
+    this.subdraftSubscriptions.push(sd.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
   }
 
   openInEditor(id: number){
     this.onOpenInEditor.emit(id);
-  }
-
-
-  /**
-   * A change has been made that, in the default condiiton, would trigger it to show up
-   * in the viewer. This checks if no other item is holding focus, and if not, updates. 
-   * @param id 
-   */
-  revealDraftDetails(id: number){
-
-    this.selected_draft_id = id;
-    
-    if(this.has_viewer_focus == -1 || id == -1) this.onRevealDraftDetails.emit(id);
-    if(id == -1) return;
-
-    if(this.tree.hasParent(id)){
-      let parent = this.tree.getSubdraftParent(id);
-      if(parent == this.has_viewer_focus) this.onRevealDraftDetails.emit(id);
-
-    }else{
-      if(this.has_viewer_focus == id) this.onRevealDraftDetails.emit(id);
-    }
-  
   }
 
   /**
@@ -503,10 +450,8 @@ handlePan(diff: Point){
    * @returns the created note instance
    */
    createNote(note: Note):NoteComponent{
-
   
     let tl: Point = null;
-
 
     const factory = this.resolver.resolveComponentFactory(NoteComponent);
     const notecomp = this.vc.createComponent<NoteComponent>(factory);
@@ -514,16 +459,19 @@ handlePan(diff: Point){
 
     if(note === null || note.topleft == null || note.topleft === undefined){
       tl = this.viewport.getCenterPoint();
-    }else{
       tl = {
         x: tl.x, 
         y: tl.y
+      }
+    }else{
+      tl = {
+        x: note.topleft.x, 
+        y: note.topleft.y
       }
     }
     let id = this.notes.createNote(tl,  notecomp.instance, notecomp.hostView, note);
 
     notecomp.instance.id = id;
-    this.changeDesignmode('move');
     return notecomp.instance;
   }
 
@@ -575,7 +523,6 @@ handlePan(diff: Point){
   }
 
   saveNote(){
-    this.changeDesignmode('move');
     this.addTimelineState();
   }
 
@@ -599,7 +546,7 @@ handlePan(diff: Point){
     subdraft.instance.scale = this.zs.getMixerZoom();
 
 
-    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true, 1)
       .then(d => {
         return Promise.resolve(subdraft.instance);
         }
@@ -687,9 +634,9 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onInputVisibilityChange.subscribe(this.updateVisibility.bind(this)));
     this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
-    this.operationSubscriptions.push(op.onShowChildDetails.subscribe(this.setFocus.bind(this)));
-    this.operationSubscriptions.push(op.onSelectForView.subscribe(this.forceFocus.bind(this)));
     this.operationSubscriptions.push(op.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
+    this.operationSubscriptions.push(op.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
+
   }
 
 
@@ -730,7 +677,7 @@ handlePan(diff: Point){
    * @params params the input data to be used in this operation
    * @returns the id of the node this has been assigned to
    */
-    loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point, saved_scale: number){
+    loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point){
 
         const factory = this.resolver.resolveComponentFactory(OperationComponent);
         const op = this.vc.createComponent<OperationComponent>(factory);
@@ -748,22 +695,7 @@ handlePan(diff: Point){
         op.instance.topleft = {x: topleft.x, y: topleft.y};
         op.instance.loaded = true;
   
-        // if(bounds !== null){
-        
-        //   const topleft_ilace = {j: bounds.topleft.x/saved_scale, i: bounds.topleft.y/saved_scale};
-        //   const adj_topleft: Point = {x: topleft_ilace.j*this.zs.zoom, y: topleft_ilace.i*this.zs.zoom};
-          
-        //   const new_bounds: Bounds = {
-        //     topleft: adj_topleft,
-        //     width: bounds.width / saved_scale * this.zs.zoom,
-        //     height: bounds.height / saved_scale * this.zs.zoom,
-        //   }
-    
-        //   op.instance.bounds = new_bounds;
-          
-        // } 
-  
-       
+
       }
 
    
@@ -819,6 +751,7 @@ handlePan(diff: Point){
       const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, 0, id_to, to_ndx, id);
       
+      console.log("on create connection")
       cxn.instance.id = id;
       cxn.instance.scale = this.zs.getMixerZoom();
 
@@ -867,7 +800,6 @@ handlePan(diff: Point){
 }
 
   /**
-   * a subdraft can only have an operation for a parent
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
    * @param id {number}  
@@ -878,16 +810,18 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
-    if(this.has_viewer_focus == id){
-      this.has_viewer_focus = -1;
-      this.revealDraftDetails(-1);
+    this.vs.checkOnDelete(id);
 
-    }
+    // if(this.has_viewer_focus == id){
+    //   this.has_viewer_focus = -1;
+    //   this.revealDraftDetails(-1);
 
-    if(this.selected_draft_id == id){
-      this.selected_draft_id = -1;
-      this.revealDraftDetails(-1);
-    }
+    // }
+
+    // if(this.selected_draft_id == id){
+    //   this.selected_draft_id = -1;
+    //   this.revealDraftDetails(-1);
+    // }
 
     const outputs = this.tree.getNonCxnOutputs(id);
     const delted_nodes = this.tree.removeSubdraftNode(id);
@@ -913,24 +847,19 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
-    if(this.has_viewer_focus == id){
-      this.has_viewer_focus = -1;
-    }
-
-    if(this.selected_draft_id == id){
-      this.selected_draft_id = -1;
-    }
 
     const drafts_out = this.tree.getNonCxnOutputs(id);
-
+    drafts_out.forEach(id => this.vs.checkOnDelete(id));
 
     const outputs:Array<number> = drafts_out.reduce((acc, el) => {
       return acc.concat(this.tree.getNonCxnOutputs(el));
     }, []);
 
 
+    //TODO Make sure this is actually returning all the removed nodes
     const delted_nodes = this.tree.removeOperationNode(id);
     delted_nodes.forEach(node => {
+      if(node.type == 'draft') this.vs.checkOnDelete(id);
       this.removeFromViewContainer(node.ref);
       this.viewport.removeObj(node.id);
     });
@@ -1044,6 +973,7 @@ handlePan(diff: Point){
           new_tl = {x: op_comp.topleft.x + 200, y: op_comp.topleft.y}
       }else{
         let container = document.getElementById('scale-'+obj.id);
+        console.log("from duplicate op")
           new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.getMixerZoom()/this.default_cell_size, y: op_comp.topleft.y}
       }
 
@@ -1226,6 +1156,7 @@ handlePan(diff: Point){
 
   this.setOutletStylingOnConnection(obj.id, true);
 
+  console.log("from connection started")
   const zoom_factor =  1 / this.zs.getMixerZoom();
   //on screen position relative to palette
   let screenX = sd_rect.x - parent_rect.x + parent.scrollLeft;
@@ -1394,6 +1325,7 @@ connectionDragged(mouse: Point){
   let parent = document.getElementById('scrollable-container');
   let rect_palette = parent.getBoundingClientRect();
 
+  console.log("from connection dragged")
   const zoom_factor = 1 / this.zs.getMixerZoom();
 
   //on screen position relative to palette
@@ -1443,8 +1375,6 @@ connectionDragged(mouse: Point){
   const svg = document.getElementById('scratch_svg');
   svg.innerHTML = ' ' ;
 
-  this.changeDesignmode('move');
-
   if(!this.tree.hasOpenConnection()) return;
 
 
@@ -1463,6 +1393,7 @@ calculateInitialLocation() : Point {
 
   const container = document.getElementById('scrollable-container');
   const container_rect = container.getBoundingClientRect();
+  console.log("from calc init location")
 
   let tl = {
     x: (container.scrollLeft  + container_rect.x) * 1/this.zs.getMixerZoom(),
@@ -1474,6 +1405,23 @@ calculateInitialLocation() : Point {
 
 }
 
+/**
+ * this is called from a operation or subdraft that has changed size. This means that it's connection needs to be redrawn such that 
+ * it properly displays the from position on the connection
+ * @param sd_id : the subdraft id associated with the change
+ */
+redrawOutboundConnections(sd_id: number){
+  let connections = this.tree.getOutputs(sd_id);
+
+
+  connections.forEach(cxn => {
+    let comp = this.tree.getComponent(cxn);
+    if(comp !== null){
+      (<ConnectionComponent> comp).updateFromPosition();
+    }
+  }) 
+
+}
 
 
 
@@ -1485,45 +1433,18 @@ calculateInitialLocation() : Point {
  */
 performAndUpdateDownstream(op_id:number) : Promise<any>{
 
+
   this.tree.getOpNode(op_id).dirty = true;
   this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
   const all_ops = this.tree.getDownstreamOperations(op_id).concat(op_id);
 
   return this.tree.performGenerationOps([op_id])
   .then(draft_ids => {
-
     all_ops.forEach(op =>{
       let children = this.tree.getNonCxnOutputs(op);
       (<OperationComponent> this.tree.getComponent(op)).updateChildren(children);
     })
-
-
-    const fns = this.tree.getDraftNodes()
-      .filter(el => el.component !== null && el.dirty)
-      .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
-       
-  }).then(el => {
-    const loads =[];
-    const new_cxns = this.tree.nodes.filter(el => el.type === 'cxn' && el.component === null);   
-    new_cxns.forEach(cxn => {
-      const from_node:Array<number> = this.tree.getInputs(cxn.id);
-      const to_node:Array<number> = this.tree.getOutputs(cxn.id);
-      if(from_node.length !== 1 || to_node.length !== 1) Promise.reject("connection has zero or more than one input or output");
-     // loads.push(this.loadConnection(cxn.id));
-    })
-
-    //update the positions of the connections
-    let all_cxns = this.tree.getConnections().filter(el => el !== null);
-    all_cxns.forEach(cxn => {
-        const outs = this.tree.getConnectionOutputWithIndex(cxn.id);
-        cxn.updateToPosition(outs.id, outs.inlet, outs.arr);
-      
-    })
-
-    return Promise.all(loads);
-
-    }
-  );
+  });
 
 }
 
@@ -1534,7 +1455,6 @@ performAndUpdateDownstream(op_id:number) : Promise<any>{
 updateDownstream(subdraft_id: number) {
 
   let out = this.tree.getNonCxnOutputs(subdraft_id);
-  console.log("out ", out)
   
   out.forEach(op_id => {
     this.tree.getOpNode(op_id).dirty = true;
@@ -1547,7 +1467,7 @@ updateDownstream(subdraft_id: number) {
 
     const fns = this.tree.getDraftNodes()
       .filter(el => el.component !== null && el.dirty)
-      .map(el => (<SubdraftComponent> el.component).draft_rendering.drawDraft((<DraftNode>el).draft));
+      .map(el => (<SubdraftComponent> el.component).draftcontainer.drawDraft((<DraftNode>el).draft));
 
 
 
@@ -1768,7 +1688,7 @@ connectionMade(obj: any){
 
   this.performAndUpdateDownstream(obj.id).then(el => {
     let children = this.tree.getNonCxnOutputs(obj.id);
-    if(children.length > 0) this.revealDraftDetails(children[0]);
+    if(children.length > 0) this.vs.setViewer(children[0]);
     this.addTimelineState();
   });
 
@@ -1806,9 +1726,8 @@ pasteConnection(from: number, to: number, inlet: number){
 
    if(this.tree.getType(to)==="op"){
      this.performAndUpdateDownstream(to).then(done => {
-      console.log("AFTER PERFORM ", this.tree)
-      this.refreshViewer.emit();
-     }); 
+      this.vs.updateViewer();
+    }); 
    }
   
 
@@ -1824,49 +1743,6 @@ pasteConnection(from: number, to: number, inlet: number){
   this.freezePaletteObjects();
 
  }
-
- /**
-  * set focus sets the draft in the viewer and editor (as long as nothing is already forced in the focus)
-  * @param id 
-  */
- setFocus(id: number){
-  this.revealDraftDetails(id);
- }
-
- /**
- * the id of the operation or subdraft that is now selected
- * @param id 
- */
- forceFocus(id: number){
-
-  if(this.has_viewer_focus !== -1){
-    const el = document.getElementById('scale-'+this.has_viewer_focus);
-    el.style.border = "none";
-  }
-
-  if(this.has_viewer_focus == id){
-   id = -1;
-  }
-
-  if(id !== -1){
-    const el = document.getElementById('scale-'+id);
-    el.style.border = "thick solid black";
-  }
-
-  this.has_viewer_focus = id;
-  if(this.has_viewer_focus == -1) return;
-
-  //get node - if its an op, get the children, if its a draft, just send it. 
-  let type = this.tree.getType(id);
-
-  if(type == 'op'){
-    let children = this.tree.getNonCxnOutputs(id);
-    if(children.length > 0) this.revealDraftDetails(children[0]);
-  }else{
-    this.revealDraftDetails(id);
-  }
-  
-}
 
 
  /**
@@ -2149,13 +2025,13 @@ pasteConnection(from: number, to: number, inlet: number){
        const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
        if(comp !== null){
         const tuple = this.tree.getConnectionOutputWithIndex(cxn);
-        comp.updateToPosition(tuple.id, tuple.inlet, tuple.arr);
+        comp.updateToPosition(tuple.inlet, tuple.arr);
        } 
     });
 
     this.tree.getOutputs(id).forEach(cxn => {
       const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-      if(comp !== null) comp.updateFromPosition(id);
+      if(comp !== null) comp.updateFromPosition();
    });
 
    if(!follow) return;
@@ -2201,7 +2077,6 @@ pasteConnection(from: number, to: number, inlet: number){
     const fns = outputs.map(out => this.performAndUpdateDownstream(out));
     Promise.all(fns).then(el => {
       this.addTimelineState();
-      this.changeDesignmode('move')
     })
 
 
@@ -2227,16 +2102,24 @@ pasteConnection(from: number, to: number, inlet: number){
         return this.performAndUpdateDownstream(obj.id)
       } )
       .then(el => {
-        let children = this.tree.getNonCxnOutputs(obj.id);
-        if(children.length > 0) this.revealDraftDetails(children[0]);
         return this.tree.sweepOutlets(obj.id)
       })
       .then(viewRefs => {
         viewRefs.forEach(el => {
           this.removeFromViewContainer(el)
         });
+
+        //update the to positions coming out of this 
+        let inputs = this.tree.getInputs(obj.id);
+
+        inputs.forEach(input_cxn => {
+          let comp = this.tree.getComponent(input_cxn);
+          const tuple = this.tree.getConnectionOutputWithIndex(input_cxn);
+          if(comp !== null) (<ConnectionComponent> comp).updateToPosition(tuple.inlet, tuple.arr);
+        })
+
         this.addTimelineState();
-        this.refreshViewer.emit();
+        this.vs.updateViewer();
       })
       .catch(console.error);
    
@@ -2307,7 +2190,7 @@ pasteConnection(from: number, to: number, inlet: number){
 
       if(this.tree.getType(sel) == 'op' && sel !== moving_id){
         const comp = this.tree.getComponent(sel);
-        comp.topleft = this.multiselect.getNewPosition(sel, diff);
+       (<OperationComponent>comp).setPosition(this.multiselect.getNewPosition(sel, diff))
         this.updateAttachedComponents(sel, true);
       }
       if(this.tree.getType(sel)=='draft' && sel !== moving_id){
@@ -2353,48 +2236,113 @@ pasteConnection(from: number, to: number, inlet: number){
     this.updateSelectionPositions(obj.id);
 
     this.addTimelineState();
-    this.tree.unsetPreview();
+
+  }
+
+
+  getClosestToTopLeft(topleft: Point, rect_list: Array<any>): any{
+    return rect_list
+    .map(el => {return {id: el.id, rect: el.rect, dist: Math.pow(topleft.y - el.rect.top, 2) + Math.pow(topleft.x - el.rect.left, 2)}})
+    .reduce( (acc, el) => {
+      if(acc == null || el.dist < acc.dist) return el;
+      return acc;
+    }, null);
+  }
+
+  /**
+   * reposition all of the drafts and operations on screen such that none of them overlap. 
+   */
+  explode(){
+
+    //get each element as a dom rect
+    let rect_list = this.tree.nodes
+    .filter(el => (el !== null && el.type !== 'cxn'))
+    .map(el => {return {dom: document.getElementById('scale-'+el.id), id: el.id}})
+    .filter(el => el.dom !== undefined && el.dom !== null);
+    
+    rect_list.forEach(el => {
+      let comp = this.tree.getComponent(el.id);
+      let topleft = comp.topleft;
+      (<SubdraftComponent | OperationComponent> comp).setPosition({x: topleft.x * 3, y: topleft.y * 3});
+    })
+
+
+    this.redrawConnections();
+
+    //redraw notes
+    let notes =  this.notes.getComponents();
+    notes.forEach(el => {
+      let topleft = el.topleft;
+      (<NoteComponent> el).setPosition({x: topleft.x * 3, y: topleft.y * 3});
+    })
+
+
+
+    // //get average width and average height 
+    // const width_sum = rect_list
+    // .map(el => el.rect.width)
+    // .reduce((acc, el) => {
+    //   return acc + el;
+    // }, 0);
+
+    // const avg_width = width_sum / rect_list.length;
+
+    // //get average width and average height 
+    // const height_sum = rect_list
+    // .map(el => el.rect.height)
+    // .reduce((acc, el) => {
+    //   return acc + el;
+    // }, 0);
+
+    // const avg_height = height_sum / rect_list.length;
+
+    // const pallete_rect = document.getElementById('palette-scale-container').getBoundingClientRect();
+    // const plot_units_w = Math.floor(pallete_rect.width / (avg_width+20));
+    // const plot_units_h = Math.floor(pallete_rect.height / (avg_height+20));
+    // const unit_w = pallete_rect.width / plot_units_w;
+    // const unit_h = pallete_rect.height / plot_units_h;
+
+    // if(plot_units_h * plot_units_h < rect_list.length) console.error("there are more elements than space available on the screen")
+    // //create a 2D array of all the spaces for which an element can sit, mark "-1" meaning that nothing is sitting there. later that will be replaced with an id for the element in that position
+    // const plots:Array<Array<number>> = [];
+    // for(let i = 0; i < plot_units_w; i++){
+    //   plots.push([])
+    //   for(let j = 0; j < plot_units_h; j++){
+    //     plots[i].push(-1)
+    //   }
+    // }
+
+
+
+    // //work through the plots and assign the closest operation to the spot (this will )
+    // for(let i = 0; i < plots.length; i++){
+    //   for(let j = 0; j < plots[0].length; j++){
+    //     let topleft: Point = {x: pallete_rect.left + j*unit_w, y: pallete_rect.top + i*unit_h};
+    //     const closest = this.getClosestToTopLeft(topleft, rect_list);
+    //     if(closest !== null ){
+    //       rect_list = rect_list.filter(el => el.id !== closest.id);
+    //       plots[i][j] = closest.id;
+    //       let comp = this.tree.getComponent(closest.id);
+    //       (<SubdraftComponent | OperationComponent> comp).setPosition(topleft);
+    //     }
+    //   }
+    // }
+
+    // console.log("PLOTS ", plots)
+
+
+
+
+
+
   
-    //get the reference to the draft that's moving
-    const moving = this.tree.getComponent(obj.id);
-    //const interlacement = utilInstance.resolvePointToAbsoluteNdx(moving.topleft, this.zs.zoom);
-   // this.viewport.updatePoint(moving.id, interlacement);
-      
+
+
+
+
 
 
   }
-
-
-  getSelectionBounds(c1: any, c2: any): Bounds{
-      let bottomright = {x: 0, y:0};
-      let bounds:Bounds = {
-        topleft:{x: 0, y:0},
-        width: 0,
-        height: 0
-      }
-      if(c1.i < c2.i){
-        bounds.topleft.y = c1.i * this.zs.getMixerZoom();
-        bottomright.y = c2.i * this.zs.getMixerZoom();
-      }else{
-        bounds.topleft.y = c2.i * this.zs.getMixerZoom();
-        bottomright.y = c1.i * this.zs.getMixerZoom();
-      }
-
-      if(c1.j < c2.j){
-        bounds.topleft.x = c1.j * this.zs.getMixerZoom();
-        bottomright.x = c2.j * this.zs.getMixerZoom();
-      }else{
-        bounds.topleft.x = c1.j * this.zs.getMixerZoom();
-        bottomright.x = c2.j * this.zs.getMixerZoom();
-      }
-
-      bounds.width = bottomright.x - bounds.topleft.x;
-      bounds.height = bottomright.y - bounds.topleft.y;
-
-      return bounds;
-  }
-
-
 
 
       /**
@@ -2440,10 +2388,20 @@ pasteConnection(from: number, to: number, inlet: number){
   // }
     
   redrawAllSubdrafts(){
-      const comps = this.tree.getDrafts();
-      comps.forEach(sd => {
-        if(sd !== null && sd!== undefined) sd.redrawExistingDraft();
+      const dns = this.tree.getDraftNodes();
+      dns.forEach(dn => {
+        if(dn !== null && dn.component !== null){
+          (<SubdraftComponent>dn.component).redrawExistingDraft();
+        }else{
+          let parent = this.tree.getSubdraftParent(dn.id);
+          let comp = this.tree.getComponent(parent);
+          if(comp !== null){
+            (<OperationComponent> comp).redrawchildren++;
+          }
+          
+        }
       })
+
 
       this.redrawConnections();
 

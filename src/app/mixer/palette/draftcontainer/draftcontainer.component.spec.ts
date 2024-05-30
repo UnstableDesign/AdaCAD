@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DraftrenderingComponent } from './draftrendering.component';
+import { DraftContainerComponent } from './draftcontainer.component';
 
 describe('DraftrenderingComponent', () => {
-  let component: DraftrenderingComponent;
-  let fixture: ComponentFixture<DraftrenderingComponent>;
+  let component: DraftContainerComponent;
+  let fixture: ComponentFixture<DraftContainerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DraftrenderingComponent ]
+      declarations: [ DraftContainerComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DraftrenderingComponent);
+    fixture = TestBed.createComponent(DraftContainerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

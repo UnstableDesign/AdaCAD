@@ -10,6 +10,7 @@ import { SystemsService } from './systems.service';
 import { TreeService } from './tree.service';
 import { VersionService } from './version.service';
 import { WorkspaceService } from './workspace.service';
+import { ZoomService } from './zoom.service';
 
 
 
@@ -38,6 +39,7 @@ export class FileService {
     private ss: SystemsService,
     private vs: VersionService,
     private ws: WorkspaceService,
+    private zs: ZoomService,
     private files: FilesystemService) { 
 
   
@@ -72,6 +74,10 @@ export class FileService {
 
       if(data.version !== undefined) version = data.version;
 
+      if(data.zoom !== undefined){
+        this.zs.import(data.zoom)
+      }
+
       if(data.workspace !== undefined){
         this.ws.loadWorkspace(data.workspace);
       }else{
@@ -87,14 +93,10 @@ export class FileService {
         }
       }
 
-      const flips_required = utilInstance.getFlips(3, this.ws.selected_origin_option);
-
       const loom_elements = []
       const loom_fns = []
       const draft_elements = [];
       const draft_fns = [];
-
-
 
 
       if(!utilInstance.sameOrNewerVersion(version, '3.4.9')){
@@ -113,15 +115,15 @@ export class FileService {
 
             if(el.draft == undefined && el.compressed_draft !== undefined && el.compressed_draft !== null){
 
-              draft_fns.push(loadDraftFromFile(el.compressed_draft, flips_required, version));
+              draft_fns.push(loadDraftFromFile(el.compressed_draft, version));
               draft_elements.push(el);
             }else if(el.draft !== null && el.draft !== undefined){
-              draft_fns.push(loadDraftFromFile(el.draft, flips_required, version));
+              draft_fns.push(loadDraftFromFile(el.draft, version));
               draft_elements.push(el);
             }
 
             if(el.loom !== null && el.loom !== undefined){
-              loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.draft_id));
+              loom_fns.push(loadLoomFromFile(el.loom, version, el.draft_id));
               loom_elements.push(el);
             }
 
@@ -155,15 +157,16 @@ export class FileService {
               ? {type: this.ws.type, epi: this.ws.epi, units: this.ws.units, frames: this.ws.min_frames, treadles: this.ws.min_treadles } 
               : {type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles},
             render_colors: (node === undefined || node.render_colors === undefined) ? true : node.render_colors,
+            scale: (node === undefined || node.scale === undefined) ? 1 : node.scale,
           }
 
           draft_nodes.push(dn);
 
           if(draft !== null && draft !== undefined){
-            draft_fns.push(loadDraftFromFile(draft, flips_required, version));
+            draft_fns.push(loadDraftFromFile(draft, version));
 
             if(loom !== null && loom !== undefined){
-              loom_fns.push(loadLoomFromFile(loom, flips_required, version, draft.id));
+              loom_fns.push(loadLoomFromFile(loom, version, draft.id));
             }
           }
         });
@@ -172,6 +175,7 @@ export class FileService {
 
       return Promise.all(draft_fns)
       .then( res => {
+
           
         res.forEach(result => {
           let draft_ndx = draft_nodes.findIndex(el => el.draft_id == result.id);
@@ -222,13 +226,13 @@ export class FileService {
           const envt: FileObj = {
             version: data.version,
             workspace: data.workspace,
+            zoom: data.zoom,
             filename: filename,
             nodes: (data.nodes === undefined) ? [] : data.nodes,
             treenodes: (data.tree === undefined) ? [] : data.tree,
             draft_nodes: draft_nodes,
             notes: (data.notes === undefined) ? [] : data.notes,
             ops: ops,
-            scale: (data.scale === undefined) ? 5 : data.scale,
           }
 
           return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
@@ -244,20 +248,16 @@ export class FileService {
 
     paste: async (data: any) : Promise<LoadResponse> => {
       
+
       let draft_nodes: Array<DraftNodeProxy> = [];
       let ops: Array<OpComponentProxy> = [];
-      let version = "0.0.0";
+      let version = data.version;
       
-      // this.clearAll();
-
      
 
       if(data.shuttles !== undefined){
        //handle shuttles here
       }
-
-      const flips_required = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-
     
       const loom_elements = []
       const loom_fns = []
@@ -268,11 +268,11 @@ export class FileService {
 
       draft_nodes.forEach(el => {
         if(el.compressed_draft !== null && el.compressed_draft !== undefined){
-          draft_fns.push(loadDraftFromFile(el.compressed_draft, flips_required, version));
+          draft_fns.push(loadDraftFromFile(el.compressed_draft, version));
           draft_elements.push(el);
 
           if(el.loom !== null && el.loom !== undefined){
-            loom_fns.push(loadLoomFromFile(el.loom, flips_required, version, el.compressed_draft.id));
+            loom_fns.push(loadLoomFromFile(el.loom, version, el.compressed_draft.id));
             loom_elements.push(el);
           }
         }
@@ -284,7 +284,7 @@ export class FileService {
       .then( res => {
 
           for(let i = 0; i < draft_elements.length; i++){
-            draft_elements[i].draft = res[i];
+            draft_elements[i].draft = res[i].draft;
           }
 
       return Promise.all(loom_fns)
@@ -329,13 +329,13 @@ export class FileService {
           const envt: FileObj = {
             version: '0.0.0',
             workspace: null,
+            zoom: null,
             filename: 'paste',
             nodes: (data.nodes === undefined) ? [] : data.nodes,
             treenodes: (data.tree === undefined) ? [] : data.tree,
             draft_nodes: draft_nodes,
             notes:  [],
-            ops: ops,
-            scale: 5,
+            ops: ops
           }
     
           return Promise.resolve({data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id:-1 }); 
@@ -449,6 +449,7 @@ export class FileService {
         type: 'partial',
         version: this.vs.currentVersion(),
         workspace: null,
+        zoom: null,
         nodes: this.tree.exportNodesForSaving(),
         tree: this.tree.exportTreeForSaving(),
         draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
@@ -477,6 +478,7 @@ export class FileService {
         const out: SaveObj = {
           version: this.vs.currentVersion(),
           workspace: this.ws.exportWorkspace(),
+          zoom: this.zs.export(),
           type: 'mixer',
           nodes: this.tree.exportNodesForSaving(),
           tree: this.tree.exportTreeForSaving(),
@@ -492,9 +494,6 @@ export class FileService {
 
     },
    wif: async (draft: Draft, loom: Loom, loom_settings:LoomSettings) : Promise<string> => {
-
-
-      console.log("WIF ", draft, loom, loom_settings)
 
 
 
@@ -615,11 +614,11 @@ export class FileService {
      return Promise.resolve(href);
     },
     bmp: async (canvas:HTMLCanvasElement) : Promise<string> => {
-      return Promise.resolve(canvas.toDataURL("image/jpg"));
+      return Promise.resolve(canvas.toDataURL("image/jpeg", 1));
 
     },
     jpg: async (canvas:HTMLCanvasElement) : Promise<string> => {
-      return Promise.resolve(canvas.toDataURL("image/jpg"));
+      return Promise.resolve(canvas.toDataURL("image/png"));
     }
   }
 

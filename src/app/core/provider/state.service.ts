@@ -36,7 +36,8 @@ export class StateService {
 
     this.active_id = 0;
     this.timeline = [];
-
+    this.undo_disabled = true;
+    this.redo_disabled = true;
 
   }
 
@@ -66,7 +67,7 @@ export class StateService {
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
 
-    // console.log("adding mixer history state ", this.files.getCurrentFileId(), ada.file);
+     console.log("SAVING", ada.file);
 
     this.files.updateCurrentStateInLoadedFiles(this.files.getCurrentFileId(), ada.file);
 
@@ -75,6 +76,7 @@ export class StateService {
       ada: {
         version: ada.file.version,
         workspace: ada.file.workspace,
+        zoom: ada.file.zoom,
         type: ada.file.type,
         nodes: ada.file.nodes.slice(),
         tree: ada.file.tree.slice(),
@@ -120,22 +122,6 @@ export class StateService {
 
 }
 
-/**
- * called on redo in weaver
- * @returns returns the draft to reload
- */
-  public restoreNextHistoryState(): Draft{
-
-    if(this.active_id == 0) return; 
-
-  	this.active_id--;
-
-    if(this.active_id == 0) this.redo_disabled = true;
-
-    return this.timeline[this.active_id].draft;
-    
-
-  }
 
 /**
  * called on redo in mixer

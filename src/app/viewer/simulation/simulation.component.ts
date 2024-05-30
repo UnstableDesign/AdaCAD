@@ -350,6 +350,8 @@ export class SimulationComponent implements OnInit {
   }
 
   expandSimulation(){
+
+    console.log("EXPAND")
    
     this.onExpanded.emit();
     this.sim_expanded = !this.sim_expanded;
@@ -361,6 +363,7 @@ export class SimulationComponent implements OnInit {
    * this gets called even if its not open!
    */
   onWindowResize() {
+    console.log("ON RESIZE")
     let width;
 
     if(this.sim_expanded)   width = 2*window.innerWidth/3;

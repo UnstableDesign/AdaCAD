@@ -1,4 +1,6 @@
-
+.number_input{
+    color: white;
+}
 
 // .param-row{
 //     display: flex;
@@ -11,21 +13,21 @@
 // }
 
 
-.mat-mdc-form-field-hint-wrapper{
-    color: white;
-    font-size: 18px;
-    padding-top: 2px;
-}
+// .mat-mdc-form-field-hint-wrapper{
+//     color: white;
+//     font-size: 18px;
+//     padding-top: 2px;
+// }
 
-.mat-mdc-form-field-error{
-    color: black;
-    font-size: 18px;
-}
+// .mat-mdc-form-field-error{
+//     color: black;
+//     font-size: 18px;
+// }
 
-.mat-mdc-option .mdc-list-item__primary-text {
-    margin-bottom: 10px;
-    margin-top: 10px;
-}
+// .mat-mdc-option .mdc-list-item__primary-text {
+//     margin-bottom: 10px;
+//     margin-top: 10px;
+// }
 
 // .mat-mdc-select-value {
 //     width: 100%;
@@ -36,41 +38,34 @@
 //     font-size: 18px;
 // }
 
-.mat-mdc-select-trigger {
+// .mat-mdc-select-trigger {
+//     font-weight: bold;
+// }
+
+.number_input .mat-mdc-form-field-infix {
+    font-size: 24px;
     font-weight: bold;
+    width: 90px;
 }
 
-.mat-mdc-form-field-infix {
-    font-size: 18px;
-    font-weight: bold;
-    min-width:  max-content;
-}
+
 
 // .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label{
 //     font-size: 24px;
 // }
 
 
-// .select-input{
+.select-input{
 
 
-//    .mat-mdc-select {
-//         height: 100%;
-//         align-content: baseline;
-//         flex-basis: 0;
-//         font-weight: bolder;
-//         font-size: 1.5em;
-//     }
-
-//     /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version.*/
-//     .mat-select-arrow{
-//         color: white;
-//     }
-//     /* TODO(mdc-migration): The following rule targets internal classes of option that may no longer apply for the MDC version.*/
-//     .mat-option-text{
-//         width: fit-content;
-//     }
-// }
+   .mat-mdc-select {
+        height: 100%;
+        align-content: baseline;
+        flex-basis: 0;
+        font-weight: bolder;
+        font-size: 1.5em;
+    }
+}
 
 
 .file-input-param{
@@ -98,51 +93,4 @@
 
 
 
-
-
-
-// .param-inputs{
-//     min-width: 75%;
-//     overflow: visible;
-//     text-align: left;
-//     margin-left: 6px;
-// }
-
-
-
-// button.is-primary.is-active{
-//     background-color: rgb(255, 64, 129);
-// }
-
-
-
-// .text-err,
-// .error{
-//     color:  rgb(255, 64, 129);
-// }
-
-// .inputs{
-//     display: flex;
-//     justify-content: flex-start;
-//     text-align: center;
-// }
-
-
-
-
-
-
-
-// .slider-label,
-// .param-name{
-//     font-size: 11pt;
-//     font-weight: bold;
-//     color: #ddd;
-//     text-overflow: ellipsis;
-// }
-
-// .stringandrefresh{
-//     display: flex;
-//     flex-direction: row;
-// }
 

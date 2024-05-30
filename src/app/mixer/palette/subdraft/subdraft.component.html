@@ -15,21 +15,23 @@ class="subdraft-parent-container selectable-{{!disable_drag}}"
 	[cdkDragDisabled] = "disable_drag"
 	(cdkDragMoved)="dragMove($event)"
 	(cdkDragEnded)="dragEnd($event)"
-	(cdkDragStarted)="dragStart($event)">
+	(cdkDragStarted)="dragStart($event)"
+	>
 
 
-	<app-draftrendering 
-	#draftrendering 
+	<app-draftcontainer
+	#draftcontainer 
 	class="from_subdraft"
 	[id]="id" 
 	[dirty]="false"
 	[hasParent]="false"
 	(connectionSelected)="connectionStarted($event)"
 	(onOpenInEditor)="openInEditor($event)"
-	(onSelectCalled)="selectForView()"
 	(onDuplicateCalled)="designAction($event)"
 	(onDeleteCalled)="designAction($event)"
-	></app-draftrendering>
+	(onRecomputeChildren)="designAction($event)"
+	(onDrawdownSizeChanged)="updateOutboundConnections()"
+	></app-draftcontainer>
 
 
 </div>

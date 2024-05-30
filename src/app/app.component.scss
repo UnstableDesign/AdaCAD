@@ -16,6 +16,21 @@
   font-size: 14px;
 }
 
+.copypaste{
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  font-size: 14px;
+
+}
+
+.filename{
+  height: 30px;
+  background: whitesmoke;
+  border: thin solid #3f51b5;
+  margin: 0px 8px 0px 0px;
+  border-radius: 3px;
+}
 
 
 .header-container{
@@ -94,7 +109,8 @@
   justify-content: space-between;
 }
 
-.footer-center{
+.footer-center,
+.footer-right{
   font-size: 14px;
 }
 

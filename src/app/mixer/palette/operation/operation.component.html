@@ -9,7 +9,6 @@ cdkDragBoundary=".palette"
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"
 >
-
   <div class="operation-container" [style.background-color]="opdescriptions.getCatColor(category_name)">
         <div class="cxn-row">
             <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">
@@ -40,12 +39,20 @@ cdkDragBoundary=".palette"
         <mat-menu #editOptions>
 
 
-          <button 
+          <button *ngIf="!hasPin()"
           mat-menu-item
-          (click)="selectForView()">
+          (click)="pinToView()">
           <i class="fa-solid fa-map-pin"></i> pin for view
           </button> 
   
+
+          <button *ngIf="hasPin()"
+          mat-menu-item
+          color="accent"
+          (click)="unpinFromView()">
+          <i class="fa-solid fa-map-pin"></i> unpin from view
+          </button> 
+
           <button
           mat-menu-item
           (click)="openInEditor()">
@@ -109,17 +116,17 @@ cdkDragBoundary=".palette"
 
 
       <div class="outputs">
-        <app-draftrendering class="draftrendering from_operation" 
+        <app-draftcontainer class="draftrendering from_operation" 
         *ngFor="let child_id of children" 
         [id]="child_id" 
         [dirty]="redrawchildren"
-        [source]="operation"
         [hasParent]="true"
         (connectionSelected)="connectionStarted($event)"
         (onDuplicateCalled)="designActionChange($event)"
 				(onDeleteCalled)="designActionChange($event)"
+        (onDrawdownSizeChanged)="updateOutboundConnections($event)"
         >
-        </app-draftrendering>
+        </app-draftcontainer>
       </div>
 
 

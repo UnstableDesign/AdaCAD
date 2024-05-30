@@ -21,6 +21,8 @@ import { ZoomService } from '../core/provider/zoom.service';
 import { map, startWith } from 'rxjs/operators';
 import { OperationService } from '../core/provider/operation.service';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
+import { Observable } from 'rxjs';
+import { ViewerService } from '../core/provider/viewer.service';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -51,9 +53,7 @@ export class MixerComponent  {
 
   @ViewChild(PaletteComponent) palette;
 
-  @Output() onDraftFocused: any = new EventEmitter();
   @Output() onOpenInEditor: any = new EventEmitter();
-  @Output() refreshViewer: any = new EventEmitter();
 
 
   origin_options: any = null; 
@@ -67,7 +67,7 @@ export class MixerComponent  {
 
   classifications: any = [];
   op_tree: any = [];
-  filteredOptions: any = [];
+  filteredOptions: Observable<any>;
   myControl: FormControl;
   search_error: any; 
 
@@ -89,8 +89,8 @@ export class MixerComponent  {
     private dialog: MatDialog,
     public ops: OperationService, 
     private op_desc: OperationDescriptionsService,
+    private vs: ViewerService,
     public zs: ZoomService,
-    private files: FilesystemService,
     private multiselect: MultiselectService,
     @Optional() private fbauth: Auth
     ) {
@@ -106,6 +106,7 @@ export class MixerComponent  {
 
 
   ngOnInit(){
+
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
@@ -167,8 +168,29 @@ export class MixerComponent  {
   }
 
 
+  /**
+   * adds the first of the filtered list of operations to the workspace
+   */
+  public enter(){
+
+    const value = this.myControl.value.toLowerCase();
+
+    //run the filter function again without the classification titles
+    let tree = this.op_tree.reduce((acc, classification) => {
+        return acc.concat(classification.ops
+          .filter(option => option.display_name.toLowerCase().includes(value)));
+    }, []);
+
+    if(tree.length > 0) this.addOp(tree[0].name);
+
+    this.myControl.setValue('');
+
+
+  }
+
 
   private _filter(value: string): any[] {
+
     const filterValue = value.toLowerCase();
 
     let tree =  this.op_tree.map(classification => {
@@ -211,12 +233,13 @@ addOperation(name: string){
   let id = this.palette.addOperation(name);
   this.myControl.setValue('');
   const outputs = this.tree.getNonCxnOutputs(id);
-  if(outputs.length > 0) this.onDraftFocused.emit(outputs[0]);
-  //focus this is the detail view
+  if(outputs.length > 0) this.vs.setViewer(outputs[0])
 }
 
+
+
 onRefreshViewer(){
-  this.refreshViewer.emit();
+  this.vs.updateViewer();
 }
 
 
@@ -271,8 +294,11 @@ onFocus(edited_draft_id: number){
 
   const outlet_ops_connected = this.tree.getNonCxnOutputs(edited_draft_id);
   let fns = outlet_ops_connected.map(el => this.performAndUpdateDownstream(el));
-
   Promise.all(fns);
+
+  //DO TO MAKE SURE USERS CAN TOGGLE ON MIXER DRAFTS
+  this.dm.selectDraftEditingMode('draw');
+  this.dm.selectPencil('toggle');
 
 }
 
@@ -364,34 +390,6 @@ zoomChange(zoom_index:any){
     
   }
 
-  // onLoadExample(name: string){
-  //   const analytics = getAnalytics();
-
-  //   logEvent(analytics, 'onloadexample', {
-  //     items: [{ uid: this.auth.uid, name: filename }]
-  //   });
-
-  //   this.http.get('assets/examples/'+filename+".ada", {observe: 'response'}).subscribe((res) => {
-
-  //   this.fls.loader.ada(filename, -1, '', res.body)
-  //       .then(res => {
-  //         this.onLoadExample.emit(res);
-  //         return;
-  //       }
-  //       )
-  //       .catch(e => {
-  //         console.log("CAUGHT ERROR IN FILE LOADER ");
-  //       });
-  //   }); 
-  // }
-
-
-
-
-
-
-
-
 
 
   clearView() : void {
@@ -402,9 +400,6 @@ zoomChange(zoom_index:any){
 
   }
   
-
-
-
   ngOnDestroy(): void {
     // this.unsubscribe$.next(0);
     // this.unsubscribe$.complete();
@@ -424,7 +419,6 @@ zoomChange(zoom_index:any){
       this.dm.selectMixerEditingMode('pan');
     }
     this.palette.designModeChanged();
-    //this.show_viewer = true;
 
   }
 
@@ -536,10 +530,11 @@ zoomChange(zoom_index:any){
       draft_visible: !defaults.hide_mixer_drafts,
       loom: loom,
       loom_settings: loom_settings,
-      render_colors: true
+      render_colors: true,
+      scale: 1
     }
 
-    this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true);
+    this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true, 1);
     this.palette.loadSubDraft(id, draft, nodep, dnproxy);
     return id;
   }
@@ -548,8 +543,8 @@ zoomChange(zoom_index:any){
     this.palette.loadSubDraft(id, d, nodep, draftp);
   }
 
-  loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point, saved_scale: number){
-    this.palette.loadOperation(id, name, params, inlets, topleft, saved_scale)
+  loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft:Point){
+    this.palette.loadOperation(id, name, params, inlets, topleft)
   }
 
   loadConnection(id: number){
@@ -603,10 +598,8 @@ openDraftInEditor(id: number){
   this.onOpenInEditor.emit(id);
 }
 
-
-showDraftDetails(id: number){
-  this.onDraftFocused.emit(id);
+explode(){
+  this.palette.explode();
 }
-
 
 }

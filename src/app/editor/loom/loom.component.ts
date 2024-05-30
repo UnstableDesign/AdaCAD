@@ -47,7 +47,6 @@ export class LoomComponent {
   ngOnChanges(changes: SimpleChanges){
 
     this.id = changes['id'].currentValue;
-
     if(this.id !== -1){
       const draft = this.tree.getDraft(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);

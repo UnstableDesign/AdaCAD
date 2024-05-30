@@ -3,7 +3,7 @@ import { Auth, authState, getAuth } from '@angular/fire/auth';
 import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged } from '@angular/fire/database';
 // import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
 import { Observable, Subject } from 'rxjs';
-import { FilebrowserComponent } from '../filebrowser/filebrowser.component';
+import { FilebrowserComponent } from '../ui/filebrowser/filebrowser.component';
 import { LoadedFile, SaveObj } from '../model/datatypes';
 import utilInstance from '../model/util';
 
@@ -24,6 +24,7 @@ export class FilesystemService {
 
 
   private current_file_id: number = -1;
+  public current_file_name: string = '';
 
 
   connected: boolean = false;
@@ -123,10 +124,9 @@ export class FilesystemService {
   public pushToLoadedFilesAndFocus(id: number, name: string, desc: string) : Promise<boolean>{
 
 
-    let item = this.getLoadedFile(id);
+    // let item = this.getLoadedFile(id);
 
-    if(item === null){
-
+    // if(item === null){
       
       return this.getFileMeta(id)
       .then(res => {
@@ -155,10 +155,10 @@ export class FilesystemService {
         return Promise.resolve(false);
       });
 
-    }else{
-      this.setCurrentFileInfo(item.id, item.name, item.desc);
-      return Promise.reject('this file has already been loaded')
-    }
+    // }else{
+    //   this.setCurrentFileInfo(item.id, item.name, item.desc);
+    //   return Promise.reject('this file has already been loaded')
+    // }
   }
 
   public unloadFile(id: number){
@@ -233,7 +233,7 @@ export class FilesystemService {
    */
   setCurrentFileInfo(fileid: number, name: string, desc: string){
    
-
+    console.log("SET CURRENT FILE INFO ", fileid, name)
 
     if(fileid === null || fileid == undefined) return; 
 
@@ -241,11 +241,11 @@ export class FilesystemService {
     if(name === null || name === undefined) name = 'no name'; 
    
     this.setCurrentFileId(fileid);
-
+    this.current_file_name = name;
 
     const item = this.getLoadedFile(this.current_file_id);
     if(item == null){
-        // console.log("CANNOT FINDING ITEM in LOADED FILES IN SET DCURRENT FILE INFO")
+         console.log("CANNOT FIND ITEM in LOADED FILES IN SET DCURRENT FILE INFO")
     }else{
       item.name = name;
       item.desc = desc;
@@ -280,7 +280,9 @@ export class FilesystemService {
     if(fileid === null || fileid == undefined) return; 
     if(newname === null || newname === undefined) newname = 'no name'; 
 
+    if(fileid == this.getCurrentFileId()) this.current_file_name = newname;
     const item = this.getLoadedFile(fileid);
+
     if(item == null){
         //this file is not currently loaded but we can still rename it
     }else{
@@ -340,6 +342,20 @@ export class FilesystemService {
    return Promise.resolve(fileid);
     
   }
+
+  /**
+   * takes the current state, gives it a new file ID and pushes it to the database
+   * @returns the id of the file
+   */
+    duplicate(uid: string, name: string, desc: string, ada: any) : Promise<number>{
+    
+      const fileid = this.generateFileId();
+      this.writeFileData(fileid, ada);
+      this.writeNewFileMetaData(uid, fileid, name, desc)
+      return Promise.resolve(fileid);
+       
+     }
+   
 
 
 
@@ -434,7 +450,6 @@ getFile(fileid: number) : Promise<any> {
    */
   writeFileData(fileid: number, cur_state: SaveObj) {
 
-
     if(!this.connected) return;
 
     const db = getDatabase();
@@ -443,7 +458,11 @@ getFile(fileid: number) : Promise<any> {
     update(ref,{ada: cur_state})
     .then(success => {
       const item = this.getLoadedFile(fileid);
-      item.last_saved_time = Date.now();
+      if(item !== null){
+        item.last_saved_time = Date.now();
+      }else{
+        console.error("could not get loaded file after save")
+      }
 
     })
     .catch(err => {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -17,9 +17,10 @@ import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
-import { DraftComponent } from './draft/draft.component';
+import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
+import { ViewerService } from '../core/provider/viewer.service';
 
 
 
@@ -30,25 +31,20 @@ import { RepeatsComponent } from './repeats/repeats.component';
 })
 export class EditorComponent implements OnInit {
   
-  /**
-  * The reference to the weave directive.
-  * @property {WeaveDirective}
-  */
-  @ViewChild(DraftComponent, {static: true}) weaveRef;
+
+  @ViewChild(DraftRenderingComponent, {static: true}) weaveRef;
   @ViewChild(LoomComponent) loom;
   
-  
+  @Input() hasFocus: boolean;
   @Output() closeDrawer: any = new EventEmitter();
   @Output() saveChanges: any = new EventEmitter();
-  @Output() redrawViewer: any = new EventEmitter();
   @Output() updateMixer: any = new EventEmitter();
   @Output() cloneDraft: any = new EventEmitter();
   @Output() onFocusView: any = new EventEmitter();
   @Output() onCollapseView: any = new EventEmitter();
   
-  
-  id: number = -1; 
-  
+  id: number = -1;
+    
   parentOp: string = '';
   
   actions_modal: MatDialogRef<RepeatsComponent, any>;
@@ -76,6 +72,9 @@ export class EditorComponent implements OnInit {
   selected_material_id: any = -1;
   
   current_view = 'draft';
+
+  scale: number = 0;
+  
   
   
   constructor(
@@ -89,12 +88,14 @@ export class EditorComponent implements OnInit {
     private ws: WorkspaceService,
     private tree: TreeService,
     public render: RenderService,
+    public vs: ViewerService,
     private zs: ZoomService) {
       
       
-      
+
       this.copy = [[createCell(false)]];
       this.draw_modes = draft_pencil;
+
     }
     
     
@@ -104,6 +105,7 @@ export class EditorComponent implements OnInit {
     }
     
     ngAfterViewInit() {
+      this.scale = this.zs.getEditorZoom();
     }
     
     
@@ -151,7 +153,11 @@ export class EditorComponent implements OnInit {
     * placholder for any code we need to run when we focus on this view
     */
     onFocus()  {
+      if(this.id != -1){
+        this.loadDraft(this.id);
+      }
       this.renderChange();
+
     }
     
     onClose(){
@@ -190,6 +196,7 @@ export class EditorComponent implements OnInit {
     
     getParentOp(id: number){
       const hasParent = this.tree.hasParent(id);
+      console.log("HAS PARENT ", hasParent)
       if(!hasParent) this.parentOp = '';
       else{
         let pid = this.tree.getSubdraftParent(id);
@@ -206,16 +213,17 @@ export class EditorComponent implements OnInit {
     * @returns 
     */
     loadDraft(id: number) : Promise<any> {
-      
       this.id = id;
       
       if(id == -1) return Promise.resolve();
       
       const draft = this.tree.getDraft(id);
       this.getParentOp(id);
+
       if(this.parentOp !== '') this.weaveRef.view_only = true;
       else this.weaveRef.view_only = false;
       
+
       //reset the dirty value every time the window is open
       this.weaveRef.resetDirty();
       
@@ -225,6 +233,8 @@ export class EditorComponent implements OnInit {
       
       this.draftname = getDraftName(draft)
       this.weaveRef.onNewDraftLoaded(id);
+      this.redraw();
+
       return Promise.resolve(null);
       
       
@@ -254,7 +264,7 @@ export class EditorComponent implements OnInit {
     
     
     public drawdownUpdated(){
-      this.redrawViewer.emit();    
+      this.vs.updateViewer();
     }  
     
     
@@ -348,32 +358,7 @@ export class EditorComponent implements OnInit {
     }
     
     
-    
-    
-    /**
-    * when a change happens to the defaults for looms, we must update all looms on screen
-    */
-    
-    // public globalLoomChange(e: any){
-    
-    //   const dn = this.tree.getDraftNodes();
-    //   dn.forEach(node => {
-    //     const draft = this.tree.getDraft(node.id)
-    //     const loom = this.tree.getLoom(node.id)
-    //     const loom_settings = this.tree.getLoomSettings(node.id);
-    //     (<SubdraftComponent> node.component).draft_rendering.drawDraft(draft);
-    //     if(node.id == this.id){
-    //       this.weaveRef.redraw(draft, loom, loom_settings, {
-    //         drawdown: true, 
-    //         loom:true, 
-    //         warp_systems: true, 
-    //         weft_systems: true, 
-    //         warp_materials: true,
-    //         weft_materials:true
-    //       });
-    //     } 
-    
-    //   });
+  
     
     
     // }
@@ -384,23 +369,10 @@ export class EditorComponent implements OnInit {
       //  this.draft.notes = e;
     }
     
-    // public hideShuttle(e:any) {
-    //   this.draft.updateVisible();
-    //   this.weaveRef.redraw();
-    //   this.weaveRef.redrawLoom();
-    // }
-    
-    // public showShuttle(e:any) {
-    //   this.draft.updateVisible();
-    //   this.weaveRef.redraw();
-    //   this.weaveRef.redrawLoom();
-    // }
+
     
     
-    
-    
-    
-    
+
     public updateSelection(e:any){
       if(!this.weaveRef.hasSelection()) return;
       if(e.copy !== undefined) this.copy = e;
@@ -453,7 +425,6 @@ export class EditorComponent implements OnInit {
         
         select(){
           this.dm.selectDraftEditingMode('select');
-          //this.weaveRef.designModeChange(obj);
         }
         
         openMaterials() {
@@ -474,7 +445,8 @@ export class EditorComponent implements OnInit {
         }
         
         renderChange(){
-          this.weaveRef.renderChange();
+          this.scale = this.zs.getEditorZoom();
+          // this.weaveRef.redrawAll();
         }
         
         

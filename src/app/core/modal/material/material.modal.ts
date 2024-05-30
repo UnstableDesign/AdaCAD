@@ -1,10 +1,10 @@
-import { Component, OnInit, Inject, EventEmitter, Output, ViewChild, Input } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { TreeService } from '../../../core/provider/tree.service';
+import { DraftNode, Material } from '../../model/datatypes';
+import { createMaterial, setMaterialID } from '../../model/material';
+import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
-import { TreeService } from '../../../core/provider/tree.service';
-import utilInstance from '../../model/util';
-import { Draft,DraftNode, Material } from '../../model/datatypes';
-import { createMaterial, setMaterialID } from '../../model/material';
 
 
 @Component({
@@ -41,9 +41,14 @@ export class MaterialModal{
   }
 
 
-  /**emitted on any action that would change the current rendering */
-  change(){
-    this.onMaterialChange.emit();
+  diameterChange(){
+
+  }
+  
+
+  materialColorChange(id: number, e: any){
+    const material = this.ms.getShuttle(id);
+    material.rgb = utilInstance.hexToRgb(e);
   }
 
   addMaterial(){
@@ -87,11 +92,19 @@ export class MaterialModal{
   addNewShuttle(){
     console.log(this.newshuttle);
     setMaterialID(this.newshuttle,this.ms.getShuttles().length);
+    this.newshuttle.rgb = utilInstance.hexToRgb(this.newshuttle.color.trim());
     this.ms.addShuttle(this.newshuttle);
     this.newshuttle = createMaterial();
   }
 
   save() {
+    this.onMaterialChange.emit();
+
   }
+
+    ngOnDestroy(){
+      this.save();
+    }
+    
 
 }

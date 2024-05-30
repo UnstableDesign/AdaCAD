@@ -887,7 +887,7 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
    * returns the loom as well as the draft_id that this loom is linked with 
    * @param data 
    */
-  export const loadLoomFromFile = (loom: any, flips: any, version: string, id: number) : Promise<{loom:Loom, id:number}> => {
+  export const loadLoomFromFile = (loom: any, version: string, id: number) : Promise<{loom:Loom, id:number}> => {
 
     if(loom == null) return Promise.resolve(null);
 
@@ -905,11 +905,9 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
         if(loom.treadling[i].length == 1 && loom.treadling[i][0] == -1) loom.treadling[i] = [];
       }
     }
+
+    return Promise.resolve({loom, id});
     
-      return flipLoom(loom, flips.horiz, flips.vert)
-      .then(flipped => {
-        return {loom:flipped, id};
-      })
       
     }
 

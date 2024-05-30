@@ -135,6 +135,7 @@ export const mixer_edit_mode = [
 ]
 
 export const paste_options = [
+  {value: 'erase', viewValue: 'Erase', icon: "fa-solid fa-eraser",drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false},
   {value: 'invert', viewValue: 'Invert Region', icon: "fas fa-adjust", drawdown: true, threading: false, treadling: true, tieups: true, materials: false, systems: false},
   {value: 'flip_x', viewValue: 'Vertical Flip', icon: "fas fa-arrows-alt-v",drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false},
   {value: 'flip_y', viewValue: 'Horizontal Flip', icon: "fas fa-arrows-alt-h",drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false},

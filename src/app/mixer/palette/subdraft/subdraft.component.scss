@@ -9,9 +9,13 @@
 	
 }
 
-.is_selected{
-	border: thick solid black;
+.multiselected{
+
+	.from_subdraft{
+        border: thick dashed black;
+	}	
 }
+
 
 .from_subdraft{
 	display: flex;

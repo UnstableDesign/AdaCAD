@@ -90,6 +90,9 @@ h1{
 .draft-container{
     display: flex;
     flex-direction: column;
+    overflow: scroll;
+    width: 100%;
+    height: 100%;
 }
 
 .locked_draft{

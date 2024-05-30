@@ -51,18 +51,28 @@
     [class.view_expanded]="view_expanded"
     >
 
-
-      <app-simulation 
-      [class.hidden]="vis_mode != 'sim'" 
-      #sim
-       id="sim_viewer" 
-      [id]="id"
-      >
-    </app-simulation>
-  
     <div class="scale-container" id="viewer-scale-container">
-        <canvas [class.hidden]="vis_mode == 'sim'" id="viewer_canvas"></canvas>
-    </div>
+
+    <app-draft-rendering
+    #view_rendering
+    [class.hidden]="vis_mode == 'sim'" 
+    source = "viewer"
+    [id]="id"
+    [view_only]="true"
+    [scale]="scale"
+    current_view="color"
+    >
+    </app-draft-rendering>
+
+    <app-simulation 
+    [class.hidden]="vis_mode != 'sim'" 
+    #sim
+     id="sim_viewer" 
+    [id]="id"
+    >
+  </app-simulation>
+
+  </div>
   
   </div>
 
@@ -75,6 +85,14 @@
   <div 
   class="view_options"
   >
+
+  <button 
+  mat-flat-button 
+  matTooltip="pin this draft in the viewer"
+  (click)="togglePin()"
+  >
+  <i   [class.active]="vs.hasPin()" class="fa-solid fa-map-pin"></i>
+  </button> 
 
   <button  
   mat-flat-button 
@@ -116,12 +134,12 @@
 
 
 
-  <button  
-  mat-flat-button  
-  (click)="openEditor()"
-  matTooltip="edit this draft">
-  <i class="fa-solid fa-pen-to-square"></i> 
-  </button>
+      <button  
+      mat-flat-button  
+      (click)="openEditor()"
+      matTooltip="edit this draft">
+      <i class="fa-solid fa-pen-to-square"></i> 
+      </button>
 
 
       <button  
@@ -167,8 +185,18 @@
 
   </div>
   <div class="draft-data">
-    <div class="draft_name">name: {{draft_name}}</div>
-    <div class="dims">{{warps}} ends x {{wefts}} pics</div>
+    <div class="draft_name">
+      <mat-form-field appearance="outline">
+        <mat-label>draft name</mat-label>
+
+        <input matInput  [(ngModel)]="draft_name" 
+        [placeholder]="draft_name"  
+        (change)="updateDraftName()">
+      </mat-form-field>
+      <!-- (focusout)="nameFocusOut($event)" -->
+      
+    </div>
+    <div class="dims">draft size: {{warps}} ends x {{wefts}} pics</div>
 
   </div>
   
@@ -208,24 +236,31 @@
       </mat-panel-title>
   </mat-expansion-panel-header>
 
-
+<!-- 
   <button  mat-flat-button [matMenuTriggerFor]="clearWorkspaceMenu" ><i class="fa-solid fa-eraser"></i> Clear Workspace</button>
   <mat-menu #clearWorkspaceMenu="matMenu">
     <button mat-menu-item (click)="clearWorkspace()">are you sure?</button>
   </mat-menu>   
+ -->
 
 
-
-      <button  
-      mat-flat-button
+ <div class="quicklinks">
+    <button 
+      class="fullwidth"
+      mat-raised-button
       (click)="openMaterials()">
       <i class="fa-solid fa-palette"></i> Manage Materials
     </button> 
 
-       <button  mat-flat-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
 
-       <button  mat-flat-button (click)="openHelpDialog()"><i class="fa-solid fa-question"></i> Get Help</button> 
 
+       <button  mat-raised-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i> View Examples</button> 
+
+
+       <button  mat-raised-button (click)="openHelpDialog()"><i class="fa-solid fa-question"></i> Get Help</button> 
+
+
+      </div>
 
   </mat-expansion-panel>
 

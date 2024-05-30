@@ -89,9 +89,9 @@ export class InletComponent implements OnInit {
   }
 
   ngAfterViewInit(){
-
     this.onInletLoaded.emit({ndx: this.inletid});
   }
+
 
   checkIfInletIsOpen(){
     this.inlet_open = this.inlet.num_drafts == -1 || (this.tree.getInputsAtNdx(this.opid, this.inletid).length < this.inlet.num_drafts);
@@ -154,27 +154,6 @@ export class InletComponent implements OnInit {
   }
 
   inletChange(){
-
-    const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
-
-    // switch(this.inlet.type){
-    //   case 'number':
-    //     this.fc.setValue(value);
-    //     opnode.inlets[this.inletid] = value;
-    //     break;
-    //   case 'system':
-    //    // opnode.inlets[this.inletid] = value;
-    //     break;
-    //   case 'color':
-    //     this.fc.setValue(value);
-    //     opnode.inlets[this.inletid] = value;
-    //     break;
-    //   case 'notation':
-    //     this.fc.setValue(value);
-    //     opnode.inlets[this.inletid] = value;
-    //     break;
-
-    // }
 
     this.onInletChange.emit({id: this.inletid});
 

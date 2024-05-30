@@ -8,18 +8,15 @@ import { OperationComponent } from './palette/operation/operation.component';
 import { ConnectionComponent } from './palette/connection/connection.component';
 import { OpHelpModal } from './modal/ophelp/ophelp.modal';
 import { ImageComponent } from './palette/image/image.component';
-import { EditorModule } from '../editor/editor.module';
 import { NoteComponent } from './palette/note/note.component';
 import { ParameterComponent } from './palette/operation/parameter/parameter.component';
 import { InletComponent } from './palette/operation/inlet/inlet.component';
-import { DraftrenderingComponent } from './palette/draftrendering/draftrendering.component';
-
+import { DraftContainerComponent } from './palette/draftcontainer/draftcontainer.component';
 
 
 @NgModule({
     imports: [
-        CoreModule,
-        EditorModule    
+        CoreModule    
     ],
     declarations: [
         MixerComponent,
@@ -33,7 +30,7 @@ import { DraftrenderingComponent } from './palette/draftrendering/draftrendering
         NoteComponent,
         ParameterComponent,
         InletComponent,
-        DraftrenderingComponent
+        DraftContainerComponent
         ],
     exports: [
         MixerComponent

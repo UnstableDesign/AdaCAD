@@ -20,13 +20,8 @@ export class NoteComponent implements OnInit {
 
   note: Note;
 
-  bounds: Bounds = {
-    topleft: {x:0, y:0},
-    width: 400, 
-    height: 400
-  };
 
-
+  topleft: Point = {x: 0, y: 0};
   markdown: string = "";
   show_url: boolean = false;
   canvas: HTMLCanvasElement;
@@ -45,9 +40,9 @@ export class NoteComponent implements OnInit {
   ngOnInit() {
     this.note = this.notes.get(this.id);
     if(this.note == undefined){
-      this.bounds.topleft = {x: 0, y: 0};
+      this.topleft = {x: 0, y: 0};
     }else{
-      this.bounds.topleft = {
+      this.topleft = {
         x: this.note.topleft.x,
         y: this.note.topleft.y
       }
@@ -58,14 +53,18 @@ export class NoteComponent implements OnInit {
   }
 
   ngAfterViewInit(){
+    this.setPosition(this.topleft)
+
+  }
+
+  setPosition(topleft: Point){
+    this.topleft = {x: topleft.x, y: topleft.y};
     this.canvas = <HTMLCanvasElement> document.getElementById("notecanvas-"+this.note.id.toString());
     this.cx = this.canvas.getContext("2d");
     let note_container = document.getElementById('note-'+this.id);
     note_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    note_container.style.top =  this.bounds.topleft.y+"px";
-    note_container.style.left =  this.bounds.topleft.x+"px";
-
-
+    note_container.style.top =  this.topleft.y+"px";
+    note_container.style.left =  this.topleft.x+"px";
   }
 
   /**
@@ -115,25 +114,26 @@ export class NoteComponent implements OnInit {
     let rect_palette = parent.getBoundingClientRect();
 
     const zoom_factor =  1/this.zs.getMixerZoom();
-    let screenX = $event.event.pageX-rect_palette.x; //position of mouse relative to the palette sidebar - takes scroll into account
+
+    let screenX = $event.event.pageX-rect_palette.x+parent.scrollLeft; 
     let scaledX = screenX* zoom_factor;
-    let screenY = $event.event.pageY-rect_palette.y;
+    let screenY = $event.event.pageY-rect_palette.y+parent.scrollTop;
     let scaledY = screenY * zoom_factor;
    
 
 
-    this.bounds.topleft = {
+    this.topleft = {
       x: scaledX,
       y: scaledY
 
     }
     note_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    note_container.style.top =  this.bounds.topleft.y+"px";
-    note_container.style.left =  this.bounds.topleft.x+"px";
+    note_container.style.top =  this.topleft.y+"px";
+    note_container.style.left =  this.topleft.x+"px";
 
     this.note.topleft = {
-      x: this.bounds.topleft.x,
-      y: this.bounds.topleft.y
+      x: this.topleft.x,
+      y: this.topleft.y
     };
   }
 
@@ -158,14 +158,14 @@ export class NoteComponent implements OnInit {
    */
    drawForPrint(canvas, cx, scale: number) {
 
-    if(canvas === undefined) return;
+    // if(canvas === undefined) return;
    
    
 
-    //draw the supplemental info like size
-    cx.fillStyle = "#666666";
-    cx.font = scale*2+"px Verdana";
-    cx.fillText(this.note.text,this.bounds.topleft.x, this.bounds.topleft.y+this.bounds.height + 20 );
+    // //draw the supplemental info like size
+    // cx.fillStyle = "#666666";
+    // cx.font = scale*2+"px Verdana";
+    // cx.fillText(this.note.text,this.bounds.topleft.x, this.bounds.topleft.y+this.bounds.height + 20 );
 
   }
 

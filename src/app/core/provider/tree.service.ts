@@ -1,7 +1,7 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
 import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
-import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -28,7 +28,6 @@ export class TreeService {
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
   private open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
-  preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
   constructor(
     private ws: WorkspaceService,
@@ -124,7 +123,6 @@ export class TreeService {
       });
 
 
-      //we need something here that maps the old connection inputs to the new inlets
       inlets = op.onParamChange(param_vals, op.inlets, inlets, param_id, param_val);
 
 
@@ -241,60 +239,7 @@ export class TreeService {
   }
 
 
-  /**
-   * a preview is a temporary object that is created when two drafts overlap in drawing mode
-   * it just needs to contain a draft (and no loom as it will be deleted when the active operation ends)
-   * @param sd 
-   * @param draft 
-   * @returns 
-   */
-  setPreview(sd: any, draft: Draft) : Promise<DraftNode>{
-    this.preview = {
-      id: -1,
-      type: "draft",
-      ref: sd.hostView,
-      component: <SubdraftComponent> sd.instance,
-      dirty: true, 
-      draft: copyDraft(draft),
-      loom: null,
-      loom_settings: null,
-      render_colors: false,
-      mark_for_deletion: false
-    }
 
-    sd.dirty = true;
-
-    return Promise.resolve(this.preview);
-  
-  }
-
-  setPreviewDraft(draft: Draft) : Promise<DraftNode>{
-    if(this.preview === undefined) return Promise.reject("preview undefined");
-      this.preview.draft = copyDraft(draft);
-      this.preview.dirty = true;
-      (<SubdraftComponent> this.preview.component).draft = draft;
-      return Promise.resolve(this.preview);
-  }
-
-
-
-  unsetPreview(){
-    this.preview = undefined;
-  }
-
-  hasPreview():boolean{
-      if(this.preview === undefined) return false;
-      return true;
-  }
-
-
-  getPreview() : DraftNode{
-    return this.preview;
-  }
-
-  getPreviewComponent() : SubdraftComponent{
-    return <SubdraftComponent> this.preview.component;
-  }
 
   /**
    * returns a list of all the node ids of drafts that are dirty (including preview)
@@ -302,7 +247,6 @@ export class TreeService {
   getDirtyDrafts() : Array<number> {
 
     return this.nodes.filter(el => el.type === "draft")
-      .concat(this.preview)
       .filter(el => el.dirty)
       .map(el => el.id);
   }
@@ -316,7 +260,7 @@ export class TreeService {
   * @param loom the loom to associate with this node
   * @returns the created draft node and the entry associated with this
   */
-  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
+  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -355,7 +299,12 @@ export class TreeService {
 
    if(render_colors === undefined || render_colors === null)  (<DraftNode> nodes[0]).render_colors = false;
    else (<DraftNode> nodes[0]).render_colors = render_colors;
-   //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode> nodes[0]))
+
+   if(scale === undefined || scale === null)  (<DraftNode> nodes[0]).scale = 1;
+   else (<DraftNode> nodes[0]).scale = scale;
+
+
+   //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode>nodes[0]))
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
   }
@@ -478,6 +427,7 @@ export class TreeService {
     if(!this.ops.isDynamic(opnode.name)) return Promise.resolve([]);
 
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
+
      const viewRefs:Array<ViewRef> = [];
 
      inputs_to_op.forEach((iotuple) => {
@@ -695,7 +645,9 @@ export class TreeService {
   }
 
   getType(id:number):string{
+
     const node: Node = this.getNode(id);
+    if(node == null) return 'null'
     return node.type;
   }
 
@@ -913,6 +865,25 @@ export class TreeService {
     return ops;
   }
 
+   /**
+   * given a node, recusively walks the tree and returns a list of all the nodes that branch from this parent
+   * @param id 
+   * @returns an array of node ids
+   */
+   getAllDownstreamNodes(id: number):Array<number>{
+
+    let nodes: Array<number> = [];
+    const tn: TreeNode = this.getTreeNode(id);
+    if(tn.outputs.length > 0){
+
+      tn.outputs.forEach(el => {
+        nodes.push(el.tn.node.id);  
+        nodes = nodes.concat(this.getAllDownstreamNodes(el.tn.node.id));
+      });
+    }
+    return nodes;
+  }
+
     /**
    * given a node, recusively walks the tree and returns a list of all the operations that are linked up the chain to this component
    * @param id 
@@ -934,6 +905,8 @@ export class TreeService {
       return ops;
     }
 
+
+    
 
     /**
    * given a node, recusively walks the tree and returns a list of all the drafts that are linked up the chain to this component
@@ -1167,11 +1140,10 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
 //if an operation results in an empty draft, then it is reset here
 clearDraft(dn: DraftNode){
 
-  dn.draft = null;
-  dn.draft.rowShuttleMapping = [];
-  dn.draft.rowSystemMapping = [];
-  dn.draft.colShuttleMapping = [];
-  dn.draft.colSystemMapping = [];
+
+  dn.draft = initDraft();
+  dn.draft.ud_name = "This operation needs more inputs to create a draft";
+
 
 }
 
@@ -1193,14 +1165,12 @@ clearDraft(dn: DraftNode){
   const update_looms = [];
   const new_draft_fns = [];
 
-  // console.log("RESULTS and EXISTING ", res, out)
-
-
   //first, cycle through the resulting nodes: 
   for(let i = 0; i < res.length; i++){
 
     //get the output associated with the ndx "i"
     let active_tn_tuple =  op_outlets.find(el => el.ndx == i);
+
     if(active_tn_tuple !== undefined){
       let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
       if(cxn_child.length > 0){
@@ -1213,11 +1183,9 @@ clearDraft(dn: DraftNode){
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
       this.addConnection(parent, i,  id, 0,  cxn);
-      new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true)); 
+      new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true, 1)); 
       update_looms.push({id: id, draft:  res[i]});
       touched.push(id);
-
-      //need to reset the count on the outlets here. 
     }
 
   }
@@ -1228,7 +1196,6 @@ clearDraft(dn: DraftNode){
       const dn = <DraftNode> this.getNode(output);
       dn.mark_for_deletion = true;
       this.clearDraft(dn);
-      //THIS IS MARKING FOR DELETION BUT I DON"T THINK IT"S EVER DELETING...why can't I just
     }
   });
   
@@ -1468,19 +1435,23 @@ isValidIOTuple(io: IOTuple) : boolean {
   }
 
   getDraft(id: number):Draft{
-    if(id === -1) return this.preview.draft;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined) return null;
     return dn.draft;
   }
 
   getDraftName(id: number):string{
-    if(id === -1) return this.preview.draft.ud_name;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined || dn.draft === null) return "null draft";
     return (dn.draft.ud_name === "") ?  dn.draft.gen_name : dn.draft.ud_name; 
   }
 
+  getDraftScale(id: number): number{
+    if(id === -1) return 1;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined || dn.draft === null || dn.scale === undefined) return 1;
+    return  dn.scale; 
+  }
 
   getConnections():Array<ConnectionComponent>{
     const draft_nodes: Array<Node> = this.nodes.filter(el => el.type === 'cxn');
@@ -1657,10 +1628,66 @@ isValidIOTuple(io: IOTuple) : boolean {
    
    }
 
+
+   /**
+    * if you know two nodes are connected, and which one is the parent of the other, this walks from the parent to the child node and returns everything in between 
+    * @param from
+    * @param to
+    */
+   makeTraceBetween(from: number, to: number) : Array<number>{
+
+    if(from === to) return [];
+
+    let trace = [];
+    let from_children = this.getAllDownstreamNodes(from);
+    from_children.forEach(child => {
+      let child_children = this.getAllDownstreamNodes(child);
+      let in_branch = child_children.find(el => el == to);
+      if(in_branch !== undefined){
+        trace.push(child);
+        return trace.concat(this.makeTraceBetween(child, to));
+      } 
+    });
+
+    return trace;
+
+   }
+
+
+   /**
+    * given two nodes returns all the connection ids between these two nodes. 
+    * @param a 
+    * @param b 
+    */
+   getConnectionsBetween(a: number, b: number) : Array<number> {
+
+    let path = [];
+    //get all connections that branch from a. 
+    //get all connections that branch from b.
+    let a_children = this.getAllDownstreamNodes(a);
+    let b_children = this.getAllDownstreamNodes(b);
+
+    let a_is_parent = a_children.find(el => el === b);
+    let b_is_parent = b_children.find(el => el === a);
+
+    if(a_is_parent !== undefined){
+      console.log("A CHILDREN ", a, a_children);
+      return this.makeTraceBetween(a, b);
+    }
+
+    if(b_is_parent !== undefined){
+      console.log("B CHILDREN ", b_children)
+      return this.makeTraceBetween(b, a);
+
+    }
+
+    return [];
+   }
+
   /**
    * given two nodes, returns the id of the connection node connecting them
    * @param a one node
-   * @param b the otehr node node
+   * @param b the other node
    * @returns the node id of the connection, or -1 if that connection is not found
    */
   getConnection(a: number, b:number) : number{
@@ -2044,7 +2071,8 @@ isValidIOTuple(io: IOTuple) : boolean {
           draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
           loom: (loom_export === null) ? null :loom_export,
           loom_settings: node.loom_settings,
-          render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors
+          render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors,
+          scale: ((<DraftNode>node).scale == undefined ) ? 1 :  (<DraftNode>node).scale
         }
         objs.push(savable);
       }
@@ -2129,7 +2157,8 @@ isValidIOTuple(io: IOTuple) : boolean {
       draft_visible: true,
       loom: null, 
       loom_settings:null,
-      render_colors: true
+      render_colors: true,
+      scale: 1
     };
 
     const treenode: TreeNodeProxy = {
@@ -2153,7 +2182,6 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   setDraftClean(id: number){
     if(id === -1){
-      this.preview.dirty = false;
       return;
     } 
 

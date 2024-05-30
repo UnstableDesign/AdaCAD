@@ -9,6 +9,8 @@
   (updateDetailView)="detailViewChange()"
   (onCopySelections)="onCopySelections()"
   (onPasteSelections)="onPasteSelections()"
+  (onDrawModeChange)="drawModeChange($event)"
+  (onExplode)="onExplode()"
 >
 </appKeycodes>
 
@@ -33,18 +35,19 @@
 
         <mat-menu #file="matMenu">
           <button mat-menu-item (click)="loadBlankFile()">New Workspace</button>
+          <button mat-menu-item [disabled]="!files.connected || !auth.isLoggedIn" (click)="openAdaFiles(false)">Manage Saved Files</button>
           <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button >
-            <button mat-menu-item (click)="saveFile()">Save</button>
             <!-- <button mat-menu-item (click)="redo()" >Import Bitmaps</button> -->
             <button mat-menu-item [matMenuTriggerFor]="downloadMenu">Export</button>
+            <button mat-menu-item (click)="saveFile()">Save</button>
           <button mat-menu-item (click)="openAboutDialog()">About</button>
         </mat-menu>
         
         <mat-menu #downloadMenu="matMenu">
           <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
-          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('bmp')">Selected Draft as Bitmap</button>
-          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('jpg')">Selected Draft as Image</button>
-          <button mat-menu-item [disabled]="selected_mixer_draft_id ==-1" (click)="saveDraftAs('wif')">Selected Draft as .WIF</button>
+          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('bmp')">Selected Draft as Bitmap</button>
+          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('jpg')">Selected Draft as Image</button>
+          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('wif')">Selected Draft as .WIF</button>
           <!-- <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button> -->
         </mat-menu>
 
@@ -60,7 +63,7 @@
           <button mat-menu-item (click)="undo()">Undo (ctrl-z)</button>
           <button mat-menu-item (click)="redo()" >Redo</button>
 
-          <!-- <button mat-menu-item >Select</button>
+         <button mat-menu-item >Select</button>
           <button mat-menu-item >Copy</button>
           <button mat-menu-item >Paste</button>
           <button mat-menu-item >Add Blank Draft</button>
@@ -133,6 +136,8 @@
 
         </div>
 
+        
+
        
         <div class="auth" *ngIf="files.connected && (auth.showLogoutButton)">
       
@@ -140,14 +145,17 @@
           <button mat-flat-button color="primary" [matMenuTriggerFor]="account"> Hi {{auth.username}} <i class="fa-solid fa-caret-down"></i> </button>
 
           <mat-menu #account="matMenu">
-            <button mat-menu-item (click)="openAdaFiles(false)">Manage Saved Files</button>
             <button mat-menu-item (click)="logout()">Log Off</button>
           </mat-menu>
         </div>
 
+
+
         <div *ngIf="files.connected && !auth.isLoggedIn">
           <button mat-raised-button color="primary" class="example-full-width login" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button>
         </div>
+
+     
       </div>
       
       </mat-toolbar>
@@ -167,8 +175,6 @@
     #mixer
     id="mixer" 
     cdkScrollable
-    (onDraftFocused)="onSetViewer($event, 'mixer')"
-    (refreshViewer)="onRefreshViewer('mixer')"
     (onOpenInEditor)="openInEditor($event)"
 
     >
@@ -182,7 +188,6 @@
     [class.hide]="selected_editor_mode !== 'draft'"
     [class.show]="selected_editor_mode === 'draft'" 
     (saveChanges)="saveFile()"
-    (redrawViewer)="onRefreshViewer('editor')"
     (cloneDraft)="cloneDraft($event)"
     (updateMixer)="updateMixer()"
       ></app-editor>
@@ -196,6 +201,7 @@
      (onOpenExamples)="openExamples()"
      (onLoadBlankFile)="loadBlankFile()"
      (onOpenEditor)="openInEditor($event)"
+     (onDraftRename)="updateDraftName($event)"
      (openHelp)="openHelp()"
      (onSave)="saveDraftAs($event)"
      (onViewerExpanded)="expandViewer()"
@@ -223,6 +229,7 @@
       <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
       <button  
       mat-icon-button 
+      [disabled]="ss.undo_disabled"
       matTooltip="undo"
       (click)="undo()" >
       <i class="fa-solid fa-rotate-left"></i>
@@ -230,27 +237,39 @@
 
       <button  
       mat-icon-button 
+      [disabled]="ss.redo_disabled"
       matTooltip="redo"
-      (click)="redo">
+      (click)="redo()">
       <i class="fa-solid fa-rotate-right"></i>
       </button>
 
     </div>
 
-    <div class="footer-center">
-      <span>current workspace: {{filename}}.ada</span>  
-    
-    <button 
-      mat-icon-button  
-      matTooltip="Manage Files and Settings"
-      (click)="openAdaFiles(false)" >
-      <i class="fa-regular fa-folder-open"></i>
-     </button>
+
+
+    <div class="copypaste" *ngIf="multiselect.selected.length > 0">
+     
+       <button mat-raised-button color="accent" (click)="onCopySelections()">Copy (ctrl-c)</button>
+      <button mat-raised-button color="accent" [disabled]="multiselect.copy === undefined" (click)="onPasteSelections()">Paste (ctrl-c)</button>
     </div>
+
+    <div class="copypaste" *ngIf="multiselect.selected.length == 0">
+      hold shift and click to select multiple drafts and operators
+   </div>
+
 
 
     <div class="footer-right">
-     <button class="download" mat-raised-button  [matMenuTriggerFor]="downloadMenu" color="primary">Download</button>
+      filename: 
+          <input 
+          class="filename"
+          [formControl]="filename_form" 
+          matInput 
+          placeholder="current filename">
+
+
+     <button class="download" mat-raised-button  
+     [matMenuTriggerFor]="downloadMenu" color="primary">Download</button>
 
       </div>
   </mat-toolbar>

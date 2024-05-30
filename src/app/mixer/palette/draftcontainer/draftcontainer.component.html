@@ -1,32 +1,58 @@
 
-<div class="subdraft-container" *ngIf="!hasParent || !ws.hide_mixer_drafts" >
+
+<!-- {{id}} -->
+
+<div class="subdraft-container" id="subdraft-container-{{id}}">
 
 
   <div class="header-container">
-    <div class="rendering-view-opts">
+
+    <button class="show_draft" *ngIf = '!draft_visible' mat-flat-button  (click)="toggleVisibility()">
+      <i class="fa fa-eye" aria-hidden="true"></i> show draft
+    </button>
+
+    <button class="show_draft" *ngIf = 'draft_visible' mat-flat-button (click)="toggleVisibility()">
+      <i class="fa fa-eye" aria-hidden="true"></i> hide draft
+    </button>
+
+    <!-- <button *ngIf = 'draft_visible' mat-icon-button (click)="toggleVisibility()">
+      <i class="fa fa-eye-slash" aria-hidden="true"></i>
+    </button> -->
+
+    <div class="rendering-view-opts" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
       <!-- set local zoom -->
-    <mat-slider min=".1" max=".8" step="0.1" value=".8">
-      <input matSliderThumb (valueChange)="localZoomChange($event)">
+    <mat-slider min=".1" max="1" step="0.1">
+      <input matSliderThumb  [value]="local_zoom" (valueChange)="localZoomChange($event)">
     </mat-slider>
     
-    </div>
+  </div>
 
 
 
-  <div *ngIf="!hasParent" class="options">
+
+
+  <div  *ngIf="!hasParent" class="options">
 
 
 
 
     <mat-menu #subdraftOptions>
 
-      <button *ngIf="!exceeds_size && !hasParent"
+      <button *ngIf="!exceeds_size && !hasParent && !hasPin()"
       mat-menu-item
-      class="is-small fa-solid"
-      matTooltip ="Select Draft"
-      (click)="selectForView()">
+      (click)="pinToView()">
       <i class="fa-solid fa-map-pin"></i> pin for view
       </button> 
+
+
+      <button *ngIf="!exceeds_size && !hasParent && hasPin()"
+      mat-menu-item
+      color="accent"
+      (click)="unpinFromView()">
+      <i class="fa-solid fa-map-pin"></i> unpin from view
+      </button> 
+
+
       <button
       mat-menu-item
       matTooltip ="Select Draft"
@@ -87,56 +113,30 @@
 
 
 
+<app-draft-rendering [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible"
+#draft_rendering
+source = "mixer"
+[id]="id"
+[view_only]="hasParent"
+[current_view]="current_view"
+[scale]="local_zoom"
+(onDrawdownUpdated)="drawdownUpdated()"
+(onMaterialChange)="drawdownUpdated()"
+
+>
+</app-draft-rendering>
 
 
-<div *ngIf="!hasParent || !ws.hide_mixer_drafts" [class.hidden]="!draft_visible" id="subdraft-container-{{id}}" class="subdraft-contents origin{{ws.selected_origin_option}}" >
 
-  <div id="local-zoom-{{id}}" class="local_zoom origin{{ws.selected_origin_option}}">
+<div class="output_meta">
+  <div class="draftname">{{draft_name}}</div>
 
-    <div *ngIf="!exceeds_size" class="warp-systems-container origin{{ws.selected_origin_option}} ">
-
-        <canvas id="warp-systems-{{id}}-mixer" class="warp-systems">  </canvas>
-        <canvas id ="warp-materials-{{id}}-mixer" class="warp-materials">  </canvas>
-
-    </div>
-
-    <div class="drawdown-container origin{{ws.selected_origin_option}}" >
-        <canvas class="maindraft" id="{{id}}-mixer" >  </canvas>
-
-        
-        <div *ngIf="!exceeds_size" class="weft-systems-container origin{{ws.selected_origin_option}}">
-          
-          <canvas id="weft-materials-{{id}}-mixer" class="weft-materials">  </canvas>
-          <canvas id="weft-systems-{{id}}-mixer" class="weft-systems" >  </canvas>
-        </div>
-    </div>
-
-  </div>
-</div>
-
-
-<div class="single_line">
   <div class="dims">{{warps}} x {{wefts}}</div>
-  <!-- <div >
-    <mat-form-field>
-    <input matInput  [(ngModel)]="ud_name" 
-    [placeholder]="tree.getDraft(id).gen_name"  
-    (focusout)="nameFocusOut($event)"
-    (change)="updateName()">
-  </mat-form-field>
-   </div> -->
-   </div>
-
-
-
-
+ 
 
   <canvas #bitmapImage hidden></canvas>
 
-
-</div>
-
-<div class="outlet_row">
+  <div class="outlet_row">
 
 
     <button 
@@ -150,6 +150,9 @@
       <i class="fa-sharp fa-solid fa-circle-down"></i>  
       <!-- {{id}} -->
     </button>
-  </div>
+</div>
+
+
+</div>
 
 

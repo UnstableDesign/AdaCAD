@@ -76,7 +76,7 @@
                 "layer",
                 "notation",
                 "notation_system",
-                "assign weft systems"
+                "assign systems"
             ]
         },
         {
@@ -101,7 +101,7 @@
         },
         {
             "category_name": "helper",
-            "description": "Describes common drafting techniuques to ensure good woven and cloth structure.",
+            "description": "Describes common drafting techniques to ensure good woven and cloth structure.",
             "color":"#AB4ABA",
             "op_names":[
                 "selvedge",
@@ -114,7 +114,11 @@
             "color":"#E54666",
             "description": "Supports the specification of materials in order to describe different color effects on the woven cloth",
             "op_names":[
-                "apply materials"
+                "apply materials",
+                "apply weft materials",
+                "apply warp materials"
+
+
             ]  
         },
         {

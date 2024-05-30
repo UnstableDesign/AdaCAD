@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Bounds, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
-import utilInstance from '../../../core/model/util';
-import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { Draft, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
 import { ImageService } from '../../../core/provider/image.service';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../core/provider/operation.service';
@@ -11,10 +9,11 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
-import { SubdraftComponent } from '../subdraft/subdraft.component';
 import { InletComponent } from './inlet/inlet.component';
 import { ParameterComponent } from './parameter/parameter.component';
 import { ZoomService } from '../../../core/provider/zoom.service';
+import { ViewerService } from '../../../core/provider/viewer.service';
+import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 
 
 
@@ -28,6 +27,7 @@ export class OperationComponent implements OnInit {
 
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
   @ViewChildren(InletComponent) inletComps!: QueryList<InletComponent>;
+  @ViewChildren(DraftContainerComponent) draftContainers!: QueryList<DraftContainerComponent>;
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
@@ -60,21 +60,14 @@ export class OperationComponent implements OnInit {
    @Output() onInputVisibilityChange = new EventEmitter <any> ();
    @Output() onInletLoaded = new EventEmitter <any> ();
    @Output() onOpLoaded = new EventEmitter <any> ();
-   @Output() onShowChildDetails = new EventEmitter <any> ();
-   @Output() onSelectForView = new EventEmitter <any> ();
    @Output() onOpenInEditor = new EventEmitter <any> ();
-
+   @Output() onRedrawOutboundConnections= new EventEmitter <any> ();
 
    params_visible: boolean = true;
     /**
     * reference to top, left positioin as absolute interlacement
     */
    interlacement:Interlacement;
-
-    /**
-    * reference to the height of this element in units of the base cell 
-    */
-    base_height:number;
 
     /**
     * flag to tell if this is being from a loaded from a saved file
@@ -87,7 +80,9 @@ export class OperationComponent implements OnInit {
     duplicated: boolean = false;
 
     description: string; 
+
     application: string; 
+    
     displayname: string; 
 
    tooltip: string = "select drafts to input to this operation"
@@ -95,12 +90,6 @@ export class OperationComponent implements OnInit {
    disable_drag: boolean = false;
  
    topleft: Point = {x: 0, y:0};
-
-  //  bounds: Bounds = {
-  //    topleft: {x: 0, y:0},
-  //    width: 200,
-  //    height: 100
-  //  };
    
    op:Operation | DynamicOperation;
 
@@ -137,12 +126,11 @@ export class OperationComponent implements OnInit {
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
-    private viewport: ViewportService,
     public tree: TreeService,
-    private imageService: ImageService,
     public systems: SystemsService,
     public multiselect: MultiselectService,
     public opdescriptions: OperationDescriptionsService,
+    public vs: ViewerService,
     public zs: ZoomService) { 
      
 
@@ -237,7 +225,7 @@ export class OperationComponent implements OnInit {
 
       if(this.children.length > 0){
         let child = this.children[0];
-        this.onShowChildDetails.emit(child);
+        this.vs.setViewer(child);
       }
 
       if(e.shiftKey == true){
@@ -248,23 +236,30 @@ export class OperationComponent implements OnInit {
 
   }
 
-  
-
-
-  mousedown(e: any){
-
+  mousedown(e: any) {
     e.stopPropagation();
   }
 
+  hasPin() : boolean{
+    if(!this.vs.hasPin()) return false;
+    return (this.children.find(el => el == this.vs.getPin()) !== undefined)
+  }
+  
 
-
-  selectForView(){
-      this.onSelectForView.emit(this.id);
+  pinToView(){
+    if(this.children.length > 0){
+      let child = this.children[0];
+      this.vs.setPin(child);
+    }
   }
 
 
+
+  unpinFromView(){
+    this.vs.clearPin();
+  }
+
   drop(){
-    console.log("dropped");
   }
 
 
@@ -281,6 +276,14 @@ export class OperationComponent implements OnInit {
         this.children = children;
         this.redrawchildren++;
   }
+
+    /**
+   * this is called when the draft container displaying this draft has had a size change 
+   */
+    updateOutboundConnections(sd_id: number){
+      this.onRedrawOutboundConnections.emit(sd_id);
+    }
+  
 
   /**
    * resets the visibility on any inlet in the attached list
@@ -318,10 +321,8 @@ export class OperationComponent implements OnInit {
 
   openInEditor(){
     let children = this.tree.getNonCxnOutputs(this.id);
-    console.log("OPEN HIT ", children);
     if(children.length > 0){
       let child = children[0];
-      console.log("CHILD ID ", child)
       this.onOpenInEditor.emit(child);
     }
   }

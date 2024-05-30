@@ -346,10 +346,11 @@ export interface NodeComponentProxy{
     loom: Loom;
     loom_settings: LoomSettings;
     render_colors: boolean;
+    scale: number;
    }
 
  /**
-  * a sparce form of an operaction component to use for saving
+  * a sparse form of an operation component to use for saving
   * @param node_id the node id this object refers too
   * @param name the name of the operation at this node
   * @param params the list of input parameters to this operation
@@ -362,6 +363,14 @@ export interface NodeComponentProxy{
   inlets: Array<any>;
  }
 
+ /**
+  * a container for zoom values of the editor, mixer.
+  */
+ export interface ZoomProxy{
+    editor: number;
+    mixer: number;
+ }
+
 
  /**
   * describes the data from the workspace that is saved.
@@ -369,6 +378,7 @@ export interface NodeComponentProxy{
  export interface SaveObj{
   version: string,
   workspace: any,
+  zoom: ZoomProxy,
   type: string,
   nodes: Array<NodeComponentProxy>,
   tree: Array<TreeNodeProxy>,
@@ -381,13 +391,13 @@ export interface NodeComponentProxy{
 export interface FileObj{
  version: string,
  workspace: any,
+ zoom: ZoomProxy,
  filename: string,
  nodes: Array<NodeComponentProxy>,
  treenodes: Array<TreeNodeProxy>,
  draft_nodes: Array<DraftNodeProxy>,
  notes: Array<any>,
  ops: Array<OpComponentProxy>
- scale: number
 }
 
 export interface StatusMessage{
@@ -678,6 +688,7 @@ export type OpNode = BaseNode & {
   loom: Loom,
   loom_settings: LoomSettings,
   render_colors: boolean,
+  scale: number,
   mark_for_deletion: boolean
  }
 

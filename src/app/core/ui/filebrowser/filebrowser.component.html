@@ -2,8 +2,8 @@
 cdkDrag
  cdkDragRootElement=".cdk-overlay-pane" 
  cdkDragHandle>
- <span *ngIf="data.selectOnly" >Load File From AdaCAD</span>
- <span *ngIf="!data.selectOnly">Manage Files</span>
+ <span *ngIf="data.selectOnly" >Load Workspaces From AdaCAD</span>
+ <span *ngIf="!data.selectOnly">Manage Workspaces</span>
 
 
 
@@ -11,13 +11,20 @@ cdkDrag
 
 <mat-dialog-content class="filebrowser">
 
-  <button mat-raised-button (click)="createBlankFile()">Create A New File</button>
+  <!-- <button mat-raised-button (click)="createBlankFile()">Create A New File</button>
 
+  <button mat-raised-button (click)="createBlankFile()">Open a .ada File</button>
+
+  <button mat-raised-button (click)="createBlankFile()">Open a .wif File</button>
+
+  <button mat-raised-button (click)="createBlankFile()">Open a Bitmap Image</button>
+
+  <button mat-raised-button (click)="createBlankFile()">Open Multiple Bitmap Images</button> -->
 
 
       <!-- files-->
   <div *ngIf="!auth.isLoggedIn">
-    <button mat-flat-button  color="primary" matTooltip="login" (click) = "openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
+    <button mat-flat-button  color="primary" matTooltip="login" (click)="openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
   </div>
 
 
@@ -27,10 +34,8 @@ cdkDrag
   </ng-container>
 
 
-    <ng-container *ngIf="auth.isLoggedIn && files.connected">
+    <!-- <ng-container *ngIf="auth.isLoggedIn && files.connected">
 
-
-      <!-- begin loaded files section -->
 
       <h3> Loaded Files</h3>
 
@@ -48,7 +53,6 @@ cdkDrag
       </div>
 
 
-      <!-- display loaded files -->
       <div  class="file-item-block current" *ngFor="let file of files.loaded_files">
           
         <div class="filename">
@@ -81,13 +85,12 @@ cdkDrag
         <div class="lastviewed"> {{formatDate(file.last_saved_time)}} </div>
 
 
-          <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
+           <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
 
 
-        <div class="actions"> 
+        <!-- <div class="actions"> 
 
         
-
           <button 
           mat-icon-button 
           matListItemIcon
@@ -127,13 +130,14 @@ cdkDrag
 
           
   
-  </div>
+  </div> -->
 
 
     <h3> Files Saved on AdaCAD Server</h3>
 
 
       <!-- HEADER ROW -->
+     <div class="browser_list">
       <div class="file-item-block">
         <div class="filename">
           Name
@@ -149,16 +153,17 @@ cdkDrag
 
 
 
-      <div  class="file-item-block" *ngFor="let file of unopened_filelist" >
+      <div  class="file-item-block" [class.current]="file.id == this.files.current_file_id" *ngFor="let file of unopened_filelist" >
           
             <div class="filename">
 
 
-                <mat-form-field *ngIf="rename_mode_id == file.id">
-                  <mat-label>Rename File</mat-label>
+                <mat-form-field *ngIf="rename_mode_id == file.id" appearance="outline">
+                  <mat-label>Rename Workspace</mat-label>
                  <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
 
                   <button 
+                  matSuffix
                   mat-icon-button 
                   [class.primary]="file.id == this.files.current_file_id" 
                   (click) = "rename(file.id)">
@@ -170,13 +175,7 @@ cdkDrag
                 </mat-form-field>
 
 
-                <button *ngIf="rename_mode_id !== file.id"
-                mat-raised-button
-                [class.primary]="file.id == this.files.current_file_id" 
-                (click) = openFile(file.id)
-                class="file_name">
-                 {{file.meta.name}}
-                </button>
+                <span *ngIf="rename_mode_id !== file.id" >  {{file.meta.name}}</span>
 
             </div>
     
@@ -189,15 +188,33 @@ cdkDrag
 
             <div class="actions"> 
 
-            
-
+              
               <button 
+              [disabled]="file.id ==this.files.current_file_id"
               mat-icon-button 
               matListItemIcon
-              matTooltip="rename this file"
-              (click)="rename(file.id)"
-              ><i class="fas fa-edit"></i>
+              matTooltip="open this file"
+              (click)="openFile(file.id)"
+              ><i class="fas fa-folder-open"></i>
             </button>
+    
+            <button 
+            mat-icon-button 
+            matListItemIcon
+            matTooltip="rename this file"
+            (click)="rename(file.id)"
+            ><i class="fas fa-edit"></i>
+          </button>
+         
+          <button 
+          mat-icon-button 
+          matListItemIcon
+          matTooltip="duplicate this file"
+          (click)="duplicate(file.id)"
+          ><i class="fas fa-copy"></i>
+        </button>
+
+
 
 
               <button 
@@ -212,6 +229,8 @@ cdkDrag
           
               <button 
               mat-icon-button 
+              [disabled]="file.id ==this.files.current_file_id"
+
               [matMenuTriggerFor]="deleteConfirm"
               >
               <i class="fa-solid fa-trash"></i>
@@ -219,8 +238,7 @@ cdkDrag
 
               <mat-menu #deleteConfirm>
                 <button 
-                mat-icon-button 
-                matListItemIcon
+                mat-flat-button
                 (click) = "remove(file.id)"
                 >
                   Are you sure?
@@ -237,7 +255,6 @@ cdkDrag
               
       
       </div>
-    </ng-container>
 
        
 
@@ -258,6 +275,7 @@ cdkDrag
       <div mat-line> {{folder.updated | date}} </div>
     </mat-list-item> -->
 
+  </div>
 
 
 </mat-dialog-content>

@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation } from '@angular/core';
-import { AuthService } from '../provider/auth.service';
-import { FilesystemService } from '../provider/filesystem.service';
+import { AuthService } from '../../provider/auth.service';
+import { FilesystemService } from '../../provider/filesystem.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { WorkspaceService } from '../provider/workspace.service';
-import { FileService } from '../provider/file.service';
+import { WorkspaceService } from '../../provider/workspace.service';
+import { FileService } from '../../provider/file.service';
+import { LoginComponent } from '../../modal/login/login.component';
 
 @Component({
   selector: 'app-filebrowser',
@@ -16,6 +17,7 @@ export class FilebrowserComponent implements OnInit {
 
   @Output() onLoadFromDB: any = new EventEmitter();
   @Output() onCreateFile: any = new EventEmitter();
+  @Output() onDuplicateFile: any = new EventEmitter();
 
   
   unopened_filelist = [];
@@ -62,6 +64,12 @@ export class FilebrowserComponent implements OnInit {
     
   }
 
+  openLoginDialog() {
+    const dialogRef = this.dialog.open(LoginComponent, {
+      width: '600px',
+    });
+  }
+
   createBlankFile(){
     this.onCreateFile.emit();
   }
@@ -76,9 +84,11 @@ export class FilebrowserComponent implements OnInit {
     this.file_list = [];
     data.forEach(file => {
       this.file_list.push(file);
-      if(this.files.loaded_files.find(el => el.id == file.id) == undefined){
+      // if(this.files.loaded_files.find(el => el.id == file.id) == undefined){
+      //   this.unopened_filelist.push(file);
+      // }
         this.unopened_filelist.push(file);
-      }
+      
     })
   }
 
@@ -87,8 +97,8 @@ export class FilebrowserComponent implements OnInit {
     this.onLoadFromDB.emit(id);
   }
 
-  duplicate(){
-    
+  duplicate(id: number){
+    this.onDuplicateFile.emit(id);
   }
 
 
@@ -97,6 +107,7 @@ export class FilebrowserComponent implements OnInit {
     if(item == null) return;
     this.files.unloadFile(id)
   }
+
 
 
   rename(id: number){

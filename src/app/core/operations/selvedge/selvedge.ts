@@ -80,20 +80,20 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
 
         for(let j = 0; j < w; j++){
             row_seq.push(getHeddle(sel_draft.drawdown,i%sel_draft_wefts,j%sel_draft_warps))
-            warp_materials.push(sel_draft.colShuttleMapping[j%sel_draft_warps]);
-            warp_systems.push(sel_draft.colSystemMapping[j%sel_draft_warps]);
+            if(i == 0) warp_materials.push(sel_draft.colShuttleMapping[j%sel_draft_warps]);
+            if(i == 0) warp_systems.push(sel_draft.colSystemMapping[j%sel_draft_warps]);
         }
 
         for(let j = 0; j < row.length; j++){
             row_seq.push(getHeddle(active_draft.drawdown,i,j))
-            warp_materials.push(active_draft.colShuttleMapping[j]);
-            warp_systems.push(active_draft.colSystemMapping[j]);
+            if(i == 0) warp_materials.push(active_draft.colShuttleMapping[j]);
+            if(i == 0) warp_systems.push(active_draft.colSystemMapping[j]);
         }
 
         for(let j = 0; j < w; j++){
             row_seq.push(getHeddle(sel_draft.drawdown,(i+shift)%sel_draft_wefts,j%sel_draft_warps));
-            warp_materials.push(sel_draft.colShuttleMapping[j%sel_draft_warps]);
-            warp_systems.push(sel_draft.colSystemMapping[j%sel_draft_warps]);
+            if(i == 0) warp_materials.push(sel_draft.colShuttleMapping[j%sel_draft_warps]);
+            if(i == 0) warp_systems.push(sel_draft.colSystemMapping[j%sel_draft_warps]);
         }
 
         complete.pushWeftSequence(row_seq.val());
@@ -105,6 +105,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     d = updateWeftSystemsAndShuttles(d, active_draft);
     d.colShuttleMapping = warp_materials.slice();
     d.colSystemMapping = warp_systems.slice();
+
 
 
     return Promise.resolve([d]);

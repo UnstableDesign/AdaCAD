@@ -1,0 +1,93 @@
+h2{
+    color: rgba(0,0,0,.54);
+    padding-bottom: 12px;
+}
+
+h3{
+    font-size: 1em;
+    padding-top: 40px;
+    font-weight: bold;
+}
+
+.filebrowser{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: max-content;
+}
+
+
+.browser_list{
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    gap: 10px;
+}
+
+
+.folder{
+    display: flex;
+    flex-direction: column;
+}
+
+.lastviewed{
+    flex: 0 1 95px;
+    justify-content: flex-end;
+
+}
+
+.filename{
+    text-align: left;
+    justify-content: flex-start;
+    flex: 1 1 auto;
+}
+
+
+.file-item-block{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+    align-items: center;
+}
+
+.current{
+    color: #ff4081;
+}
+
+
+.actions{
+    flex: 0 1 192px;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    
+    i{
+        font-size: .6em;
+    }
+}
+
+
+
+
+// .mat-list-item-content{
+//     width: 100%;
+// }
+
+.timestamp{
+    position: relative;
+    left: 16px;
+    padding: 4px 0px;
+}
+
+.details{
+    width: inherit;
+    display: flex;
+    flex: 2 2 75%;
+    flex-direction: column;
+}
+
+.accent{
+    color:#ff4081;
+}
+

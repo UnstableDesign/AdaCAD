@@ -29,13 +29,15 @@ const draft_inlet: OperationInlet = {
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   let input_draft = getInputDraft(op_inputs);
+  console.log("INPUT DRAFT IS ", input_draft)
   if(input_draft == null) return Promise.resolve([]);
 
   let d = initDraftWithParams({
     wefts: wefts(input_draft.drawdown),
     warps: warps(input_draft.drawdown),
-    drawdown: [[createCell(null)]]
+    drawdown: [[createCell(false)]]
   });
+  
   d = updateWeftSystemsAndShuttles(d, input_draft);
   d = updateWarpSystemsAndShuttles(d, input_draft);
 

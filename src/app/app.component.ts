@@ -1,42 +1,42 @@
+import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { HttpClient } from '@angular/common/http';
-import { ApplicationRef, Component, HostListener, NgZone, OnInit, Optional, ViewChild } from '@angular/core';
+import { Component, NgZone, OnInit, Optional, ViewChild } from '@angular/core';
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
+import { Auth, User, authState } from '@angular/fire/auth';
+import { MatDialog } from '@angular/material/dialog';
+import { ExamplesComponent } from './core/modal/examples/examples.component';
+import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
+import { LoginComponent } from './core/modal/login/login.component';
+import { MaterialModal } from './core/modal/material/material.modal';
 import { createCell } from './core/model/cell';
-import { Draft, DraftNode, DraftNodeProxy, FileObj, LoadedFile, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Draft, DraftNode, DraftNodeProxy, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
 import { copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
+import utilInstance from './core/model/util';
 import { AuthService } from './core/provider/auth.service';
+import { DesignmodesService } from './core/provider/designmodes.service';
 import { FileService } from './core/provider/file.service';
 import { FilesystemService } from './core/provider/filesystem.service';
 import { ImageService } from './core/provider/image.service';
 import { MaterialsService } from './core/provider/materials.service';
+import { NotesService } from './core/provider/notes.service';
 import { OperationService } from './core/provider/operation.service';
 import { StateService } from './core/provider/state.service';
+import { SystemsService } from './core/provider/systems.service';
 import { TreeService } from './core/provider/tree.service';
+import { ViewerService } from './core/provider/viewer.service';
 import { WorkspaceService } from './core/provider/workspace.service';
+import { ZoomService } from './core/provider/zoom.service';
+import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.component';
 import { EditorComponent } from './editor/editor.component';
 import { MixerComponent } from './mixer/mixer.component';
-import { MultiselectService } from './mixer/provider/multiselect.service';
-import { ZoomService } from './core/provider/zoom.service';
-import { Auth, authState, User } from '@angular/fire/auth';
-import { ViewportService } from './mixer/provider/viewport.service';
-import { FormControl } from '@angular/forms';
-import { LoginComponent } from './core/modal/login/login.component';
-import { MatDialog } from '@angular/material/dialog';
-import { FilebrowserComponent } from './core/filebrowser/filebrowser.component';
-import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
-import { ExamplesComponent } from './core/modal/examples/examples.component';
-import { DesignmodesService } from './core/provider/designmodes.service';
 import { OperationComponent } from './mixer/palette/operation/operation.component';
-import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
-import { MaterialModal } from './core/modal/material/material.modal';
+import { MultiselectService } from './mixer/provider/multiselect.service';
+import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
-import utilInstance from './core/model/util';
-import { NotesService } from './core/provider/notes.service';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
-import { SystemsService } from './core/provider/systems.service';
-import { WelcomeComponent } from './core/modal/welcome/welcome.component';
 
 
 
@@ -65,8 +65,6 @@ export class AppComponent implements OnInit{
   
   loading: boolean;
 
-  filename: string = '';
-
   selected_origin: number;
   
   ui = {
@@ -89,33 +87,29 @@ export class AppComponent implements OnInit{
 
   selected_editor_mode: any;
 
-  selected_mixer_draft_id: number =1;
-  selected_editor_draft_id: number =1;
-
-
-  redraw_viewer: boolean = false;
+  filename_form: UntypedFormControl;
 
   constructor(
     public auth: AuthService,
     private dialog: MatDialog,
     private dm: DesignmodesService,
-    private ss: StateService,
+    public ss: StateService,
     @Optional() private fbauth: Auth,
     public files: FilesystemService,
     private fs: FileService,
     private http: HttpClient,
     private image: ImageService,
     private ms: MaterialsService,
-    private multiselect: MultiselectService,
-    private ns: NotesService,
+    public multiselect: MultiselectService,
     private ops: OperationService,
     public scroll: ScrollDispatcher,
     public sys_serve: SystemsService,
     private tree: TreeService,
-    private view_tool:ViewportService,
     public vp: ViewportService,
     public ws: WorkspaceService,
+    public vs: ViewerService,
     public zs: ZoomService,
+
     private zone: NgZone
   ){
 
@@ -156,6 +150,10 @@ export class AppComponent implements OnInit{
 
   ngOnInit(){
 
+    this.filename_form = new UntypedFormControl(this.files.getCurrentFileName(), [Validators.required]);
+    this.filename_form.valueChanges.forEach(el => {this.renameWorkspace(el.trim())})
+
+
     const analytics = getAnalytics();
     logEvent(analytics, 'onload', {
       items: [{ uid: this.auth.uid }]
@@ -183,8 +181,8 @@ export class AppComponent implements OnInit{
 
   clearAll() : void{
 
-    this.selected_mixer_draft_id = -1;
-    this.selected_editor_draft_id = -1;
+    this.vs.clearPin();
+    this.vs.clearViewer();
     this.mixer.clearView();
     this.editor.clearAll();
     this.viewer.clearView();
@@ -258,30 +256,29 @@ export class AppComponent implements OnInit{
       this.viewer.onCollapse();
     }
 
+    console.log("ON TOGGLE ", this.selected_editor_mode)
     switch(this.selected_editor_mode){
       case 'draft':
+
         this.mixer.onClose();
         this.editor.onFocus();
 
-        if(this.selected_editor_draft_id == -1){
+        if(this.vs.getViewer() == -1){
           this.generateBlankDraftAndPlaceInMixer(this.editor.loom).then(id => {
-            this.selected_mixer_draft_id = id;
-            this.selected_editor_draft_id = id;
             this.editor.loadDraft(id);
             this.editor.onFocus();
           })
 
         }else{
-          if(this.editor.id !== this.selected_editor_draft_id) this.editor.loadDraft(this.selected_editor_draft_id);
+          console.log("LOADING ", this.vs.getViewer())
+          this.editor.loadDraft(this.vs.getViewer());
           this.editor.onFocus(); 
         }
   
         break;
       case 'mixer':
         this.editor.onClose();
-        this.mixer.onFocus(this.selected_mixer_draft_id);
-
-      //  this.mixer.recenterViews();
+        this.mixer.onFocus(this.editor.id);
         break;
     }
 
@@ -298,8 +295,9 @@ export class AppComponent implements OnInit{
       let loom = copyLoom(obj.loom)
       let loom_settings = copyLoomSettings(obj.loom_settings);
       this.createNewDraftOnMixer(draft, loom, loom_settings).then(id => {
-        this.selected_editor_draft_id = id;
+        this.vs.setViewer(id);
         this.editor.loadDraft(id);
+        this.saveFile();
   
       })
     }
@@ -329,7 +327,7 @@ export class AppComponent implements OnInit{
      let loom_util = getLoomUtilByType(loom_settings.type);
       return loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
       .then(loom => {
-        return this.createNewDraftOnMixer(draft, loom, loom_settings)});
+        return this.createNewDraftOnMixer(draft, loom, loom_settings)})
     
     }
 
@@ -396,6 +394,8 @@ export class AppComponent implements OnInit{
       .then( data => {
         this.mixer.changeDesignmode('move')
         this.clearAll();
+
+        
   
         console.log("imported new file", result, result.data)
         })
@@ -437,9 +437,13 @@ export class AppComponent implements OnInit{
             const ada = await this.files.getFile(fileid).catch(e => {
               console.error("error on get file ", e)
             });
+
+
             const meta = await this.files.getFileMeta(fileid).catch(console.error);           
-             
-              if(ada === undefined){
+            console.log("FIRST SESSION", ada, meta)
+
+
+            if(ada === undefined){
                 this.loadBlankFile();
 
               }else if(meta === undefined){
@@ -503,12 +507,10 @@ export class AppComponent implements OnInit{
 
 
   insertPasteFile(result: LoadResponse){
+    console.log("INSERTING ", result)
     this.processFileData(result.data).then(data => {
-      this.mixer.changeDesignmode('move');
       this.saveFile();
-
     }
-
     ).catch(console.error);
   }
 
@@ -536,29 +538,28 @@ export class AppComponent implements OnInit{
 
   }
 
-  async switchFile(id: any){
-    
-    let loaded: LoadedFile = this.files.getLoadedFile(id);
+  async duplicateFileInDB(fileid: number){
+    const ada = await this.files.getFile(fileid);
+    const meta = await this.files.getFileMeta(fileid); 
+    this.files.duplicate(this.auth.uid, meta.name+"-copy", meta.desc, ada).then(fileid => {
+      this.prepAndLoadFile(meta.name, fileid, meta.desc, ada).then(res => {
+        this.saveFile();
+      });
+    })
 
-    if(loaded == null) return;
-    let so: SaveObj = loaded.ada;
-
-    if(so === null || so === undefined) return;
-    
-    this.clearAll();
-    this.fs.loader.ada(loaded.name, loaded.id,loaded.desc, so).then(lr => {
-      this.loadNewFile(lr);
-    });
-
-  
   }
 
   //must be online
   async loadFromDB(fileid: number){
     const ada = await this.files.getFile(fileid);
     const meta = await this.files.getFileMeta(fileid); 
-    this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
-    this.saveFile();
+    console.log("GOT ADA ", ada, " and META ", meta)
+
+    this.prepAndLoadFile(meta.name, fileid, meta.desc, ada)
+    .then(res => {
+        this.saveFile();
+    });
+  
     
   }
 
@@ -566,7 +567,7 @@ export class AppComponent implements OnInit{
     this.clearAll();
     this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'new file', '')
     .then(res => {
-
+      this.filename_form.setValue(this.files.getCurrentFileName())
       this.saveFile();
     });
   }
@@ -580,12 +581,12 @@ export class AppComponent implements OnInit{
 
     this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '').then(res => {
       this.generateBlankDraftAndPlaceInMixer(this.editor.loom).then(id => {
-        this.selected_mixer_draft_id = id;
-        this.selected_editor_draft_id = id;
+        this.filename_form.setValue(this.files.getCurrentFileName())
+        this.vs.setViewer(id);
         this.editor.loadDraft(id);
         this.editor.onFocus();
+        this.saveFile();
       })
-      this.saveFile();
     });
 
     
@@ -602,11 +603,10 @@ export class AppComponent implements OnInit{
     this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
       console.log(res);
       if(res.status == 404) return;
-
       this.clearAll();
       return this.fs.loader.ada(name, -1, '', res.body)
      .then(loadresponse => {
-       this.loadNewFile(loadresponse)
+       this.loadNewFile(loadresponse, 'loadURL')
      });
     }); 
   }
@@ -617,40 +617,25 @@ export class AppComponent implements OnInit{
   /**
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
-  loadNewFile(result: LoadResponse){
+  loadNewFile(result: LoadResponse, source: string) : Promise<any>{
 
-    //this file is already open in a different tab window 
-    if(this.files.getLoadedFile(result.id) !== null){
-      this.files.setCurrentFileId(result.id);
-      this.processFileData(result.data)
-      .then(data => {
+   return this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
+   .then(res => {
+    this.filename_form.setValue(this.files.getCurrentFileName())
+    return this.processFileData(result.data)
+   }).then(data => {
 
-        if(this.tree.nodes.length > 0){
-          this.selected_editor_mode = 'mixer';
-        }else{
-          this.selected_editor_mode = 'draft'; 
-        }
-        this.saveFile();
-      })
-    }else{
-      this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
-      .then(res => {
-        return this.processFileData(result.data)
-      }).then(data => {
-        if(this.tree.nodes.length > 0){
-          this.selected_editor_mode = 'mixer';
-        }else{
-          this.selected_editor_mode = 'draft';
-        }
-          this.filename = result.name;
-          this.saveFile();
-      }).catch(e => {
-        console.log(e, "CAUGHT ERROR through from process file data")
+       
+       if(source !== 'statechange'){
+          if(this.tree.nodes.length > 0){
+            this.selected_editor_mode = 'mixer';
+          }else{
+            this.selected_editor_mode = 'draft'; 
+          }
+       }else{
+          this.selected_editor_mode = 'mixer'
+       }
       });
-    }
-
-
-
     
   }
 
@@ -817,6 +802,11 @@ onPasteSelections(){
       this.loadBlankFile();
     });
 
+    this.filebrowser_modal.componentInstance.onDuplicateFile.subscribe(event => {
+
+      this.duplicateFileInDB(event);
+    });
+
 
 
 
@@ -827,12 +817,14 @@ onPasteSelections(){
   openMaterials() {
     if(this.material_modal != undefined && this.material_modal.componentInstance != null) return;
 
-  this.material_modal = this.dialog.open(MaterialModal, {data: {}});
-  this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
-    console.log("MATERIAL CHANGED");
-    //redraw all
+    this.material_modal = this.dialog.open(MaterialModal, {data: {}});
+    this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
+      this.viewer.redraw(this.vs.getViewer());
+      if(this.selected_editor_mode == 'mixer') this.mixer.redrawAllSubdrafts();
+      else this.editor.redraw();
+      this.addTimelineState();
 
-  });
+    });
   }
 
 
@@ -863,7 +855,7 @@ onPasteSelections(){
 
   this.upload_modal.afterClosed().subscribe(loadResponse => {
     if(loadResponse !== undefined && loadResponse != true) 
-    this.loadNewFile(loadResponse);
+    this.loadNewFile(loadResponse, 'openFile');
 
   });
 }
@@ -890,7 +882,7 @@ originChange(e:any){
 prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
   this.clearAll();
     return this.fs.loader.ada(name, id,desc, ada).then(lr => {
-      this.loadNewFile(lr);
+      return this.loadNewFile(lr, 'prepAndLoad');
     });
 }
 
@@ -902,10 +894,9 @@ async processFileData(data: FileObj) : Promise<string|void>{
   this.loading = true;
   let entry_mapping = [];
 
+  console.log("PROCESSING ", data)
 
-  this.updateOrigin(this.ws.selected_origin_option)
-
-  //start processing images first thing 
+  //1. filter any operations with a parameter of type file, and load the associated file. 
   const images_to_load = [];
   
   data.ops.forEach(op => {
@@ -922,6 +913,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
 
   return this.image.loadFiles(images_to_load).then(el => {
+    //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
     return this.tree.replaceOutdatedOps(data.ops);
   })
   .then(correctedOps => {    
@@ -938,13 +930,14 @@ async processFileData(data: FileObj) : Promise<string|void>{
       .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
       .map(tn => tn.entry);
     
-    const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors}> = seednodes
+    const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors, scale}> = seednodes
     .map(sn =>  {
 
 
         let d:Draft =null;
         let loom:Loom = null;
         let render_colors = true;
+        let scale = 1;
 
       const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
@@ -969,6 +962,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
           ls = copyLoomSettings(located_draft.loom_settings);
           loom = copyLoom(located_draft.loom);
           if(located_draft.render_colors !== undefined) render_colors = located_draft.render_colors; 
+          if(located_draft.scale !== undefined) scale = located_draft.scale; 
         } 
 
       }else{
@@ -989,12 +983,13 @@ async processFileData(data: FileObj) : Promise<string|void>{
           draft: d,
           loom: loom,
           loom_settings: ls,
-          render_colors: render_colors
+          render_colors: render_colors,
+          scale: scale
           }
       
     });
 
-    const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors));
+    const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors, seed.scale));
 
     const op_fns = data.ops.map(op => {
       const entry = entry_mapping.find(el => el.prev_id == op.node_id);
@@ -1032,15 +1027,15 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
       const entry = entry_mapping.find(el => el.cur_id === node.id);
       if(entry === undefined) return;
-
       switch (node.type){
         case 'draft':
-          if(!this.tree.hasParent(node.id))
-          this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id), data.scale);
+          if(!this.tree.hasParent(node.id)){
+            this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id));
+          }
           break;
         case 'op':
           const op = this.tree.getOpNode(node.id);
-          this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).topleft, data.scale);
+          this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).topleft);
           break;
         case 'cxn':
 
@@ -1062,11 +1057,11 @@ async processFileData(data: FileObj) : Promise<string|void>{
       const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
       const node = this.tree.getNode(new_id.cur_id);
       if(node === undefined) return;
-
       (<DraftNode> node).draft.ud_name = np.draft_name;
       (<DraftNode> node).loom_settings = np.loom_settings; 
       (<DraftNode> node).loom = copyLoom(np.loom); 
       if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
+      if(np.scale !== undefined) (<DraftNode> node).scale = np.scale; 
     })
 
    this.tree.getOpNodes().forEach(op => {
@@ -1087,6 +1082,11 @@ async processFileData(data: FileObj) : Promise<string|void>{
   .then(res => {
     // this.palette.rescale(data.scale);
     this.loading = false;
+    this.updateOrigin(this.ws.selected_origin_option);
+    this.mixer.refreshOperations();
+    this.mixer.renderChange();
+    this.editor.renderChange();
+  
     return Promise.resolve('alldone')
   })
   .catch(e => {
@@ -1138,20 +1138,6 @@ printTreeStatus(name: string, treenode: Array<TreeNode>){
   });
 }
 
-filenameChange(){
-
-}
-
-redo() {
-
-  let so: SaveObj = this.ss.restoreNextMixerHistoryState();
-  if(so === null || so === undefined) return;
-  this.clearAll();
-  this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(),this.files.getCurrentFileDesc(),  so)
-  .then(lr =>  this.loadNewFile(lr));
-
- 
-}
 
 
 saveFile(){
@@ -1174,11 +1160,10 @@ setAdvancedOperations(val: boolean){
 
 
 openInEditor(id: number){
-  console.log("OPEN IN EDITOR CALLED LOAD DRAFT ON ", id)
-   //this.editor.loadDraft(id);
-   this.selected_editor_draft_id = id;
-   this.selected_editor_mode = 'draft';
-   this.toggleEditorMode();
+  this.vs.clearPin();
+  this.vs.setViewer(id);
+  this.selected_editor_mode = 'draft';
+  this.toggleEditorMode();
 }
 
 /**
@@ -1211,24 +1196,52 @@ collapseViewer(){
   }
 }
 
+drawModeChange(mode: string){
+  this.editor.drawModeChange(mode);
+} 
 
-showDraftDetails(id: number){
-  console.log("Show Draft Details CALLED LOAD DRAFT ON ", id)
 
-  this.editor.loadDraft(id);
-  this.selected_editor_draft_id = id;
-  this.dm.selectPencil('toggle');
+/**
+ * TODO: because it reloads the file, and reassigns IDs to drafts, there is no way to link the previous draft detail in the editor
+ * with what it's new counterpart will be. For now, I'll just force to mixer view
+ */
+redo() {
+
+  let so: SaveObj = this.ss.restoreNextMixerHistoryState();
+  if(so === null || so === undefined) return;
+
+    this.mixer.clearView();
+    this.editor.clearAll();
+    this.viewer.clearView();
+    this.tree.clear();
+    
+  this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(),this.files.getCurrentFileDesc(),  so)
+  .then(lr =>  this.loadNewFile(lr, 'statechange'));
+
+ 
 }
 
 
-
+/**
+ * TODO: because it reloads the file, and reassigns IDs to drafts, there is no way to link the previous draft detail in the editor
+ * with what it's new counterpart will be. For now, I'll just force to mixer view
+ */
   undo() {
 
+  
     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
     if(so === null || so === undefined) return;
-    this.clearAll();
+    
+    this.mixer.clearView();
+    this.editor.clearAll();
+    this.viewer.clearView();
+    this.tree.clear();
+
+
     this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(), this.files.getCurrentFileDesc(), so).then(lr => {
-      this.loadNewFile(lr)
+      this.loadNewFile(lr, 'statechange');
+
+
     }
     
     );
@@ -1263,27 +1276,31 @@ showDraftDetails(id: number){
   updateMixer(){
   }
 
-  /**
-   * this emerges from the detail or simulation when something needs to trigger the mixer to update
-   * this also needs to trigger a redraw within the mixer, but we don't want to do that if the mixer isn't visible
-   */
-  onRefreshViewer(source: string){
-    if(source == 'mixer') this.viewer.redraw(this.selected_mixer_draft_id);
-    else this.viewer.redraw(this.selected_editor_draft_id);
+  updateDraftName(id: any){
+    
+    if(id == -1) return;
+
+    if(this.tree.hasParent(id)){
+      let parent = this.tree.getSubdraftParent(id);
+      let comp= this.tree.getComponent(parent);
+      (<OperationComponent> comp).draftContainers.forEach(el => el.updateName());
+    }else{
+      let comp= this.tree.getComponent(id);
+      (<SubdraftComponent> comp).draftcontainer.updateName();
+    }
+    
+   
+
+
+
+  }
+
+  renameWorkspace(name: string){
+    let id = this.files.getCurrentFileId();
+    this.files.renameFile(id, name);
   }
 
 
-  /**
-   * Set view is only called from the mixer when a new draft is focused. 
-   * @param id 
-   */
-  onSetViewer(id: number, source: string){
-    if(source == 'mixer'){
-      this.selected_mixer_draft_id = id;
-    } 
-    this.selected_editor_draft_id = id;
-    this.onRefreshViewer(source);
-  }
 
    /**
     * the origin must be updated after the file has been loaded. 
@@ -1338,6 +1355,16 @@ showDraftDetails(id: number){
 
   }
 
+  /**
+   * this function looks at all subdrafts and operations on the palette and repositons them such that they do not overlap eachother.
+   * It works by
+   */
+  onExplode(){
+
+    this.mixer.explode();
+
+  }
+
   zoomChange(ndx: number){
     if(this.viewer.view_expanded){
       this.zs.setZoomIndexOnViewer(ndx);
@@ -1353,10 +1380,10 @@ showDraftDetails(id: number){
 
   saveDraftAs(format: string){
 
-    let draft:Draft = this.tree.getDraft(this.selected_mixer_draft_id);
-    let b = this.bitmap.nativeElement;
+    if(!this.vs.hasViewer()) return;
 
-    if(this.selected_mixer_draft_id == -1) return;
+    let draft:Draft = this.tree.getDraft(this.vs.getViewer());
+    let b = this.bitmap.nativeElement;
 
     switch(format){
       case 'bmp':
@@ -1366,8 +1393,8 @@ showDraftDetails(id: number){
         utilInstance.saveAsPrint(b, draft, true, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
         break;
       case 'wif':
-        let loom = this.tree.getLoom(this.selected_mixer_draft_id);
-        let loom_settings = this.tree.getLoomSettings(this.selected_mixer_draft_id);
+        let loom = this.tree.getLoom(this.vs.getViewer() );
+        let loom_settings = this.tree.getLoomSettings(this.vs.getViewer() );
         utilInstance.saveAsWif(this.fs, draft, loom, loom_settings)
       break;
     }

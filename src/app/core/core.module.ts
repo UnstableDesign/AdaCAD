@@ -39,16 +39,21 @@ import { AuthService } from './provider/auth.service';
 import { FileService } from './provider/file.service';
 import { PatternfinderService } from './provider/patternfinder.service';
 import { VaeService } from './provider/vae.service';
-import { SignupComponent } from './signup/signup.component';
-import { UploadFormComponent } from './uploads/upload-form/upload-form.component';
+import { SignupComponent } from './ui/signup/signup.component';
+import { UploadFormComponent } from './ui/uploads/upload-form/upload-form.component';
 import { UploadService } from './provider/upload.service';
 import { BlankdraftModal } from './modal/blankdraft/blankdraft.modal';
 import { ExamplesComponent } from './modal/examples/examples.component';
 import { LoadfileComponent } from './modal/loadfile/loadfile.component';
-import { FilebrowserComponent } from './filebrowser/filebrowser.component';
+import { FilebrowserComponent } from './ui/filebrowser/filebrowser.component';
 import { KeycodesDirective } from './keycodes.directive';
 import { WelcomeComponent } from './modal/welcome/welcome.component';
 import { RenderService } from './provider/render.service';
+import { DraftRenderingComponent } from './ui/draft-rendering/draft-rendering.component';
+import { SelectionComponent } from './ui/draft-rendering/selection/selection.component';
+import { ViewerService } from './provider/viewer.service';
+
+
 
 @NgModule({
     imports: [
@@ -86,7 +91,7 @@ import { RenderService } from './provider/render.service';
         DragDropModule,
         MatProgressBarModule,
         MatBadgeModule
-    ],
+        ],
     declarations: [
         UploadFormComponent,
         InitModal,
@@ -98,7 +103,10 @@ import { RenderService } from './provider/render.service';
         LoadfileComponent,
         FilebrowserComponent,
         KeycodesDirective,
-        WelcomeComponent
+        WelcomeComponent,
+        SelectionComponent,
+        DraftRenderingComponent
+
     ],
     providers: [
         UploadService,
@@ -106,7 +114,8 @@ import { RenderService } from './provider/render.service';
         VaeService,
         PatternfinderService,
         AuthService,
-        RenderService
+        RenderService,
+        ViewerService
     ],
     exports: [
         CommonModule,
@@ -148,7 +157,8 @@ import { RenderService } from './provider/render.service';
         MaterialModal,
         FilebrowserComponent,
         ExamplesComponent,
-        KeycodesDirective    
-    ]
+        KeycodesDirective,
+        DraftRenderingComponent,
+        SelectionComponent     ]
 })
 export class CoreModule { }

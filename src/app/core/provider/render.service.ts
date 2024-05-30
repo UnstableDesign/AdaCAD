@@ -126,13 +126,15 @@ draft_cell_size: number;
         system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
         let color = this.ms.getColor(draft.rowShuttleMapping[j]);
         weft_mats_cx.fillStyle = color;
+        weft_mats_cx.strokeStyle = "#666666";
         weft_mats_cx.fillRect(1, j* cell_size*pixel_ratio+1,  defaults.draft_detail_cell_size*pixel_ratio-2,  cell_size*pixel_ratio-2);
+        weft_mats_cx.strokeRect(1, j* cell_size*pixel_ratio+1,  defaults.draft_detail_cell_size*pixel_ratio-2,  cell_size*pixel_ratio-2);
         
         weft_systems_cx.font = 1.5*cell_size+"px Arial";
         weft_systems_cx.fillStyle = "#666666";
 
         weft_systems_cx.save();
-        weft_systems_cx.translate(5,  (j+1)*cell_size*pixel_ratio - 10);
+        weft_systems_cx.translate(10,  (j+1)*cell_size*pixel_ratio - 10);
         let tx = this.getTransform('weft-systems');
         weft_systems_cx.transform(tx[0], tx[1], tx[2], tx[3], tx[4], tx[5]);
         weft_systems_cx.textAlign = "center";
@@ -184,8 +186,9 @@ draft_cell_size: number;
       
         //cell_size *= this.pixel_ratio
         warp_mats_cx.fillStyle = color;
+        warp_mats_cx.strokeStyle = "#666666";
         warp_mats_cx.fillRect(j* cell_size*pixel_ratio+1, 1,  cell_size*pixel_ratio-2,  defaults.draft_detail_cell_size*pixel_ratio-2);
-        
+        warp_mats_cx.strokeRect(j* cell_size*pixel_ratio+1, 1,  cell_size*pixel_ratio-2,  defaults.draft_detail_cell_size*pixel_ratio-2);
         //need to flip this on certain origins. 
         warp_systems_cx.font = 1.5*cell_size+"px Arial";
         warp_systems_cx.fillStyle = "#666666";
@@ -523,6 +526,7 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
 
   private drawDrawdown(draft: Draft, canvas: HTMLCanvasElement,  cell_size: number, pixel_ratio: number, rf: RenderingFlags) : Promise<string>{
     
+
     if(canvas == null || canvas == undefined){
       return Promise.resolve('drawdown canvas was null');
     }
@@ -541,7 +545,6 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
       canvas.height = wefts(draft.drawdown)*cell_size * pixel_ratio;
       canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
       canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
-
       let img = getDraftAsImage(draft, cell_size*pixel_ratio, rf.use_floats, rf.use_colors, this.ms.getShuttles());
       draft_cx.putImageData(img, 0, 0);
       return Promise.resolve('');
@@ -576,6 +579,38 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     return dpr/bsr;
   }
 
+
+  clear(canvases: CanvasList) : Promise<boolean> {
+
+  let drawdownCx = canvases.drawdown.getContext('2d');
+   drawdownCx.clearRect(0, 0, drawdownCx.canvas.width, drawdownCx.canvas.height );
+
+   let threadingCx = canvases.threading.getContext('2d');
+   threadingCx.clearRect(0, 0, threadingCx.canvas.width, threadingCx.canvas.height )
+
+   let tieupCx = canvases.tieup.getContext('2d');
+   tieupCx.clearRect(0, 0, tieupCx.canvas.width, tieupCx.canvas.height )
+
+   let treadlingCx = canvases.treadling.getContext('2d');
+   treadlingCx.clearRect(0, 0, treadlingCx.canvas.width, treadlingCx.canvas.height )
+
+   let warpMatCx = canvases.warp_mats.getContext('2d');
+   warpMatCx.clearRect(0, 0, warpMatCx.canvas.width, warpMatCx.canvas.height )
+
+   let warpSysCx = canvases.warp_systems.getContext('2d');
+   warpSysCx.clearRect(0, 0, warpSysCx.canvas.width, warpSysCx.canvas.height )
+
+   let weftMatCx = canvases.weft_mats.getContext('2d');
+   weftMatCx.clearRect(0, 0, weftMatCx.canvas.width, weftMatCx.canvas.height )
+
+   let weftSysCx = canvases.weft_systems.getContext('2d');
+   weftSysCx.clearRect(0, 0, weftSysCx.canvas.width, weftSysCx.canvas.height )
+
+
+   return Promise.resolve(true);
+
+  }
+
   /**
    * draw whatever is stored in the draft object to the screen
    * @returns 
@@ -586,6 +621,8 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     // set the width and height
     let pixel_ratio = this.getPixelRatio(canvases.drawdown);
     let cell_size = this.calculateCellSize(draft);
+    
+    if(draft.drawdown.length == 0) return this.clear(canvases);
 
     if(rf.u_drawdown){
       fns = fns.concat(this.drawDrawdown(draft, canvases.drawdown, cell_size, pixel_ratio, rf));
@@ -622,6 +659,50 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     });
 
     
+  }
+
+
+  /**
+   * when the parent div is rescaled on zoom in and out, the container does not change size unless the canvases change size as well. 
+   * @param draft 
+   * @param factor 
+   * @param canvases 
+   */
+  rescale(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList){
+    let cell_size = this.calculateCellSize(draft);
+
+    canvases.drawdown.style.width = (warps(draft.drawdown)*cell_size* factor)+"px";
+    canvases.drawdown.style.height = (wefts(draft.drawdown)*cell_size* factor)+"px";
+
+    if(loom !== null){
+      let frames = Math.max(numFrames(loom), loom_settings.frames);
+      let treadles = Math.max(numTreadles(loom), loom_settings.treadles);
+
+      canvases.threading.style.width =  (cell_size * loom.threading.length)*factor+ "px"
+      canvases.threading.style.height =  (cell_size * frames )*factor+ "px"
+
+      canvases.treadling.style.width = (cell_size * treadles)*factor + "px";
+      canvases.treadling.style.height = (cell_size * loom.treadling.length)*factor + "px";
+
+      canvases.tieup.style.width = (cell_size * treadles)*factor+ "px";
+      canvases.tieup.style.height = (cell_size *frames)*factor+ "px";
+
+
+    }
+
+    canvases.warp_mats.style.width = (draft.colShuttleMapping.length * cell_size)* factor+"px";
+    canvases.warp_mats.style.height =  defaults.draft_detail_cell_size* factor+"px";
+
+
+    canvases.warp_systems.style.width = (draft.colSystemMapping.length * cell_size* factor)+"px";
+    canvases.warp_systems.style.height =  defaults.draft_detail_cell_size* factor+"px";
+
+    canvases.weft_mats.style.height = (draft.rowSystemMapping.length * cell_size)*factor+"px";
+    canvases.weft_mats.style.width = defaults.draft_detail_cell_size*factor+"px";
+
+    canvases.weft_systems.style.height =(draft.rowShuttleMapping.length * cell_size)*factor+"px";
+    canvases.weft_systems.style.width =  defaults.draft_detail_cell_size*factor+"px";
+
   }
 
   
