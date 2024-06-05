@@ -14,6 +14,7 @@ import { ParameterComponent } from './parameter/parameter.component';
 import { ZoomService } from '../../../core/provider/zoom.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
+import { CdkDragMove } from '@angular/cdk/drag-drop';
 
 
 
@@ -478,7 +479,7 @@ export class OperationComponent implements OnInit {
      }
   }
 
-  dragMove($event: any) {
+  dragMove($event: CdkDragMove) {
 
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-'+this.id);
@@ -486,9 +487,9 @@ export class OperationComponent implements OnInit {
 
     const zoom_factor =  1/this.zs.getMixerZoom();
 
-    let screenX = $event.event.pageX-rect_palette.x+parent.scrollLeft; 
+    let screenX = $event.pointerPosition.x-rect_palette.x+parent.scrollLeft; 
     let scaledX = screenX* zoom_factor;
-    let screenY = $event.event.pageY-rect_palette.y+parent.scrollTop;
+    let screenY = $event.pointerPosition.y-rect_palette.y+parent.scrollTop;
     let scaledY = screenY * zoom_factor;
    
 

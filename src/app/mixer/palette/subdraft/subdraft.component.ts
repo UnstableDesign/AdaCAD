@@ -10,6 +10,7 @@ import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
+import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 
 
 @Component({
@@ -393,16 +394,20 @@ openInEditor(event: any){
    * @param e 
    */
    mousedown(e: any){
+    console.log("MOUSE DOWN")
     this.vs.setViewer(this.id);
     e.stopPropagation();
   }
 
   
 
+  
+
   //The drag event has handled the on screen view, but internally, we need to track the top left of the element for saving and loading. 
   dragEnd($event: any) {
 
- 
+    console.log("DRAG END ")
+
     this.moving = false;
     this.counter = 0;  
     this.last_ndx = {i: -1, j:-1, si: -1};
@@ -410,8 +415,11 @@ openInEditor(event: any){
     this.onSubdraftDrop.emit({id: this.id});
   }
 
-  dragStart($event: any) {
+  
 
+  dragStart = ($event: CdkDragStart) => {
+
+    console.log("DRAG START ")
 
     this.moving = true;
     this.counter = 0;  
@@ -432,8 +440,7 @@ openInEditor(event: any){
    positioning of the palette on screen. We take that position and translate it (by * 1/zoom factor) to the palette coordinate system, which is transformed by the scale operations. We then write the new position while acounting for the sidebar.
  * @param $event 
  */
-  dragMove($event: any) {
-
+  dragMove($event: CdkDragMove) {
 
 
     let parent = document.getElementById('scrollable-container');
@@ -442,26 +449,23 @@ openInEditor(event: any){
 
     const zoom_factor =  1/this.zs.getMixerZoom();
 
-
-
-    let screenX = $event.event.pageX-rect_palette.x+parent.scrollLeft; 
+    let screenX = $event.pointerPosition.x-rect_palette.x+parent.scrollLeft; 
     let scaledX = screenX* zoom_factor;
-    let screenY = $event.event.pageY-rect_palette.y+parent.scrollTop;
+    let screenY = $event.pointerPosition.y-rect_palette.y+parent.scrollTop;
     let scaledY = screenY * zoom_factor;
-   
-
-
+  
 
     this.topleft = {
       x: scaledX,
       y: scaledY
     }
 
+    console.log("SD CONTAINER ", this.topleft)
     sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
     sd_container.style.top =  this.topleft.y+"px";
     sd_container.style.left =  this.topleft.x+"px";
 
-    this.onSubdraftMove.emit({id: this.id, point: this.topleft});
+   // this.onSubdraftMove.emit({id: this.id, point: this.topleft});
 
   }
 

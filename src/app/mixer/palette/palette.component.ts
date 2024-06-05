@@ -1903,6 +1903,7 @@ pasteConnection(from: number, to: number, inlet: number){
   */
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
+      console.log("ON START")
 
       if(this.selecting_connection == true){
         this.processConnectionEnd();
