@@ -236,7 +236,9 @@ handlePan(diff: Point){
  */
    handleWindowScroll(data: any){
 
+
    const div:HTMLElement = document.getElementById('scrollable-container');
+   if(div === null || div == undefined ) return;
    this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop,  div.offsetParent.clientWidth,  div.offsetParent.clientHeight);
     //update the canvas to this position
   }

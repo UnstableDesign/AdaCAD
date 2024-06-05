@@ -394,7 +394,6 @@ openInEditor(event: any){
    * @param e 
    */
    mousedown(e: any){
-    console.log("MOUSE DOWN")
     this.vs.setViewer(this.id);
     e.stopPropagation();
   }
@@ -406,7 +405,6 @@ openInEditor(event: any){
   //The drag event has handled the on screen view, but internally, we need to track the top left of the element for saving and loading. 
   dragEnd($event: any) {
 
-    console.log("DRAG END ")
 
     this.moving = false;
     this.counter = 0;  
@@ -419,7 +417,6 @@ openInEditor(event: any){
 
   dragStart = ($event: CdkDragStart) => {
 
-    console.log("DRAG START ")
 
     this.moving = true;
     this.counter = 0;  
@@ -460,7 +457,6 @@ openInEditor(event: any){
       y: scaledY
     }
 
-    console.log("SD CONTAINER ", this.topleft)
     sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
     sd_container.style.top =  this.topleft.y+"px";
     sd_container.style.left =  this.topleft.x+"px";
@@ -500,7 +496,6 @@ openInEditor(event: any){
 
 
   private designAction(e){
-    console.log("subdraft - design action ", e);
 
     let event = e.event;
     let id = e.id;
