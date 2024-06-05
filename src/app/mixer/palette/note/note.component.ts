@@ -5,6 +5,7 @@ import utilInstance from '../../../core/model/util';
 import { NotesService } from '../../../core/provider/notes.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { ZoomService } from '../../../core/provider/zoom.service';
+import { CdkDragMove } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-note',
@@ -106,7 +107,7 @@ export class NoteComponent implements OnInit {
   }
     
 
-  dragMove($event: any) {
+  dragMove($event: CdkDragMove) {
 
 
     let parent = document.getElementById('scrollable-container');
@@ -115,9 +116,9 @@ export class NoteComponent implements OnInit {
 
     const zoom_factor =  1/this.zs.getMixerZoom();
 
-    let screenX = $event.event.pageX-rect_palette.x+parent.scrollLeft; 
+    let screenX = $event.pointerPosition.x-rect_palette.x+parent.scrollLeft; 
     let scaledX = screenX* zoom_factor;
-    let screenY = $event.event.pageY-rect_palette.y+parent.scrollTop;
+    let screenY = $event.pointerPosition.y-rect_palette.y+parent.scrollTop;
     let scaledY = screenY * zoom_factor;
    
 

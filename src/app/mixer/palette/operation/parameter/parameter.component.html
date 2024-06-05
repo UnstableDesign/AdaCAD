@@ -30,6 +30,7 @@
     <div class="select-input">
     <mat-form-field>
 
+      <mat-label>{{param.name}}</mat-label>
 
         <mat-select 
             [ngModel] = "opnode.params[paramid]"
@@ -41,7 +42,6 @@
           </mat-option>
         </mat-select>
 
-        <mat-hint>{{param.name}}</mat-hint>
 
      
     </mat-form-field>
@@ -54,6 +54,7 @@
 
       <mat-form-field>
 
+        <mat-label>{{param.name}}</mat-label>
 
         <mat-select 
             [ngModel] = "opnode.params[paramid]"
@@ -70,9 +71,6 @@
           </mat-option>
 
         </mat-select>
-
-        <mat-hint>{{param.name}}</mat-hint>
-
      
     </mat-form-field>
 
@@ -83,6 +81,8 @@
 <ng-container  *ngIf="param.type == 'string'">
   <div class="string-input">
     <mat-form-field>
+      <mat-label>{{param.name}}</mat-label>
+
       <!-- <input 
       matInput
       [formControl]="fc"
@@ -105,7 +105,6 @@
         <mat-error>the current input is not correctly formatted </mat-error>
       }
 
-      <mat-hint>{{param.name}}</mat-hint>
 
 
       <!-- <input 

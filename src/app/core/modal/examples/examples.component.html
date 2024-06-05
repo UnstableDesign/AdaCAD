@@ -9,10 +9,13 @@ cdkDrag
 
    <div class="preloaded_files">
 
-      <mat-card appearance="outlined" *ngFor="let example of local_examples">
-        <mat-card-title>{{example.title}}
 
-        </mat-card-title>
+
+      <mat-card appearance="outlined" *ngFor="let example of local_examples">
+        <mat-card-header>
+        <mat-card-title>{{example.title}}</mat-card-title>
+      </mat-card-header>
+
        <img mat-card-image src="/assets/example_img/{{example.id}}.{{example.ext}}" alt="Screenshot of the File Contents">
           <mat-card-content >
             <p>
@@ -20,7 +23,7 @@ cdkDrag
             </p>
           </mat-card-content>
         <mat-card-actions>
-          <button (click)="loadExample(example.id)" mat-raised-button color="primary"> Open </button>
+          <button (click)="loadExample(example.id)" mat-button>OPEN</button>
         </mat-card-actions>
       </mat-card>
 

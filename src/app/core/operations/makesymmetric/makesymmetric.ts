@@ -133,16 +133,20 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
                     let seq = new Sequence.OneD().import(row);
                     if(i == 0){
-                        warp_mats.import(input_draft.colShuttleMapping).pushRow(rev_warp_mats.val());
-                        warp_systems.import(input_draft.colSystemMapping).pushRow(rev_warp_sys.val());
+                        warp_mats.import(input_draft.colShuttleMapping);
+                        warp_systems.import(input_draft.colSystemMapping)
+                        if(sym_mode != 4){
+                            warp_mats.pushRow(rev_warp_mats.val());
+                            warp_systems.pushRow(rev_warp_sys.val());
+                        }
                     }   
 
 
                     if(sym_mode !== 4){
                     
                         seq.pushRow(rev.val());
-                        warp_mats.pushRow(rev_warp_mats.val());
-                        warp_systems.pushRow(rev_warp_sys.val());
+                        // warp_mats.pushRow(rev_warp_mats.val());
+                        // warp_systems.pushRow(rev_warp_sys.val());
                     
                     }
 

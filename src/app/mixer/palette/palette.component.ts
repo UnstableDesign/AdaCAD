@@ -458,7 +458,8 @@ handlePan(diff: Point){
     this.setNoteSubscriptions(notecomp.instance);
 
     if(note === null || note.topleft == null || note.topleft === undefined){
-      tl = this.viewport.getCenterPoint();
+      tl =  this.calculateInitialLocation();
+      ;
       tl = {
         x: tl.x, 
         y: tl.y
@@ -1903,7 +1904,6 @@ pasteConnection(from: number, to: number, inlet: number){
   */
   @HostListener('mousedown', ['$event'])
     private onStart(event) {
-      console.log("ON START")
 
       if(this.selecting_connection == true){
         this.processConnectionEnd();

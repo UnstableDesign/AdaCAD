@@ -196,7 +196,6 @@ export class DraftRenderingComponent implements OnInit {
 
   ngOnChanges(changes:SimpleChanges){
     if (changes['scale']) {
-      console.log("IS FIRST CHANGE ", changes['scale'].isFirstChange())
      if(!changes['scale'].isFirstChange()) this.redrawAll();
     }
 

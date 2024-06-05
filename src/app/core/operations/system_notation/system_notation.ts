@@ -19,7 +19,7 @@ const pattern:StringParam =
     value: '(a1b2c3)',
     regex:  /.*?(.*?[a-xA-Z]+[\d]+).*?/i,
     error: 'invalid entry',
-    dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
+    dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in parenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
     }
 
 
@@ -53,9 +53,11 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
       if(system_map.length == 0) return Promise.resolve([]); ;
      
-
       let weft_system_map = new Sequence.OneD(system_map[0].rowSystemMapping);
       let warp_system_map = new Sequence.OneD(system_map[0].colSystemMapping);
+      let weft_material_map = new Sequence.OneD(system_map[0].rowShuttleMapping);
+      let warp_material_map = new Sequence.OneD(system_map[0].colShuttleMapping);
+
 
       //make sure the system draft map has a representation for every layer, even if the draft at that layer is null.
       const layer_draft_map = original_string_split.map((unit, ndx) => {
@@ -99,6 +101,8 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
        let d: Draft = initDraftFromDrawdown(composite.export());
        d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col');
        d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row');
+       d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, warp_material_map.val(),'col');
+       d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, weft_material_map.val(),'row');
 
       
       return  Promise.resolve([d]);
@@ -120,7 +124,6 @@ const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInl
 
 
     matches = utilInstance.parseRegex(param_val, layer_parsing_regex);
-    console.log(matches);
 
     matches = matches.map(el => el.slice(1, -1))
 

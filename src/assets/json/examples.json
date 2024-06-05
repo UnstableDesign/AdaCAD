@@ -1,29 +1,30 @@
 {
     "examples": [
 
+
+        {
+            "id": "first_workspace",
+            "ext": "png",
+            "title":"Making your First Workspace",
+            "desc":"This workspace demonstrates a starting point for making workspaces in AdaCAD by chaining together one operation from each operation category and seeing what emerges"
+        },
+        {
+            "id": "basic_operations",
+            "ext": "png",
+            "title":"Basic Operations",
+            "desc":"This workspace contains all of the beginner level operations that AdaCAD offers"
+        },
         {
             "id": "TC2_lesson1",
-            "ext": "jpg",
+            "ext": "png",
             "title":"Drafting for Jacquard: Lesson 1",
-            "desc":"This video walks through the process of making a simple draft for a jacquard loom. It shows how you can make a draft with the AdaCAD workspace and operators, how you can download the draft, and how you can load and weave it on a TC2 loom"
-        },
-        {
-            "id": "material-calculus",
-            "ext": "gif",
-            "title":"Intro to Drafting as Material Calculus",
-            "desc":"Not sure what a weave draft is or how you might think about weave drafting as a series of algorithmic operations, start here."
-        },
-        {
-            "id": "operation_playground",
-            "ext": "gif",
-            "title":"Operations Playground",
-            "desc":"Play with every possible operation that AdaCAD offers"
+            "desc":"This file can be used to make a simple draft for a jacquard loom using the rectangle and selvedge operations."
         },
         {
             "id": "drawdownexperiments",
-            "ext": "gif",
+            "ext": "png",
             "title":"Drawdown Experiments",
-            "desc":"Playing with generating drawdowns by manipulating threading and threadlines with sine waves and zig zags"
+            "desc":"Playing with generating drawdowns by manipulating threading and threading with sine waves and zig zags"
         },
         {
             "id":"sample7b",

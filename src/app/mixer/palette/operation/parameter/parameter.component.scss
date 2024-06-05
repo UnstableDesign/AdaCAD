@@ -42,11 +42,14 @@
 //     font-weight: bold;
 // }
 
-.number_input .mat-mdc-form-field-infix {
+.number_input .mat-mdc-form-field-infix,
+.string-input .mat-mdc-form-field-infix
+ {
     font-size: 24px;
     font-weight: bold;
     width: 90px;
 }
+
 
 
 
@@ -55,15 +58,17 @@
 // }
 
 
-.select-input{
+.select-input,
+.boolean-input{
 
 
    .mat-mdc-select {
         height: 100%;
         align-content: baseline;
         flex-basis: 0;
-        font-weight: bolder;
-        font-size: 1.5em;
+        font-size: 24px;
+        font-weight: bold;
+        width: 200px;
     }
 }
 

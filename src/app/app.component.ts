@@ -37,6 +37,7 @@ import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
+import { WelcomeComponent } from './core/modal/welcome/welcome.component';
 
 
 
@@ -159,10 +160,10 @@ export class AppComponent implements OnInit{
       items: [{ uid: this.auth.uid }]
     });
 
-    // let dialogRef = this.dialog.open(WelcomeComponent, {
-    //   height: '400px',
-    //   width: '600px',
-    // });
+    let dialogRef = this.dialog.open(WelcomeComponent, {
+      height: '400px',
+      width: '600px',
+    });
 
   
 
@@ -894,7 +895,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
   this.loading = true;
   let entry_mapping = [];
 
-  console.log("PROCESSING ", data)
+  // console.log("PROCESSING ", data)
 
   //1. filter any operations with a parameter of type file, and load the associated file. 
   const images_to_load = [];

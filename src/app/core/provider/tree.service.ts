@@ -664,7 +664,7 @@ export class TreeService {
    */
   getSubdraftParent(sd_id: number):number{
     const tn: TreeNode = this.getTreeNode(sd_id);
-    if(tn.parent === null || tn.parent === undefined) return -1;
+    if(tn == null || tn == undefined || tn.parent === null || tn.parent === undefined) return -1;
     else return tn.parent.node.id;
   }
 
