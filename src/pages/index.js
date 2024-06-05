@@ -22,8 +22,8 @@ function HomepageHeader() {
           </Link>
           <Link
             className="button beta button--secondary button--lg"
-            to="https://adacad-beta-fa4dc.web.app/">
-            Try AdaCAD 4.0 (beta)
+            to="https://adacad-4-1.web.app/">
+            Try AdaCAD 4.1 (beta)
           </Link>
         </div>
       </div>
