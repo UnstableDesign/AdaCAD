@@ -40,7 +40,7 @@ export const defaults = {
       zoom_ndx_mixer: 10,
       zoom_ndx_editor: 12,
       zoom_ndx_viewer: 7,
-      show_advanced_operations: true
+      show_advanced_operations: false
 
 }
 

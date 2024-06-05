@@ -2,6 +2,12 @@
     "examples": [
 
         {
+            "id": "TC2_lesson1",
+            "ext": "jpg",
+            "title":"Drafting for Jacquard: Lesson 1",
+            "desc":"This video walks through the process of making a simple draft for a jacquard loom. It shows how you can make a draft with the AdaCAD workspace and operators, how you can download the draft, and how you can load and weave it on a TC2 loom"
+        },
+        {
             "id": "material-calculus",
             "ext": "gif",
             "title":"Intro to Drafting as Material Calculus",
