@@ -626,7 +626,8 @@ export class AppComponent implements OnInit{
     return this.processFileData(result.data)
    }).then(data => {
 
-       
+    console.log("AFTER LOAD NEW FILE ", this.tree.nodes)
+
        if(source !== 'statechange'){
           if(this.tree.nodes.length > 0){
             this.selected_editor_mode = 'mixer';
@@ -637,6 +638,7 @@ export class AppComponent implements OnInit{
           this.selected_editor_mode = 'mixer'
        }
       });
+
     
   }
 

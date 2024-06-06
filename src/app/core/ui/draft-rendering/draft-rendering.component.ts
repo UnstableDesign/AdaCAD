@@ -258,20 +258,44 @@ export class DraftRenderingComponent implements OnInit {
     this.id = id;  
     
     if(id == -1) return;
+
+    let draft = this.tree.getDraft(id);
+   
+    if(draft == null){
+      console.error("COUNT NOT LOCATE DRAFT in Draft Rending", id, draft, this.tree.getNode(id));
+
+      return;
+    }
     
-    const loom_settings = this.tree.getLoomSettings(id);
-    const draft = this.tree.getDraft(id);
+    let loom_settings = this.tree.getLoomSettings(id);
+    if(loom_settings == null){
+      loom_settings = defaults.loom_settings;
+    }
+
+
     const loom = this.tree.getLoom(id);
+    if(loom == null){
+      this.frames = defaults.min_frames;
+      this.treadles = defaults.min_treadles;
+    }else{
+      this.frames = Math.max(numFrames(loom), loom_settings.frames);
+      this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
+    }
+  
+
+
+
     this.isFrame = isFrame(loom_settings);
     this.epi = loom_settings.epi;
+
+
     
     this.resetDirty();
 
     this.selected_loom_type = loom_settings.type;
     if(this.selected_loom_type == 'jacquard') this.dm.selectDraftEditSource('drawdown')
       
-    this.frames = Math.max(numFrames(loom), loom_settings.frames);
-    this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
+
     
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);

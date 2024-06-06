@@ -249,6 +249,7 @@ openInEditor(event: any){
   setPosition(pos: Point){
     this.topleft =  {x: pos.x, y:pos.y};
     let sd_container = document.getElementById('scale-'+this.id);
+    if(sd_container == null) return;
     sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
     sd_container.style.top =  this.topleft.y+"px";
     sd_container.style.left =  this.topleft.x+"px";
