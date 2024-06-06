@@ -208,6 +208,7 @@ export class SelectionComponent implements OnInit {
         }
       }
     }else if(this.getTargetId() === 'warp-materials-'+this.source+"-"+this.id){
+
       for(var i = 0; i < this.ms.getShuttles().length; i++){
         temp_copy.push([]);
         for(var j = 0; j < w; j++){
@@ -251,10 +252,10 @@ export class SelectionComponent implements OnInit {
           case 'weft-systems-'+this.source+"-"+this.id:
             temp_copy[i][j]= (draft.rowSystemMapping[draft_row] == j);
           break;
-          case 'warp-materials'+this.source+"-"+this.id:
+          case 'warp-materials-'+this.source+"-"+this.id:
             temp_copy[i][j]= (draft.colShuttleMapping[col] == i);
           break;
-          case 'weft-materials'+this.source+"-"+this.id:
+          case 'weft-materials-'+this.source+"-"+this.id:
             temp_copy[i][j]= (draft.rowShuttleMapping[draft_row] == j);
           break;
           default:
@@ -413,6 +414,7 @@ export class SelectionComponent implements OnInit {
     this.applyManipulation(type)
     .then(manipulated_copy => {
       this.copy = manipulated_copy;
+
 
     switch(this.getTargetId()){    
       case 'drawdown-'+this.source+"-"+this.id:
@@ -666,8 +668,6 @@ export class SelectionComponent implements OnInit {
   */
   onSelectStart(target: HTMLElement, start: Interlacement){
     if(!target) return;
-
-    console.log("SELECTION STARTED ON ", target, start)
     
     this.hide_actions = true;
     const draft = this.tree.getDraft(this.id);
