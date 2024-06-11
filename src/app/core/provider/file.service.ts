@@ -501,13 +501,13 @@ export class FileService {
 
       //force loom type to something with shafts;
       loom_settings.type = 'frame';
-      loom = await getLoomUtilByType(loom_settings.type).computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option);
+      loom = await getLoomUtilByType(loom_settings.type).computeLoomFromDrawdown(draft.drawdown, loom_settings);
 
      }
 
       const shuttles: Array<Material> = this.ms.getShuttles();
         //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
-      var fileContents = "[WIF]\nVersion=1.1\nDate=November 6, 2020\nDevelopers=Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=4.0\n[CONTENTS]";
+      var fileContents = "[WIF]\nVersion=1.1\nDate=June 11, 2024\nDevelopers=Emma Goodwill and Laura Devendorf, Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=4.1\n[CONTENTS]";
       var fileType = "text/plain";
 
       fileContents += "\nCOLOR PALETTE=yes\nWEAVING=yes\nWARP=yes\nWEFT=yes\nTIEUP=yes\nCOLOR TABLE=yes\nTHREADING=yes\nWARP COLORS=yes\nTREADLING=yes\nWEFT COLORS=yes\n";
@@ -543,6 +543,8 @@ export class FileService {
       fileContents += "\nColors=" + weftColors.length.toString();
 
       fileContents += "\n[TIEUP]\n";
+
+      console.log("Tieup:", loom.tieup)
 
       var treadles = [];
       for (var i =0; i < loom.tieup.length;i++) {
@@ -597,13 +599,19 @@ export class FileService {
         fileContents += (i+1).toString() + "=" + (draft.colShuttleMapping[(draft.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
       }
 
-      //THIS WILL ONLY WORK WTIH FRAME LOOM DRAFT STYLE
+      //THIS WILL ONLY WORK WITH FRAME LOOM DRAFT STYLE
       fileContents += "[TREADLING]\n";
       for (var i = 0; i < loom.treadling.length; i++) {
-        if (loom.treadling[i].length != 0 && loom.treadling[i][0] != -1){
-          fileContents += (i+1).toString() + "=" + (loom.treadling[i][0]+1).toString() + "\n";
+        if (loom.treadling[i].length != 0){
+
+          fileContents += (i+1).toString() + "="; 
+          const commaSeparated =  loom.treadling[i].map(el => (el+1).toString()).join(',');
+          fileContents += commaSeparated;
+          fileContents += "\n";
         }
       }
+
+      console.log("FILE CONTENTS: ", fileContents)
 
       fileContents += "[WEFT COLORS]\n";
       for (var i = 0; i < draft.rowShuttleMapping.length; i++) { // will likely have to change the way I import too

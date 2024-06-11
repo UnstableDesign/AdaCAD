@@ -87,7 +87,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     treadling:treadling_list
   }
 
-  return utils.computeDrawdownFromLoom(loom, 0).then(drawdown => {
+  return utils.computeDrawdownFromLoom(loom).then(drawdown => {
     draft.drawdown = drawdown;
     draft = updateWarpSystemsAndShuttles(draft, threading_draft)
     draft = updateWeftSystemsAndShuttles(draft, treadling_draft )

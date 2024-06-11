@@ -135,10 +135,10 @@ export class SubdraftComponent implements OnInit {
 
 
 
-   let sd_container = document.getElementById('scale-'+this.id);
-    sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    sd_container.style.top =  this.topleft.y+"px";
-    sd_container.style.left =  this.topleft.x+"px";
+  let sd_container = document.getElementById('scale-'+this.id);
+  sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
+  sd_container.style.top =  this.topleft.y+"px";
+  sd_container.style.left =  this.topleft.x+"px";
 
   }
 
@@ -416,7 +416,7 @@ openInEditor(event: any){
 
   
 
-  dragStart = ($event: CdkDragStart) => {
+  dragStart($event: CdkDragStart){
 
 
     this.moving = true;

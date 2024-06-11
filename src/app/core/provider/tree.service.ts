@@ -231,7 +231,7 @@ export class TreeService {
     this.getDraftNodes().forEach(dn => {
     
       const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings, this.ws.selected_origin_option).then(loom => {
+      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings).then(loom => {
         dn.loom = loom;
       });
     });
@@ -1225,7 +1225,7 @@ clearDraft(dn: DraftNode){
       let loom_settings = (dn.loom_settings !== null) ? dn.loom_settings : defaults.loom_settings;
 
       const loom_utils = getLoomUtilByType(loom_settings.type);
-      loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, loom_settings, this.ws.selected_origin_option))
+      loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, loom_settings))
      
     });
      return Promise.all(loom_fns);
@@ -1409,7 +1409,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(dn !== null && dn !== undefined) dn.loom = copyLoom(loom);
 
     const utils = getLoomUtilByType(loom_settings.type);
-    return utils.computeDrawdownFromLoom(loom, this.ws.selected_origin_option)
+    return utils.computeDrawdownFromLoom(loom)
     .then(drawdown => {
       dn.draft.drawdown = drawdown;
       return Promise.resolve(dn.draft);
@@ -2241,7 +2241,7 @@ isValidIOTuple(io: IOTuple) : boolean {
    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings, this.ws.selected_origin_option)
+    return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings)
     .then(loom =>{
       dn.loom = loom;
       return Promise.resolve(loom);

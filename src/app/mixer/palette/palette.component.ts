@@ -2,7 +2,7 @@ import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
 import { defaults } from '../../core/model/defaults';
-import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Node, Point, Cell, OpNode, Operation} from '../../core/model/datatypes';
+import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, NodeComponentProxy, Note, Node, Point, Cell, OpNode, Operation, LoomSettings, Loom} from '../../core/model/datatypes';
 import { copyDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
@@ -20,6 +20,7 @@ import { OperationComponent } from './operation/operation.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { ViewerService } from '../../core/provider/viewer.service';
+import { copyLoom, copyLoomSettings, getLoomUtilByType } from '../../core/model/looms';
 
 @Component({
   selector: 'app-palette',
@@ -536,7 +537,7 @@ handlePan(diff: Point){
    * @param d a Draft object for this component to contain
    * @returns the created subdraft instance
    */
-  createSubDraft(d: Draft, parent: number) : Promise<SubdraftComponent>{
+  createSubDraft(d: Draft, loom: Loom, loom_settings: LoomSettings) : Promise<SubdraftComponent>{
     
 
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
@@ -549,7 +550,7 @@ handlePan(diff: Point){
     subdraft.instance.scale = this.zs.getMixerZoom();
 
 
-    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, null, null, true, 1)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, loom, loom_settings, true, 1)
       .then(d => {
         return Promise.resolve(subdraft.instance);
         }
@@ -773,7 +774,13 @@ handlePan(diff: Point){
    * @param d 
    */
   addSubdraftFromDraft(d: Draft){
-    this.createSubDraft(d, -1).then(sd => {
+    let ls = defaults.loom_settings;
+
+    let util = getLoomUtilByType(ls.type);
+    util.computeLoomFromDrawdown(d.drawdown,ls)
+    .then(loom => {
+      return this.createSubDraft(d, loom, ls)
+    }).then(sd => {
       let tr = this.calculateInitialLocation();
       sd.topleft ={x: tr.x, y: tr.y};
       this.addTimelineState();
@@ -790,10 +797,12 @@ handlePan(diff: Point){
 
     
     let d = copyDraft(draftnode.draft);
+    let l = copyLoom(draftnode.loom);
+    let ls = copyLoomSettings(draftnode.loom_settings);
     d.id = utilInstance.generateId(8);
 
 
-    return this.createSubDraft(d, -1).then(sd => {
+    return this.createSubDraft(d, l, ls).then(sd => {
       let tr = this.calculateInitialLocation();
       sd.topleft ={x: tr.x, y: tr.y};
       this.addTimelineState();
@@ -1048,20 +1057,27 @@ handlePan(diff: Point){
     onDuplicateSubdraftCalled(obj: any){
         if(obj === null) return;
 
-        const sd = <SubdraftComponent> this.tree.getComponent(obj.id);
         const sd_draft = <Draft> this.tree.getDraft(obj.id);
+        const sd_loom = <Loom> this.tree.getLoom(obj.id);
+        const sd_ls = <LoomSettings> this.tree.getLoomSettings(obj.id);
         
+        let new_draft = initDraftWithParams(
+          {wefts: wefts(sd_draft.drawdown), 
+            warps: warps(sd_draft.drawdown), 
+            drawdown: sd_draft.drawdown.slice(), 
+            rowShuttleMapping: sd_draft.rowShuttleMapping.slice(),
+            colShuttleMapping: sd_draft.colShuttleMapping.slice(),
+            rowSystemMapping: sd_draft.rowSystemMapping.slice(),
+            colSystemMapping: sd_draft.colSystemMapping.slice(),
+            gen_name: getDraftName(sd_draft)+" copy"
+          });
+        
+      
+      let new_loom = copyLoom(sd_loom)
+      let new_ls = copyLoomSettings(sd_ls)
 
-      this.createSubDraft(initDraftWithParams(
-        {wefts: wefts(sd_draft.drawdown), 
-          warps: warps(sd_draft.drawdown), 
-          drawdown: sd_draft.drawdown.slice(), 
-          rowShuttleMapping: sd_draft.rowShuttleMapping.slice(),
-          colShuttleMapping: sd_draft.colShuttleMapping.slice(),
-          rowSystemMapping: sd_draft.rowSystemMapping.slice(),
-          colSystemMapping: sd_draft.colSystemMapping.slice(),
-          gen_name: getDraftName(sd_draft)+" copy"
-        }), -1)
+
+      this.createSubDraft(new_draft, new_loom, new_ls)
         .then(new_sd => {
 
           const orig_size = document.getElementById('scale-'+obj.id);

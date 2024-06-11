@@ -326,7 +326,7 @@ export class AppComponent implements OnInit{
     }
   
      let loom_util = getLoomUtilByType(loom_settings.type);
-      return loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings, this.ws.selected_origin_option)
+      return loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings)
       .then(loom => {
         return this.createNewDraftOnMixer(draft, loom, loom_settings)})
     
@@ -625,8 +625,6 @@ export class AppComponent implements OnInit{
     this.filename_form.setValue(this.files.getCurrentFileName())
     return this.processFileData(result.data)
    }).then(data => {
-
-    console.log("AFTER LOAD NEW FILE ", this.tree.nodes)
 
        if(source !== 'statechange'){
           if(this.tree.nodes.length > 0){
