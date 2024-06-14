@@ -289,7 +289,6 @@ export class SelectionComponent implements OnInit {
   public applyManipulation(op_name) : Promise<Drawdown>{
 
     const copy_draft = initDraftWithParams({warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy});
-    console.log("APPLY MANIPULATION ", op_name, copy_draft)
 
     let op: Operation;
     let drafts: Array<OpInput> = [];
@@ -386,7 +385,6 @@ export class SelectionComponent implements OnInit {
         }
         return op.perform(params, drafts)
         .then(manipulated_draft => {
-          console.log("MANIPULATED DRAFT ", manipulated_draft)
           return Promise.resolve(manipulated_draft[0].drawdown) 
       })
      
@@ -721,7 +719,6 @@ export class SelectionComponent implements OnInit {
     this.start = start;
     this.hide_parent = false;
     
-    console.log("TARGET ID ", target.id)
     switch(target.id){
       
       case 'treadling-'+this.source+"-"+this.id:    
