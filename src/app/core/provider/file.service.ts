@@ -611,7 +611,6 @@ export class FileService {
         }
       }
 
-      console.log("FILE CONTENTS: ", fileContents)
 
       fileContents += "[WEFT COLORS]\n";
       for (var i = 0; i < draft.rowShuttleMapping.length; i++) { // will likely have to change the way I import too

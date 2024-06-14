@@ -153,6 +153,7 @@ export class EditorComponent implements OnInit {
     * placholder for any code we need to run when we focus on this view
     */
     onFocus()  {
+      console.log("ON FOCUS ", this.id)
       if(this.id != -1){
         this.loadDraft(this.id);
       }
@@ -174,7 +175,7 @@ export class EditorComponent implements OnInit {
     */
     
     detailDraftEdited(id:number){
-      this.addTimelineState();
+      this.saveChanges.emit();
       
     }
     
@@ -206,6 +207,9 @@ export class EditorComponent implements OnInit {
       
     }
     
+
+  
+
     
     /**
     * given an id, it proceeds to load the draft and loom associated with that id. 
@@ -222,10 +226,7 @@ export class EditorComponent implements OnInit {
 
       if(this.parentOp !== '') this.weaveRef.view_only = true;
       else this.weaveRef.view_only = false;
-      
-
-      //reset the dirty value every time the window is open
-      this.weaveRef.resetDirty();
+    
       
       if(this.loom.type == 'jacquard' && this.dm.cur_draft_edit_source == 'loom'){
         this.dm.selectDraftEditSource('drawdown');
@@ -265,16 +266,17 @@ export class EditorComponent implements OnInit {
     
     public drawdownUpdated(){
       this.vs.updateViewer();
+      this.saveChanges.emit();
     }  
     
     
-    addTimelineState(){
+    // addTimelineState(){
       
-      this.fs.saver.ada()
-      .then(so => {
-        this.state.addMixerHistoryState(so);
-      });
-    }
+    //   this.fs.saver.ada()
+    //   .then(so => {
+    //     this.state.addMixerHistoryState(so);
+    //   });
+    // }
     
 
     public redraw(){
@@ -288,7 +290,9 @@ export class EditorComponent implements OnInit {
       const draft = this.tree.getDraft(this.id);
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
-      
+      this.weaveRef.isFrame = isFrame(loom_settings);
+      this.weaveRef.epi = loom_settings.epi;
+      this.weaveRef.selected_loom_type = loom_settings.type;
       this.weaveRef.redraw(draft, loom, loom_settings, {
         drawdown: true, 
         loom:true, 
@@ -297,8 +301,7 @@ export class EditorComponent implements OnInit {
         warp_materials: true,
         weft_materials:true
       });    
-      this.weaveRef.isFrame = isFrame(loom_settings);
-      this.weaveRef.selected_loom_type = loom_settings.type;
+     
       if(loom_settings.type == 'jacquard')
         this.dm.selectDraftEditSource('drawdown')
       
@@ -445,8 +448,8 @@ export class EditorComponent implements OnInit {
         }
         
         renderChange(){
+          //the renderer is listening for changes to scale and will redraw
           this.scale = this.zs.getEditorZoom();
-          // this.weaveRef.redrawAll();
         }
         
         

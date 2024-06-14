@@ -16,7 +16,10 @@
         <div class="warp-systems-container origin{{ws.selected_origin_option}}">
         
   
-          <div class="warp-systems-text {{source}} origin{{ws.selected_origin_option}}"  id="warp-systems-text-{{source}}-{{id}}">
+          <div 
+            class="warp-systems-text {{source}} origin{{ws.selected_origin_option}}" 
+            id="warp-systems-text-{{source}}-{{id}}"
+            [style.width]="warp_text_div_width"> 
               
             <div class="warp-system-col origin{{ws.selected_origin_option}}" 
                 [style.width.px] = "cell_size"
@@ -25,11 +28,11 @@
               <div class="warp-number-container">
                 
                 <span *ngIf="j % epi == 0" class="warp_number origin{{ws.selected_origin_option}}">
-                    {{j}}
+                    <span class='rotate90'>{{j}}</span>
                   </span>      
                 
                   <span *ngIf="j == colSystemMapping.length-1" class="warp_number_last origin{{ws.selected_origin_option}}">
-                   {{j+1}}
+                    <span class='rotate90'>{{j+1}}</span>
                   </span>       
               </div>
   
@@ -111,7 +114,10 @@
   
         <div class="weft-systems-container  {{source}} origin{{ws.selected_origin_option}}">
 
-          <div class="weft-systems-text {{source}} origin{{ws.selected_origin_option}}" id="weft-systems-text-{{source}}-{{id}}">
+          <div 
+          class="weft-systems-text {{source}} origin{{ws.selected_origin_option}}" 
+          id="weft-systems-text-{{source}}-{{id}}"
+          [style.height]="weft_text_div_height">
 
             <div class="weft-system-row origin{{ws.selected_origin_option}}" 
             [style.height.px]="cell_size"

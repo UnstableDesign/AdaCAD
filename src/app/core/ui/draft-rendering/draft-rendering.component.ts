@@ -40,7 +40,6 @@ export class DraftRenderingComponent implements OnInit {
   @Output() onDesignModeChange = new EventEmitter();
   @Output() onMaterialChange = new EventEmitter();
   @Output() onLoomSettingsUpdated = new EventEmitter();
-  @Output() onDraftChanged = new EventEmitter();
   
   
   hold_copy_for_paste: boolean = false;
@@ -121,9 +120,7 @@ export class DraftRenderingComponent implements OnInit {
   expanded: boolean = false;
   
   system_codes: Array<string> = [];
-    
-  is_dirty: boolean = false;
-  
+      
   selected_material_id: number = 0;
       /**
   * flag defining if there needs to be a recomputation of the draft on Mouse Up
@@ -131,7 +128,14 @@ export class DraftRenderingComponent implements OnInit {
   flag_recompute: boolean;
 
   flag_history: boolean;
+
+  //use this to set the current width of the warp text. This will change with the warp canvas changes
+  warp_text_div_width: string = '1000px';
   
+  //use this to set the current width of the warp text. This will change with the warp canvas changes
+  weft_text_div_height: string = '1000px';
+  
+
   /// ANGULAR FUNCTIONS
   /**
   * Creates the element reference.
@@ -190,7 +194,8 @@ export class DraftRenderingComponent implements OnInit {
     
     this.divWesy =  document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
     this.divWasy =  document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
-      
+    console.log("AFTER VIEW INIT ON ", this.id)
+    this.refreshWarpAndWeftSystemNumbering();
         
   }
 
@@ -254,7 +259,7 @@ export class DraftRenderingComponent implements OnInit {
   
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {  
-        
+    console.log("NEW DRAFT LOADED ", id)
     this.id = id;  
     
     if(id == -1) return;
@@ -289,8 +294,6 @@ export class DraftRenderingComponent implements OnInit {
     this.epi = loom_settings.epi;
 
 
-    
-    this.resetDirty();
 
     this.selected_loom_type = loom_settings.type;
     if(this.selected_loom_type == 'jacquard') this.dm.selectDraftEditSource('drawdown')
@@ -616,25 +619,17 @@ export class DraftRenderingComponent implements OnInit {
       }
       
       
-      public markDirty(){
-        this.is_dirty = true;
-        this.onDraftChanged.emit(this.id);
-      }  
+
       
-      
-      public resetDirty(){
-        this.is_dirty = false;
-        
-      }  
-      
+ 
       
       public incrementWeftSystem(i: number){
-        this.markDirty();
         const draft = this.tree.getDraft(this.id);
         var newSystem = this.ss.getNextWeftSystem(i, draft);
         draft.rowSystemMapping[i] = newSystem;
         this.rowSystemMapping = draft.rowSystemMapping.slice();
         this.tree.setDraftOnly(this.id, draft);
+        this.onDrawdownUpdated.emit(this.id);
         this.redrawAll();
         
         
@@ -643,9 +638,7 @@ export class DraftRenderingComponent implements OnInit {
       
       
       
-      incrementWeftMaterial(si: number){
-        this.markDirty();
-        
+      incrementWeftMaterial(si: number){        
         const draft = this.tree.getDraft(this.id);
         if(this.dm.isSelectedPencil('material')){
           draft.rowShuttleMapping[si] = this.selected_material_id;
@@ -665,11 +658,7 @@ export class DraftRenderingComponent implements OnInit {
       
       
       
-      public incrementWarpSystem(j: number){
-
-
-        this.markDirty();
-        
+      public incrementWarpSystem(j: number){        
         
         const draft = this.tree.getDraft(this.id);
         var newSystem = this.ss.getNextWarpSystem(j,draft);
@@ -678,13 +667,14 @@ export class DraftRenderingComponent implements OnInit {
         
         this.tree.setDraftOnly(this.id, draft);
         this.redrawAll();
+        this.onDrawdownUpdated.emit(this.id);
+
         
         // this.cdRef.detectChanges();
         
       }
       
       incrementWarpMaterial(col: number){
-        this.markDirty();
         const warp = col;
         
         const draft = this.tree.getDraft(this.id);
@@ -728,7 +718,6 @@ export class DraftRenderingComponent implements OnInit {
         
         
         if(hasCell(draft.drawdown, currentPos.i, currentPos.j)){
-          this.markDirty();
           
           // Set the heddles based on the brush.
           switch (this.dm.cur_pencil) {
@@ -784,7 +773,6 @@ export class DraftRenderingComponent implements OnInit {
         
         
         if (isInUserTieupRange(loom, loom_settings,  currentPos)){
-          this.markDirty();
           
           
           
@@ -831,7 +819,6 @@ export class DraftRenderingComponent implements OnInit {
         if (isInUserThreadingRange(loom, loom_settings, currentPos)){
           var val;
           const draft = this.tree.getDraft(this.id)
-          this.markDirty();
           
           
           switch (this.dm.cur_pencil) {
@@ -874,7 +861,6 @@ export class DraftRenderingComponent implements OnInit {
       private drawOnTreadling(loom: Loom, loom_settings: LoomSettings, currentPos: Interlacement ) {
         
         if (this.canvases.treadling == null || !currentPos) { return; }
-        this.markDirty();
         const draft = this.tree.getDraft(this.id)
         var val = false;
         
@@ -982,7 +968,6 @@ export class DraftRenderingComponent implements OnInit {
       }
       
       public redrawAll(){
-
         if(this.id == -1) return;
         const draft = this.tree.getDraft(this.id)
         const loom = this.tree.getLoom(this.id)
@@ -1005,13 +990,12 @@ export class DraftRenderingComponent implements OnInit {
       
       //takes inputs about what to redraw
       public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any) : Promise<boolean>{
-
         if(draft == null) return;
 
         this.colSystemMapping = draft.colSystemMapping;
         this.rowSystemMapping = draft.rowSystemMapping;
 
-        
+
         let rf: RenderingFlags = {
           u_drawdown: (flags.drawdown !== undefined && flags.drawdown == true), 
           u_threading: (flags.loom !== undefined  && flags.loom == true),
@@ -1028,10 +1012,7 @@ export class DraftRenderingComponent implements OnInit {
 
         return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
           this.render.rescale(draft, loom, loom_settings, this.scale, this.canvases)
-          let warpdatadiv = document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
-          let weftdatadiv = document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
-          if(warpdatadiv !== null) warpdatadiv.style.width = this.canvases.warp_mats.style.width;
-          if(weftdatadiv !== null) weftdatadiv.style.height = this.canvases.weft_mats.style.height;
+          this.refreshWarpAndWeftSystemNumbering();
           this.selection.redraw();     
 
           return Promise.resolve(res);
@@ -1041,6 +1022,17 @@ export class DraftRenderingComponent implements OnInit {
         
         
         
+      }
+
+      refreshWarpAndWeftSystemNumbering(){
+        // let warpdatadiv = document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
+        // let weftdatadiv = document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
+        // console.log("REFRESH NUMBERING ", this.source, warpdatadiv, weftdatadiv)
+        // if(warpdatadiv !== null) warpdatadiv.style.width = this.canvases.warp_mats.style.width;
+        // if(weftdatadiv !== null) weftdatadiv.style.height = this.canvases.weft_mats.style.height;
+        this.weft_text_div_height = this.canvases.weft_mats.style.height;
+        this.warp_text_div_width = this.canvases.warp_mats.style.width;
+
       }
 
        //takes inputs about what to redraw

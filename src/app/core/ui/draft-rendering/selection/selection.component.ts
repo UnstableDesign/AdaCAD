@@ -119,6 +119,7 @@ export class SelectionComponent implements OnInit {
       break;
 
       case 'erase': 
+      this.copyArea();
       this.onPaste('erase');
       break;
       
@@ -287,6 +288,7 @@ export class SelectionComponent implements OnInit {
   public applyManipulation(op_name) : Promise<Drawdown>{
 
     const copy_draft = initDraftWithParams({warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy});
+    console.log("APPLY MANIPULATION ", op_name, copy_draft)
 
     let op: Operation;
     let drafts: Array<OpInput> = [];
@@ -383,6 +385,7 @@ export class SelectionComponent implements OnInit {
         }
         return op.perform(params, drafts)
         .then(manipulated_draft => {
+          console.log("MANIPULATED DRAFT ", manipulated_draft)
           return Promise.resolve(manipulated_draft[0].drawdown) 
       })
      
@@ -453,6 +456,7 @@ export class SelectionComponent implements OnInit {
         });
         break;
       case 'treadling-'+this.source+"-"+this.id:
+        console.log("LOOM AND COPY ", loom, this.copy)
 
         loom_util.pasteTreadling(loom, this.copy, {i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null}, this.getWidth(), this.getHeight());
         

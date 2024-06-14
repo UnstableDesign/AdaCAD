@@ -48,12 +48,16 @@ export class LoomComponent {
 
     this.id = changes['id'].currentValue;
     if(this.id !== -1){
+
       const draft = this.tree.getDraft(this.id);
+      const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
 
       this.units = loom_settings.units;
       this.type = loom_settings.type;
       this.epi = loom_settings.epi;
+      if(loom !== null) this.frames = numFrames(loom)
+      if(loom !== null) this.treadles = numTreadles(loom)
       this.warps = warps(draft.drawdown);
       this.wefts = wefts(draft.drawdown);
 
@@ -443,26 +447,28 @@ export class LoomComponent {
   
       
 
-      epiChange(f: NgForm) {
+  epiChange(f: NgForm) {
 
-        if(this.id == -1) return;
-      
-        const loom_settings = this.tree.getLoomSettings(this.id);
-      
-        if(!f.value.epi){
-          f.value.epi = 1;
-          loom_settings.epi = f.value.epi;
-          this.tree.setLoomSettings(this.id, loom_settings);
-        } 
-        
-        //this.loom.overloadEpi(f.value.epi);
-        this.epi = f.value.epi;
-        this.updateWidth();
-        // this.loomSettingsUpdated();
-        // this.materialChange();
-      
-      
-        }
+    if(this.id == -1) return;
+  
+    const loom_settings = this.tree.getLoomSettings(this.id);
+  
+    if(!f.value.epi){
+      f.value.epi = 1;
+      loom_settings.epi = f.value.epi;
+      this.tree.setLoomSettings(this.id, loom_settings);
+    } 
+    
+    loom_settings.epi = f.value.epi;
+    this.epi = f.value.epi;
+    this.updateWidth();
+    this.loomSettingsUpdated.emit();
+
+
+
+  
+  
+  }
       
 
 
