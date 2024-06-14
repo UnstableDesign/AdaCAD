@@ -1259,6 +1259,11 @@ export class DraftRenderingComponent implements OnInit {
         
         
       }
+
+      public afterSelectAction(){
+        const draft = this.tree.getDraft(this.id);
+        this.onDrawdownUpdated.emit(draft);
+      }
       
       public cloneRow(i: number) {
         

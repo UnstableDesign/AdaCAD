@@ -24,6 +24,7 @@ export class SelectionComponent implements OnInit {
   @Input('scale') scale: number;
   @Output() onSelectionEnd: any = new EventEmitter();
   @Output() forceRedraw: any = new EventEmitter();
+  @Output() saveAction: any = new EventEmitter();
 
 
 
@@ -434,6 +435,7 @@ export class SelectionComponent implements OnInit {
         this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.tree.setLoom(this.id, loom);
+          this.saveAction.emit();
           this.forceRedraw.emit();
         });
        break;
@@ -443,6 +445,7 @@ export class SelectionComponent implements OnInit {
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.tree.setDraftOnly(this.id, draft);
+          this.saveAction.emit();
           this.forceRedraw.emit();
         });
         break;
@@ -452,6 +455,7 @@ export class SelectionComponent implements OnInit {
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.tree.setLoom(this.id, loom);
+          this.saveAction.emit();
           this.forceRedraw.emit();        
         });
         break;
@@ -463,6 +467,7 @@ export class SelectionComponent implements OnInit {
         this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.tree.setLoom(this.id, loom);
+          this.saveAction.emit();
           this.forceRedraw.emit();
   
         });
@@ -487,6 +492,8 @@ export class SelectionComponent implements OnInit {
 
             this.tree.setDraftOnly(this.id, draft);
             this.forceRedraw.emit();
+            this.saveAction.emit();
+
 
           break;
       case 'warp-materials-'+this.source+"-"+this.id:
@@ -508,6 +515,8 @@ export class SelectionComponent implements OnInit {
 
           this.tree.setDraftOnly(this.id, draft);
           this.forceRedraw.emit();
+          this.saveAction.emit();
+
 
         break;
 
@@ -530,6 +539,8 @@ export class SelectionComponent implements OnInit {
 
             this.tree.setDraftOnly(this.id, draft);
             this.forceRedraw.emit();
+            this.saveAction.emit();
+
 
           break;
 
@@ -552,6 +563,8 @@ export class SelectionComponent implements OnInit {
   
               this.tree.setDraftOnly(this.id, draft);
               this.forceRedraw.emit();
+              this.saveAction.emit();
+
   
             break;
      }

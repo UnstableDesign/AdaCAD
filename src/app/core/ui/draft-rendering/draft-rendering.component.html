@@ -8,6 +8,7 @@
     [scale]="scale"
     (onSelectionEnd)="onSelectionEnd()"
     (forceRedraw)="redrawAll()"
+    (saveAction)="afterSelectAction()"
     ></app-selection>
   
     <div class="draft-top {{source}} origin{{ws.selected_origin_option}}">
