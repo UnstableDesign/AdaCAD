@@ -26,6 +26,8 @@ const config = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
+  
+
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
@@ -80,6 +82,12 @@ const config = {
             position: 'left',
             label: 'Develop',
           },
+          {
+            type: 'docSidebar',
+            sidebarId: 'communityDocsSidebar',
+            position: 'left',
+            label: 'Community',
+          },
           {to: '/blog', label: 'Blog', position: 'left'},
           {
             href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
@@ -106,6 +114,10 @@ const config = {
               {
                 label: 'Developer Documentation',
                 to: 'docs/howtodevelop/install',
+              },
+              {
+                label: 'Community',
+                to: 'docs/community/',
               },
               {
                 label: 'Blog',

@@ -1,6 +1,6 @@
 # AdaCAD Documentation
 
-This repository holds the content that is mirrored on https://docs.adacad.org. The website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+This repository holds the content that is mirrored on https://docs.adacad.org. The website is built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator.
 
 
 ## AdaCAD Documentation

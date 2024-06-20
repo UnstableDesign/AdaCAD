@@ -17,13 +17,8 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button adacad button--secondary button--lg"
-            to="http://adacad.org">
-            Use AdaCAD 3.0 
-          </Link>
-          <Link
-            className="button beta button--secondary button--lg"
-            to="https://adacad-4-1.web.app/">
-            Try AdaCAD 4.1 (beta)
+            to="/docs/howtouse/getting-started">
+            Get Started
           </Link>
         </div>
       </div>

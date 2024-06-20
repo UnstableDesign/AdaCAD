@@ -1,8 +1,16 @@
 ---
 sidebar_position: 3
+tags: [Jacquard, TC2, AdaCAD 3, AdaCAD 4]
 ---
 
 # Create Lattice Structures Using Layer Notation
+
+:::tip
+
+Follow along with this example in AdaCAD 4: [Lattice Structures](https://adacad-4-1.web.app/?ex=sample7b)
+
+:::
+
 In this tutorial, we are taking inspiration from one of Elizabeth Meiklejohn's samples from the [2023 Experimental Weaving Residency](https://unstable.design/2023-residency-in-review/). In this sample, four layers interlock to create a lattice structure. Elizabeth wove in Elastic floats between layers to pull the ends together and puffing up the structure. The elastic also allows you to pull out the sides to collapse the structure. 
 
 ![file](./img/lattice_open.jpg)

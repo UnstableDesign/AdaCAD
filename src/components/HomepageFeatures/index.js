@@ -5,19 +5,19 @@ import styles from './styles.module.css';
 const FeatureList = [
   {
     title: 'Parametric Design For Woven Structures',
-    img: require('@site/static/img/drawdownexperiments.gif').default,
+    img: require('@site/static/img/layer_example.gif').default,
     description: (
       <>
-Instead of filling a blank canvas with your drafts and bindings, in AdaCAD, you grow drafts from the ground up by combining different operations. This makes woven structure design algorithmic and flexible. 
+Instead of filling a blank canvas with your drafts and bindings, in AdaCAD, you grow drafts from the ground up by combining different operations. This makes woven structure design algorithmic and playful. 
 </>
     ),
   },
   {
-    title: 'Designed for Smart Textiles',
-    img: require('@site/static/img/smarttextiles.jpg').default,
+    title: 'Designed for Experimental Weaving',
+    img: require('@site/static/img/sample7b.jpg').default,
     description: (
       <>
-        AdaCAD emerged to address design concerns for embedding electronics in textiles. We learned you can't do this without first designing complex woven structures. 
+        AdaCAD is developed in conversation with experimental weavers across fiber arts and engineering and, thus, offers specific support for complex structure development. 
       </>
     ),
   },
@@ -26,7 +26,7 @@ Instead of filling a blank canvas with your drafts and bindings, in AdaCAD, you 
     img: require('@site/static/img/code.png').default,
     description: (
       <>
-        AdaCAD is an open-source tool, meaning that anyone can add to the code base to add new operations. 
+        AdaCAD is an open-source tool, meaning that anyone can add to the code base to add new operations and features. 
       </>
     ),
   },

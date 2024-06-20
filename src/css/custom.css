@@ -38,6 +38,12 @@
 }
 
 img{
+  max-width: 800px; 
   object-fit: scale-down;
-  height: 600px;
+}
+
+iframe {
+  display: block;
+  object-fit:scale-down;
+  padding: 1em;
 }
