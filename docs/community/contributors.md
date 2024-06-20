@@ -1,3 +1,2 @@
-# Contribtor
+# Contributors
 
-sdlkfjslkdfjlsdkfjl
