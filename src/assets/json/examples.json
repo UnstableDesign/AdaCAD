@@ -31,14 +31,7 @@
             "ext": "png",
             "title": "Lattice Structures",
             "desc":"We recreate one of Elizabeth Meiklejohn's Samples from the 2023 Experimental Weaving Residency in AdaCAD for those who are interesting in making stretchy, multi-layer, lattice structures"
-        },
-        {
-            "id": "shading",
-            "ext": "png",
-            "title":"Shaded Structures",
-            "desc":"A few different examples of how AdaCAD structures can be leveraged to make shaded structures"
         }
-
 
 
     ]

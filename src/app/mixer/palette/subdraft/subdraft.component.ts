@@ -462,7 +462,7 @@ openInEditor(event: any){
     sd_container.style.top =  this.topleft.y+"px";
     sd_container.style.left =  this.topleft.x+"px";
 
-   // this.onSubdraftMove.emit({id: this.id, point: this.topleft});
+    this.onSubdraftMove.emit({id: this.id, point: this.topleft});
 
   }
 

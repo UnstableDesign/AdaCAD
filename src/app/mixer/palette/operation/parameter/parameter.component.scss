@@ -42,14 +42,19 @@
 //     font-weight: bold;
 // }
 
-.number_input .mat-mdc-form-field-infix,
-.string-input .mat-mdc-form-field-infix
+.number_input .mat-mdc-form-field-infix
  {
     font-size: 24px;
     font-weight: bold;
     width: 90px;
 }
 
+.string-input .mat-mdc-form-field-infix
+ {
+    font-size: 24px;
+    font-weight: bold;
+    width: max-content;
+}
 
 
 

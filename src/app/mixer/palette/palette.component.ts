@@ -2229,6 +2229,8 @@ pasteConnection(from: number, to: number, inlet: number){
    */
   subdraftMoved(obj: any){
 
+    console.log("MOVE SUBDRAFT ", obj)
+
       if(obj === null) return;
   
       //get the reference to the draft that's moving
