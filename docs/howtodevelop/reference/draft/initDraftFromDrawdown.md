@@ -5,11 +5,11 @@ In many operations, you'll design the drawdown first, and then want to create a 
 
 ## Parameters
 
-[Drawdown](drawdown)
+[Drawdown](../drawdown/drawdown.md)
 
 
 ## Returns
-[Draft](draft)
+[Draft](./draft.md)
 
 
 

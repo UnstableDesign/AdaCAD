@@ -10,7 +10,7 @@ the current Sequence.OneD object
 
 ## Implementation
 
-```
+```tsx
 let seq_a = new Sequence.OneD([0,0,1,1])
 let seq_b = new Sequence.OneD([0,0,1,1,1,1])
 seq_a.matchSize(seq_b)
@@ -19,7 +19,7 @@ seq_a.matchSize(seq_b)
 After calling this operation, the seq_a would be [1, 1, 0, 0, 2, 2]. 
 
 
-```
+```tsx
 let seq_a = new Sequence.OneD([0,0,1,1, 1, 1])
 let seq_b = new Sequence.OneD([0,0,1,1])
 seq_a.matchSize(seq_b)

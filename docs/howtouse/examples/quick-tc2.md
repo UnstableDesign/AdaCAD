@@ -29,7 +29,7 @@ There are many other workflows that can make valid drafts for the TC2. For pictu
 
 
 ## Upload to your TC2
-When you are ready to upload and weave on a TC2, follow the instructions at [Getting Started -> Weave AdaCAD Drafts on the TC2](../getting-started/exporttoTC2.md)
+When you are ready to upload and weave on a TC2, follow the instructions at [Getting Started -> Weave AdaCAD Drafts on the TC2](../getting-started/weave.md)
 
 
 More information: 

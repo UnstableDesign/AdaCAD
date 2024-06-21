@@ -3,7 +3,7 @@ Returns a boolean value describing the value of this heddle as true, false, or u
 
 
 ## Parameters
-[Cell](cell)
+[Cell](./cell.md)
 
 ## Returns
 boolean (corresponding to heddle up or down) or null (meaning heddle is unset)

@@ -3,7 +3,7 @@ Gets the number of warps in a drawdown
 
 
 ## Parameters
-[Drawdown](drawdown)
+[Drawdown](./drawdown.md)
 
 ## Returns
 number
@@ -13,7 +13,7 @@ The number of warps or 0 if the provided drawdown is null or empty
 
 ## Implementation
 
-```
+```tsx
 let n = warps(d);
 ```
 

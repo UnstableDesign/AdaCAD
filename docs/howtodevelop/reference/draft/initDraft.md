@@ -20,7 +20,7 @@ Initializes an empty draft object with a unique id with the following default va
 None
 
 ## Returns
-[Draft](draft)
+[Draft](./draft.md)
 
 
 

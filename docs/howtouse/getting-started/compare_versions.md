@@ -5,22 +5,37 @@ sidebar_position: 1
 # Compare Versions
 We are continually updating AdaCAD to experiment with new features so we offer different version of the software for you to use. Currently, you can use AdaCAD 4 or AdaCAD 3. We outline details of each version below. 
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-## AdaCAD 4 (Beta)
+
+<Tabs>
+<TabItem value="adacad4" label="AdaCAD 4 (beta)" default>
 
 ![file](./img/adacad4_screenshot.png)
 
 AdaCAD 4.0 is available at [https://adacad-4-1.web.app/](https://adacad-4-1.web.app/). 
 
 This is the "beta" version of the software which means that it is currently being tested few more bugs (which we rely on the community to tell us about!).
+</TabItem>
 
-## AdaCAD 3 (Stable)
+<TabItem value="adacad3" label="AdaCAD 3 (stable)" default>
 
+   
 ![file](./img/adacad3_screenshot.png)
 
 AdaCAD 3.0 is available at [https://adacad.org/](https://adacad.org/). 
 
 This is the "stable" version of the software which means that it has been tested more deeply than the beta version. 
+
+</TabItem>
+
+
+</Tabs>
+
+
+
+
 
 ## Compare Features 
 The following table lists a series of features as well as the availability of that feature in each version of AdaCAD

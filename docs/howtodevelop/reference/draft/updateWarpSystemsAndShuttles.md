@@ -3,12 +3,13 @@ This function takes the `colShuttleMapping` and `colSystemMapping` from one draf
 
 ## Parameters
 
-- to: [Draft](draft)
-- from: [Draft](draft)
+- to: [Draft](./draft.md)
+- from: [Draft](./draft.md)
+
 
 
 ## Returns
-[Draft](draft)
+[Draft](./draft.md)
 
 
 

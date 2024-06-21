@@ -13,7 +13,7 @@ a boolean to describe the value of this cell according to the following inputs:
 
 
 ## Returns
-[Cell](cell)
+[Cell](./cell.md)
 
 
 ## Implementation

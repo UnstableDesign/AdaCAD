@@ -11,7 +11,7 @@ the current Sequence.OneD object
 
 ## Implementation
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1])
 seq.invert()
 ```
@@ -19,7 +19,7 @@ seq.invert()
 After calling this operation, the sequence is [1, 1, 0, 0]. 
 
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1, 2, 2])
 seq.invert
 ```

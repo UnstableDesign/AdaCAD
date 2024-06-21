@@ -11,7 +11,7 @@ an array of numbers
 
 ## Implementation
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1])
 let a = seq.val()
 ```

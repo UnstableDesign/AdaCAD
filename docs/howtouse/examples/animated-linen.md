@@ -4,18 +4,18 @@ sidebar_position: 4
 
 # Shape Changing Cloth using Over-twisted Linen
 
+This tutorial explores the magical shape changing behaviors of overtwisted linen. This tutorial comes directly from [Kathryn Walters'](https://www.kmwalters.com/) PhD research as well as some experiments she explored during her time as an Experimental Weaver in Residence at the Unstable Design Lab. As she wrote in a 2024 publication about the project: 
+
+"Linen fibres swell as they absorb moisture [1](#references). In a high-twist yarn the fibres are locked into place, and their swelling is transferred to the yarn. Textiles woven with this ‘animated’ linen yarn may exploit this property and exhibit hygromorphic behaviour: changing form when wet or exposed to high humidity, and relaxing in dry conditions"
+
+
+
 ![file](img/animatedLinen.png)
-
-
-This tutorial explores the magical shape changing behaviors of overtwisted linen that Kathryn Walters explored during her time as an Experimental Weaver in Residence at the Unstable Design Lab. As she wrote in a 2024 publication about the project: 
-
-"Linen fibres swell as they absorb moisture. In a high-twist yarn the fibres are locked into place, and their swelling is transferred to the yarn. Textiles woven with this ‘animated’ linen yarn may exploit this property and exhibit hygromorphic behaviour: changing form when wet or exposed to high humidity, and relaxing in dry conditions"
-
 
 ## How it works
 Increasing twist angle requires adding extra energy into the yarn through the twisting process. This energy, in excess of what is required to hold the yarn structure together, makes the yarn unstable. It will attempt to reach a lower energy state by untwisting, if one end is free, or by folding and twisting on itself, if there is slack in a length of yarn. When the yarn is woven into a textile, the yarn can no longer move itself to reduce energy, but may have enough energy to curl the corners of the textile, or even cause it to roll.
 
-The other is the nature of the linen fibre. Flax bast cells, chains of which make up linen fibres, are unusual because they have an extremely thick cell wall, containing primarily cellulose, and an extreme height:width ratio of over 1,000 [16,25]. The cells, and therefore linen fibre and yarn, swell as they absorb water. When a linen yarn with a large twist angle absorbs water, the swelling pushes on the twist, increasing the energy in the yarn.
+The other factor that makes it work comes from the nature of the linen fibre. Flax bast cells, chains of which make up linen fibres, are unusual because they have an extremely thick cell wall, containing primarily cellulose, and an extreme height:width ratio of over 1,000 [2]. The cells, and therefore linen fibre and yarn, swell as they absorb water. When a linen yarn with a large twist angle absorbs water, the swelling pushes on the twist, increasing the energy in the yarn.
 
 
 
@@ -32,7 +32,7 @@ Kathryn experimented and explored several combinations of linen overtwisted to d
 
 
 1. using yarns with a high twist angle, between 20–40°
-2. integrating the linen with weave structures that have just-long-enough floats. In her research, she found that floats greater than 2mm and less than 14mm. Weave structure float length below 2 mm prevents pleating, while floats above 14 mm allow the yarn to escape the weave structure and spiral, reducing the pleating effect. She mainly used weft-faced satin weaves, which have long floats and evenly spaced binding points [12,18]. 
+2. integrating the linen with weave structures that have just-long-enough floats. In her research, she found that floats greater than 2mm and less than 14mm. Weave structure float length below 2 mm prevents pleating, while floats above 14 mm allow the yarn to escape the weave structure and spiral, reducing the pleating effect. She mainly used weft-faced satin weaves, which have long floats and evenly spaced binding points. 
 3. when weaving with multiple wefts in the same row (as in the checked examples below), the wefts were clasped together at the edge of each check, rather than carried across the whole width. This allowed the twisted yarn to be worked in continuously in each region and did not create space for the yarn to move without pulling upon its neighboring yarns. 
 
 
@@ -138,5 +138,19 @@ The graphics above show the resulting draft in both a zoomed out and zoomed in s
 
 ### Exploring Glitch Satin 
 
+![file](img/animatedlinen_glitchsatin.png)
+
+Unstable Design Lab PhD [Deanna Gelosi](https://www.deannagelosi.com/) collaborated with Kathryn to explore if computationally generated drafts might reveal new possibilities of cloth movement. While we didn't discover many new possibilities, we did generate some new satin producing functions to play with in AdaCAD. Specifically, *glitch satin* will randomly generate a satin structure across a user-specified number of ends and pics and contains warp and weft faced floats that range between two float lengths supplied by the user (min-float and max-float). A final [parameter](../glossary/parameter.md) called frequency controls determines the how likely the floats are to be longer or shorter end of the range you specified. 
 
 
+![file](img/animatedLinen-satin-glitch.png)
+
+
+
+## References
+
+1. Abdul Moudood, Anisur Rahman, Andreas Öchsner, Mainul Islam, and Gaston Francucci. 2019. Flax fiber and its composites: An overview of water and moisture absorption impact on their performance. Journal of Reinforced Plastics and Composites 38, 7 (April 2019), 323–339. https://doi.org/10.1177/0731684418818893
+
+2. Sara J. Kadolph. 2014. Textiles: Pearson New International Edition. Pearson Education, Essex, UK.
+
+3. Ann Richards. 2012. Weaving textiles that shape themselves. The Crowood Press, Ramsbury, UK.

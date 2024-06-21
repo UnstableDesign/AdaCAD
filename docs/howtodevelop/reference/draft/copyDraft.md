@@ -4,10 +4,10 @@ Copies a draft to a new draft object while retaining the old draft id. Functiona
 
 
 ## Parameters
-The [Draft](draft) you would like to copy
+The [Draft](./draft.md) you would like to copy
 
 ## Returns
-[Draft](draft)
+[Draft](./draft.md)
 
 
 

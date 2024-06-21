@@ -12,7 +12,7 @@ AdaCAD is an experimental workspace that applies [parametric design](./glossary/
 AdaCAD 3.0 is available at [https://adacad.org/](https://adacad.org/). This version is "stable" meaning that it has been tested extensively by the authors as well as the community. Learn more about using AdaCAD 3.0 on our:
 
 -  [compare versions](./compare_versions.md) page.
--  [AdaCAD 3.0 interface overview](./adacad3_interface.md) page.
+-  [AdaCAD 3.0 interface overview](./interface.md) page.
 
 ### AdaCAD 4 (Beta)
 
@@ -21,7 +21,7 @@ AdaCAD 4.0 is available at [https://adacad-4-1.web.app/](https://adacad-4-1.web.
 Learn more about using AdaCAD 4.0 on our:
 
 -  [compare versions](./compare_versions.md) page.
--  [AdaCAD 4.0 interface overview](./adacad4_interface.md) page.
+-  [AdaCAD 4.0 interface overview](./interface.md) page.
 
 ## Step 2: Create a Draft
 
@@ -37,9 +37,7 @@ No matter which version of AdaCAD you choose, you can create drafts two ways:
 Once you have created a draft, weave it on your loom. You can export drafts from AdaCAD to upload to computerized looms such as the TC2 or AVL Compudobby Loom. 
 
 Related resources: 
-- How to Upload to TC2 for AdaCAD 3.0
-- [How to Upload to the TC2 in AdaCAD 4.0](./exporttoTC2.md)
-- How to Upload to and AVL Compudobby in AdaCAD 4.0
+- [Weave AdaCAD Drafts](./weave.md)
 
 
 ## Step 4: Share and Contribute
@@ -53,13 +51,13 @@ To make AdaCAD accessible to weavers and other weave-curious folks, we do our be
 
 
 ### Tutorials
-For more information about the project and user guides, explore projects in our  [learn](../docs/category/learn/) category or on our [YouTube Channel](https://www.youtube.com/playlist?list=PLy2lIjrar_02XiqfJG8kLpeWOyCtDXeFJ)
+For more information about the project and user guides, explore projects in our Learn category or on our [YouTube Channel](https://www.youtube.com/playlist?list=PLy2lIjrar_02XiqfJG8kLpeWOyCtDXeFJ)
 
 
 ### Examples
-Each version of AdaCAD includes Examples that you can load directly. You can also browse examples in the [learn](../docs/category/learn/) section of this website. 
+Each version of AdaCAD includes Examples that you can load directly. You can also browse examples in the Learn section of this website. 
 
 ### Glossary
-Confused about the terminology we are using? This website also includes [glossary](../glossary/)!
+Confused about the terminology we are using? This website also includes [glossary](../glossary/glossary.md)!
 
 

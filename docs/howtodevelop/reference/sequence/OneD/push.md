@@ -12,7 +12,7 @@ the current Sequence.OneD object
 
 ## Implementation
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1])
 seq.push(2)
 ```
@@ -20,7 +20,7 @@ seq.push(2)
 After calling this operation, the sequence is [0, 0, 1, 1, 2]. 
 
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1])
 seq.push(true)
 ```

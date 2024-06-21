@@ -11,7 +11,7 @@ the current Sequence.OneD object
 
 ## Implementation
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1])
 seq.padTo(10)
 ```
@@ -19,7 +19,7 @@ seq.padTo(10)
 After calling this operation, the sequence is [0, 0, 1, 1, 2, 2, 2, 2, 2, 2]. 
 
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1])
 seq.padTo(2)
 ```

@@ -22,7 +22,7 @@ An object that contains any of the following fields:
 
 
 ## Returns
-[Draft](draft)
+[Draft](./draft.md)
 
 
 

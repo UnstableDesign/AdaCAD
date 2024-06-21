@@ -12,8 +12,8 @@ export type Drawdown = Array<Array<Cell>>;
 
 ## Related Functions
 
-- [warps](warps)
-- [wefts](wefts)
-- [hasCell](hasCell)
-- [isUp](isUp)
-- [setCellValue](setCellValue)
+- [warps](./warps.md)
+- [wefts](./wefts.md)
+- [hasCell](./hasCell.md)
+- [isUp](./isUp.md)
+- [setCellValue](./setCellValue.md)

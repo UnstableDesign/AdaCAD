@@ -82,12 +82,12 @@ const config = {
             position: 'left',
             label: 'Develop',
           },
-          {
-            type: 'docSidebar',
-            sidebarId: 'communityDocsSidebar',
-            position: 'left',
-            label: 'Community',
-          },
+          // {
+          //   type: 'docSidebar',
+          //   sidebarId: 'communityDocsSidebar',
+          //   position: 'left',
+          //   label: 'Community',
+          // },
           {to: '/blog', label: 'Blog', position: 'left'},
           {
             href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
@@ -115,10 +115,10 @@ const config = {
                 label: 'Developer Documentation',
                 to: 'docs/howtodevelop/install',
               },
-              {
-                label: 'Community',
-                to: 'docs/community/',
-              },
+              // {
+              //   label: 'Community',
+              //   to: 'docs/community/',
+              // },
               {
                 label: 'Blog',
                 to: '/blog',

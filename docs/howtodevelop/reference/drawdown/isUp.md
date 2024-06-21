@@ -3,7 +3,7 @@ Given an index within the drawdown, it will return true or false to describe if 
 
 
 ## Parameters
-- [Drawdown](drawdown): the drawdown to check 
+- [Drawdown](./drawdown.md): the drawdown to check 
 - number: the weft pick number
 - number: the warp end number
 
@@ -14,7 +14,7 @@ boolean: true if the pick and end are within valid indexes in the drawdown and t
 
 ## Implementation
 
-```
+```jsx
 
 if(isUp(drawdown, i, j)){
     drawdown[i][j].is_up = false;

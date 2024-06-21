@@ -13,7 +13,7 @@ the current Sequence.OneD object
 
 ## Implementation
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1])
 seq.unshift(2)
 ```
@@ -21,7 +21,7 @@ seq.unshift(2)
 After calling this operation, the sequence is [2, 0, 0, 1, 1]. 
 
 
-```
+```tsx
 let seq = new Sequence.OneD([0,0,1,1])
 seq.unshift(true)
 ```

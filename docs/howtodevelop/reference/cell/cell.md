@@ -1,6 +1,6 @@
 # Cell
 
-This is a single cell or square within a [drawdown](drawdown). Unlike typical drafting where a cell can only be marked black, to raise a heddle at the cell's location, or white to indicate it as lowered, AdaCAD Cells can hold three values: 
+This is a single cell or square within a [drawdown](../drawdown/drawdown.md). Unlike typical drafting where a cell can only be marked black, to raise a heddle at the cell's location, or white to indicate it as lowered, AdaCAD Cells can hold three values: 
 - heddle-up (black)
 - heddle-down (white)
 - unset (light blue)
@@ -39,6 +39,6 @@ There are a number of helper features to assist in easily getting, setting, and 
 
 ## Related Functions
 
-- [createCell](createCell)
-- [getCellValue](getCellValue)
-- [setCellValue](setCellValue)
+- [createCell](./createCell.md)
+- [getCellValue](./getCellValue.md)
+- [setCellValue](./setCellValue.md)
