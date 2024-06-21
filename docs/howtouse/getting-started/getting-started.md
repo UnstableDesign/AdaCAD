@@ -2,10 +2,10 @@
 sidebar_position: 1
 ---
 # Getting Started
-AdaCAD is an experimental workspace that applies [parametric design](./glossary/parametric-design) to the domain of weave [drafting](./glossary/draft). It supports algorithmic and playful approaches to developing woven structures and cloth, for [shaft](./glossary/harness-loom), [dobby](./glossary/direct-tie-loom) ,  and [jacquard](./glossary/jacquard-loom) looms. 
+AdaCAD is an experimental workspace that applies [parametric design](./glossary/parametric-design) to the domain of weave [drafting](./glossary/draft). It supports algorithmic and playful approaches to developing woven structures and cloth, for [shaft](./glossary/harness-loom), [dobby](./glossary/direct-tie-loom),  and [jacquard](./glossary/jacquard-loom) looms. 
 
 ## Step 1: Choose your AdaCAD Version
-**AdaCAD is freely accessible online**, you do not need to download or install it on your computer. We recommend using the [Chrome](https://www.google.com/chrome/) browser for the best experience. We are also continually updating AdaCAD to experiment with new features, which means that there is more than one version of AdaCAD that you can choose from. 
+**AdaCAD is freely accessible online**, you do not need to download or install it on your computer. We recommend using the [Chrome](https://www.google.com/chrome/) browser on a laptop or desktop computer for the best experience. We are also continually updating AdaCAD to experiment with new features, which means that there is more than one version of AdaCAD that you can choose from. 
 
 ### AdaCAD 3 (Stable)
 
