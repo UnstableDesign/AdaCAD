@@ -6,7 +6,7 @@ sidebar_position: 4
 
 This tutorial explores the magical shape changing behaviors of overtwisted linen. This tutorial comes directly from [Kathryn Walters'](https://www.kmwalters.com/) PhD research as well as some experiments she explored during her time as an Experimental Weaver in Residence at the Unstable Design Lab. As she wrote in a 2024 publication about the project: 
 
-"Linen fibres swell as they absorb moisture [1](#references). In a high-twist yarn the fibres are locked into place, and their swelling is transferred to the yarn. Textiles woven with this ‘animated’ linen yarn may exploit this property and exhibit hygromorphic behaviour: changing form when wet or exposed to high humidity, and relaxing in dry conditions"
+"Linen fibres swell as they absorb moisture [1](#references). In a high-twist yarn the fibres are locked into place, and their swelling is transferred to the yarn. Textiles woven with this ‘animated’ linen yarn may exploit this property and exhibit hygromorphic behavior: changing form when wet or exposed to high humidity, and relaxing in dry conditions"
 
 
 

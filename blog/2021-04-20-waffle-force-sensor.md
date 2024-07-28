@@ -2,9 +2,10 @@
 slug: wafflesensor
 title: Make a Waffle Woven Force Sensor
 author: laura
-tags: [howto, docusaurus, version-2.0]
+tags: [howto]
 video: https://www.youtube.com/embed/O9fLz6R60NA
 idea: sedimentation/ 
+draft: true
 
 ---
 

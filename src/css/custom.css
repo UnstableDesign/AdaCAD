@@ -47,3 +47,32 @@ iframe {
   object-fit:scale-down;
   padding: 1em;
 }
+
+.primary{
+  background-color: var(--ifm-color-primary);
+}
+
+.secondary{
+  background-color: var(--ifm-color-primary-lighter);
+}
+
+.button_open{
+  margin: 0px 12px 12px 0px;
+  border: var(--ifm-button-border-width) solid var(--ifm-button-border-color);
+  border-radius: var(--ifm-button-border-radius);
+  color: var(--ifm-button-color);
+  cursor: pointer;
+  display: inline-block;
+  font-size: calc(0.875rem * var(--ifm-button-size-multiplier));
+  font-weight: var(--ifm-button-font-weight);
+  line-height: 1.5;
+  padding: calc(var(--ifm-button-padding-vertical)* var(--ifm-button-size-multiplier)) calc(var(--ifm-button-padding-horizontal)* var(--ifm-button-size-multiplier));
+  text-align: center;
+  -webkit-user-select: none;
+  user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  transition-property: color, background, border-color;
+  transition-duration: var(--ifm-button-transition-duration);
+  transition-timing-function: var(--ifm-transition-timing-default);
+}

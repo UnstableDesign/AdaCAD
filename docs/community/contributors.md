@@ -1,8 +1,6 @@
 # Contributors
 
 
-sdlkfjslkdfjlsdkfjl
-
 
 <details>
   <summary>Toggle me!</summary>
