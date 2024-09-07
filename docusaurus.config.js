@@ -156,13 +156,13 @@ const config = {
                 href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
               },
               {
-                label: 'AdaCAD Forum',
-                href: 'https://groups.google.com/g/adacad-forum',
+                label: 'Creative Commons Attribution ShareAlike',
+                href: 'https://creativecommons.org/licenses/by-sa/4.0/',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Unstable Design Lab, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Unstable Design Lab, Inc. Creative Commons Attribution ShareAlike.`,
       },
       prism: {
         theme: lightCodeTheme,
