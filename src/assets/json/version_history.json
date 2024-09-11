@@ -1,0 +1,34 @@
+{
+    "4":{
+        "dx": ["Beta Version (testing prior to public release",
+        "implemented file saving and loading on AdaCAD server",
+        "began working on a simulator"
+        ],
+        "1":{ 
+            "dx": [
+                "NEW BETA",
+                "beginner oriented layout featuring color coded operations and toggle between drafting in mixer or point paper"],
+            "1":{
+                "dx":[
+                    "added fullscreen option via minimize and maximize icon button on bottom left, for Julia Wright",
+                    "implemented version history, for Jeffrey Evergreen"
+                ]
+            },
+            "0":{
+                "dx": [
+                    "color coding on operations",
+                    "support for WIF export",
+                    "simulation temporarily disabled"
+                ]
+        },
+        "0":{
+            "dx": [
+                "OLD BETA"
+                ]
+            }
+        }
+    },
+    "3":{
+        "dx": ["Stable Version"]
+    }
+}

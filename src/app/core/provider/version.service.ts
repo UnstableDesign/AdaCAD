@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import version_history from '../../../assets/json/version_history.json';
 
 @Injectable({
   providedIn: 'root'
@@ -6,18 +7,13 @@ import { Injectable } from '@angular/core';
 export class VersionService {
 
   private version: string = '4.1.1'
-  private log: Array<{v: string, note: string}> = [];
 
 
   
 
 
   constructor() { 
-
-    this.log.push(
-      {v: '4.1.1', 
-      note: "added fullscreen option via minimize and maximize icon button on bottom left, for Julia Wright"}
-    );
+    console.log("VERSION HISTORY ", version_history)
   }
 
   currentVersion() : string {
@@ -25,7 +21,8 @@ export class VersionService {
   }
   
   getLog(){
-    return this.log;
+
+    return this.version;
   }
 
 }
