@@ -43,6 +43,11 @@
 }
 
 .ui-grid{
+
+  &.fullscreen{
+    flex: 1 1 calc(100vh - 60px);
+  }
+
   display: flex;
   background: white;
   flex: 1 1 calc(100vh - 128px);
@@ -61,6 +66,12 @@
 }
 
 .mixer-container{
+
+  &.fullscreen{
+    flex: 0 1 100%;
+    flex-direction: column;
+  }
+
   display: flex;
   flex: 0 1 80%;
   flex-direction: row;

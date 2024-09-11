@@ -19,9 +19,9 @@
 
 <div class="view-container">
 
-  <div class="header-container">
+  <div class="header-container"  [class.hide]="is_fullscreen">
 
-    <mat-toolbar class="topbar">
+    <mat-toolbar class="topbar" >
 
 
 
@@ -164,17 +164,19 @@
 
 
 
-  <div class="ui-grid">
+  <div class="ui-grid"  [class.fullscreen]="is_fullscreen"  >
 
   
 
     <app-mixer 
     class="mixer-container" 
+    [class.fullscreen]="is_fullscreen"
     [class.hide]="selected_editor_mode !== 'mixer'" 
     [class.show]="selected_editor_mode === 'mixer'" 
     #mixer
     id="mixer" 
     cdkScrollable
+    [is_fullscreen]="is_fullscreen"
     (onOpenInEditor)="openInEditor($event)"
 
     >
@@ -193,7 +195,7 @@
       ></app-editor>
 
      
-     <app-viewer 
+     <app-viewer [class.hide]="is_fullscreen"
      #viewer
      class="static-container"
      (onClearWorkspace)="clearAll()"
@@ -214,6 +216,9 @@
 <div class="footer-container">
   <mat-toolbar class="footer">
     <div class="footer-left">
+
+      <button *ngIf="!is_fullscreen" mat-icon-button (click)="enterFullscreen()"><i class="fa-solid fa-maximize"></i></button>
+      <button *ngIf="is_fullscreen" mat-icon-button (click)="exitFullscreen()"><i class="fa-solid fa-minimize"></i></button>
 
       <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
      

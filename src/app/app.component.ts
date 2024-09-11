@@ -63,7 +63,7 @@ export class AppComponent implements OnInit{
   upload_modal: MatDialog |any;
   example_modal: MatDialog |any;
   material_modal: MatDialog |any;
-  
+  is_fullscreen: boolean = false;
   loading: boolean;
 
   selected_origin: number;
@@ -193,6 +193,14 @@ export class AppComponent implements OnInit{
 
   }
 
+  enterFullscreen(){
+    this.is_fullscreen = true;
+  }
+
+  exitFullscreen(){
+    this.is_fullscreen = false;
+
+  }
 
 
 

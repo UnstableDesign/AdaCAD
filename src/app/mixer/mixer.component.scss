@@ -1,4 +1,5 @@
 
+
 .mat-mdc-icon-button{
   font-size: 14px;
 }
@@ -14,9 +15,32 @@
 #saver{
   z-index: -1;
 }
+.mixer-sidebar-mini{
 
+  display: flex;
+  padding: 16px 0px 0px 16px;
+ justify-content: space-between;
+  width: 96%;
+
+  &.hide{
+    display: none;
+  }
+
+}
+
+.right {
+  display: flex;
+  flex-direction: row;
+  text-align: right;
+}
 
 .mixer-sidebars{
+
+
+  &.hide{
+    display: none;
+  }
+
   padding: 16px;
   flex: 0 0 275px;
   display: flex;
