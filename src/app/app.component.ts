@@ -39,6 +39,8 @@ import { UntypedFormControl, Validators } from '@angular/forms';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { WelcomeComponent } from './core/modal/welcome/welcome.component';
 import { VersionService } from './core/provider/version.service';
+import { MatSidenav } from '@angular/material/sidenav';
+import { ViewadjustService } from './core/provider/viewadjust.service';
 
 
 
@@ -58,6 +60,12 @@ export class AppComponent implements OnInit{
   @ViewChild('bitmapImage') bitmap: any;
 
 
+  @ViewChild('sidenav',{static: false}) sidenav:MatSidenav;
+  @ViewChild('sidenavEnd',{static: false}) sidenavEnd:MatSidenav;
+  keepA: boolean = true;
+  keepB: boolean = true;
+  keepC: boolean = true;
+
 
   //modals to manage
   filebrowser_modal: MatDialog |any;
@@ -66,6 +74,7 @@ export class AppComponent implements OnInit{
   example_modal: MatDialog |any;
   material_modal: MatDialog |any;
   is_fullscreen: boolean = false;
+  viewer_collapsed: boolean = false;
   loading: boolean;
 
   selected_origin: number;
@@ -112,6 +121,7 @@ export class AppComponent implements OnInit{
     private tree: TreeService,
     public vp: ViewportService,
     public ws: WorkspaceService,
+    public vas: ViewadjustService,
     public vs: ViewerService,
     public vers: VersionService,
     public zs: ZoomService,

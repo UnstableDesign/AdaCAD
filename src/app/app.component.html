@@ -14,12 +14,15 @@
 >
 </appKeycodes>
 
+
+
+
 <canvas #bitmapImage hidden></canvas>
 
 
 <div class="view-container">
 
-  <div class="header-container"  [class.hide]="is_fullscreen">
+  <div class="header-container">
 
     <mat-toolbar class="topbar" >
 
@@ -32,7 +35,7 @@
         <span>AdaCAD</span>
         
 
-
+      
         <button mat-flat-button (click)="openVersionDialog()" color="primary" >version {{current_version}}</button>
 
 
@@ -76,7 +79,23 @@
           <button mat-menu-item >Add Comment</button> -->
         <!-- </mat-menu>  -->
 
+        <button 
+            class="fullwidth"
+            mat-icon-button
+            (click)="openMaterials()">
+            <i class="fa-solid fa-palette"></i>
+          </button> 
+      
+      
+      
+             <button  mat-icon-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i></button> 
+      
+      
+      
+
         <button mat-icon-button [matMenuTriggerFor]="settings"><i class="fa-solid fa-gear"></i></button>
+        <button  mat-icon-button (click)="openHelp()"><i class="fa-solid fa-question"></i></button> 
+
         <mat-menu #settings="matMenu">
           <button mat-menu-item [matMenuTriggerFor]="defaultOrigin">Origin</button>
 
@@ -171,14 +190,17 @@
   </div>
 
 
+<div class="ui-grid">
 
-  <div class="ui-grid"  [class.fullscreen]="is_fullscreen"  >
-
-  
+  <div class="ui-left"     
+  [style.width.px]="vas.left"
+  [class.fullscreen]="is_fullscreen"  
+  >
 
     <app-mixer 
     class="mixer-container" 
     [class.fullscreen]="is_fullscreen"
+    [class.expand]="viewer_collapsed"
     [class.hide]="selected_editor_mode !== 'mixer'" 
     [class.show]="selected_editor_mode === 'mixer'" 
     #mixer
@@ -186,7 +208,6 @@
     cdkScrollable
     [is_fullscreen]="is_fullscreen"
     (onOpenInEditor)="openInEditor($event)"
-
     >
     </app-mixer> 
 
@@ -197,98 +218,103 @@
     #details 
     [class.hide]="selected_editor_mode !== 'draft'"
     [class.show]="selected_editor_mode === 'draft'" 
+    [class.expand]="viewer_collapsed"
     (saveChanges)="saveFile()"
     (cloneDraft)="cloneDraft($event)"
     (updateMixer)="updateMixer()"
       ></app-editor>
 
-     
-     <app-viewer [class.hide]="is_fullscreen"
+      <div class="footer-container">
+        <mat-toolbar class="footer">
+          <div class="footer-left">
+      
+      
+            <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
+           
+            <mat-slider 
+              min="0"
+              [max]="zs.num_steps"  
+              step="1" 
+             >
+              <input matSliderThumb [value]="getActiveZoomIndex()"  (valueChange)="zoomChange($event)" >
+            </mat-slider>
+           
+        
+            <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
+            <button  
+            mat-icon-button 
+            [disabled]="ss.undo_disabled"
+            matTooltip="undo"
+            (click)="undo()" >
+            <i class="fa-solid fa-rotate-left"></i>
+            </button>
+      
+            <button  
+            mat-icon-button 
+            [disabled]="ss.redo_disabled"
+            matTooltip="redo"
+            (click)="redo()">
+            <i class="fa-solid fa-rotate-right"></i>
+            </button>
+      
+          </div>
+      
+      
+<!--       
+          <div class="copypaste" *ngIf="multiselect.selected.length > 0">
+           
+             <button mat-raised-button color="accent" (click)="onCopySelections()">Copy (ctrl-c)</button>
+            <button mat-raised-button color="accent" [disabled]="multiselect.copy === undefined" (click)="onPasteSelections()">Paste (ctrl-c)</button>
+          </div>
+      
+          <div class="copypaste" *ngIf="multiselect.selected.length == 0">
+            hold shift and click to select multiple drafts and operators
+         </div>
+       -->
+      
+      
+          <div class="footer-right">
+            filename: 
+                <input 
+                class="filename"
+                [formControl]="filename_form" 
+                matInput 
+                placeholder="current filename">
+      
+      
+           <button mat-mini-fab
+           [matMenuTriggerFor]="downloadMenu" color="primary">       <i class="fa-solid fa-download"></i> 
+          </button>
+      
+            </div>
+        </mat-toolbar>
+      </div>
+
+
+</div>
+<app-viewadjust class="view-adjust-overlay"></app-viewadjust>
+
+<div class="ui-right"   [style.width.px]="vas.right">
+     <app-viewer 
      #viewer
      class="static-container"
      (onClearWorkspace)="clearAll()"
-     (onOpenMaterials)="openMaterials()"
-     (onOpenExamples)="openExamples()"
      (onLoadBlankFile)="loadBlankFile()"
      (onOpenEditor)="openInEditor($event)"
      (onDraftRename)="updateDraftName($event)"
-     (openHelp)="openHelp()"
      (onSave)="saveDraftAs($event)"
      (onViewerExpanded)="expandViewer()"
      (onViewerCollapsed)="collapseViewer()">
     </app-viewer>
 
+
       
 </div>
 
-<div class="footer-container">
-  <mat-toolbar class="footer">
-    <div class="footer-left">
-
-      <button *ngIf="!is_fullscreen" mat-icon-button (click)="enterFullscreen()"><i class="fa-solid fa-maximize"></i></button>
-      <button *ngIf="is_fullscreen" mat-icon-button (click)="exitFullscreen()"><i class="fa-solid fa-minimize"></i></button>
-
-      <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
-     
-      <mat-slider 
-        min="0"
-        [max]="zs.num_steps"  
-        step="1" 
-       >
-        <input matSliderThumb [value]="getActiveZoomIndex()"  (valueChange)="zoomChange($event)" >
-      </mat-slider>
-     
-  
-      <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
-      <button  
-      mat-icon-button 
-      [disabled]="ss.undo_disabled"
-      matTooltip="undo"
-      (click)="undo()" >
-      <i class="fa-solid fa-rotate-left"></i>
-      </button>
-
-      <button  
-      mat-icon-button 
-      [disabled]="ss.redo_disabled"
-      matTooltip="redo"
-      (click)="redo()">
-      <i class="fa-solid fa-rotate-right"></i>
-      </button>
-
-    </div>
 
 
 
-    <div class="copypaste" *ngIf="multiselect.selected.length > 0">
-     
-       <button mat-raised-button color="accent" (click)="onCopySelections()">Copy (ctrl-c)</button>
-      <button mat-raised-button color="accent" [disabled]="multiselect.copy === undefined" (click)="onPasteSelections()">Paste (ctrl-c)</button>
-    </div>
-
-    <div class="copypaste" *ngIf="multiselect.selected.length == 0">
-      hold shift and click to select multiple drafts and operators
-   </div>
-
-
-
-    <div class="footer-right">
-      filename: 
-          <input 
-          class="filename"
-          [formControl]="filename_form" 
-          matInput 
-          placeholder="current filename">
-
-
-     <button class="download" mat-raised-button  
-     [matMenuTriggerFor]="downloadMenu" color="primary">Download</button>
-
-      </div>
-  </mat-toolbar>
 </div>
-
-
 </div>
 
 

@@ -52,6 +52,8 @@ import { RenderService } from './provider/render.service';
 import { DraftRenderingComponent } from './ui/draft-rendering/draft-rendering.component';
 import { SelectionComponent } from './ui/draft-rendering/selection/selection.component';
 import { ViewerService } from './provider/viewer.service';
+import { ViewadjustService } from './provider/viewadjust.service';
+import { ViewadjustComponent } from './viewadjust/viewadjust.component';
 
 
 
@@ -90,7 +92,8 @@ import { ViewerService } from './provider/viewer.service';
         ScrollingModule,
         DragDropModule,
         MatProgressBarModule,
-        MatBadgeModule
+        MatBadgeModule,
+        ViewadjustComponent
         ],
     declarations: [
         UploadFormComponent,
@@ -106,7 +109,6 @@ import { ViewerService } from './provider/viewer.service';
         WelcomeComponent,
         SelectionComponent,
         DraftRenderingComponent
-
     ],
     providers: [
         UploadService,
@@ -115,7 +117,8 @@ import { ViewerService } from './provider/viewer.service';
         PatternfinderService,
         AuthService,
         RenderService,
-        ViewerService
+        ViewerService,
+        ViewadjustService
     ],
     exports: [
         CommonModule,
@@ -159,6 +162,8 @@ import { ViewerService } from './provider/viewer.service';
         ExamplesComponent,
         KeycodesDirective,
         DraftRenderingComponent,
-        SelectionComponent     ]
+        SelectionComponent,
+        ViewadjustComponent
+             ]
 })
 export class CoreModule { }

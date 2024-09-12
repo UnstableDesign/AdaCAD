@@ -18,6 +18,7 @@ import { ViewerService } from '../core/provider/viewer.service';
 })
 export class ViewerComponent {
 
+  @Input() viewer_collapsed;
   @Output() onLoadBlankFile: any = new EventEmitter();
   @Output() onOpenEditor: any = new EventEmitter();
   @Output() onClearWorkspace: any = new EventEmitter();
@@ -93,20 +94,6 @@ getVisVariables(){
 
   clearWorkspace(){
     this.onClearWorkspace.emit();
-  }
-
-  openHelpDialog(){
-    this.openHelp.emit();
-  }
-
-  openExamples(){
-    this.onOpenExamples.emit();
-
-  }
-
-  openMaterials(){
-    this.onOpenMaterials.emit();
-
   }
 
   updateDraftName(){

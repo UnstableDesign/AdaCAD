@@ -1,5 +1,4 @@
 
-
 .view-container{
   display: flex;
   flex-direction: column;
@@ -33,6 +32,7 @@
 }
 
 
+
 .header-container{
   display: flex;
   flex-direction: column;
@@ -42,17 +42,31 @@
 
 }
 
-.ui-grid{
+.view-adjust-overlay{
+  height: 100%;
+  position: absolute;
+}
 
-  &.fullscreen{
-    flex: 1 1 calc(100vh - 60px);
-  }
+.ui-left{
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+
+}
+
+.ui-right{
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
+.ui-grid{
 
   display: flex;
   background: white;
-  flex: 1 1 calc(100vh - 128px);
   flex-direction: row;
-  overflow: hidden;
   align-items: stretch;
 }
 
@@ -61,6 +75,7 @@
   display: flex;
   flex-direction: row;
   flex: 0 1 64px;
+  flex-wrap: wrap;
   background-color: #3f51b5;
   justify-content: space-between;
 }
@@ -73,10 +88,13 @@
   }
 
   display: flex;
-  flex: 0 1 80%;
   flex-direction: row;
   background-color: #f0f0f0;
   overflow: hidden;
+
+  &.expand{
+    flex: 0 1 calc(100% - 40px);
+  }
 }
 
 .detail-container{
@@ -91,9 +109,13 @@
   display: flex;
   align-items: stretch;
   flex-direction: column;
-  flex: 1 1 20%;
-  overflow: scroll;
-  background-color: darkgrey;
+  flex: 1 1 100px;
+  overflow: hidden;
+  background-color: whitesmoke;
+
+  &.collapsed{
+    flex: 0 1 40px;
+  }
 
 }
 
@@ -118,11 +140,15 @@
 .footer{
   display: flex;
   justify-content: space-between;
+  flex: 0 1 100%;
+  flex-wrap: wrap;
 }
 
 .footer-center,
 .footer-right{
   font-size: 14px;
+  display: flex;
+  flex: 0 1;
 }
 
 .topbar-button-group{
