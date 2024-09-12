@@ -31,6 +31,11 @@
 
         <span>AdaCAD</span>
         
+
+
+        <button mat-flat-button (click)="openVersionDialog()" color="primary" >version {{current_version}}</button>
+
+
         <button mat-icon-button [matMenuTriggerFor]="file"><i class="fa-solid fa-house"></i></button>
 
         <mat-menu #file="matMenu">
@@ -112,6 +117,9 @@
           <!-- <button mat-menu-item >Optimize for Device</button> -->
         </mat-menu>
  
+
+
+
       </div>
 
         <div class="topbar-button-group">

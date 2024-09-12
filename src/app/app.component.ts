@@ -38,6 +38,7 @@ import { ViewerComponent } from './viewer/viewer.component';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { WelcomeComponent } from './core/modal/welcome/welcome.component';
+import { VersionService } from './core/provider/version.service';
 
 
 
@@ -60,6 +61,7 @@ export class AppComponent implements OnInit{
 
   //modals to manage
   filebrowser_modal: MatDialog |any;
+  version_modal: MatDialog |any;
   upload_modal: MatDialog |any;
   example_modal: MatDialog |any;
   material_modal: MatDialog |any;
@@ -88,6 +90,8 @@ export class AppComponent implements OnInit{
 
   selected_editor_mode: any;
 
+  current_version: string; 
+
   filename_form: UntypedFormControl;
 
   constructor(
@@ -109,12 +113,14 @@ export class AppComponent implements OnInit{
     public vp: ViewportService,
     public ws: WorkspaceService,
     public vs: ViewerService,
+    public vers: VersionService,
     public zs: ZoomService,
 
     private zone: NgZone
   ){
 
-    
+    this.current_version = this.vers.currentVersion();
+  
     this.originOptions = origin_option_list;
     this.loomOptions = loom_types;
     this.unitOptions = density_units;
@@ -785,6 +791,12 @@ onPasteSelections(){
 
   openAboutDialog() {
     window.open('https://docs.adacad.org', '_blank');
+  }
+
+  openVersionDialog() {
+    window.open('https://github.com/UnstableDesign/AdaCAD/releases', '_blank');
+
+
   }
 
   openHelp() {
