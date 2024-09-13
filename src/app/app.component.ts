@@ -60,12 +60,6 @@ export class AppComponent implements OnInit{
   @ViewChild('bitmapImage') bitmap: any;
 
 
-  @ViewChild('sidenav',{static: false}) sidenav:MatSidenav;
-  @ViewChild('sidenavEnd',{static: false}) sidenavEnd:MatSidenav;
-  keepA: boolean = true;
-  keepB: boolean = true;
-  keepC: boolean = true;
-
 
   //modals to manage
   filebrowser_modal: MatDialog |any;
@@ -73,8 +67,6 @@ export class AppComponent implements OnInit{
   upload_modal: MatDialog |any;
   example_modal: MatDialog |any;
   material_modal: MatDialog |any;
-  is_fullscreen: boolean = false;
-  viewer_collapsed: boolean = false;
   loading: boolean;
 
   selected_origin: number;
@@ -209,14 +201,6 @@ export class AppComponent implements OnInit{
 
   }
 
-  enterFullscreen(){
-    this.is_fullscreen = true;
-  }
-
-  exitFullscreen(){
-    this.is_fullscreen = false;
-
-  }
 
 
 
@@ -275,11 +259,6 @@ export class AppComponent implements OnInit{
 
 
   toggleEditorMode(){
-
-
-    if(this.viewer.view_expanded){
-      this.viewer.onCollapse();
-    }
 
     console.log("ON TOGGLE ", this.selected_editor_mode)
     switch(this.selected_editor_mode){
@@ -1195,36 +1174,6 @@ openInEditor(id: number){
   this.vs.setViewer(id);
   this.selected_editor_mode = 'draft';
   this.toggleEditorMode();
-}
-
-/**
- * called from the viewer component when the expand icon is clicked
- */
-expandViewer(){
-  if(this.selected_editor_mode == "mixer"){
-    let div = document.getElementById('mixer');
-    div.classList.remove('show');
-    div.classList.add('hide');
-  }else{
-    let div = document.getElementById('draftdetail');
-    div.classList.remove('show');
-    div.classList.add('hide');
-  }
-}
-
-/**
- * called from the viewer component when the close icon is clicked
- */
-collapseViewer(){
-  if(this.selected_editor_mode == "mixer"){
-    let div = document.getElementById('mixer');
-    div.classList.remove('hide');
-    div.classList.add('show');
-  }else{
-    let div = document.getElementById('draftdetail');
-    div.classList.remove('hide');
-    div.classList.add('show');
-  }
 }
 
 drawModeChange(mode: string){

@@ -1,7 +1,12 @@
 
 <div class="sidenav_mover" 
+[cdkDragFreeDragPosition]="pos"
 (cdkDragMoved)="dragMove($event)"
 cdkDragBoundary=".ui-grid" 
 cdkDrag>
-    ...
+
+<button mat-raised-button  aria-label="">
+    <i class="fa-solid fa-arrows-left-right"></i>
+</button>
+
 </div>

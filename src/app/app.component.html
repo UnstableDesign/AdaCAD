@@ -76,8 +76,8 @@
           <button mat-menu-item >Paste</button>
           <button mat-menu-item >Add Blank Draft</button>
           <button mat-menu-item >Add Operation</button>
-          <button mat-menu-item >Add Comment</button> -->
-        <!-- </mat-menu>  -->
+          <button mat-menu-item >Add Comment</button> 
+       </mat-menu>  -->
 
         <button 
             class="fullwidth"
@@ -88,7 +88,7 @@
       
       
       
-             <button  mat-icon-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i></button> 
+         <button  mat-icon-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i></button> 
       
       
       
@@ -142,7 +142,7 @@
       </div>
 
         <div class="topbar-button-group">
-
+          <span class="design_mode">design mode </span>
         <mat-button-toggle-group 
         name="editingMode" 
         [(ngModel)]="selected_editor_mode"
@@ -194,19 +194,15 @@
 
   <div class="ui-left"     
   [style.width.px]="vas.left"
-  [class.fullscreen]="is_fullscreen"  
   >
 
     <app-mixer 
     class="mixer-container" 
-    [class.fullscreen]="is_fullscreen"
-    [class.expand]="viewer_collapsed"
     [class.hide]="selected_editor_mode !== 'mixer'" 
     [class.show]="selected_editor_mode === 'mixer'" 
     #mixer
     id="mixer" 
     cdkScrollable
-    [is_fullscreen]="is_fullscreen"
     (onOpenInEditor)="openInEditor($event)"
     >
     </app-mixer> 
@@ -218,7 +214,6 @@
     #details 
     [class.hide]="selected_editor_mode !== 'draft'"
     [class.show]="selected_editor_mode === 'draft'" 
-    [class.expand]="viewer_collapsed"
     (saveChanges)="saveFile()"
     (cloneDraft)="cloneDraft($event)"
     (updateMixer)="updateMixer()"
@@ -283,7 +278,10 @@
       
       
            <button mat-mini-fab
-           [matMenuTriggerFor]="downloadMenu" color="primary">       <i class="fa-solid fa-download"></i> 
+           [matMenuTriggerFor]="downloadMenu" 
+           matTooltip="download workspace"
+           color="primary">       
+           <i class="fa-solid fa-download"></i> 
           </button>
       
             </div>
@@ -294,18 +292,15 @@
 </div>
 <app-viewadjust class="view-adjust-overlay"></app-viewadjust>
 
-<div class="ui-right"   [style.width.px]="vas.right">
+<div class="ui-right"  [style.width.px]="vas.right">
      <app-viewer 
      #viewer
      class="static-container"
-     (onClearWorkspace)="clearAll()"
-     (onLoadBlankFile)="loadBlankFile()"
      (onOpenEditor)="openInEditor($event)"
      (onDraftRename)="updateDraftName($event)"
      (onSave)="saveDraftAs($event)"
-     (onViewerExpanded)="expandViewer()"
-     (onViewerCollapsed)="collapseViewer()">
-    </app-viewer>
+     ></app-viewer>
+
 
 
       
