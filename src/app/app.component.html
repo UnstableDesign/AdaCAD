@@ -49,6 +49,7 @@
             <button mat-menu-item [matMenuTriggerFor]="downloadMenu">Export</button>
             <button mat-menu-item (click)="saveFile()">Save</button>
           <button mat-menu-item (click)="openAboutDialog()">About</button>
+
         </mat-menu>
         
         <mat-menu #downloadMenu="matMenu">
@@ -94,7 +95,6 @@
       
 
         <button mat-icon-button [matMenuTriggerFor]="settings"><i class="fa-solid fa-gear"></i></button>
-        <button  mat-icon-button (click)="openHelp()"><i class="fa-solid fa-question"></i></button> 
 
         <mat-menu #settings="matMenu">
           <button mat-menu-item [matMenuTriggerFor]="defaultOrigin">Origin</button>
@@ -136,7 +136,11 @@
           <!-- <button mat-menu-item >Optimize for Device</button> -->
         </mat-menu>
  
-
+        <button  mat-icon-button [matMenuTriggerFor]="help"><i class="fa-solid fa-question"></i></button> 
+        <mat-menu #help="matMenu">
+          <button mat-menu-item (click)="openHelp()">Go to the Help Website</button>
+          <button mat-menu-item (click)="openBug()">Report a Bug/Request a Feature via GitHub</button>
+        </mat-menu>
 
 
       </div>

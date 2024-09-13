@@ -795,6 +795,14 @@ onPasteSelections(){
     window.open('https://docs.adacad.org/docs/howtouse/getting-started/interface', '_blank');
   }
 
+  openBug() {
+    window.open('https://github.com/UnstableDesign/AdaCAD/issues/new', '_blank');
+  }
+
+  openGit(){
+    window.open('https://github.com/UnstableDesign/AdaCAD', '_blank');
+  }
+
   /**
    * called when a user selects a file to open from the AdaFile Browser
    * @param selectOnly 
