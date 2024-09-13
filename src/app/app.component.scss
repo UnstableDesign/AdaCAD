@@ -1,5 +1,4 @@
 
-
 .view-container{
   display: flex;
   flex-direction: column;
@@ -14,6 +13,12 @@
 
 .mat-button-toggle-appearance-standard{
   font-size: 14px;
+  color: white;
+  background-color: #3f51b5;
+}
+
+.toggle {
+  line-height: 10px;
 }
 
 .copypaste{
@@ -21,6 +26,8 @@
   flex-direction: row;
   gap: 8px;
   font-size: 14px;
+  flex: 1 1;
+  overflow: hidden;
 
 }
 
@@ -33,21 +40,44 @@
 }
 
 
+
 .header-container{
   display: flex;
   flex-direction: column;
   flex: 0 1 64px;
   background-color: #3f51b5;
   overflow: hidden;
+  position: fixed;
+  width: 100%;
 
 }
 
+.view-adjust-overlay{
+  height: 100%;
+  position: absolute;
+}
+
+.ui-left{
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+
+}
+
+.ui-right{
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
 .ui-grid{
+  position: relative;
+  top: 64px;
   display: flex;
   background: white;
-  flex: 1 1 calc(100vh - 128px);
   flex-direction: row;
-  overflow: hidden;
   align-items: stretch;
 }
 
@@ -56,21 +86,24 @@
   display: flex;
   flex-direction: row;
   flex: 0 1 64px;
+  flex-wrap: wrap;
   background-color: #3f51b5;
   justify-content: space-between;
 }
 
 .mixer-container{
+
+
   display: flex;
-  flex: 0 1 80%;
   flex-direction: row;
   background-color: #f0f0f0;
   overflow: hidden;
+
 }
 
 .detail-container{
   display: flex;
-  flex: 0 1 80%;
+  flex: 0 1 100%;
   flex-direction: row;
   background-color: #f0f0f0;
   overflow: hidden;
@@ -80,9 +113,13 @@
   display: flex;
   align-items: stretch;
   flex-direction: column;
-  flex: 1 1 20%;
-  overflow: scroll;
-  background-color: darkgrey;
+  flex: 1 1 100px;
+  overflow: hidden;
+  background-color: whitesmoke;
+
+  &.collapsed{
+    flex: 0 1 40px;
+  }
 
 }
 
@@ -107,11 +144,26 @@
 .footer{
   display: flex;
   justify-content: space-between;
+  flex: 0 1 100%;
+  flex-wrap: nowrap;
+  padding: 0px 16px;
+}
+
+.footer-left{
+  display: flex;
+  overflow: hidden;
+  flex: 1 1;
 }
 
 .footer-center,
 .footer-right{
   font-size: 14px;
+  display: flex;
+  flex: 0 1;
+}
+
+.design_mode{
+  margin-right: 12px;
 }
 
 .topbar-button-group{
@@ -119,6 +171,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
+  font-size: 14px;
 }
 
   .hide{

@@ -18,14 +18,7 @@ import { ViewerService } from '../core/provider/viewer.service';
 })
 export class ViewerComponent {
 
-  @Output() onLoadBlankFile: any = new EventEmitter();
   @Output() onOpenEditor: any = new EventEmitter();
-  @Output() onClearWorkspace: any = new EventEmitter();
-  @Output() onOpenExamples: any = new EventEmitter();
-  @Output() onOpenMaterials: any = new EventEmitter();
-  @Output() openHelp: any = new EventEmitter();
-  @Output() onViewerExpanded: any = new EventEmitter();
-  @Output() onViewerCollapsed: any = new EventEmitter();
   @Output() onDraftRename: any = new EventEmitter();
   @Output() onSave: any = new EventEmitter();
   @Output() onForceFocus: any = new EventEmitter();
@@ -85,29 +78,6 @@ getVisVariables(){
   }
 }
 
-
-
-  loadBlankFile(){
-    this.onLoadBlankFile.emit();
-  }
-
-  clearWorkspace(){
-    this.onClearWorkspace.emit();
-  }
-
-  openHelpDialog(){
-    this.openHelp.emit();
-  }
-
-  openExamples(){
-    this.onOpenExamples.emit();
-
-  }
-
-  openMaterials(){
-    this.onOpenMaterials.emit();
-
-  }
 
   updateDraftName(){
     if(this.id == -1) return;
@@ -175,20 +145,7 @@ getVisVariables(){
     this.redraw(this.id);   
   }
 
-  onExpand(){
-    this.view_expanded = true;
-    this.onViewerExpanded.emit();
-    this.redraw(this.id);
 
-
-  }
-
-  onCollapse(){
-    this.view_expanded = false;
-    this.onViewerCollapsed.emit();
-    this.redraw(this.id);
-
-  }
 
   openEditor(){
     this.onOpenEditor.emit(this.id);

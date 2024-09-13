@@ -38,6 +38,9 @@ import { ViewerComponent } from './viewer/viewer.component';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { WelcomeComponent } from './core/modal/welcome/welcome.component';
+import { VersionService } from './core/provider/version.service';
+import { MatSidenav } from '@angular/material/sidenav';
+import { ViewadjustService } from './core/provider/viewadjust.service';
 
 
 
@@ -60,10 +63,10 @@ export class AppComponent implements OnInit{
 
   //modals to manage
   filebrowser_modal: MatDialog |any;
+  version_modal: MatDialog |any;
   upload_modal: MatDialog |any;
   example_modal: MatDialog |any;
   material_modal: MatDialog |any;
-  
   loading: boolean;
 
   selected_origin: number;
@@ -88,6 +91,8 @@ export class AppComponent implements OnInit{
 
   selected_editor_mode: any;
 
+  current_version: string; 
+
   filename_form: UntypedFormControl;
 
   constructor(
@@ -108,13 +113,16 @@ export class AppComponent implements OnInit{
     private tree: TreeService,
     public vp: ViewportService,
     public ws: WorkspaceService,
+    public vas: ViewadjustService,
     public vs: ViewerService,
+    public vers: VersionService,
     public zs: ZoomService,
 
     private zone: NgZone
   ){
 
-    
+    this.current_version = this.vers.currentVersion();
+  
     this.originOptions = origin_option_list;
     this.loomOptions = loom_types;
     this.unitOptions = density_units;
@@ -251,11 +259,6 @@ export class AppComponent implements OnInit{
 
 
   toggleEditorMode(){
-
-
-    if(this.viewer.view_expanded){
-      this.viewer.onCollapse();
-    }
 
     console.log("ON TOGGLE ", this.selected_editor_mode)
     switch(this.selected_editor_mode){
@@ -779,8 +782,14 @@ onPasteSelections(){
     window.open('https://docs.adacad.org', '_blank');
   }
 
+  openVersionDialog() {
+    window.open('https://github.com/UnstableDesign/AdaCAD/releases', '_blank');
+
+
+  }
+
   openHelp() {
-    window.open('https://docs.adacad.org/docs/howtouse/getting-started', '_blank');
+    window.open('https://docs.adacad.org/docs/howtouse/getting-started/interface', '_blank');
   }
 
   /**
@@ -1165,36 +1174,6 @@ openInEditor(id: number){
   this.vs.setViewer(id);
   this.selected_editor_mode = 'draft';
   this.toggleEditorMode();
-}
-
-/**
- * called from the viewer component when the expand icon is clicked
- */
-expandViewer(){
-  if(this.selected_editor_mode == "mixer"){
-    let div = document.getElementById('mixer');
-    div.classList.remove('show');
-    div.classList.add('hide');
-  }else{
-    let div = document.getElementById('draftdetail');
-    div.classList.remove('show');
-    div.classList.add('hide');
-  }
-}
-
-/**
- * called from the viewer component when the close icon is clicked
- */
-collapseViewer(){
-  if(this.selected_editor_mode == "mixer"){
-    let div = document.getElementById('mixer');
-    div.classList.remove('hide');
-    div.classList.add('show');
-  }else{
-    let div = document.getElementById('draftdetail');
-    div.classList.remove('hide');
-    div.classList.add('show');
-  }
 }
 
 drawModeChange(mode: string){

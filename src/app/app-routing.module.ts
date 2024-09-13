@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
+import { MixerModule } from './mixer/mixer.module';
 
 
 const routes: Routes = [
@@ -8,12 +9,7 @@ const routes: Routes = [
      path: '',
      component: AppComponent,
      children: []
-   },
-  {
-    path: '**',
-    component: AppComponent,
-    children: []
-  }
+   }
 ];
 
 @NgModule({

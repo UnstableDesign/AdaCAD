@@ -53,6 +53,7 @@ export class MixerComponent  {
 
   @ViewChild(PaletteComponent) palette;
 
+  @Input() is_fullscreen: boolean;
   @Output() onOpenInEditor: any = new EventEmitter();
 
 
@@ -173,7 +174,9 @@ export class MixerComponent  {
    */
   public enter(){
 
+
     const value = this.myControl.value.toLowerCase();
+    console.log("IN ENTER ", value)
 
     //run the filter function again without the classification titles
     let tree = this.op_tree.reduce((acc, classification) => {
@@ -181,6 +184,7 @@ export class MixerComponent  {
           .filter(option => option.display_name.toLowerCase().includes(value)));
     }, []);
 
+    console.log("THIS TREE ", tree)
     if(tree.length > 0) this.addOp(tree[0].name);
 
     this.myControl.setValue('');
