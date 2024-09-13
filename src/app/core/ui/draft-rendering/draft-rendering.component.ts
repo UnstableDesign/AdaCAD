@@ -194,7 +194,6 @@ export class DraftRenderingComponent implements OnInit {
     
     this.divWesy =  document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
     this.divWasy =  document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
-    console.log("AFTER VIEW INIT ON ", this.id)
     this.refreshWarpAndWeftSystemNumbering();
         
   }
@@ -259,7 +258,6 @@ export class DraftRenderingComponent implements OnInit {
   
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {  
-    console.log("NEW DRAFT LOADED ", id)
     this.id = id;  
     
     if(id == -1) return;

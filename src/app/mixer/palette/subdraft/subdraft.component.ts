@@ -475,6 +475,7 @@ openInEditor(event: any){
   }
 
   showhide(){
+    console.log("SHOW HIDE ACTIVATED ")
     this.draft_visible = !this.draft_visible;
     this.onSubdraftViewChange.emit(this.id);
   }

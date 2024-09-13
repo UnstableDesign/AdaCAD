@@ -55,7 +55,7 @@ export class FileService {
    */
   const dloader: Fileloader = {
 
-     ada: async (filename: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
+     ada: async (filename: string, src: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
 
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
@@ -114,11 +114,10 @@ export class FileService {
           draft_nodes.forEach(el => {
 
             if(el.draft == undefined && el.compressed_draft !== undefined && el.compressed_draft !== null){
-
-              draft_fns.push(loadDraftFromFile(el.compressed_draft, version));
+              draft_fns.push(loadDraftFromFile(el.compressed_draft, version, src));
               draft_elements.push(el);
             }else if(el.draft !== null && el.draft !== undefined){
-              draft_fns.push(loadDraftFromFile(el.draft, version));
+              draft_fns.push(loadDraftFromFile(el.draft, version, src));
               draft_elements.push(el);
             }
 
@@ -163,7 +162,7 @@ export class FileService {
           draft_nodes.push(dn);
 
           if(draft !== null && draft !== undefined){
-            draft_fns.push(loadDraftFromFile(draft, version));
+            draft_fns.push(loadDraftFromFile(draft, version, 'db'));
 
             if(loom !== null && loom !== undefined){
               loom_fns.push(loadLoomFromFile(loom, version, draft.id));
@@ -175,7 +174,6 @@ export class FileService {
 
       return Promise.all(draft_fns)
       .then( res => {
-
           
         res.forEach(result => {
           let draft_ndx = draft_nodes.findIndex(el => el.draft_id == result.id);
@@ -268,7 +266,7 @@ export class FileService {
 
       draft_nodes.forEach(el => {
         if(el.compressed_draft !== null && el.compressed_draft !== undefined){
-          draft_fns.push(loadDraftFromFile(el.compressed_draft, version));
+          draft_fns.push(loadDraftFromFile(el.compressed_draft, version, 'db'));
           draft_elements.push(el);
 
           if(el.loom !== null && el.loom !== undefined){
@@ -544,7 +542,6 @@ export class FileService {
 
       fileContents += "\n[TIEUP]\n";
 
-      console.log("Tieup:", loom.tieup)
 
       var treadles = [];
       for (var i =0; i < loom.tieup.length;i++) {

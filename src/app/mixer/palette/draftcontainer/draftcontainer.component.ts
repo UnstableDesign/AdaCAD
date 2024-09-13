@@ -181,6 +181,7 @@ export class DraftContainerComponent implements AfterViewInit{
   }
 
   toggleVisibility(){
+    console.log("VIS TOGGLED", this.draft_visible, this.ws.hide_mixer_drafts)
     this.draft_visible = !this.draft_visible;
   }
 

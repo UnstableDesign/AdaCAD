@@ -66,7 +66,7 @@ export interface CompressedDraft{
   ud_name: string,
   warps: number; 
   wefts: number;
-  compressed_drawdown: Uint8ClampedArray,
+  compressed_drawdown:  Array<number>,
   rowShuttleMapping: Array<number>,
   rowSystemMapping: Array<number>,
   colShuttleMapping: Array<number>,
@@ -415,7 +415,7 @@ export interface LoadResponse{
 }
 
 export interface Fileloader{
-  ada: (filename: string, id: number, desc: string, data: any) => Promise<LoadResponse>,
+  ada: (filename: string, src: string, id: number, desc: string, data: any) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
 }

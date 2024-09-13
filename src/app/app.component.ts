@@ -452,12 +452,12 @@ export class AppComponent implements OnInit{
 
               }else if(meta === undefined){
                 this.files.setCurrentFileInfo(fileid, 'file name not found', '');
-                this.prepAndLoadFile('file name not found', fileid, '', ada);
+                this.prepAndLoadFile('file name not found', 'db', fileid, '', ada);
               
               }else{
 
                 this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
-                this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+                this.prepAndLoadFile(meta.name,'db', fileid, meta.desc, ada);
               }
 
           }else{
@@ -474,11 +474,11 @@ export class AppComponent implements OnInit{
                       this.loadBlankFile();
                     }else if(meta === undefined){
                       this.files.setCurrentFileInfo(fileid, 'file name not found', '');
-                      this.prepAndLoadFile('file name not found', fileid, '', ada);
+                      this.prepAndLoadFile('file name not found','db', fileid, '', ada);
       
                     }else{
                       this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
-                      this.prepAndLoadFile(meta.name, fileid, meta.desc, ada);
+                      this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada);
                     }
 
                 }else{
@@ -546,7 +546,7 @@ export class AppComponent implements OnInit{
     const ada = await this.files.getFile(fileid);
     const meta = await this.files.getFileMeta(fileid); 
     this.files.duplicate(this.auth.uid, meta.name+"-copy", meta.desc, ada).then(fileid => {
-      this.prepAndLoadFile(meta.name, fileid, meta.desc, ada).then(res => {
+      this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada).then(res => {
         this.saveFile();
       });
     })
@@ -559,7 +559,7 @@ export class AppComponent implements OnInit{
     const meta = await this.files.getFileMeta(fileid); 
     console.log("GOT ADA ", ada, " and META ", meta)
 
-    this.prepAndLoadFile(meta.name, fileid, meta.desc, ada)
+    this.prepAndLoadFile(meta.name, 'db',fileid, meta.desc, ada)
     .then(res => {
         this.saveFile();
     });
@@ -608,7 +608,7 @@ export class AppComponent implements OnInit{
       console.log(res);
       if(res.status == 404) return;
       this.clearAll();
-      return this.fs.loader.ada(name, -1, '', res.body)
+      return this.fs.loader.ada(name, 'upload',-1, '', res.body)
      .then(loadresponse => {
        this.loadNewFile(loadresponse, 'loadURL')
      });
@@ -622,6 +622,9 @@ export class AppComponent implements OnInit{
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string) : Promise<any>{
+
+
+    console.log("LOAD RESPONSE ", result)
 
    return this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
    .then(res => {
@@ -889,9 +892,9 @@ originChange(e:any){
 
 
 
-prepAndLoadFile(name: string, id: number, desc: string, ada: any) : Promise<any>{
+prepAndLoadFile(name: string, src: string, id: number, desc: string, ada: any) : Promise<any>{
   this.clearAll();
-    return this.fs.loader.ada(name, id,desc, ada).then(lr => {
+    return this.fs.loader.ada(name, src, id,desc, ada).then(lr => {
       return this.loadNewFile(lr, 'prepAndLoad');
     });
 }
@@ -950,6 +953,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
         let scale = 1;
 
       const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
+      console.log("SEED DRAFT NODE", draft_node)
 
       let ls: LoomSettings = {
         frames: this.ws.min_frames,
@@ -968,6 +972,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
           console.error("could not find draft with id in draft list");
         }
         else{
+          console.log("LOCATED DRAFT ", located_draft)
           d = copyDraft(located_draft.draft)
           ls = copyLoomSettings(located_draft.loom_settings);
           loom = copyLoom(located_draft.loom);
@@ -1195,7 +1200,7 @@ redo() {
     this.viewer.clearView();
     this.tree.clear();
     
-  this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(),this.files.getCurrentFileDesc(),  so)
+  this.fs.loader.ada(this.files.getCurrentFileName(),'redo', this.files.getCurrentFileId(),this.files.getCurrentFileDesc(),  so)
   .then(lr =>  this.loadNewFile(lr, 'statechange'));
 
  
@@ -1218,7 +1223,7 @@ redo() {
     this.tree.clear();
 
 
-    this.fs.loader.ada(this.files.getCurrentFileName(), this.files.getCurrentFileId(), this.files.getCurrentFileDesc(), so).then(lr => {
+    this.fs.loader.ada(this.files.getCurrentFileName(), 'undo', this.files.getCurrentFileId(), this.files.getCurrentFileDesc(), so).then(lr => {
       this.loadNewFile(lr, 'statechange');
 
 
