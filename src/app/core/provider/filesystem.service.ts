@@ -233,8 +233,6 @@ export class FilesystemService {
    */
   setCurrentFileInfo(fileid: number, name: string, desc: string){
    
-    console.log("SET CURRENT FILE INFO ", fileid, name)
-
     if(fileid === null || fileid == undefined) return; 
 
     if(desc === null || desc === undefined) desc = '';

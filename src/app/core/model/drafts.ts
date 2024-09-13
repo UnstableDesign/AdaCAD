@@ -217,11 +217,14 @@ export const createDraft = (
 
 
   /**
-   * sets up the draft from the information saved in a .ada file
-   * @param data 
+   * creates a draft object from saved data. Handles different forms of saved drafts. 
+   * @param data : a draft node object from the saved file
    */
-  export const loadDraftFromFile = (data: any, version: string) : Promise<{draft: Draft, id: number}> => {
+  export const loadDraftFromFile = (data: any, version: string, src: string) : Promise<{draft: Draft, id: number}> => {
     const draft: Draft = initDraft();
+
+    console.log("DATA is ", data)
+
     if(data.id !== undefined) draft.id = data.id;
     draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
     draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
@@ -229,10 +232,25 @@ export const createDraft = (
     if(version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')){
       draft.drawdown = parseSavedDrawdown(data.pattern);
     }else{
+      console.log("VERSION NEWER THAN 3.4.5")
       if(data.compressed_drawdown === undefined){
       draft.drawdown = parseSavedDrawdown(data.drawdown);
       }else{
+        console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
+
+
+        let compressed: Uint8ClampedArray;
+        if(src == 'upload'){
+          compressed = new Uint8ClampedArray(data.compressed_drawdown);
+          
+
+        }else{
+          compressed = data.compressed_drawdown;
+        }
+
         draft.drawdown = unpackDrawdownFromArray(data.compressed_drawdown, data.warps, data.wefts)
+        console.log("got", draft.drawdown)
+
       }
     }
 
@@ -719,7 +737,13 @@ export const createDraft = (
 
   }
 
-  export const exportDrawdownToArray = (drawdown: Drawdown) : Uint8ClampedArray => {
+  /**
+   * used ot create compressed draft format for saving. Switched back to explore as flat array of numbers 
+   * because exporting as unclamped array was not loading correctly when saved to file
+   * @param drawdown 
+   * @returns 
+   */
+  export const exportDrawdownToArray = (drawdown: Drawdown) : Array<number> => {
     let arr = [];
     for(let i = 0; i < wefts(drawdown); i++){
       for(let j = 0; j < warps(drawdown); j++){
@@ -737,11 +761,13 @@ export const createDraft = (
          }
       }
     }
-    return new Uint8ClampedArray(arr);
+    return arr;
+
+    //return new Uint8ClampedArray(arr);
 
   }
 
-  export const unpackDrawdownFromArray = (compressed: Uint8ClampedArray, warps: number, wefts: number) : Drawdown => {
+  export const unpackDrawdownFromArray = (compressed: Array<number>, warps: number, wefts: number) : Drawdown => {
     let dd:Drawdown = createBlankDrawdown(wefts, warps);
 
     for(let n = 0; n < compressed.length; n++){
