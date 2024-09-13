@@ -91,24 +91,17 @@
 
 .mixer-container{
 
-  &.fullscreen{
-    flex: 0 1 100%;
-    flex-direction: column;
-  }
 
   display: flex;
   flex-direction: row;
   background-color: #f0f0f0;
   overflow: hidden;
 
-  &.expand{
-    flex: 0 1 calc(100% - 40px);
-  }
 }
 
 .detail-container{
   display: flex;
-  flex: 0 1 80%;
+  flex: 0 1 100%;
   flex-direction: row;
   background-color: #f0f0f0;
   overflow: hidden;
