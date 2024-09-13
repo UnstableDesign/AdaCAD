@@ -54,9 +54,17 @@
 .footer{
     display: flex;
     flex-direction: row;
+    flex-wrap: nowarp;
     justify-content: space-between;
     font-size: 14px;
     background-color: darkgrey;
+}
+
+.footer-left,
+.footer-center{
+    display: inline-flex;
+    flex: 1 1;
+    overflow: hidden;
 }
 
 ::-webkit-scrollbar {

@@ -26,6 +26,8 @@
   flex-direction: row;
   gap: 8px;
   font-size: 14px;
+  flex: 1 1;
+  overflow: hidden;
 
 }
 
@@ -143,8 +145,14 @@
   display: flex;
   justify-content: space-between;
   flex: 0 1 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   padding: 0px 16px;
+}
+
+.footer-left{
+  display: flex;
+  overflow: hidden;
+  flex: 1 1;
 }
 
 .footer-center,

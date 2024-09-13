@@ -789,7 +789,7 @@ onPasteSelections(){
   }
 
   openHelp() {
-    window.open('https://docs.adacad.org/docs/howtouse/getting-started', '_blank');
+    window.open('https://docs.adacad.org/docs/howtouse/getting-started/interface', '_blank');
   }
 
   /**

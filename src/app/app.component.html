@@ -172,6 +172,7 @@
           <button mat-flat-button color="primary" [matMenuTriggerFor]="account"> Hi {{auth.username}} <i class="fa-solid fa-caret-down"></i> </button>
 
           <mat-menu #account="matMenu">
+                      <button mat-menu-item [disabled]="!files.connected || !auth.isLoggedIn" (click)="openAdaFiles(false)">Manage Saved Files</button>
             <button mat-menu-item (click)="logout()">Log Off</button>
           </mat-menu>
         </div>
@@ -255,7 +256,7 @@
           </div>
       
       
-<!--       
+      
           <div class="copypaste" *ngIf="multiselect.selected.length > 0">
            
              <button mat-raised-button color="accent" (click)="onCopySelections()">Copy (ctrl-c)</button>
@@ -265,7 +266,7 @@
           <div class="copypaste" *ngIf="multiselect.selected.length == 0">
             hold shift and click to select multiple drafts and operators
          </div>
-       -->
+      
       
       
           <div class="footer-right">
