@@ -56,13 +56,21 @@ export class LoomComponent {
       this.units = loom_settings.units;
       this.type = loom_settings.type;
       this.epi = loom_settings.epi;
-      if(loom !== null) this.frames = numFrames(loom)
-      if(loom !== null) this.treadles = numTreadles(loom)
+      if(loom !== null) this.frames = Math.max(loom_settings.frames, numFrames(loom));
+      if(loom !== null) this.treadles = Math.max(loom_settings.treadles, numTreadles(loom));
       this.warps = warps(draft.drawdown);
       this.wefts = wefts(draft.drawdown);
 
       this.updateWidth();
     }
+  }
+
+  updateLoom(){
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom = this.tree.getLoom(this.id);
+
+    if(loom !== null) this.frames = Math.max(loom_settings.frames, numFrames(loom));
+    if(loom !== null) this.treadles = Math.max(loom_settings.treadles, numTreadles(loom));
   }
 
   updateWidth(){

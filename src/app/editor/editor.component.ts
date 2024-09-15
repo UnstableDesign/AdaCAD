@@ -255,7 +255,7 @@ export class EditorComponent implements OnInit {
         this.dm.selectDraftEditSource('drawdown');
       }
       
-      this.draftname = getDraftName(draft)
+      this.draftname = getDraftName(draft);
       this.weaveRef.onNewDraftLoaded(id);
       this.redraw();
 
@@ -289,6 +289,7 @@ export class EditorComponent implements OnInit {
     
     public drawdownUpdated(){
       this.vs.updateViewer();
+      this.loom.updateLoom();
       this.saveChanges.emit();
     }  
     
