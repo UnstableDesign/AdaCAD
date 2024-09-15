@@ -559,9 +559,8 @@ export const createDraft = (
 
     let cols = rendering_color_defaults.concat([warp, weft, bg])
 
- 
 
-       //split the space into 3x3 and do nothing in the corners. 
+    //split the space into 3x3 and do nothing in the corners. 
        
     let margin_tl = Math.floor(dim/8);
     let margin_bl = Math.floor(7*dim/8);
@@ -587,19 +586,19 @@ export const createDraft = (
           }
         }else{
 
-          //top left
+          //top left (bg)
           if(y < margin_tl && x >= 0 && x < margin_tl){
             color_id = 6;
           }
 
-          //top center
+          //top center (warp)
           else if(y < margin_tl && x >= margin_tl && x < margin_bl){
             if(x == margin_tl) color_id = 3;
             else if(use_color) color_id = 4;
             else color_id = 0
           }
 
-          //top right
+          //top right (bg)
           else if(y < margin_tl && x >= margin_bl && x < dim){
             if( x == margin_bl) color_id = 3;
             else color_id = 6;
@@ -607,14 +606,17 @@ export const createDraft = (
 
           /*******/
 
-          //center left
+          //center left (weft or bg)
           else if(y >= margin_tl && y < margin_bl && x >= 0 && x < margin_tl){
-            if(y == margin_tl) color_id = 3;
-            else if(use_color) color_id = 5;
+            if (val == null) color_id = 6; 
+            else if(y == margin_tl) color_id = 3;
+            else if(use_color){
+             color_id = 5;
+            } 
             else color_id = 0
           }
 
-          //center center
+          //center center (shift based on val)
           else if(y >= margin_tl && y < margin_bl && x >=margin_tl && x < margin_bl){
 
       
@@ -632,10 +634,11 @@ export const createDraft = (
         
           }
 
-          //center right
+          //center right (weft or bg)
           else if(y >= margin_tl && y < margin_bl && x >= margin_bl && x < dim){
-            if(y == margin_tl) color_id = 3;
+            if(y == margin_tl && val != null) color_id = 3;
             else if((val == true || val == null) && x == margin_bl) color_id = 3;
+            else if(val == null) color_id = 6;
             else if(use_color) color_id = 5;
             else color_id = 0
           }
@@ -646,7 +649,7 @@ export const createDraft = (
 
           //bottom left
           else if(y >= margin_bl && x >= 0 && x < margin_tl){
-            if(y == margin_bl) color_id = 3;
+            if(y == margin_bl && val != null) color_id = 3;
             else color_id = 6;
           }
 
@@ -661,7 +664,7 @@ export const createDraft = (
           //bottom right
           else if(y >= margin_bl && x >=  margin_bl && x <dim){
             if(x == margin_bl) color_id = 3;
-            else if(y == margin_bl) color_id = 3;
+            else if(y == margin_bl &&val != null) color_id = 3;
             else color_id = 6;
           }
           else{
