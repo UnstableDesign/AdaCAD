@@ -59,6 +59,15 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
 
+      <button 
+      mat-stroked-button            
+      color="primary"
+      matTooltip= "Blank Draft"
+      (click)="createNewDraft()">
+      + <i class="fas fa-chess-board"></i> add draft
+      </button>
+
+
       <div class="draft_tools">
 
         <div *ngIf="loom.type !== 'jacquard'" class="editing-mode-toggle">

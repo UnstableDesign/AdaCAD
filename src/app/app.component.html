@@ -221,6 +221,7 @@
     [class.show]="selected_editor_mode === 'draft'" 
     (saveChanges)="saveFile()"
     (cloneDraft)="cloneDraft($event)"
+    (createDraft)="generateBlankDraftAndPlaceInMixer($event, 'editor')"
     (updateMixer)="updateMixer()"
       ></app-editor>
 

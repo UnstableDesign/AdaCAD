@@ -278,8 +278,8 @@ export class DraftRenderingComponent implements OnInit {
 
     const loom = this.tree.getLoom(id);
     if(loom == null){
-      this.frames = defaults.min_frames;
-      this.treadles = defaults.min_treadles;
+      this.frames = defaults.loom_settings.frames;
+      this.treadles = defaults.loom_settings.treadles;
     }else{
       this.frames = Math.max(numFrames(loom), loom_settings.frames);
       this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
