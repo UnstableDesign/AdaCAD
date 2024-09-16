@@ -49,37 +49,79 @@
      </mat-expansion-panel>
    -->
 
+
+      
+    <button 
+    mat-stroked-button   
+    class="new_draft"         
+    color="primary"
+    matTooltip= "Blank Draft"
+    (click)="createNewDraft()">
+    + <i class="fas fa-chess-board"></i> new draft
+    </button>
+
+
     <mat-expansion-panel expanded >
       <mat-expansion-panel-header>
         <mat-panel-title>
           <i class="fas fa-edit"></i>
-            Design
+            Edit Draft
           </mat-panel-title>
-          <mat-panel-description>
-        </mat-panel-description>
+         
       </mat-expansion-panel-header>
+
+    
+
 
       <div class="draft_tools">
 
         <div *ngIf="loom.type !== 'jacquard'" class="editing-mode-toggle">
-          <mat-form-field>
-            <mat-label>design source: </mat-label>
-            <mat-select [(value)]="dm.cur_draft_edit_source" (selectionChange)="swapEditingStyleClicked()">
-                <mat-option value="loom">Threading and Tieup</mat-option>
-                <mat-option value="drawdown">Drawdown</mat-option>
-            </mat-select>
-            </mat-form-field>
-          <!-- <mat-slide-toggle
-          [disabled]="id === -1"
-          hideIcon
-          (change)="swapEditingStyleClicked()">
-          </mat-slide-toggle> -->
+
+        <mat-label>drafting mode </mat-label>
+        <mat-button-toggle-group  [(value)]="dm.cur_draft_edit_source"  name="design source" (change)="swapEditingStyleClicked()" aria-label="edit mode">
+          <mat-button-toggle matTooltip="edit threading" class="draft-edit-mode-loom" value="loom"></mat-button-toggle>
+          <mat-button-toggle matTooltip="edit drawdown" class="draft-edit-mode-drawdown" value="drawdown"> </mat-button-toggle>
+        </mat-button-toggle-group>
 
         </div>
+        <mat-label>drafting pencil</mat-label>
 
-        <div class="select">
-          <h3>select</h3>
-        <button 
+        <mat-button-toggle-group  
+        name="editor mode" 
+        (change)="selectPencil()"
+        [(ngModel)]="pencil" 
+        aria-label="edit mode">
+        
+          <mat-button-toggle 
+          matTooltip="select regions" 
+          value="select">
+          <i class="fas fa-expand"></i>
+          </mat-button-toggle>
+        
+          <ng-container *ngFor="let mode of draw_modes">
+            <mat-button-toggle  *ngIf="mode.value !== 'material'"
+            [matTooltip]= "mode.viewValue"
+            [value] = "mode.value"
+            >
+                <span class="{{mode.icon}}"></span>
+            </mat-button-toggle >
+          </ng-container>
+       
+          <ng-container *ngFor="let shuttle of ms.materials">
+            <mat-button-toggle 
+            [matTooltip]= "shuttle.name"
+            [value]="shuttle.id"
+            >
+              <span  [style.color]="shuttle.color" ><i class="fa-solid fa-paintbrush"></i></span>
+            </mat-button-toggle >
+        </ng-container>
+
+        </mat-button-toggle-group>
+
+
+        <!-- <div class="select">
+          <h3>select</h3> -->
+        <!-- <button 
         mat-icon-button
         class="menu-button" 
         matTooltip= "Select Region"
@@ -87,9 +129,9 @@
         (click)="select()">
         <i class="fas fa-expand"></i>
         </button>
-        </div>
+        </div> -->
 
-        <div class="pencils">
+        <!-- <div class="pencils">
           <h3>draft</h3>
         <ng-container *ngFor="let mode of draw_modes">
           <button *ngIf="mode.value !== 'material'"
@@ -102,8 +144,8 @@
               <span class="{{mode.icon}}"></span>
           </button>
         </ng-container>
-        </div>
-        <div class="materials">
+        </div> -->
+        <!-- <div class="materials">
           <h3>materials</h3>
 
           <ng-container *ngFor="let shuttle of ms.materials">
@@ -115,7 +157,7 @@
                   <span  [style.color]="shuttle.color" ><i class="fa-solid fa-paintbrush"></i></span>
               </button>
           </ng-container>
-        </div>
+        </div> -->
       </div>
   
   

@@ -15,11 +15,11 @@ export class WorkspaceService {
 
 
   file_favorites: Array<number> = [];
-  min_frames: number = defaults.min_frames; 
-  min_treadles: number = defaults.min_treadles;
-  type: string = defaults.loom_type; //'rigid', 'direct', 'frame', 'jacquard'
-  epi: number = defaults.epi;
-  units: 'in' | 'cm' = <'in' | 'cm'>defaults.units;
+  min_frames: number = defaults.loom_settings.frames; 
+  min_treadles: number = defaults.loom_settings.treadles;
+  type: string = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
+  epi: number = defaults.loom_settings.epi;
+  units: 'in' | 'cm' = <'in' | 'cm'>defaults.loom_settings.units;
 
   show_materials: boolean = defaults.show_materials;
   black_cell_up: boolean = defaults.black_cell_up;
@@ -37,11 +37,11 @@ export class WorkspaceService {
   constructor() { }
 
   initDefaultWorkspace(){
-    this.min_frames = defaults.min_frames; 
-    this.min_treadles = defaults.min_treadles;
-    this.type = defaults.loom_type; //'rigid', 'direct', 'frame', 'jacquard'
-    this.epi = defaults.epi;
-    this.units = <'in'|'cm'>defaults.units;
+    this.min_frames = defaults.loom_settings.frames; 
+    this.min_treadles = defaults.loom_settings.treadles;
+    this.type = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
+    this.epi = defaults.loom_settings.epi;
+    this.units = <'in'|'cm'>defaults.loom_settings.units;
     this.show_materials = defaults.show_materials;
     this.black_cell_up = defaults.black_cell_up;
     this.number_threading = defaults.number_threading;

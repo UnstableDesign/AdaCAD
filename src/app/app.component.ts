@@ -268,10 +268,16 @@ export class AppComponent implements OnInit{
         this.editor.onFocus();
 
         if(this.vs.getViewer() == -1){
-          this.generateBlankDraftAndPlaceInMixer(this.editor.loom).then(id => {
-            this.editor.loadDraft(id);
-            this.editor.onFocus();
-          })
+          let obj = {
+            warps: defaults.warps,
+            wefts: defaults.wefts,
+            type: defaults.loom_settings.type,
+            epi: defaults.loom_settings.epi,
+            units: defaults.loom_settings.units,
+            frames: defaults.loom_settings.frames,
+            treadles:defaults.loom_settings.treadles
+          }
+          this.generateBlankDraftAndPlaceInMixer(obj, 'toggle');
 
         }else{
           console.log("LOADING ", this.vs.getViewer())
@@ -309,11 +315,13 @@ export class AppComponent implements OnInit{
   /**
    * called by an emit on focus for editor, passes an object with:
    *  warps, wefts, type, epi, units, frames, treadles
+   *  
    * generates a draft, loom, and loom settings before sending back to the app component to initate it 
    * within both draft detail and the mixer view. Returns a promise to streamline execution
+   * 
    * @returns 
    */
-  generateBlankDraftAndPlaceInMixer(obj: any ) : Promise<number>{
+  generateBlankDraftAndPlaceInMixer(obj: any, origin: 'toggle' | 'editor' | 'starter' ) : Promise<number>{
 
     //if it has a parent and it does not yet have a view ref. 
    //this.tree.setSubdraftParent(id, -1)
@@ -332,7 +340,35 @@ export class AppComponent implements OnInit{
       return loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings)
       .then(loom => {
         return this.createNewDraftOnMixer(draft, loom, loom_settings)})
-    
+      .then(draftid => {
+
+        switch(origin){
+          case 'toggle':
+            this.editor.loadDraft(draftid);
+            this.editor.onFocus();
+            break;
+
+          case 'starter':
+            this.vs.setViewer(draftid);
+            this.editor.loadDraft(draftid);
+            this.editor.onFocus();
+            this.saveFile();
+            break;
+
+          case 'editor':
+            this.vs.setViewer(draftid);
+            this.editor.loadDraft(draftid);
+            this.editor.onFocus();
+            this.saveFile();
+            break;
+        }
+
+          return Promise.resolve(draftid);
+        })
+       
+
+
+
     }
 
 
@@ -584,13 +620,19 @@ export class AppComponent implements OnInit{
   loadStarterFile(){
 
     this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '').then(res => {
-      this.generateBlankDraftAndPlaceInMixer(this.editor.loom).then(id => {
-        this.filename_form.setValue(this.files.getCurrentFileName())
-        this.vs.setViewer(id);
-        this.editor.loadDraft(id);
-        this.editor.onFocus();
-        this.saveFile();
-      })
+      let obj = {
+        warps: defaults.warps,
+        wefts: defaults.wefts,
+        type: defaults.loom_settings.type,
+        epi: defaults.loom_settings.epi,
+        units: defaults.loom_settings.units,
+        frames: defaults.loom_settings.frames,
+        treadles:defaults.loom_settings.treadles
+      }
+
+      this.filename_form.setValue(this.files.getCurrentFileName())
+
+      this.generateBlankDraftAndPlaceInMixer(obj, 'starter');
     });
 
     
@@ -799,9 +841,7 @@ onPasteSelections(){
     window.open('https://github.com/UnstableDesign/AdaCAD/issues/new', '_blank');
   }
 
-  openGit(){
-    window.open('https://github.com/UnstableDesign/AdaCAD', '_blank');
-  }
+
 
   /**
    * called when a user selects a file to open from the AdaFile Browser

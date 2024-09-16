@@ -1,3 +1,23 @@
+.mat-button-toggle-group{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.mat-button-toggle{
+    width: 20%;
+    display: flex;
+    background: whitesmoke;
+}
+
+.mat-button-toggle-appearance-standard.mat-button-toggle-checked {
+    color: var(--mat-standard-button-toggle-selected-state-text-color);
+    background-color: #ff4081;
+}
+
+.mat-button-toggle-group-appearance-standard .mat-button-toggle-appearance-standard+.mat-button-toggle-appearance-standard {
+    border-left: none;
+}
+
 .mat-mdc-icon-button{
     font-size: 14px;
 }
@@ -12,7 +32,32 @@
     display: flex;
     overflow: scroll;
     flex-direction: column;
+}
 
+.draft-edit-mode-drawdown{
+    width: 50%;
+    height: 40px;
+    background: url(/../../../../assets/svg/draft_edit_drawdown.svg);
+    background-repeat: no-repeat;
+    background-size: 28px 28px;
+    background-position-y: center;
+    background-position-x: center;
+}
+
+.draft-edit-mode-loom{
+    display: block;
+    width: 50%;
+    height: 40px;
+    background: url(/../../../../assets/svg/draft_edit_loom.svg);
+    background-size: 28px 28px;
+    background-repeat: no-repeat;
+    background-position-y: center;
+    background-position-x: center;
+}
+
+.new_draft{
+    width: 100%;
+    background-color: white;
 }
 
 
