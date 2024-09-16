@@ -4,7 +4,7 @@ import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MaterialModal } from '../core/modal/material/material.modal';
 import { createCell } from '../core/model/cell';
-import { Drawdown, LoomSettings, OpNode } from '../core/model/datatypes';
+import { DesignMode, Drawdown, LoomSettings, OpNode } from '../core/model/datatypes';
 import { defaults, draft_pencil } from '../core/model/defaults';
 import { createBlankDrawdown, createDraft, getDraftName } from '../core/model/drafts';
 import { isFrame } from '../core/model/looms';
@@ -75,6 +75,8 @@ export class EditorComponent implements OnInit {
   current_view = 'draft';
 
   scale: number = 0;
+
+  pencil: string;
   
   
   
@@ -102,7 +104,7 @@ export class EditorComponent implements OnInit {
     
     ngOnInit(){
       
-      
+      this.pencil = "toggle";
     }
     
     ngAfterViewInit() {
@@ -418,11 +420,11 @@ export class EditorComponent implements OnInit {
     
     
     
-    drawModeChange(name: string) {
-      this.dm.selectDraftEditingMode('draw');
-      this.dm.selectPencil(name);
-      this.weaveRef.unsetSelection();
-    }
+    // drawModeChange(name: string) {
+    //   this.dm.selectDraftEditingMode('draw');
+    //   this.dm.selectPencil(name);
+    //   this.weaveRef.unsetSelection();
+    // }
     
     openActions(){
       if(this.actions_modal != undefined && this.actions_modal.componentInstance != null) return;
@@ -440,62 +442,82 @@ export class EditorComponent implements OnInit {
           this.actions_modal.componentInstance.onUpdateWeftSystems.subscribe(event => { if(this.id !== -1) this.weaveRef.updateWeftSystems(event)});
           
           
-        }
-        
-        select(){
-          this.dm.selectDraftEditingMode('select');
-        }
-        
-        openMaterials() {
-          
-          const material_modal = this.dialog.open(MaterialModal, {data: {}});
-          material_modal.componentInstance.onMaterialChange.subscribe(event => {
-            
-          });
-        }
-        
-        
-        
-        
-        viewChange(name:any){
-          this.current_view = name;
-          this.weaveRef.viewChange(name);
-          
-        }
-        
-        renderChange(){
-          //the renderer is listening for changes to scale and will redraw
-          this.scale = this.zs.getEditorZoom();
-        }
-        
-        
-        
-        drawWithMaterial(material_id: number){
-          this.dm.selectDraftEditingMode('draw');
-          this.dm.selectPencil('material');
-          this.selected_material_id = material_id;
-          this.weaveRef.selected_material_id = material_id;
-        }
-        
-        
-        swapEditingStyleClicked(){
-          if(this.id == -1) return;
-          
-          if(this.loom.type !== 'jacquard'){
-            if(this.dm.isSelectedDraftEditSource('drawdown')){
-              this.dm.selectDraftEditSource('drawdown');
-            }else{
-              this.dm.selectDraftEditSource('loom')
-            }
-          }else{
-            this.dm.selectDraftEditSource('drawdown');
+  }
 
-          }
-          
-        }
+  selectPencil(){
+    this.weaveRef.unsetSelection();
+
+    switch (this.pencil){
+
+      case 'select':
+        this.dm.selectDraftEditingMode('select');
+
+      break;
+
+      case 'up':
+      case 'down':
+      case 'toggle':
+      case 'unset':
+        this.dm.selectDraftEditingMode('draw');
+        this.dm.selectPencil(this.pencil);
+      
+      break;
+
+      default:
+        this.dm.selectDraftEditingMode('draw');
+        this.dm.selectPencil('material');
+        this.selected_material_id = this.pencil;
+        this.weaveRef.selected_material_id = this.pencil;
+      break; 
+
+    }
+
+  }
+           
+  openMaterials() {
+    
+    const material_modal = this.dialog.open(MaterialModal, {data: {}});
+    material_modal.componentInstance.onMaterialChange.subscribe(event => {
+      
+    });
+  }
+  
         
         
         
+  viewChange(name:any){
+    this.current_view = name;
+    this.weaveRef.viewChange(name);
+    
+  }
         
+  renderChange(){
+    //the renderer is listening for changes to scale and will redraw
+    this.scale = this.zs.getEditorZoom();
+  }
+        
+        
+        
+  
+        
+  swapEditingStyleClicked(){
+    if(this.id == -1) return;
+    
+    if(this.loom.type !== 'jacquard'){
+      if(this.dm.isSelectedDraftEditSource('drawdown')){
+        this.dm.selectDraftEditSource('drawdown');
+      }else{
+        this.dm.selectDraftEditSource('loom')
       }
+    }else{
+      this.dm.selectDraftEditSource('drawdown');
+
+    }
+    
+  }
+  
+        
+        
+        
+}
       
