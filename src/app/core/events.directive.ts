@@ -1,5 +1,5 @@
 import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
-import { ZoomService } from '../core/provider/zoom.service';
+import { ZoomService } from './provider/zoom.service';
 import { DesignmodesService } from './provider/designmodes.service';
 import { FileService } from './provider/file.service';
 import { StateService } from './provider/state.service';
@@ -7,7 +7,7 @@ import { StateService } from './provider/state.service';
 @Directive({
   selector: 'appKeycodes'
 })
-export class KeycodesDirective {
+export class EventsDirective {
   
   mixer_has_focus = true;
   event_on_input_flag = false;

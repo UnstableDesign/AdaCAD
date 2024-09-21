@@ -46,7 +46,7 @@ import { BlankdraftModal } from './modal/blankdraft/blankdraft.modal';
 import { ExamplesComponent } from './modal/examples/examples.component';
 import { LoadfileComponent } from './modal/loadfile/loadfile.component';
 import { FilebrowserComponent } from './ui/filebrowser/filebrowser.component';
-import { KeycodesDirective } from './keycodes.directive';
+import { EventsDirective } from './events.directive';
 import { WelcomeComponent } from './modal/welcome/welcome.component';
 import { RenderService } from './provider/render.service';
 import { DraftRenderingComponent } from './ui/draft-rendering/draft-rendering.component';
@@ -105,7 +105,7 @@ import { ViewadjustComponent } from './viewadjust/viewadjust.component';
         ExamplesComponent,
         LoadfileComponent,
         FilebrowserComponent,
-        KeycodesDirective,
+        EventsDirective,
         WelcomeComponent,
         SelectionComponent,
         DraftRenderingComponent
@@ -160,7 +160,7 @@ import { ViewadjustComponent } from './viewadjust/viewadjust.component';
         MaterialModal,
         FilebrowserComponent,
         ExamplesComponent,
-        KeycodesDirective,
+        EventsDirective,
         DraftRenderingComponent,
         SelectionComponent,
         ViewadjustComponent
