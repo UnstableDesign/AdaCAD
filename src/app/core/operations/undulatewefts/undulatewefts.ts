@@ -12,23 +12,16 @@ const old_names = [];
 const shift_pattern:StringParam =  
     {name: 'undulation pattern',
     type: 'string',
-    regex: /^(\d+\s)*\d+\s*$/i,
+    regex: /\d+|\D+/i,
     value: '1 1 1 2 2 3',
     error: '',
     dx: 'shifts each pic of the input draft according to the number sequence specified.'
 };
-const force_fit: BoolParam = 
-        {name: 'fit to input',
-        type: 'boolean',
-        falsestate: 'do not force the fit',
-        truestate: 'force the draft to match the input size',
-        value: 0,
-        dx: 'controls if the output draft wefts should match the number of inputs to the undulation pattern or if the undulation pattern should repeat over the draft wefts'
-        }
 
 
 
-const params = [shift_pattern, force_fit];
+
+const params = [shift_pattern];
 
 //INLETS
 
@@ -48,10 +41,7 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       const undulating_string: string = getOpParamValById(0, param_vals);
-
  
-      const forcefit: number = getOpParamValById(1, param_vals);
-
       const drafts: Array<Draft> = getAllDraftsAtInlet(op_inputs, 0);
 
       if(drafts.length == 0) return Promise.resolve([]);
@@ -59,7 +49,10 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       let regex_matches= utilInstance.parseRegex(undulating_string, shift_pattern.regex)
 
 
-      let undulating_array = regex_matches.map(el => parseInt(el))
+      let undulating_array = regex_matches
+      .filter(el => el !== ' ')
+      .map(el => parseInt(el))
+
 
       let pattern = new Sequence.TwoD();
 
@@ -67,17 +60,9 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       let max_warps = 0;
 
 
-      if(forcefit){
-        max_wefts = undulating_array.length;
-        max_warps = undulating_array.reduce((acc, val)=> {
-            if(Math.abs(val) > acc) return Math.abs(val);
-            return acc;
-        }, -1);
-        max_warps++;
-      }else{
-        max_wefts = wefts(drafts[0].drawdown);
-        max_warps = warps(drafts[0].drawdown)
-      }
+      max_wefts = wefts(drafts[0].drawdown);
+      max_warps = warps(drafts[0].drawdown)
+    
 
       for(let i = 0; i < max_wefts; i++){
 

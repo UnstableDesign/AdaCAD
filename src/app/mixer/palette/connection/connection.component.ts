@@ -223,7 +223,6 @@ export class ConnectionComponent implements OnInit {
     cxn_container.style.top =  this.topleft.y+"px";
     cxn_container.style.left =  this.topleft.x+"px";
 
-
     this.width = bottomright.x - this.topleft.x + 2; //add two so a line is drawn when horiz or vert
     this.height = bottomright.y - this.topleft.y + 2;
   }
