@@ -545,6 +545,7 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
       canvas.height = wefts(draft.drawdown)*cell_size * pixel_ratio;
       canvas.style.width = (warps(draft.drawdown)*cell_size)+"px";
       canvas.style.height = (wefts(draft.drawdown)*cell_size)+"px";
+      
       let img = getDraftAsImage(draft, cell_size*pixel_ratio, rf.use_floats, rf.use_colors, this.ms.getShuttles());
       draft_cx.putImageData(img, 0, 0);
       return Promise.resolve('');

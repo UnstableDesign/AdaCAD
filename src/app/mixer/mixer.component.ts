@@ -176,7 +176,6 @@ export class MixerComponent  {
 
 
     const value = this.myControl.value.toLowerCase();
-    console.log("IN ENTER ", value)
 
     //run the filter function again without the classification titles
     let tree = this.op_tree.reduce((acc, classification) => {
