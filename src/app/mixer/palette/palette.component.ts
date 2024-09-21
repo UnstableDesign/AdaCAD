@@ -755,7 +755,6 @@ handlePan(diff: Point){
       const id = this.tree.createNode('cxn', cxn.instance, cxn.hostView);
       const to_input_ids: Array<number> =  this.tree.addConnection(id_from, 0, id_to, to_ndx, id);
       
-      console.log("on create connection")
       cxn.instance.id = id;
       cxn.instance.scale = this.zs.getMixerZoom();
 
@@ -895,7 +894,6 @@ handlePan(diff: Point){
       this.unfreezePaletteObjects();
 
     }else{
-      console.log("DESIGN MODE CHANGED")
       this.freezePaletteObjects();
     }
 
@@ -985,8 +983,7 @@ handlePan(diff: Point){
           new_tl = {x: op_comp.topleft.x + 200, y: op_comp.topleft.y}
       }else{
         let container = document.getElementById('scale-'+obj.id);
-        console.log("from duplicate op")
-          new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.getMixerZoom()/this.default_cell_size, y: op_comp.topleft.y}
+        new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.getMixerZoom()/this.default_cell_size, y: op_comp.topleft.y}
       }
 
 
@@ -1175,7 +1172,6 @@ handlePan(diff: Point){
 
   this.setOutletStylingOnConnection(obj.id, true);
 
-  console.log("from connection started")
   const zoom_factor =  1 / this.zs.getMixerZoom();
   //on screen position relative to palette
   let screenX = sd_rect.x - parent_rect.x + parent.scrollLeft;
@@ -1344,7 +1340,6 @@ connectionDragged(mouse: Point){
   let parent = document.getElementById('scrollable-container');
   let rect_palette = parent.getBoundingClientRect();
 
-  console.log("from connection dragged")
   const zoom_factor = 1 / this.zs.getMixerZoom();
 
   //on screen position relative to palette
@@ -1412,7 +1407,6 @@ calculateInitialLocation() : Point {
 
   const container = document.getElementById('scrollable-container');
   const container_rect = container.getBoundingClientRect();
-  console.log("from calc init location")
 
   let tl = {
     x: (container.scrollLeft  + container_rect.x) * 1/this.zs.getMixerZoom(),
@@ -1907,13 +1901,13 @@ pasteConnection(from: number, to: number, inlet: number){
    * update the viewport when the window is resized
    * @param event 
    */
-  @HostListener('window:resize', ['$event'])
-    onResize(event) {
+  // @HostListener('window:resize', ['$event'])
+  //   onResize(event) {
 
-      this.viewport.setWidth(event.target.innerWidth);
-      this.viewport.setHeight(event.target.innerHeight);
+  //     this.viewport.setWidth(event.target.innerWidth);
+  //     this.viewport.setHeight(event.target.innerHeight);
 
-    }
+  //   }
 
 
  /**
@@ -2228,8 +2222,6 @@ pasteConnection(from: number, to: number, inlet: number){
    * @returns 
    */
   subdraftMoved(obj: any){
-
-    console.log("MOVE SUBDRAFT ", obj)
 
       if(obj === null) return;
   

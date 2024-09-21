@@ -5,7 +5,6 @@
 	class="subdraft-parent-container selectable-{{!disable_drag}}" 
 	[class.is_selected]="selected_draft_id == id"
 	cdkDrag
-	cdkDragBoundary=".palette"
 	(mousedown)="mousedown($event)"
 	(click)="toggleMultiSelection($event)"
 	[style.z-index] = "zndx"
