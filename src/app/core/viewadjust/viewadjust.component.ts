@@ -29,6 +29,13 @@ export class ViewadjustComponent {
 
   }
 
+  /**
+   * called when we need to automatically move the view in response to a window resize event
+   */
+  updatePosition(){
+    this.pos = {x: Math.floor(this.vas.left), y: 0}
+  }
+
 
 
 

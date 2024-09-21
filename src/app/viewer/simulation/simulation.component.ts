@@ -55,11 +55,11 @@ export class SimulationComponent implements OnInit {
   }
 
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event) {
+  // @HostListener('window:resize', ['$event'])
+  // onResize(event) {
     
-    this.onWindowResize();
-  }
+  //   this.onWindowResize();
+  // }
 
   ngOnInit(): void {
 

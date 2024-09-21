@@ -1,13 +1,13 @@
 import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
-import { ZoomService } from '../core/provider/zoom.service';
 import { DesignmodesService } from './provider/designmodes.service';
 import { FileService } from './provider/file.service';
 import { StateService } from './provider/state.service';
+import { ViewadjustService } from './provider/viewadjust.service';
 
 @Directive({
   selector: 'appKeycodes'
 })
-export class KeycodesDirective {
+export class EventsDirective {
   
   mixer_has_focus = true;
   event_on_input_flag = false;
@@ -22,16 +22,21 @@ export class KeycodesDirective {
   @Output() onPasteSelections: any = new EventEmitter();
   @Output() onDrawModeChange: any = new EventEmitter();
   @Output() onExplode: any = new EventEmitter();
-  
+  @Output() onWindowResize: any = new EventEmitter();
   
   constructor( 
-    private zs: ZoomService, 
     private fs: FileService,
     private ss: StateService,
-    private dm: DesignmodesService) { 
+    private dm: DesignmodesService, 
+    private vas: ViewadjustService) { 
     }
     
     
+    @HostListener('window:resize', ['$event'])
+    onResize(event) {
+      this.vas.updateFromWindowResize(event.target.innerWidth);
+      this.onWindowResize.emit();
+    }
     
     /**
     * check the series of the targets for this mouse or key event and see if it tracks to 

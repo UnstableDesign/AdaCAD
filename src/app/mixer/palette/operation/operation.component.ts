@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Draft, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
 import { ImageService } from '../../../core/provider/image.service';
@@ -124,6 +124,8 @@ export class OperationComponent implements OnInit {
 
    category_name: string = "";
 
+
+   
   constructor(
     private operations: OperationService, 
     private dialog: MatDialog,
@@ -136,6 +138,12 @@ export class OperationComponent implements OnInit {
      
 
   }
+
+  // @HostListener('window:resize', ['$event'])
+  // onResize(event) {
+  //   console.log("FORCE TRANSFORM TO ZERO", this.disable_drag);
+  //   this.disable_drag = true;
+  // }
 
   ngOnInit() {
 
@@ -173,7 +181,6 @@ export class OperationComponent implements OnInit {
 
 
 
-
     this.onOpLoaded.emit({id: this.id})
 
   }
@@ -188,6 +195,7 @@ export class OperationComponent implements OnInit {
   }
 
   drawForPrint(canvas, cx, scale){
+
     if(canvas === undefined) return;
     const bounds = document.getElementById('scale-'+this.id);
 
@@ -238,8 +246,10 @@ export class OperationComponent implements OnInit {
   }
 
   mousedown(e: any) {
+    //this.disable_drag = false;
     e.stopPropagation();
   }
+
 
   hasPin() : boolean{
     if(!this.vs.hasPin()) return false;

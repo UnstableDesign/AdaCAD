@@ -1,6 +1,5 @@
 <div id='scale-{{id}}' class="operation-parent no-text-select selectable-{{!disable_drag}}"
 cdkDrag
-cdkDragBoundary=".palette"
 (mousedown)="mousedown($event)"
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
@@ -9,6 +8,11 @@ cdkDragBoundary=".palette"
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"
 >
+
+<!--cdkDragBoundary=".palette"-->
+
+
+
   <div class="operation-container" [style.background-color]="opdescriptions.getCatColor(category_name)">
         <div class="cxn-row">
             <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">
