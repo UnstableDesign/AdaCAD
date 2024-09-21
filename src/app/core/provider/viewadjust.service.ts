@@ -17,6 +17,12 @@ export class ViewadjustService {
 
   }
 
+  updateFromWindowResize(innerwidth: number){
+    const pcent = this.left / (this.left + this.right);
+    const new_left = innerwidth * pcent;
+    this.updatePosition(new_left);
+  }
+
 
   updatePosition(x: number){
     this.left = x;

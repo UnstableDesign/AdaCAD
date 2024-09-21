@@ -41,6 +41,7 @@ import { WelcomeComponent } from './core/modal/welcome/welcome.component';
 import { VersionService } from './core/provider/version.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ViewadjustService } from './core/provider/viewadjust.service';
+import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
 
 
 
@@ -58,7 +59,7 @@ export class AppComponent implements OnInit{
   @ViewChild(EditorComponent) editor;
   @ViewChild(ViewerComponent) viewer;
   @ViewChild('bitmapImage') bitmap: any;
-
+  @ViewChild(ViewadjustComponent) viewadjust;
 
 
   //modals to manage
@@ -371,6 +372,9 @@ export class AppComponent implements OnInit{
 
     }
 
+  updateViewAdjustBar(){
+    this.viewadjust.updatePosition();
+  }
 
 
   recenterViews(){

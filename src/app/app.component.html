@@ -11,6 +11,7 @@
   (onPasteSelections)="onPasteSelections()"
   (onDrawModeChange)="drawModeChange($event)"
   (onExplode)="onExplode()"
+  (onWindowResize)="updateViewAdjustBar()"
 >
 </appKeycodes>
 
@@ -296,7 +297,7 @@
 
 
 </div>
-<app-viewadjust class="view-adjust-overlay"></app-viewadjust>
+<app-viewadjust #viewadjust class="view-adjust-overlay"></app-viewadjust>
 
 <div class="ui-right"  [style.width.px]="vas.right">
      <app-viewer 
