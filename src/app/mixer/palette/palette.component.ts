@@ -1133,8 +1133,6 @@ handlePan(diff: Point){
   * @param obj - contains event, id of component who called
   */
  onConnectionStarted(obj: any){
-
-
   if(obj.type == 'stop' || (this.tree.getOpenConnectionId() !== -1)){
     this.selecting_connection = false;
     this.setOutletStylingOnConnection(this.tree.getOpenConnectionId(), false);
