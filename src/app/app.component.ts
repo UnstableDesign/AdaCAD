@@ -194,6 +194,7 @@ export class AppComponent implements OnInit{
     this.vs.clearPin();
     this.vs.clearViewer();
     this.mixer.clearView();
+    this.media.clearMedia();
     this.editor.clearAll();
     this.viewer.clearView();
     this.tree.clear();
@@ -962,17 +963,31 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   //1. filter any operations with a parameter of type file, and load the associated file. 
   const images_to_load = [];
+
+
+  if(utilInstance.sameOrNewerVersion(this.vers.currentVersion(), '4.1.7')){
+    //LOAD THE NEW FILE OBJECT
+   data.indexed_image_data.forEach(el => {
+    images_to_load.push({id: el.id, ref: el.ref, data:{colors: el.colors, color_mapping: el.color_mapping}});
+   })
+
+  }else{
+    console.log("LOADING OLDER VERSION ")
+    data.ops.forEach(op => {
+      const internal_op = this.ops.getOp(op.name); 
+      if(internal_op === undefined || internal_op == null|| internal_op.params === undefined) return;
+      const param_types = internal_op.params.map(el => el.type);
+      param_types.forEach((p, ndx) => {
+            //older version stored the media object reference in the parameter
+            let new_id = utilInstance.generateId(8);
+            images_to_load.push({id: new_id, ref: op.params[ndx], data:null});
+            op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
+      });
+    })
+
+  }
   
-  data.ops.forEach(op => {
-    const internal_op = this.ops.getOp(op.name); 
-    if(internal_op === undefined || internal_op == null|| internal_op.params === undefined) return;
-    const param_types = internal_op.params.map(el => el.type);
-    param_types.forEach((p, ndx) => {
-      if(p === 'file'){
-        images_to_load.push({id: op.params[ndx], data:null});
-      } 
-    });
-  })
+
 
 
 

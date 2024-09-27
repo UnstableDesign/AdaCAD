@@ -131,6 +131,7 @@ const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInl
         if(id_and_data.id !== ''){
             inlets  = [];
 
+            console.log('ID AND DATA ', id_and_data)
             let color_space = id_and_data.data.colors;
             let unique_colors = utilInstance.filterToUniqueValues(id_and_data.data.colors_mapping.map(el => el.to))
             //compute the distance between each pair of colors, keep the N closest values

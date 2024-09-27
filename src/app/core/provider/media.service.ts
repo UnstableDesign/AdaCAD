@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AnalyzedImage, Color, IndexedColorImageInstance, MediaInstance } from '../model/datatypes';
+import { AnalyzedImage, Color, IndexedColorImageInstance, IndexedColorMediaProxy, MediaInstance } from '../model/datatypes';
 import { UploadService } from './upload.service';
 import { HttpClient } from '@angular/common/http';
 import utilInstance from '../model/util';
@@ -30,10 +30,10 @@ export class MediaService {
    * @param to_load a list of ids and associated data 
    * @returns 
    */
-  loadMedia(to_load: Array<{id: string, data:any}>) : Promise<any> {
+  loadMedia(to_load: Array<{id: number, ref: string, data:any}>) : Promise<any> {
     const fns = to_load
-    .filter(el => el.id !== '')
-    .map(el => this.loadIndexedColorFile(el.id, el.data));
+    .filter(el => el.ref !== '')
+    .map(el => this.loadIndexedColorFile(el.id, el.ref, el.data));
     return Promise.all(fns);
   }
 
@@ -52,7 +52,11 @@ export class MediaService {
    * @param data an object containing any color or color_mapping data that has already been stored for this item
    * @returns 
    */
-  loadIndexedColorFile(id: string, data: any) : Promise<AnalyzedImage>{
+  loadIndexedColorFile(id: number, ref: string, data: any) : Promise<IndexedColorImageInstance>{
+
+    if(id == -1){
+      id = utilInstance.generateId(8);
+    }
 
     let color_mapping = [];
     if(data !== null) color_mapping = data.color_mapping;
@@ -60,34 +64,16 @@ export class MediaService {
     let colors = [];
     if(data !== null) colors = data.colors;
 
-
     let url = "";
   
     //retrieve the media object from the server
-    return this.upSvc.getDownloadData(id).then(obj =>{
+    return this.upSvc.getDownloadData(ref).then(obj =>{
       if(obj === undefined) return null;
       url = obj;
       return  this.processMedia(obj);
       
     }).then(blob => {
 
-      if(blob == null){
-        var obj: AnalyzedImage = {
-          id: id,
-          name: 'placeholder',
-          data: null,
-          colors: colors,
-          colors_mapping: color_mapping,
-          proximity_map: [],
-          image: null,
-          image_map: [],
-          width: 0,
-          height: 0,
-          type: 'image',
-          warning: 'image not found'
-        }
-        return obj;
-      } 
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
       var image = new Image();
@@ -130,9 +116,6 @@ export class MediaService {
 
 
           all_colors.push({r: r_val, g: g_val, b: b_val, hex: '#'+r+''+g+''+b, black: is_black});
-
-
-
         }
 
         let filewarning = "";
@@ -187,7 +170,6 @@ export class MediaService {
 
       
         var obj: AnalyzedImage = {
-          id: id,
           name: 'placeholder',
           data: imgdata,
           colors: colors,
@@ -206,16 +188,18 @@ export class MediaService {
       }).then(imageobj => {
 
         if(imageobj.data == null){
-          return Promise.resolve(imageobj);
+          return Promise.reject("no image object found when loading indexed color file");
         }
+        const media_ref  = this.addIndexColorMediaInstance(id, ref, imageobj)
+        return Promise.resolve(media_ref);
 
-        return this.upSvc.getDownloadMetaData(id)
-        .then(metadata => {
-          if(metadata.customMetadata.filename !== undefined) imageobj.name = metadata.customMetadata.filename;
-          this.addIndexColorMediaInstance(id, imageobj)
-          return Promise.resolve(imageobj);
+        // return this.upSvc.getDownloadMetaData(ref)
+        // .then(metadata => {
+        //   if(metadata.customMetadata.filename !== undefined) imageobj.name = metadata.customMetadata.filename;
+        //   const media_ref  = this.addIndexColorMediaInstance(id, ref, imageobj)
+        //   return Promise.resolve(media_ref);
 
-        })
+        // })
 
       }) ;
   });
@@ -285,30 +269,48 @@ export class MediaService {
     return prox;
   }
 
-  addIndexColorMediaInstance(ref: string, img: AnalyzedImage){
+  /**
+   * loads a media instance into the table
+   * @param id - a unique id for this media instance
+   * @param ref - the reference to media in Firebase storage
+   * @param img - specific settings for this media instance
+   */
+  addIndexColorMediaInstance(id:number, ref: string, img: AnalyzedImage) : IndexedColorImageInstance{
 
-    let obj: IndexedColorImageInstance = {ref,type: 'indexed_color_image', img}
+    let obj: IndexedColorImageInstance = {id, ref,type: 'indexed_color_image', img}
     this.current.push(obj);
+    return obj;
   }
 
 
 
-  updateIndexColorMediaInstance(ref: string, img: AnalyzedImage){
-    let obj:IndexedColorImageInstance = <IndexedColorImageInstance> this.getMedia(ref);
+  updateIndexColorMediaInstance(id: number, img: AnalyzedImage){
+    let obj:IndexedColorImageInstance = <IndexedColorImageInstance> this.getMedia(id);
     if(obj !== null){
       obj.img = img;
     } 
   }
 
 
-  getMedia(ref: string) : MediaInstance {
-    let obj = this.current.find(el => el.ref == ref);
+  getMedia(id: number) : MediaInstance {
+    let obj = this.current.find(el => el.id == id);
     if(obj === undefined) return null;
     return obj;
   }
 
   clearMedia(){
     this.current = [];
+  }
+
+  exportIndexedColorImageData(): Array<IndexedColorMediaProxy>{
+    const export_data: Array<IndexedColorImageInstance> = this.current
+    .filter(el => el.type = "indexed_color_image")
+    .map(el => <IndexedColorImageInstance>el);
+
+    const formatted: Array<IndexedColorMediaProxy> = export_data.map(el => {return {id: el.id, ref: el.ref, colors:el.img.colors, color_mapping: el.img.colors_mapping}});
+
+    return formatted;
+
   }
 
 

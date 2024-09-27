@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { AnalyzedImage, Color } from '../../model/datatypes';
+import { AnalyzedImage, Color, IndexedColorImageInstance } from '../../model/datatypes';
 import { TreeService } from '../../provider/tree.service';
 import { MediaService } from '../../provider/media.service';
 import utilInstance from '../../model/util';
@@ -13,6 +13,7 @@ import utilInstance from '../../model/util';
 })
 export class ImageeditorComponent {
 
+  media_id: number;
   img: AnalyzedImage;
   color_table: Array<{from: number, from_hex:string, to:number, to_hex: string}>;
   resulting_color_space: Array<{from: number, from_hex:string, to:number, to_hex: string}>;
@@ -24,7 +25,11 @@ export class ImageeditorComponent {
     public dialogRef: MatDialogRef<ImageeditorComponent>,
     @Inject(MAT_DIALOG_DATA) public obj: any){
 
-      this.img = obj;
+
+      this.media_id = obj;
+      const media_item = <IndexedColorImageInstance> this.mediaService.getMedia(this.media_id);
+      this.img = media_item.img;
+
       this.parseColorTable(this.img.colors, this.img.colors_mapping);
       this.updateColormapping(this.img.colors, this.img.colors_mapping);
       
@@ -32,13 +37,6 @@ export class ImageeditorComponent {
 
   ngAfterViewInit(){
     this.drawImagePreview();
-
-
-    console.log("INIT ")
-    console.log(this.color_table)
-    console.log(this.resulting_color_space)
-
-
   }
 
   /**
@@ -67,11 +65,8 @@ export class ImageeditorComponent {
     const unique_colors:Array<number> = utilInstance.filterToUniqueValues(mapping.map(el => el.to));
 
     this.resulting_color_space = [];
-    console.log("UNIQUE COLORS ", unique_colors)
     unique_colors.forEach(el => {
       let map_entry = mapping.find(meel => meel.to == el)
-
-
       this.resulting_color_space.push({
         from: map_entry.from, 
         from_hex: colors[map_entry.from].hex, 
@@ -86,6 +81,9 @@ export class ImageeditorComponent {
     let el = this.img.colors_mapping.find(el => el.from == src);
     if(el == undefined) return;
     el.to = $event.value;
+
+    this.mediaService.updateIndexColorMediaInstance(this.media_id, this.img);
+
     this.updateColormapping(this.img.colors, this.img.colors_mapping)
   }
 

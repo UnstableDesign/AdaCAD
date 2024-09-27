@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { AbstractControl, FormControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { BoolParam, CodeParam, FileParam, IndexedColorImageInstance, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
+import { AnalyzedImage, BoolParam, CodeParam, FileParam, IndexedColorImageInstance, MediaInstance, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
@@ -13,6 +13,7 @@ import {take} from 'rxjs/operators';
 import { ImageeditorComponent } from '../../../../core/modal/imageeditor/imageeditor.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Index } from '@angular/fire/firestore';
+import { update } from '@angular/fire/database';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -213,15 +214,15 @@ export class ParameterComponent implements OnInit {
 
     if(obj === undefined || obj.img == undefined || obj.img.image == null ) return;
 
-    const dialogRef = this.dialog.open(ImageeditorComponent, {data: obj.img});
+    const dialogRef = this.dialog.open(ImageeditorComponent, {data: obj.id});
     dialogRef.afterClosed().subscribe(nothing => {
-      this.onParamChange(obj);
 
+      let updated_media = <IndexedColorImageInstance> this.mediaService.getMedia( this.opnode.params[this.paramid].id)
+      this.onParamChange({id: this.opnode.params[this.paramid].id, data:updated_media.img});
    });
   }
 
   handleError(err: any){
-    console.log("CAUGHT ERROR", err);
     this.filewarning = err;
     this.clearImagePreview();
 
@@ -233,34 +234,29 @@ export class ParameterComponent implements OnInit {
    * this is called by the upload services "On Data function" which uploads and analyzes the image data in the image and returns it as a image data object
    * @param obj 
    */
-  handleFile(obj: any){
+  handleFile(obj: Array<IndexedColorImageInstance>){
 
     this.filewarning = "";
+    let img:AnalyzedImage = obj[0].img;
 
-    this.opnode.params[this.paramid] = {id: obj[0].id, data: obj[0]};
-    
+    this.opnode.params[this.paramid] = {id: obj[0].id, data: img};
     this.onOperationParamChange.emit({id: this.paramid, value: this.opnode.params[this.paramid]});
     
-    this.fc.setValue(obj[0].name);
+    this.fc.setValue(img.name);
 
+    if(img.warning !== ''){
+        this.filewarning = img.warning;
+    }else{
 
-    switch(obj.type){
-      case 'image':
+      const opnode = this.tree.getOpNode(this.opid);
+      //now update the default parameters to the original size 
+      opnode.params[1] = img.width;
+      opnode.params[2] = img.height;
 
-        if(obj.data.warning !== ''){
-            this.filewarning = obj.warning;
-        }else{
+      this.drawImagePreview();
 
-          const opnode = this.tree.getOpNode(this.opid);
-          //now update the default parameters to the original size 
-          opnode.params[1] = obj.data.width;
-          opnode.params[2] = obj.data.height;
-
-          this.drawImagePreview();
-
-        }
-        break;
     }
+
 
 
 

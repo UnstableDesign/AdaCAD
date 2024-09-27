@@ -374,14 +374,25 @@ export interface NodeComponentProxy{
  /**
   * a media object is something a user uploads for manipulation in AdaCAD that is stored on the Firebase server
   * a media object belongs to a user and eventually can be used across file contexts
+  * @param id a unique id that refers to only this media object instance
+  * @param ref the reference id used to find the media object in storage
+  * @param type a flag to determine which type of media this is
   */
  export type MediaInstance ={
-  ref: string; //the reference to this element in firebase Storage
+  id: number;
+  ref: string; 
   type: 'image' | 'indexed_color_image'; //currently we only support images
  }
 
  export type IndexedColorImageInstance = MediaInstance & {
   img: AnalyzedImage;
+ }
+
+ export type IndexedColorMediaProxy = {
+  id: number,
+  ref: string,
+  colors: Array<Color>;
+  color_mapping: Array<{from:number, to: number}>;
  }
 
 
@@ -398,7 +409,8 @@ export interface NodeComponentProxy{
   draft_nodes: Array<DraftNodeProxy>,
   ops: Array<OpComponentProxy>,
   notes: Array<Note>,
-  materials: Array<Material>
+  materials: Array<Material>,
+  indexed_image_data: Array<IndexedColorMediaProxy>
  }
 
 export interface FileObj{
@@ -410,7 +422,9 @@ export interface FileObj{
  treenodes: Array<TreeNodeProxy>,
  draft_nodes: Array<DraftNodeProxy>,
  notes: Array<any>,
- ops: Array<OpComponentProxy>
+ ops: Array<OpComponentProxy>,
+ indexed_image_data: Array<IndexedColorMediaProxy>
+
 }
 
 export interface StatusMessage{
@@ -632,7 +646,6 @@ export type DynamicOperation = Operation &  {
 
  /**
   * an object that is stored in memory when an image is loaded
-  * @param id a unique id associated with this image 
   * @param name the file name of the uploaded file
   * @param data the raw data of the image 
   * @param colors an array of unique hex values found in this image 
@@ -645,7 +658,6 @@ export type DynamicOperation = Operation &  {
   * @param warning a text warning is added if the image file violates rules
   */
  export interface AnalyzedImage{
-    id: string,
     name: string,
     data: ImageData, 
     colors: Array<Color>,
