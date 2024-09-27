@@ -177,7 +177,7 @@ export class TreeService {
           
             case "file":
               const id_and_data = <IndexedColorImageInstance> this.media.getMedia(params[ndx]);
-              if(id_and_data === undefined  || id_and_data.img === undefined) return {id: params[ndx], data: null}
+              if(id_and_data === null  || id_and_data.img === null) return {id: params[ndx], data: null}
               else return {id: params[ndx], data: id_and_data.img};
         
             default:

@@ -157,7 +157,7 @@ export class MediaService {
         /**this is expensive, so just do a fast run to make sure the size is okay before we go into this */
         
         if(colors.length == 0){
-        const colors = utilInstance.filterToUniqueValues(seen_vals);
+         colors = utilInstance.filterToUniqueValues(seen_vals);
         }
   
  

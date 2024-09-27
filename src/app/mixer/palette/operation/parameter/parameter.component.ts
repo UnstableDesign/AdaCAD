@@ -273,7 +273,7 @@ export class ParameterComponent implements OnInit {
     const opnode = this.tree.getOpNode(this.opid);
     const obj = <IndexedColorImageInstance> this.mediaService.getMedia(opnode.params[this.paramid].id);
 
-   if(obj === undefined || obj.img == undefined || obj.img.image == null ) return;
+   if(obj === null || obj.img == null || obj.img.image == null ) return;
 
     this.has_image_uploaded = true;
 
