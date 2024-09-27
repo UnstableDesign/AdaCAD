@@ -868,6 +868,14 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
+    const op_node = this.tree.getOpNode(id);
+    const op_base = this.ops.getOp(op_node.name);
+    op_base.params.forEach((param, ndx) => {
+      if(param.type == 'file'){
+        //remove the media file associated 
+        this.media.removeInstance(op_node.params[ndx].id)
+      }
+    })
 
     const drafts_out = this.tree.getNonCxnOutputs(id);
     drafts_out.forEach(id => this.vs.checkOnDelete(id));

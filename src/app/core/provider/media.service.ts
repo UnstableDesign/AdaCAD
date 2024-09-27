@@ -279,6 +279,8 @@ export class MediaService {
 
     let obj: IndexedColorImageInstance = {id, ref,type: 'indexed_color_image', img}
     this.current.push(obj);
+    console.log("INSTANCE ADDED ", this.current)
+
     return obj;
   }
 
@@ -305,16 +307,7 @@ export class MediaService {
 
     let image_copy:AnalyzedImage = this.copyIndexedImage(i.img);
 
-    let new_instance:IndexedColorImageInstance = {
-      id: utilInstance.generateId(8),
-      ref: i.ref, 
-      type: i.type,
-      img: image_copy
-    }
-
-    this.current.push(new_instance);
-
-    return new_instance;
+    return this.addIndexColorMediaInstance(utilInstance.generateId(8), i.ref, image_copy);
 
   }
 
@@ -336,6 +329,12 @@ export class MediaService {
 
   clearMedia(){
     this.current = [];
+  }
+
+  removeInstance(id: number){
+    console.log("REMOVING ", id, " FROM ",this.current)
+    this.current = this.current.filter(el => el.id !== id);
+    console.log("INSTANCES STORED ", this.current)
   }
 
   exportIndexedColorImageData(): Array<IndexedColorMediaProxy>{
