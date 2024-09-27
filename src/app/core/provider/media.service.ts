@@ -282,24 +282,28 @@ export class MediaService {
     return obj;
   }
 
+  copyIndexedImage(img: AnalyzedImage) : AnalyzedImage {
+   return {
+      name: img.name,
+      data: img.data,
+      type: img.type,
+      colors: img.colors.slice(),
+      colors_mapping: img.colors_mapping.map(el => {return {from: el.from, to: el.to}}),
+      proximity_map: img.proximity_map.slice(),
+      image: img.image,
+      image_map:img.image_map,
+      width: img.width,
+      height: img.height,
+      warning: img.warning
+    }
+  }
+
+
   duplicateIndexedColorImageInstance(id: number) : IndexedColorImageInstance {
     let i = <IndexedColorImageInstance> this.getMedia(id);
     if(i == null) return null;
 
-    let image_copy:AnalyzedImage = {
-      name: i.img.name,
-      data: i.img.data,
-      type: i.img.type,
-      colors: i.img.colors.slice(),
-      colors_mapping: i.img.colors_mapping.map(el => {return {from: el.from, to: el.to}}),
-      proximity_map: i.img.proximity_map.slice(),
-      image: i.img.image,
-      image_map:i.img.image_map,
-      width: i.img.width,
-      height: i.img.height,
-      warning: i.img.warning
-    }
-
+    let image_copy:AnalyzedImage = this.copyIndexedImage(i.img);
 
     let new_instance:IndexedColorImageInstance = {
       id: utilInstance.generateId(8),

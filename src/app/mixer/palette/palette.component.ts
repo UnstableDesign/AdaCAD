@@ -1024,7 +1024,7 @@ handlePan(diff: Point){
 
 
 
-      this.operationParamChanged({id: id});
+      this.operationParamChanged({id: id, prior_inlet_vals:[]});
       this.addTimelineState();
  }
 
@@ -2124,7 +2124,8 @@ pasteConnection(from: number, to: number, inlet: number){
    * @param obj with attribute id describing the operation that called this
    * @returns 
    */
-   async operationParamChanged(obj: any){
+   async operationParamChanged(obj: {id: number, prior_inlet_vals: Array<any>}){
+    console.log("OPERATION PARAM CHANGED")
 
     if(obj === null) return;
 

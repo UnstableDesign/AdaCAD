@@ -432,15 +432,16 @@ export class TreeService {
 
      inputs_to_op.forEach((iotuple) => {
         //what was the value of the inlet
+        if(prior_inlet_vals.length !== 0){
+          let prior_val = prior_inlet_vals[iotuple.ndx];
+          let new_ndx = opnode.inlets.findIndex(el => el == prior_val);
 
-        let prior_val = prior_inlet_vals[iotuple.ndx];
-        let new_ndx = opnode.inlets.findIndex(el => el == prior_val);
-
-        if(new_ndx == -1){
-          this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
-          viewRefs.push(iotuple.tn.node.ref)
-        }else{
-          iotuple.ndx = new_ndx;
+          if(new_ndx == -1){
+            this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
+            viewRefs.push(iotuple.tn.node.ref)
+          }else{
+            iotuple.ndx = new_ndx;
+          }
         }
      })
 
