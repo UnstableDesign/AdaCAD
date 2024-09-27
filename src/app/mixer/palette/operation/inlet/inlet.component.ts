@@ -56,6 +56,7 @@ export class InletComponent implements OnInit {
     
     // initalize any dyanmic inlets
     if(this.opnode.inlets.length > 0 && this.inletid >= op.inlets.length && this.dynamic){
+      
       const type = (<DynamicOperation> op).dynamic_param_type;
       this.inlet = <OperationInlet>{
         type: type,

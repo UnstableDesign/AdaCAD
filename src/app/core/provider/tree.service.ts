@@ -108,14 +108,13 @@ export class TreeService {
    */
    onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
-
       const op = <DynamicOperation> this.ops.getOp(name);
       const param_type = op.params[param_id].type
       const opnode = this.getOpNode(opid);
 
       if(!this.ops.isDynamic(name)) return;
 
-      if(op.dynamic_param_id != param_id && param_type !== 'notation_toggle') return;
+      if(op.dynamic_param_id.find(el => el === param_id) === undefined &&  param_type !== 'notation_toggle') return;
 
 
       let param_vals:Array<OpParamVal> = opnode.params.map((el, ndx) =>  {
@@ -202,7 +201,8 @@ export class TreeService {
         if(this.ops.isDynamic(name)){
           const op = <DynamicOperation> this.ops.getOp(name);
           (<OpNode> node).params = params_out.slice()
-          let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
+          //this just forces the inlets to generate by simulating a parameter change
+          let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id[0], op.params[op.dynamic_param_id[0]].value);
           
           inlets = dynamic_inlets.slice();
         }

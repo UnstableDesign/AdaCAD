@@ -1,12 +1,18 @@
 .upload-container{
     display: flex;
     flex-direction: row;
-    align-items: center;
-    gap: 18px;
+    align-items: flex-start;
+    gap: 8px;
 }
 
-.upload_field{
+.upload_field,
+.upload_form_field,
+.mat-mdc-form-field{
     width: 300px;
+}
+
+.upload{
+    height: 60px;
 }
 
 // .progress-bar,

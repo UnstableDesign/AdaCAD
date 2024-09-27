@@ -589,14 +589,14 @@ export type Operation = {
 
  /**
  * A container operation that takes drafts with some parameter assigned to them 
- * @param dynamic_param_id which parameter id should we use to dynamically create paramaterized input slots
- * @param dynamic_param_type the type of parameter that we look to generate
- * @param onParamChange a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
+ * @param dynamic_param_id which parameter ids should we use to determine the number and value of parameterized input slots
+ * @param dynamic_inlet_type dynamic parameters convert parameter inputs to inlets of a given type, this specifies the type of inlet created
+ * @param onParamChange a function that executes when a dynamic parameter is changed
  */
 export type DynamicOperation = Operation &  {
-  dynamic_param_id: number,
-  dynamic_param_type: string,
-  onParamChange: ( param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, param_val: any) => Array<any>;
+  dynamic_param_id: Array<number>,
+  dynamic_param_type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
+  onParamChange: ( param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, dynamic_param_vals: Array<any>) => Array<any>;
   perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
 
@@ -617,18 +617,40 @@ export type DynamicOperation = Operation &  {
 
 
 
+ /**
+  * an object that is stored in memory when an image is loaded
+  * @param id a unique id associated with this image 
+  * @param name the file name of the uploaded file
+  * @param data the raw data of the image 
+  * @param colors an array of unique hex values found in this image 
+  * @param colors_mapping an array that matches each index in the color array to a color index that it should be grouped with
+  * @param image the HTML image object to write the data into 
+  * @param image_map an 2D array associating every pixel in the image with the id of the associated color in the colors array
+  * @param width 
+  * @param height
+  * @param type
+  * @param warning a text warning is added if the image file violates rules
+  */
  export interface AnalyzedImage{
     id: string,
     name: string,
     data: ImageData, 
-    colors: Array<string>,
-    colors_to_bw: Array<any>,
+    colors: Array<Color>,
+    colors_mapping: Array<{from: number, to: number}>,
+    proximity_map: Array<{a: number, b: number, dist: number}>,
     image: HTMLImageElement,
     image_map: Array<Array<number>>,
     width:number,
     height: number,
     type: string,
     warning: string
+ }
+
+ export interface Color{
+  r: number,
+  g: number,
+  b: number,
+  hex: string
  }
 
  export interface Upload {

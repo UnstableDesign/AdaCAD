@@ -54,6 +54,7 @@ import { SelectionComponent } from './ui/draft-rendering/selection/selection.com
 import { ViewerService } from './provider/viewer.service';
 import { ViewadjustService } from './provider/viewadjust.service';
 import { ViewadjustComponent } from './viewadjust/viewadjust.component';
+import { ImageeditorComponent } from './modal/imageeditor/imageeditor.component';
 
 
 
@@ -105,6 +106,7 @@ import { ViewadjustComponent } from './viewadjust/viewadjust.component';
         ExamplesComponent,
         LoadfileComponent,
         FilebrowserComponent,
+        ImageeditorComponent,
         EventsDirective,
         WelcomeComponent,
         SelectionComponent,

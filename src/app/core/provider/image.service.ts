@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AnalyzedImage } from '../model/datatypes';
+import { AnalyzedImage, Color } from '../model/datatypes';
 import utilInstance from '../model/util';
 import { UploadService } from '../provider/upload.service';
 
@@ -9,10 +9,74 @@ import { UploadService } from '../provider/upload.service';
 })
 export class ImageService {
 
+  /**
+   * images contains a list of all the images and associated data that is currently loaded into memory
+   */
   images: Array<{id: string, data: AnalyzedImage}> = [];
 
 
   constructor(private upSvc: UploadService, private httpClient: HttpClient) { }
+
+
+  /**
+   * computes the euclidean distance squared of two color values. 
+   * @param a 
+   * @param b 
+   * @returns 
+   */
+  distanceFn(a: Color, b: Color) : number {
+    return Math.pow(a.r - b.r, 2)+Math.pow(a.g - b.g, 2)+Math.pow(a.b - b.b, 2)
+  }
+
+  createProximityMap(colors: Array<Color>) : Array<{a: number, b: number, dist: number}>{
+
+    let prox = [];
+    for(let a = 0; a < colors.length; a++){
+      for(let b = a+1; b < colors.length; b++){
+        prox.push({a, b, dist: this.distanceFn(colors[a], colors[b])})
+      }
+    }
+    return prox;
+  }
+
+  createColorMap(colors: Array<Color>, prox: Array<{a: number, b: number, dist: number}>, space: number) : Array<{from: number, to: number}>{
+
+    let color_map = colors.map((color, ndx)=> {return {from: ndx, to: ndx};});
+    let prox_copy = prox.slice();
+    //we don't care what the size of the color space is, so just return a 1-1 list. 
+    if(space == -1 || space > colors.length){
+      return color_map;
+    }
+
+
+    //use a greedy method until we get to our number
+    // For each number in the color list, find the closest color and return it with the distance to that color
+    // Find teh closest distance, and map the "from" and "to" based to. Update any to's of teh from value to the new value. 
+    // If there are multiple closests, just keep consuming until we're done. 
+
+    for(let i = 0; i < colors.length - space; i++){
+
+      //get the smallest d-in the set. 
+      let min_dist = prox_copy.reduce((acc, val) => {
+        if(val.dist < acc.dist) return val;
+        return acc;
+      }, {a: -1, b: -1, dist: 1000000000});
+
+      color_map.forEach(val => {
+        if(val.from == min_dist.a) val.to = min_dist.b;
+        else if(val.to == min_dist.a) val.to = min_dist.b;
+      });
+
+
+      prox_copy = prox_copy.filter(el => el.a != min_dist.a && el.b !== min_dist.a)
+
+
+    }
+
+    return color_map;
+ 
+
+  }
 
 
   loadFiles(ids: Array<string>) : Promise<any> {
@@ -29,7 +93,6 @@ export class ImageService {
     this.images.push({id: id, data: null});
   
     return this.upSvc.getDownloadData(id).then(obj =>{
-      console.log("GOT DOWNLOAD DATA ", obj);
       if(obj === undefined) return null;
       url = obj;
       return  this.processImage(obj);
@@ -41,7 +104,8 @@ export class ImageService {
           name: 'placeholder',
           data: null,
           colors: [],
-          colors_to_bw: [],
+          colors_mapping: [],
+          proximity_map: [],
           image: null,
           image_map: [],
           width: 0,
@@ -92,22 +156,25 @@ export class ImageService {
           const o = pixels[i+3].toString(16);
 
 
-          all_colors.push({hex: '#'+r+''+g+''+b, black: is_black});
+          all_colors.push({r: r_val, g: g_val, b: b_val, hex: '#'+r+''+g+''+b, black: is_black});
+
+
 
         }
 
-        const just_hex = all_colors.map(el => el.hex);
         let filewarning = "";
-
         let seen_vals = [];
         let unique_count = 0;
-        for(let i = 0; i < just_hex.length && unique_count < 100; i++){
-          if(seen_vals.find(el => el == just_hex[i]) == undefined){
+
+
+        for(let i = 0; i < all_colors.length && unique_count < 100; i++){
+          if(seen_vals.find(el => el.hex == all_colors[i].hex) == undefined){
             unique_count++;
-            seen_vals.push(just_hex[i]);
+            seen_vals.push(all_colors[i]);
           } 
         }
 
+   
 
         if(unique_count >= 100){
           filewarning = "this image contains more than 100 colors and will take too much time to process, consider indexing to a smaller color space"
@@ -115,13 +182,8 @@ export class ImageService {
         } 
 
         /**this is expensive, so just do a fast run to make sure the size is okay before we go into this */
-        const unique = utilInstance.filterToUniqueValues(just_hex);
-
-        const color_to_bw = unique.map(el => {
-          const item = all_colors.find(ell => ell.hex == el);
-          if(item !== undefined) return item
-        })
-
+        const unique = utilInstance.filterToUniqueValues(seen_vals);
+  
  
         let image_map: Array<Array<number>> = [];
         if(unique.length > 100){
@@ -129,7 +191,7 @@ export class ImageService {
           return Promise.reject(filewarning);
         } 
         else{
-          const image_map_flat: Array<number> = all_colors.map(item => unique.findIndex(el => el === item.hex));
+          const image_map_flat: Array<number> = all_colors.map(item => unique.findIndex(el => el.hex === item.hex));
 
           let cur_i = 0;
           let cur_j = 0;
@@ -141,13 +203,19 @@ export class ImageService {
             image_map[cur_i][cur_j] = id;
           });
         }
+
+        const prox = this.createProximityMap(unique);
+
+        const color_map = this.createColorMap(unique, prox, -1);
+
       
         var obj: AnalyzedImage = {
           id: id,
           name: 'placeholder',
           data: imgdata,
           colors: unique,
-          colors_to_bw: color_to_bw,
+          colors_mapping: color_map,
+          proximity_map: prox,
           image: image,
           image_map: image_map,
           width: imgdata.width,

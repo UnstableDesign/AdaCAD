@@ -10,6 +10,8 @@ import { map, startWith } from 'rxjs/operators';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import {NgZone} from '@angular/core';
 import {take} from 'rxjs/operators';
+import { ImageeditorComponent } from '../../../../core/modal/imageeditor/imageeditor.component';
+import { MatDialog } from '@angular/material/dialog';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -52,13 +54,14 @@ export class ParameterComponent implements OnInit {
   selectparam: SelectParam;
   fileparam: FileParam;
   description: string;
-  has_image_preview: boolean = false;
+  has_image_uploaded: boolean = false;
   filewarning: string = '';
 
   @ViewChild('autosize') autosize: CdkTextareaAutosize;
 
   constructor(
     public tree: TreeService, 
+    private dialog: MatDialog,
     public ops: OperationService,
     public op_desc: OperationDescriptionsService,
     public imageService: ImageService,
@@ -148,8 +151,16 @@ export class ParameterComponent implements OnInit {
     const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
 
     switch(this.param.type){
+
+      case 'file': 
+      if(value == null) value = 1;
+       opnode.params[this.paramid] = value;
+       //this.fc.setValue(value);
+       this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
+       break;
+
       case 'number': 
-       if(value == null) value = 1;
+       if(value == undefined) value = null;
         opnode.params[this.paramid] = value;
         this.fc.setValue(value);
         this.onOperationParamChange.emit({id: this.paramid, value: value, type: this.param.type});
@@ -193,12 +204,29 @@ export class ParameterComponent implements OnInit {
    
   }
 
+
+  openImageEditor(){
+  
+    const opnode = this.tree.getOpNode(this.opid);
+    const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
+
+    if(obj === undefined || obj.data == undefined || obj.data.image == null ) return;
+
+    const dialogRef = this.dialog.open(ImageeditorComponent, {data: obj.data});
+    dialogRef.afterClosed().subscribe(nothing => {
+      this.onParamChange(obj);
+
+   });
+  }
+
   handleError(err: any){
     console.log("CAUGHT ERROR", err);
     this.filewarning = err;
     this.clearImagePreview();
 
   }
+
+
 
   /**
    * this is called by the upload services "On Data function" which uploads and analyzes the image data in the image and returns it as a image data object
@@ -226,6 +254,7 @@ export class ParameterComponent implements OnInit {
           //now update the default parameters to the original size 
           opnode.params[1] = obj.data.width;
           opnode.params[2] = obj.data.height;
+
           this.drawImagePreview();
 
         }
@@ -239,59 +268,65 @@ export class ParameterComponent implements OnInit {
 
   drawImagePreview(){
 
+
     const opnode = this.tree.getOpNode(this.opid);
     const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
 
-    if(obj === undefined || obj.data == undefined || obj.data.image == null ) return;
+   if(obj === undefined || obj.data == undefined || obj.data.image == null ) return;
 
-      const data = obj.data;
-
-      this.has_image_preview = true;
-      const image_div =  document.getElementById('param-image-'+this.opid);
-      image_div.style.display = 'flex';
-
-      const dims_div =  document.getElementById('param-image-dims-'+this.opid);
-      dims_div.innerHTML=data.width+"px x "+data.height+"px";
-
-      const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.opid);
-      const ctx = canvas.getContext('2d');
-
-      const max_dim = (data.width > data.height) ? data.width : data.height;
-      const use_width = (data.width > 100) ? data.width / max_dim * 100 : data.width;
-      const use_height = (data.height > 100) ? data.height / max_dim * 100 : data.height;
-
-      canvas.width = use_width;
-      canvas.height = use_height;
+    this.has_image_uploaded = true;
 
 
-      ctx.drawImage(data.image, 0, 0, use_width, use_height);
+    //   const data = obj.data;
+
+    //   this.has_image_preview = true;
+    //   const image_div =  document.getElementById('param-image-'+this.opid);
+    //   image_div.style.display = 'flex';
+
+    //   const dims_div =  document.getElementById('param-image-dims-'+this.opid);
+    //   dims_div.innerHTML=data.width+"px x "+data.height+"px";
+
+    //   const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.opid);
+    //   const ctx = canvas.getContext('2d');
+
+    //   const max_dim = (data.width > data.height) ? data.width : data.height;
+    //   const use_width = (data.width > 100) ? data.width / max_dim * 100 : data.width;
+    //   const use_height = (data.height > 100) ? data.height / max_dim * 100 : data.height;
+
+    //   canvas.width = use_width;
+    //   canvas.height = use_height;
+
+
+    //   ctx.drawImage(data.image, 0, 0, use_width, use_height);
   
 
     
 
   }
+
+
   clearImagePreview(){
 
-      this.has_image_preview = false;
+    this.has_image_uploaded  = false;
 
-      const opnode = this.tree.getOpNode(this.opid);
-      const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
+      // const opnode = this.tree.getOpNode(this.opid);
+      // const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
   
-      if(obj === undefined) return;
+      // if(obj === undefined) return;
   
-        const data = obj.data;
+      //   const data = obj.data;
   
-        const image_div =  document.getElementById('param-image-'+this.opid);
-        image_div.style.display = 'none';
+      //   const image_div =  document.getElementById('param-image-'+this.opid);
+      //   image_div.style.display = 'none';
   
-        const dims_div =  document.getElementById('param-image-dims-'+this.opid);
-        dims_div.innerHTML="";
+      //   const dims_div =  document.getElementById('param-image-dims-'+this.opid);
+      //   dims_div.innerHTML="";
   
-        const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.opid);
+      //   const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('preview_canvas-'+this.opid);
   
 
-        canvas.width = 0;
-        canvas.height = 0;
+      //   canvas.width = 0;
+      //   canvas.height = 0;
   
   
     

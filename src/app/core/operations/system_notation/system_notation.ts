@@ -8,7 +8,7 @@ import utilInstance from "../../model/util";
 
 const name = "notation_system";
 const old_names = [];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'notation';
 const layer_parsing_regex =/.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i;
 

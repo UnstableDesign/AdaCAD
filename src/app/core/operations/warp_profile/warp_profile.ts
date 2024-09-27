@@ -7,7 +7,7 @@ import utilInstance from "../../model/util";
 
 const name = "warp_profile";
 const old_names = ["dynamicjoinleft"];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'profile';
 
 //PARAMS

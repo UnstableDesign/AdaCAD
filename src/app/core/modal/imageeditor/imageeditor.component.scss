@@ -1,0 +1,75 @@
+.mat-mdc-dialog-content{
+    display: flex;
+    flex-direction: row;
+    gap: 8px
+}
+
+.image_preview{
+    border: thin solid black;
+    overflow: scroll;
+}
+
+
+.content_left{
+    display: flex;
+    flex-direction: column;
+    width: 66%;
+    height: 100%;
+}
+
+.content_right{
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+}
+
+.header{
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: space-between
+
+}
+
+.swatch{
+    display: block;
+    width: 40px;
+    height: 40px;
+    border: thin solid black;
+}
+
+.data{
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.results{
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    gap: 8px;
+}
+
+
+.mappings{
+    display: flex;
+    width: 70%;
+    flex-direction: column;
+}
+.centered_id{
+    display: flex;
+    width: 50%;
+    height:50%;
+    background-color: white;
+    color: black;
+    align-items: center;
+    justify-content: center;
+}
+
+.data_row{
+    display: flex;
+    flex-direction: row;
+    align-items: top;
+    gap: 8px;
+}

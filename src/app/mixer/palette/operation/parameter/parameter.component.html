@@ -156,31 +156,44 @@
        
       <div class='file-input-param'>
         
-        <div class="form-and-image">
-        <upload-form 
-        type="init" 
-        multiple="false"
-        accepts=".jpg,.png,.bmp"
-        type="single_image"
-        (onData)="handleFile($event)"
-        (onError)="handleError($event)"
-         class="upload-form-box">
-      </upload-form>
+        <div class="form-and-warning">
+          {{has_image_uploaded}}
+          <button mat-raised-button [class.show]="has_image_uploaded"  [class.hide]="!has_image_uploaded" 
+          (click)="clearImagePreview()" >Replace Image</button>
 
-           
-        <div class='param-image' [class.has_image]="has_image_preview" [class.no_image]="!has_image_preview" id="param-image-{{opid}}" >
-          <div class="image_preview" id="image_preview-{{opid}}">
-            <canvas id="preview_canvas-{{opid}}"></canvas>
-            <div id="param-image-dims-{{opid}}"></div> 
+
+          <upload-form 
+          [class.show]="!has_image_uploaded"  
+          [class.hide]="has_image_uploaded"
+            type="init" 
+            multiple="false"
+            accepts=".jpg,.png,.bmp"
+            type="single_image"
+            (onData)="handleFile($event)"
+            (onError)="handleError($event)"
+            class="upload-form-box">
+          </upload-form>
+          
+          <div class="file-label">
+            <div class="text-err" *ngIf="filewarning !== ''">{{filewarning}}</div>
           </div>
         </div>
-      </div>
+   
+
+
+
+           
+        <div class='param-image' [class.show]="has_image_uploaded" [class.hide]="!has_image_uploaded" id="param-image-{{opid}}" >
+          <button 
+            color="accent" 
+            mat-raised-button
+            (click)="openImageEditor()"
+            >View/Edit Image</button>
+        </div>
 
      
         
-      <div class="file-label">
-        <div class="text-err" *ngIf="filewarning !== ''">{{filewarning}}</div>
-      </div>
+      
       
     </div>
 

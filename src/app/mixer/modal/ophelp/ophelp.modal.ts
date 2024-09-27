@@ -16,8 +16,8 @@ export class OpHelpModal implements OnInit {
   is_dynamic_op: boolean;
   params: Array<any>;
   dynamic_type: string ="";
-  dynamic_param_id: number = 0;
-  dynamic_param_name: string = '';
+  dynamic_param_id: Array<number> = [0];
+  dynamic_param_name: Array<string> = [''];
   displayname: string = "";
   op_description: string = "";
   op_application: string = "";
@@ -44,8 +44,10 @@ export class OpHelpModal implements OnInit {
 
         if(this.is_dynamic_op){
           this.dynamic_type = (<DynamicOperation> op).dynamic_param_type;
-          this.dynamic_param_id =(<DynamicOperation> op).dynamic_param_id;
-          this.dynamic_param_name = this.params[this.dynamic_param_id].name;
+          this.dynamic_param_name = this.dynamic_param_id.map(el => this.params[el].name)
+      
+
+         
         }
         
 

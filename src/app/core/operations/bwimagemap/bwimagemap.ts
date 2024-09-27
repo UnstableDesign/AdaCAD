@@ -1,5 +1,5 @@
 import { createCell } from "../../model/cell";
-import { AnalyzedImage, Cell, Draft, DynamicOperation, FileParam, NumParam, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
+import { AnalyzedImage, Cell, Color, Draft, DynamicOperation, FileParam, NumParam, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getHeddle, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
 import { getOpParamValById } from "../../model/operations";
 
@@ -8,7 +8,7 @@ import { getOpParamValById } from "../../model/operations";
 
 const name = "bwimagemap";
 const old_names = [];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'color';
 
 //PARAMS
@@ -61,13 +61,17 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
     const data:AnalyzedImage = file_param.data;
 
-    const color_to_drafts = data.colors_to_bw.map((color, ndx) => {
-        if(color.black){
-            if(op_inputs.findIndex(input => input.inlet_id == 0) !== -1) return {color: color.hex, draft: op_inputs[0].drafts[0]}
-            else return {color: color.hex, draft: initDraftWithParams({warps: 1, wefts: 1, drawdown: [[createCell(true)]]})}
+    const color_to_drafts = data.colors_mapping.map((color, ndx) => {
+
+       let color_to:Color = data.colors[color.to];
+
+
+        if(color_to.hex == '#000000'){
+            if(op_inputs.findIndex(input => input.inlet_id == 0) !== -1) return {color: color_to.hex, draft: op_inputs[0].drafts[0]}
+            else return {color: color_to.hex, draft: initDraftWithParams({warps: 1, wefts: 1, drawdown: [[createCell(true)]]})}
           } else{
-            if(op_inputs.findIndex(input => input.inlet_id == 1) !== -1) return {color: color.hex, draft: op_inputs[1].drafts[0]}
-            else return {color: color.hex, draft: initDraftWithParams({warps: 1, wefts: 1, drawdown: [[createCell(false)]]})}
+            if(op_inputs.findIndex(input => input.inlet_id == 1) !== -1) return {color: color_to.hex, draft: op_inputs[1].drafts[0]}
+            else return {color: color_to.hex, draft: initDraftWithParams({warps: 1, wefts: 1, drawdown: [[createCell(false)]]})}
 
           } 
         });
