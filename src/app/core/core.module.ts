@@ -56,6 +56,7 @@ import { ViewadjustService } from './provider/viewadjust.service';
 import { ViewadjustComponent } from './viewadjust/viewadjust.component';
 import { ImageeditorComponent } from './modal/imageeditor/imageeditor.component';
 import { MediaService } from './provider/media.service';
+import { OperationService } from './provider/operation.service';
 
 
 
@@ -122,7 +123,8 @@ import { MediaService } from './provider/media.service';
         RenderService,
         ViewerService,
         ViewadjustService,
-        MediaService
+        MediaService,
+        OperationService
     ],
     exports: [
         CommonModule,

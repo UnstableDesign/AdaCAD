@@ -965,7 +965,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
   const images_to_load = [];
 
 
-  if(utilInstance.sameOrNewerVersion(this.vers.currentVersion(), '4.1.7')){
+  if(utilInstance.sameOrNewerVersion(data.version, '4.1.7')){
     //LOAD THE NEW FILE OBJECT
    data.indexed_image_data.forEach(el => {
     images_to_load.push({id: el.id, ref: el.ref, data:{colors: el.colors, color_mapping: el.color_mapping}});
@@ -979,9 +979,11 @@ async processFileData(data: FileObj) : Promise<string|void>{
       const param_types = internal_op.params.map(el => el.type);
       param_types.forEach((p, ndx) => {
             //older version stored the media object reference in the parameter
-            let new_id = utilInstance.generateId(8);
-            images_to_load.push({id: new_id, ref: op.params[ndx], data:null});
-            op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
+            if(p == 'file'){
+              let new_id = utilInstance.generateId(8);
+              images_to_load.push({id: new_id, ref: op.params[ndx], data:null});
+              op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
+            }
       });
     })
 

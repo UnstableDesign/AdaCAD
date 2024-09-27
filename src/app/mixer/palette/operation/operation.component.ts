@@ -99,8 +99,6 @@ export class OperationComponent implements OnInit {
    //for input params form control
    loaded_inputs: Array<number> = [];
 
-   has_image_preview: boolean = false;
-
   // has_connections_in: boolean = false;
    subdraft_visible: boolean = true;
 
@@ -477,6 +475,7 @@ export class OperationComponent implements OnInit {
   }
 
   duplicate(){
+
     this.duplicateOp.emit({id: this.id});
   }
 
