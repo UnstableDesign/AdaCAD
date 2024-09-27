@@ -18,7 +18,7 @@ import { AuthService } from './core/provider/auth.service';
 import { DesignmodesService } from './core/provider/designmodes.service';
 import { FileService } from './core/provider/file.service';
 import { FilesystemService } from './core/provider/filesystem.service';
-import { ImageService } from './core/provider/image.service';
+import { MediaService } from './core/provider/media.service';
 import { MaterialsService } from './core/provider/materials.service';
 import { NotesService } from './core/provider/notes.service';
 import { OperationService } from './core/provider/operation.service';
@@ -105,7 +105,7 @@ export class AppComponent implements OnInit{
     public files: FilesystemService,
     private fs: FileService,
     private http: HttpClient,
-    private image: ImageService,
+    private media: MediaService,
     private ms: MaterialsService,
     public multiselect: MultiselectService,
     private ops: OperationService,
@@ -670,7 +670,6 @@ export class AppComponent implements OnInit{
   loadNewFile(result: LoadResponse, source: string) : Promise<any>{
 
 
-    console.log("LOAD RESPONSE ", result)
 
    return this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
    .then(res => {
@@ -970,14 +969,14 @@ async processFileData(data: FileObj) : Promise<string|void>{
     const param_types = internal_op.params.map(el => el.type);
     param_types.forEach((p, ndx) => {
       if(p === 'file'){
-        images_to_load.push(op.params[ndx]);
+        images_to_load.push({id: op.params[ndx], data:null});
       } 
     });
   })
 
 
 
-  return this.image.loadFiles(images_to_load).then(el => {
+  return this.media.loadMedia(images_to_load).then(el => {
     //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
     return this.tree.replaceOutdatedOps(data.ops);
   })

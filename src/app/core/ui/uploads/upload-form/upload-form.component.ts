@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Output, Input, EventEmitter }
 import { HttpClient } from '@angular/common/http';
 import { UploadService } from '../../../provider/upload.service';
 import { Draft, Drawdown, Upload } from '../../../model/datatypes';
-import { ImageService } from '../../../provider/image.service';
+import { MediaService } from '../../../provider/media.service';
 import { Sequence } from '../../../model/sequence';
 import { initDraftFromDrawdown } from '../../../model/drafts';
 
@@ -29,7 +29,7 @@ export class UploadFormComponent implements OnInit {
   @Output() onData: any = new EventEmitter();
   @Output() onError: any = new EventEmitter();
 
-  constructor(private upSvc: UploadService, private httpClient: HttpClient, private imageService: ImageService) { }
+  constructor(private upSvc: UploadService, private httpClient: HttpClient, private mediaSvc: MediaService) { }
 
   detectFiles(event) {
       this.selectedFiles = event.target.files;
@@ -65,7 +65,7 @@ export class UploadFormComponent implements OnInit {
    uploadImage(upload: Upload, file: File) : Promise<any> {
 
     return this.upSvc.pushUpload(upload).then(snapshot => {
-      return  this.imageService.loadFiles([upload.name]);
+      return  this.mediaSvc.loadMedia([{id: upload.name, data:null}]);
     }).then(uploaded => {
 
 
@@ -85,7 +85,7 @@ export class UploadFormComponent implements OnInit {
   uploadBitmap(upload: Upload, file: File) : Promise<any> {
     
     return this.upSvc.pushUpload(upload).then(snapshot => {
-     return  this.imageService.loadFiles([upload.name]);
+     return  this.mediaSvc.loadMedia([{id: upload.name, data: null}]);
    }).catch(e => {
       this.onError.emit(e);
       this.uploading = false;

@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AnalyzedImage, Color } from '../../model/datatypes';
 import { TreeService } from '../../provider/tree.service';
-import { ImageService } from '../../provider/image.service';
+import { MediaService } from '../../provider/media.service';
 import utilInstance from '../../model/util';
 
 @Component({
@@ -19,7 +19,7 @@ export class ImageeditorComponent {
 
   constructor(
     public tree: TreeService,
-    public imageService: ImageService,
+    public mediaService: MediaService,
     private dialog: MatDialog,
     public dialogRef: MatDialogRef<ImageeditorComponent>,
     @Inject(MAT_DIALOG_DATA) public obj: any){

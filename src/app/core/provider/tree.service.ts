@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
-import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
 import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
@@ -11,7 +11,7 @@ import { OperationComponent } from '../../mixer/palette/operation/operation.comp
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
 import { createCell } from '../model/cell';
 import { defaults } from '../model/defaults';
-import { ImageService } from './image.service';
+import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
 
@@ -32,7 +32,7 @@ export class TreeService {
   constructor(
     private ws: WorkspaceService,
     private ops: OperationService,
-    private imageservice: ImageService,
+    private media: MediaService,
     private systemsservice: SystemsService) { 
   }
 
@@ -176,9 +176,9 @@ export class TreeService {
             return (params[ndx]) ? 1 : 0;
           
             case "file":
-              const id_and_data = this.imageservice.getImageData(params[ndx]);
-              if(id_and_data === undefined  || id_and_data.data === undefined) return {id: params[ndx], data: null}
-              else return {id: params[ndx], data: id_and_data.data};
+              const id_and_data = <IndexedColorImageInstance> this.media.getMedia(params[ndx]);
+              if(id_and_data === undefined  || id_and_data.img === undefined) return {id: params[ndx], data: null}
+              else return {id: params[ndx], data: id_and_data.img};
         
             default:
               return params[ndx];

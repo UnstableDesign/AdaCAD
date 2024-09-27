@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Draft, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
-import { ImageService } from '../../../core/provider/image.service';
+import { MediaService } from '../../../core/provider/media.service';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../core/provider/operation.service';
 import { SystemsService } from '../../../core/provider/systems.service';

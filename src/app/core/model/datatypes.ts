@@ -371,6 +371,19 @@ export interface NodeComponentProxy{
     mixer: number;
  }
 
+ /**
+  * a media object is something a user uploads for manipulation in AdaCAD that is stored on the Firebase server
+  * a media object belongs to a user and eventually can be used across file contexts
+  */
+ export type MediaInstance ={
+  ref: string; //the reference to this element in firebase Storage
+  type: 'image' | 'indexed_color_image'; //currently we only support images
+ }
+
+ export type IndexedColorImageInstance = MediaInstance & {
+  img: AnalyzedImage;
+ }
+
 
  /**
   * describes the data from the workspace that is saved.
@@ -385,7 +398,7 @@ export interface NodeComponentProxy{
   draft_nodes: Array<DraftNodeProxy>,
   ops: Array<OpComponentProxy>,
   notes: Array<Note>,
-  materials: Array<Material>,
+  materials: Array<Material>
  }
 
 export interface FileObj{

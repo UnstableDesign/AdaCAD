@@ -65,15 +65,12 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
     //coorelates the inlet with an associated draft
-    console.log("INPUT PARAMS ", op_inputs)
     const color_to_drafts = data.colors.map((color, ndx) => {
         const child_of_color = op_inputs.find(input => (input.params.findIndex(param => param === color.hex) !== -1));
 
         if(child_of_color === undefined) return {color: color.hex, draft: null};
         else return {color: color.hex, draft: child_of_color.drafts[0]};
       });
-
-      console.log("COLOR TO DRAFT ", color_to_drafts)
 
 
     const pattern: Array<Array<Cell>> = [];

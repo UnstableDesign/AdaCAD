@@ -1,17 +1,18 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { AbstractControl, FormControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { BoolParam, CodeParam, FileParam, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
+import { BoolParam, CodeParam, FileParam, IndexedColorImageInstance, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
-import { ImageService } from '../../../../core/provider/image.service';
+import { MediaService } from '../../../../core/provider/media.service';
 import { map, startWith } from 'rxjs/operators';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import {NgZone} from '@angular/core';
 import {take} from 'rxjs/operators';
 import { ImageeditorComponent } from '../../../../core/modal/imageeditor/imageeditor.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Index } from '@angular/fire/firestore';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -64,7 +65,7 @@ export class ParameterComponent implements OnInit {
     private dialog: MatDialog,
     public ops: OperationService,
     public op_desc: OperationDescriptionsService,
-    public imageService: ImageService,
+    public mediaService: MediaService,
     private _ngZone: NgZone) { 
 
 
@@ -208,11 +209,11 @@ export class ParameterComponent implements OnInit {
   openImageEditor(){
   
     const opnode = this.tree.getOpNode(this.opid);
-    const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
+    const obj = <IndexedColorImageInstance> this.mediaService.getMedia(opnode.params[this.paramid].id);
 
-    if(obj === undefined || obj.data == undefined || obj.data.image == null ) return;
+    if(obj === undefined || obj.img == undefined || obj.img.image == null ) return;
 
-    const dialogRef = this.dialog.open(ImageeditorComponent, {data: obj.data});
+    const dialogRef = this.dialog.open(ImageeditorComponent, {data: obj.img});
     dialogRef.afterClosed().subscribe(nothing => {
       this.onParamChange(obj);
 
@@ -270,9 +271,9 @@ export class ParameterComponent implements OnInit {
 
 
     const opnode = this.tree.getOpNode(this.opid);
-    const obj = this.imageService.getImageData(opnode.params[this.paramid].id);
+    const obj = <IndexedColorImageInstance> this.mediaService.getMedia(opnode.params[this.paramid].id);
 
-   if(obj === undefined || obj.data == undefined || obj.data.image == null ) return;
+   if(obj === undefined || obj.img == undefined || obj.img.image == null ) return;
 
     this.has_image_uploaded = true;
 
