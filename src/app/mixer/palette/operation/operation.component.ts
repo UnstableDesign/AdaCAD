@@ -380,8 +380,10 @@ export class OperationComponent implements OnInit {
           //update the width and height
          // let image_param = opnode.params[op.dynamic_param_id];
          let image_param = opnode.params[0];
-         opnode.params[1] = image_param.data.width;
+         if(image_param.id != ''){
+          opnode.params[1] = image_param.data.width;
           opnode.params[2] = image_param.data.height;
+         }
 
 
         }
@@ -394,7 +396,7 @@ export class OperationComponent implements OnInit {
 
   drawImagePreview(){
     let param = this.paramsComps.get(0)
-    param.drawImagePreview();
+     param.drawImagePreview();
   }
 
   //returned from a file upload event

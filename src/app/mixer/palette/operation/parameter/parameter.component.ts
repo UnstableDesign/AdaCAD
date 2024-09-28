@@ -228,6 +228,15 @@ export class ParameterComponent implements OnInit {
 
   }
 
+  replaceImage(){
+    this.clearImagePreview();
+    const opnode = this.tree.getOpNode(this.opid);
+    this.mediaService.removeInstance( opnode.params[this.paramid].id)
+    this.opnode.params[this.paramid] = {id:''};
+    this.onOperationParamChange.emit({id: this.paramid, value: this.opnode.params[this.paramid], type: this.param.type});
+
+  }
+
 
 
   /**
@@ -266,7 +275,13 @@ export class ParameterComponent implements OnInit {
   drawImagePreview(){
 
 
+    //check if the image has been removed
     const opnode = this.tree.getOpNode(this.opid);
+    if(opnode.params[this.paramid].id == ''){
+      this.clearImagePreview();
+      return;
+    } 
+
     const obj = <IndexedColorImageInstance> this.mediaService.getMedia(opnode.params[this.paramid].id);
 
    if(obj === null || obj.img == null || obj.img.image == null ) return;

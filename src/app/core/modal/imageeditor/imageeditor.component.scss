@@ -15,6 +15,7 @@
     flex-direction: column;
     width: 66%;
     height: 100%;
+    margin-top: 12px;
 }
 
 .content_right{
@@ -27,15 +28,27 @@
     display: flex;
     flex-direction: row;
     gap: 16px;
-    justify-content: space-between
+    font-size: 12px;
+    line-height: 14px;
+    justify-content: space-between;
+    padding: 8px 0px;
+
+    span{
+        display: inline-block;
+        width: 100px;
+    }
 
 }
 
 .swatch{
-    display: block;
+    display: flex;
     width: 40px;
-    height: 40px;
+    height: 55px;
     border: thin solid black;
+    align-items: center;
+    justify-content: center;
+
+
 }
 
 .data{
@@ -46,25 +59,32 @@
 
 .results{
     display: flex;
-    flex-direction: column;
-    width: 25%;
+    flex-direction: row;
+    width: 40%;
+    flex-wrap: wrap;
     gap: 8px;
+    height: min-content;
 }
 
 
 .mappings{
     display: flex;
-    width: 70%;
+    width: 60%;
     flex-direction: column;
 }
 .centered_id{
     display: flex;
-    width: 50%;
-    height:50%;
+    width: 20px;
+    height: 20px;
     background-color: white;
     color: black;
+    font-size: 12px;
+    text-align: center;
     align-items: center;
     justify-content: center;
+    border-radius: 8px;
+    border: thin solid black;
+
 }
 
 .data_row{

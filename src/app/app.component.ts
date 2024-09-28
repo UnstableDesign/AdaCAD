@@ -951,6 +951,7 @@ onPasteSelections(){
   this.upload_modal.afterClosed().subscribe(loadResponse => {
     if(loadResponse !== undefined && loadResponse != true) 
     this.loadNewFile(loadResponse, 'openFile');
+    this.upload_modal = undefined;
 
   });
 }
