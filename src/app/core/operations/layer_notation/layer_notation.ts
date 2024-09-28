@@ -8,7 +8,7 @@ import utilInstance from "../../model/util";
 
 const name = "notation";
 const old_names = ["assignlayers"];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'notation';
 
 //PARAMS

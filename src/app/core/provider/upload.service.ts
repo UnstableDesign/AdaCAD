@@ -145,11 +145,16 @@ export class UploadService {
  
 
 
+  /**
+   * retreives an item from firebase storage
+   * @param id the reference for the item
+   * @returns 
+   */
   getDownloadData(id: string) : Promise<any> {
     const storage = getStorage();
     if(id === 'noinput') return Promise.resolve('');
 
-
+    console.log("GET DATA AT ", id)
     this.getDownloadMetaData(id);
 
     return getDownloadURL(ref(storage, 'uploads/'+id))

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Draft, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
-import { ImageService } from '../../../core/provider/image.service';
+import { MediaService } from '../../../core/provider/media.service';
 import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../core/provider/operation.service';
 import { SystemsService } from '../../../core/provider/systems.service';
@@ -99,14 +99,12 @@ export class OperationComponent implements OnInit {
    //for input params form control
    loaded_inputs: Array<number> = [];
 
-   has_image_preview: boolean = false;
-
   // has_connections_in: boolean = false;
    subdraft_visible: boolean = true;
 
    is_dynamic_op: boolean = false;
    
-   dynamic_type: string = 'main';
+   //dynamic_type: string = 'main';
 
    filewarning: string = "";
 
@@ -156,7 +154,7 @@ export class OperationComponent implements OnInit {
 
 
     this.opnode = <OpNode> this.tree.getNode(this.id);
-    if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
+    //if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
 
   }
 
@@ -357,7 +355,7 @@ export class OperationComponent implements OnInit {
       const op = <DynamicOperation> this.operations.getOp(opnode.name);
       //this is a hack to use an input draft to generate inlets
       
-      if(op.dynamic_param_id == obj.id || obj.type =="notation_toggle"){
+      if(op.dynamic_param_id.find(el => el == obj.id) !== undefined || obj.type =="notation_toggle"){
 
         if(op.params[obj.id].type == 'draft'){
           const inputs:Array<IOTuple> = this.tree.getInputsAtNdx(this.id, 0);
@@ -368,6 +366,7 @@ export class OperationComponent implements OnInit {
           }
           
         }
+
         this.opnode.inlets = this.tree.onDynanmicOperationParamChange(this.id, this.name, opnode.inlets, obj.id, obj.value) 
 
 
@@ -379,9 +378,12 @@ export class OperationComponent implements OnInit {
           this.drawImagePreview();
 
           //update the width and height
-          let image_param = opnode.params[op.dynamic_param_id];
+         // let image_param = opnode.params[op.dynamic_param_id];
+         let image_param = opnode.params[0];
+         if(image_param.id != ''){
           opnode.params[1] = image_param.data.width;
           opnode.params[2] = image_param.data.height;
+         }
 
 
         }
@@ -393,8 +395,8 @@ export class OperationComponent implements OnInit {
   }
 
   drawImagePreview(){
-    let param = this.paramsComps.get( (<DynamicOperation>this.op).dynamic_param_id)
-    param.drawImagePreview();
+    let param = this.paramsComps.get(0)
+     param.drawImagePreview();
   }
 
   //returned from a file upload event
@@ -409,24 +411,24 @@ export class OperationComponent implements OnInit {
     image_div.style.display = 'none';
 
     switch(obj.data.type){
+
       case 'image':
+        // if(this.operations.isDynamic(this.name) && (<DynamicOperation> this.op).dynamic_param_type !== 'color') return;
 
-        if(this.operations.isDynamic(this.name) && (<DynamicOperation> this.op).dynamic_param_type !== 'color') return;
+          if(obj.data.warning !== ''){
+            image_div.style.display = 'flex';
+            this.filewarning = obj.warning;
+          }else{
 
-        if(obj.data.warning !== ''){
-          image_div.style.display = 'flex';
-          this.filewarning = obj.warning;
-        }else{
+            const opnode = this.tree.getOpNode(this.id);
+            
+            obj.inlets.forEach(hex => {
 
-          const opnode = this.tree.getOpNode(this.id);
-          
-          obj.inlets.forEach(hex => {
-
-            //add any new colors
-            const ndx = opnode.inlets.findIndex(el => el.value === hex);
-            if(ndx === -1){
-              opnode.inlets.push(hex);
-            }
+              //add any new colors
+              const ndx = opnode.inlets.findIndex(el => el.value === hex);
+              if(ndx === -1){
+                opnode.inlets.push(hex);
+              }
           });
 
           const remove = [];
@@ -475,6 +477,7 @@ export class OperationComponent implements OnInit {
   }
 
   duplicate(){
+
     this.duplicateOp.emit({id: this.id});
   }
 

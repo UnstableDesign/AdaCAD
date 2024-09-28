@@ -2,6 +2,14 @@
     color: white;
 }
 
+.show{
+    display: flex;
+}
+
+.hide{
+    display: none;
+}
+
 // .param-row{
 //     display: flex;
 //     vertical-align:middle;
@@ -79,9 +87,13 @@
 
 
 .file-input-param{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
 
 
-    .form-and-image{
+    .form-and-warning{
         display: flex;
         flex-direction: column;
     }
@@ -93,6 +105,10 @@
 
     .no_image{
         height:0px;
+    }
+
+    .mdc-button{
+        height: 60px;
     }
 
     .has_image{

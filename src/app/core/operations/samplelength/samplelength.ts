@@ -7,7 +7,7 @@ import utilInstance from "../../model/util";
 
 const name = "sample_length";
 const old_names = [""];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'profile';
 
 //PARAMS

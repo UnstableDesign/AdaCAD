@@ -21,6 +21,8 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
 import { ViewerService } from '../../core/provider/viewer.service';
 import { copyLoom, copyLoomSettings, getLoomUtilByType } from '../../core/model/looms';
+import { OperationService } from '../../core/provider/operation.service';
+import { MediaService } from '../../core/provider/media.service';
 
 @Component({
   selector: 'app-palette',
@@ -97,6 +99,8 @@ export class PaletteComponent implements OnInit{
   
   constructor(
     public dm: DesignmodesService, 
+    private ops: OperationService,
+    private media: MediaService,
     private tree: TreeService,
     private layers: LayersService, 
     private resolver: ComponentFactoryResolver, 
@@ -712,8 +716,14 @@ handlePan(diff: Point){
      */
      duplicateOperation(name: string, params: Array<number>, topleft:Point, inlets: Array<any>):number{
 
+
+
       const op:OperationComponent = this.createOperation(name);
+      
+
           
+
+
           this.tree.setOpParams(op.id, params.slice(), inlets.slice());
           op.loaded_inputs = params.slice();
           op.topleft = {x: topleft.x, y: topleft.y};
@@ -858,6 +868,14 @@ handlePan(diff: Point){
 
     if(id === undefined) return;
 
+    const op_node = this.tree.getOpNode(id);
+    const op_base = this.ops.getOp(op_node.name);
+    op_base.params.forEach((param, ndx) => {
+      if(param.type == 'file'){
+        //remove the media file associated 
+        this.media.removeInstance(op_node.params[ndx].id)
+      }
+    })
 
     const drafts_out = this.tree.getNonCxnOutputs(id);
     drafts_out.forEach(id => this.vs.checkOnDelete(id));
@@ -967,13 +985,14 @@ handlePan(diff: Point){
      }
 
    /**
-   * TO DO: Duplicates the operation that called this function.
+   *Duplicates the operation that called this function.
    */
     onDuplicateOpCalled(obj: any){
       if(obj === null) return;
 
       const op = this.tree.getOpNode(obj.id);
       const op_comp = <OperationComponent> this.tree.getComponent(obj.id);
+      const operation: Operation = this.ops.getOp(op.name);
 
 
       let new_tl: Point = null;
@@ -986,8 +1005,20 @@ handlePan(diff: Point){
         new_tl =  {x: op_comp.topleft.x + 10 + container.offsetWidth*this.zs.getMixerZoom()/this.default_cell_size, y: op_comp.topleft.y}
       }
 
+      let new_params = op.params.slice();
+      //make sure to duplicate any media objects
+      operation.params.forEach((param, i) => {
+        if(param.type == 'file'){
+          let old_media_id = op.params[i].id;
+          let new_media_item = this.media.duplicateIndexedColorImageInstance(old_media_id);
+          new_params[i] = {id: new_media_item.id, data: new_media_item.img}
+        }
+      })
 
-      const id: number = this.duplicateOperation(op.name, op.params, new_tl, op.inlets);
+   
+
+
+      const id: number = this.duplicateOperation(op.name, new_params, new_tl, op.inlets);
       const new_op = <OperationComponent> this.tree.getComponent(id);
 
       //duplicate the connections as well
@@ -1001,7 +1032,7 @@ handlePan(diff: Point){
 
 
 
-      this.operationParamChanged({id: id});
+      this.operationParamChanged({id: id, prior_inlet_vals:[]});
       this.addTimelineState();
  }
 
@@ -2101,7 +2132,8 @@ pasteConnection(from: number, to: number, inlet: number){
    * @param obj with attribute id describing the operation that called this
    * @returns 
    */
-   async operationParamChanged(obj: any){
+   async operationParamChanged(obj: {id: number, prior_inlet_vals: Array<any>}){
+    console.log("OPERATION PARAM CHANGED")
 
     if(obj === null) return;
 

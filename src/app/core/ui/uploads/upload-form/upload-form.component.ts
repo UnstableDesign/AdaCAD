@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Output, Input, EventEmitter }
 import { HttpClient } from '@angular/common/http';
 import { UploadService } from '../../../provider/upload.service';
 import { Draft, Drawdown, Upload } from '../../../model/datatypes';
-import { ImageService } from '../../../provider/image.service';
+import { MediaService } from '../../../provider/media.service';
 import { Sequence } from '../../../model/sequence';
 import { initDraftFromDrawdown } from '../../../model/drafts';
 
@@ -29,7 +29,7 @@ export class UploadFormComponent implements OnInit {
   @Output() onData: any = new EventEmitter();
   @Output() onError: any = new EventEmitter();
 
-  constructor(private upSvc: UploadService, private httpClient: HttpClient, private imageService: ImageService) { }
+  constructor(private upSvc: UploadService, private httpClient: HttpClient, private mediaSvc: MediaService) { }
 
   detectFiles(event) {
       this.selectedFiles = event.target.files;
@@ -62,10 +62,11 @@ export class UploadFormComponent implements OnInit {
   
   }
 
+
    uploadImage(upload: Upload, file: File) : Promise<any> {
 
     return this.upSvc.pushUpload(upload).then(snapshot => {
-      return  this.imageService.loadFiles([upload.name]);
+      return  this.mediaSvc.loadMedia([{id: -1, ref: upload.name, data:null}]);
     }).then(uploaded => {
 
 
@@ -81,17 +82,17 @@ export class UploadFormComponent implements OnInit {
   }
 
 
-
-  uploadBitmap(upload: Upload, file: File) : Promise<any> {
+//TEMP DISABLE
+//   uploadBitmap(upload: Upload, file: File) : Promise<any> {
     
-    return this.upSvc.pushUpload(upload).then(snapshot => {
-     return  this.imageService.loadFiles([upload.name]);
-   }).catch(e => {
-      this.onError.emit(e);
-      this.uploading = false;
-      this.selectedFiles = null;
-   }); 
- }
+//     return this.upSvc.pushUpload(upload).then(snapshot => {
+//      return  this.mediaSvc.loadMedia([{id: upload.name, data: null}]);
+//    }).catch(e => {
+//       this.onError.emit(e);
+//       this.uploading = false;
+//       this.selectedFiles = null;
+//    }); 
+//  }
 
 
 
@@ -139,67 +140,68 @@ export class UploadFormComponent implements OnInit {
 
   /**
    * used when handling the upload of multiple images (bitmaps) that should be converted into a drfat
+   * TEMP DIABLED
    */
   uploadBitmaps() {
     
-      this.uploading = true;
+      // this.uploading = true;
 
-        const uploads= [];
-        const fns = [];
-        for(let i = 0; i < this.selectedFiles.length; i++){
+      //   const uploads= [];
+      //   const fns = [];
+      //   for(let i = 0; i < this.selectedFiles.length; i++){
 
-          let file:File = this.selectedFiles.item(i)
-          let fileName = file.name.split(".")[0];
+      //     let file:File = this.selectedFiles.item(i)
+      //     let fileName = file.name.split(".")[0];
 
-          const upload:Upload = {
-            $key: '',
-            file:file,
-            name:fileName,
-            url:'',
-            progress:0,
-            createdAt: new Date()
-        };
-        uploads.push(upload);
-        fns.push(this.uploadBitmap(upload, file));
+      //     const upload:Upload = {
+      //       $key: '',
+      //       file:file,
+      //       name:fileName,
+      //       url:'',
+      //       progress:0,
+      //       createdAt: new Date()
+      //   };
+      //   uploads.push(upload);
+      //   fns.push(this.uploadBitmap(upload, file));
 
-        }
+      //   }
 
-       Promise.all(fns).then(res => {
-        let drafts = [];
-        res.forEach(upload_arr => {
+      //  Promise.all(fns).then(res => {
+      //   let drafts = [];
+      //   res.forEach(upload_arr => {
           
-          let upload = upload_arr[0];
+      //     let upload = upload_arr[0];
 
-          const twod: Sequence.TwoD = new Sequence.TwoD();
-          let bw_ndx = upload.colors_to_bw.map(el => el.black);
+      //     const twod: Sequence.TwoD = new Sequence.TwoD();
+      //     let bw_ndx = upload.colors_to_bw.map(el => el.black);
 
-          for(let i = 0; i < upload.height; i++){
-            const oned: Sequence.OneD = new Sequence.OneD();
-            for(let j = 0; j < upload.width; j++){
-              const ndx = upload.image_map[i][j];
-              let val:boolean = (ndx < bw_ndx.length) ? bw_ndx[ndx] : null;
-              oned.push(val);
-            }
-            twod.pushWeftSequence(oned.val());
-          }
-          const d: Draft = initDraftFromDrawdown(twod.export());
-          d.gen_name = upload.name;
-          drafts.push(d);
-        })
+      //     for(let i = 0; i < upload.height; i++){
+      //       const oned: Sequence.OneD = new Sequence.OneD();
+      //       for(let j = 0; j < upload.width; j++){
+      //         const ndx = upload.image_map[i][j];
+      //         let val:boolean = (ndx < bw_ndx.length) ? bw_ndx[ndx] : null;
+      //         oned.push(val);
+      //       }
+      //       twod.pushWeftSequence(oned.val());
+      //     }
+      //     const d: Draft = initDraftFromDrawdown(twod.export());
+      //     d.gen_name = upload.name;
+      //     drafts.push(d);
+      //   })
 
-        this.onData.emit({type: this.type, drafts: drafts});
-        this.uploading = false;
-        this.selectedFiles = null;
-        return [];
-       }).then(res => {
-          let functions = uploads.map(el => this.upSvc.deleteUpload(el));
-          return Promise.all(functions);
-       }).catch(e => {
+      //   this.onData.emit({type: this.type, drafts: drafts});
+      //   this.uploading = false;
+      //   this.selectedFiles = null;
+      //   return [];
+      //  }).then(res => {
+      //     let functions = uploads.map(el => this.upSvc.deleteUpload(el));
+      //     return Promise.all(functions);
+      //  }).catch(e => {
 
-        this.onError.emit('one of the files you uploaded was not a bitmap (and had more than 100 colors, so it could not be converted to black and white), please try again');
-        this.uploading = false;
-        this.selectedFiles = null;
-       });
+      //   this.onError.emit('one of the files you uploaded was not a bitmap (and had more than 100 colors, so it could not be converted to black and white), please try again');
+      //   this.uploading = false;
+      //   this.selectedFiles = null;
+      //  });
 
 
     

@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
-import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
 import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
@@ -11,7 +11,7 @@ import { OperationComponent } from '../../mixer/palette/operation/operation.comp
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
 import { createCell } from '../model/cell';
 import { defaults } from '../model/defaults';
-import { ImageService } from './image.service';
+import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
 
@@ -32,7 +32,7 @@ export class TreeService {
   constructor(
     private ws: WorkspaceService,
     private ops: OperationService,
-    private imageservice: ImageService,
+    private media: MediaService,
     private systemsservice: SystemsService) { 
   }
 
@@ -108,14 +108,13 @@ export class TreeService {
    */
    onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
-
       const op = <DynamicOperation> this.ops.getOp(name);
       const param_type = op.params[param_id].type
       const opnode = this.getOpNode(opid);
 
       if(!this.ops.isDynamic(name)) return;
 
-      if(op.dynamic_param_id != param_id && param_type !== 'notation_toggle') return;
+      if(op.dynamic_param_id.find(el => el === param_id) === undefined &&  param_type !== 'notation_toggle') return;
 
 
       let param_vals:Array<OpParamVal> = opnode.params.map((el, ndx) =>  {
@@ -177,9 +176,9 @@ export class TreeService {
             return (params[ndx]) ? 1 : 0;
           
             case "file":
-              const id_and_data = this.imageservice.getImageData(params[ndx]);
-              if(id_and_data === undefined  || id_and_data.data === undefined) return {id: params[ndx], data: null}
-              else return {id: params[ndx], data: id_and_data.data};
+              const id_and_data = <IndexedColorImageInstance> this.media.getMedia(params[ndx]);
+              if(id_and_data === null  || id_and_data.img === null) return {id: params[ndx], data: null}
+              else return {id: params[ndx], data: id_and_data.img};
         
             default:
               return params[ndx];
@@ -202,7 +201,8 @@ export class TreeService {
         if(this.ops.isDynamic(name)){
           const op = <DynamicOperation> this.ops.getOp(name);
           (<OpNode> node).params = params_out.slice()
-          let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
+          //this just forces the inlets to generate by simulating a parameter change
+          let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id[0], op.params[op.dynamic_param_id[0]].value);
           
           inlets = dynamic_inlets.slice();
         }
@@ -432,15 +432,16 @@ export class TreeService {
 
      inputs_to_op.forEach((iotuple) => {
         //what was the value of the inlet
+        if(prior_inlet_vals.length !== 0){
+          let prior_val = prior_inlet_vals[iotuple.ndx];
+          let new_ndx = opnode.inlets.findIndex(el => el == prior_val);
 
-        let prior_val = prior_inlet_vals[iotuple.ndx];
-        let new_ndx = opnode.inlets.findIndex(el => el == prior_val);
-
-        if(new_ndx == -1){
-          this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
-          viewRefs.push(iotuple.tn.node.ref)
-        }else{
-          iotuple.ndx = new_ndx;
+          if(new_ndx == -1){
+            this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
+            viewRefs.push(iotuple.tn.node.ref)
+          }else{
+            iotuple.ndx = new_ndx;
+          }
         }
      })
 

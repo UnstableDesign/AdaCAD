@@ -8,7 +8,7 @@ import utilInstance from "../../model/util";
 
 const name = "notation_system";
 const old_names = [];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'notation';
 const layer_parsing_regex =/.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i;
 
@@ -61,7 +61,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
       //make sure the system draft map has a representation for every layer, even if the draft at that layer is null.
       const layer_draft_map = original_string_split.map((unit, ndx) => {
-        
         let layer_id = layer_units.findIndex(el => el.includes(unit));
 
         let drafts = getAllDraftsAtInlet(op_inputs, ndx+1);

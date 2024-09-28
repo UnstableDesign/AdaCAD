@@ -11,6 +11,7 @@ import { TreeService } from './tree.service';
 import { VersionService } from './version.service';
 import { WorkspaceService } from './workspace.service';
 import { ZoomService } from './zoom.service';
+import { MediaService } from './media.service';
 
 
 
@@ -40,7 +41,8 @@ export class FileService {
     private vs: VersionService,
     private ws: WorkspaceService,
     private zs: ZoomService,
-    private files: FilesystemService) { 
+    private files: FilesystemService,
+    private media: MediaService) { 
 
   
   this.status = [
@@ -219,6 +221,11 @@ export class FileService {
             }
             return op;
           });
+        }    
+        
+        let indexed_images = [];
+        if(data.indexed_image_data !== undefined){
+          indexed_images = data.indexed_image_data;
         }
         
           const envt: FileObj = {
@@ -231,6 +238,7 @@ export class FileService {
             draft_nodes: draft_nodes,
             notes: (data.notes === undefined) ? [] : data.notes,
             ops: ops,
+            indexed_image_data: indexed_images
           }
 
           return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
@@ -323,6 +331,12 @@ export class FileService {
             return op;
           });
         }
+
+        let indexed_images = [];
+        if(data.indexed_image_data !== undefined){
+          indexed_images = data.indexed_image_data;
+        }
+
         
           const envt: FileObj = {
             version: '0.0.0',
@@ -333,7 +347,8 @@ export class FileService {
             treenodes: (data.tree === undefined) ? [] : data.tree,
             draft_nodes: draft_nodes,
             notes:  [],
-            ops: ops
+            ops: ops,
+            indexed_image_data: indexed_images
           }
     
           return Promise.resolve({data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id:-1 }); 
@@ -453,7 +468,8 @@ export class FileService {
         draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
         ops: this.tree.exportOpMetaForSaving(),
         notes: [],
-        materials: this.ms.exportForSaving()
+        materials: this.ms.exportForSaving(),
+        indexed_image_data: this.media.exportIndexedColorImageData()
       }
 
       //now filter out things that aren't relevant
@@ -483,7 +499,8 @@ export class FileService {
           draft_nodes: draft_nodes,
           ops: this.tree.exportOpMetaForSaving(),
           notes: this.ns.exportForSaving(),
-          materials: this.ms.exportForSaving()
+          materials: this.ms.exportForSaving(),
+          indexed_image_data: this.media.exportIndexedColorImageData()
         }
 
         var theJSON = JSON.stringify(out);

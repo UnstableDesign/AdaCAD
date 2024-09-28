@@ -81,7 +81,8 @@ export class StateService {
         draft_nodes: ada.file.draft_nodes.slice(),
         ops: ada.file.ops.slice(),
         notes: ada.file.notes.slice(),
-        materials: ada.file.materials.slice()
+        materials: ada.file.materials.slice(),
+        indexed_image_data: ada.file.indexed_image_data.slice() 
       }
     }
 

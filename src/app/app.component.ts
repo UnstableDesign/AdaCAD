@@ -9,7 +9,7 @@ import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { LoginComponent } from './core/modal/login/login.component';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { createCell } from './core/model/cell';
-import { Draft, DraftNode, DraftNodeProxy, FileObj, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
 import { copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
@@ -18,7 +18,7 @@ import { AuthService } from './core/provider/auth.service';
 import { DesignmodesService } from './core/provider/designmodes.service';
 import { FileService } from './core/provider/file.service';
 import { FilesystemService } from './core/provider/filesystem.service';
-import { ImageService } from './core/provider/image.service';
+import { MediaService } from './core/provider/media.service';
 import { MaterialsService } from './core/provider/materials.service';
 import { NotesService } from './core/provider/notes.service';
 import { OperationService } from './core/provider/operation.service';
@@ -105,7 +105,7 @@ export class AppComponent implements OnInit{
     public files: FilesystemService,
     private fs: FileService,
     private http: HttpClient,
-    private image: ImageService,
+    private media: MediaService,
     private ms: MaterialsService,
     public multiselect: MultiselectService,
     private ops: OperationService,
@@ -194,6 +194,7 @@ export class AppComponent implements OnInit{
     this.vs.clearPin();
     this.vs.clearViewer();
     this.mixer.clearView();
+    this.media.clearMedia();
     this.editor.clearAll();
     this.viewer.clearView();
     this.tree.clear();
@@ -551,8 +552,38 @@ export class AppComponent implements OnInit{
 
 
   insertPasteFile(result: LoadResponse){
-    console.log("INSERTING ", result)
     this.processFileData(result.data).then(data => {
+
+    //after we have processed the data, we need to now relink any images that were duplicated in the process. 
+    let image_id_map = [];
+    result.data.indexed_image_data.forEach(image => {
+      let media_item: IndexedColorImageInstance = this.media.duplicateIndexedColorImageInstance(image.id);
+      image_id_map.push({from: image.id, to: media_item.id})
+    })
+
+    
+    result.data.ops.forEach(op => {
+
+      let op_base = this.ops.getOp(op.name);
+      op_base.params.forEach((param,ndx) => {
+
+        if(param.type == 'file'){
+
+          let from = op.params[ndx];
+          let entry = image_id_map.find(el => el.from == from);
+
+          if(entry !== undefined){
+            let img_instance = <IndexedColorImageInstance> this.media.getMedia(entry.to);
+            //this is just setting it locally, it needs to set the actual operation
+            let op_node = this.tree.getOpNode(op.node_id);
+            op_node.params[ndx] = {id: entry.to, data:img_instance.img};
+
+          }
+        }
+      })
+    })
+
+
       this.saveFile();
     }
     ).catch(console.error);
@@ -670,7 +701,6 @@ export class AppComponent implements OnInit{
   loadNewFile(result: LoadResponse, source: string) : Promise<any>{
 
 
-    console.log("LOAD RESPONSE ", result)
 
    return this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
    .then(res => {
@@ -921,6 +951,7 @@ onPasteSelections(){
   this.upload_modal.afterClosed().subscribe(loadResponse => {
     if(loadResponse !== undefined && loadResponse != true) 
     this.loadNewFile(loadResponse, 'openFile');
+    this.upload_modal = undefined;
 
   });
 }
@@ -963,21 +994,39 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   //1. filter any operations with a parameter of type file, and load the associated file. 
   const images_to_load = [];
+
+  if(data.filename !== 'paste'){
+    //only load in new files if this is a true load event, if it is pasting from exisitng files, it doesn't need to re-analyze the images. 
+    if(utilInstance.sameOrNewerVersion(data.version, '4.1.7')){
+      //LOAD THE NEW FILE OBJECT
+      data.indexed_image_data.forEach(el => {
+      images_to_load.push({id: el.id, ref: el.ref, data:{colors: el.colors, color_mapping: el.color_mapping}});
+    })
+
+    }else{
+      console.log("LOADING OLDER VERSION ")
+      data.ops.forEach(op => {
+        const internal_op = this.ops.getOp(op.name); 
+        if(internal_op === undefined || internal_op == null|| internal_op.params === undefined) return;
+        const param_types = internal_op.params.map(el => el.type);
+        param_types.forEach((p, ndx) => {
+              //older version stored the media object reference in the parameter
+              if(p == 'file'){
+                let new_id = utilInstance.generateId(8);
+                images_to_load.push({id: new_id, ref: op.params[ndx], data:null});
+                op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
+              }
+        });
+      })
+
+    }
+  }
   
-  data.ops.forEach(op => {
-    const internal_op = this.ops.getOp(op.name); 
-    if(internal_op === undefined || internal_op == null|| internal_op.params === undefined) return;
-    const param_types = internal_op.params.map(el => el.type);
-    param_types.forEach((p, ndx) => {
-      if(p === 'file'){
-        images_to_load.push(op.params[ndx]);
-      } 
-    });
-  })
 
 
 
-  return this.image.loadFiles(images_to_load).then(el => {
+
+  return this.media.loadMedia(images_to_load).then(el => {
     //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
     return this.tree.replaceOutdatedOps(data.ops);
   })

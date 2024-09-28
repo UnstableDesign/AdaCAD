@@ -1,15 +1,15 @@
-import { promise } from "protractor";
 import { createCell } from "../../model/cell";
 import { AnalyzedImage, Cell, Draft, DynamicOperation, FileParam, NumParam, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getHeddle, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
 import { getOpParamValById } from "../../model/operations";
+import utilInstance from "../../model/util";
 
 
 
 
 const name = "imagemap";
 const old_names = [];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'color';
 
 //PARAMS
@@ -41,6 +41,7 @@ const height:NumParam = {
  
 
 
+
 const params = [file, width, height];
 
 //INLETS
@@ -62,11 +63,15 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
     const data:AnalyzedImage = file_param.data;
 
+
+    //coorelates the inlet with an associated draft
     const color_to_drafts = data.colors.map((color, ndx) => {
-        const child_of_color = op_inputs.find(input => (input.params.findIndex(param => param === color) !== -1));
-        if(child_of_color === undefined) return {color: color, draft: null};
-        else return {color: color, draft: child_of_color.drafts[0]};
+        const child_of_color = op_inputs.find(input => (input.params.findIndex(param => param === color.hex) !== -1));
+
+        if(child_of_color === undefined) return {color: color.hex, draft: null};
+        else return {color: color.hex, draft: child_of_color.drafts[0]};
       });
+
 
     const pattern: Array<Array<Cell>> = [];
       for(let i = 0; i < res_h; i++){
@@ -79,8 +84,16 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
           const map_i = Math.floor(i * i_ratio);
           const map_j = Math.floor(j * j_ratio);
 
-          const color_ndx = data.image_map[map_i][map_j]; //
-          const color_draft = color_to_drafts[color_ndx].draft;
+
+
+          const color_ndx = data.image_map[map_i][map_j]; //this is an id
+          const mapped_color = data.colors_mapping.find(el => el.from == color_ndx); //this is the mapped id
+          const mapped_color_hex = data.colors[mapped_color.to].hex
+          const color_draft = color_to_drafts.find(el => el.color == mapped_color_hex).draft;
+
+          // if(i == 0){
+          //   console.log("COLOR, MAP, DRAFT", color_ndx, mapped_color, color_to_drafts[mapped_color.to], color_draft)
+          // }
 
           if(color_draft === null) pattern[i].push( createCell(false));
           else {
@@ -111,16 +124,23 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) 
 
 const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, param_val: any) : Array<any> => {
 
+
+    //a new file was uploaded
     if(changed_param_id == 0){
         const id_and_data = param_val;
         if(id_and_data.id !== ''){
             inlets  = [];
-               id_and_data.data.colors.forEach(hex => { 
-                    inlets.push(hex);
+            let color_space = id_and_data.data.colors;
+            let unique_colors = utilInstance.filterToUniqueValues(id_and_data.data.colors_mapping.map(el => el.to))
+            //compute the distance between each pair of colors, keep the N closest values
+
+               unique_colors.forEach(id => { 
+                    inlets.push(color_space[id].hex);
             });
         }   
-        return inlets;
     }
+
+    return inlets;
 
 
 }
