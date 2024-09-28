@@ -183,8 +183,8 @@ export class MediaService {
           warning: filewarning
         }
 
-        return obj;
-      
+        return this.addMediaNameFromStorage(ref, obj);
+
       }).then(imageobj => {
 
         if(imageobj.data == null){
@@ -192,21 +192,19 @@ export class MediaService {
         }
         const media_ref  = this.addIndexColorMediaInstance(id, ref, imageobj)
         return Promise.resolve(media_ref);
-
-        // return this.upSvc.getDownloadMetaData(ref)
-        // .then(metadata => {
-        //   if(metadata.customMetadata.filename !== undefined) imageobj.name = metadata.customMetadata.filename;
-        //   const media_ref  = this.addIndexColorMediaInstance(id, ref, imageobj)
-        //   return Promise.resolve(media_ref);
-
-        // })
-
       }) ;
   });
   }
 
 
 
+  addMediaNameFromStorage(ref: string, img: AnalyzedImage) : Promise<AnalyzedImage>{
+     return this.upSvc.getDownloadMetaData(ref)
+        .then(metadata => {
+          if(metadata.customMetadata.filename !== undefined) img.name = metadata.customMetadata.filename;
+          return Promise.resolve(img);
+        })
+  }
 
 
   createColorMap(colors: Array<Color>, prox: Array<{a: number, b: number, dist: number}>, space: number) : Array<{from: number, to: number}>{

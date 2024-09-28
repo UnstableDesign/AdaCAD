@@ -17,6 +17,7 @@ export class ImageeditorComponent {
   img: AnalyzedImage;
   color_table: Array<{from: number, from_hex:string, to:number, to_hex: string}>;
   resulting_color_space: Array<{from: number, from_hex:string, to:number, to_hex: string}>;
+  editable: boolean = true;
 
   constructor(
     public tree: TreeService,
@@ -26,7 +27,11 @@ export class ImageeditorComponent {
     @Inject(MAT_DIALOG_DATA) public obj: any){
 
 
-      this.media_id = obj;
+      if(obj.src == 'bwimagemap'){
+        this.editable = false;
+      }
+
+      this.media_id = obj.media_id;
       const media_item = <IndexedColorImageInstance> this.mediaService.getMedia(this.media_id);
       this.img = media_item.img;
 

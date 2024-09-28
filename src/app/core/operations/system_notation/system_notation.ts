@@ -61,7 +61,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
       //make sure the system draft map has a representation for every layer, even if the draft at that layer is null.
       const layer_draft_map = original_string_split.map((unit, ndx) => {
-        
         let layer_id = layer_units.findIndex(el => el.includes(unit));
 
         let drafts = getAllDraftsAtInlet(op_inputs, ndx+1);

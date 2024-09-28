@@ -2,14 +2,15 @@
 cdkDrag
  cdkDragRootElement=".cdk-overlay-pane" 
  cdkDragHandle>
- Manage Image Colors
+ <span *ngIf="editable">View/Edit Image Colors</span>
+ <span *ngIf="!editable">View Image Colors</span>
 </p>
 
 
 <mat-dialog-content >
 
     <div class="content_left">
-        <p>Use this editor to modify the color space of your image. You can do this grouping colors together that you would like the software to treat as the same.</p>
+        <p *ngIf="editable">Use this editor to modify the color space of your image. You can do this grouping colors together that you would like the software to treat as the same.</p>
 
         <div class="image_preview" id="image_preview">
             <canvas id="preview_canvas"></canvas>
@@ -41,7 +42,7 @@ cdkDrag
                      <!--color mapped to-->
                     <mat-form-field>
                         <mat-label>groups with:</mat-label>
-                        <mat-select [(value)]="color.to" (selectionChange)="mappingChanged(color.from, $event)">
+                        <mat-select [disabled]="!editable" [(value)]="color.to" (selectionChange)="mappingChanged(color.from, $event)">
                             <mat-option *ngFor="let to_color of img.colors; index as i" [value]="i">  
                                 <div class="swatch" [style.background-color]="to_color.hex">
                                     <div class="centered_id">{{i}}</div>

@@ -214,7 +214,7 @@ export class ParameterComponent implements OnInit {
 
     if(obj === undefined || obj.img == undefined || obj.img.image == null ) return;
 
-    const dialogRef = this.dialog.open(ImageeditorComponent, {data: obj.id});
+    const dialogRef = this.dialog.open(ImageeditorComponent, {data: {media_id: obj.id, src: this.opnode.name}});
     dialogRef.afterClosed().subscribe(nothing => {
 
       let updated_media = <IndexedColorImageInstance> this.mediaService.getMedia( this.opnode.params[this.paramid].id)

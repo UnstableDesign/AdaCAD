@@ -1,6 +1,6 @@
 import { createCell } from "../../model/cell";
-import { AnalyzedImage, Cell, Color, Draft, DynamicOperation, FileParam, NumParam, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { getHeddle, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
+import { AnalyzedImage, Cell, Draft, DynamicOperation, FileParam, NumParam, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
+import { createDraft, getHeddle, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
 import { getOpParamValById } from "../../model/operations";
 
 
@@ -61,21 +61,17 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
     const data:AnalyzedImage = file_param.data;
 
-    const color_to_drafts = data.colors_mapping.map((color, ndx) => {
+ 
+    const color_to_drafts = data.colors.map((color, ndx) => {
+    const child_of_color = op_inputs.find(input => (input.params.findIndex(param => param === color.hex) !== -1));
 
-       let color_to:Color = data.colors[color.to];
+      if(child_of_color === undefined){
+        if(color.hex == '#000000')  return {color: color.hex, draft: initDraftWithParams({warps: 1, wefts:1, drawdown: [[createCell(true)]]})};
+        else return {color: color.hex, draft: initDraftWithParams({warps: 1, wefts:1, drawdown: [[createCell(false)]]})};;
+      } 
+      else return {color: color.hex, draft: child_of_color.drafts[0]};
+    });
 
-
-        if(color_to.hex == '#000000'){
-            if(op_inputs.findIndex(input => input.inlet_id == 0) !== -1) return {color: color_to.hex, draft: op_inputs[0].drafts[0]}
-            else return {color: color_to.hex, draft: initDraftWithParams({warps: 1, wefts: 1, drawdown: [[createCell(true)]]})}
-          } else{
-            if(op_inputs.findIndex(input => input.inlet_id == 1) !== -1) return {color: color_to.hex, draft: op_inputs[1].drafts[0]}
-            else return {color: color_to.hex, draft: initDraftWithParams({warps: 1, wefts: 1, drawdown: [[createCell(false)]]})}
-
-          } 
-        });
-      
 
     const pattern: Array<Array<Cell>> = [];
       for(let i = 0; i < res_h; i++){
@@ -88,8 +84,13 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
           const map_i = Math.floor(i * i_ratio);
           const map_j = Math.floor(j * j_ratio);
 
-          const color_ndx = data.image_map[map_i][map_j]; //
-          const color_draft = color_to_drafts[color_ndx].draft;
+          const color_ndx = data.image_map[map_i][map_j];
+          const mapped_color = data.colors_mapping.find(el => el.from == color_ndx); //this is the mapped id
+          const mapped_color_hex = data.colors[mapped_color.to].hex
+          const color_draft = color_to_drafts.find(el => el.color == mapped_color_hex).draft;
+
+
+     
 
           if(color_draft === null) pattern[i].push( createCell(false));
           else {
@@ -120,9 +121,42 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) 
 
 const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, param_val: any) : Array<any> => {
 
+    //go through the image and adjust the mapping data so that it adds black and white and maps to those. 
     const new_inlets: Array<any> = ['#000000', '#ffffff']
+    let img = param_val.data;
+    console.log("IMG", img);
+
+    if(img == undefined) return new_inlets;
+
+
+
+    let has_black = false;
+    let has_white = false;
+
+    img.colors.forEach(color => {
+      if(color.hex == '#000000') has_black = true;
+      if(color.hex == '#ffffff') has_white = true;
+    })
+
+    if(!has_black) img.colors.push({r: 0, g: 0, b: 0, hex: '#000000', black: true})
+    if(!has_white) img.colors.push({r: 255, g: 255, b: 255, hex: '#ffffff', black: false})
+
+    let black_id = img.colors.findIndex(el => el.hex == '#000000');
+    let white_id = img.colors.findIndex(el => el.hex == '#ffffff');
+
+
+    img.colors_mapping.forEach(mapping => {
+      let c = img.colors[mapping.from];
+      if(c.black) mapping.to = black_id;
+      else mapping.to = white_id;
+    })  
 
     return new_inlets;
+
+
+
+
+
 
 
 }
