@@ -36,27 +36,37 @@
 
         <mat-form-field  class="fullwidth">
           <mat-label>Shared File Name</mat-label>
-          <input  matInput value="{{share_obj.filename}}">
+          <input  (change)="updateChange()"
+          [(ngModel)]="share_obj.filename" 
+          matInput>
         </mat-form-field>
 
 
         <mat-form-field class="fullwidth">
           <mat-label>File Description</mat-label>
-          <textarea matInput placeholder="you can tell someone a bit more about this file here">{{share_obj.desc}}</textarea>
+          <textarea 
+          [(ngModel)]="share_obj.desc" 
+          (change)="updateChange()" 
+          matInput placeholder="you can tell someone a bit more about this file here"></textarea>
         </mat-form-field>
 
         <mat-form-field  class="fullwidth">
           <mat-label>Credit Line</mat-label>
-          <input matInput value="{{share_obj.owner_creditline}}">
+          <input 
+          [(ngModel)]="share_obj.owner_creditline" 
+          (change)="updateChange()" matInput>
         </mat-form-field>
 
         <mat-form-field  class="fullwidth">
           <mat-label>URL to Additional Information</mat-label>
-          <input matInput value="{{share_obj.owner_url}}">
+          <input
+          [(ngModel)]="share_obj.owner_url" 
+          (change)="updateChange()" 
+          matInput >
         </mat-form-field>
 
         <section class="example-section">
-          <mat-checkbox class="example-margin" [(ngModel)]="share_obj.public">Include this in the examples section of AdaCAD</mat-checkbox>
+          <mat-checkbox (change)="updateChange()" class="example-margin" [(ngModel)]="share_obj.public">Include this in the examples section of AdaCAD</mat-checkbox>
         </section>
 
         <canvas id="img_preview"></canvas>

@@ -1,5 +1,5 @@
 import { Component, Inject, inject } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormControl } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AuthService } from '../../provider/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -27,7 +27,7 @@ export class ShareComponent {
   public fileid: string;
 
   public author_list: Array<AuthorContribution> = [];
-
+  public fc: FormControl;
 
   constructor( 
     private auth: AuthService, 
@@ -40,6 +40,10 @@ export class ShareComponent {
 
       this.fileid = data.fileid;
       this.licenses = licenses;
+
+
+ 
+
 
       // //check if a link has already been generated for this file. If yes, 
       // //include an update option. 
@@ -75,6 +79,11 @@ export class ShareComponent {
     updateSettings(license: string, author_list: Array<AuthorContribution>){
       this.author_list = author_list.slice();
     
+    }
+
+    updateChange(){
+      console.log("CHANGE - SHARE OBJ ", this.share_obj)
+      this.fs.updateSharedFile(this.shared_id.toString(), this.share_obj)
     }
 
     permissionChange(){
@@ -114,7 +123,6 @@ export class ShareComponent {
 
         return   this.fs.duplicate(this.auth.uid, this.fs.getCurrentFileName(), this.fs.getCurrentFileDesc(), so.file)
       }).then(new_id => {
-        console.log("DUPLICATED TO ", new_id)
 
         this.shared_id = new_id;
         this.share_obj = {
@@ -185,13 +193,13 @@ export class ShareComponent {
    * @param obj 
    */
   handleFile(obj: MediaInstance){
-    console.log("GOT OBJ", obj[0]);
-   // this.share_obj.img = obj.ref;
 
 
      if(obj === null || obj[0].data == null) return;
        
-       
+     this.share_obj.img = obj[0].ref;
+     this.updateChange();
+ 
   
         const data = obj[0].data;
   
@@ -208,7 +216,6 @@ export class ShareComponent {
 
 
         ctx.putImageData(data, 0, 0, 0, 0, use_width, use_height);
-    
   
       
   
