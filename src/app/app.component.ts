@@ -42,6 +42,7 @@ import { VersionService } from './core/provider/version.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ViewadjustService } from './core/provider/viewadjust.service';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
+import { ShareComponent } from './core/modal/share/share.component';
 
 
 
@@ -386,6 +387,12 @@ export class AppComponent implements OnInit{
   }
 
 
+  share(){
+    const dialogRef = this.dialog.open(ShareComponent, {
+      width: '600px',
+      data: {fileid: this.files.getCurrentFileId()}
+    });
+  }
 
   /**
    * this is called when a user pushes save from the topbar
@@ -467,11 +474,16 @@ export class AppComponent implements OnInit{
       return;
     }
 
-
     if(user === null){
       console.log("USER IS NULL")
       this.loadStarterFile();
     }else{
+
+      if(searchParams.has('share')){
+        this.loadFromShare(searchParams.get('share'));  
+        return;
+      }
+  
 
       if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
 
@@ -523,7 +535,6 @@ export class AppComponent implements OnInit{
                     }
 
                 }else{
-                  console.log("load blank")
                   this.loadBlankFile();
                   return;
                 }
@@ -621,8 +632,38 @@ export class AppComponent implements OnInit{
         this.saveFile();
       });
     })
-
   }
+
+
+    //must be online
+    async loadFromShare(shareid: string){
+      console.log("LOAD FROM SHARE");
+
+      this.files.isShared(shareid).then(share_obj => {
+
+        if(share_obj == null){
+          console.log("THIS FILE IS NOT CURRENTLY SHARED");
+          return Promise.reject("NO SHARED FILE EXISTS")
+        }
+
+        var int_shareid: number = +shareid;
+        return Promise.all([this.files.getFile(int_shareid), share_obj, shareid]);
+
+
+      }).then(file_objs=>{
+        console.log("GOT file OBJ", file_objs[0])
+        return this.files.duplicate(this.auth.uid, file_objs[1].filename, file_objs[1].desc, file_objs[0])
+      }).then(fileid => {
+        console.log("RETURNED FROM DUPLICATE WITH FILE ", fileid);
+        return Promise.all([this.files.getFile(fileid), this.files.getFileMeta(fileid), fileid]);
+      }).then(file_data => {
+        console.log("Loading File data ", file_data);
+        return this.prepAndLoadFile(file_data[1].filename, 'db', file_data[2], file_data[1].desc, file_data[0])
+      }).catch(err => {
+        console.error(err);
+      })
+    }
+  
 
   //must be online
   async loadFromDB(fileid: number){
@@ -1004,7 +1045,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
     })
 
     }else{
-      console.log("LOADING OLDER VERSION ")
       data.ops.forEach(op => {
         const internal_op = this.ops.getOp(op.name); 
         if(internal_op === undefined || internal_op == null|| internal_op.params === undefined) return;
@@ -1023,9 +1063,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
   }
   
 
-
-
-
+  console.log("IMAGES TO LOAD ", images_to_load)
   return this.media.loadMedia(images_to_load).then(el => {
     //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
     return this.tree.replaceOutdatedOps(data.ops);

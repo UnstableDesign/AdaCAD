@@ -188,53 +188,66 @@ cdkDrag
 
             <div class="actions"> 
 
-              
+              <button mat-icon-button [matMenuTriggerFor]="menu"><i class="fa-solid fa-ellipsis"></i></button>
+
+              <mat-menu #menu="matMenu">
+                
+                <button 
+                [disabled]="file.id ==this.files.current_file_id"
+                mat-menu-item
+                (click)="openFile(file.id)"
+                ><i class="fas fa-folder-open"></i> open
+               </button>
+
+
               <button 
-              [disabled]="file.id ==this.files.current_file_id"
-              mat-icon-button 
-              matListItemIcon
-              matTooltip="open this file"
-              (click)="openFile(file.id)"
-              ><i class="fas fa-folder-open"></i>
+              mat-menu-item
+              (click)="rename(file.id)"
+              ><i class="fas fa-edit"></i> rename
             </button>
-    
+
             <button 
-            mat-icon-button 
-            matListItemIcon
-            matTooltip="rename this file"
-            (click)="rename(file.id)"
-            ><i class="fas fa-edit"></i>
+            mat-menu-item
+            (click)="duplicate(file.id)"
+            ><i class="fas fa-copy"></i> make a copy
           </button>
-         
+
           <button 
-          mat-icon-button 
-          matListItemIcon
-          matTooltip="duplicate this file"
-          (click)="duplicate(file.id)"
-          ><i class="fas fa-copy"></i>
-        </button>
-
-
+          mat-menu-item
+          (click)="shareWorkspace(file.id)">
+          <i class="fa-solid fa-share-nodes"></i> share
+          </button>
 
 
               <button 
-              mat-icon-button 
-              matListItemIcon
+              mat-menu-item
               matTooltip="download"
               (click)="exportWorkspace(file.id)">
-              <i class="fa-solid fa-download"></i>
+              <i class="fa-solid fa-download"></i> download file
               </button>
+
+              <button 
+              mat-menu-item
+              [disabled]="file.id ==this.files.current_file_id"
+              [matMenuTriggerFor]="deleteConfirm"
+              >
+              <i class="fa-solid fa-trash"></i> delete
+              </button>
+
+
+              </mat-menu>
+
+
+            
+    
+         
+    
+
+
 
     
           
-              <button 
-              mat-icon-button 
-              [disabled]="file.id ==this.files.current_file_id"
-
-              [matMenuTriggerFor]="deleteConfirm"
-              >
-              <i class="fa-solid fa-trash"></i>
-              </button>
+      
 
               <mat-menu #deleteConfirm>
                 <button 

@@ -31,7 +31,7 @@ h3{
 }
 
 .lastviewed{
-    flex: 0 1 95px;
+    flex: 0 1 20%;
     justify-content: flex-end;
 
 }
@@ -39,7 +39,7 @@ h3{
 .filename{
     text-align: left;
     justify-content: flex-start;
-    flex: 1 1 auto;
+    flex: 1 1 50%;
 }
 
 
@@ -52,12 +52,12 @@ h3{
 }
 
 .current{
-    color: #ff4081;
+    background-color: #ff4081;
 }
 
 
 .actions{
-    flex: 0 1 192px;
+    flex: 0 1 20%;
     display: flex;
     justify-content: center;
     flex-direction: row;

@@ -57,6 +57,7 @@ import { ViewadjustComponent } from './viewadjust/viewadjust.component';
 import { ImageeditorComponent } from './modal/imageeditor/imageeditor.component';
 import { MediaService } from './provider/media.service';
 import { OperationService } from './provider/operation.service';
+import { ShareComponent } from './modal/share/share.component';
 
 
 
@@ -112,7 +113,8 @@ import { OperationService } from './provider/operation.service';
         EventsDirective,
         WelcomeComponent,
         SelectionComponent,
-        DraftRenderingComponent
+        DraftRenderingComponent,
+        ShareComponent
     ],
     providers: [
         UploadService,

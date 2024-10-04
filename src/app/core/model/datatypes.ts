@@ -381,6 +381,7 @@ export interface NodeComponentProxy{
  export type MediaInstance ={
   id: number;
   ref: string; 
+  data: any;
   type: 'image' | 'indexed_color_image'; //currently we only support images
  }
 
@@ -426,6 +427,7 @@ export interface FileObj{
  indexed_image_data: Array<IndexedColorMediaProxy>
 
 }
+
 
 export interface StatusMessage{
   id: number,
@@ -965,6 +967,31 @@ export type RenderingFlags = {
  show_loom: boolean
 }
 
+
+/**
+ * File sharing
+ */
+
+
+export type AuthorContribution = {
+  uid: string,
+  username: string,
+  timestamp: number
+}
+
+//consider if this should index on file id or share id. of if you even need both of them. 
+export type ShareObj = {
+  license: string,
+  owner_uid: string,
+  owner_creditline: string,
+  author_list: Array<AuthorContribution>,
+  filename: string,
+  desc: string,
+  public:boolean,
+  img: string
+
+}
+ 
 
 
 

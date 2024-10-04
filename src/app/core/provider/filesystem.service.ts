@@ -1,10 +1,10 @@
 import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
-import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged } from '@angular/fire/database';
+import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged, set } from '@angular/fire/database';
 // import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
 import { Observable, Subject } from 'rxjs';
 import { FilebrowserComponent } from '../ui/filebrowser/filebrowser.component';
-import { LoadedFile, SaveObj } from '../model/datatypes';
+import { LoadedFile, SaveObj, ShareObj } from '../model/datatypes';
 import utilInstance from '../model/util';
 
 
@@ -102,6 +102,8 @@ export class FilesystemService {
     
       });
   }
+
+
 
   public getLoadedFile(id: number) : LoadedFile{
 
@@ -341,20 +343,138 @@ export class FilesystemService {
     
   }
 
-  /**
-   * takes the current state, gives it a new file ID and pushes it to the database
-   * @returns the id of the file
-   */
-    duplicate(uid: string, name: string, desc: string, ada: any) : Promise<number>{
+/**
+ * takes the current state, gives it a new file ID and pushes it to the database
+ * @returns the id of the file
+ */
+duplicate(uid: string, name: string, desc: string, ada: any) : Promise<number>{
+  console.log("WRITING NAME ", name)
+
+  const fileid = this.generateFileId();
+  this.writeFileData(fileid, ada);
+  this.writeNewFileMetaData(uid, fileid, name, desc)
+  return Promise.resolve(fileid);
     
-      const fileid = this.generateFileId();
-      this.writeFileData(fileid, ada);
-      this.writeNewFileMetaData(uid, fileid, name, desc)
-      return Promise.resolve(fileid);
-       
-     }
+  }
    
 
+/**
+ * creates a new reference for a shared file 
+ * @param file_id 
+ * @param share_data 
+ * @returns 
+ */
+createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
+
+
+  if(!this.connected) return;
+
+  const db = getDatabase();
+  const ref = fbref(db, 'shared/'+file_id);
+
+  set(ref,share_data)
+  .then(success => {
+    console.log("SUCCESS");
+    return Promise.resolve(file_id)
+
+  })
+  .catch(err => {
+    console.error(err);
+    return Promise.reject("could not create new shared item")
+
+  })
+
+
+}
+
+/**
+ * checks if and how a particular file id is being shared
+ * @param file_id 
+ */
+isShared(file_id:string) : Promise<ShareObj> {
+  const db = getDatabase();
+
+  return fbget(fbref(db, `shared/${file_id}`))
+  .then((filedata) => {
+
+
+      if(filedata.exists()){
+        return Promise.resolve({
+          ada: <SaveObj> filedata.val().ada, 
+          author_list: filedata.val().author_list, 
+          license: filedata.val().license,
+          filename: filedata.val().filename,
+          desc: filedata.val().desc});
+
+      }else{
+       return Promise.resolve(null)
+      }
+
+    })
+}
+
+
+
+/**
+ * called when a user changes the license for a shared file. 
+ * @param fileid 
+ * @param license 
+ * @returns 
+ */
+updateSharedFile(fileid: string, share: ShareObj) : Promise<any>{
+  if(!this.connected) return Promise.reject("not logged in");
+
+  const db = getDatabase();
+  const ref = fbref(db, 'shared/'+fileid);
+
+    update(ref,share)
+    .then(success => {
+      return Promise.resolve(true);
+    })
+    .catch(err => {
+      console.error(err);
+      return Promise.resolve(false);
+    })
+
+}
+
+
+/**
+ * called when a user changes the license for a shared file. 
+ * @param fileid 
+ * @param license 
+ * @returns 
+ */
+updateSharedLicense(fileid: string, license: string) : Promise<any>{
+  if(!this.connected) return Promise.reject("not logged in");
+
+  const db = getDatabase();
+  const ref = fbref(db, 'shared/'+fileid);
+
+    update(ref,{license: license})
+    .then(success => {
+      return Promise.resolve(true);
+    })
+    .catch(err => {
+      console.error(err);
+      return Promise.resolve(false);
+    })
+
+}
+
+/**
+   * gets the file at a given id
+   * @returns the file data
+   */
+removeSharedFile(file_id: string) : Promise<any> {
+  if(!this.connected) return Promise.reject("get shared file is not logged in");
+
+  const db = getDatabase();
+  remove(fbref(db, `shared/${file_id}`));
+
+
+
+}
 
 
   /**
@@ -440,6 +560,8 @@ getFile(fileid: number) : Promise<any> {
     }
     
   }
+
+
 
   /**
    * writes the data for the currently open file to the database

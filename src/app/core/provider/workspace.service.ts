@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { LoomSettings } from '../model/datatypes';
+import { AuthorContribution, LoomSettings } from '../model/datatypes';
 import { defaults } from '../model/defaults';
 import utilInstance from '../model/util';
+import { defaultMaxListeners } from 'events';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class WorkspaceService {
 
 
   file_favorites: Array<number> = [];
+  loaded_from_share_id: number = -1;  
   min_frames: number = defaults.loom_settings.frames; 
   min_treadles: number = defaults.loom_settings.treadles;
   type: string = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
@@ -48,6 +50,7 @@ export class WorkspaceService {
     this.selected_origin_option = defaults.selected_origin_option;
     this.hide_mixer_drafts = defaults.hide_mixer_drafts;
     this.show_advanced_operations = defaults.show_advanced_operations;
+    this.loaded_from_share_id = -1;
 
   }
 
@@ -64,7 +67,7 @@ export class WorkspaceService {
     this.file_favorites = (data.file_favorites === undefined) ? [] : data.file_favorites;
     this.hide_mixer_drafts = (data.hide_mixer_drafts === undefined) ? true : data.hide_mixer_drafts;
     this.show_advanced_operations = (data.show_advanced_operations === undefined) ? false : data.show_advanced_operations;
-
+    this.loaded_from_share_id = (data.loaded_from_share_id === undefined) ? [] : data.loaded_from_share_id;
   }
 
 
@@ -73,38 +76,42 @@ export class WorkspaceService {
     return false;
   }
 
+  // addAuthor(author_id: string){
+  //     this.authors.push(author_id);
+  // }
+
 
   /**
    * given an array of looms, infers the data from what is most commonly used
    * this assumes that most exports will have common loom data
    * @param looms 
    */
-  async inferData(loom_settings: Array<LoomSettings>) : Promise<any> {
-    if(loom_settings.length === 0) return Promise.resolve("no looms");
+  // async inferData(loom_settings: Array<LoomSettings>) : Promise<any> {
+  //   if(loom_settings.length === 0) return Promise.resolve("no looms");
 
-    //filter out null or undefined looms
-    loom_settings = loom_settings.filter(el => !(el === undefined || el === null)); 
+  //   //filter out null or undefined looms
+  //   loom_settings = loom_settings.filter(el => !(el === undefined || el === null)); 
 
 
-    this.min_frames = utilInstance.getMostCommon(
-      loom_settings.map(el => el.frames)
-    );
-    this.min_treadles = utilInstance.getMostCommon(
-      loom_settings.map(el => el.treadles)
-    );
-    this.type = utilInstance.getMostCommon(
-      loom_settings.map(el => el.type)
-    );
-    this.units = utilInstance.getMostCommon(
-      loom_settings.map(el => el.units)
-    );
+  //   this.min_frames = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.frames)
+  //   );
+  //   this.min_treadles = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.treadles)
+  //   );
+  //   this.type = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.type)
+  //   );
+  //   this.units = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.units)
+  //   );
 
-    this.epi = utilInstance.getMostCommon(
-      loom_settings.map(el => el.epi)
-    );
+  //   this.epi = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.epi)
+  //   );
 
-    return "done";
-  }
+  //   return "done";
+  // }
 
   exportWorkspace() : any{
     return {
@@ -119,8 +126,8 @@ export class WorkspaceService {
       selected_origin_option: this.selected_origin_option,
       file_favorites: this.file_favorites.slice(),
       hide_mixer_drafts: this.hide_mixer_drafts,
-      show_advanced_operations: this.show_advanced_operations
-
+      show_advanced_operations: this.show_advanced_operations,
+      loaded_from_share_id: this.loaded_from_share_id
     }
   }
 

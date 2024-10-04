@@ -318,6 +318,12 @@ export class FileService {
             });
           }  
         })
+
+
+        let indexed_images = [];
+        if(data.indexed_image_data !== undefined){
+          indexed_images = data.indexed_image_data;
+        }
       
     
         if(data.ops !== undefined){
@@ -332,10 +338,7 @@ export class FileService {
           });
         }
 
-        let indexed_images = [];
-        if(data.indexed_image_data !== undefined){
-          indexed_images = data.indexed_image_data;
-        }
+      
 
         
           const envt: FileObj = {
@@ -488,6 +491,7 @@ export class FileService {
       
 
       return this.tree.exportDraftNodeProxiesForSaving().then(draft_nodes => {
+        console.log("EXPORTED NODES ", draft_nodes)
 
         const out: SaveObj = {
           version: this.vs.currentVersion(),
@@ -502,7 +506,7 @@ export class FileService {
           materials: this.ms.exportForSaving(),
           indexed_image_data: this.media.exportIndexedColorImageData()
         }
-
+        console.log("CREATED OUTPUT ", out)
         var theJSON = JSON.stringify(out);
         return Promise.resolve({json: theJSON, file: out});
         })

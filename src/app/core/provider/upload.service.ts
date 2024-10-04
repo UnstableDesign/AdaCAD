@@ -51,7 +51,6 @@ export class UploadService {
                 new Uint8Array(data)
                   .reduce((data, byte) => data + String.fromCharCode(byte), '')
               );
-              console.log("RESOLVING WITH ", base64)
               resolve(base64);
             }
           );

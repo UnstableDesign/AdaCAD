@@ -5,6 +5,7 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { FileService } from '../../provider/file.service';
 import { LoginComponent } from '../../modal/login/login.component';
+import { ShareComponent } from '../../modal/share/share.component';
 
 @Component({
   selector: 'app-filebrowser',
@@ -18,6 +19,7 @@ export class FilebrowserComponent implements OnInit {
   @Output() onLoadFromDB: any = new EventEmitter();
   @Output() onCreateFile: any = new EventEmitter();
   @Output() onDuplicateFile: any = new EventEmitter();
+  @Output() onShareFile: any = new EventEmitter();
 
   
   unopened_filelist = [];
@@ -46,9 +48,9 @@ export class FilebrowserComponent implements OnInit {
 
 
 
-        this.files.loaded_file_change$.subscribe(data => {
-          this.updateFileData(data)
-        });
+      this.files.loaded_file_change$.subscribe(data => {
+        this.updateFileData(data)
+      });
 
 
 
@@ -62,6 +64,15 @@ export class FilebrowserComponent implements OnInit {
     
     
     
+  }
+
+  shareWorkspace(){
+
+
+    const dialogRef = this.dialog.open(ShareComponent, {
+      width: '600px',
+      data: {fileid: this.files.getCurrentFileId()}
+    });
   }
 
   openLoginDialog() {
@@ -81,6 +92,9 @@ export class FilebrowserComponent implements OnInit {
 
   updateFileData(data: Array<any>){
     this.unopened_filelist = [];
+    console.log("DATA FROM FILES ", data)
+
+
     this.file_list = [];
     data.forEach(file => {
       this.file_list.push(file);
