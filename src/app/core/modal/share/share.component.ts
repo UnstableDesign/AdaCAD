@@ -19,7 +19,7 @@ import { MediaService } from '../../provider/media.service';
 export class ShareComponent {
   private _snackBar = inject(MatSnackBar);
 
-  public shared_id: number = -1;
+  public shared_id: string = '';
   public share_obj: ShareObj;
   public share_url: string;
 
@@ -48,7 +48,7 @@ export class ShareComponent {
       // //check if a link has already been generated for this file. If yes, 
       // //include an update option. 
       this.fs.isShared(this.fileid.toString()).then(share_obj => {
-        
+        console.log("CHECK IS SHARE RETURNED ", share_obj)
 
         if(share_obj == null){
           //this is not yet shared
@@ -56,6 +56,7 @@ export class ShareComponent {
           
         }else{
           this.share_obj = share_obj;
+          this.shared_id = this.fileid.toString();
           this.updateSettings(share_obj.license, share_obj.author_list);
           this.share_url = "https://adacad-4-1.web.app/?share="+this.fileid;
         }
@@ -86,15 +87,9 @@ export class ShareComponent {
       this.fs.updateSharedFile(this.shared_id.toString(), this.share_obj)
     }
 
-    permissionChange(){
-      //update in DB
-      // console.log("PERMISSION CHANGED ", this.selected_license)
-      // this.fs.updateSharedLicense(this.fileid, this.selected_license);
-    }
-
     toggleSharing(){
 
-      if(this.shared_id !== -1){
+      if(this.shared_id !== ''){
         this.removeLink();
 
       }else{
@@ -109,8 +104,12 @@ export class ShareComponent {
 
       console.log("GENERATE LINK")
 
-      this.file_serv.saver.ada()
-      .then(so => {
+      let int_id: number = +this.fileid;
+
+      this.fs.getFileMeta(int_id).then(meta => {
+        return Promise.all([this.file_serv.saver.ada(), meta])
+
+      }).then(so => {
         console.log("GOT SAVER OBJ", so)
         //add the current time to the author list entry 
         this.author_list.push({
@@ -119,17 +118,15 @@ export class ShareComponent {
           timestamp: Date.now()
         });
 
-   
-
-        return   this.fs.duplicate(this.auth.uid, this.fs.getCurrentFileName(), this.fs.getCurrentFileDesc(), so.file)
-      }).then(new_id => {
-
-        this.shared_id = new_id;
+        return   Promise.all([this.fs.duplicate(this.auth.uid, so[1].name,so[1].desc, so[0].file), so[1]])
+      }).then(id_and_meta => {
+        console.log("ID AND META ", id_and_meta)
+        this.shared_id = id_and_meta[0].toString();
         this.share_obj = {
           license: 'by',
           author_list: this.author_list,
-          filename: this.fs.getCurrentFileName(),
-          desc: this.fs.getCurrentFileDesc(),
+          filename: id_and_meta[1].name,
+          desc: id_and_meta[1].desc,
           owner_uid: (this.auth.isLoggedIn) ? this.auth.uid : 'anon',
           owner_creditline: (this.auth.isLoggedIn) ? 'created by '+this.auth.username : '',
           public: false,
@@ -137,7 +134,7 @@ export class ShareComponent {
 
         }
 
-        return  this.fs.createSharedFile(new_id.toString(), this.share_obj)
+        return  this.fs.createSharedFile(this.shared_id , this.share_obj)
       }).then(share_data => {
         console.log("CREATED SHARED FILE ENTRY TO ", share_data)
 
@@ -186,6 +183,11 @@ export class ShareComponent {
     removeLink(){
       this.fs.removeSharedFile(this.fileid);
       this.author_list = [];
+    }
+
+    formatDate(date: number){
+      var dateFormat = new Date(date);
+      return dateFormat.toLocaleTimeString();
     }
 
   /**

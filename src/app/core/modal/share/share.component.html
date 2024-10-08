@@ -1,21 +1,21 @@
 <div class="dialog-header">
-    <h2 mat-dialog-title>Publish this File to a Sharable Link</h2>
+    <h2 mat-dialog-title>Publish this File to a Sharable Link {{fileid}}</h2>
    
   </div>
   <mat-dialog-content>
 
 
-    <p><mat-slide-toggle [checked]="shared_id !== -1" (change)="toggleSharing()">
-      <span *ngIf="shared_id !== -1" >
+    <p><mat-slide-toggle [checked]="shared_id !== ''" (change)="toggleSharing()">
+      <span *ngIf="shared_id !== ''" >
         Anyone can access this file with the link below
        </span>
-      <span *ngIf="shared_id == -1" >
+      <span *ngIf="shared_id == ''" >
         This file is not shared
       </span>
     </mat-slide-toggle>
 
 
-    <div class="shared_file_meta" *ngIf="shared_id !== -1">
+    <div class="shared_file_meta" *ngIf="shared_id !== ''">
 
       <mat-divider></mat-divider>
       <button mat-raised-button color="primary" (click)="copyToClipboard()"> {{share_url}} </button>

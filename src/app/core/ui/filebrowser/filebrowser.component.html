@@ -34,106 +34,122 @@ cdkDrag
   </ng-container>
 
 
-    <!-- <ng-container *ngIf="auth.isLoggedIn && files.connected">
+   <h3>Your Shared Files</h3>
 
-
-      <h3> Loaded Files</h3>
-
-      <div class="file-item-block">
-        <div class="filename">
-          Name
-        </div>
-        <div class="lastviewed">
-          Last Saved
-        </div>
-
-        <div class="actions">
-          Actions
-        </div>
+   <div class="browser_list">
+    <div class="file-item-block">
+      <div class="filename">
+        Name
       </div>
+      <div class="actions">
+        Actions
+      </div>
+    </div>
 
 
-      <div  class="file-item-block current" *ngFor="let file of files.loaded_files">
-          
-        <div class="filename">
-            <mat-form-field *ngIf="rename_mode_id == file.id">
-              <mat-label>Rename File</mat-label>
-             <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
 
-              <button 
-              mat-icon-button 
-              [class.primary]="file.id == this.files.current_file_id" 
-              (click) = "rename(file.id)">
-              <i class="fas fa-save"></i></button>
-
-            </mat-form-field>
-
-
-            <button *ngIf="rename_mode_id !== file.id"
-            mat-raised-button
-            [class.primary]="file.id == this.files.current_file_id" 
-            (click) = openFile(file.id)
-            class="file_name">
-             {{file.name}}
-            </button>
-
-            
-
-        </div>
-
-
-        <div class="lastviewed"> {{formatDate(file.last_saved_time)}} </div>
-
-
-           <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
-
-
-        <!-- <div class="actions"> 
-
+    <div  class="file-item-block" *ngFor="let file of shared_filelist" >
         
-          <button 
-          mat-icon-button 
-          matListItemIcon
-          matTooltip="rename this file"
-          (click)="rename(file.id)"
-          ><i class="fas fa-edit"></i>
-        </button>
+          <div class="filename">
+             <h4>{{file.shared.filename}}</h4>
+             <p>{{file.shared.desc}}</p>
+
+          </div>
+  
+
+          <div class="lastviewed"> <button mat-button><i class="fa-solid fa-link"></i> copy url</button>   </div>
 
 
-          <button 
-          mat-icon-button 
-          matListItemIcon
-          matTooltip="Download"
-          (click)="exportWorkspace(file.id)"
-          ><i class="fa-solid fa-download"></i>
+            <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
+
+
+          <div class="actions"> 
+
+            <button mat-icon-button [matMenuTriggerFor]="shared_menu"><i class="fa-solid fa-ellipsis"></i></button>
+
+            <mat-menu #shared_menu="matMenu">
+              
+              <button 
+              mat-menu-item
+              (click)="openFile(file.id)"
+              ><i class="fas fa-folder-open"></i> open file
+             </button>
+
+
+            <button 
+            mat-menu-item
+            (click)="editSharedFile(file.id)"
+            ><i class="fas fa-edit"></i> edit sharing settings
           </button>
 
-          <button *ngIf="files.loaded_files.length != 1"
-          mat-icon-button 
-          matListItemIcon
-          matTooltip="close this file"
-          (click)="close(file.id)"
-          ><i class="fa-solid fa-xmark"></i>
-        </button>
+
+            <button 
+            mat-menu-item
+            matTooltip="download"
+            (click)="exportSharedWorkspace(file.id)">
+            <i class="fa-solid fa-download"></i> download file
+            </button>
+
+            <button 
+            mat-menu-item
+            [matMenuTriggerFor]="stopShareConfirm"
+            >
+            <i class="fa-solid fa-link-slash"></i> stop sharing
+            </button>
 
 
+            </mat-menu>
 
-
-
-        
-        
-        </div>
-  
-
-
+            <mat-menu #stopShareConfirm>
+              <button 
+              mat-flat-button
+              (click) = "unshare(file.id)"
+              >
+                Are you sure?
+                </button>
+            </mat-menu>
 
 
           
   
-  </div> -->
+       
+  
 
 
-    <h3> Files Saved on AdaCAD Server</h3>
+
+  
+        
+    
+
+            <mat-menu #deleteConfirm>
+              <button 
+              mat-flat-button
+              (click) = "remove(file.id)"
+              >
+                Are you sure?
+                </button>
+            </mat-menu>
+          
+          
+          </div>
+    
+
+
+
+
+            
+    
+    </div>
+
+     
+
+
+  <mat-divider></mat-divider>
+
+
+   </div>
+
+    <h3> All Files Saved on AdaCAD Server</h3>
 
 
       <!-- HEADER ROW -->
@@ -175,7 +191,7 @@ cdkDrag
                 </mat-form-field>
 
 
-                <span *ngIf="rename_mode_id !== file.id" >  {{file.meta.name}}</span>
+                <span *ngIf="rename_mode_id !== file.id" >  {{file.meta.name}} {{file.id}}</span>
 
             </div>
     
@@ -288,7 +304,7 @@ cdkDrag
       <div mat-line> {{folder.updated | date}} </div>
     </mat-list-item> -->
 
-  </div>
+     </div>
 
 
 </mat-dialog-content>

@@ -206,6 +206,7 @@ export class MediaService {
    * @returns 
    */
   loadImage(id: number, ref: string, data: any) : Promise<MediaInstance>{
+    console.log("LOADING IMAGE")
 
     if(id == -1){
       id = utilInstance.generateId(8);

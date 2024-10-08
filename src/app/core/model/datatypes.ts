@@ -12,17 +12,6 @@ import { MaterialsService } from "../provider/materials.service";
 
 /*** APPLICATION STATE MANAGEMENT */
 
-/**
- * a local instance of a file that is currently open within the users's workspace
- */
-export interface LoadedFile{
-  id: number, 
-  name: string,
-  desc: string, 
-  ada: SaveObj,
-  last_saved_time: number
-}
-
 
 
 /*****   OBJECTS/TYPES RELATED TO DRAFTS  *******/

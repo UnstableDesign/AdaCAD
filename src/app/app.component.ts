@@ -554,14 +554,6 @@ export class AppComponent implements OnInit{
     }
   }
 
-  closeFile(fileid: number){
-    let item = this.files.getLoadedFile(fileid);
-    if(item == null) return;
-    this.files.unloadFile(fileid)
-  }
-
-
-
   insertPasteFile(result: LoadResponse){
     this.processFileData(result.data).then(data => {
 
@@ -926,7 +918,9 @@ onPasteSelections(){
   openAdaFiles(selectOnly:boolean) {
       if(this.filebrowser_modal != undefined && this.filebrowser_modal.componentInstance != null) return;
 
-    this.filebrowser_modal = this.dialog.open(FilebrowserComponent, {data: {
+    this.filebrowser_modal = this.dialog.open(FilebrowserComponent, {
+      width: '600px',
+      data: {
       selectOnly: selectOnly
      }});
 

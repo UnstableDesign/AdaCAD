@@ -4,7 +4,7 @@ import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, 
 // import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
 import { Observable, Subject } from 'rxjs';
 import { FilebrowserComponent } from '../ui/filebrowser/filebrowser.component';
-import { LoadedFile, SaveObj, ShareObj } from '../model/datatypes';
+import { SaveObj, ShareObj } from '../model/datatypes';
 import utilInstance from '../model/util';
 
 
@@ -16,15 +16,13 @@ export class FilesystemService {
 
   file_tree_change$ = new Subject<any>();
   file_saved_change$ = new Subject<any>();
-  loaded_file_change$ = new Subject<any>();
+  shared_file_change$ = new Subject<any>();
 
   file_tree: Array<any> = [];
 
-  loaded_files: Array<LoadedFile>; 
-
-
   private current_file_id: number = -1;
   public current_file_name: string = '';
+  public current_file_desc: string = '';
 
 
   connected: boolean = false;
@@ -33,8 +31,6 @@ export class FilesystemService {
 
 
  constructor(@Optional() private auth: Auth) {
-
-      this.loaded_files = [];
 
       const db = getDatabase();
 
@@ -65,16 +61,29 @@ export class FilesystemService {
        
         
         const userFiles = query(ref(db, 'users/'+user.uid+'/files'), orderByChild('timestamp'));
-        
+        const sharedFiles = query(ref(db, 'shared'));
 
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
-          //console.log("CHILD ADDED ", userFiles)
+          console.log("ON CHILD ADDED")
 
           //only add values that haven't already been added
           if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
-            this.addToTree(parseInt(childsnapshot.key), childsnapshot.val());
-           this.file_tree_change$.next(this.file_tree.slice());
+            this.isShared(childsnapshot.key).then(res => {
+              this.addToTree(parseInt(childsnapshot.key), childsnapshot.val(), res);
+              this.file_tree_change$.next(this.file_tree.slice());
+
+            })
+
+
+          }
+        }); 
+
+        onChildAdded(sharedFiles, (childsnapshot) => {
+          console.log("ON SHARE ADDED")
+          //only add values that haven't already been added
+          if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) !== undefined){
+              this.shared_file_change$.next(this.file_tree.slice());
           }
         }); 
 
@@ -82,40 +91,54 @@ export class FilesystemService {
     
         //called when anything in meta changes
         onChildChanged(userFiles, (data) => {
-         // console.log("CHILD CHANGED ", userFiles)
+          console.log("CHILD CHANGED ", userFiles)
             const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
             if(ndx !== -1){
-              this.file_tree[ndx].meta.name = data.val().name;
-              this.file_tree_change$.next(this.file_tree.slice());
+              this.isShared(data.key).then(res => {
+                this.file_tree[ndx].meta.name = data.val().name;
+                this.file_tree[ndx].shared = res;
+                this.file_tree_change$.next(this.file_tree.slice());
+              })
+     
+            }
+        });
+
+        onChildChanged(sharedFiles, (data) => {
+            const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
+            if(ndx !== -1){
+              this.isShared(data.key).then(res => {
+                this.file_tree[ndx].shared = res;
+                this.shared_file_change$.next(this.file_tree.slice());
+              })
+     
             }
         });
         
         //needs to redraw the files list 
         onChildRemoved(userFiles, (removedItem) => {
-          //console.log("CHILD REMOVED ", userFiles)
-
           const removedId = removedItem.key;
           this.file_tree = this.file_tree.filter(el => parseInt(el.id) !== parseInt(removedId));
           this.file_tree_change$.next(this.file_tree.slice());
         });
-    
-    
+
+        //needs to redraw the files list 
+        onChildRemoved(sharedFiles, (removedItem) => {
+
+          const removedId = removedItem.key;
+          const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(removedId));
+          if(ndx !== -1){
+              this.file_tree[ndx].shared = null;
+              this.shared_file_change$.next(this.file_tree.slice());
+          }
+        });
+        
+        
+      
+      
       });
+
+        
   }
-
-
-
-  public getLoadedFile(id: number) : LoadedFile{
-
-    let item = this.loaded_files.find(el => el.id == id);
-    if(item == undefined){
-      return null;
-    }else{
-      return item
-    }
-  }
-
-
 
   /**
    * given a new file that has just been loaded, update the meta-data to match the value of this item.
@@ -125,35 +148,31 @@ export class FilesystemService {
    */
   public pushToLoadedFilesAndFocus(id: number, name: string, desc: string) : Promise<boolean>{
 
-
-    // let item = this.getLoadedFile(id);
-
-    // if(item === null){
       
       return this.getFileMeta(id)
       .then(res => {
-        this.loaded_files.push({
-          id: id,
-          name: res.name,
-          desc: res.desc,
-          ada: undefined,
-          last_saved_time: 0
-        });
+        // this.loaded_files.push({
+        //   id: id,
+        //   name: res.name,
+        //   desc: res.desc,
+        //   ada: undefined,
+        //   last_saved_time: 0
+        // });
         this.setCurrentFileInfo(id, res.name, res.desc);
-        this.loaded_file_change$.next(this.file_tree.slice());
+        // this.loaded_file_change$.next(this.file_tree.slice());
         return Promise.resolve(true);
 
       })
       .catch(nodata => {
-        this.loaded_files.push({
-          id: id,
-          name:name,
-          desc: desc,
-          ada: undefined,
-          last_saved_time: 0
-        })
+        // this.loaded_files.push({
+        //   id: id,
+        //   name:name,
+        //   desc: desc,
+        //   ada: undefined,
+        //   last_saved_time: 0
+        // })
         this.setCurrentFileInfo(id, name, desc);
-        this.loaded_file_change$.next(this.file_tree.slice());
+       // this.loaded_file_change$.next(this.file_tree.slice());
         return Promise.resolve(false);
       });
 
@@ -163,12 +182,12 @@ export class FilesystemService {
     // }
   }
 
-  public unloadFile(id: number){
-    this.loaded_files = this.loaded_files.filter(el => el.id !== id);
-    if(this.current_file_id == id) this.current_file_id = -1;
-    this.loaded_file_change$.next(this.file_tree.slice());
+  // public unloadFile(id: number){
+  //   this.loaded_files = this.loaded_files.filter(el => el.id !== id);
+  //   if(this.current_file_id == id) this.current_file_id = -1;
+  //   this.loaded_file_change$.next(this.file_tree.slice());
 
-  }
+  // }
 
   public setCurrentFileId(id: number){
     this.current_file_id = id;
@@ -179,21 +198,11 @@ export class FilesystemService {
   }
 
   public getCurrentFileName() : string{
-    let item = this.getLoadedFile(this.current_file_id);
-    if(item !== null) return item.name;
-    return '';
+    return this.current_file_name;
   }
 
   public getCurrentFileDesc() : string{
-    let item = this.getLoadedFile(this.current_file_id);
-    if(item !== null) return item.desc;
-    return null;
-  }
-
-  public getCurrentFileObj() : SaveObj{
-    let item = this.getLoadedFile(this.current_file_id);
-    if(item !== null) return item.ada;  
-    return null;
+    return this.current_file_desc;
   }
 
 
@@ -215,14 +224,15 @@ export class FilesystemService {
   /**
    * adds to the local tree for the UI
    */
-  addToTree(fileid: number, meta: any){
+  addToTree(fileid: number, meta: any, shared: ShareObj){
 
     var dateFormat = new Date(meta.timestamp);
     meta.date = dateFormat.toLocaleDateString();
 
     this.file_tree.unshift({
       id: fileid,
-      meta: meta
+      meta: meta,
+      shared: shared
     })
   }
 
@@ -242,20 +252,6 @@ export class FilesystemService {
    
     this.setCurrentFileId(fileid);
     this.current_file_name = name;
-
-    const item = this.getLoadedFile(this.current_file_id);
-    if(item == null){
-         console.log("CANNOT FIND ITEM in LOADED FILES IN SET DCURRENT FILE INFO")
-    }else{
-      item.name = name;
-      item.desc = desc;
-    }
-
-    // item.current_file_id = fileid;
-    // this.current_file_name = name;
-    // this.current_file_desc = desc;
-
-
     const stamp = Date.now();
 
     if(!this.connected) return;
@@ -281,14 +277,6 @@ export class FilesystemService {
     if(newname === null || newname === undefined) newname = 'no name'; 
 
     if(fileid == this.getCurrentFileId()) this.current_file_name = newname;
-    const item = this.getLoadedFile(fileid);
-
-    if(item == null){
-        //this file is not currently loaded but we can still rename it
-    }else{
-      //if it is cureently loaded, get it here too
-      item.name = newname;
-    }
 
     if(!this.connected) return;
 
@@ -306,13 +294,7 @@ export class FilesystemService {
     if(fileid === null || fileid == undefined) return; 
     if(desc === null || desc === undefined) desc = ''; 
     
-    const item = this.getLoadedFile(fileid);
-    if(item == null){
-      //this file is not currently loaded
-    }else{
-      item.desc = desc;
-    }
-    
+
     if(!this.connected) return;
 
     const auth = getAuth();
@@ -348,7 +330,7 @@ export class FilesystemService {
  * @returns the id of the file
  */
 duplicate(uid: string, name: string, desc: string, ada: any) : Promise<number>{
-  console.log("WRITING NAME ", name)
+  console.log("DUPLICATING")
 
   const fileid = this.generateFileId();
   this.writeFileData(fileid, ada);
@@ -365,7 +347,7 @@ duplicate(uid: string, name: string, desc: string, ada: any) : Promise<number>{
  * @returns 
  */
 createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
-
+  console.log("CREATING SHARED FILE ", file_id, share_data)
 
   if(!this.connected) return;
 
@@ -463,14 +445,28 @@ updateSharedLicense(fileid: string, license: string) : Promise<any>{
 }
 
 /**
-   * gets the file at a given id
+   * The shared entry is not the same as the file. This operation removes the entry to this file in the shared DB but the file that was shared still exists in the files DB. This will automatically rename that file to reflect that it used to be shared. 
    * @returns the file data
    */
 removeSharedFile(file_id: string) : Promise<any> {
   if(!this.connected) return Promise.reject("get shared file is not logged in");
 
+
+  let int_id: number = +file_id;
   const db = getDatabase();
+  const auth = getAuth();
+  const user = auth.currentUser;
   remove(fbref(db, `shared/${file_id}`));
+
+
+  this.getFileMeta(int_id).then(meta => {
+      console.log("META GOT ", meta)
+    if(user){
+      console.log("UPDATED ", meta)
+
+      update(fbref(db, 'users/'+user.uid+'/files/'+file_id),{name: meta.name + "(previously shared)"});
+    }
+  })
 
 
 
@@ -511,9 +507,7 @@ getFile(fileid: number) : Promise<any> {
    * @returns 
    */
   removeFile(fileid: number) {
-    
-    this.unloadFile(fileid);
-    
+        
     if(!this.connected) return;
 
     const db = getDatabase();
@@ -552,13 +546,14 @@ getFile(fileid: number) : Promise<any> {
 
 
 
-  updateCurrentStateInLoadedFiles(fileid: number, cur_state: SaveObj){
-    const item = this.getLoadedFile(fileid);
-
-    if(item !== null){
-      item.ada = cur_state;
-    }
-    
+  updateSaveTime(fileid: number){
+    if(!this.connected) return;
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const stamp = Date.now();
+    const db = getDatabase();
+    update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
+      timestamp: stamp});
   }
 
 
@@ -569,6 +564,7 @@ getFile(fileid: number) : Promise<any> {
    * @returns 
    */
   writeFileData(fileid: number, cur_state: SaveObj) {
+    console.log("ATTEMPTING TO WRITE FILE DATA ", cur_state, fileid)
 
     if(!this.connected) return;
 
@@ -577,13 +573,7 @@ getFile(fileid: number) : Promise<any> {
 
     update(ref,{ada: cur_state})
     .then(success => {
-      const item = this.getLoadedFile(fileid);
-      if(item !== null){
-        item.last_saved_time = Date.now();
-      }else{
-        console.error("could not get loaded file after save")
-      }
-
+      this.updateSaveTime(fileid)
     })
     .catch(err => {
       console.error(err);
@@ -593,13 +583,8 @@ getFile(fileid: number) : Promise<any> {
 
   writeNewFileMetaData(uid: string, fileid: number, name: string, desc: string) {
 
-     const item = this.getLoadedFile(fileid);
-     if(item !== null){
-      item.name = name,
-      item.desc = desc
-     }
-
       if(!this.connected) return;
+
       const stamp = Date.now();
       const db = getDatabase();
       update(fbref(db, 'users/'+uid+'/files/'+fileid),{
