@@ -7,14 +7,17 @@ h2{
 .owner_setting_line{
     display: flex;
     flex-direction: row;
+    align-items: center;
+    height: 40px;
 }
 
 .share_in_history{
     color: red;
 }
 
-.license_link{
+.license_history{
     height: 40px;
+    display: inline-block;
 }
 
 .history_item{

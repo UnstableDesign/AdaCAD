@@ -10,20 +10,23 @@
       
       <div class="owner_settings">
         <h3>Owner Settings</h3>
+
         <div class="owner_setting_line">
             <div class="owner_left">
-              license
+              license:
             </div>
             <div class="owner_right">
+              <img class='license_history' src="/assets/img/{{share_in_history.license}}.png">
+             
               <a href="https://creativecommons.org/licenses/{{share_in_history.license}}/4.0/">     
-               cc-{{share_in_history.license}}
+               read about this license
              </a>       
             </div>
         </div>
 
-        <div class="owner_setting_line">
+        <div class="owner_setting_line" *ngIf="share_in_history.owner_creditline !== ''">
           <div class="owner_left">
-            credit line:
+            original credit line:
           </div>
           <div class="owner_right">
              {{share_in_history.owner_creditline}}
@@ -31,9 +34,9 @@
       </div>
 
 
-        <div class="owner_setting_line">
+        <div class="owner_setting_line" *ngIf="share_in_history.owner_url !== ''">
           <div class="owner_left">
-            url
+            url:
           </div>
           <div class="owner_right">
             {{share_in_history.owner_url}}
