@@ -2,7 +2,7 @@ import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
 import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged, set } from '@angular/fire/database';
 // import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
-import { Observable, Subject, from } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { FilebrowserComponent } from '../ui/filebrowser/filebrowser.component';
 import { SaveObj, ShareObj } from '../model/datatypes';
 import utilInstance from '../model/util';
@@ -352,7 +352,6 @@ isShared(file_id:string) : Promise<ShareObj> {
       if(filedata.exists()){
 
         const share_obj:ShareObj = {
-          author_list: filedata.val().author_list, 
           desc: filedata.val().desc,
           license: filedata.val().license,
           filename: filedata.val().filename,

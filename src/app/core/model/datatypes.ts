@@ -974,19 +974,11 @@ export type RenderingFlags = {
  */
 
 
-export type AuthorContribution = {
-  uid: string,
-  username: string,
-  timestamp: number
-}
-
-//consider if this should index on file id or share id. of if you even need both of them. 
 export type ShareObj = {
   license: string,
   owner_uid: string,
   owner_creditline: string,
   owner_url: string,
-  author_list: Array<AuthorContribution>,
   filename: string,
   desc: string,
   public:boolean,

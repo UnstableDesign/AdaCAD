@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AuthService } from '../../provider/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FilesystemService } from '../../provider/filesystem.service';
-import { AuthorContribution, IndexedColorImageInstance, MediaInstance, ShareObj, SingleImage } from '../../model/datatypes';
+import { MediaInstance, ShareObj, SingleImage } from '../../model/datatypes';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { FileService } from '../../provider/file.service';
 import { defaults, licenses } from '../../model/defaults';
@@ -26,7 +26,6 @@ export class ShareComponent {
   public licenses: Array<any> = [];
   public fileid: string;
 
-  public author_list: Array<AuthorContribution> = [];
   public fc: FormControl;
 
   public share_in_history: ShareObj;
@@ -52,6 +51,7 @@ export class ShareComponent {
         return  this.fs.isShared(meta.from_share.toString());
       }).then(shareobj => {
         this.share_in_history = shareobj;
+
       });
 
 
@@ -91,7 +91,6 @@ export class ShareComponent {
      * @param author_list 
      */
     updateSettings(share_obj: ShareObj){
-      this.author_list = share_obj.author_list.slice();
 
       //upload the image
       if(share_obj.img !== 'none'){
@@ -130,11 +129,6 @@ export class ShareComponent {
 
       }).then(so => {
         //add the current time to the author list entry 
-        this.author_list.push({
-          uid: (this.auth.isLoggedIn) ? this.auth.uid : 'anon',
-          username: (this.auth.isLoggedIn) ? this.auth.username : 'anonymous',
-          timestamp: Date.now()
-        });
 
         return   Promise.all([this.fs.duplicate(this.auth.uid, so[1].name,so[1].desc, so[0].file, ''), so[1]])
       }).then(id_and_meta => {
@@ -142,7 +136,6 @@ export class ShareComponent {
         this.shared_id = id_and_meta[0].toString();
         this.share_obj = {
           license: 'by',
-          author_list: this.author_list,
           filename: id_and_meta[1].name,
           desc: id_and_meta[1].desc,
           owner_uid: (this.auth.isLoggedIn) ? this.auth.uid : 'anon',
@@ -164,7 +157,6 @@ export class ShareComponent {
 
     removeLink(){
       this.fs.removeSharedFile(this.fileid);
-      this.author_list = [];
     }
 
     replaceImg(){

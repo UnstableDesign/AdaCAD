@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AuthorContribution, LoomSettings } from '../model/datatypes';
 import { defaults } from '../model/defaults';
-import utilInstance from '../model/util';
-import { defaultMaxListeners } from 'events';
 
 @Injectable({
   providedIn: 'root'

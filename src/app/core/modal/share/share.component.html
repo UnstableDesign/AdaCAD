@@ -66,7 +66,16 @@
 
     <div class="shared_file_meta" *ngIf="shared_id !== ''">
 
-      <button class="share_button" mat-raised-button color="primary" (click)="copyToClipboard()"> {{share_url}} </button>
+      <div class="share_link">
+        <i class="fa-solid fa-link"></i> 
+        {{share_url}} 
+        <button class="share_button" 
+        matTooltip="copy link"
+        mat-raised-button 
+        (click)="copyToClipboard()">
+        <i class="fa-solid fa-copy"></i> 
+      </button>
+      </div>
 
       <mat-divider></mat-divider>
     
@@ -124,10 +133,6 @@
           <mat-checkbox (change)="updateChange()" class="example-margin" [(ngModel)]="share_obj.public">Include this in the examples section of AdaCAD</mat-checkbox>
         </section>
         
-
-        has uploaded image {{has_uploaded_image}}
-       replace {{replace_img}}
-
           <canvas [class.hide]="!has_uploaded_image" id="img_preview"></canvas>
 
           <upload-form 
@@ -148,7 +153,7 @@
         (click)="replaceImg()">replace image</button>
 
         
-        <div class="filehistory">
+        <!-- <div class="filehistory">
     
         <h2>File History</h2>
     
@@ -157,12 +162,13 @@
             <div class="action"><span *ngIf="!isFirst">updated and </span>shared this file on</div>
             <div class="timestamp">{{formatDate(cont.timestamp)}}</div>
           </div>
-        </div>
+        </div> -->
 
     </div>
     <mat-divider></mat-divider>
 
-    <p class="about">About Link Sharing: When you create a link, it is equivalent to the "save as" operation on most computers: a copy of this file, in this state, is created and can be opened by another user via the link. You will not see any edits they make to the file and they will not see any future edits you make to this file. If you want to publish edits you have made to this file, you must generate and share a new link. You can manage your shared files using the <a href="#">file manager</a></p>
+    <p class="about">About Link Sharing: Sharing a file is equivalent to a "save as" operation on most computers: a copy of this file, in this state, is created and can be opened by another user using a sharing link that AdaCAD will generate. 
+    You will not see any edits they make to the file and other users will not see any future edits you make to this file. If you want to publish edits you have made to this file, you must generate and share a new link.</p>
 
 
 </mat-dialog-content>
