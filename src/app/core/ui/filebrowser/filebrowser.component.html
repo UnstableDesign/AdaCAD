@@ -11,18 +11,6 @@ cdkDrag
 
 <mat-dialog-content class="filebrowser">
 
-  <!-- <button mat-raised-button (click)="createBlankFile()">Create A New File</button>
-
-  <button mat-raised-button (click)="createBlankFile()">Open a .ada File</button>
-
-  <button mat-raised-button (click)="createBlankFile()">Open a .wif File</button>
-
-  <button mat-raised-button (click)="createBlankFile()">Open a Bitmap Image</button>
-
-  <button mat-raised-button (click)="createBlankFile()">Open Multiple Bitmap Images</button> -->
-
-
-      <!-- files-->
   <div *ngIf="!auth.isLoggedIn">
     <button mat-flat-button  color="primary" matTooltip="login" (click)="openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
   </div>
@@ -51,13 +39,16 @@ cdkDrag
     <div  class="file-item-block" *ngFor="let file of shared_filelist" >
         
           <div class="filename">
-             <h4>{{file.shared.filename}}</h4>
-             <p>{{file.shared.desc}}</p>
+             <h4>  {{file.shared.filename}}</h4>
+             <p class="desc">{{file.shared.desc}}</p>
 
           </div>
   
 
-          <div class="lastviewed"> <button mat-button><i class="fa-solid fa-link"></i> copy url</button>   </div>
+          <div class="lastviewed"> 
+            <button mat-raised-button
+            (click)="copyToClipboard(file.id)"><i class="fa-solid fa-link"></i></button> 
+            </div>
 
 
             <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
@@ -65,7 +56,7 @@ cdkDrag
 
           <div class="actions"> 
 
-            <button mat-icon-button [matMenuTriggerFor]="shared_menu"><i class="fa-solid fa-ellipsis"></i></button>
+            <button mat-raised-button [matMenuTriggerFor]="shared_menu"><i class="fa-solid fa-ellipsis"></i></button>
 
             <mat-menu #shared_menu="matMenu">
               
@@ -141,15 +132,9 @@ cdkDrag
     
     </div>
 
-     
-
-
-  <mat-divider></mat-divider>
-
-
    </div>
 
-    <h3> All Files Saved on AdaCAD Server</h3>
+    <h3>All Files</h3>
 
 
       <!-- HEADER ROW -->
@@ -172,11 +157,9 @@ cdkDrag
       <div  class="file-item-block" [class.current]="file.id == this.files.current_file_id" *ngFor="let file of unopened_filelist" >
           
             <div class="filename">
-
-
                 <mat-form-field *ngIf="rename_mode_id == file.id" appearance="outline">
                   <mat-label>Rename Workspace</mat-label>
-                 <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
+                  <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
 
                   <button 
                   matSuffix
@@ -184,19 +167,18 @@ cdkDrag
                   [class.primary]="file.id == this.files.current_file_id" 
                   (click) = "rename(file.id)">
                   <i class="fas fa-save"></i></button>
-
-          
-    
-
                 </mat-form-field>
 
 
-                <span *ngIf="rename_mode_id !== file.id" >  {{file.meta.name}} {{file.id}}</span>
+                <h4 *ngIf="rename_mode_id !== file.id" >  {{file.meta.name}}</h4>
+
+
 
             </div>
     
 
-            <div class="lastviewed"> {{file.meta.date}} </div>
+            <div *ngIf="file.id == this.files.current_file_id" class="lastviewed"> opened </div>
+            <div *ngIf="file.id !== this.files.current_file_id" class="lastviewed"> {{file.meta.date}} </div>
 
 
               <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
@@ -204,7 +186,7 @@ cdkDrag
 
             <div class="actions"> 
 
-              <button mat-icon-button [matMenuTriggerFor]="menu"><i class="fa-solid fa-ellipsis"></i></button>
+              <button mat-raised-button [matMenuTriggerFor]="menu"><i class="fa-solid fa-ellipsis"></i></button>
 
               <mat-menu #menu="matMenu">
                 

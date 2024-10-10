@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AnalyzedImage, Color, IndexedColorImageInstance, IndexedColorMediaProxy, MediaInstance } from '../model/datatypes';
+import { AnalyzedImage, Color, IndexedColorImageInstance, IndexedColorMediaProxy, MediaInstance, SingleImage } from '../model/datatypes';
 import { UploadService } from './upload.service';
 import { HttpClient } from '@angular/common/http';
 import utilInstance from '../model/util';
@@ -35,7 +35,7 @@ export class MediaService {
     .filter(el => el.ref !== '')
     .map(el => {
       if(el.type == 'indexed_color_image') return this.loadIndexedColorFile(el.id, el.ref, el.data)
-      else  return this.loadImage(el.id, el.ref, el.data)
+      else  return this.loadImage(el.id, el.ref)
     });
     return Promise.all(fns);
   }
@@ -200,12 +200,12 @@ export class MediaService {
   }
 
   /**
-   * loads an indexed color file
+   * loads an image  file
    * @param id the unique reference for this file
    * @param data an object containing any color or color_mapping data that has already been stored for this item
    * @returns 
    */
-  loadImage(id: number, ref: string, data: any) : Promise<MediaInstance>{
+  loadImage(id: number, ref: string) : Promise<MediaInstance>{
     console.log("LOADING IMAGE")
 
     if(id == -1){
@@ -235,7 +235,19 @@ export class MediaService {
         ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
         var imgdata = ctx.getImageData(0,0, canvas.width, canvas.height);
       
-         return Promise.resolve(imgdata);
+
+        var obj: SingleImage = {
+          name: 'placeholder',
+          data: imgdata,
+          image: image,
+          width: imgdata.width,
+          height: imgdata.height,
+          type: 'image',
+          warning: ''
+        }
+
+
+         return Promise.resolve(obj);
       }).then(imageobj => {
 
         if(imageobj == null){

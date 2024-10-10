@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation, inject } from '@angular/core';
 import { AuthService } from '../../provider/auth.service';
 import { FilesystemService } from '../../provider/filesystem.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -7,6 +7,8 @@ import { FileService } from '../../provider/file.service';
 import { LoginComponent } from '../../modal/login/login.component';
 import { ShareComponent } from '../../modal/share/share.component';
 import { share } from 'rxjs';
+import { defaults } from '../../model/defaults';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-filebrowser',
@@ -16,6 +18,7 @@ import { share } from 'rxjs';
 
 })
 export class FilebrowserComponent implements OnInit {
+  private _snackBar = inject(MatSnackBar);
 
   @Output() onLoadFromDB: any = new EventEmitter();
   @Output() onCreateFile: any = new EventEmitter();
@@ -80,11 +83,6 @@ export class FilebrowserComponent implements OnInit {
     this.onCreateFile.emit();
   }
 
-  formatDate(date: number){
-    var dateFormat = new Date(date);
-    return dateFormat.toLocaleTimeString();
-  }
-
   /**
    * takes an array of file data and parses it into lists
    * @param data 
@@ -115,7 +113,6 @@ export class FilebrowserComponent implements OnInit {
 
 
   unshare(id: number){
-    console.log("UNSHARING ", id)
     this.files.removeSharedFile(id.toString());
   }
 
@@ -177,6 +174,26 @@ export class FilebrowserComponent implements OnInit {
   
     }
 
+    openSnackBar(message: string, action: string) {
+      this._snackBar.open(message, action);
+    }
+
+    
+    copyToClipboard(id: number){
+      const share_url = defaults.share_url_base+id;
+      navigator.clipboard.writeText(share_url)
+      .then(
+        ()=> {
+           this.openSnackBar('link copied', 'close')//on success
+        },
+        () => {
+          //on fail 
+          this.openSnackBar('could not copy link', 'close')//on success
+
+        }
+      )
+
+    }  
      /**
    * this is called when a user pushes save from the topbar
    * @param event 

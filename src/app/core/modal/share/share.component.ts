@@ -1,11 +1,10 @@
 import { Component, Inject, inject } from '@angular/core';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AuthService } from '../../provider/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FilesystemService } from '../../provider/filesystem.service';
-import { share } from 'rxjs';
-import { AuthorContribution, IndexedColorImageInstance, MediaInstance, ShareObj } from '../../model/datatypes';
+import { AuthorContribution, IndexedColorImageInstance, MediaInstance, ShareObj, SingleImage } from '../../model/datatypes';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { FileService } from '../../provider/file.service';
 import { defaults, licenses } from '../../model/defaults';
@@ -22,12 +21,16 @@ export class ShareComponent {
   public shared_id: string = '';
   public share_obj: ShareObj;
   public share_url: string;
+  public has_uploaded_image: boolean = false;
 
   public licenses: Array<any> = [];
   public fileid: string;
 
   public author_list: Array<AuthorContribution> = [];
   public fc: FormControl;
+
+  public share_in_history: ShareObj;
+  public replace_img: boolean = false;
 
   constructor( 
     private auth: AuthService, 
@@ -42,13 +45,23 @@ export class ShareComponent {
       this.licenses = licenses;
 
 
- 
+      //CHECK IF THIS WAS, AT ANY POINT, LOADED FROM A SHARED FILE (which data is held in workspace)
+     this.fs.getFileMeta(+this.fileid).then(meta => {
+        if(meta.from_share == '') return Promise.resolve(null);
+        
+        return  this.fs.isShared(meta.from_share.toString());
+      }).then(shareobj => {
+        this.share_in_history = shareobj;
+      });
 
 
-      // //check if a link has already been generated for this file. If yes, 
-      // //include an update option. 
+
+     
+      
+
+
+      // CHECK IF A LINK HAD ALREADY BEEN GENERATED FROM THIS (e.g. Edit Share is Called);
       this.fs.isShared(this.fileid.toString()).then(share_obj => {
-        console.log("CHECK IS SHARE RETURNED ", share_obj)
 
         if(share_obj == null){
           //this is not yet shared
@@ -57,8 +70,8 @@ export class ShareComponent {
         }else{
           this.share_obj = share_obj;
           this.shared_id = this.fileid.toString();
-          this.updateSettings(share_obj.license, share_obj.author_list);
-          this.share_url = "https://adacad-4-1.web.app/?share="+this.fileid;
+          this.updateSettings(share_obj);
+          this.share_url = defaults.share_url_base+this.fileid;
         }
       }).catch(err => {
         console.log("ENTRY NOT FOUND")
@@ -77,13 +90,21 @@ export class ShareComponent {
      * @param license 
      * @param author_list 
      */
-    updateSettings(license: string, author_list: Array<AuthorContribution>){
-      this.author_list = author_list.slice();
-    
+    updateSettings(share_obj: ShareObj){
+      this.author_list = share_obj.author_list.slice();
+
+      //upload the image
+      if(share_obj.img !== 'none'){
+        this.mediaService.loadImage(-1, share_obj.img).then(media => {
+          this.has_uploaded_image = true;
+          this.drawImage(media.data)
+
+        });
+      }
+      
     }
 
     updateChange(){
-      console.log("CHANGE - SHARE OBJ ", this.share_obj)
       this.fs.updateSharedFile(this.shared_id.toString(), this.share_obj)
     }
 
@@ -102,15 +123,12 @@ export class ShareComponent {
     generateLink(){
 
 
-      console.log("GENERATE LINK")
-
       let int_id: number = +this.fileid;
 
       this.fs.getFileMeta(int_id).then(meta => {
         return Promise.all([this.file_serv.saver.ada(), meta])
 
       }).then(so => {
-        console.log("GOT SAVER OBJ", so)
         //add the current time to the author list entry 
         this.author_list.push({
           uid: (this.auth.isLoggedIn) ? this.auth.uid : 'anon',
@@ -118,7 +136,7 @@ export class ShareComponent {
           timestamp: Date.now()
         });
 
-        return   Promise.all([this.fs.duplicate(this.auth.uid, so[1].name,so[1].desc, so[0].file), so[1]])
+        return   Promise.all([this.fs.duplicate(this.auth.uid, so[1].name,so[1].desc, so[0].file, ''), so[1]])
       }).then(id_and_meta => {
         console.log("ID AND META ", id_and_meta)
         this.shared_id = id_and_meta[0].toString();
@@ -129,6 +147,7 @@ export class ShareComponent {
           desc: id_and_meta[1].desc,
           owner_uid: (this.auth.isLoggedIn) ? this.auth.uid : 'anon',
           owner_creditline: (this.auth.isLoggedIn) ? 'created by '+this.auth.username : '',
+          owner_url: '',
           public: false,
           img: 'none'
 
@@ -136,58 +155,25 @@ export class ShareComponent {
 
         return  this.fs.createSharedFile(this.shared_id , this.share_obj)
       }).then(share_data => {
-        console.log("CREATED SHARED FILE ENTRY TO ", share_data)
-
-        this.share_url = "https://adacad-4-1.web.app/?share="+this.shared_id;
+        this.share_url = defaults.share_url_base+this.shared_id;
       }).catch(err => {
         console.log("ERROR")
       })
 
     }
 
-    // updateSharedFile(){
-    //   //does this share a new link
-
-    //     this.file_serv.saver.ada()
-    //     .then(so => {
-         
-    //       //add the current time to the author list entry 
-    //       this.author_list.push({
-    //         uid: (this.auth.isLoggedIn) ? this.auth.uid : 'anon',
-    //         username: (this.auth.isLoggedIn) ? this.auth.username : 'anonymous',
-    //         timestamp: Date.now()
-    //       });
-  
-    //       const share:ShareObj = {
-    //         license: this.selected_license,
-    //         author_list: this.author_list,
-    //         ada: so.file,
-    //         filename: this.fs.getCurrentFileName(),
-    //         desc: this.fs.getCurrentFileDesc()
-    
-    //       }
-    //       this.fs.updateSharedFile(this.fileid, share)
-
-  
-    
-    //     }).catch(err => {
-    //       console.log("ERROR")
-    //     })
-  
-      
-  
-
-
-    // }
-
     removeLink(){
       this.fs.removeSharedFile(this.fileid);
       this.author_list = [];
     }
 
+    replaceImg(){
+      this.replace_img = true;
+    }
+
     formatDate(date: number){
       var dateFormat = new Date(date);
-      return dateFormat.toLocaleTimeString();
+      return dateFormat.toLocaleDateString();
     }
 
   /**
@@ -196,33 +182,39 @@ export class ShareComponent {
    */
   handleFile(obj: MediaInstance){
 
+     this.replace_img = false;
+     this.has_uploaded_image = true;
 
      if(obj === null || obj[0].data == null) return;
        
      this.share_obj.img = obj[0].ref;
      this.updateChange();
+     this.drawImage(obj[0].data);
  
   
-        const data = obj[0].data;
-  
-        const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('img_preview');
-        const ctx = canvas.getContext('2d');
-  
-        const max_dim = (data.width > data.height) ? data.width : data.height;
-        const use_width = (data.width > 400) ? data.width / max_dim * 400 : data.width;
-        const use_height = (data.height > 400) ? data.height / max_dim * 400 : data.height;
-  
-        canvas.width = use_width;
-        canvas.height = use_height;
+  }
 
 
 
-        ctx.putImageData(data, 0, 0, 0, 0, use_width, use_height);
-  
-      
-  
+  drawImage(img: SingleImage){
+
+    console.log("DATA ", img)
+
+    const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('img_preview');
+    const ctx = canvas.getContext('2d');
+
+    const max_dim = (img.width > img.height) ? img.width : img.height;
+    const use_width = (img.width > 400) ? img.width / max_dim * 400 : img.width;
+    const use_height = (img.height > 400) ? img.height / max_dim * 400 : img.height;
+
+    canvas.width = use_width;
+    canvas.height = use_height;
 
 
+
+    ctx.drawImage(img.image, 0, 0, img.width, img.height, 0, 0, use_width, use_height);
+
+  
   }
 
 

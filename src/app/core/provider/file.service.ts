@@ -57,10 +57,12 @@ export class FileService {
    */
   const dloader: Fileloader = {
 
-     ada: async (filename: string, src: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
+     ada: async (filename: string, src: string, id: number, desc: string, data: any,  from_share: string) : Promise<LoadResponse> => {
+
 
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
+      if(from_share == undefined) from_share = '' 
       if(id === -1) id = this.files.generateFileId();
       
       let draft_nodes: Array<DraftNodeProxy> = [];
@@ -100,7 +102,7 @@ export class FileService {
       const draft_elements = [];
       const draft_fns = [];
 
-
+      console.log("VERSION IS ", version)
       if(!utilInstance.sameOrNewerVersion(version, '3.4.9')){
         data.nodes.forEach(node => {
           if(node.bounds !== undefined) node.topleft = node.bounds.topleft;
@@ -241,7 +243,7 @@ export class FileService {
             indexed_image_data: indexed_images
           }
 
-          return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
+          return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id, from_share: from_share }); 
   
         }
       )
@@ -354,7 +356,7 @@ export class FileService {
             indexed_image_data: indexed_images
           }
     
-          return Promise.resolve({data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id:-1 }); 
+          return Promise.resolve({data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id:-1, from_share: '' }); 
   
         }
       )

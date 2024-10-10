@@ -2,7 +2,7 @@ import { Injectable, Optional } from '@angular/core';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
 import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged, set } from '@angular/fire/database';
 // import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, from } from 'rxjs';
 import { FilebrowserComponent } from '../ui/filebrowser/filebrowser.component';
 import { SaveObj, ShareObj } from '../model/datatypes';
 import utilInstance from '../model/util';
@@ -23,7 +23,7 @@ export class FilesystemService {
   private current_file_id: number = -1;
   public current_file_name: string = '';
   public current_file_desc: string = '';
-
+  public current_file_from_share: string = '';
 
   connected: boolean = false;
 
@@ -65,7 +65,6 @@ export class FilesystemService {
 
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
-          console.log("ON CHILD ADDED")
 
           //only add values that haven't already been added
           if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
@@ -80,7 +79,6 @@ export class FilesystemService {
         }); 
 
         onChildAdded(sharedFiles, (childsnapshot) => {
-          console.log("ON SHARE ADDED")
           //only add values that haven't already been added
           if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) !== undefined){
               this.shared_file_change$.next(this.file_tree.slice());
@@ -91,7 +89,6 @@ export class FilesystemService {
     
         //called when anything in meta changes
         onChildChanged(userFiles, (data) => {
-          console.log("CHILD CHANGED ", userFiles)
             const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
             if(ndx !== -1){
               this.isShared(data.key).then(res => {
@@ -141,45 +138,13 @@ export class FilesystemService {
   }
 
   /**
-   * given a new file that has just been loaded, update the meta-data to match the value of this item.
-   * @param id 
-   * @param ada 
-   * @returns boolean representing if the id had meta-data already stored or if new meta-data was created
+    sets the current file data
    */
-  public pushToLoadedFilesAndFocus(id: number, name: string, desc: string) : Promise<boolean>{
+  public setCurrentFile(id: number, name: string, desc: string, from_share: string) : Promise<boolean>{
 
-      
-      return this.getFileMeta(id)
-      .then(res => {
-        // this.loaded_files.push({
-        //   id: id,
-        //   name: res.name,
-        //   desc: res.desc,
-        //   ada: undefined,
-        //   last_saved_time: 0
-        // });
-        this.setCurrentFileInfo(id, res.name, res.desc);
-        // this.loaded_file_change$.next(this.file_tree.slice());
+        this.setCurrentFileInfo(id, name, desc, from_share);
         return Promise.resolve(true);
-
-      })
-      .catch(nodata => {
-        // this.loaded_files.push({
-        //   id: id,
-        //   name:name,
-        //   desc: desc,
-        //   ada: undefined,
-        //   last_saved_time: 0
-        // })
-        this.setCurrentFileInfo(id, name, desc);
-       // this.loaded_file_change$.next(this.file_tree.slice());
-        return Promise.resolve(false);
-      });
-
-    // }else{
-    //   this.setCurrentFileInfo(item.id, item.name, item.desc);
-    //   return Promise.reject('this file has already been loaded')
-    // }
+ 
   }
 
   // public unloadFile(id: number){
@@ -204,6 +169,11 @@ export class FilesystemService {
   public getCurrentFileDesc() : string{
     return this.current_file_desc;
   }
+
+  public getCurrentFileFromShare() : string{
+    return this.current_file_from_share;
+  }
+
 
 
   
@@ -243,15 +213,18 @@ export class FilesystemService {
    * @param name 
    * @param desc 
    */
-  setCurrentFileInfo(fileid: number, name: string, desc: string){
+  setCurrentFileInfo(fileid: number, name: string, desc: string, from_share: string){
    
     if(fileid === null || fileid == undefined) return; 
 
     if(desc === null || desc === undefined) desc = '';
     if(name === null || name === undefined) name = 'no name'; 
+    if(from_share === null || from_share === undefined) name = ''; 
    
     this.setCurrentFileId(fileid);
     this.current_file_name = name;
+    this.current_file_desc = desc;
+    this.current_file_from_share = from_share;
     const stamp = Date.now();
 
     if(!this.connected) return;
@@ -264,7 +237,8 @@ export class FilesystemService {
       update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
         name: name, 
         desc: desc,
-        timestamp: stamp});
+        timestamp: stamp,
+        from_share: from_share});
     }
 
 
@@ -320,7 +294,7 @@ export class FilesystemService {
     
    const fileid = this.generateFileId();
    this.writeFileData(fileid, ada);
-   this.writeNewFileMetaData(uid, fileid, 'recovered draft', '')
+   this.writeNewFileMetaData(uid, fileid, 'recovered draft', '', '')
    return Promise.resolve(fileid);
     
   }
@@ -329,12 +303,11 @@ export class FilesystemService {
  * takes the current state, gives it a new file ID and pushes it to the database
  * @returns the id of the file
  */
-duplicate(uid: string, name: string, desc: string, ada: any) : Promise<number>{
-  console.log("DUPLICATING")
+duplicate(uid: string, name: string, desc: string, ada: any, from_share: string) : Promise<number>{
 
   const fileid = this.generateFileId();
   this.writeFileData(fileid, ada);
-  this.writeNewFileMetaData(uid, fileid, name, desc)
+  this.writeNewFileMetaData(uid, fileid, name, desc, from_share)
   return Promise.resolve(fileid);
     
   }
@@ -347,16 +320,13 @@ duplicate(uid: string, name: string, desc: string, ada: any) : Promise<number>{
  * @returns 
  */
 createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
-  console.log("CREATING SHARED FILE ", file_id, share_data)
-
   if(!this.connected) return;
 
   const db = getDatabase();
   const ref = fbref(db, 'shared/'+file_id);
 
-  set(ref,share_data)
+  return set(ref,share_data)
   .then(success => {
-    console.log("SUCCESS");
     return Promise.resolve(file_id)
 
   })
@@ -379,15 +349,22 @@ isShared(file_id:string) : Promise<ShareObj> {
   return fbget(fbref(db, `shared/${file_id}`))
   .then((filedata) => {
 
-
       if(filedata.exists()){
-        return Promise.resolve({
-          ada: <SaveObj> filedata.val().ada, 
+
+        const share_obj:ShareObj = {
           author_list: filedata.val().author_list, 
+          desc: filedata.val().desc,
           license: filedata.val().license,
           filename: filedata.val().filename,
-          desc: filedata.val().desc});
+          img: filedata.val().img,
+          owner_creditline: filedata.val().owner_creditline,
+          owner_uid: filedata.val().owner_uid, 
+          owner_url: filedata.val().owner_url,
+          public: filedata.val().public
+        }
 
+        return Promise.resolve(share_obj);
+        
       }else{
        return Promise.resolve(null)
       }
@@ -460,10 +437,7 @@ removeSharedFile(file_id: string) : Promise<any> {
 
 
   this.getFileMeta(int_id).then(meta => {
-      console.log("META GOT ", meta)
     if(user){
-      console.log("UPDATED ", meta)
-
       update(fbref(db, 'users/'+user.uid+'/files/'+file_id),{name: meta.name + "(previously shared)"});
     }
   })
@@ -535,8 +509,17 @@ getFile(fileid: number) : Promise<any> {
     
     return fbget(fbref(db, 'users/'+user.uid+'/files/'+fileid)).then((meta) => {
 
-        if(meta.exists()){
-          return Promise.resolve(meta.val());
+        if(meta.exists()){          
+          let obj = {
+            desc: meta.val().desc,
+            last_opened: meta.val().last_opened, 
+            name: meta.val().name,
+            timestamp: meta.val().timestamp, 
+            from_share: (meta.val().from_share == undefined ) ? '' : meta.val().from_share
+          }
+
+
+          return Promise.resolve(obj);
         }else{
           return Promise.reject("No meta data found for file id "+fileid)
         }
@@ -564,7 +547,6 @@ getFile(fileid: number) : Promise<any> {
    * @returns 
    */
   writeFileData(fileid: number, cur_state: SaveObj) {
-    console.log("ATTEMPTING TO WRITE FILE DATA ", cur_state, fileid)
 
     if(!this.connected) return;
 
@@ -581,9 +563,11 @@ getFile(fileid: number) : Promise<any> {
   }
 
 
-  writeNewFileMetaData(uid: string, fileid: number, name: string, desc: string) {
+  writeNewFileMetaData(uid: string, fileid: number, name: string, desc: string, from_share: string) {
 
       if(!this.connected) return;
+
+      if(from_share == undefined || from_share == null) from_share = '';
 
       const stamp = Date.now();
       const db = getDatabase();
@@ -591,7 +575,9 @@ getFile(fileid: number) : Promise<any> {
         name: name,
         desc: desc,
         timestamp: stamp, 
-        last_opened:fileid});
+        last_opened:fileid,
+        from_share: from_share
+      });
    }
     
     

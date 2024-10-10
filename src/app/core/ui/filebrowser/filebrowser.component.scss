@@ -4,15 +4,27 @@ h2{
 }
 
 h3{
-    font-size: 1em;
+    font-size: 1.5em;
     padding-top: 40px;
     font-weight: bold;
+}
+
+h4{
+    padding: 0px;
+    margin: 0px;
+    line-height: 40px;
+
+}
+
+.desc{
+    font-size: .8em;
+    padding: 0px;
+    margin: 0px;
 }
 
 .filebrowser{
     display: flex;
     flex-direction: column;
-    gap: 10px;
     width: 100%;
 }
 
@@ -21,7 +33,6 @@ h3{
     display: flex;
     flex-direction: column;
     // overflow-y: scroll;
-    gap: 10px;
 }
 
 
@@ -43,17 +54,21 @@ h3{
 }
 
 
+
 .file-item-block{
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     width: 100%;
-    border-bottom: thin dotted;
-    align-items: center;
+    border-bottom: thin dotted grey;
+    align-items: flex-start;
+    padding: 8px 0px;
+    gap: 12px;
+
 }
 
 .current{
-    background-color: #ff4081;
+    color: #ff4081;
 }
 
 

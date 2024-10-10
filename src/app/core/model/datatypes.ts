@@ -429,11 +429,12 @@ export interface LoadResponse{
   id: number,
   name: string, 
   desc: string,
-  status: number;
+  status: number,
+  from_share: string
 }
 
 export interface Fileloader{
-  ada: (filename: string, src: string, id: number, desc: string, data: any) => Promise<LoadResponse>,
+  ada: (filename: string, src: string, id: number, desc: string, data: any, from_share: string) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
 }
@@ -678,6 +679,17 @@ export type DynamicOperation = Operation &  {
   createdAt: Date,
 
 }
+
+export interface SingleImage{
+  name: string,
+  data: ImageData, 
+  image: HTMLImageElement,
+  width:number,
+  height: number,
+  type: string,
+  warning: string
+}
+
 
 
 
@@ -973,6 +985,7 @@ export type ShareObj = {
   license: string,
   owner_uid: string,
   owner_creditline: string,
+  owner_url: string,
   author_list: Array<AuthorContribution>,
   filename: string,
   desc: string,

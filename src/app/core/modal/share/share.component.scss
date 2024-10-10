@@ -1,7 +1,57 @@
+h2{
+    color: black;
+    font-weight: normal;
+    padding-top: 32px;
+}
+
+.owner_setting_line{
+    display: flex;
+    flex-direction: row;
+}
+
+.share_in_history{
+    color: red;
+}
+
+.license_link{
+    height: 40px;
+}
+
 .history_item{
     display: flex;
     flex-direction: row;
     gap: 11px;
+    align-items: center;
+}
+
+.license{
+    width: 90%;
+}
+
+.share_button{
+    margin: 16px 0px;
+}
+.license-row{
+    margin-top: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.replace{
+    display: block;
+}
+
+.hide{
+    display: none;
+}
+
+.license-left{
+    flex: 1 1 25%;
+}
+
+.license-right{
+    flex: 1 1 75%;
 }
 
 .about{
@@ -10,4 +60,8 @@
 
 .fullwidth{
     width: 100%;
+}
+
+.share_in_history{
+    color: red;
 }

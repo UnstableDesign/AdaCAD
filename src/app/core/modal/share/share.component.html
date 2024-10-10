@@ -1,8 +1,57 @@
 <div class="dialog-header">
-    <h2 mat-dialog-title>Publish this File to a Sharable Link {{fileid}}</h2>
+    <h2 mat-dialog-title>Configure Sharing</h2>
    
   </div>
   <mat-dialog-content>
+
+
+    <div class="share_in_history" *ngIf="share_in_history">
+      <p >ATTENTION: This file was originally shared by another user. Before moving forward, please make sure to honor the wishes they had for distribution in their selected license. </p>
+      
+      <div class="owner_settings">
+        <h3>Owner Settings</h3>
+        <div class="owner_setting_line">
+            <div class="owner_left">
+              license
+            </div>
+            <div class="owner_right">
+              <a href="https://creativecommons.org/licenses/{{share_in_history.license}}/4.0/">     
+               cc-{{share_in_history.license}}
+             </a>       
+            </div>
+        </div>
+
+        <div class="owner_setting_line">
+          <div class="owner_left">
+            credit line:
+          </div>
+          <div class="owner_right">
+             {{share_in_history.owner_creditline}}
+          </div>
+      </div>
+
+
+        <div class="owner_setting_line">
+          <div class="owner_left">
+            url
+          </div>
+          <div class="owner_right">
+            {{share_in_history.owner_url}}
+          </div>
+        </div>
+
+      </div>
+        
+  
+
+        <mat-divider></mat-divider>
+
+
+
+        
+      
+    </div>
+
 
 
     <p><mat-slide-toggle [checked]="shared_id !== ''" (change)="toggleSharing()">
@@ -10,29 +59,35 @@
         Anyone can access this file with the link below
        </span>
       <span *ngIf="shared_id == ''" >
-        This file is not shared
+        This file is not shared, click to turn on sharing
       </span>
     </mat-slide-toggle>
 
 
     <div class="shared_file_meta" *ngIf="shared_id !== ''">
 
+      <button class="share_button" mat-raised-button color="primary" (click)="copyToClipboard()"> {{share_url}} </button>
+
       <mat-divider></mat-divider>
-      <button mat-raised-button color="primary" (click)="copyToClipboard()"> {{share_url}} </button>
-      <img src="/assets/img/{{share_obj.license}}.png">
-
-
-      <h2>Sharing Settings</h2>
     
+      <div class="license-row">
+        <div class="license-left">
+          <img class='license' src="/assets/img/{{share_obj.license}}.png">
+        </div>
+
+        <div class="license-right">
         <mat-form-field class="fullwidth">
           <mat-label>License</mat-label>
           <mat-select [(ngModel)]="share_obj.license" (selectionChange)="updateChange()">
             @for (license of licenses; track license) {
-              <mat-option [value]="license.value">{{license.viewValue}}</mat-option>
+              <mat-option [value]="license.value">{{license.viewValue}}  
+              </mat-option>
             }
           </mat-select>
           <mat-hint>Need help picking? Visit <a href="https://creativecommons.org/share-your-work/cclicenses/">Creative Commons</a></mat-hint>
         </mat-form-field>
+        </div>
+        </div>
 
         <mat-form-field  class="fullwidth">
           <mat-label>Shared File Name</mat-label>
@@ -68,10 +123,15 @@
         <section class="example-section">
           <mat-checkbox (change)="updateChange()" class="example-margin" [(ngModel)]="share_obj.public">Include this in the examples section of AdaCAD</mat-checkbox>
         </section>
+        
 
-        <canvas id="img_preview"></canvas>
+        has uploaded image {{has_uploaded_image}}
+       replace {{replace_img}}
 
-        <upload-form 
+          <canvas [class.hide]="!has_uploaded_image" id="img_preview"></canvas>
+
+          <upload-form 
+          [class.hide]="has_uploaded_image && !replace_img"
           type="init" 
           multiple="false"
           accepts=".jpg,.png,.bmp"
@@ -80,6 +140,13 @@
           (onError)="handleError($event)"
           class="upload-form-box">
         </upload-form>
+
+        <button 
+        class="replace"  
+        [class.hide]="!has_uploaded_image || replace_img"
+        mat-raised-button 
+        (click)="replaceImg()">replace image</button>
+
         
         <div class="filehistory">
     
@@ -88,7 +155,7 @@
           <div class="history_item" *ngFor="let cont of author_list; index as i; first as isFirst">
             <div class="username"> {{cont.username}}</div>
             <div class="action"><span *ngIf="!isFirst">updated and </span>shared this file on</div>
-            <div class="timestamp">{{cont.timestamp}}</div>
+            <div class="timestamp">{{formatDate(cont.timestamp)}}</div>
           </div>
         </div>
 

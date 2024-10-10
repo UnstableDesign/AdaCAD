@@ -446,10 +446,7 @@ export class AppComponent implements OnInit{
       .then( data => {
         this.mixer.changeDesignmode('move')
         this.clearAll();
-
-        
-  
-        console.log("imported new file", result, result.data)
+          console.log("imported new file", result, result.data)
         })
         .catch(console.error);
       
@@ -497,25 +494,22 @@ export class AppComponent implements OnInit{
 
 
             const meta = await this.files.getFileMeta(fileid).catch(console.error);           
-            console.log("FIRST SESSION", ada, meta)
-
 
             if(ada === undefined){
                 this.loadBlankFile();
 
               }else if(meta === undefined){
-                this.files.setCurrentFileInfo(fileid, 'file name not found', '');
-                this.prepAndLoadFile('file name not found', 'db', fileid, '', ada);
+                this.files.setCurrentFileInfo(fileid, 'file name not found', '', '');
+                this.prepAndLoadFile('file name not found', 'db', fileid, '', ada, '');
               
               }else{
 
-                this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
-                this.prepAndLoadFile(meta.name,'db', fileid, meta.desc, ada);
+                this.files.setCurrentFileInfo(fileid, meta.name, meta.desc, meta.from_share);
+                this.prepAndLoadFile(meta.name,'db', fileid, meta.desc, ada,  meta.from_share);
               }
 
           }else{
              this.auth.getMostRecentAdaFromUser(user).then(async adafile => {
-                console.log("ADA FILE IS ", adafile)
                 if(adafile !== null){
                     let fileid = await this.files.convertAdaToFile(user.uid, adafile); 
                     console.log("convert ada to file id ", fileid)
@@ -526,12 +520,12 @@ export class AppComponent implements OnInit{
                     if(ada === undefined){
                       this.loadBlankFile();
                     }else if(meta === undefined){
-                      this.files.setCurrentFileInfo(fileid, 'file name not found', '');
-                      this.prepAndLoadFile('file name not found','db', fileid, '', ada);
+                      this.files.setCurrentFileInfo(fileid, 'file name not found', '', '');
+                      this.prepAndLoadFile('file name not found','db', fileid, '', ada, '');
       
                     }else{
-                      this.files.setCurrentFileInfo(fileid, meta.name, meta.desc);
-                      this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada);
+                      this.files.setCurrentFileInfo(fileid, meta.name, meta.desc, meta.from_share);
+                      this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada, meta.from_share);
                     }
 
                 }else{
@@ -546,7 +540,12 @@ export class AppComponent implements OnInit{
         
         //this.loadBlankFile();
         this.saveFile();
-        this.files.writeNewFileMetaData(user.uid, this.files.getCurrentFileId(), this.files.getCurrentFileName(), this.files.getCurrentFileDesc())
+        this.files.writeNewFileMetaData(
+          user.uid, 
+          this.files.getCurrentFileId(), 
+          this.files.getCurrentFileName(), 
+          this.files.getCurrentFileDesc(),
+          this.files.getCurrentFileFromShare())
 
     
       }
@@ -619,38 +618,42 @@ export class AppComponent implements OnInit{
   async duplicateFileInDB(fileid: number){
     const ada = await this.files.getFile(fileid);
     const meta = await this.files.getFileMeta(fileid); 
-    this.files.duplicate(this.auth.uid, meta.name+"-copy", meta.desc, ada).then(fileid => {
-      this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada).then(res => {
+    this.files.duplicate(this.auth.uid, meta.name+"-copy", meta.desc, ada, meta.from_share).then(fileid => {
+      this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada, meta.from_share).then(res => {
         this.saveFile();
       });
     })
   }
 
 
-    //must be online
+    /**
+     * when someone loads a URL of a shared example, 
+     * the system is going to use the fileID in the url to lookup the file in the files database. 
+     * it is then going to duplicate that file into the users file list. 
+     * while doing so, it needs to copy over elements of the shared file that retain it's legacy and owner.
+     * so if it is shared again, that information is retained. 
+     * @param shareid 
+     */
     async loadFromShare(shareid: string){
-      console.log("LOAD FROM SHARE");
+      let share_id = -1;
 
+      //GET THE SHARED FILE
       this.files.isShared(shareid).then(share_obj => {
 
         if(share_obj == null){
-          console.log("THIS FILE IS NOT CURRENTLY SHARED");
           return Promise.reject("NO SHARED FILE EXISTS")
         }
 
         var int_shareid: number = +shareid;
+        share_id = int_shareid;
         return Promise.all([this.files.getFile(int_shareid), share_obj, shareid]);
 
-
       }).then(file_objs=>{
-        console.log("GOT file OBJ", file_objs[0])
-        return this.files.duplicate(this.auth.uid, file_objs[1].filename, file_objs[1].desc, file_objs[0])
+        return this.files.duplicate(this.auth.uid, file_objs[1].filename, file_objs[1].desc, file_objs[0], shareid)
       }).then(fileid => {
-        console.log("RETURNED FROM DUPLICATE WITH FILE ", fileid);
         return Promise.all([this.files.getFile(fileid), this.files.getFileMeta(fileid), fileid]);
       }).then(file_data => {
-        console.log("Loading File data ", file_data);
-        return this.prepAndLoadFile(file_data[1].filename, 'db', file_data[2], file_data[1].desc, file_data[0])
+        return this.prepAndLoadFile(file_data[1].name, 'db', file_data[2], file_data[1].desc, file_data[0],file_data[1].from_share )
       }).catch(err => {
         console.error(err);
       })
@@ -661,9 +664,8 @@ export class AppComponent implements OnInit{
   async loadFromDB(fileid: number){
     const ada = await this.files.getFile(fileid);
     const meta = await this.files.getFileMeta(fileid); 
-    console.log("GOT ADA ", ada, " and META ", meta)
 
-    this.prepAndLoadFile(meta.name, 'db',fileid, meta.desc, ada)
+    this.prepAndLoadFile(meta.name, 'db',fileid, meta.desc, ada, meta.from_share)
     .then(res => {
         this.saveFile();
     });
@@ -673,7 +675,7 @@ export class AppComponent implements OnInit{
 
   loadBlankFile(){
     this.clearAll();
-    this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'new file', '')
+    this.files.setCurrentFile(this.files.generateFileId(), 'new file', '', '')
     .then(res => {
       this.filename_form.setValue(this.files.getCurrentFileName())
       this.saveFile();
@@ -687,7 +689,7 @@ export class AppComponent implements OnInit{
    */
   loadStarterFile(){
 
-    this.files.pushToLoadedFilesAndFocus(this.files.generateFileId(), 'welcome', '').then(res => {
+    this.files.setCurrentFile(this.files.generateFileId(), 'welcome', '', '').then(res => {
       let obj = {
         warps: defaults.warps,
         wefts: defaults.wefts,
@@ -718,7 +720,7 @@ export class AppComponent implements OnInit{
       console.log(res);
       if(res.status == 404) return;
       this.clearAll();
-      return this.fs.loader.ada(name, 'upload',-1, '', res.body)
+      return this.fs.loader.ada(name, 'upload',-1, '', res.body, '')
      .then(loadresponse => {
        this.loadNewFile(loadresponse, 'loadURL')
      });
@@ -733,9 +735,9 @@ export class AppComponent implements OnInit{
    */
   loadNewFile(result: LoadResponse, source: string) : Promise<any>{
 
+    console.log("LOAD NEW FILE ", result)
 
-
-   return this.files.pushToLoadedFilesAndFocus(result.id, result.name, result.desc)
+   return this.files.setCurrentFile(result.id, result.name, result.desc, result.from_share)
    .then(res => {
     this.filename_form.setValue(this.files.getCurrentFileName())
     return this.processFileData(result.data)
@@ -1010,9 +1012,9 @@ originChange(e:any){
 
 
 
-prepAndLoadFile(name: string, src: string, id: number, desc: string, ada: any) : Promise<any>{
+prepAndLoadFile(name: string, src: string, id: number, desc: string, ada: any, from_share: '') : Promise<any>{
   this.clearAll();
-    return this.fs.loader.ada(name, src, id,desc, ada).then(lr => {
+    return this.fs.loader.ada(name, src, id,desc, ada, from_share).then(lr => {
       return this.loadNewFile(lr, 'prepAndLoad');
     });
 }
@@ -1333,7 +1335,14 @@ redo() {
     this.viewer.clearView();
     this.tree.clear();
     
-  this.fs.loader.ada(this.files.getCurrentFileName(),'redo', this.files.getCurrentFileId(),this.files.getCurrentFileDesc(),  so)
+  this.fs.loader.ada(
+    this.files.getCurrentFileName(),
+    'redo', 
+    this.files.getCurrentFileId(),
+    this.files.getCurrentFileDesc(),  
+    so,
+    this.files.getCurrentFileFromShare()
+  )
   .then(lr =>  this.loadNewFile(lr, 'statechange'));
 
  
@@ -1356,7 +1365,14 @@ redo() {
     this.tree.clear();
 
 
-    this.fs.loader.ada(this.files.getCurrentFileName(), 'undo', this.files.getCurrentFileId(), this.files.getCurrentFileDesc(), so).then(lr => {
+    this.fs.loader.ada(
+      this.files.getCurrentFileName(), 
+      'undo', 
+      this.files.getCurrentFileId(), 
+      this.files.getCurrentFileDesc(), 
+      so,
+      this.files.getCurrentFileFromShare()
+    ).then(lr => {
       this.loadNewFile(lr, 'statechange');
 
 
