@@ -223,7 +223,7 @@ export const createDraft = (
   export const loadDraftFromFile = (data: any, version: string, src: string) : Promise<{draft: Draft, id: number}> => {
     const draft: Draft = initDraft();
 
-    console.log("DATA is ", data)
+    // console.log("DATA is ", data)
 
     if(data.id !== undefined) draft.id = data.id;
     draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
@@ -232,11 +232,11 @@ export const createDraft = (
     if(version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')){
       draft.drawdown = parseSavedDrawdown(data.pattern);
     }else{
-      console.log("VERSION NEWER THAN 3.4.5")
+      // console.log("VERSION NEWER THAN 3.4.5")
       if(data.compressed_drawdown === undefined){
       draft.drawdown = parseSavedDrawdown(data.drawdown);
       }else{
-        console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
+        // console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
 
 
         let compressed: Uint8ClampedArray;
@@ -249,7 +249,6 @@ export const createDraft = (
         }
 
         draft.drawdown = unpackDrawdownFromArray(data.compressed_drawdown, data.warps, data.wefts)
-        console.log("got", draft.drawdown)
 
       }
     }
@@ -398,7 +397,7 @@ export const createDraft = (
     let rows = wefts(fill_pattern);
     let cols = warps(fill_pattern);
 
-    console.log("***PASTE INTO DRAWDOWN ", fill_pattern, rows, cols, width, height)
+    // console.log("***PASTE INTO DRAWDOWN ", fill_pattern, rows, cols, width, height)
 
 
     //cycle through each visible row/column of the selection

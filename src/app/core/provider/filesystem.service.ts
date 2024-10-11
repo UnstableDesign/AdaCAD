@@ -17,8 +17,10 @@ export class FilesystemService {
   file_tree_change$ = new Subject<any>();
   file_saved_change$ = new Subject<any>();
   shared_file_change$ = new Subject<any>();
+  public_file_change$ = new Subject<any>();
 
   file_tree: Array<any> = [];
+  public_files: Array<any> = [];
 
   private current_file_id: number = -1;
   public current_file_name: string = '';
@@ -83,6 +85,17 @@ export class FilesystemService {
           if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) !== undefined){
               this.shared_file_change$.next(this.file_tree.slice());
           }
+
+
+
+
+          console.log("ON SHARED FLIE ADDED ", childsnapshot.val().public);
+          if(childsnapshot.val().public){
+            if(this.public_files.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
+              this.public_files.push({id: childsnapshot.key, val: childsnapshot.val()})
+              this.public_file_change$.next(this.public_files);
+            }
+          }
         }); 
 
        
@@ -109,6 +122,12 @@ export class FilesystemService {
               })
      
             }
+
+            console.log("ON SHARED FLIE CHANGED ", data.val().public);
+            if(data.val().public){
+              this.public_file_change$.next({key: data.key, value:data.val()});
+            }
+
         });
         
         //needs to redraw the files list 
@@ -127,6 +146,7 @@ export class FilesystemService {
               this.file_tree[ndx].shared = null;
               this.shared_file_change$.next(this.file_tree.slice());
           }
+          
         });
         
         
@@ -344,6 +364,9 @@ createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
  * @param file_id 
  */
 isShared(file_id:string) : Promise<ShareObj> {
+
+  if(!this.connected) return Promise.reject("no internet connection");
+
   const db = getDatabase();
 
   return fbget(fbref(db, `shared/${file_id}`))
@@ -532,6 +555,9 @@ getFile(fileid: number) : Promise<any> {
     if(!this.connected) return;
     const auth = getAuth();
     const user = auth.currentUser;
+
+    if(user == null) return;
+
     const stamp = Date.now();
     const db = getDatabase();
     update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{

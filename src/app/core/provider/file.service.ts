@@ -493,7 +493,6 @@ export class FileService {
       
 
       return this.tree.exportDraftNodeProxiesForSaving().then(draft_nodes => {
-        console.log("EXPORTED NODES ", draft_nodes)
 
         const out: SaveObj = {
           version: this.vs.currentVersion(),
@@ -508,7 +507,6 @@ export class FileService {
           materials: this.ms.exportForSaving(),
           indexed_image_data: this.media.exportIndexedColorImageData()
         }
-        console.log("CREATED OUTPUT ", out)
         var theJSON = JSON.stringify(out);
         return Promise.resolve({json: theJSON, file: out});
         })

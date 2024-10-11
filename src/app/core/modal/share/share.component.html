@@ -5,7 +5,19 @@
   <mat-dialog-content>
 
 
-    <div class="share_in_history" *ngIf="share_in_history">
+    <ng-container *ngIf="!fs.connected">
+     You cannot share this file because you are offline.
+    </ng-container>
+
+
+    <div *ngIf="!auth.isLoggedIn && fs.connected">
+      <button mat-flat-button  color="primary" matTooltip="login" (click)="openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
+    </div>
+  
+  
+
+
+    <div class="share_in_history" *ngIf="share_in_history && auth.isLoggedIn">
       <p >ATTENTION: This file was originally shared by another user. Before moving forward, please make sure to honor the wishes they had for distribution in their selected license. </p>
       
       <div class="owner_settings">
@@ -55,6 +67,7 @@
       
     </div>
 
+    <div class="configure" *ngIf="auth.isLoggedIn">
 
 
     <p><mat-slide-toggle [checked]="shared_id !== ''" (change)="toggleSharing()">
@@ -173,7 +186,7 @@
     <p class="about">About Link Sharing: Sharing a file is equivalent to a "save as" operation on most computers: a copy of this file, in this state, is created and can be opened by another user using a sharing link that AdaCAD will generate. 
     You will not see any edits they make to the file and other users will not see any future edits you make to this file. If you want to publish edits you have made to this file, you must generate and share a new link.</p>
 
-
+  </div>
 </mat-dialog-content>
   
     <mat-dialog-actions>

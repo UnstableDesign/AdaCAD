@@ -471,16 +471,15 @@ export class AppComponent implements OnInit{
       return;
     }
 
+    if(searchParams.has('share')){
+      this.loadFromShare(searchParams.get('share'));  
+      return;
+    }
+
     if(user === null){
       console.log("USER IS NULL")
       this.loadStarterFile();
     }else{
-
-      if(searchParams.has('share')){
-        this.loadFromShare(searchParams.get('share'));  
-        return;
-      }
-  
 
       if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
 
@@ -636,6 +635,9 @@ export class AppComponent implements OnInit{
      */
     async loadFromShare(shareid: string){
       let share_id = -1;
+      console.log("LOAD FROM SHARE ", shareid, this.auth.isLoggedIn)
+
+   
 
       //GET THE SHARED FILE
       this.files.isShared(shareid).then(share_obj => {
@@ -649,15 +651,44 @@ export class AppComponent implements OnInit{
         return Promise.all([this.files.getFile(int_shareid), share_obj, shareid]);
 
       }).then(file_objs=>{
-        return this.files.duplicate(this.auth.uid, file_objs[1].filename, file_objs[1].desc, file_objs[0], shareid)
-      }).then(fileid => {
-        return Promise.all([this.files.getFile(fileid), this.files.getFileMeta(fileid), fileid]);
-      }).then(file_data => {
-        return this.prepAndLoadFile(file_data[1].name, 'db', file_data[2], file_data[1].desc, file_data[0],file_data[1].from_share )
-      }).catch(err => {
-        console.error(err);
+
+       if(this.auth.isLoggedIn) this.loadFromShareWhileLoggedIn(file_objs);
+       else this.loadFromShareWhileLoggedOut(file_objs);
+
+       
       })
     }
+
+    /**
+     * if the user is logged in, this automatically duplicates the shared file into a new file within their 
+     * local directory
+     * @param file_objs 
+     */
+    loadFromShareWhileLoggedIn(file_objs:any){
+
+      this.files.duplicate(this.auth.uid, file_objs[1].filename, file_objs[1].desc, file_objs[0], file_objs[2])
+        .then(fileid => {
+          return Promise.all([this.files.getFile(fileid), this.files.getFileMeta(fileid), fileid]);
+        }).then(file_data => {
+          return this.prepAndLoadFile(file_data[1].name, 'db', file_data[2], file_data[1].desc, file_data[0],file_data[1].from_share )
+        }).catch(err => {
+          console.error(err);
+        })
+
+    }
+
+    /**
+     * if the user isn't logged in, they should still be able to load the file locally. It should just get 
+     * a new id in the case they eventually login. 
+     * @param share_id 
+     */
+    loadFromShareWhileLoggedOut(file_objs: any){
+      
+      this.prepAndLoadFile(file_objs[1].filename, 'db', utilInstance.generateId(8), file_objs[1].desc, file_objs[0], file_objs[2]);
+   
+
+    }
+  
   
 
   //must be online

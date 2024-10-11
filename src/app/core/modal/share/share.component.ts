@@ -1,6 +1,6 @@
 import { Component, Inject, inject } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AuthService } from '../../provider/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FilesystemService } from '../../provider/filesystem.service';
@@ -9,6 +9,7 @@ import { WorkspaceService } from '../../provider/workspace.service';
 import { FileService } from '../../provider/file.service';
 import { defaults, licenses } from '../../model/defaults';
 import { MediaService } from '../../provider/media.service';
+import { LoginComponent } from '../login/login.component';
 
 @Component({
   selector: 'app-share',
@@ -32,11 +33,12 @@ export class ShareComponent {
   public replace_img: boolean = false;
 
   constructor( 
-    private auth: AuthService, 
-    private fs: FilesystemService, 
+    public auth: AuthService, 
+    public fs: FilesystemService, 
     private file_serv: FileService,
     private mediaService: MediaService,
     private ws: WorkspaceService,
+    private dialog: MatDialog,
     private dialogRef: MatDialogRef<ShareComponent>,
     @Inject(MAT_DIALOG_DATA) private data: any){
 
@@ -84,6 +86,13 @@ export class ShareComponent {
 
 
     }
+
+
+  openLoginDialog() {
+    const dialogRef = this.dialog.open(LoginComponent, {
+      width: '600px',
+    });
+  }
 
     /**
      * update the information on the page to match what is stored in the file system
