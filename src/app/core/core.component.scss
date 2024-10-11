@@ -1,0 +1,203 @@
+
+.view-container{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  
+  .mat-mdc-icon-button{
+    font-size: 14px;
+    position: relative;
+    top: 0px;
+  }
+  
+  .mat-button-toggle-appearance-standard{
+    font-size: 14px;
+    color: white;
+    background-color: #3f51b5;
+  }
+  
+  .toggle {
+    line-height: 10px;
+  }
+  
+  .copypaste{
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    font-size: 14px;
+    flex: 1 1;
+    overflow: hidden;
+  
+  }
+  
+  .filename{
+    height: 30px;
+    background: whitesmoke;
+    border: thin solid #3f51b5;
+    margin: 0px 8px 0px 0px;
+    border-radius: 3px;
+  }
+  
+  
+  
+  .header-container{
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 64px;
+    background-color: #3f51b5;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  
+  }
+  
+  .view-adjust-overlay{
+    height: 100%;
+    position: absolute;
+  }
+  
+  .ui-left{
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 64px);
+    overflow: hidden;
+  
+  }
+  
+  .ui-right{
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  
+  .ui-grid{
+    position: relative;
+    top: 64px;
+    display: flex;
+    background: white;
+    flex-direction: row;
+    align-items: stretch;
+  }
+  
+  
+  .footer-container{
+    display: flex;
+    flex-direction: row;
+    flex: 0 1 64px;
+    flex-wrap: wrap;
+    background-color: #3f51b5;
+    justify-content: space-between;
+  }
+  
+  .mixer-container{
+  
+  
+    display: flex;
+    flex-direction: row;
+    background-color: #f0f0f0;
+    overflow: hidden;
+  
+  }
+  
+  .detail-container{
+    display: flex;
+    flex: 0 1 100%;
+    flex-direction: row;
+    background-color: #f0f0f0;
+    overflow: hidden;
+  }
+  
+  .static-container{
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    flex: 1 1 100px;
+    overflow: hidden;
+    background-color: whitesmoke;
+  
+    &.collapsed{
+      flex: 0 1 40px;
+    }
+  
+  }
+  
+  .toggle{
+    font-size: .5em;
+  }
+  
+  .download{
+    width: 18vw;
+  }
+  
+  
+  
+  .topbar{
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    background-color: #3f51b5;
+    
+  }
+  
+  .footer{
+    display: flex;
+    justify-content: space-between;
+    flex: 0 1 100%;
+    flex-wrap: nowrap;
+    padding: 0px 16px;
+  }
+  
+  .footer-left{
+    display: flex;
+    overflow: hidden;
+    flex: 1 1;
+  }
+  
+  .footer-center,
+  .footer-right{
+    font-size: 14px;
+    display: flex;
+    flex: 0 1;
+    gap: 8px;
+  }
+  
+  .design_mode{
+    margin-right: 12px;
+  }
+  
+  .topbar-button-group{
+    justify-content: flex-start;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+    .hide{
+      display: none;
+    }
+  
+    .show{
+      display: flex;
+    }
+  
+  
+  
+    .active{
+      color: #ff4081;
+    }
+  
+  
+    .offline{
+      font-size: .6em;
+    }
+  
+  
+    .selected,
+    .active{
+      opacity: .9;
+    }
+    
