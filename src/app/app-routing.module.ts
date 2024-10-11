@@ -1,12 +1,17 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
-import { MixerModule } from './mixer/mixer.module';
+import { CommunityComponent } from './community/community.component';
 
 
-const routes: Routes = [
+export const routes: Routes = [
+  {
+    path: 'community',
+    component: CommunityComponent,
+    children: []
+  },
    {
-     path: '',
+     path: 'app',
      component: AppComponent,
      children: []
    }
