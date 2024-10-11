@@ -1,17 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
-import { CommunityComponent } from './community/community.component';
 
 
 export const routes: Routes = [
-  {
-    path: 'community',
-    component: CommunityComponent,
-    children: []
-  },
+
    {
-     path: 'app',
+     path: '**',
      component: AppComponent,
      children: []
    }

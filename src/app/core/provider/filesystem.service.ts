@@ -54,6 +54,63 @@ export class FilesystemService {
 
       this.file_tree = [];
 
+      //SETUP COLLECTION OF SHARED FILES (DOES NOT REQUIRE LOGIN)
+      const sharedFiles = query(ref(db, 'shared'));
+
+
+      onChildAdded(sharedFiles, (childsnapshot) => {
+        //only add values that haven't already been added
+        if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) !== undefined){
+            this.shared_file_change$.next(this.file_tree.slice());
+        }
+
+        if(childsnapshot.val().public){
+          if(this.public_files.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
+            this.public_files.push({id: childsnapshot.key, val: childsnapshot.val()})
+            this.public_file_change$.next(this.public_files.slice());
+          }
+        }
+      }); 
+
+      onChildChanged(sharedFiles, (data) => {
+        const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
+        if(ndx !== -1){
+          this.isShared(data.key).then(res => {
+            this.file_tree[ndx].shared = res;
+            this.shared_file_change$.next(this.file_tree.slice());
+          })
+ 
+        }
+
+        if(data.val().public){
+          const ndx = this.public_files.findIndex(el => el.id == data.key);
+          if(ndx !== -1){
+            this.public_files[ndx].val = data.val();
+            this.public_file_change$.next(this.public_files.slice());
+          }
+        }
+
+      });
+
+        //needs to redraw the files list 
+        onChildRemoved(sharedFiles, (removedItem) => {
+
+          const removedId = removedItem.key;
+          const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(removedId));
+          if(ndx !== -1){
+              this.file_tree[ndx].shared = null;
+              this.shared_file_change$.next(this.file_tree.slice());
+          }
+
+          if(removedItem.val().public){
+            this.public_files = this.public_files.filter(el => el.id !== removedId);
+            this.public_file_change$.next(this.public_files.slice());
+          }
+          
+        });
+      
+
+
       authState(this.auth).subscribe(user => {
 
         if(user == null){
@@ -63,7 +120,6 @@ export class FilesystemService {
        
         
         const userFiles = query(ref(db, 'users/'+user.uid+'/files'), orderByChild('timestamp'));
-        const sharedFiles = query(ref(db, 'shared'));
 
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
@@ -80,23 +136,9 @@ export class FilesystemService {
           }
         }); 
 
-        onChildAdded(sharedFiles, (childsnapshot) => {
-          //only add values that haven't already been added
-          if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) !== undefined){
-              this.shared_file_change$.next(this.file_tree.slice());
-          }
+        
 
-
-
-
-          console.log("ON SHARED FLIE ADDED ", childsnapshot.val().public);
-          if(childsnapshot.val().public){
-            if(this.public_files.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
-              this.public_files.push({id: childsnapshot.key, val: childsnapshot.val()})
-              this.public_file_change$.next(this.public_files);
-            }
-          }
-        }); 
+        
 
        
     
@@ -113,22 +155,7 @@ export class FilesystemService {
             }
         });
 
-        onChildChanged(sharedFiles, (data) => {
-            const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
-            if(ndx !== -1){
-              this.isShared(data.key).then(res => {
-                this.file_tree[ndx].shared = res;
-                this.shared_file_change$.next(this.file_tree.slice());
-              })
-     
-            }
-
-            console.log("ON SHARED FLIE CHANGED ", data.val().public);
-            if(data.val().public){
-              this.public_file_change$.next({key: data.key, value:data.val()});
-            }
-
-        });
+       
         
         //needs to redraw the files list 
         onChildRemoved(userFiles, (removedItem) => {
@@ -137,20 +164,6 @@ export class FilesystemService {
           this.file_tree_change$.next(this.file_tree.slice());
         });
 
-        //needs to redraw the files list 
-        onChildRemoved(sharedFiles, (removedItem) => {
-
-          const removedId = removedItem.key;
-          const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(removedId));
-          if(ndx !== -1){
-              this.file_tree[ndx].shared = null;
-              this.shared_file_change$.next(this.file_tree.slice());
-          }
-          
-        });
-        
-        
-      
       
       });
 

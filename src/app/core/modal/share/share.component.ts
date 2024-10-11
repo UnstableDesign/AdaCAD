@@ -130,15 +130,16 @@ export class ShareComponent {
 
     generateLink(){
 
-
+      console.log("GENERATE LINK ", this.fileid)
       let int_id: number = +this.fileid;
 
       this.fs.getFileMeta(int_id).then(meta => {
+        console.log("FOT FILE META", meta)
         return Promise.all([this.file_serv.saver.ada(), meta])
 
       }).then(so => {
         //add the current time to the author list entry 
-
+        console.log("IN DUPLICATE ", so)
         return   Promise.all([this.fs.duplicate(this.auth.uid, so[1].name,so[1].desc, so[0].file, ''), so[1]])
       }).then(id_and_meta => {
         console.log("ID AND META ", id_and_meta)
@@ -159,7 +160,7 @@ export class ShareComponent {
       }).then(share_data => {
         this.share_url = defaults.share_url_base+this.shared_id;
       }).catch(err => {
-        console.log("ERROR")
+        console.log("ERROR", err)
       })
 
     }
@@ -198,8 +199,6 @@ export class ShareComponent {
 
 
   drawImage(img: SingleImage){
-
-    console.log("DATA ", img)
 
     const canvas: HTMLCanvasElement =  <HTMLCanvasElement> document.getElementById('img_preview');
     const ctx = canvas.getContext('2d');

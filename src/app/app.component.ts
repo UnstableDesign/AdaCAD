@@ -943,6 +943,8 @@ onPasteSelections(){
 
 
 
+
+
   /**
    * called when a user selects a file to open from the AdaFile Browser
    * @param selectOnly 
@@ -997,6 +999,12 @@ onPasteSelections(){
   this.example_modal = this.dialog.open(ExamplesComponent, {data: {}});
   this.example_modal.componentInstance.onLoadExample.subscribe(event => {
     this.loadExampleAtURL(event);
+  });
+  this.example_modal.componentInstance.onLoadSharedFile.subscribe(event => {
+    this.loadFromShare(event);
+  });
+  this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
+    this.openAdaFiles(false);
   });
 
 

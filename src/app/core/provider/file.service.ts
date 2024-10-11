@@ -59,6 +59,7 @@ export class FileService {
 
      ada: async (filename: string, src: string, id: number, desc: string, data: any,  from_share: string) : Promise<LoadResponse> => {
 
+    
 
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
@@ -102,7 +103,6 @@ export class FileService {
       const draft_elements = [];
       const draft_fns = [];
 
-      console.log("VERSION IS ", version)
       if(!utilInstance.sameOrNewerVersion(version, '3.4.9')){
         data.nodes.forEach(node => {
           if(node.bounds !== undefined) node.topleft = node.bounds.topleft;
@@ -493,7 +493,6 @@ export class FileService {
       
 
       return this.tree.exportDraftNodeProxiesForSaving().then(draft_nodes => {
-
         const out: SaveObj = {
           version: this.vs.currentVersion(),
           workspace: this.ws.exportWorkspace(),

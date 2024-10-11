@@ -2,16 +2,60 @@
 .preloaded_files{
 	display: flex;
 	flex-direction:row;
-	width: 100%;
 	flex-wrap: wrap;
 
 }
 
+.card-content{
+	display: flex;
+	flex-direction: row;
+	height: min-content;
+}
+
+.license{
+	height: 30px;
+	margin-left: 8px;
+}
+
+.img{
+	display: flex;
+	flex: 0 1 20%;
+	overflow: hidden;
+
+	img{
+		min-width: 150px;
+	}
+
+	canvas{
+		min-width: 150px;
+	}
+
+
+}
+
+p{
+	margin: 0px 16px;
+	font-size: smaller;
+}
+
+.info{
+	display: flex;
+	flex: 1 1 60%;
+}
+
+.header{
+	width: 800px;
+	font-size: smaller;
+	padding: 16px 0px;
+}
+
+
 
 .mat-card-title,
+.community_files,
 .preloaded_files .mat-mdc-card{
-	width: 30%;
 	margin: 8px;
+	width: 100%;
 }
 
 .mat-mdc-card-title{

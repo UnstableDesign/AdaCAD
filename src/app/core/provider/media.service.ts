@@ -206,7 +206,7 @@ export class MediaService {
    * @returns 
    */
   loadImage(id: number, ref: string) : Promise<MediaInstance>{
-    console.log("LOADING IMAGE")
+    console.log("LOADING IMAGE ", id, ref)
 
     if(id == -1){
       id = utilInstance.generateId(8);
@@ -350,8 +350,7 @@ export class MediaService {
    * @param img - specific settings for this media instance
    */
   addSingleImageMediaInstance(id:number, ref: string, data: any) : MediaInstance{
-
-    let obj: MediaInstance = {id, ref,type: 'image', data}
+    let obj: MediaInstance = {id, ref,data, type: 'image'}
     this.current.push(obj);
     return obj;
   }
@@ -409,7 +408,7 @@ export class MediaService {
 
   exportIndexedColorImageData(): Array<IndexedColorMediaProxy>{
     const export_data: Array<IndexedColorImageInstance> = this.current
-    .filter(el => el.type = "indexed_color_image")
+    .filter(el => el.type == "indexed_color_image")
     .map(el => <IndexedColorImageInstance>el);
 
     const formatted: Array<IndexedColorMediaProxy> = export_data.map(el => {return {id: el.id, ref: el.ref, colors:el.img.colors, color_mapping: el.img.colors_mapping}});
