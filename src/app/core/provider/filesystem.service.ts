@@ -378,7 +378,7 @@ createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
  */
 isShared(file_id:string) : Promise<ShareObj> {
 
-  if(!this.connected) return Promise.reject("no internet connection");
+  // if(!this.connected) return Promise.reject("no internet connection");
 
   const db = getDatabase();
 
