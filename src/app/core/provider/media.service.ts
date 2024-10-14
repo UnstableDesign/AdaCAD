@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AnalyzedImage, Color, IndexedColorImageInstance, IndexedColorMediaProxy, MediaInstance } from '../model/datatypes';
+import { AnalyzedImage, Color, IndexedColorImageInstance, IndexedColorMediaProxy, MediaInstance, SingleImage } from '../model/datatypes';
 import { UploadService } from './upload.service';
 import { HttpClient } from '@angular/common/http';
 import utilInstance from '../model/util';
@@ -30,10 +30,13 @@ export class MediaService {
    * @param to_load a list of ids and associated data 
    * @returns 
    */
-  loadMedia(to_load: Array<{id: number, ref: string, data:any}>) : Promise<any> {
+  loadMedia(to_load: Array<MediaInstance>) : Promise<any> {
     const fns = to_load
     .filter(el => el.ref !== '')
-    .map(el => this.loadIndexedColorFile(el.id, el.ref, el.data));
+    .map(el => {
+      if(el.type == 'indexed_color_image') return this.loadIndexedColorFile(el.id, el.ref, el.data)
+      else  return this.loadImage(el.id, el.ref)
+    });
     return Promise.all(fns);
   }
 
@@ -196,6 +199,66 @@ export class MediaService {
   });
   }
 
+  /**
+   * loads an image  file
+   * @param id the unique reference for this file
+   * @param data an object containing any color or color_mapping data that has already been stored for this item
+   * @returns 
+   */
+  loadImage(id: number, ref: string) : Promise<MediaInstance>{
+    console.log("LOADING IMAGE ", id, ref)
+
+    if(id == -1){
+      id = utilInstance.generateId(8);
+    }
+
+    let url = "";
+  
+    //retrieve the media object from the server
+    return this.upSvc.getDownloadData(ref).then(obj =>{
+      if(obj === undefined) return null;
+      url = obj;
+      return  this.processMedia(obj);
+      
+    }).then(blob => {
+
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      var image = new Image();
+      image.src = url;
+      image.crossOrigin = "Anonymous";
+
+      return image.decode().then(() => {
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight; 
+
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        var imgdata = ctx.getImageData(0,0, canvas.width, canvas.height);
+      
+
+        var obj: SingleImage = {
+          name: 'placeholder',
+          data: imgdata,
+          image: image,
+          width: imgdata.width,
+          height: imgdata.height,
+          type: 'image',
+          warning: ''
+        }
+
+
+         return Promise.resolve(obj);
+      }).then(imageobj => {
+
+        if(imageobj == null){
+          return Promise.reject("no image object found when loading single image  file");
+        }
+        const media_ref  = this.addSingleImageMediaInstance(id, ref, imageobj)
+        return Promise.resolve(media_ref);
+      }) ;
+  });
+  }
+
 
 
   addMediaNameFromStorage(ref: string, img: AnalyzedImage) : Promise<AnalyzedImage>{
@@ -275,10 +338,20 @@ export class MediaService {
    */
   addIndexColorMediaInstance(id:number, ref: string, img: AnalyzedImage) : IndexedColorImageInstance{
 
-    let obj: IndexedColorImageInstance = {id, ref,type: 'indexed_color_image', img}
+    let obj: IndexedColorImageInstance = {id, ref,type: 'indexed_color_image', data: null, img}
     this.current.push(obj);
-    console.log("INSTANCE ADDED ", this.current)
+    return obj;
+  }
 
+    /**
+   * loads a media instance into the table
+   * @param id - a unique id for this media instance
+   * @param ref - the reference to media in Firebase storage
+   * @param img - specific settings for this media instance
+   */
+  addSingleImageMediaInstance(id:number, ref: string, data: any) : MediaInstance{
+    let obj: MediaInstance = {id, ref,data, type: 'image'}
+    this.current.push(obj);
     return obj;
   }
 
@@ -330,14 +403,12 @@ export class MediaService {
   }
 
   removeInstance(id: number){
-    console.log("REMOVING ", id, " FROM ",this.current)
     this.current = this.current.filter(el => el.id !== id);
-    console.log("INSTANCES STORED ", this.current)
   }
 
   exportIndexedColorImageData(): Array<IndexedColorMediaProxy>{
     const export_data: Array<IndexedColorImageInstance> = this.current
-    .filter(el => el.type = "indexed_color_image")
+    .filter(el => el.type == "indexed_color_image")
     .map(el => <IndexedColorImageInstance>el);
 
     const formatted: Array<IndexedColorMediaProxy> = export_data.map(el => {return {id: el.id, ref: el.ref, colors:el.img.colors, color_mapping: el.img.colors_mapping}});

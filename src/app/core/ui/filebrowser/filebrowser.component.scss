@@ -4,24 +4,35 @@ h2{
 }
 
 h3{
-    font-size: 1em;
+    font-size: 1.5em;
     padding-top: 40px;
     font-weight: bold;
+}
+
+h4{
+    padding: 0px;
+    margin: 0px;
+    line-height: 40px;
+
+}
+
+.desc{
+    font-size: .8em;
+    padding: 0px;
+    margin: 0px;
 }
 
 .filebrowser{
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: max-content;
+    width: 100%;
 }
 
 
 .browser_list{
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
-    gap: 10px;
+    // overflow-y: scroll;
 }
 
 
@@ -31,7 +42,7 @@ h3{
 }
 
 .lastviewed{
-    flex: 0 1 95px;
+    flex: 0 1 20%;
     justify-content: flex-end;
 
 }
@@ -39,8 +50,9 @@ h3{
 .filename{
     text-align: left;
     justify-content: flex-start;
-    flex: 1 1 auto;
+    flex: 1 1 50%;
 }
+
 
 
 .file-item-block{
@@ -48,7 +60,11 @@ h3{
     flex-direction: row;
     justify-content: space-evenly;
     width: 100%;
-    align-items: center;
+    border-bottom: thin dotted grey;
+    align-items: flex-start;
+    padding: 8px 0px;
+    gap: 12px;
+
 }
 
 .current{
@@ -57,7 +73,7 @@ h3{
 
 
 .actions{
-    flex: 0 1 192px;
+    flex: 0 1 20%;
     display: flex;
     justify-content: center;
     flex-direction: row;

@@ -12,17 +12,6 @@ import { MaterialsService } from "../provider/materials.service";
 
 /*** APPLICATION STATE MANAGEMENT */
 
-/**
- * a local instance of a file that is currently open within the users's workspace
- */
-export interface LoadedFile{
-  id: number, 
-  name: string,
-  desc: string, 
-  ada: SaveObj,
-  last_saved_time: number
-}
-
 
 
 /*****   OBJECTS/TYPES RELATED TO DRAFTS  *******/
@@ -381,6 +370,7 @@ export interface NodeComponentProxy{
  export type MediaInstance ={
   id: number;
   ref: string; 
+  data: any;
   type: 'image' | 'indexed_color_image'; //currently we only support images
  }
 
@@ -427,6 +417,7 @@ export interface FileObj{
 
 }
 
+
 export interface StatusMessage{
   id: number,
   message: string,
@@ -438,11 +429,12 @@ export interface LoadResponse{
   id: number,
   name: string, 
   desc: string,
-  status: number;
+  status: number,
+  from_share: string
 }
 
 export interface Fileloader{
-  ada: (filename: string, src: string, id: number, desc: string, data: any) => Promise<LoadResponse>,
+  ada: (filename: string, src: string, id: number, desc: string, data: any, from_share: string) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
 }
@@ -687,6 +679,17 @@ export type DynamicOperation = Operation &  {
   createdAt: Date,
 
 }
+
+export interface SingleImage{
+  name: string,
+  data: ImageData, 
+  image: HTMLImageElement,
+  width:number,
+  height: number,
+  type: string,
+  warning: string
+}
+
 
 
 
@@ -965,6 +968,24 @@ export type RenderingFlags = {
  show_loom: boolean
 }
 
+
+/**
+ * File sharing
+ */
+
+
+export type ShareObj = {
+  license: string,
+  owner_uid: string,
+  owner_creditline: string,
+  owner_url: string,
+  filename: string,
+  desc: string,
+  public:boolean,
+  img: string
+
+}
+ 
 
 
 

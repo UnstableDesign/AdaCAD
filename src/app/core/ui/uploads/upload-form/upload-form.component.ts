@@ -63,10 +63,10 @@ export class UploadFormComponent implements OnInit {
   }
 
 
-   uploadImage(upload: Upload, file: File) : Promise<any> {
+   uploadImage(upload: Upload, file: File, type: 'image' | 'indexed_color_image') : Promise<any> {
 
     return this.upSvc.pushUpload(upload).then(snapshot => {
-      return  this.mediaSvc.loadMedia([{id: -1, ref: upload.name, data:null}]);
+      return  this.mediaSvc.loadMedia([{id: -1, ref: upload.name, data:null, type}]);
     }).then(uploaded => {
 
 
@@ -120,9 +120,13 @@ export class UploadFormComponent implements OnInit {
         this.uploadAda(upload, file);
       break;
 
-      case 'single_image':
-          this.uploadImage(upload, file)
+      case 'indexed_color_image':
+          this.uploadImage(upload, file, 'indexed_color_image')
      
+      break;
+
+      case 'single_image':
+        this.uploadImage(upload, file, 'image')
       break;
 
       case 'bitmap_collection':

@@ -35,7 +35,8 @@ export const defaults = {
       zoom_ndx_mixer: 10,
       zoom_ndx_editor: 12,
       zoom_ndx_viewer: 7,
-      show_advanced_operations: false
+      show_advanced_operations: false,
+      share_url_base: 'https://adacad-4-1.web.app/?share='
 
 }
 
@@ -140,3 +141,12 @@ export const paste_options = [
   {value: 'paste', viewValue: 'Paste Copied Pattern to Selected Region', icon: "fa fa-paste",drawdown: true, threading: true, treadling: true, tieups: true, materials: true, systems: true}
   ];
   
+  export const licenses = [
+    {value: 'by', viewValue: 'CC BY', img: "by.png", desc:"This license enables reusers to distribute, remix, adapt, and build upon the material in any medium or format, so long as attribution is given to the creator. The license allows for commercial use."},
+    {value: 'by-sa', viewValue: 'CC BY-SA', img: "by-sa.png", desc: "This license enables reusers to distribute, remix, adapt, and build upon the material in any medium or format, so long as attribution is given to the creator. The license allows for commercial use. If you remix, adapt, or build upon the material, you must license the modified material under identical terms."},
+    {value: 'by-nc', viewValue: 'CC BY-NC', img: "by-nc.png", desc: "This license enables reusers to distribute, remix, adapt, and build upon the material in any medium or format for noncommercial purposes only, and only so long as attribution is given to the creator."},
+    {value: 'by-nc-sa', viewValue: 'CC BY-NC-SA', img: "by-nc-sa.png", desc: "This license enables reusers to distribute, remix, adapt, and build upon the material in any medium or format for noncommercial purposes only, and only so long as attribution is given to the creator. If you remix, adapt, or build upon the material, you must license the modified material under identical terms."},
+    {value: 'by-nd', viewValue: 'CC BY-ND', img: "by-nd.png", desc: "This license enables reusers to copy and distribute the material in any medium or format in unadapted form only, and only so long as attribution is given to the creator. The license allows for commercial use."},
+    {value: 'by-nc-nd', viewValue: 'CC BY-NC-ND', img: "by-nc-nd.png", desc: "This license enables reusers to copy and distribute the material in any medium or format in unadapted form only, for noncommercial purposes only, and only so long as attribution is given to the creator. "},
+    {value: 'cc-zero', viewValue: 'CC0', img: "cc-zero.png", desc: "CC0 (aka CC Zero) is a public dedication tool, which enables creators to give up their copyright and put their works into the worldwide public domain. CC0 enables reusers to distribute, remix, adapt, and build upon the material in any medium or format, with no conditions."},
+  ]

@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
-import { MixerModule } from './mixer/mixer.module';
 
 
-const routes: Routes = [
+export const routes: Routes = [
+
    {
-     path: '',
+     path: '**',
      component: AppComponent,
      children: []
    }

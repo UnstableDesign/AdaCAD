@@ -7,29 +7,108 @@ cdkDrag
    
 <mat-dialog-content >
 
-   <div class="preloaded_files">
+  <mat-tab-group>
+    <mat-tab label="Community Projects"> 
+
+      <div class="community_files">
+
+        <div class="header">
+          <p>AdaCAD community members can share their workspaces if they have an AdaCAD account by selected "share" on any file in their file list and clicking the box to share the file publicly. Want to try?</p>
+          <button mat-raised-button (click)="openFileManager()">Manage and Share your Files</button>
+        </div>
+
+        <mat-card appearance="outlined" *ngFor="let example of community_examples">
+
+          <div class="card-content">
+  
+  
+            <div class="img">       
+              <canvas id="img_preview{{example.id}}"></canvas>
+            </div>
+  
+            <div class="info">
+              <mat-card-content>
+                  <mat-card-header>
+                    <mat-card-title>{{example.val.filename}}</mat-card-title>
+                    <mat-card-subtitle>{{example.val.owner_creditline}} 
+                      <span *ngIf="example.val.owner_url !=''">, learn more at: {{example.val.owner_url}}</span>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+  
+                  <p>{{example.val.desc}}</p>
+                  <div class="license">          
+                    <img class='license' src="/assets/img/{{example.val.license}}.png">
+                  </div>
+                </mat-card-content>
+              
+            </div>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="loadSharedFile(example.id)">OPEN</button>
+            </mat-card-actions>
+          </div>
+        </mat-card>
 
 
 
-      <mat-card appearance="outlined" *ngFor="let example of local_examples">
-        <mat-card-header>
-        <mat-card-title>{{example.title}}</mat-card-title>
-      </mat-card-header>
 
-       <img mat-card-image src="/assets/example_img/{{example.id}}.{{example.ext}}" alt="Screenshot of the File Contents">
-          <mat-card-content >
-            <p>
-              {{example.desc}}
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample(example.id)" mat-button>OPEN</button>
-        </mat-card-actions>
-      </mat-card>
 
-      </div>
-     
 
+
+
+     </div>
+       
+
+
+
+
+    </mat-tab>
+    <mat-tab label="AdaCAD Templates">
+      
+    
+    
+      <div class="preloaded_files">
+    
+          <mat-card appearance="outlined" *ngFor="let example of local_examples">
+    
+            <div class="card-content">
+    
+    
+              <div class="img">       
+                <img src="/assets/example_img/{{example.id}}.{{example.ext}}" alt="Screenshot of the File Contents">
+              </div>
+    
+              <div class="info">
+                <mat-card-content>
+                    <mat-card-header>
+                      <mat-card-title>{{example.title}}</mat-card-title>
+                      <mat-card-subtitle>by AdaCAD project team</mat-card-subtitle>
+                    </mat-card-header>
+    
+                    <p>{{example.desc}}</p>
+                  </mat-card-content>
+                
+              </div>
+              <mat-card-actions>
+                <button mat-raised-button color="primary" (click)="loadExample(example.id)">OPEN</button>
+              </mat-card-actions>
+            </div>
+          </mat-card>
+    
+    
+          
+    
+          </div>
+         
+    
+    
+    
+    </mat-tab>
+  </mat-tab-group>
+
+
+
+
+   
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Close</button>

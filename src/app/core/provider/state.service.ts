@@ -67,8 +67,6 @@ export class StateService {
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
 
-    this.files.updateCurrentStateInLoadedFiles(this.files.getCurrentFileId(), ada.file);
-
     var state = {
       draft: null,
       ada: {

@@ -57,10 +57,13 @@ export class FileService {
    */
   const dloader: Fileloader = {
 
-     ada: async (filename: string, src: string, id: number, desc: string, data: any) : Promise<LoadResponse> => {
+     ada: async (filename: string, src: string, id: number, desc: string, data: any,  from_share: string) : Promise<LoadResponse> => {
+
+    
 
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
+      if(from_share == undefined) from_share = '' 
       if(id === -1) id = this.files.generateFileId();
       
       let draft_nodes: Array<DraftNodeProxy> = [];
@@ -99,7 +102,6 @@ export class FileService {
       const loom_fns = []
       const draft_elements = [];
       const draft_fns = [];
-
 
       if(!utilInstance.sameOrNewerVersion(version, '3.4.9')){
         data.nodes.forEach(node => {
@@ -241,7 +243,7 @@ export class FileService {
             indexed_image_data: indexed_images
           }
 
-          return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id }); 
+          return Promise.resolve({data: envt, name: filename, desc: desc, status: 0, id:id, from_share: from_share }); 
   
         }
       )
@@ -318,6 +320,12 @@ export class FileService {
             });
           }  
         })
+
+
+        let indexed_images = [];
+        if(data.indexed_image_data !== undefined){
+          indexed_images = data.indexed_image_data;
+        }
       
     
         if(data.ops !== undefined){
@@ -332,10 +340,7 @@ export class FileService {
           });
         }
 
-        let indexed_images = [];
-        if(data.indexed_image_data !== undefined){
-          indexed_images = data.indexed_image_data;
-        }
+      
 
         
           const envt: FileObj = {
@@ -351,7 +356,7 @@ export class FileService {
             indexed_image_data: indexed_images
           }
     
-          return Promise.resolve({data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id:-1 }); 
+          return Promise.resolve({data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id:-1, from_share: '' }); 
   
         }
       )
@@ -488,7 +493,6 @@ export class FileService {
       
 
       return this.tree.exportDraftNodeProxiesForSaving().then(draft_nodes => {
-
         const out: SaveObj = {
           version: this.vs.currentVersion(),
           workspace: this.ws.exportWorkspace(),
@@ -502,7 +506,6 @@ export class FileService {
           materials: this.ms.exportForSaving(),
           indexed_image_data: this.media.exportIndexedColorImageData()
         }
-
         var theJSON = JSON.stringify(out);
         return Promise.resolve({json: theJSON, file: out});
         })

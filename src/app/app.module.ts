@@ -2,7 +2,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { getAnalytics, provideAnalytics } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { enableIndexedDbPersistence } from '@angular/fire/firestore';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getDatabase, provideDatabase } from '@angular/fire/database';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
@@ -20,6 +19,8 @@ import { CoreModule } from './core/core.module';
 import { MixerModule } from './mixer/mixer.module';
 import { EditorModule } from './editor/editor.module';
 import { ViewerModule } from './viewer/viewer.module';
+import { provideRouter } from '@angular/router';
+import { routes } from './app-routing.module';
 
 
 @NgModule({
@@ -47,9 +48,12 @@ import { ViewerModule } from './viewer/viewer.module';
     provideRemoteConfig(() => getRemoteConfig()),
     provideStorage(() => getStorage())],
     
-  providers: [{ 
+  providers: [
+    provideRouter(routes),
+    { 
     provide: HAMMER_GESTURE_CONFIG, 
     useClass: HammerGestureConfig, 
+
   }],
   bootstrap: [AppComponent]
 })

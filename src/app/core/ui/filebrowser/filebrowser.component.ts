@@ -1,10 +1,14 @@
-import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation, inject } from '@angular/core';
 import { AuthService } from '../../provider/auth.service';
 import { FilesystemService } from '../../provider/filesystem.service';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { FileService } from '../../provider/file.service';
 import { LoginComponent } from '../../modal/login/login.component';
+import { ShareComponent } from '../../modal/share/share.component';
+import { share } from 'rxjs';
+import { defaults } from '../../model/defaults';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-filebrowser',
@@ -14,13 +18,16 @@ import { LoginComponent } from '../../modal/login/login.component';
 
 })
 export class FilebrowserComponent implements OnInit {
+  private _snackBar = inject(MatSnackBar);
 
   @Output() onLoadFromDB: any = new EventEmitter();
   @Output() onCreateFile: any = new EventEmitter();
   @Output() onDuplicateFile: any = new EventEmitter();
+  @Output() onShareFile: any = new EventEmitter();
 
   
   unopened_filelist = [];
+  shared_filelist = [];
   file_list = [];
 
 
@@ -44,17 +51,10 @@ export class FilebrowserComponent implements OnInit {
       this.files.file_tree_change$.subscribe(data => {
         this.updateFileData(data);});
 
-
-
-        this.files.loaded_file_change$.subscribe(data => {
-          this.updateFileData(data)
-        });
-
-
-
-
   
-   
+      this.files.shared_file_change$.subscribe(data => {
+        this.updateFileData(data);});
+
 
   }
 
@@ -62,6 +62,15 @@ export class FilebrowserComponent implements OnInit {
     
     
     
+  }
+
+  shareWorkspace(file_id: number){
+
+
+    const dialogRef = this.dialog.open(ShareComponent, {
+      width: '600px',
+      data: {fileid: file_id}
+    });
   }
 
   openLoginDialog() {
@@ -74,22 +83,37 @@ export class FilebrowserComponent implements OnInit {
     this.onCreateFile.emit();
   }
 
-  formatDate(date: number){
-    var dateFormat = new Date(date);
-    return dateFormat.toLocaleTimeString();
-  }
-
+  /**
+   * takes an array of file data and parses it into lists
+   * @param data 
+   */
   updateFileData(data: Array<any>){
     this.unopened_filelist = [];
+    this.shared_filelist = [];
+
     this.file_list = [];
     data.forEach(file => {
       this.file_list.push(file);
-      // if(this.files.loaded_files.find(el => el.id == file.id) == undefined){
-      //   this.unopened_filelist.push(file);
-      // }
-        this.unopened_filelist.push(file);
-      
-    })
+
+        if(file.shared == undefined) this.unopened_filelist.push(file);
+        else this.shared_filelist.push(file);
+      })
+
+  }
+
+  editSharedFile(id: number){
+
+    const dialogRef = this.dialog.open(ShareComponent, {
+      width: '600px',
+      data: {fileid:id}
+    });
+
+
+  }
+
+
+  unshare(id: number){
+    this.files.removeSharedFile(id.toString());
   }
 
 
@@ -101,12 +125,6 @@ export class FilebrowserComponent implements OnInit {
     this.onDuplicateFile.emit(id);
   }
 
-
-  close(id: number){
-    let item = this.files.getLoadedFile(id);
-    if(item == null) return;
-    this.files.unloadFile(id)
-  }
 
 
 
@@ -140,23 +158,60 @@ export class FilebrowserComponent implements OnInit {
 
     const link = document.createElement('a')
 
-      let loaded = this.files.getLoadedFile(id);
-      if(loaded !== null){
-        var theJSON = JSON.stringify(loaded.ada);
-        link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
-        link.download =  loaded.name + ".ada";
-        link.click();
-      }else{
-        let fns = [ this.files.getFile(id), this.files.getFileMeta(id)];
-        Promise.all(fns)
-        .then(res => {
-          var theJSON = JSON.stringify(res[0]);
-          link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
-          link.download =  res[1].name + ".ada";
-          link.click();
-        }).catch(err => {console.error(err)});
+    let fns = [ this.files.getFile(id), this.files.getFileMeta(id)];
+    Promise.all(fns)
+    .then(res => {
+      var theJSON = JSON.stringify(res[0]);
+      link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
+      link.download =  res[1].name + ".ada";
+      link.click();
+    }).catch(err => {console.error(err)});
 
-      }
+  
+
+
+  
+  
+    }
+
+    openSnackBar(message: string, action: string) {
+      this._snackBar.open(message, action);
+    }
+
+    
+    copyToClipboard(id: number){
+      const share_url = defaults.share_url_base+id;
+      navigator.clipboard.writeText(share_url)
+      .then(
+        ()=> {
+           this.openSnackBar('link copied', 'close')//on success
+        },
+        () => {
+          //on fail 
+          this.openSnackBar('could not copy link', 'close')//on success
+
+        }
+      )
+
+    }  
+     /**
+   * this is called when a user pushes save from the topbar
+   * @param event 
+   */
+  public  exportSharedWorkspace(id: number){
+
+    const link = document.createElement('a')      
+
+      let fns = [ this.files.getFile(id), this.files.isShared(id.toString())];
+      Promise.all(fns)
+      .then(res => {
+        var theJSON = JSON.stringify(res[0]);
+        link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
+        link.download =  res[1].filename + ".ada";
+        link.click();
+      }).catch(err => {console.error(err)});
+
+
 
 
   

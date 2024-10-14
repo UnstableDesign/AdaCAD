@@ -11,18 +11,6 @@ cdkDrag
 
 <mat-dialog-content class="filebrowser">
 
-  <!-- <button mat-raised-button (click)="createBlankFile()">Create A New File</button>
-
-  <button mat-raised-button (click)="createBlankFile()">Open a .ada File</button>
-
-  <button mat-raised-button (click)="createBlankFile()">Open a .wif File</button>
-
-  <button mat-raised-button (click)="createBlankFile()">Open a Bitmap Image</button>
-
-  <button mat-raised-button (click)="createBlankFile()">Open Multiple Bitmap Images</button> -->
-
-
-      <!-- files-->
   <div *ngIf="!auth.isLoggedIn">
     <button mat-flat-button  color="primary" matTooltip="login" (click)="openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
   </div>
@@ -34,106 +22,121 @@ cdkDrag
   </ng-container>
 
 
-    <!-- <ng-container *ngIf="auth.isLoggedIn && files.connected">
+  <div *ngIf="shared_filelist.length > 0" class="shared_files">
+   <h3>Your Shared Files</h3>
 
-
-      <h3> Loaded Files</h3>
-
-      <div class="file-item-block">
-        <div class="filename">
-          Name
-        </div>
-        <div class="lastviewed">
-          Last Saved
-        </div>
-
-        <div class="actions">
-          Actions
-        </div>
+   <div class="browser_list">
+    <div class="file-item-block">
+      <div class="filename">
+        Name
       </div>
+      <div class="actions">
+        Actions
+      </div>
+    </div>
 
 
-      <div  class="file-item-block current" *ngFor="let file of files.loaded_files">
-          
-        <div class="filename">
-            <mat-form-field *ngIf="rename_mode_id == file.id">
-              <mat-label>Rename File</mat-label>
-             <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
 
-              <button 
-              mat-icon-button 
-              [class.primary]="file.id == this.files.current_file_id" 
-              (click) = "rename(file.id)">
-              <i class="fas fa-save"></i></button>
-
-            </mat-form-field>
-
-
-            <button *ngIf="rename_mode_id !== file.id"
-            mat-raised-button
-            [class.primary]="file.id == this.files.current_file_id" 
-            (click) = openFile(file.id)
-            class="file_name">
-             {{file.name}}
-            </button>
-
-            
-
-        </div>
-
-
-        <div class="lastviewed"> {{formatDate(file.last_saved_time)}} </div>
-
-
-           <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
-
-
-        <!-- <div class="actions"> 
-
+    <div  class="file-item-block" *ngFor="let file of shared_filelist" >
         
-          <button 
-          mat-icon-button 
-          matListItemIcon
-          matTooltip="rename this file"
-          (click)="rename(file.id)"
-          ><i class="fas fa-edit"></i>
-        </button>
+          <div class="filename">
+             <h4>  {{file.shared.filename}}</h4>
+             <p class="desc">{{file.shared.desc}}</p>
+
+          </div>
+  
+
+          <div class="lastviewed"> 
+            <button mat-raised-button
+            (click)="copyToClipboard(file.id)"><i class="fa-solid fa-link"></i></button> 
+            </div>
 
 
-          <button 
-          mat-icon-button 
-          matListItemIcon
-          matTooltip="Download"
-          (click)="exportWorkspace(file.id)"
-          ><i class="fa-solid fa-download"></i>
+            <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
+
+
+          <div class="actions"> 
+
+            <button mat-raised-button [matMenuTriggerFor]="shared_menu"><i class="fa-solid fa-ellipsis"></i></button>
+
+            <mat-menu #shared_menu="matMenu">
+              
+              <button 
+              mat-menu-item
+              (click)="openFile(file.id)"
+              ><i class="fas fa-folder-open"></i> open file
+             </button>
+
+
+            <button 
+            mat-menu-item
+            (click)="editSharedFile(file.id)"
+            ><i class="fas fa-edit"></i> edit sharing settings
           </button>
 
-          <button *ngIf="files.loaded_files.length != 1"
-          mat-icon-button 
-          matListItemIcon
-          matTooltip="close this file"
-          (click)="close(file.id)"
-          ><i class="fa-solid fa-xmark"></i>
-        </button>
+
+            <button 
+            mat-menu-item
+            matTooltip="download"
+            (click)="exportSharedWorkspace(file.id)">
+            <i class="fa-solid fa-download"></i> download file
+            </button>
+
+            <button 
+            mat-menu-item
+            [matMenuTriggerFor]="stopShareConfirm"
+            >
+            <i class="fa-solid fa-link-slash"></i> stop sharing
+            </button>
 
 
+            </mat-menu>
 
-
-
-        
-        
-        </div>
-  
-
-
+            <mat-menu #stopShareConfirm>
+              <button 
+              mat-flat-button
+              (click) = "unshare(file.id)"
+              >
+                Are you sure?
+                </button>
+            </mat-menu>
 
 
           
   
-  </div> -->
+       
+  
 
 
-    <h3> Files Saved on AdaCAD Server</h3>
+
+  
+        
+    
+
+            <mat-menu #deleteConfirm>
+              <button 
+              mat-flat-button
+              (click) = "remove(file.id)"
+              >
+                Are you sure?
+                </button>
+            </mat-menu>
+          
+          
+          </div>
+    
+
+
+
+
+            
+    
+    </div>
+
+   </div>
+  </div>
+
+    <h3>All Files</h3>
 
 
       <!-- HEADER ROW -->
@@ -156,11 +159,9 @@ cdkDrag
       <div  class="file-item-block" [class.current]="file.id == this.files.current_file_id" *ngFor="let file of unopened_filelist" >
           
             <div class="filename">
-
-
                 <mat-form-field *ngIf="rename_mode_id == file.id" appearance="outline">
                   <mat-label>Rename Workspace</mat-label>
-                 <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
+                  <input matInput color="accent" [(ngModel)]="rename_file_name" placeholder="Filename" (change)="rename(file.id)"> 
 
                   <button 
                   matSuffix
@@ -168,19 +169,18 @@ cdkDrag
                   [class.primary]="file.id == this.files.current_file_id" 
                   (click) = "rename(file.id)">
                   <i class="fas fa-save"></i></button>
-
-          
-    
-
                 </mat-form-field>
 
 
-                <span *ngIf="rename_mode_id !== file.id" >  {{file.meta.name}}</span>
+                <h4 *ngIf="rename_mode_id !== file.id" >  {{file.meta.name}}</h4>
+
+
 
             </div>
     
 
-            <div class="lastviewed"> {{file.meta.date}} </div>
+            <div *ngIf="file.id == this.files.current_file_id" class="lastviewed"> opened </div>
+            <div *ngIf="file.id !== this.files.current_file_id" class="lastviewed"> {{file.meta.date}} </div>
 
 
               <!-- <div *ngIf="(file.id == this.files.current_file_id && !rename_mode)"  class="lastviewed">last saved at: {{last_saved_time}} </div> -->
@@ -188,53 +188,66 @@ cdkDrag
 
             <div class="actions"> 
 
-              
+              <button mat-raised-button [matMenuTriggerFor]="menu"><i class="fa-solid fa-ellipsis"></i></button>
+
+              <mat-menu #menu="matMenu">
+                
+                <button 
+                [disabled]="file.id ==this.files.current_file_id"
+                mat-menu-item
+                (click)="openFile(file.id)"
+                ><i class="fas fa-folder-open"></i> open
+               </button>
+
+
               <button 
-              [disabled]="file.id ==this.files.current_file_id"
-              mat-icon-button 
-              matListItemIcon
-              matTooltip="open this file"
-              (click)="openFile(file.id)"
-              ><i class="fas fa-folder-open"></i>
+              mat-menu-item
+              (click)="rename(file.id)"
+              ><i class="fas fa-edit"></i> rename
             </button>
-    
+
             <button 
-            mat-icon-button 
-            matListItemIcon
-            matTooltip="rename this file"
-            (click)="rename(file.id)"
-            ><i class="fas fa-edit"></i>
+            mat-menu-item
+            (click)="duplicate(file.id)"
+            ><i class="fas fa-copy"></i> make a copy
           </button>
-         
+
           <button 
-          mat-icon-button 
-          matListItemIcon
-          matTooltip="duplicate this file"
-          (click)="duplicate(file.id)"
-          ><i class="fas fa-copy"></i>
-        </button>
-
-
+          mat-menu-item
+          (click)="shareWorkspace(file.id)">
+          <i class="fa-solid fa-share-nodes"></i> share
+          </button>
 
 
               <button 
-              mat-icon-button 
-              matListItemIcon
+              mat-menu-item
               matTooltip="download"
               (click)="exportWorkspace(file.id)">
-              <i class="fa-solid fa-download"></i>
+              <i class="fa-solid fa-download"></i> download file
               </button>
+
+              <button 
+              mat-menu-item
+              [disabled]="file.id ==this.files.current_file_id"
+              [matMenuTriggerFor]="deleteConfirm"
+              >
+              <i class="fa-solid fa-trash"></i> delete
+              </button>
+
+
+              </mat-menu>
+
+
+            
+    
+         
+    
+
+
 
     
           
-              <button 
-              mat-icon-button 
-              [disabled]="file.id ==this.files.current_file_id"
-
-              [matMenuTriggerFor]="deleteConfirm"
-              >
-              <i class="fa-solid fa-trash"></i>
-              </button>
+      
 
               <mat-menu #deleteConfirm>
                 <button 
@@ -275,7 +288,7 @@ cdkDrag
       <div mat-line> {{folder.updated | date}} </div>
     </mat-list-item> -->
 
-  </div>
+     </div>
 
 
 </mat-dialog-content>
