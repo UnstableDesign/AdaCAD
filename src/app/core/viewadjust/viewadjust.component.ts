@@ -41,8 +41,6 @@ export class ViewadjustComponent {
 
   dragMove(e: CdkDragMove){
     this.vas.updatePosition(e.pointerPosition.x);
-
-
   }
 
 }
