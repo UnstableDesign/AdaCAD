@@ -143,7 +143,6 @@ export class ParameterComponent implements OnInit {
     return val;
   }
 
-
   /**
    * changes the view and updates the tree with the new value
    * @param value 

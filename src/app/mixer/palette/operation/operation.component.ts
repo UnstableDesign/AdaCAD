@@ -484,6 +484,7 @@ export class OperationComponent implements OnInit {
 
 
   dragStart(e: any) {
+    console.log("DRAG START ", e.srcElement)
 
      if(this.multiselect.isSelected(this.id)){
       this.multiselect.setRelativePosition(this.topleft);

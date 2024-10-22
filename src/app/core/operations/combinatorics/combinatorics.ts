@@ -44,50 +44,52 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       selection -= 1;
 
       //for larger set sizes, you must split up the download into multiple files
-      const divisor = (size - 3 > 0) ? Math.pow(2,(size-3)): 1;
+     // const divisor = (size - 3 > 0) ? Math.pow(2,(size-3)): 1;
+      const divisor = (size - 3 > 0) ? 4: 1;
 
       return getSet(size, size)
       .then(alldrafts => { 
 
-        if(download){
+        //  if(download){
 
-          for(let set_id = 0; set_id < divisor; set_id++){
+        //   for(let set_id = 0; set_id < divisor; set_id++){
             
-            const cc = 10;
-            const set_data = getDrafts(set_id, divisor);
+        //     const per_row = 10;
+        //     const cc = 10;
+        //     const set_data = getDrafts(set_id, divisor);
 
-            let b:HTMLCanvasElement = <HTMLCanvasElement>document.createElement('canvas'); 
-            let context = b.getContext('2d');
-            b.width = (cc*(size+5))*20;
-            b.height = Math.ceil(set_data.length  / 20)*((5+size)*cc);
-            context.fillStyle = "white";
-            context.fillRect(0,0,b.width,b.height);
+        //     let b:HTMLCanvasElement = <HTMLCanvasElement>document.createElement('canvas'); 
+        //     let context = b.getContext('2d');
+        //     b.width = (cc*(size+5))*per_row;
+        //     b.height = Math.ceil(set_data.length  / per_row)*((5+size)*cc);
+        //     context.fillStyle = "white";
+        //     context.fillRect(0,0,b.width,b.height);
 
-            set_data.forEach((set, ndx) => {
+        //     set_data.forEach((set, ndx) => {
               
-              const top = Math.floor(ndx / 20) * (wefts(set.draft.drawdown)+5)*cc + 10;
-              const left = ndx % 20 * (warps(set.draft.drawdown)+5)*cc + 10; 
+        //       const top = Math.floor(ndx / per_row) * (wefts(set.draft.drawdown)+5)*cc + 10;
+        //       const left = ndx % per_row * (warps(set.draft.drawdown)+5)*cc + 10; 
               
-              context.font = "8px Arial";
-              context.fillStyle = "#000000"
-              context.fillText((set.id+1).toString(),left, top-2,size*cc)
-              context.strokeRect(left,top,size*cc,size*cc);
+        //       context.font = "10px Arial";
+        //       context.fillStyle = "#000000"
+        //       context.fillText((set.id+1).toString(),left, top-2,size*cc)
+        //       context.strokeRect(left,top,size*cc,size*cc);
 
-              for (let i = 0; i < wefts(set.draft.drawdown); i++) {
-                for (let j = 0; j < warps(set.draft.drawdown); j++) {
-                  drawCell(context, set.draft, cc, i, j, top, left);
-                }
-              }            
-            })
+        //       for (let i = 0; i < wefts(set.draft.drawdown); i++) {
+        //         for (let j = 0; j < warps(set.draft.drawdown); j++) {
+        //           drawCell(context, set.draft, cc, i, j, top, left);
+        //         }
+        //       }            
+        //     })
 
-            // console.log("b", b);
-            const a = document.createElement('a')
-            a.href = b.toDataURL("image/jpg")
-            a.download = "allvalid_"+size+"x"+size+"_drafts_"+set_id+".jpg";
-            a.click();
-          }
+        //     // console.log("b", b);
+        //     const a = document.createElement('a')
+        //     a.href = b.toDataURL("image/jpg")
+        //     a.download = "allvalid_"+size+"x"+size+"_drafts_"+set_id+".jpg";
+        //     a.click();
+        //    }
 
-        }
+       // }
 
         
         return Promise.resolve([getDraft(selection).draft]);
