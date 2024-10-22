@@ -26,18 +26,8 @@ const selection: NumParam =
     dx: 'the id of the generated structure you would like to view'
     }
 
-const download: BoolParam = 
-    {
-    name: 'download?',
-    type: 'boolean',
-    falsestate: 'no',
-    truestate: 'yes',
-    value: 0,
-    dx: "when this is set to true, it will trigger download of an image of the whole set everytime it recomputes, this may result in multiple downloads"
-    }
 
-
-const params = [ends, selection, download];
+const params = [ends, selection];
 
 //INLETS
 
