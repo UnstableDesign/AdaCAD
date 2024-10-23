@@ -10,7 +10,6 @@
             matInput
             [ngModel] = "opnode.params[paramid]"
             [formControl]="fc"
-            [matTooltip]="description"      
             type = "number"
             [name]=param.name
             [min]=param.min
@@ -34,7 +33,6 @@
 
         <mat-select 
             [ngModel] = "opnode.params[paramid]"
-            [matTooltip]="description"
             [formControl]="fc"
             (selectionChange)='onParamChange(fc.value)'>
           <mat-option *ngFor="let opt of selectparam.selectlist" [value]="opt.value">
@@ -58,7 +56,6 @@
 
         <mat-select 
             [ngModel] = "opnode.params[paramid]"
-            [matTooltip]="description"
             [formControl]="fc"
             (selectionChange)='onParamChange(fc.value)'>
 

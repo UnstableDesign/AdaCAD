@@ -352,16 +352,21 @@ handlePan(diff: Point){
 
 
   /**
-   * redraws each operation and subdraft at the new scale, then redraws each of their connections
    * @param scale 
    */
   rescale(){
 
+    /**TO DO  */
+    //figure out how to keep the content centered when this zoom takes place
+
     const container: HTMLElement = document.getElementById('palette-scale-container');
     if(container === null) return;
 
-    container.style.transformOrigin = 'top left';
+    // const scrollTop = container.parentElement.scrollTop;
+    // const scrollLeft = container.parentElement.scrollLeft;
+
     container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
+    container.style.transformOrigin = 'top left';
 
     this.redrawConnections();
   }
