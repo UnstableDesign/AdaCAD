@@ -95,9 +95,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         }else{
 
           seq = new Sequence.TwoD().import(sdm.draft.drawdown);
-          console.log("SEQ IS ", seq)
           seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map, ends, pics);
-          console.log("SEQ AFter ", seq)
 
         }
         composite.overlay(seq, false);

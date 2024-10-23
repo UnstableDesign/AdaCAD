@@ -1,6 +1,5 @@
-import { createCell } from "../../model/cell";
 import { Draft, Operation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
-import { generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams } from "../../model/drafts";
+import { generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 import utilInstance from "../../model/util";
@@ -11,12 +10,12 @@ const old_names = [];
 //PARAMS
 
 const pattern:StringParam =  
-    {name: 'pattern',
+    {name: 'assign to system',
     type: 'string',
     value: 'a1',
-    regex: /.*?(.*?[a-xA-Z]*[\d]*.*?).*?/i, //this is the layer parsing regex
+    regex: /([a-zA-Z][\d]+)|[a-zA-Z]|[\d]+/i, //Accepts a letter followed by a number, a single letter or a single number
     error: 'invalid entry',
-    dx: 'enter a letter and number to indicate the weft and warp system pair(s) upon which you would like this draft assigned. For instance, a1 will place the draft across all cells where weft system a meets warp system 1. a1c3 will place it across a1 and c3. You must enter a letter followed by a number for the software to interpret it correctly '
+    dx: 'enter a letter, number, or a combination of a letter followed by a number. If a letter is entered, the structure will be mapped onto the entire weft system associated with that letter. In a number is entered, the structure will be placed on the entire warp system. If a letter is followed by a number, it will place only on the cells that are associated with that warp and weft system'
   }
 
 
@@ -67,24 +66,21 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   let warp_shuttle_map = new Sequence.OneD(system_map[0].colShuttleMapping);
 
 
-
-  let layer_num = 0;
-
-  
-
   //since there are no layers, this should be just one. 
-  const layer_draft_map = original_string_split.map((unit, ndx) => {
-
+  let layer_draft_map = original_string_split.map((unit, ndx) => {
     return {
       wesy: parseWeftSystem(unit), 
       wasy: parseWarpSystem(unit),
-      layer: layer_num, //map layer order to the inlet id, all inlets must be ordered the same as the input
+      layer: 1, 
       draft:  draft[0]
     }
   });
-
+  //filter out any error values created by white space
+  layer_draft_map = layer_draft_map.filter(el => !(el.wesy.length == 0 && el.wasy.length == 0));
 
   let composite = new Sequence.TwoD().setBlank(2);
+  let ends = utilInstance.lcm(layer_draft_map.map(ldm => warps(ldm.draft.drawdown))) * warps(system_map[0].drawdown);
+  let pics = utilInstance.lcm(layer_draft_map.map(ldm => wefts(ldm.draft.drawdown))) * wefts(system_map[0].drawdown);
 
 
   //assign drafts to their specified systems. 
@@ -92,11 +88,14 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     let seq;
     if(sdm.wasy.length == 0){
       seq = new Sequence.TwoD().import(draft[0].drawdown)
-      seq.mapToWeftSystems(sdm.wesy, weft_system_map, warp_system_map);
+      seq.mapToWeftSystems(sdm.wesy, weft_system_map, warp_system_map, ends, pics);
 
+    }else if(sdm.wesy.length == 0){
+      seq = new Sequence.TwoD().import(draft[0].drawdown)
+      seq.mapToWarpSystems(sdm.wasy, weft_system_map, warp_system_map, ends, pics);
     }else{
       seq = new Sequence.TwoD().import(sdm.draft.drawdown);
-      seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map);
+      seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map, ends, pics);
     }
     composite.overlay(seq, false);
    });

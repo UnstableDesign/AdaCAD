@@ -412,6 +412,47 @@ export module Sequence{
   }
 
 
+
+  /**
+   * used to assign a structure to every weft system associated with a given warp system
+   * @param warpsys 
+   * @param weft_system_map 
+   * @param warp_system_map 
+   * @returns 
+   */
+  mapToWarpSystems(warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD, ends: number, pics:number){
+
+    //create a blank draft of the size needed that we'll copy into 
+    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(ends, pics);
+
+    //now map the new values within that space
+    let within_sequence_i = 0; 
+    let within_sequence_j = 0;
+    console.log("MAP TO ", ends, pics)
+
+    for(let j = 0; j < ends; j++){
+      let active_warp_system = warp_system_map.get(j%warp_system_map.length());
+  
+      if(warpsys.find(el => el == active_warp_system) !== undefined){
+       
+        within_sequence_i = 0;
+        
+        for(let i = 0; i < pics; i++){
+
+            mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
+            within_sequence_i = (within_sequence_i + 1) % this.wefts();
+  
+        }
+        within_sequence_j = (within_sequence_j + 1) % this.warps();
+      }
+    }
+
+    this.state = mapped_seq.state.slice();
+    return this;
+
+  }
+
+
   /**
    * used to handle layers that are composed only of floats, this function writes this stored sequence accross all warp systems 
    * @param weftsys 
@@ -419,25 +460,20 @@ export module Sequence{
    * @param warp_system_map 
    * @returns 
    */
-  mapToWeftSystems(weftsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD){
-    let total_wefts: number = 0;
-    total_wefts = utilInstance.lcm([this.wefts(), weft_system_map.length()])*weft_system_map.length();
-
-    let total_warps: number = 0;
-    total_warps = utilInstance.lcm([this.warps(), warp_system_map.length()])*warp_system_map.length();
+  mapToWeftSystems(weftsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD, ends: number, pics: number){
 
     //create a blank draft of the size needed that we'll copy into 
-    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(total_warps, total_wefts);
+    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(ends, pics);
 
     //now map the new values within that space
     let within_sequence_i = 0; 
     let within_sequence_j = 0;
 
-    for(let i = 0; i < total_wefts; i++){
+    for(let i = 0; i < pics; i++){
       let active_weft_system = weft_system_map.get(i%weft_system_map.length());
       if(weftsys.find(el => el == active_weft_system) !== undefined){
         within_sequence_j = 0;
-        for(let j = 0; j < total_warps; j++){
+        for(let j = 0; j < ends; j++){
 
             mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
             within_sequence_j = (within_sequence_j + 1) % this.warps();
@@ -616,6 +652,7 @@ export module Sequence{
   }
 
   get(i: number, j: number) : number {
+
 
     if(i < 0 || i >= this.wefts()){
       console.error("Sequence2D - attempting to get an out of range weft value");
