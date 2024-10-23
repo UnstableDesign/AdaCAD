@@ -1,7 +1,8 @@
 import { Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { generateMappingFromPattern, initDraftFromDrawdown } from "../../model/drafts";
+import { generateMappingFromPattern, initDraftFromDrawdown, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
+import utilInstance from "../../model/util";
 
 const name = "layer";
 const old_names = [];
@@ -40,9 +41,12 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
 
    let composite = new Sequence.TwoD().setBlank(2
     );
+   let ends = utilInstance.lcm(drafts.map(el => warps(el.drawdown))) * drafts.length;
+   let pics = utilInstance.lcm(drafts.map(el => warps(el.drawdown))) * drafts.length;
+
    drafts.forEach((draft, ndx) => {
     let seq = new Sequence.TwoD().import(draft.drawdown);
-    seq.mapToSystems([ndx], [ndx], sys_seq, sys_seq);
+    seq.mapToSystems([ndx], [ndx], sys_seq, sys_seq, ends, pics);
     composite.overlay(seq, false);
    })
 

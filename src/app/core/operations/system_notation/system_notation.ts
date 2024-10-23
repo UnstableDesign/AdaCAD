@@ -75,10 +75,12 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       let composite = new Sequence.TwoD().setBlank(2);
-
+      let ends = utilInstance.lcm(layer_draft_map.map(ldm => warps(ldm.draft.drawdown))) * warps(system_map[0].drawdown);
+      let pics = utilInstance.lcm(layer_draft_map.map(ldm => wefts(ldm.draft.drawdown))) * wefts(system_map[0].drawdown);
+   
       layer_draft_map.forEach((sdm, ndx) => {
         let seq = new Sequence.TwoD().import(sdm.draft.drawdown);
-        seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map);
+        seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map, ends, pics);
         composite.overlay(seq, false);
         
 

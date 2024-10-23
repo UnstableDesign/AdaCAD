@@ -76,22 +76,29 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         }
       });
 
+      console.log("LAYER DRAFT MAP ", layer_draft_map)
 
       let composite = new Sequence.TwoD().setBlank(2);
-
+      let ends = utilInstance.lcm(layer_draft_map.map(ldm => warps(ldm.draft.drawdown))) * warps(system_map[0].drawdown);
+      let pics = utilInstance.lcm(layer_draft_map.map(ldm => wefts(ldm.draft.drawdown))) * wefts(system_map[0].drawdown);
+   
       //assign drafts to their specified systems. 
       layer_draft_map.forEach((sdm, ndx) => {
         let seq;
 
+        //floats between layers in the stack
         if(sdm.wasy.length == 0){
           let oneD = new Sequence.OneD().pushMultiple(1, sdm.layer).pushMultiple(0, warp_system_map.length() - sdm.layer);
           seq = new Sequence.TwoD().pushWeftSequence(oneD.val());
-          seq.mapToWeftSystems(sdm.wesy, weft_system_map, warp_system_map);
+          seq.mapToWeftSystems(sdm.wesy, weft_system_map, warp_system_map, ends, pics);
 
         }else{
 
           seq = new Sequence.TwoD().import(sdm.draft.drawdown);
-          seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map);
+          console.log("SEQ IS ", seq)
+          seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map, ends, pics);
+          console.log("SEQ AFter ", seq)
+
         }
         composite.overlay(seq, false);
        });

@@ -366,26 +366,31 @@ export module Sequence{
    * @param warpsys - the warp system upon which to map this draft
    * @param weft_system_map - the pattern of weft systems along the wefts
    * @param warp_system_draft - the pattern of warp systems along the warps
+   * @param ends - the number of ends required in the output structure (based on the lcm of input warps)
+   * @param pics - the number of picks required in the output structure (based on the lcm of input wefts)
    */
-  mapToSystems(weftsys: Array<number>, warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD){
-    let total_wefts: number = 0;
-    total_wefts = utilInstance.lcm([this.wefts(), weft_system_map.length()])*weft_system_map.length();
+  mapToSystems(weftsys: Array<number>, warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD, ends: number, pics: number){
+    //let total_wefts: number = 0;
 
-    let total_warps: number = 0;
-    total_warps = utilInstance.lcm([this.warps(), warp_system_map.length()])*warp_system_map.length();
+    // total_wefts = utilInstance.lcm([this.wefts(), weft_system_map.length()])*weft_system_map.length();
+    // console.log("TOTAL WEFTS ", total_wefts, this.wefts(), weft_system_map.length())
+
+
+    // let total_warps: number = 0;
+    // total_warps = utilInstance.lcm([this.warps(), warp_system_map.length()])*warp_system_map.length();
 
     //create a blank draft of the size needed that we'll copy into 
-    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(total_warps, total_wefts);
+    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(ends, pics);
 
     //now map the new values within that space
     let within_sequence_i = 0; 
     let within_sequence_j = 0;
 
-    for(let i = 0; i < total_wefts; i++){
+    for(let i = 0; i < pics; i++){
       let active_weft_system = weft_system_map.get(i%weft_system_map.length());
       if(weftsys.find(el => el == active_weft_system) !== undefined){
         within_sequence_j = 0;
-        for(let j = 0; j < total_warps; j++){
+        for(let j = 0; j < ends; j++){
           let active_warp_system = warp_system_map.get(j%warp_system_map.length());
 
 
