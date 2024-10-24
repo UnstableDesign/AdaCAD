@@ -1,5 +1,6 @@
 import { Draft, Loom, OperationInlet, OpInput, OpParamVal } from "./datatypes";
 import { generateMappingFromPattern, getDraftName, initDraftWithParams, warps, wefts } from "./drafts";
+import utilInstance from "./util";
 
 export const operationHasInputs = (op_inputs : Array<OpInput>) : boolean => {
     return op_inputs.length > 0; 
@@ -12,6 +13,9 @@ export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
 
 
 export const getAllDraftsAtInletByLabel = (op_inputs : Array<OpInput>, inlet_value: string) : Array<Draft> => {
+   
+    if(inlet_value.charAt(0)=="(") inlet_value = inlet_value.substring(1);
+    if(inlet_value.charAt(inlet_value.length - 1)==")") inlet_value = inlet_value.substring(0, inlet_value.length - 1)
 
 
     if(!operationHasInputs(op_inputs) || inlet_value === '') return [];
