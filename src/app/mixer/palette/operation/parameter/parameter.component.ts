@@ -40,6 +40,7 @@ export class ParameterComponent implements OnInit {
   fc: UntypedFormControl;
   opnode: OpNode;
   name: any;
+  refresh_dirty: boolean = false;
 
   @Input() param:  NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam;
   @Input() opid:  number;
@@ -113,7 +114,8 @@ export class ParameterComponent implements OnInit {
          // this.fc = new UntypedFormControl(this.stringparam.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
           this.fc = new UntypedFormControl(this.stringparam.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
     
-          this.fc.valueChanges.forEach(el => {this._updateString(el.trim())})
+         this.fc.valueChanges.forEach(el => {this._refreshDirty()})
+       //  this.fc.valueChanges.forEach(el => {this._refreshDirty(el.trim())})
 
     
           break;
@@ -138,7 +140,12 @@ export class ParameterComponent implements OnInit {
 
   }
 
+  _refreshDirty(){
+    this.refresh_dirty = true;
+  }
+
   _updateString(val: string){
+    this.refresh_dirty = false;
     this.onParamChange(val);
     return val;
   }

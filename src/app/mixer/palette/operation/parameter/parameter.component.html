@@ -92,8 +92,8 @@
       [formControl]="fc"
       [matTooltip]="description" 
       [(ngModel)] = "opnode.params[paramid]"
-  
        >
+       
 
       @if (fc.hasError('required') ) {
         <mat-error>An input is required</mat-error>
@@ -102,16 +102,14 @@
         <mat-error>the current input is not correctly formatted </mat-error>
       }
 
-
-
-      <!-- <input 
-      class='param-text'
-      [(ngModel)] = "opnode.params[paramid]"
-      [matTooltip]="description"
-      [formControl]="fc"
-      (change)= "onParamChange(fc.value)"> -->
-
     </mat-form-field> 
+    <button
+    [disabled]="!refresh_dirty"
+    (click)="_updateString(fc.value)" 
+    mat-mini-fab 
+    aria-label="Example icon button with a menu icon">
+   <i class="fa fa-refresh" aria-hidden="true"></i>
+   </button>
   </div>
 </ng-container>
 
