@@ -16,7 +16,7 @@ const layer_parsing_regex =/.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i;
 const pattern:StringParam =  
     {name: 'pattern',
     type: 'string',
-    value: '(a1b2c3)',
+    value: '(a1b1)',
     regex:  /.*?(.*?[a-xA-Z]+[\d]+).*?/i,
     error: 'invalid entry',
     dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in parenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'

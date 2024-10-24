@@ -428,7 +428,6 @@ export module Sequence{
     //now map the new values within that space
     let within_sequence_i = 0; 
     let within_sequence_j = 0;
-    console.log("MAP TO ", ends, pics)
 
     for(let j = 0; j < ends; j++){
       let active_warp_system = warp_system_map.get(j%warp_system_map.length());
@@ -565,6 +564,46 @@ export module Sequence{
       return this;
     }
   
+
+  placeInLayerStack(cur_warp_sys: Array<number>, warp_sys_above: Array<number>, cur_weft_sys: Array<number>,weft_sys_above:Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD ){
+
+
+    //associate the warp system with the layer by moving all other weft systems on the current warp systems out of the way (raise)
+    warp_sys_above.forEach(warp_above => {
+      cur_weft_sys.forEach(cur_weft => {
+          for(let i = 0; i < this.state.length; i++){
+            for(let j = 0; j < this.state[0].length; j++){
+
+              let weft_sys = weft_system_map.get(i % weft_system_map.length());
+              let warp_sys = warp_system_map.get(j % warp_system_map.length());
+
+              if(weft_sys == cur_weft && warp_sys == warp_above){
+                this.set(i, j, 1, true);
+              }
+            }
+          }
+      })
+    })
+
+     //associate the warp system with the layer by moving all other weft systems on the current warp systems out of the way (raise)
+     weft_sys_above.forEach(weft_above => {
+      cur_warp_sys.forEach(cur_warp => {
+
+          for(let i = 0; i < this.state.length; i++){
+            for(let j = 0; j < this.state[0].length; j++){
+              let weft_sys = weft_system_map.get(i % weft_system_map.length());
+              let warp_sys = warp_system_map.get(j % warp_system_map.length());
+              if(warp_sys == cur_warp && weft_sys == weft_above){
+                this.set(i, j, 0, true);
+              }
+            }
+          }
+      })
+    })
+
+    return this;
+  }
+
 
 
   /**

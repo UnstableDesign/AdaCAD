@@ -10,6 +10,29 @@ export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
     else return  op_inputs[0].drafts[0];
 }
 
+
+export const getAllDraftsAtInletByLabel = (op_inputs : Array<OpInput>, inlet_value: string) : Array<Draft> => {
+
+
+    if(!operationHasInputs(op_inputs) || inlet_value === '') return [];
+    else{
+
+    let input_id = -1;
+    op_inputs.forEach((input, ndx) => {
+        let found = input.params.findIndex(p => p == inlet_value);
+        if(found !== -1) input_id = ndx;
+    })
+
+    if(input_id == -1) return null;
+         
+   
+  
+      return op_inputs[input_id].drafts;
+    } 
+  }
+  
+
+
 export const getAllDraftsAtInlet = (op_inputs : Array<OpInput>, inlet_id: number) : Array<Draft> => {
   if(!operationHasInputs(op_inputs) || inlet_id < 0) return [];
   else{

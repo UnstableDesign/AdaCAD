@@ -77,6 +77,7 @@ import { glitchsatin } from '../operations/glitchsatin/glitchsatin';
 import {hydra} from '../operations/hydra/hydra'
 import { apply_warp_mats } from '../operations/applywarpmaterials/applywarpmaterials';
 import { apply_weft_mats } from '../operations/applyweftmaterials/applyweftmaterials';
+import { notation_v2 } from '../operations/notation_v2/notation_v2';
 
 @Injectable({
   providedIn: 'root'
@@ -102,6 +103,7 @@ export class OperationService {
     this.dynamic_ops.push(warp_profile);
     this.dynamic_ops.push(sample_width);
     this.dynamic_ops.push(sample_length);
+    this.dynamic_ops.push(notation_v2);
 
 
     //**push operations that you want the UI to show as options here */
