@@ -90,7 +90,7 @@ export class InletComponent implements OnInit {
   }
 
   ngAfterViewInit(){
-    this.onInletLoaded.emit({ndx: this.inletid});
+    this.onInletLoaded.emit({ndx: this.inletid, val: this.opnode.inlets[this.inletid]});
   }
 
 
@@ -135,8 +135,7 @@ export class InletComponent implements OnInit {
 
   inputSelected(){
 
-
-      this.onInputSelected.emit({inletid: this.inletid});
+      this.onInputSelected.emit({inletid: this.inletid,  val: this.opnode.inlets[this.inletid]});
       this.show_connection_name = -1;
       
   }
@@ -156,7 +155,7 @@ export class InletComponent implements OnInit {
 
   inletChange(){
 
-    this.onInletChange.emit({id: this.inletid});
+    this.onInletChange.emit({id: this.inletid,  val: this.opnode.inlets[this.inletid]});
 
   }
 

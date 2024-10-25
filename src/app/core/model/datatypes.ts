@@ -757,11 +757,12 @@ export type OpNode = BaseNode & {
   * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
   * @param treenode - the treenode that this input or output goes towards
   * @param ndx - which ndx on the said treenodes does this connect to specifically
+  * @param val - the value associated with this inlet
   */
  export interface IOTuple{
    tn: TreeNode,
    ndx: number
- }
+   }
 
 /**
  * A tree node stores relationships between the components created by operations

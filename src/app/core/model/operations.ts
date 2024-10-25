@@ -13,17 +13,15 @@ export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
 
 
 export const getAllDraftsAtInletByLabel = (op_inputs : Array<OpInput>, inlet_value: string) : Array<Draft> => {
-   
-    if(inlet_value.charAt(0)=="(") inlet_value = inlet_value.substring(1);
-    if(inlet_value.charAt(inlet_value.length - 1)==")") inlet_value = inlet_value.substring(0, inlet_value.length - 1)
-
 
     if(!operationHasInputs(op_inputs) || inlet_value === '') return [];
     else{
 
     let input_id = -1;
     op_inputs.forEach((input, ndx) => {
-        let found = input.params.findIndex(p => p == inlet_value);
+
+        //includes handles the case that occured between version where paranthesis were stripped
+        let found = input.params.findIndex(p => inlet_value.includes(p));
         if(found !== -1) input_id = ndx;
     })
 

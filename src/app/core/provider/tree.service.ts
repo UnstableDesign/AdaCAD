@@ -426,15 +426,27 @@ export class TreeService {
      const opnode: OpNode = this.getOpNode(id);
     if(!this.ops.isDynamic(opnode.name)) return Promise.resolve([]);
 
+
+
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
+    
+     console.log("INPUTS ", inputs_to_op.slice(), prior_inlet_vals);
+
+
 
      const viewRefs:Array<ViewRef> = [];
 
      inputs_to_op.forEach((iotuple) => {
+
         //what was the value of the inlet
         if(prior_inlet_vals.length !== 0){
           let prior_val = prior_inlet_vals[iotuple.ndx];
-          let new_ndx = opnode.inlets.findIndex(el => el == prior_val);
+
+          let new_ndx = opnode.inlets.findIndex(el => {
+            let new_string = el.toString();
+            return new_string.includes(prior_val.toString());
+          });
+
 
           if(new_ndx == -1){
             this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
@@ -540,6 +552,7 @@ export class TreeService {
    * @param outputs the current treenode ids for all outputs
    * @returns an object that holds the tree node as well as its associated map entry
    */
+
   async loadTreeNodeData(id_map: any, node_id: number, parent_id: number, inputs:Array<{tn: number, ndx: number}>,  outputs:Array<{tn: number, ndx: number}>): Promise<{tn: TreeNode, entry: {prev_id: number, cur_id: number}}>{
 
     const entry = id_map.find(el => el.cur_id === node_id);
@@ -1183,7 +1196,7 @@ clearDraft(dn: DraftNode){
     //this is a new draft
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
-      this.addConnection(parent, i,  id, 0,  cxn);
+      this.addConnection(parent, i, id, 0, cxn);
       new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true, 1)); 
       update_looms.push({id: id, draft:  res[i]});
       touched.push(id);
@@ -1524,7 +1537,7 @@ isValidIOTuple(io: IOTuple) : boolean {
    * @returns an array of the ids of the elements connected to this op
 
    */
-  addConnection(from:number, from_ndx: number, to:number, to_ndx: number, cxn:number): Array<number>{
+  addConnection(from:number, from_ndx: number,  to:number, to_ndx: number,  cxn:number): Array<number>{
 
     let from_tn: TreeNode = this.getTreeNode(from);
     let to_tn: TreeNode = this.getTreeNode(to);
@@ -1534,6 +1547,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     
     cxn_tn.inputs = [{tn: from_tn, ndx: 0}];
     cxn_tn.outputs = [{tn: to_tn, ndx: 0}];
+   
     to_tn.inputs.push({tn: cxn_tn, ndx: to_ndx});
 
     if(from_tn.node.type === 'op') to_tn.parent = from_tn;
@@ -2317,8 +2331,15 @@ isValidIOTuple(io: IOTuple) : boolean {
       const savable:TreeNodeProxy = {
         node: treenode.node.id,
         parent: (treenode.parent !== null && treenode.parent !== undefined) ?  treenode.parent.node.id : -1,
-        inputs: treenode.inputs.map(el => {return {tn:el.tn.node.id, ndx: el.ndx}}),
-        outputs: treenode.outputs.map(el => {return {tn:el.tn.node.id, ndx: el.ndx}})
+        inputs: treenode.inputs.map(el => 
+          {return {
+            tn:el.tn.node.id, 
+            ndx: el.ndx}}
+        ),
+        outputs: treenode.outputs.map(el => 
+          {return {
+            tn:el.tn.node.id, 
+            ndx: el.ndx}})
       }
       objs.push(savable);
     })
