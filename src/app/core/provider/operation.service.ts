@@ -44,7 +44,6 @@ import { slope } from '../operations/slope/slope';
 import { spliceinwarps } from '../operations/spliceinwarps/spliceinwarps';
 import { splicein } from '../operations/spliceinwefts/spliceinwefts';
 import { stretch } from '../operations/stretch/stretch';
-import { notation_system } from '../operations/system_notation/system_notation';
 import { tile } from '../operations/tile/tile';
 import { undulatewarps } from '../operations/undulatewarps/undulatewarps';
 import { undulatewefts } from '../operations/undulatewefts/undulatewefts';
@@ -74,10 +73,8 @@ import { erase_blank } from '../operations/erase_blank/erase_blank';
 import { shift } from '../operations/shift/shift';
 import {flip} from '../operations/flip/flip'
 import { glitchsatin } from '../operations/glitchsatin/glitchsatin';
-import {hydra} from '../operations/hydra/hydra'
 import { apply_warp_mats } from '../operations/applywarpmaterials/applywarpmaterials';
 import { apply_weft_mats } from '../operations/applyweftmaterials/applyweftmaterials';
-import { notation_v2 } from '../operations/notation_v2/notation_v2';
 
 @Injectable({
   providedIn: 'root'
@@ -98,12 +95,10 @@ export class OperationService {
     this.dynamic_ops.push(imagemap);
     this.dynamic_ops.push(bwimagemap);
     this.dynamic_ops.push(notation);
-    this.dynamic_ops.push(notation_system);
     this.dynamic_ops.push(weft_profile);
     this.dynamic_ops.push(warp_profile);
     this.dynamic_ops.push(sample_width);
     this.dynamic_ops.push(sample_length);
-    this.dynamic_ops.push(notation_v2);
 
 
     //**push operations that you want the UI to show as options here */

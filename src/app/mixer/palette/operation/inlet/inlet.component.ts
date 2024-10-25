@@ -134,6 +134,7 @@ export class InletComponent implements OnInit {
 
 
   inputSelected(){
+    
 
       this.onInputSelected.emit({inletid: this.inletid,  val: this.opnode.inlets[this.inletid]});
       this.show_connection_name = -1;
