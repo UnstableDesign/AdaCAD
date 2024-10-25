@@ -16,7 +16,7 @@ const layer_parsing_regex =/.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i;
 const pattern:StringParam =  
     {name: 'pattern',
     type: 'string',
-    value: '(a1b2c3)',
+    value: '(a1b1)',
     regex:  /.*?(.*?[a-xA-Z]+[\d]+).*?/i,
     error: 'invalid entry',
     dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in parenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
@@ -75,10 +75,12 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
       let composite = new Sequence.TwoD().setBlank(2);
-
+      let ends = utilInstance.lcm(layer_draft_map.map(ldm => warps(ldm.draft.drawdown))) * warps(system_map[0].drawdown);
+      let pics = utilInstance.lcm(layer_draft_map.map(ldm => wefts(ldm.draft.drawdown))) * wefts(system_map[0].drawdown);
+   
       layer_draft_map.forEach((sdm, ndx) => {
         let seq = new Sequence.TwoD().import(sdm.draft.drawdown);
-        seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map);
+        seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map, ends, pics);
         composite.overlay(seq, false);
         
 

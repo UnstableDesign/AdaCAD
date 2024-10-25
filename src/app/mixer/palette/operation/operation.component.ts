@@ -273,8 +273,10 @@ export class OperationComponent implements OnInit {
 
 
   inputSelected(obj: any){
+    console.log("INLET SELECTED ", obj)
     let input_id = obj.inletid;
-    this.onInputAdded.emit({id: this.id, ndx: input_id});
+    let val = obj.val;
+    this.onInputAdded.emit({id: this.id, ndx: input_id, val:val });
   }
 
   visibilityChange(obj: any){

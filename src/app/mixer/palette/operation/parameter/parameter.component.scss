@@ -59,8 +59,19 @@
     width: 90px;
 }
 
+.refresh{
+    display: flex;
+    margin: 8px;
+}
 
+.string-input{
+    display: flex;
+    flex: 1 0 100%;    
+}
 
+.string-input .mat-mdc-form-field{
+    width: 100%;
+}
 
 .string-input .mat-mdc-form-field-infix
  {

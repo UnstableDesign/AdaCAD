@@ -364,9 +364,8 @@ handlePan(diff: Point){
 
     // const scrollTop = container.parentElement.scrollTop;
     // const scrollLeft = container.parentElement.scrollLeft;
-
-    container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
     container.style.transformOrigin = 'top left';
+    container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
 
     this.redrawConnections();
   }

@@ -1,9 +1,9 @@
-import { createCell } from "../../model/cell";
 import { Draft, Operation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
-import { generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams } from "../../model/drafts";
+import { generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 import utilInstance from "../../model/util";
+import { layer } from "../layer/layer";
 
 const name = "assign systems";
 const old_names = [];
@@ -11,12 +11,12 @@ const old_names = [];
 //PARAMS
 
 const pattern:StringParam =  
-    {name: 'pattern',
+    {name: 'assign to system',
     type: 'string',
     value: 'a1',
-    regex: /.*?(.*?[a-xA-Z]*[\d]*.*?).*?/i, //this is the layer parsing regex
+    regex: /[\S]/i, //Accepts a letter followed by a number, a single letter or a single number
     error: 'invalid entry',
-    dx: 'enter a letter and number to indicate the weft and warp system pair(s) upon which you would like this draft assigned. For instance, a1 will place the draft across all cells where weft system a meets warp system 1. a1c3 will place it across a1 and c3. You must enter a letter followed by a number for the software to interpret it correctly '
+    dx: 'enter the letter or number associated with the weft/warp system to which this draft will be assigned. For example, "a 1" will assign the draft to the cells associated with warp system 1 and weft system a. The entry "a b" will assign the draft to all warps on both wefts a and b.'
   }
 
 
@@ -50,7 +50,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
 
 
   const original_string = getOpParamValById(0, op_params);
-  const original_string_split = utilInstance.parseRegex(original_string,  /.*?(.*?[a-xA-Z]*[\d]*.*?).*?/i);
+  const original_string_split = utilInstance.parseRegex(original_string, pattern.regex);
 
   if(op_inputs.length == 0) return Promise.resolve([]);
 
@@ -66,50 +66,38 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   let weft_shuttle_map = new Sequence.OneD(system_map[0].rowShuttleMapping);
   let warp_shuttle_map = new Sequence.OneD(system_map[0].colShuttleMapping);
 
+  console.log("STRING SPLIT ", original_string_split);
 
 
-  let layer_num = 0;
-
-  
-
-  //since there are no layers, this should be just one. 
-  const layer_draft_map = original_string_split.map((unit, ndx) => {
-
+  let layer_draft_map = original_string_split.reduce((acc, val) => {
     return {
-      wesy: parseWeftSystem(unit), 
-      wasy: parseWarpSystem(unit),
-      layer: layer_num, //map layer order to the inlet id, all inlets must be ordered the same as the input
-      draft:  draft[0]
+      wesy: acc.wesy.concat(parseWeftSystem(val)), 
+      wasy: acc.wasy.concat(parseWarpSystem(val)),
+      layer: acc.layer, 
+      draft:  acc.draft
     }
-  });
+  }, {wesy: [], wasy: [], layer: 1, draft: draft[0]});
+
+  if(layer_draft_map.wesy.length == 0){
+   layer_draft_map.wesy = utilInstance.filterToUniqueValues(system_map[0].colSystemMapping)
+  }
+  if(layer_draft_map.wasy.length == 0){
+    layer_draft_map.wasy = utilInstance.filterToUniqueValues(system_map[0].rowShuttleMapping)
+  }
 
 
-  let composite = new Sequence.TwoD().setBlank(2);
+  let ends = warps(draft[0].drawdown) * warps(system_map[0].drawdown);
+  let pics = wefts(draft[0].drawdown) * wefts(system_map[0].drawdown);
 
+  const seq = new Sequence.TwoD().import(layer_draft_map.draft.drawdown);
+  seq.mapToSystems(layer_draft_map.wesy, layer_draft_map.wasy, weft_system_map, warp_system_map, ends, pics);
 
-  //assign drafts to their specified systems. 
-  layer_draft_map.forEach((sdm, ndx) => {
-    let seq;
-    if(sdm.wasy.length == 0){
-      seq = new Sequence.TwoD().import(draft[0].drawdown)
-      seq.mapToWeftSystems(sdm.wesy, weft_system_map, warp_system_map);
-
-    }else{
-      seq = new Sequence.TwoD().import(sdm.draft.drawdown);
-      seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map);
-    }
-    composite.overlay(seq, false);
-   });
-
-
-   let d: Draft = initDraftFromDrawdown(composite.export());
-   d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col');
-   d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row');
-   d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, warp_shuttle_map.val(),'col');
-   d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, weft_shuttle_map.val(),'row');
-
+  let d: Draft = initDraftFromDrawdown(seq.export());
   
-  
+  d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col');
+  d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row');
+  d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, warp_shuttle_map.val(),'col');
+  d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, weft_shuttle_map.val(),'row');
 
   return Promise.resolve([d]);
 };   

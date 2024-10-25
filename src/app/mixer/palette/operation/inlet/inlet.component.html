@@ -38,7 +38,7 @@
             <ng-container *ngIf="inlet.type === 'notation' || inlet.type === 'profile' ">
                 
                 
-                <span class="dynamic_" *ngIf="inlet.type === 'notation'" class="inlet-label"> ({{opnode.inlets[inletid]}})</span>
+                <span class="dynamic_" *ngIf="inlet.type === 'notation'" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
                 <span  *ngIf="inlet.type === 'profile'" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
                 
             </ng-container>
@@ -101,7 +101,7 @@ mat-raised-button
 <i class="fa-sharp fa-solid fa-circle-down"></i> 
 
 
-{{inlet_name}} 
+{{inlet_name}}
 
 <ng-container *ngIf="inlet.type === 'number' || inlet.type === 'draft'">
     <span class="inlet-label">{{opnode.inlets[inletid]}}</span> 
@@ -121,7 +121,7 @@ mat-raised-button
 <ng-container *ngIf="inlet.type === 'notation' || inlet.type === 'profile' ">
     
     
-    <span class="dynamic_" *ngIf="inlet.type === 'notation'" class="inlet-label"> ({{opnode.inlets[inletid]}})</span>
+    <span class="dynamic_" *ngIf="inlet.type === 'notation'" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
     <span  *ngIf="inlet.type === 'profile'" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
     
 </ng-container>

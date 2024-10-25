@@ -3,6 +3,7 @@ import { NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
+import utilInstance from "../../model/util";
 
 
 const name = "overlay_multiple";
@@ -36,12 +37,15 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
    let sys_seq = new Sequence.OneD([0]);
 
-   let composite = new Sequence.TwoD().setBlank(2
-    );
+   let composite = new Sequence.TwoD().setBlank(2);
+   let ends =    utilInstance.lcm(drafts.map(el => warps(el.drawdown)));
+   let pics =    utilInstance.lcm(drafts.map(el => wefts(el.drawdown)));
+
+ 
 
    drafts.forEach((draft, ndx) => {
     let seq = new Sequence.TwoD().import(draft.drawdown);
-    seq.mapToSystems([0], [0], sys_seq, sys_seq);
+    seq.mapToSystems([0], [0], sys_seq, sys_seq, ends, pics);
     composite.overlay(seq, true);
    })
 

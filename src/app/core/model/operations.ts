@@ -1,5 +1,6 @@
 import { Draft, Loom, OperationInlet, OpInput, OpParamVal } from "./datatypes";
 import { generateMappingFromPattern, getDraftName, initDraftWithParams, warps, wefts } from "./drafts";
+import utilInstance from "./util";
 
 export const operationHasInputs = (op_inputs : Array<OpInput>) : boolean => {
     return op_inputs.length > 0; 
@@ -9,6 +10,30 @@ export const getInputDraft = (op_inputs : Array<OpInput>) : Draft => {
     if(!operationHasInputs(op_inputs)) return null;
     else return  op_inputs[0].drafts[0];
 }
+
+
+export const getAllDraftsAtInletByLabel = (op_inputs : Array<OpInput>, inlet_value: string) : Array<Draft> => {
+
+    if(!operationHasInputs(op_inputs) || inlet_value === '') return [];
+    else{
+
+    let input_id = -1;
+    op_inputs.forEach((input, ndx) => {
+
+        //includes handles the case that occured between version where paranthesis were stripped
+        let found = input.params.findIndex(p => inlet_value.includes(p));
+        if(found !== -1) input_id = ndx;
+    })
+
+    if(input_id == -1) return null;
+         
+   
+  
+      return op_inputs[input_id].drafts;
+    } 
+  }
+  
+
 
 export const getAllDraftsAtInlet = (op_inputs : Array<OpInput>, inlet_id: number) : Array<Draft> => {
   if(!operationHasInputs(op_inputs) || inlet_id < 0) return [];
