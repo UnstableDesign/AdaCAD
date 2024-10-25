@@ -92,6 +92,7 @@
       [formControl]="fc"
       [matTooltip]="description" 
       [(ngModel)] = "opnode.params[paramid]"
+      (keyup.enter) =  "_updateString(fc.value)" 
        >
        
 
@@ -104,12 +105,15 @@
 
     </mat-form-field> 
     <button
+    class="refresh"
     [disabled]="!refresh_dirty"
     (click)="_updateString(fc.value)" 
     mat-mini-fab 
     aria-label="Example icon button with a menu icon">
    <i class="fa fa-refresh" aria-hidden="true"></i>
    </button>
+
+
   </div>
 </ng-container>
 
