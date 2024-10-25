@@ -17,7 +17,7 @@ const pattern:StringParam =
     value: '(a1)(b2)',
     regex: /\(.*?\)|[\S]/i, //this is the layer parsing regex
     error: 'invalid entry',
-    dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in parenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). If you enter a letter, without an number such as (a1)(b)(c2), weft system be will be constructed as a float between layers 1 and 3'
+    dx: 'the string describes which warps and wefts will be associated with a given layer. Layers are marked with (), so (a1)(b1) places warp system 1 and weft system a on the top layer, and b1 on the bottom. You an then assign drafts to these layers independently. A letter or number between the layers, such as (a1)c(b2) will be interpreted a float between the layers.'
   }
 
 
