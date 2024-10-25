@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 // import { VaeService} from "../../core/provider/vae.service"
 import { DynamicOperation, Operation, OperationClassification } from '../../core/model/datatypes';
-import { MaterialsService } from '../../core/provider/materials.service';
-import { SystemsService } from '../../core/provider/systems.service';
 import { combinatorics } from '../operations/combinatorics/combinatorics';
 import { complextwill } from '../operations/complex_twill/complex_twill';
 import { deinterlace } from '../operations/deinterlace/deinterlace';
