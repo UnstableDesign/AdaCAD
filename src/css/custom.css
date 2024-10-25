@@ -37,6 +37,12 @@
   margin: 4px;
 }
 
+
+td img{
+  max-width: 100%; 
+  object-fit: scale-down;
+}
+
 img{
   max-width: 800px; 
   object-fit: scale-down;
