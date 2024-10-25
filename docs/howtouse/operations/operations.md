@@ -1,12 +1,14 @@
 # Operations
-consider sets: 
+AdaCAD Operations are nodes in the dataflow that create or manipulate drafts. There like little machines that take drafts as inputs, do something to them according to their code and the user-defined parameters, and return new drafts. We organize these operations into categories based on their function and the role they play in the drafting/surface design process. 
+
+<!-- consider sets: 
 basic / advanced
 synth
 profile drafting
 floor and shaft loom
 imagery
 sampling
-compound/complex
+compound/complex -->
 
 
 ## Structure 
@@ -14,12 +16,12 @@ compound/complex
 A weave structure is the order or pattern of interlacement between the warp and weft threads. There are different families of woven structure that share core properties, such as plain weave, twill, and satin. Each of the operations is capable of generating structures that obey the rules of a given family. 
 
 
- | structure |  |
+ | operation name  | examples |
  | -------- | ------- | 
- | [all possible structures](./operations/combos) | ![file](./img/combos.png) |  
- | [complex twill](./operations/complextwill) | ![file](./img/complextwill.png) | 
- | [glitch satin](./operations/glitchsatin) | ![file](./img/glitchsatin.png) |  
- | [random](./operations/random) | ![file](./img/random.png) |  
+| [all possible structures](./operations/combos) | ![file](./img/combos.png) |  
+| [complex twill](./operations/complextwill) | ![file](./img/complextwill.png) | 
+| [glitch satin](./operations/glitchsatin) | ![file](./img/glitchsatin.png) |  
+| [random](./operations/random) | ![file](./img/random.png) |  
 | [satin](./operations/satin) |![file](./img/satin.png) |  
 | [satin-ish](./operations/satinish) | ![file](./img/satinish.png) |  
 | [sawtooth](./operations/sawtooth) | ![file](./img/sawtooth.png) |  
@@ -33,60 +35,105 @@ A weave structure is the order or pattern of interlacement between the warp and 
 | [upload draft](./operations/bwimagemap) | ![file](./img/bwimagemap.png) |  
 
 
-## Transformation Operations
+## Transformation 
 Transformation operations take an input structure or draft and transforms it in some way.
 
-### Add Margins
+| operation name  | examples |
+ | -------- | ------- | 
+| [invert](./operations/invert) | <!--![file](./img/.png)--> |  
+| [flip](./operations/flip) | <!--![file](./img/.png)--> |  
+| [shift](./operations/shift) | <!--![file](./img/.png)--> |  
+| [rotate](./operations/rotate) | <!--![file](./img/.png)--> |  
+| [makesymmetric](./operations/makesymmetric) | <!--![file](./img/.png)--> |  
+| [slope](./operations/slope) | <!--![file](./img/.png)--> |  
+| [stretch](./operations/stretch) | <!--![file](./img/.png)--> |  
+| [clear](./operations/clear) | <!--![file](./img/.png)--> |  
+| [set unset interlacements to](./operations/set_unset) | <!--![file](./img/.png)--> |  
+| [set interlacements of type to unset ](./operations/set_down_to_unset) | <!--![file](./img/.png)--> |  
+| [crop](./operations/crop) | <!--![file](./img/.png)--> |  
+| [trim](./operations/trim) | <!--![file](./img/.png)--> |  
+| [margin](./operations/margin) | <!--![file](./img/.png)--> |  
+| [undulatewefts](./operations/undulatewefts) | <!--![file](./img/.png)--> |  
+| [undulatewarpsame](./operations/undulatewarps") | <!--![file](./img/.png)--> |  
 
-### Clear
 
-### Crop
-
-### Flip
-
-### Invert
-
-### Make Symmetric
-
-### Rotate
-
-### Set Interlacements of Type to Unset
-
-### Set Unset Interlacements To
-
-### Shift
-
-### Slope
-
-### Stretch
-
-### Trim
-
-### Undulate Warps
-
-### Undulate Wefts
-
-## Cloth Operations
+## Cloth 
 Cloth Operations describe the arrangements of pattern regions in an overall draft or cloth. Regions defined by the cloth design parameters can be filled with input drafts. 
 
-### Chaos Sequence
+ | operation name  | examples |
+ | -------- | ------- | 
+| [rectangle](./operations/rectangle) | <!--![file](./img/.png)--> |  
+| [tile](./operations/tile) | <!--![file](./img/.png)--> |  
+| [chaos sequence](./operations/chaos) | <!--![file](./img/.png)--> |  
+| [pattern across warp](./operations/warp_profile) | <!--![file](./img/.png)--> |  
+| [pattern across weft](./operations/weft_profile) | <!--![file](./img/.png)--> |  
+| [variable width sampler](./operations/sample_width) | <!--![file](./img/.png)--> |  
+| [variable length sampler](./operations/sample_length) | <!--![file](./img/.png)--> |  
+| [fill](./operations/fill) | <!--![file](./img/.png)--> |  
+| [image map](./operations/imagemap) | <!--![file](./img/.png)--> |  
+| [join left](./operations/join_left) | <!--![file](./img/.png)--> |  
+| [join top](./operations/join_top) | <!--![file](./img/.png)--> |  
 
-### Fill
+## Compound
+Compound operations support joining different structural elements together compound weave structures characterized by the use of multiple weft and warp systems and/or layers.
 
-### Image Map
+ | operation name  | examples |
+ | -------- | ------- | 
+| [interlace wefts](./operations/interlace) | <!--![file](./img/.png)--> |  
+| [interlace ewarps](./operations/interlacewarps) | <!--![file](./img/.png)--> |  
+| [overlay_multiple](./operations/overlay_multiple) | <!--![file](./img/.png)--> |  
+| [splice in wefts](./operations/splice_in_wefts) | <!--![file](./img/.png)--> |  
+| [splice in warps](./operations/splice_in_warps) | <!--![file](./img/.png)--> |  
+| [layer](./operations/layer) | <!--![file](./img/.png)--> |  
+| [layer notation](./operations/notation) | <!--![file](./img/.png)--> |  
+| [assign draft to system](./operations/assign_systems) | <!--![file](./img/.png)--> |  
 
-### Join Left
+## Dissect
+Describes operations that split apart a single input draft into multiple outputs according to some criteria.
 
-### Join Top
+ | operation name  | examples |
+| -------- | ------- | 
+| [deinterlace](./operations/deinterlace") | <!--![file](./img/.png)--> |  
 
-### Pattern Across Length
 
-### Pattern Across Width
+## Compute
+Computer operations apply different forms of computational, binary, and/or mathematical functions to the production and modification of drafts.
 
-### Rectangle
+ | operation name  | examples |
+ | -------- | ------- | 
+| [set atop, (a, b) => b](./operations/atop) | <!--![file](./img/.png)--> |  
+| [overlay, (a,b) => (a OR b)](./operations/overlay) | <!--![file](./img/.png)--> |  
+| [mask, (a,b) => (a AND b)](./operations/mask) | <!--![file](./img/.png)--> |  
+| [cut, (a, b) => (a NAND b)](./operations/cutout) | <!--![file](./img/.png)--> |  
+| [diff, (a, b) => (a NEQ b)](./operations/diff) | <!--![file](./img/.png)--> |  
 
-### Tile
+## Helper
+Operations that automate common drafting techniques to ensure good woven and cloth structure.
 
-### Variable Length Sampler
+ | operation name  | examples |
+ | -------- | ------- | 
+| [selvedge](./operations/selvedge) | <!--![file](./img/.png)--> |  
+| [bind weft floats](./operations/bind_weft_floats) | <!--![file](./img/.png)--> |  
+| [bind warp floats](./operations/bind_warp_floats) | <!--![file](./img/.png)--> |  
 
-### Variable Width Sampler
+
+## Color Effects
+Supports the specification of materials in order to describe different color effects on the woven cloth
+
+ | operation name  | examples |
+ | -------- | ------- | 
+| [set materials and systems](./operations/apply_materials) | <!--![file](./img/.png)--> |  
+| [set weft materials](./operations/apply_weft_materials) | <!--![file](./img/.png)--> |  
+| [set warp materials](./operations/apply_warp_materials) | <!--![file](./img/.png)--> |  
+
+
+## Drafting Styles
+Supports the conversion of one style of drafting to another, based on the requirements of specific equipment
+
+
+ | operation name  | examples |
+ | -------- | ------- | 
+| [generate floor loom threading and treadling](./operations/floor_loom) | <!--![file](./img/.png)--> |  
+| [generate direct tie loom threading and lift plan](./operations/direct_loom) | <!--![file](./img/.png)--> |  
+| [make drawdown from threading, tieup, and treadling](./operations/drawdown) | <!--![file](./img/.png)--> |  
+| [make drawdown from threading and lift plan](./operations/directdrawdown") | <!--![file](./img/.png)--> |  
