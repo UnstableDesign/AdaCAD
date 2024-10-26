@@ -40,19 +40,19 @@ Transformation operations take an input structure or draft and transforms it in 
 
 | operation name  | examples |
  | -------- | ------- | 
-| [invert](./operations/invert) | <!--![file](./img/.png)--> |  
-| [flip](./operations/flip) | <!--![file](./img/.png)--> |  
-| [shift](./operations/shift) | <!--![file](./img/.png)--> |  
-| [rotate](./operations/rotate) | <!--![file](./img/.png)--> |  
-| [makesymmetric](./operations/makesymmetric) | <!--![file](./img/.png)--> |  
-| [slope](./operations/slope) | <!--![file](./img/.png)--> |  
-| [stretch](./operations/stretch) | <!--![file](./img/.png)--> |  
-| [clear](./operations/clear) | <!--![file](./img/.png)--> |  
-| [set unset interlacements to](./operations/set_unset) | <!--![file](./img/.png)--> |  
-| [set interlacements of type to unset ](./operations/set_down_to_unset) | <!--![file](./img/.png)--> |  
-| [crop](./operations/crop) | <!--![file](./img/.png)--> |  
-| [trim](./operations/trim) | <!--![file](./img/.png)--> |  
-| [margin](./operations/margin) | <!--![file](./img/.png)--> |  
+| [invert](./operations/invert) | ![file](./img/invert.png) |  
+| [flip](./operations/flip) | ![file](./img/flip.png) |  
+| [shift](./operations/shift) | ![file](./img/shift.png)|  
+| [rotate](./operations/rotate) | ![file](./img/rotate.png) |  
+| [make symmetric](./operations/makesymmetric) | ![file](./img/makesymmetric.png) |  
+| [slope](./operations/slope) | ![file](./img/slope.png) |  
+| [stretch](./operations/stretch) | ![file](./img/stretch.png)|  
+| [clear](./operations/clear) | ![file](./img/clear.png)|  
+| [set unset interlacements to](./operations/set_unset) | ![file](./img/set_unset.png) |  
+| [set interlacements of type to unset ](./operations/set_down_to_unset) | ![file](./img/set_down_to_unset.png) |  
+| [crop](./operations/crop) | ![file](./img/crop.png) |  
+| [trim](./operations/trim) | ![file](./img/trim.png) |  
+| [margin](./operations/margin) | ![file](./img/margin.png)|  
 | [undulatewefts](./operations/undulatewefts) | <!--![file](./img/.png)--> |  
 | [undulatewarpsame](./operations/undulatewarps") | <!--![file](./img/.png)--> |  
 
