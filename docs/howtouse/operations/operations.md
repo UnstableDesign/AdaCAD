@@ -53,8 +53,8 @@ Transformation operations take an input structure or draft and transforms it in 
 | [crop](./operations/crop) | ![file](./img/crop.png) |  
 | [trim](./operations/trim) | ![file](./img/trim.png) |  
 | [margin](./operations/margin) | ![file](./img/margin.png)|  
-| [undulatewefts](./operations/undulatewefts) | <!--![file](./img/.png)--> |  
-| [undulatewarpsame](./operations/undulatewarps") | <!--![file](./img/.png)--> |  
+| [undulate wefts](./operations/undulatewefts) | ![file](./img/undulatewefts.png) |  
+| [undulate warps](./operations/undulatewarps) | ![file](./img/undulatewarps.png) |  
 
 
 ## Cloth 
@@ -62,10 +62,10 @@ Cloth Operations describe the arrangements of pattern regions in an overall draf
 
  | operation name  | examples |
  | -------- | ------- | 
-| [rectangle](./operations/rectangle) | <!--![file](./img/.png)--> |  
-| [tile](./operations/tile) | <!--![file](./img/.png)--> |  
-| [chaos sequence](./operations/chaos) | <!--![file](./img/.png)--> |  
-| [pattern across warp](./operations/warp_profile) | <!--![file](./img/.png)--> |  
+| [rectangle](./operations/rectangle) | ![file](./img/rectangle.png) |  
+| [tile](./operations/tile) | ![file](./img/tile.png) |  
+| [chaos sequence](./operations/chaos) | ![file](./img/chaos.png)|  
+| [pattern across warp](./operations/warp_profile) | ![file](./img/warp_profile.png) |  
 | [pattern across weft](./operations/weft_profile) | <!--![file](./img/.png)--> |  
 | [variable width sampler](./operations/sample_width) | <!--![file](./img/.png)--> |  
 | [variable length sampler](./operations/sample_length) | <!--![file](./img/.png)--> |  
