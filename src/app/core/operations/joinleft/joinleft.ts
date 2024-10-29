@@ -65,9 +65,16 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   for(let i = 0; i < total_wefts; i++){
 
     let seq = new Sequence.OneD();
+
+
+
     drafts.forEach(draft => {
         for(let j = 0; j < warps(draft.drawdown); j++){
+          if(!factor_in_repeats && i >= wefts(draft.drawdown)){
+            seq.push(2);
+          }else{
             seq.push(getHeddle(draft.drawdown, i%wefts(draft.drawdown), j))
+          }
         }
     })
     pattern.pushWeftSequence(seq.val());

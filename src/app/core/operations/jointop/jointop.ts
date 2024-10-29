@@ -67,9 +67,14 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     let seq = new Sequence.OneD();
     drafts.forEach(draft => {
 
+        if(!factor_in_repeats && j >= warps(draft.drawdown)){
+          seq.pushMultiple(2, wefts(draft.drawdown));
+        }else{
         let col = getCol(draft.drawdown, j%warps(draft.drawdown));
+        
         for(let i = 0; i < wefts(draft.drawdown); i++){
             seq.push(getCellValue(col[i]));
+        }
         }
     })
     pattern.pushWarpSequence(seq.val());
