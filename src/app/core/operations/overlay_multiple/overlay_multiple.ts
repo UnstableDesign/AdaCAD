@@ -16,7 +16,7 @@ const params = [];
 
 //INLETS
 const drafts: OperationInlet = {
-    name: 'input_drafts', 
+    name: 'draft', 
     type: 'static',
     value: null,
     uses: "draft",
