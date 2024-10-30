@@ -6,10 +6,13 @@ draft: true
 ---
 # direct loom
 <!--![file](./img/direct loom.png)-->
-## Parameters
-- tbd
+
 ## Description
 Uses the input draft as drawdown and generates a threading and lift plan pattern
+
+## Parameters
+- tbd
+
 ## Application
 To create threading and treadlings plans from drawdowns
 ## Developer

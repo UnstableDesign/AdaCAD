@@ -6,6 +6,10 @@ tags: [advanced, transformation]
 # margin
 ![file](./img/margin.png)
 
+## Description
+Encases one structure within another by adding the second structure to the top, left, bottom and/or right of the draft. 
+
+
 ## Parameters
 - `starting pics`: the number of ends to add to the start of the draft (which differs depending on your origin)
 - `starting ends`:  the number of pics to add to the start of the draft (which differs depending on your origin)
@@ -16,8 +20,6 @@ tags: [advanced, transformation]
 - `draft`: the draft you'd like to add a margin to
 - `margin`: When the second inlet is unfilled, it adds a margin of unset threads to the top, right, bottom, and/or left. If the second inlet has a draft, the margin is filled with the pattern of the draft specified
 
-## Description
-Encases one structure within another by adding the second structure to the top, left, bottom and/or right of the draft. 
 
 ## Application
 Adds borders of a given structure to rectangular blocks, perhaps to maintain consistent packing as one samples various structures across the width of the cloth.

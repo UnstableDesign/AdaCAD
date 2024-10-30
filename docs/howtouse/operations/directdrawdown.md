@@ -6,10 +6,13 @@ draft: true
 ---
 # directdrawdown
 <!--![file](./img/directdrawdown.png)-->
-## Parameters
-- tbd
+
 ## Description
 Create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.lift plan)
+
+## Parameters
+- tbd
+
 ## Application
 To create drawdown from from a direct loom plan
 ## Developer

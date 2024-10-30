@@ -6,10 +6,13 @@ draft: true
 ---
 # layer
 <!--![file](./img/layer.png)-->
-## Parameters
-- tbd
+
 ## Description
 Creates a draft in which each input is assigned to a layer in a multilayered structure. Assigns the first input to the top layer and so on.
+
+## Parameters
+- tbd
+
 ## Application
 To arrange different structures on different layers
 ## Developer

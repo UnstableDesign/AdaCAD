@@ -6,10 +6,12 @@ draft: true
 ---
 # bind warp floats
 <!--![file](./img/bind warp floats.png)-->
-## Parameters
-- tbd
 ## Description
 Adds interlacements to warp floats over the user specified length
+
+## Parameters
+- tbd
+
 ## Application
 To automatically find and bind long floats in a design
 ## Developer

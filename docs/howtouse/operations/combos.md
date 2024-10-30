@@ -7,12 +7,14 @@ sidebar_position: 1
 # all possible structures
 ![file](./img/combos.png)
 
+## Description
+This operation generates a list of every possible valid structure for a draft of a given size and allows the user to iterate through that list. We define valid as having at least one interlacement in every warp end and weft pick. Selecting size 4 creates 22874 valid structures. You can enter any `selection` number between 1-22874 to see the structure associated with that number. 
+
 ## Parameters
 - `size`: a number that represents the number of ends and pics in the structure (3 or 4 only)
 - `selection`: the id number of the structure to display. 
 
-## Description
-This operation generates a list of every possible valid structure for a draft of a given size and allows the user to iterate through that list. We define valid as having at least one interlacement in every warp end and weft pick. Selecting size 4 creates 22874 valid structures. You can enter any `selection` number between 1-22874 to see the structure associated with that number. 
+
 
 #### Application
 Using this to generate tie-ups for 4-shaft drafts or profile drafts helps visualize variations of the drawdown based on changes in the tieup. 

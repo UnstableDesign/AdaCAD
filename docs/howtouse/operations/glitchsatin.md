@@ -7,6 +7,10 @@ draft: true
 ---
 # glitch satin
 ![file](./img/glitchsatin.png)
+
+## Description
+This experimental function was designed to algorithmically generate structures that resemble satins that include non-repeating units.
+
 ## Parameters
 - `ends`: the number of ends in the structure
 - `pics`: the number of pics in the structure
@@ -15,8 +19,7 @@ draft: true
 - `float length frequency`: a number from 0-100 representing if the algorithm should try to make on the shorter (0) or longer (100) end of the min and max values.
 
 
-## Description
-This experimental function was designed to algorithmically generate structures that resemble satins that include non-repeating units.
+
 
 ## Application
 For Kathryn

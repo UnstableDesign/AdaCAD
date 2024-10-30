@@ -66,20 +66,20 @@ Cloth Operations describe the arrangements of pattern regions in an overall draf
 | [tile](./operations/tile) | ![file](./img/tile.png) |  
 | [chaos sequence](./operations/chaos) | ![file](./img/chaos.png)|  
 | [pattern across warp](./operations/warp_profile) | ![file](./img/warp_profile.png) |  
-| [pattern across weft](./operations/weft_profile) | <!--![file](./img/.png)--> |  
-| [variable width sampler](./operations/sample_width) | <!--![file](./img/.png)--> |  
-| [variable length sampler](./operations/sample_length) | <!--![file](./img/.png)--> |  
-| [fill](./operations/fill) | <!--![file](./img/.png)--> |  
-| [image map](./operations/imagemap) | <!--![file](./img/.png)--> |  
-| [join left](./operations/join_left) | <!--![file](./img/.png)--> |  
-| [join top](./operations/join_top) | <!--![file](./img/.png)--> |  
+| [pattern across weft](./operations/weft_profile) | ![file](./img/weft_profile.png) |  
+| [variable width sampler](./operations/sample_width) | ![file](./img/sample_width.png)|  
+| [variable length sampler](./operations/sample_length) | ![file](./img/sample_length.png) |  
+| [fill](./operations/fill) | ![file](./img/fill.png) |  
+| [image map](./operations/imagemap) | ![file](./img/imagemap.png) |  
+| [join left](./operations/join_left) | ![file](./img/join_left.png) |  
+| [join top](./operations/join_top) | ![file](./img/join_top.png) |  
 
 ## Compound
 Compound operations support joining different structural elements together compound weave structures characterized by the use of multiple weft and warp systems and/or layers.
 
  | operation name  | examples |
  | -------- | ------- | 
-| [interlace wefts](./operations/interlace) | <!--![file](./img/.png)--> |  
+| [interlace wefts](./operations/interlace) | ![file](./img/interlace.png) |  
 | [interlace ewarps](./operations/interlacewarps) | <!--![file](./img/.png)--> |  
 | [overlay_multiple](./operations/overlay_multiple) | <!--![file](./img/.png)--> |  
 | [splice in wefts](./operations/splice_in_wefts) | <!--![file](./img/.png)--> |  

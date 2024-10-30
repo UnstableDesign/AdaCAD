@@ -7,15 +7,16 @@ draft: true
 # slope
 ![file](./img/slope.png)
 
-## Parameters
-- `end shift`: the number of ends to shift the pattern to the right.
-- `pic shift`: the number of pics to count before the slope is applied. 
-
-
 
 ## Description
 
 Shifts every nth pic by the value given in ends. It is an application of the mathematical principle of the slope of a line (e.g. rise/run) to drafting (every x picks, move y ends to the right)
+
+
+## Parameters
+- `end shift`: the number of ends to shift the pattern to the right.
+- `pic shift`: the number of pics to count before the slope is applied. 
+
 
 :::note
 this application applies the slope progressively. For instance, if the slope:

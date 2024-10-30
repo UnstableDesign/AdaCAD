@@ -6,10 +6,13 @@ draft: true
 ---
 # apply warp materials
 <!--![file](./img/apply warp materials.png)-->
-## Parameters
-- tbd
+
 ## Description
 Copies the materials used in the materials draft to the ends of the input draft.
+
+## Parameters
+- tbd
+
 ## Application
 Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface
 ## Developer

@@ -6,10 +6,13 @@ draft: true
 ---
 # cutout
 <!--![file](./img/cutout.png)-->
-## Parameters
-- tbd
+
 ## Description
 Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a and b are both marked as having warped raised, it changes the value to warp lowered, effectively cutting the black cells in b from a. This is the opposite of mask
+
+## Parameters
+- tbd
+
 ## Application
 No established application, but a fun way to see how to apply binary math to the production of drafts.
 ## Developer
