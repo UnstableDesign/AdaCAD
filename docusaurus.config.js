@@ -76,13 +76,19 @@ const config = {
         items: [
           {
             type: 'docSidebar',
-            sidebarId: 'userDocsSidebar',
+            sidebarId: 'learnSidebar',
             position: 'left',
             label: 'Learn',
           },
           {
             type: 'docSidebar',
-            sidebarId: 'devDocsSidebar',
+            sidebarId: 'operationSidebar',
+            position: 'left',
+            label: 'Operations',
+          },
+          {
+            type: 'docSidebar',
+            sidebarId: 'devSidebar',
             position: 'left',
             label: 'Develop',
           },
@@ -112,12 +118,16 @@ const config = {
             title: 'Site',
             items: [
               {
-                label: 'User Documentation',
-                to: '/docs/howtouse/getting-started',
+                label: 'Learn',
+                to: '/docs/learn/getting-started',
               },
               {
-                label: 'Developer Documentation',
-                to: 'docs/howtodevelop/install',
+                label: 'Reference',
+                to: 'docs/reference/operations',
+              },
+              {
+                label: 'Develop',
+                to: 'docs/develop/install',
               },
               // {
               //   label: 'Community',

@@ -7,7 +7,7 @@ Layer notation essentially describes the behavior of layers in a cloth independe
 ## Layer Notation Format
 To use the Layer Notation, you must first know the relationship between different warp and weft systems in your cloth. Specifically how many different warp and weft systems my cloth will use. 
 
-![file](../examples/img/systems_draft.png)
+![file](./img/systems_draft.png)
 
 The image above represents the warp and weft system mappings for a piece of cloth. Specifically, it contains four warp systems (labeled 1, 2, 3, 4) and four weft systems (labeled a b c d). As a rule of thumb, when I work with multiple layers, I create as many warp systems as there are layers.
 

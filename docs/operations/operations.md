@@ -80,9 +80,9 @@ Compound operations support joining different structural elements together compo
  | operation name  | examples |
  | -------- | ------- | 
 | [interlace wefts](./operations/interlace) | ![file](./img/interlace.png) |  
-| [interlace ewarps](./operations/interlacewarps) | <!--![file](./img/.png)--> |  
-| [overlay_multiple](./operations/overlay_multiple) | <!--![file](./img/.png)--> |  
-| [splice in wefts](./operations/splice_in_wefts) | <!--![file](./img/.png)--> |  
+| [interlace warps](./operations/interlacewarps) | ![file](./img/interlacewarps.png) |  
+| [overlay multiple](./operations/overlay_multiple) | ![file](./img/overlay_multiple.png) |  
+| [splice in wefts](./operations/splice_in_wefts) | ![file](./img/splice_in_wefts.png) |  
 | [splice in warps](./operations/splice_in_warps) | <!--![file](./img/.png)--> |  
 | [layer](./operations/layer) | <!--![file](./img/.png)--> |  
 | [layer notation](./operations/notation) | <!--![file](./img/.png)--> |  
