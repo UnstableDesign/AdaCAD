@@ -23,11 +23,11 @@ const config = {
   projectName: 'AdaCAD_Documentation', // Usually your repo name.
   trailingSlash: false,
 
-  // onBrokenLinks: 'throw',
-  // onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
 
-  onBrokenLinks: 'ignore',
- onBrokenMarkdownLinks: 'ignore',
+//   onBrokenLinks: 'ignore',
+//  onBrokenMarkdownLinks: 'ignore',
 
   
 
@@ -80,12 +80,7 @@ const config = {
             position: 'left',
             label: 'Learn',
           },
-          {
-            type: 'docSidebar',
-            sidebarId: 'operationSidebar',
-            position: 'left',
-            label: 'Operations',
-          },
+          {to: '/operations/operations', label: 'Reference', position: 'left'},
           {
             type: 'docSidebar',
             sidebarId: 'devSidebar',
@@ -98,6 +93,7 @@ const config = {
           //   position: 'left',
           //   label: 'Community',
           // },
+          
           {to: '/blog', label: 'Blog', position: 'left'},
           {
             href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',

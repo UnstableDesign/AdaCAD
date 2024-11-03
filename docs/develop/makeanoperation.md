@@ -91,7 +91,7 @@ const old_names = [];
 ```
 
 
-Now we get to define the [parameters](../howtouse/glossary/parameter.md) that this operation will use to generate or modify a draft. These fields are used to create user-inputs on screen and can take on several types outlined in the [operation](./reference/operation/operation.md#operationparam) reference section. Here we are going to have our `all up` operation take on input parameter, a number, that is used to describe the number of warps in the structure.
+Now we get to define the [parameters](../reference/glossary/parameter) that this operation will use to generate or modify a draft. These fields are used to create user-inputs on screen and can take on several types outlined in the [operation](../reference/glossary/operation.md#operationparam) reference section. Here we are going to have our `all up` operation take on input parameter, a number, that is used to describe the number of warps in the structure.
 
 ```tsx
 //PARAMS

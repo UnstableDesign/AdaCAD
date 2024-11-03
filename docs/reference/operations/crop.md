@@ -1,7 +1,7 @@
 ---
 title: crop
 sidebar_label: crop
-tags: [advanced, tranformation]
+tags: [advanced, transformation]
 ---
 # crop
 ![file](./img/crop.png)

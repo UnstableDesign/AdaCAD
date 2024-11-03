@@ -1,6 +1,6 @@
 # Operations
-AdaCAD Operations are nodes in the dataflow that create or manipulate drafts. There like little machines that take drafts as inputs, do something to them according to their code and the user-defined parameters, and return new drafts. We organize these operations into categories based on their function and the role they play in the drafting/surface design process. 
 
+AdaCAD offers over 50 [operations](../glossary/operation) that you can build into [dataflows](../glossary/dataflow) to generate drafts. This page groups operations by their function, previews their design, and links to the full details of each operation (which you can also find on the left sidebar).
 <!-- consider sets: 
 basic / advanced
 synth

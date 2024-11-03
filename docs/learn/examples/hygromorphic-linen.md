@@ -66,7 +66,7 @@ Follow along with this example in AdaCAD 4: [Shape Changing Linen](https://adaca
 
 :::
 
-While the structure of this cloth is a simple satin, it gets a bit more complicated when we consider the example just above with alternating regions of Z and S twist. White it is possible to apply tapestry techniques by winding S and Z twist bobbins and manually insert and clasp them in their respective regions across the weft, the way we would approach drafting this in AdaCAD looks to distinguish the regions weaving S twisted bobbins and the regions weaving Z twisted bobbins by assigning them to separate [weft systems](../glossary/weft-system.md). This has the effect of raising only the S twisted regions, and only Z twisting regions on alternating [picks](../glossary/pick.md). 
+While the structure of this cloth is a simple satin, it gets a bit more complicated when we consider the example just above with alternating regions of Z and S twist. White it is possible to apply tapestry techniques by winding S and Z twist bobbins and manually insert and clasp them in their respective regions across the weft, the way we would approach drafting this in AdaCAD looks to distinguish the regions weaving S twisted bobbins and the regions weaving Z twisted bobbins by assigning them to separate [weft systems](../../reference/glossary/weft-system). This has the effect of raising only the S twisted regions, and only Z twisting regions on alternating [picks](../../reference/glossary/pick). 
 
 ### Assign S and Z Twisting Regions to Alternating Weft Systems
 
@@ -74,13 +74,13 @@ While the structure of this cloth is a simple satin, it gets a bit more complica
 
 To implement this in AdaCAD, you would first add the *satin* operation and set the size and floats to match the specifications for your linen. Here, I use a 10-shaft satin as an example. 
 
-Next, you would assign the satin to alternating picks, which we accomplish by assigning them to alternating [weft systems](../glossary/weft-system.md). 
+Next, you would assign the satin to alternating picks, which we accomplish by assigning them to alternating [weft systems](../../reference/glossary/weft-system).
 
 ![file](img/animatedlinen_system.png)
 
 We start by setting up a system's draft (directly above) that specifies that I'm only using 1 warp system but two weft systems, a and b (In the AdaCAD Editor you click the letter to change it to the next subsequent letter). We assign warp and weft colors as a guide to visualize the arrangement of regions. I use green to correspond to S twist, and blue to correspond with Z.
 
-Next,I go back to the workspace and add two *assign draft to systems* operations. I input my systems draft using in the first inlet, and the draft I want to map to a system in the second. I specify "a1" to the [parameter](../glossary/parameter.md) field to tell the operation that I want to map my satin structure to weft system a and warp system 1. I repeat this process for the alternating regions by bringing in the same structure and systems draft, but assigning it to "b1" to indicate that I want the structure placed upon weft system b and warp system 1. 
+Next,I go back to the workspace and add two *assign draft to systems* operations. I input my systems draft using in the first inlet, and the draft I want to map to a system in the second. I specify "a1" to the [parameter](../../reference/glossary/parameter) field to tell the operation that I want to map my satin structure to weft system a and warp system 1. I repeat this process for the alternating regions by bringing in the same structure and systems draft, but assigning it to "b1" to indicate that I want the structure placed upon weft system b and warp system 1. 
 
 :::info
 
