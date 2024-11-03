@@ -5,10 +5,10 @@ tags: [advanced]
 draft: true
 ---
 # assign systems
+Given a user specified pattern for the weft (a b c) and warp systems (1 2 3), this function will create a draft that follows those system patterns and then map the input draft to the system specified. 
+
 <!--![file](./img/assign systems.png)-->
 
-## Description
-Given a user specified pattern for the weft (a b c) and warp systems (1 2 3), this function will create a draft that follows those system patterns and then map the input draft to the system specified. 
 
 ## Parameters
 - tbd

@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # layer
-<!--![file](./img/layer.png)-->
-
-## Description
 Creates a draft in which each input is assigned to a layer in a multilayered structure. Assigns the first input to the top layer and so on.
+
+<!--![file](./img/layer.png)-->
 
 ## Parameters
 - tbd

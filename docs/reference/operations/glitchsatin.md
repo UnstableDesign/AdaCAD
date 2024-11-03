@@ -2,14 +2,12 @@
 title: glitch satin
 sidebar_label: glitch satin
 tags: [advanced, structure]
-
-draft: true
 ---
 # glitch satin
+This experimental function was designed to algorithmically generate structures that resemble satins that include non-repeating units.
+
 ![file](./img/glitchsatin.png)
 
-## Description
-This experimental function was designed to algorithmically generate structures that resemble satins that include non-repeating units.
 
 ## Parameters
 - `ends`: the number of ends in the structure

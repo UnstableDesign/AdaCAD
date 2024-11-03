@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # selvedge
-<!--![file](./img/selvedge.png)-->
-
-## Description
 Adds a selvedge of so many ends on both sides of the input draft, 'draft.' The second input, 'selvedge,' determines the selvedge pattern, and if none is given, a selvedge is generated.
+
+<!--![file](./img/selvedge.png)-->
 
 ## Parameters
 - tbd

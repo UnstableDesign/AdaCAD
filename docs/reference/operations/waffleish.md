@@ -4,10 +4,9 @@ sidebar_label: waffle-ish
 tags: [advanced]
 ---
 # waffle-ish
-![file](./img/waffleish.png)
-
-## Description
 Waffle weave is a twill-based structure in which warp and weft floats of increasing and then decreasing lengths are bound by a border of tabby interlacements to create a grid of cells. Waffle-ish was a first attempt at making waffles that failed, but in the process, made some interesting results. Use [waffle](./operations/waffle/) if you would like the correct version. This attempts to fit a diamond shape within the ends/pics specified and to knock out values within the central diamond to create binding rows. 
+
+![file](./img/waffleish.png)
 
 
 ## Parameters

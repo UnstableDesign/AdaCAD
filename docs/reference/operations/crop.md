@@ -4,11 +4,9 @@ sidebar_label: crop
 tags: [advanced, transformation]
 ---
 # crop
-![file](./img/crop.png)
-
-## Description
 Crops the structure or pattern to a region of the input draft. The crop size and placement are defined by the parameters. This operation follows a model similar to graphics editing software where one specifies the x,y coordinates of the top left of the crop and then the width and height to "cut out". You can also use [trim](./trim) to do the same thing using different parameters.
 
+![file](./img/crop.png)
 
 ## Parameters
 - `ends from start`: specifies the starting position of the crop in ends. 

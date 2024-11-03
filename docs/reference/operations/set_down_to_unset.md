@@ -4,11 +4,9 @@ sidebar_label: set interlacements of type to unset...
 tags: [advanced, transformation]
 ---
 # set down to unset
-![file](./img/set_down_to_unset.png)
-
-## Description
 This sets all interlacements of a particular type (e.g. raised or lowered) in the input draft to unset
 
+![file](./img/set_down_to_unset.png)
 
 ## Parameters
 - `raised/lowered`: specifies if the raised or lowered interlacements should be converted to "unset" 

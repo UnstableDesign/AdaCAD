@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # notation
-<!--![file](./img/notation.png)-->
-
-## Description
 Developed in collaboration with Kathryn Walters, this operation uses a notation system to assign drafts to different warp and weft patterns on different layers of cloth. Layers are represented by () so (1a)(2b) puts warp 1 and weft a on layer 1, warp 2 and weft b on layer 2. This function is slightly different than notation (assign by system) because it will apply a single input draft across all systems associated with a layer.
+
+<!--![file](./img/notation.png)-->
 
 ## Parameters
 - tbd

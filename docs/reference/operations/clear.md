@@ -4,10 +4,9 @@ sidebar_label: clear
 tags: [advanced]
 ---
 # clear
-![file](./img/clear.png)
-
-## Description
 Converts all the interlacements in the input draft to be raised.
+
+![file](./img/clear.png)
 
 ## Parameters
 - none

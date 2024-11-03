@@ -4,11 +4,9 @@ sidebar_label: join top
 tags: [cloth]
 ---
 # join top
-![file](./img/join_top.png)
-
-## Description
 Joins drafts assigned to the inlets vertically.
 
+![file](./img/join_top.png)
 
 
 ## Parameters

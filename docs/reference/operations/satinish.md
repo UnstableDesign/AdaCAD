@@ -4,10 +4,10 @@ sidebar_label: satin-ish
 tags: [advanced, structure]
 ---
 # satinish
+Generates a structure by shifting the first row (described by the input string), the number of shifts specified on each row. This operation interprets the  term "satin" loosely as a repeating pic that is shifted 1 or more positions on each successive pic. 
+
 ![file](./img/satinish.png)
 
-## Description
-Generates a structure by shifting the first row (described by the input string), the number of shifts specified on each row. This operation interprets the  term "satin" loosely as a repeating pic that is shifted 1 or more positions on each successive pic. 
 
 ## Parameters
 - `pattern`: a sequence of numbers, separated by a space, that describes the repeating pattern. For example, 2 2 3 3 creates the repeating pattern of having 2 warps raised, then 2 lowered, then 3 raised, then 3 lowered. 

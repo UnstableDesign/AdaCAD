@@ -4,11 +4,9 @@ sidebar_label: set materials and systems
 tags: []
 draft: true
 ---
-# apply materials
-<!--![file](./img/apply materials.png)-->
-
-## Description
+# set materials and systems
 Adds information to the draft that represents the materials and warp- and weft-systems that will be associated with the draft
+<!--![file](./img/apply materials.png)-->
 
 ## Parameters
 - tbd

@@ -5,9 +5,6 @@ tags: [advanced, structure]
 ---
 # undulating twill
 ![file](./img/undulatingtwill.png)
-
-
-## Description
 Twill is a family of weave structures in which weft picks pass over or under one or more warp threads in a repeating pattern. In this context, and undulating twill means tha the structure can shift by a non-repeating series of values, instead of by the same value on each pic (as is typically the case in twills)
 
 ## Parameters

@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # floor loom
-<!--![file](./img/floor loom.png)-->
-
-## Description
 Uses the input draft as drawdown and generates a threading and lift plan pattern
+
+<!--![file](./img/floor loom.png)-->
 
 ## Parameters
 - tbd

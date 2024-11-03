@@ -4,11 +4,9 @@ sidebar_label: set unset interlacements to
 tags: [advanced, transformation]
 ---
 # set unset
-![file](./img/set unset.png)
-
-## Description
 Sets all unset interlacements/cells in this draft to the value set in the parameter.
 
+![file](./img/set unset.png)
 
 ## Parameters
 - `lift/lower`: determines whether the unset interlacements are to be raised or lowered. 

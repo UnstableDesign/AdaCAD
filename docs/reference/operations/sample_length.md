@@ -4,10 +4,9 @@ sidebar_label: variable length sampler
 tags: [advanced, cloth]
 ---
 # variable length sampler
-![file](./img/sample_length.png)
-
-## Description
 Given a series of letters and numbers (a100 b200 c300), this operation will associate a draft with each letter, and then arrange those drafts from top to bottom following the pattern order. The numbers next to each letter describe the number of pics upon which the specified pattern should be repeated
+
+![file](./img/sample_length.png)
 
 
 

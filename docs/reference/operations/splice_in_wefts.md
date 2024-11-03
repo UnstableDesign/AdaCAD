@@ -4,10 +4,10 @@ sidebar_label: splice in pics
 tags: [advanced, compound]
 ---
 # splice in pics
+Splices the pics of the `splicing draft` input draft into the `receiving draft`. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in pic by pic and the amount of pics between each insertion.
+
 ![file](./img/splice_in_wefts.png)
 
-## Description
-Splices the pics of the `splicing draft` input draft into the `receiving draft`. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in pic by pic and the amount of pics between each insertion.
 
 ## Parameters
 - `pics between insert`: a number describing how many weft pics of the receiving draft should occur before switching to the splicing draft. 

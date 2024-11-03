@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # splice in warps
-<!--![file](./img/splice in warps.png)-->
-
-## Description
 Splices the ends of the second input draft into the first. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in end by end and the amount of ends between each insertion.
+
+<!--![file](./img/splice in warps.png)-->
 
 ## Parameters
 - tbd

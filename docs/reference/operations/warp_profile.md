@@ -4,10 +4,9 @@ sidebar_label: pattern across width
 tags: [advanced, dynamic, cloth]
 ---
 # pattern across width
-![file](./img/warp_profile.png)
-
-## Description
 Given a series of letters (a b c, etc), this operation will associate a draft with each letter, and then arrange those drafts from left to right following the pattern order
+
+![file](./img/warp_profile.png)
 
 ## Parameters
 - `pattern`: a series of letters, separated by a space, that describe the order in which you'd like the drafts to repeat.

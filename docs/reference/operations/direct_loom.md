@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # direct loom
-<!--![file](./img/direct loom.png)-->
-
-## Description
 Uses the input draft as drawdown and generates a threading and lift plan pattern
+
+<!--![file](./img/direct loom.png)-->
 
 ## Parameters
 - tbd

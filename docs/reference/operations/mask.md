@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # mask
-<!--![file](./img/mask.png)-->
-
-## Description
 Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b  If a is marked warp raised and b marked warp raised, it sets the corresponding interlacement in the output draft to warp raised. Otherwise, the interlacement is marked warp lowered. This effectively masks draft a with draft b
+
+<!--![file](./img/mask.png)-->
 
 ## Parameters
 - tbd

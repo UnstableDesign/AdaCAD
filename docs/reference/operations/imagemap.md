@@ -4,10 +4,9 @@ sidebar_label: image map
 tags: [advanced, cloth, dynamic]
 ---
 # image map
-![file](./img/imagemap.png)
-
-## Description
 Uploads an image and creates an input for each color found in the image. Assigning a draft to the color fills the color region with the selected draft.
+
+![file](./img/imagemap.png)
 
 
 ## Parameters

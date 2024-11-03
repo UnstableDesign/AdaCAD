@@ -4,10 +4,9 @@ sidebar_label: invert
 tags: [transformation]
 ---
 # invert
-![file](./img/invert.png)
-
-## Description
 Inverts the draft so that raised warp ends become weft picks and weft pics become raised warp ends.
+
+![file](./img/invert.png)
 
 
 ## Parameters

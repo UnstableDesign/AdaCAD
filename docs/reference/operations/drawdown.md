@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # drawdown
-<!--![file](./img/drawdown.png)-->
-
-## Description
 Create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)
+
+<!--![file](./img/drawdown.png)-->
 
 ## Parameters
 - tbd

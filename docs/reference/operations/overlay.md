@@ -5,10 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # overlay
-<!--![file](./img/overlay.png)-->
-
-## Description
 Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If either interlacement a or b are marked as warp lifted, the resulting draft will have a warp raised in that location. 
+
+<!--![file](./img/overlay.png)-->
 
 ## Parameters
 - tbd

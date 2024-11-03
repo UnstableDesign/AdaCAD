@@ -4,10 +4,9 @@ sidebar_label: flip
 tags: [transformation]
 ---
 # flip
-![file](./img/flip.png)
-
-## Description
 Generates an output draft that mirrors the input draft from left to right and/or top to bottom as the parameters indicate.
+
+![file](./img/flip.png)
 
 
 ## Parameters

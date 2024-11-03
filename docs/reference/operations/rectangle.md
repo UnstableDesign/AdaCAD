@@ -4,10 +4,10 @@ sidebar_label: rectangle
 tags: [cloth]
 ---
 # rectangle
+Generates an unfilled rectangle of the size defined by the parameters. If given an input, the rectangle fills with the input.
+
 ![file](./img/rectangle.png)
 
-## Description
-Generates an unfilled rectangle of the size defined by the parameters. If given an input, the rectangle fills with the input.
 
 ## Parameters
 - `ends`: the number of ends in the structure

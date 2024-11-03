@@ -5,9 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # bind warp floats
-<!--![file](./img/bind warp floats.png)-->
-## Description
 Adds interlacements to warp floats over the user specified length
+
+<!--![file](./img/bind warp floats.png)-->
 
 ## Parameters
 - tbd

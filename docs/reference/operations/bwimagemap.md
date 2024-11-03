@@ -4,10 +4,10 @@ sidebar_label: upload draft
 tags: [advanced, dynamic, structure]
 ---
 # upload draft
+This operation allow you to upload drafts that you may have previously created and saved as black and white images, or bitmap files into the workspace. If you upload a file that is not black and white, it will automatically convert pixels to black and white based on their color value. 
+
 ![file](./img/bwimagemap.png)
 
-## Description
-This operation allow you to upload drafts that you may have previously created and saved as black and white images, or bitmap files into the workspace. If you upload a file that is not black and white, it will automatically convert pixels to black and white based on their color value. 
 
 
 ## Parameters

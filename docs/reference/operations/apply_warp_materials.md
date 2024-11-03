@@ -5,10 +5,9 @@ tags: []
 draft: true
 ---
 # apply warp materials
-<!--![file](./img/apply warp materials.png)-->
-
-## Description
 Copies the materials used in the materials draft to the ends of the input draft.
+
+<!--![file](./img/apply warp materials.png)-->
 
 ## Parameters
 - tbd

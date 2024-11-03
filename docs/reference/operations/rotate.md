@@ -4,11 +4,9 @@ sidebar_label: rotate
 tags: [transformation]
 ---
 # rotate
-![file](./img/rotate.png)
-
-
-## Description
 Generates an output draft that is the same as the input draft, but rotated by the amount specified. 
+
+![file](./img/rotate.png)
 
 
 ## Parameters

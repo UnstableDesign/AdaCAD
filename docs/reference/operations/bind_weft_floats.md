@@ -5,10 +5,10 @@ tags: [advanced]
 draft: true
 ---
 # bind weft floats
+Adds interlacements to weft floats over the user specified length
+
 <!--![file](./img/bind weft floats.png)-->
 
-## Description
-Adds interlacements to weft floats over the user specified length
 
 ## Parameters
 - tbd

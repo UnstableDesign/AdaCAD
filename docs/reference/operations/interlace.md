@@ -4,10 +4,9 @@ sidebar_label: interlace wefts
 tags: [advanced, compound]
 ---
 # interlace wefts
-![file](./img/interlace.png)
-
-## Description
 Creates a new draft by taking one pic from each input draft and assigning them to successive pics in the output draft.
+
+![file](./img/interlace.png)
 
 ## Parameters
 - `calculate repeats`: this defines what happens if/when you connect drafts with different pic numbers. If `repeat inputs to match size` is selected, AdaCAD will expand the number of pics in the output draft such that all input structures repeat at the even intervals across along length of the cloth. If the `do not repeat inputs to match size` the smaller draft will integrated, but not repeated, into the larger draft. 

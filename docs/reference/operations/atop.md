@@ -5,10 +5,11 @@ tags: [advanced]
 draft: true
 ---
 # atop
+Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a is marked warp raised and b marked warp lowered, or vice versa, it sets the corresponding interlacement in the output draft to warp raised.
+
 <!--![file](./img/atop.png)-->
 
-## Description
-Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a is marked warp raised and b marked warp lowered, or vice versa, it sets the corresponding interlacement in the output draft to warp raised.
+
 
 ## Parameters
 - tbd

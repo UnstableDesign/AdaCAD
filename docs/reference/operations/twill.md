@@ -4,11 +4,9 @@ sidebar_label: twill
 tags: [structure]
 ---
 # twill
-![file](./img/twill.png)
-
-## Description
 Twill is a family of weave structures in which weft picks pass over or under one or more warp threads in a repeating pattern. The same interlacement sequence begins on an adjacent warp end, either to the left or right, in the next weft row, creating a diagonal pattern of interlacement.
 
+![file](./img/twill.png)
 
 ## Parameters
 - `warps raised`: the number of warps raised along a base pattern pic 

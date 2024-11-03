@@ -5,9 +5,9 @@ tags: [advanced]
 draft: true
 ---
 # erase blank rows
-<!--![file](./img/erase blank rows.png)-->
-## Description
 Erases any rows that are entirely unset.
+
+<!--![file](./img/erase blank rows.png)-->
 
 ## Parameters
 - tbd

@@ -4,11 +4,9 @@ sidebar_label: variable width sampler
 tags: [advanced, cloth]
 ---
 # variable width sampler
-![file](./img/sample_width.png)
-
-
-## Description
 Given a series of letters and numbers (a100 b200 c300), this operation will associate a draft with each letter, and then arrange those drafts from left to right following the pattern order. The numbers next to each letter describe the number of ends upon which the specified pattern should be repeated
+
+![file](./img/sample_width.png)
 
 
 ## Parameters
