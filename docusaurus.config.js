@@ -80,7 +80,12 @@ const config = {
             position: 'left',
             label: 'Learn',
           },
-          {to: '/operations/operations', label: 'Reference', position: 'left'},
+          {
+            type: 'docSidebar',
+            sidebarId: 'referenceSidebar',
+            position: 'left',
+            label: 'Reference',
+          },
           {
             type: 'docSidebar',
             sidebarId: 'devSidebar',
