@@ -1098,8 +1098,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
   }
   
 
-  console.log("IMAGES TO LOAD ", images_to_load)
-  return this.media.loadMedia(images_to_load).then(el => {
+  return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
     //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
     return this.tree.replaceOutdatedOps(data.ops);
   })
