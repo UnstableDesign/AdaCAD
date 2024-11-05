@@ -3,7 +3,7 @@
 [![Access](https://img.shields.io/badge/use-adacad.org-blue)](https://adacad.org)
 
 # AdaCAD
-AdaCAD is a parametric design tools for making woven drafts. It supports a designer in creating drafts by connecting different operations into a model or pipeline that results in drafts. It currently supports outputs and representations for Jacuqard, Floor, and Direct-Tieup Loom. 
+AdaCAD is an experimental workspace that applies parametric design to the domain of weave drafting. It supports algorithmic and playful approaches to developing woven structures and cloth, for shaft and jacquard looms.
 
 - stable release of the tool at [https://adacad.org/](https://adacad.org/).
 - beta release of our most recent developments at [https://adacad-4-1.web.app/](https://adacad-4-1.web.app/)
