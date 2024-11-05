@@ -565,6 +565,16 @@ export module Sequence{
     }
   
 
+  /**
+   * given a current warp and weft system, as well as a list of the weft and warp systems that have been assigned to layers "above" the current warp and weft system, this function will ensure that structures are assigned such that they fall just under the previous layers in the layer stack
+   * @param cur_warp_sys  the current warp systems we are considering
+   * @param warp_sys_above the warp systems that have been used in previous layers above this layer
+   * @param cur_weft_sys  the current weft systems we are considering
+   * @param weft_sys_above the weft systems that have been used in previous layers above this layer
+   * @param weft_system_map a map of the weft systems used in this draft
+   * @param warp_system_map a map of the warp systems used in this draft
+   * @returns 
+   */
   placeInLayerStack(cur_warp_sys: Array<number>, warp_sys_above: Array<number>, cur_weft_sys: Array<number>,weft_sys_above:Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD ){
 
 
@@ -613,54 +623,59 @@ export module Sequence{
    * @param warp_system_map 
    * @returns 
    */
-  layerSystems(warp_system_to_layers: Array<{ws: number, layer: number}>, warp_system_map: Sequence.OneD){
+  // layerSystems(warp_system_to_layers: Array<{ws: number, layer: number}>, warp_system_map: Sequence.OneD){
 
-    let before_layering: Sequence.TwoD = this.copy();
 
-    //get the actual layers we are dealing with
-    let layers = utilInstance.filterToUniqueValues(warp_system_to_layers.map(el => el.layer));
+  //   console.log("warp system layer map ", warp_system_to_layers)
+  //   console.log("warp system map ", warp_system_map)
 
-    for(let l = 0; l < layers.length; l++){
 
-      //get the warp systems associated with this layer
-      let warp_systems: Array<number> = warp_system_to_layers.filter(el => el.layer == l+1).map(el => el.ws);
+  //   let before_layering: Sequence.TwoD = this.copy();
 
-      //now go through the wefts, do they interlace on this warp? If yes, 
-      //set all the unset values on this weft to down
-      before_layering.state.forEach((row, i) => {
+  //   //get the actual layers we are dealing with
+  //   let layers = utilInstance.filterToUniqueValues(warp_system_to_layers.map(el => el.layer));
+
+  //   for(let l = 0; l < layers.length; l++){
+
+  //     //get the warp systems associated with this layer
+  //     let warp_systems: Array<number> = warp_system_to_layers.filter(el => el.layer == l+1).map(el => el.ws);
+
+  //     //now go through the wefts, do they interlace on this warp? If yes, 
+  //     //set all the unset values on this weft to down
+  //     before_layering.state.forEach((row, i) => {
         
-        //get the first set value
-        let first_set = row.findIndex(el => el !== 2);
+  //       //get the first set value
+  //       let first_set = row.findIndex(el => el !== 2);
 
-        if(first_set !== -1){
-          //is it on this warp system? 
-          let interlacing_ws = warp_system_map.get(first_set);
-          // console.log("First set value on  ", i, " is ", first_set, "interlacing on ", interlacing_ws, " current warp system is ", warp_systems);
+  //       if(first_set !== -1){
+  //         //is it on this warp system? 
+  //         let interlacing_ws = warp_system_map.get(first_set);
+  //         // console.log("First set value on  ", i, " is ", first_set, "interlacing on ", interlacing_ws, " current warp system is ", warp_systems);
 
-          if(warp_systems.find(el => el == interlacing_ws) !== undefined){
-            //this warp system is interlacing on this layer!
-            this.setUnsetOnWeft(i, 0);
-          }
-        }
+  //         if(warp_systems.find(el => el == interlacing_ws) !== undefined){
+  //           //this warp system is interlacing on this layer!
+  //           this.setUnsetOnWeft(i, 0);
+  //         }
+  //       }
 
-      });
+  //     });
 
-      //now, set all the unset values on the warps associated with this 
-      for(let j = 0; j < this.warps(); j++){
-        let warp_syst = warp_system_map.get(j % warp_system_map.length());
-        if(warp_systems.find(el => el == warp_syst) !== undefined){
-          this.setUnsetOnWarp(j, 1); //TODO needs to verify system here, 
-        }
-      }
+  //     //now, set all the unset values on the warps associated with this 
+  //     for(let j = 0; j < this.warps(); j++){
+  //       let warp_syst = warp_system_map.get(j % warp_system_map.length());
+  //       if(warp_systems.find(el => el == warp_syst) !== undefined){
+  //         this.setUnsetOnWarp(j, 1); //TODO needs to verify system here, 
+  //       }
+  //     }
 
 
-    } // end for each layer
+  //   } // end for each layer
     
 
-    return this;
+  //   return this;
 
 
-  }
+  // }
 
 /**
  * this sets the value at a given location specified by i and j

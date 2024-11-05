@@ -44,14 +44,19 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
    let ends = utilInstance.lcm(drafts.map(el => warps(el.drawdown))) * drafts.length;
    let pics = utilInstance.lcm(drafts.map(el => warps(el.drawdown))) * drafts.length;
 
+
+  
+
+   let warp_sys_above = [];
+   let weft_sys_above = [];
    drafts.forEach((draft, ndx) => {
     let seq = new Sequence.TwoD().import(draft.drawdown);
     seq.mapToSystems([ndx], [ndx], sys_seq, sys_seq, ends, pics);
     composite.overlay(seq, false);
+    composite.placeInLayerStack([ndx],warp_sys_above, [ndx],weft_sys_above,sys_seq, sys_seq );
+    warp_sys_above.push(ndx);
+    weft_sys_above.push(ndx);
    })
-
-   let system_layer_map = sys_seq.val().map(el => {return {ws: el, layer: el}});
-   composite.layerSystems(system_layer_map, sys_seq);
 
 
     let d: Draft = initDraftFromDrawdown(composite.export());
