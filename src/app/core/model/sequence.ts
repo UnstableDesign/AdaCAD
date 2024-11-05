@@ -370,14 +370,6 @@ export module Sequence{
    * @param pics - the number of picks required in the output structure (based on the lcm of input wefts)
    */
   mapToSystems(weftsys: Array<number>, warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD, ends: number, pics: number){
-    //let total_wefts: number = 0;
-
-    // total_wefts = utilInstance.lcm([this.wefts(), weft_system_map.length()])*weft_system_map.length();
-    // console.log("TOTAL WEFTS ", total_wefts, this.wefts(), weft_system_map.length())
-
-
-    // let total_warps: number = 0;
-    // total_warps = utilInstance.lcm([this.warps(), warp_system_map.length()])*warp_system_map.length();
 
     //create a blank draft of the size needed that we'll copy into 
     let mapped_seq = new Sequence.TwoD().setBlank(2).fill(ends, pics);
@@ -387,13 +379,15 @@ export module Sequence{
     let within_sequence_j = 0;
 
     for(let i = 0; i < pics; i++){
+     
       let active_weft_system = weft_system_map.get(i%weft_system_map.length());
+
       if(weftsys.find(el => el == active_weft_system) !== undefined){
+       
         within_sequence_j = 0;
+       
         for(let j = 0; j < ends; j++){
           let active_warp_system = warp_system_map.get(j%warp_system_map.length());
-
-
           if(warpsys.length == 0){
             // mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
             // within_sequence_j = (within_sequence_j + 1) % this.warps();
