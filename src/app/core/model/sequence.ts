@@ -881,19 +881,21 @@ export module Sequence{
       if(w < 0 || h < 0) return this;
       if(this.state.length == 0) return;
 
-      let len = this.state.length;
+      let len_h = this.state.length;
 
       for(let i = 0; i < h; i++){
         let row;
-        if(w >= len)
-        row = new OneD(this.state[i%len]).resize(w).val();
-        else{
-        row = new OneD(this.state[i%len].slice(0, w)).val()
+        let len_w = this.state[i%len_h].length;
+
+        if(w >= len_w){ 
+          row = new OneD(this.state[i%len_h]).resize(w).val();
+        }else{
+          row = new OneD(this.state[i%len_h].slice(0, w)).val()
         }
         this.state[i] = row;
       }
 
-      if(h < len){
+      if(h < len_h){
         this.state = this.state.slice(0, h);
       }
 
