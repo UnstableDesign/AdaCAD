@@ -370,8 +370,9 @@ export interface NodeComponentProxy{
  export type MediaInstance ={
   id: number;
   ref: string; 
-  data: any;
   type: 'image' | 'indexed_color_image'; //currently we only support images
+  img: IndexedColorImageInstance | SingleImage;
+
  }
 
  export type IndexedColorImageInstance = MediaInstance & {
