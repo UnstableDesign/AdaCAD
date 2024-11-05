@@ -63,8 +63,26 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
     d.colSystemMapping =  generateMappingFromPattern(d.drawdown, sys_seq.val(),'col');
     d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, sys_seq.val(),'row');
 
+    let warp_mats = [];
+    for(let j = 0; j < ends; j++){
+      let select_draft = j%drafts.length;
+      let within_draft_id = Math.floor(j/drafts.length);
+      let mat_mapping = drafts[select_draft].colShuttleMapping;
+      let mat_id =mat_mapping[within_draft_id%mat_mapping.length]
+      warp_mats.push(mat_id)
+    }
 
-
+    let weft_mats = [];
+    for(let i = 0; i < pics; i++){
+      let select_draft = i%drafts.length;
+      let within_draft_id = Math.floor(i/drafts.length);
+      let mat_mapping = drafts[select_draft].rowShuttleMapping;
+      let mat_id =mat_mapping[within_draft_id%mat_mapping.length]
+      weft_mats.push(mat_id)
+    }
+  
+  d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown,weft_mats,'row');
+  d.colShuttleMapping =  generateMappingFromPattern(d.drawdown,warp_mats,'col');
   return Promise.resolve([d]);
 };   
 
