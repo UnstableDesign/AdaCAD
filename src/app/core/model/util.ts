@@ -342,8 +342,8 @@ class Util {
   
         case 'up':
           if(a === null) return b;
-          if(a === true) return true;
-          return false;
+          if(b === null) return a;
+          return b;
         break;
   
         case 'down':
