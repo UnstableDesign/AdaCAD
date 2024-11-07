@@ -6,13 +6,15 @@ title: "AdaCAD Gathering 2025"
 Need to ask question, want to meet the other attendees? Join the discussion on a private Discord channel for this event: [AdaCAD Gathering 2025 on Discord](https://discord.gg/bsMbEPEykd)
 :::
 
-The AdaCAD Gathering will take place June 2-6, 2025 in Boulder Colorado. [This Working Group is supported by a National Science Foundation grant focused on transitioning the AdaCAD open-source weaving software into a larger and more diverse open-source “eco-system” of users, developers, and maintainers](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346150&HistoricalAwards=false). With this support, we are able to cover the costs of your flight, hotel, and meals for the duration of the trip.
+The AdaCAD Gathering will take place June 2-6, 2025 in Boulder Colorado. This Working Group is supported by a [National Science Foundation grant]((https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346150&HistoricalAwards=false) focused on transitioning the AdaCAD open-source weaving software into a larger and more diverse open-source “eco-system” of users, developers, and maintainers. With this support, we are able to cover the costs of your flight, hotel, and meals for the duration of the trip.
 
 This group will bring together ~10 experts from art, craft, open-source, and engineering to co-author founding documents, workshop governance structures, and establish policies that will found our eco-system and help AdaCAD function as a community owned and maintained tool. We especially want to develop a thoughtful and sustainable approach for weavers (and the weave-curious) to connect, share, and collaborate.
 
 The tentative schedule for the working group is included below and would take place over five days, with two days devoted to arrival/departure and three days focused on group activities. While the impetus for the gathering is AdaCAD, we are planning activities that could be useful to participants more broadly. We also intend to keep the working schedule humane so that we can build connections and think creatively about open-source/craft futures.
 
-## Tentative Schedule
+## 2025 Gathering
+
+### Schedule
 
 last updated Oct 14:
 
@@ -26,28 +28,32 @@ last updated Oct 14:
 | Friday, June 6 | Departures | 
 
 
-## Confirmed Attendees 
+### Confirmed Attendees 
 
-- Laura Devendorf - CU Boulder, Organizing Team
-- Deanna Gelosi - CU Boulder, Organizing Team
-- Etta Sandry - CU Boulder, Organizing Team
-- Brett Fiedler - Open Source and AdaCAD Advisor 
-- Bine Roth - Fashion and Textiles Design Researcher
-- Chris Coleman - Open Source and Creative Code
-- Jim McCann - Computer Graphics, Textiles Fabrication 
-- Kaori Ueda - Experimental Weaver and Japanese Loom Expert
-- Kathryn Walters - Experimental Weaver
-- Marianne Fairbanks - Experimental Weaver
-- Vibeke Vestby - Experimental Weaver and TC2 Inventor
+- [Brett Fiedler](https://www.colorado.edu/per/people/brett-fiedler) - CU Boulder
+- [Bine Roth ](https://www.rca.ac.uk/more/staff/bine-roth/) - Royal College of London
+- [Chris Coleman](https://digitalcoleman.com/) - The Ohio State University
+- [Jim McCann](https://www.cs.cmu.edu/~jmccann/) - Carnegie Mellon University
+- [Kaori Ueda](https://www.kyoto-saga.ac.jp/about/teachers/2156) - Kyoto Saga University of Arts
+- [Kathryn Walters](https://www.kmwalters.com/) - Swedish School of Textiles
+- [Marianne Fairbanks](https://www.mariannefairbanks.com/) - University of Wisconsin-Madison
+- [Vibeke Vestby](https://digitalweaving.no/) - Digital Weaving Norway
 
 
-## Location
+### Location
 
 Unstable Design Lab and ATLAS Institute \
 University of Colorado, Boulder \
 [https://www.colorado.edu/atlas](https://www.colorado.edu/atlas)
 
-Hotel: To be Determined
+Hotel: To Be Determined
+
+### Hosts and Organizing Committee
+Please reach out to our organizing team if you have any questions about the event.
+
+- [Laura Devendorf](http://artfordorks.com/) - Director, Unstable Design Lab
+- [Deanna Gelosi](https://deannagelosi.com) - PhD Student
+- [Etta Sandry](https://ettasandry.com/) - PhD Student
 
 ## Travel
 The best way to get to Boulder is to fly into and out from Denver International Airport (DEN). This is a major hub in the United States, especially for United/Lufthansa.
@@ -87,11 +93,18 @@ Boulder is a walkable/bikeable city and your hotel will be within walking distan
 
 ### Local Attractions
 
-Pearl Street Mall, Chataqua Park, Schacht Spindle Company, Celestial Seasonings Tea Factory, Dushanbe Teahouse, ArtParts Creative Reuse Store
+- [ArtParts Creative Reuse Store](https://www.artpartsboulder.org/) - A secondhand store for art supplies
+- [Celestial Seasonings Tea Factory Tour](https://celestialseasonings.com/pages/tea-tour)
+- [Chautauqua Park](https://bouldercolorado.gov/locations/chautauqua-park)
+- [Dushanbe Teahouse](https://www.boulderteahouse.com/) - Beautiful teahouse from sister city in Tajikistan
+- [Pearl Street Mall](https://boulderdowntown.com/) - The downtown area of Boulder with shops, restaurants, and coffee
+- [Schacht Spindle Company](https://schachtspindle.com/)
 
 ### Nearby Attractions
 
-**Nederland + Carousel of Happiness** Laura's personal favorite. Nederland is a funky little mountain town with a nice cafe, crystal shops, pizzeria, and hand-build, hard carved carousel running on original motors and Wurlizer organ! **Meow Wolf Denver** An immersive / interactive living art exhibit, **Rocky Mountain National Park**
+- [Meow Wolf Denver (Convergence Station)](https://meowwolf.com/visit/denver) -  An immersive / interactive living art exhibit
+- Nederland + Carousel of Happiness - Nederland is a funky little mountain town with a nice cafe, crystal shops, pizzeria, and hand-build, hard carved carousel running on original motors and Wurlizer organ! **[Laura's personal favorite]**
+- [Rocky Mountain National Park](https://www.nps.gov/romo/index.htm)
 
 ### High Altitude
 
