@@ -44,6 +44,6 @@ For more information about the project and user guides, explore projects in our 
 Each version of AdaCAD includes Examples that you can load directly. You can also browse examples in the Learn section of this website. 
 
 ### Glossary
-Confused about the terminology we are using? This website also includes [glossary](../../reference/glossary/glossary.md)!
+Confused about the terminology we are using? This website also includes [glossary](/docs/reference/glossary/)!
 
 

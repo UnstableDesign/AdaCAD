@@ -8,7 +8,7 @@ The TC2 loom will read the image from bottom row to top, and interpret each row 
 
 The weaver progresses, row by row, through the image as they weave. 
 
-For information about how you can create and upload drafts to your TC2, you can view the example [Make a Draft for the TC2](../../learn/examples/quick-tc2.md)
+For information about how you can create and upload drafts to your TC2, you can view the example [Make a Draft for the TC2](../../learn/templates/quick-tc2.md)
 
 
 
