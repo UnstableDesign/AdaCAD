@@ -1,6 +1,6 @@
 # Operations
 
-AdaCAD offers over 50 [operations](../glossary/operation) that you can build into [dataflows](../glossary/dataflow) to generate drafts. This page groups operations by their function, previews their design, and links to the full details of each operation (which you can also find on the left sidebar).
+AdaCAD offers over 50 [operations](../glossary/operation.md) that you can build into [dataflows](../glossary/dataflow.md) to generate drafts. This page groups operations by their function, previews their design, and links to the full details of each operation (which you can also find on the left sidebar).
 <!-- consider sets: 
 basic / advanced
 synth
@@ -83,17 +83,17 @@ Compound operations support joining different structural elements together compo
 | [interlace warps](./operations/interlacewarps) | ![file](./img/interlacewarps.png) |  
 | [overlay multiple](./operations/overlay_multiple) | ![file](./img/overlay_multiple.png) |  
 | [splice in wefts](./operations/splice_in_wefts) | ![file](./img/splice_in_wefts.png) |  
-| [splice in warps](./operations/splice_in_warps) | <!--![file](./img/.png)--> |  
-| [layer](./operations/layer) | <!--![file](./img/.png)--> |  
-| [layer notation](./operations/notation) | <!--![file](./img/.png)--> |  
-| [assign draft to system](./operations/assign_systems) | <!--![file](./img/.png)--> |  
+| [splice in warps](./operations/splice_in_warps) | ![file](./img/splice_in_warps.png)|  
+| [layer](./operations/layer) | ![file](./img/layer.png) |  
+| [layer notation](./operations/notation) | ![file](./img/notation.png) |  
+| [assign draft to system](./operations/assign_systems) | ![file](./img/assign_systems.png) |  
 
 ## Dissect
 Describes operations that split apart a single input draft into multiple outputs according to some criteria.
 
  | operation name  | examples |
 | -------- | ------- | 
-| [deinterlace](./operations/deinterlace") | <!--![file](./img/.png)--> |  
+| [deinterlace wefts](./operations/deinterlace) | ![file](./img/deinterlace.png) |  
 
 
 ## Compute
@@ -101,20 +101,20 @@ Computer operations apply different forms of computational, binary, and/or mathe
 
  | operation name  | examples |
  | -------- | ------- | 
-| [set atop, (a, b) => b](./operations/atop) | <!--![file](./img/.png)--> |  
-| [overlay, (a,b) => (a OR b)](./operations/overlay) | <!--![file](./img/.png)--> |  
-| [mask, (a,b) => (a AND b)](./operations/mask) | <!--![file](./img/.png)--> |  
-| [cut, (a, b) => (a NAND b)](./operations/cutout) | <!--![file](./img/.png)--> |  
-| [diff, (a, b) => (a NEQ b)](./operations/diff) | <!--![file](./img/.png)--> |  
+| [set atop, (a, b) => b](./operations/atop) | ![file](./img/atop.png) |  
+| [overlay, (a,b) => (a OR b)](./operations/overlay) | ![file](./img/overlay.png) |  
+| [mask, (a,b) => (a AND b)](./operations/mask) | ![file](./img/mask.png) |  
+| [cut, (a, b) => (a NAND b)](./operations/cutout) | ![file](./img/cutout.png) |  
+| [diff, (a, b) => (a NEQ b)](./operations/diff) | ![file](./img/diff.png) |  
 
 ## Helper
 Operations that automate common drafting techniques to ensure good woven and cloth structure.
 
  | operation name  | examples |
  | -------- | ------- | 
-| [selvedge](./operations/selvedge) | <!--![file](./img/.png)--> |  
-| [bind weft floats](./operations/bind_weft_floats) | <!--![file](./img/.png)--> |  
-| [bind warp floats](./operations/bind_warp_floats) | <!--![file](./img/.png)--> |  
+| [selvedge](./operations/selvedge) | ![file](./img/selvedge.png) |  
+<!-- | [bind weft floats](./operations/bind_weft_floats) | ![file](./img/.png) |   -->
+<!-- | [bind warp floats](./operations/bind_warp_floats) | ![file](./img/.png) |   -->
 
 
 ## Color Effects
@@ -122,9 +122,9 @@ Supports the specification of materials in order to describe different color eff
 
  | operation name  | examples |
  | -------- | ------- | 
-| [set materials and systems](./operations/apply_materials) | <!--![file](./img/.png)--> |  
-| [set weft materials](./operations/apply_weft_materials) | <!--![file](./img/.png)--> |  
-| [set warp materials](./operations/apply_warp_materials) | <!--![file](./img/.png)--> |  
+| [set materials and systems](./operations/apply_materials) | ![file](./img/apply_materials.png) |  
+| [set weft materials](./operations/apply_weft_materials) | ![file](./img/apply_weft_materials.png) |  
+| [set warp materials](./operations/apply_warp_materials) | ![file](./img/apply_warp_materials.png) |  
 
 
 ## Drafting Styles
@@ -133,7 +133,7 @@ Supports the conversion of one style of drafting to another, based on the requir
 
  | operation name  | examples |
  | -------- | ------- | 
-| [generate floor loom threading and treadling](./operations/floor_loom) | <!--![file](./img/.png)--> |  
-| [generate direct tie loom threading and lift plan](./operations/direct_loom) | <!--![file](./img/.png)--> |  
-| [make drawdown from threading, tieup, and treadling](./operations/drawdown) | <!--![file](./img/.png)--> |  
-| [make drawdown from threading and lift plan](./operations/directdrawdown") | <!--![file](./img/.png)--> |  
+| [generate floor loom threading and treadling](./operations/floor_loom) | ![file](./img/floor_loom.png) |  
+| [generate direct tie loom threading and lift plan](./operations/direct_loom) | ![file](./img/direct_loom.png) |  
+| [make drawdown from threading, tieup, and treadling](./operations/drawdown) | ![file](./img/drawdown.png) |  
+| [make drawdown from threading and lift plan](./operations/directdrawdown) | ![file](./img/directdrawdown.png) |  

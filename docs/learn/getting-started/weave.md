@@ -31,7 +31,7 @@ import TabItem from '@theme/TabItem';
 
         ![file](./img/tc2_download.png)
 
-        You can download the draft by hovering your mouse over the [outlet](../glossary/outlet.md) of the draft you'd like you download and select "download as bitmap." The bitmap exported from AdaCAD uses a .jpg format (because we haven't figured out a way to download directly to BMP or TIFF just yet). You need to formally convert the .jpg that AdaCAD generates to a bitmap format for it to be read, which we show in the next step.
+        You can download the draft by hovering your mouse over the [outlet](../../reference/glossary/outlet.md) of the draft you'd like you download and select "download as bitmap." The bitmap exported from AdaCAD uses a .jpg format (because we haven't figured out a way to download directly to BMP or TIFF just yet). You need to formally convert the .jpg that AdaCAD generates to a bitmap format for it to be read, which we show in the next step.
 
         ### Step 2: Reformat as a .TIFF file in Photoshop
 

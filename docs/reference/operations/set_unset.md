@@ -6,7 +6,7 @@ tags: [advanced, transformation]
 # set unset
 Sets all unset interlacements/cells in this draft to the value set in the parameter.
 
-![file](./img/set unset.png)
+![file](./img/set_unset.png)
 
 ## Parameters
 - `lift/lower`: determines whether the unset interlacements are to be raised or lowered. 

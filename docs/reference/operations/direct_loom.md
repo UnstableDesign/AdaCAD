@@ -1,18 +1,20 @@
 ---
 title: generate direct tie loom threading and lift plan
 sidebar_label: generate direct tie loom threading and lift plan
-tags: [advanced]
-draft: true
+tags: [advanced, drafting styles]
+
 ---
-# direct loom
+# generate direct tie loom threading and lift plan
 Uses the input draft as drawdown and generates a threading and lift plan pattern
 
-<!--![file](./img/direct loom.png)-->
+![file](./img/direct_loom.png)
 
 ## Parameters
-- tbd
+- `frames` - the number of frames to use
+
 
 ## Application
 To create threading and treadlings plans from drawdowns
+
 ## Developer
-adacad id: direct loom
+adacad id: `direct loom`

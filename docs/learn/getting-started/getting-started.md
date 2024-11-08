@@ -3,7 +3,7 @@ sidebar_position: 1
 ---
 
 # Getting Started
-AdaCAD is an experimental workspace that applies [parametric design](../../reference/glossary/parametric-design.md) to the domain of weave [drafting](../../reference/glossary/draft). It supports algorithmic and playful approaches to developing woven structures and cloth, for [shaft](../../reference/glossary/harness-loom), [dobby](../../reference/glossary/direct-tie-loom),  and [jacquard](../../reference/glossary/jacquard-loom) looms. 
+AdaCAD is an experimental workspace that applies [parametric design](/reference/glossary/parametric-design.md) to the domain of weave [drafting](/reference/glossary/draft.md). It supports algorithmic and playful approaches to developing woven structures and cloth, for [shaft](../../reference/glossary/harness-loom.md), [dobby](../../reference/glossary/direct-tie-loom.md),  and [jacquard](../../reference/glossary/jacquard-loom.md) looms. 
 
 **AdaCAD is freely accessible online**, you do not need to download or install it on your computer. We recommend using the [Chrome](https://www.google.com/chrome/) browser on a laptop or desktop computer for the best experience. We are also continually updating AdaCAD to experiment with new features, which means that there is more than one version of AdaCAD that you can choose from. 
 
@@ -28,7 +28,7 @@ Once you have created a draft, [weave it on your loom](./weave.md). You can expo
 
 ### Step 4: Share and Contribute
 
-We'd love to see what you made and to share it with the community. Email your design and creation to unstabledesignlab@gmail.com or share it on Instagram by tagging [#adacad](https://www.instagram.com/explore/tags/adacad/). AdaCAD is an open-source project, hoping to blossom into an open-source eco-system, which means we are looking to the community to help develop this project. While we work to get more establish different modes of contribution you can help by sharing your designs with us, editing or updating our documentation (via the "Edit this Page" feature on the bottom of every page), [adding your own operations to AdaCAD](../../develop/makeanoperation) and providing feedback to us via unstabledesignlab@gmail.com. 
+We'd love to see what you made and to share it with the community. Email your design and creation to unstabledesignlab@gmail.com or share it on Instagram by tagging [#adacad](https://www.instagram.com/explore/tags/adacad/). AdaCAD is an open-source project, hoping to blossom into an open-source eco-system, which means we are looking to the community to help develop this project. While we work to get more establish different modes of contribution you can help by sharing your designs with us, editing or updating our documentation (via the "Edit this Page" feature on the bottom of every page), [adding your own operations to AdaCAD](../../develop/makeanoperation.md) and providing feedback to us via unstabledesignlab@gmail.com. 
 
 
 

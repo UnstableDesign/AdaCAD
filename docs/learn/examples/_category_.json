@@ -1,9 +1,9 @@
 {
-    "label": "Examples",
-    "position": 2,
+    "label": "Selected Examples",
+    "position": 3,
     "link": {
       "type": "generated-index",
-      "description": "Projects to get you started using AdaCAD"
+      "description": "This category includes narratives, AdaCAD workspaces, and how-tos related to projects that we have created in the Unstable Design Lab"
     }
   }
   

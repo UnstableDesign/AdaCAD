@@ -1,18 +1,25 @@
 ---
 title: splice in ends
 sidebar_label: splice in ends
-tags: [advanced]
-draft: true
+tags: [advanced, compound]
 ---
-# splice in warps
-Splices the ends of the second input draft into the first. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in end by end and the amount of ends between each insertion.
+# splice in ends
+Splices the ends of the `splicing draft` input draft into the `receiving draft`. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in end by end and the amount of ends between each insertion.
 
-<!--![file](./img/splice in warps.png)-->
+![file](./img/splice_in_warps.png)
 
 ## Parameters
-- tbd
+- `ends between insert`: a number describing how many warp ends of the receiving draft should occur before switching to the splicing draft. 
+- `calculate repeats`: this defines what happens if/when you connect drafts with different numbers of ends. If `repeat inputs to match size` is selected, AdaCAD will expand the number of pics in the output draft such that all input structures repeat at the even intervals across along length of the cloth. If the `do not repeat inputs to match size` the smaller draft will integrated, but not repeated, into the larger draft.
+- `splice style`: users have the option to integrate the splicing draft into the receiving draft in two ways. The first, `line by line` integrates the splicing draft one line at a time. If `whole draft` is selected, the entire splicing draft is inserted into the receiving draft. 
+
+## Inlets
+- `receiving draft` - the draft that will be spliced into
+- `splicing draft` - the draft that will be inserted
+
 
 ## Application
 Warp-wise splicing can be used to add a specific textual feature to the length of the cross in even intervals
+
 ## Developer
-adacad id: splice in warps
+adacad id: `splice in warps`

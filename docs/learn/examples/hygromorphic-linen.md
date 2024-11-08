@@ -66,7 +66,7 @@ Follow along with this example in AdaCAD 4: [Shape Changing Linen](https://adaca
 
 :::
 
-While the structure of this cloth is a simple satin, it gets a bit more complicated when we consider the example just above with alternating regions of Z and S twist. White it is possible to apply tapestry techniques by winding S and Z twist bobbins and manually insert and clasp them in their respective regions across the weft, the way we would approach drafting this in AdaCAD looks to distinguish the regions weaving S twisted bobbins and the regions weaving Z twisted bobbins by assigning them to separate [weft systems](../../reference/glossary/weft-system). This has the effect of raising only the S twisted regions, and only Z twisting regions on alternating [picks](../../reference/glossary/pick). 
+While the structure of this cloth is a simple satin, it gets a bit more complicated when we consider the example just above with alternating regions of Z and S twist. White it is possible to apply tapestry techniques by winding S and Z twist bobbins and manually insert and clasp them in their respective regions across the weft, the way we would approach drafting this in AdaCAD looks to distinguish the regions weaving S twisted bobbins and the regions weaving Z twisted bobbins by assigning them to separate [weft systems](../../reference/glossary/system.md). This has the effect of raising only the S twisted regions, and only Z twisting regions on alternating [picks](../../reference/glossary/pick). 
 
 ### Assign S and Z Twisting Regions to Alternating Weft Systems
 
@@ -74,7 +74,7 @@ While the structure of this cloth is a simple satin, it gets a bit more complica
 
 To implement this in AdaCAD, you would first add the *satin* operation and set the size and floats to match the specifications for your linen. Here, I use a 10-shaft satin as an example. 
 
-Next, you would assign the satin to alternating picks, which we accomplish by assigning them to alternating [weft systems](../../reference/glossary/weft-system).
+Next, you would assign the satin to alternating picks, which we accomplish by assigning them to alternating [weft systems](../../reference/glossary/system.md).
 
 ![file](img/animatedlinen_system.png)
 
@@ -140,7 +140,7 @@ The graphics above show the resulting draft in both a zoomed out and zoomed in s
 
 ![file](img/animatedlinen_glitchsatin.png)
 
-Unstable Design Lab PhD [Deanna Gelosi](https://www.deannagelosi.com/) collaborated with Kathryn to explore if computationally generated drafts might reveal new possibilities of cloth movement. While we didn't discover many new possibilities, we did generate some new satin producing functions to play with in AdaCAD. Specifically, *glitch satin* will randomly generate a satin structure across a user-specified number of ends and pics and contains warp and weft faced floats that range between two float lengths supplied by the user (min-float and max-float). A final [parameter](../glossary/parameter.md) called frequency controls determines the how likely the floats are to be longer or shorter end of the range you specified. 
+Unstable Design Lab PhD [Deanna Gelosi](https://www.deannagelosi.com/) collaborated with Kathryn to explore if computationally generated drafts might reveal new possibilities of cloth movement. While we didn't discover many new possibilities, we did generate some new satin producing functions to play with in AdaCAD. Specifically, *glitch satin* will randomly generate a satin structure across a user-specified number of ends and pics and contains warp and weft faced floats that range between two float lengths supplied by the user (min-float and max-float). A final [parameter](../../reference/glossary/parameter.md) called frequency controls determines the how likely the floats are to be longer or shorter end of the range you specified. 
 
 
 ![file](img/animatedLinen-satin-glitch.png)

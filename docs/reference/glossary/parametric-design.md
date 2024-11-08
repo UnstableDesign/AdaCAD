@@ -4,7 +4,7 @@ AdaCAD takes a ['parametric design'](https://en.wikipedia.org/wiki/Parametric_de
 Parametric design is an approach that asks the designer to explicitly describe a design in terms of a set of rules and relationships that the design should obey. Our approach takes specific inspiration from other parametric design tools such as [MaxMSP](https://cycling74.com/) (parametric design for sound) and [Grasshopper for Rhino](https://www.rhino3d.com/learn/?query=kind:%20grasshopper&modal=null) (parametric design for objects/forms). While parametric design takes a minute to understand and adopt, it can reduce the effort required to make changes, edits, or just playfully explore a design space within a range of user-specified options. 
 
 
-To specify these relation and generate drafts in AdaCAD, a designer creates a [dataflow](dataflow) made up of both [drafts](glossary/draft) and [operations](glossary/operations). An operation takes a draft as input, manipulates it according to it's internal rules and user defined parameters, and returns a modified draft. Multiple drafts and operations can be chained together to create drafts of increasing complexity.
+To specify these relation and generate drafts in AdaCAD, a designer creates a [dataflow](dataflow) made up of both [drafts](../glossary/draft.md) and [operations](../operations/). An operation takes a draft as input, manipulates it according to it's internal rules and user defined parameters, and returns a modified draft. Multiple drafts and operations can be chained together to create drafts of increasing complexity.
 
 
 ![file](./img/concept.png)
@@ -19,7 +19,7 @@ Just as a musician can chain guitar or effects pedals together to continually mo
 
 ## Operations List
 
-AdaCAD offers over 50 operations to generate, manipulate, arrange, and compose drafts. These operations are divided into groups based on their typical application.  You can review and learn more about all of the operations we offer on the [All Operations](operations/) page. 
+AdaCAD offers over 50 operations to generate, manipulate, arrange, and compose drafts. These operations are divided into groups based on their typical application.  You can review and learn more about all of the operations we offer on the [All Operations](../operations/) page. 
 
 ## A Note to Weavers Who are New to Parametric Design
 

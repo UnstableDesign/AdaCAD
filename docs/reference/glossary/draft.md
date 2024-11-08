@@ -35,13 +35,13 @@ The row of cells on the top of the drawdown correspond the different materials t
 ### Weft Systems
 ![file](./img/weft-systems.png)
 
-The letters on side of the drawdown indicate the [weft system](weft-system.md) each [pick](pick.md) is associated with. You can learn more about how and why you would use weft systems [here](weft-system.md). 
+The letters on side of the drawdown indicate the [weft system](system.md) each [pick](pick.md) is associated with. You can learn more about how and why you would use weft systems [here](system.md). 
 
 
 ### Warp Systems
 ![file](./img/warp-systems.png)
 
-The letters on top of the drawdown indicate the [warp system](warp-system.md) that this [end](end) is associated with. You can learn more about how and why you would use warp systems [here](warp-system.md). 
+The letters on top of the drawdown indicate the [warp system](system.md) that this [end](end) is associated with. You can learn more about how and why you would use warp systems [here](system.md). 
 
 
 
