@@ -31,12 +31,14 @@ last updated Oct 14:
 ### Confirmed Attendees 
 
 - [Brett Fiedler](https://www.colorado.edu/per/people/brett-fiedler) - CU Boulder
+- [Bhakti Ziek](https://bhaktiziek.com/) - Independent Author and Educator
 - [Bine Roth ](https://www.rca.ac.uk/more/staff/bine-roth/) - Royal College of London
 - [Chris Coleman](https://digitalcoleman.com/) - The Ohio State University
 - [Jim McCann](https://www.cs.cmu.edu/~jmccann/) - Carnegie Mellon University
 - [Kaori Ueda](https://www.kyoto-saga.ac.jp/about/teachers/2156) - Kyoto Saga University of Arts
 - [Kathryn Walters](https://www.kmwalters.com/) - Swedish School of Textiles
 - [Marianne Fairbanks](https://www.mariannefairbanks.com/) - University of Wisconsin-Madison
+- [Sienna Bosch](https://siennabosch.com/) - Schacht Spindle Company
 - [Vibeke Vestby](https://digitalweaving.no/) - Digital Weaving Norway
 
 
