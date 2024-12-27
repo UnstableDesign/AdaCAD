@@ -73,6 +73,7 @@ import {flip} from '../operations/flip/flip'
 import { glitchsatin } from '../operations/glitchsatin/glitchsatin';
 import { apply_warp_mats } from '../operations/applywarpmaterials/applywarpmaterials';
 import { apply_weft_mats } from '../operations/applyweftmaterials/applyweftmaterials';
+import { analyzesystem } from '../operations/analyzesystem/analyzesystem';
 
 @Injectable({
   providedIn: 'root'
@@ -153,6 +154,7 @@ export class OperationService {
     this.ops.push(shift);
     this.ops.push(flip);
     this.ops.push(overlay_multi);
+    this.ops.push(analyzesystem);
 
   //   //this.ops.push(germanify);
   //   //this.ops.push(crackleify);

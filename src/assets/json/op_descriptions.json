@@ -142,6 +142,13 @@
             "application": "Not sure, but perhaps it is interesting for the purposes of analyzing a draft structure or splitting apart layered drafts into their component layer patterns" 
         },
         {
+            "name":"analyzesystem",
+            "displayname": "analyze systems",
+            "tags": ["advanced"],
+            "description": "--",
+            "application": "--" 
+        },
+        {
             "name":"interlacewarps",
             "displayname": "interlace warps",
             "tags": ["advanced"],
