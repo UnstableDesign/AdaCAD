@@ -68,7 +68,7 @@ const sidebars = {
       label: 'Operations (A-Z)',
       collapsed: true,
       collapsible: true,
-      link: {type: 'doc', id: 'reference/operations/operations'},
+      link: {type: 'doc', id: 'reference/operations/index'},
       items:[ 
         'reference/operations/margin',
         'reference/operations/combos',

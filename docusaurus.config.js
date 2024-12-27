@@ -21,7 +21,7 @@ const config = {
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'unstabledesignlab', // Usually your GitHub org/user name.
   projectName: 'AdaCAD_Documentation', // Usually your repo name.
-  trailingSlash: false,
+  //trailingSlash: false,
 
   onBrokenLinks: 'warn', //throw
   onBrokenMarkdownLinks: 'warn',
