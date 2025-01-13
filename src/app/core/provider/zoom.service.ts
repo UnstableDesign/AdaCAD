@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { defaults } from '../model/defaults';
-import { ZoomProxy } from '../model/datatypes';
+import { Bounds, ZoomProxy } from '../model/datatypes';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +9,8 @@ export class ZoomService {
   //current zoom scale
   
 
-  num_steps: number = 20;
-  zoom_min: number = .1;
+  num_steps: number = 30;
+  zoom_min: number = .001;
   zoom_step: number = .004;
   zoom_table: Array<number> = [];
 
@@ -55,6 +55,50 @@ export class ZoomService {
   manageZoomRounding(val: number) : number {
     // if(val >= 1) return Math.floor(val);
     return Math.round(val * 1000) / 1000; 
+  }
+
+
+  /**
+   * this function takes a bounding box and view box and updates the zoom such that the bounding box fits within the view box. 
+   * @param objs 
+   * @param viewable (the size of the current view portal) 
+   */
+  zoomToFitMixer(objs: Bounds, viewable: {width: number, height: number}){
+
+    let factor = 1;
+    
+
+    console.log("BOUNDS ", objs, viewable);
+    //get the constraining dimension from the viewable; 
+    if(viewable.width > viewable.height){
+        //constrained by height
+        factor = viewable.height / objs.height;
+        console.log('CONSTRAINED BY HEIGHT', factor)
+
+        // let res_width = objs.width * factor;
+        // if(res_width > viewable.height){
+        //   factor = objs.width/ viewable.width;
+        // }
+
+    }else{
+      factor = objs.width / viewable.width;
+
+      let res_height = objs.height * factor;
+      if(res_height > viewable.height){
+        factor = objs.height/ viewable.height;
+      }
+    }
+    this.setMixerIndexFromZoomValue(factor);
+
+
+  }
+
+  zoomToFitEditor(){
+    
+  }
+
+  zoomToVitViewer(){
+
   }
 
 
@@ -123,6 +167,7 @@ export class ZoomService {
   }
 
   setMixerIndexFromZoomValue(zoom: number){
+    console.log("SETTING TO ", zoom)
     let closest = this.zoom_table.reduce((acc, val, ndx) => {
       let diff = zoom - val;
       if(diff >= 0 && diff < acc.min) return {min: diff, ndx: ndx}
@@ -131,6 +176,7 @@ export class ZoomService {
     }, {min: 1000000, ndx: 0})
 
     this.zoom_table_ndx_mixer=  closest.ndx;
+    console.log("SET TO ", this.zoom_table_ndx_mixer, this.zoom_table[this.zoom_table_ndx_mixer])
 
   }
 

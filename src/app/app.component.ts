@@ -9,7 +9,7 @@ import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { LoginComponent } from './core/modal/login/login.component';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { createCell } from './core/model/cell';
-import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, Point, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
 import { copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
@@ -109,6 +109,7 @@ export class AppComponent implements OnInit{
     private media: MediaService,
     private ms: MaterialsService,
     public multiselect: MultiselectService,
+    private notes: NotesService,
     private ops: OperationService,
     public scroll: ScrollDispatcher,
     public sys_serve: SystemsService,
@@ -1497,6 +1498,58 @@ redo() {
       return this.zs.zoom_table_ndx_mixer;
     } else {
       return this.zs.zoom_table_ndx_editor;
+    }
+  }
+
+
+  zoomToFit(){
+
+    const div:HTMLElement = document.getElementById('scrollable-container');
+    if(div === null || div === undefined || div.offsetParent == null ) return;
+
+
+    const scroll: Point = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
+    const client = {width: div.offsetParent.clientWidth, height: div.offsetParent.clientHeight};
+   
+
+
+    if(this.viewer.view_expanded){
+     // this.zs.zoomToFitViewer();
+      this.viewer.renderChange();
+    }else if(this.selected_editor_mode == 'mixer'){
+
+      //get node bounds
+      //get note bounds
+      //get the union of those bounds
+      const b_nodes = this.tree.getNodeBoundingBox();
+      const n_nodes = this.notes.getNoteBoundingBox();
+
+      let topleft =  {
+        x: Math.min(b_nodes.topleft.x, n_nodes.topleft.x), 
+        y: Math.min(b_nodes.topleft.y, n_nodes.topleft.y)};
+      let bottomright =  {
+        x: Math.min(Math.abs(b_nodes.topleft.x)+b_nodes.width, Math.abs(n_nodes.topleft.x)+n_nodes.width), 
+        y: Math.min(Math.abs(b_nodes.topleft.y)+b_nodes.height, Math.abs(n_nodes.topleft.y+n_nodes.height))}
+
+
+      const b_total = {
+        topleft,
+        width: (bottomright.x - topleft.x) * 1/this.zs.getMixerZoom(),
+        height: (bottomright.y - topleft.y) * 1/this.zs.getMixerZoom()
+      }
+
+
+      //send this union + the current view window to zoom to adjust the view such that it can fit in the window. 
+      //then, we need to set the scroll such that the top left is visible. 
+
+
+      this.zs.zoomToFitMixer(b_total,  client);
+     
+      this.mixer.renderChange();
+
+    } else {
+     // this.zs.zoomToFitEditor()
+      this.editor.renderChange();
     }
   }
 

@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
-import { Interlacement, Note, Point } from '../model/datatypes';
+import { Bounds, Interlacement, Note, Point } from '../model/datatypes';
 import utilInstance from '../model/util';
 
 
@@ -115,6 +115,40 @@ export class NotesService {
       height: note.height
     }
     });
+  }
+
+  /**
+   * returns the minimum bounding box that can contain all the notes values for each note that is currently visible. 
+   * @returns 
+   */
+  getNoteBoundingBox():Bounds{
+    
+    const raw_rects =  this.notes
+    .map(note => document.getElementById('note-'+note.id))
+    .filter(div => div !== null)
+    .map(div => div.getBoundingClientRect());
+
+    const min: Point = raw_rects.reduce((acc, el) => {
+      if(el.x < acc.x) acc.x = el.x;
+      if(el.y < acc.y) acc.y = el.y;
+      return acc;
+    }, {x: 1000000, y:100000});
+
+    const max: Point = raw_rects.reduce((acc, el) => {
+      if(el.right > acc.x) acc.x = el.right;
+      if(el.bottom > acc.y) acc.y = el.bottom;
+      return acc;
+    }, {x: 0, y:0});
+
+
+    let bounds:Bounds = {
+      topleft: {x: min.x, y: min.y},
+      width: max.x - min.x,
+      height: max.y - min.y
+    }
+
+    return bounds;
+
   }
 
   // /** called on load new file as well as undo, redo  */

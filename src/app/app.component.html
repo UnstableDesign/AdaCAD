@@ -244,6 +244,10 @@
            
         
             <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
+            
+            <button mat-flat-button (click)="zoomToFit()">Fit</button>
+            
+            
             <button  
             mat-icon-button 
             [disabled]="ss.undo_disabled"
@@ -251,6 +255,10 @@
             (click)="undo()" >
             <i class="fa-solid fa-rotate-left"></i>
             </button>
+
+
+
+
       
             <button  
             mat-icon-button 

@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
-import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { BoolParam, Bounds, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, Point, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
 import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
@@ -649,6 +649,42 @@ export class TreeService {
     if(ndx === -1) return null;
     return this.nodes[ndx]; 
   }
+
+  //this function returns the smallest bounding box that can contain all of the nodes. 
+  //this function does not consider the scrolling (all measures are relative to the current view window. )
+  //getClientRect factors in scale, so the x, y and width/height will have the current scaling factored in. 
+  getNodeBoundingBox():Bounds{
+
+    const raw_rects =  this.getNodeIdList()
+    .map(node => document.getElementById('scale-'+node))
+    .filter(div => div != null)
+    .map(div => div.getBoundingClientRect());
+
+
+    const min: Point = raw_rects.reduce((acc, el) => {
+      if(el.x < acc.x) acc.x = el.x;
+      if(el.y < acc.y) acc.y = el.y;
+      return acc;
+    }, {x: 1000000, y:100000});
+
+    const max: Point = raw_rects.reduce((acc, el) => {
+      if(el.right > acc.x) acc.x = el.right;
+      if(el.bottom > acc.y) acc.y = el.bottom;
+      return acc;
+    }, {x: 0, y:0});
+
+
+    let bounds:Bounds = {
+      topleft: {x: min.x, y: min.y},
+      width: max.x - min.x,
+      height: max.y - min.y
+    }
+
+    return bounds;
+  
+  }
+
+
 
   getNodeIdList() : Array<number> {
     return this.nodes.map(node => node.id);
