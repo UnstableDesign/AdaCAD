@@ -1504,48 +1504,40 @@ redo() {
 
   zoomToFit(){
 
-    const div:HTMLElement = document.getElementById('scrollable-container');
-    if(div === null || div === undefined || div.offsetParent == null ) return;
+    const view_window:HTMLElement = document.getElementById('scrollable-container');
+    const child:HTMLElement = document.getElementById('palette-scale-container');
+    if(view_window === null || view_window === undefined) return;
 
-
-    const scroll: Point = {x: div.offsetParent.scrollLeft, y: div.offsetParent.scrollTop};
-    const client = {width: div.offsetParent.clientWidth, height: div.offsetParent.clientHeight};
+    console.log("DIV window", view_window.scrollLeft)
+    console.log("DIV palette scale", child, child.getBoundingClientRect())
    
 
-
     if(this.viewer.view_expanded){
-     // this.zs.zoomToFitViewer();
       this.viewer.renderChange();
     }else if(this.selected_editor_mode == 'mixer'){
 
-      //get node bounds
-      //get note bounds
-      //get the union of those bounds
-      const b_nodes = this.tree.getNodeBoundingBox();
-      const n_nodes = this.notes.getNoteBoundingBox();
-
-      let topleft =  {
-        x: Math.min(b_nodes.topleft.x, n_nodes.topleft.x), 
-        y: Math.min(b_nodes.topleft.y, n_nodes.topleft.y)};
-      let bottomright =  {
-        x: Math.min(Math.abs(b_nodes.topleft.x)+b_nodes.width, Math.abs(n_nodes.topleft.x)+n_nodes.width), 
-        y: Math.min(Math.abs(b_nodes.topleft.y)+b_nodes.height, Math.abs(n_nodes.topleft.y+n_nodes.height))}
-
-
-      const b_total = {
-        topleft,
-        width: (bottomright.x - topleft.x) * 1/this.zs.getMixerZoom(),
-        height: (bottomright.y - topleft.y) * 1/this.zs.getMixerZoom()
-      }
-
-
-      //send this union + the current view window to zoom to adjust the view such that it can fit in the window. 
-      //then, we need to set the scroll such that the top left is visible. 
-
-
-      this.zs.zoomToFitMixer(b_total,  client);
      
+      const b_nodes = this.tree.getNodeBoundingBox(this.zs.getMixerZoom());
+      const n_nodes = this.notes.getNoteBoundingBox(this.zs.getMixerZoom());
+
+
+      const bounds = utilInstance.mergeBounds([b_nodes, n_nodes]);
+      
+      if(bounds == null) return;
+
+      this.zs.zoomToFitMixer(bounds, view_window.getBoundingClientRect());
+
+      //since bounds is in absolute terms (relative to the child div, we need to convert the top left into the scaled space)
+      view_window.scroll({
+        top: bounds.topleft.y*this.zs.getMixerZoom(),
+        left: bounds.topleft.x*this.zs.getMixerZoom(),
+        behavior: "instant",
+      })
+
+
       this.mixer.renderChange();
+
+
 
     } else {
      // this.zs.zoomToFitEditor()

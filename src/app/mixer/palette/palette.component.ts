@@ -359,13 +359,24 @@ handlePan(diff: Point){
     /**TO DO  */
     //figure out how to keep the content centered when this zoom takes place
 
-    const container: HTMLElement = document.getElementById('palette-scale-container');
+
+    const view_window:HTMLElement = document.getElementById('scrollable-container');
+    const container:HTMLElement = document.getElementById('palette-scale-container');
+    if(view_window === null || view_window === undefined) return;
+
+    //let the top left point of the scroll, this is given in terms of palette scale container. 
+
+
+    console.log("ZOOMS BEFORE/NOW", container.style.transform, this.zs.getMixerZoom())
     if(container === null) return;
 
     // const scrollTop = container.parentElement.scrollTop;
     // const scrollLeft = container.parentElement.scrollLeft;
     container.style.transformOrigin = 'top left';
     container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
+
+    //consider adjusting scroll to the new 
+ 
 
     this.redrawConnections();
   }

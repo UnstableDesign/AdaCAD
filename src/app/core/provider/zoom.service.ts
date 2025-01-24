@@ -59,20 +59,20 @@ export class ZoomService {
 
 
   /**
-   * this function takes a bounding box and view box and updates the zoom such that the bounding box fits within the view box. 
+   * this function takes a bounding box and the total size of the palette and updates the zoom such that the bounding box fits within the view box. 
    * @param objs 
    * @param viewable (the size of the current view portal) 
    */
-  zoomToFitMixer(objs: Bounds, viewable: {width: number, height: number}){
+  zoomToFitMixer(bounds: Bounds, viewable: {width: number, height: number}){
 
     let factor = 1;
-    
 
-    console.log("BOUNDS ", objs, viewable);
+    console.log("BOUNDS ", bounds, viewable);
     //get the constraining dimension from the viewable; 
+   
     if(viewable.width > viewable.height){
         //constrained by height
-        factor = viewable.height / objs.height;
+        factor = viewable.height / bounds.height;
         console.log('CONSTRAINED BY HEIGHT', factor)
 
         // let res_width = objs.width * factor;
@@ -81,11 +81,11 @@ export class ZoomService {
         // }
 
     }else{
-      factor = objs.width / viewable.width;
+      factor = bounds.width / viewable.width;
 
-      let res_height = objs.height * factor;
+      let res_height = bounds.height * factor;
       if(res_height > viewable.height){
-        factor = objs.height/ viewable.height;
+        factor = bounds.height/ viewable.height;
       }
     }
     this.setMixerIndexFromZoomValue(factor);

@@ -650,26 +650,38 @@ export class TreeService {
     return this.nodes[ndx]; 
   }
 
-  //this function returns the smallest bounding box that can contain all of the nodes. 
-  //this function does not consider the scrolling (all measures are relative to the current view window. )
-  //getClientRect factors in scale, so the x, y and width/height will have the current scaling factored in. 
-  getNodeBoundingBox():Bounds{
 
-    const raw_rects =  this.getNodeIdList()
+
+  /**
+   * this function returns the smallest bounding box that can contain all of the nodes. This function does not consider the scrolling (all measures are relative to the node parent (palette-scale-container). This means that the values will be the same no matter the scroll or the zoom. 
+   * @returns The Bounds or null (if there are no nodes with which to measure)
+   */
+  getNodeBoundingBox(current_zoom:number):Bounds|null{
+
+    if(this.nodes.length == 0) return null;
+
+
+    const raw_rects=  this.getNodeIdList()
     .map(node => document.getElementById('scale-'+node))
     .filter(div => div != null)
-    .map(div => div.getBoundingClientRect());
+    .map(div => { return {x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight}});
 
+
+    console.log("rect ", raw_rects)
 
     const min: Point = raw_rects.reduce((acc, el) => {
-      if(el.x < acc.x) acc.x = el.x;
-      if(el.y < acc.y) acc.y = el.y;
+      let adj_x =  el.x;
+      let adj_y =  el.y;
+      if(adj_x < acc.x) acc.x = adj_x;
+      if(adj_y < acc.y) acc.y = adj_y;
       return acc;
     }, {x: 1000000, y:100000});
 
     const max: Point = raw_rects.reduce((acc, el) => {
-      if(el.right > acc.x) acc.x = el.right;
-      if(el.bottom > acc.y) acc.y = el.bottom;
+      let adj_right = el.x + el.width;
+      let adj_bottom = el.y + el.height;
+      if(adj_right > acc.x) acc.x = adj_right;
+      if(adj_bottom  > acc.y) acc.y = adj_bottom;
       return acc;
     }, {x: 0, y:0});
 
@@ -680,6 +692,7 @@ export class TreeService {
       height: max.y - min.y
     }
 
+    console.log('BOUNDS FOR COMPONENTS', min, max, bounds)
     return bounds;
   
   }
