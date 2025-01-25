@@ -1461,11 +1461,6 @@ redo() {
       let comp= this.tree.getComponent(id);
       (<SubdraftComponent> comp).draftcontainer.updateName();
     }
-    
-   
-
-
-
   }
 
   renameWorkspace(name: string){
@@ -1505,27 +1500,24 @@ redo() {
   zoomToFit(){
 
     const view_window:HTMLElement = document.getElementById('scrollable-container');
-    const child:HTMLElement = document.getElementById('palette-scale-container');
     if(view_window === null || view_window === undefined) return;
 
-    console.log("DIV window", view_window.scrollLeft)
-    console.log("DIV palette scale", child, child.getBoundingClientRect())
-   
 
     if(this.viewer.view_expanded){
       this.viewer.renderChange();
     }else if(this.selected_editor_mode == 'mixer'){
 
      
-      const b_nodes = this.tree.getNodeBoundingBox(this.zs.getMixerZoom());
-      const n_nodes = this.notes.getNoteBoundingBox(this.zs.getMixerZoom());
-
-
+      const b_nodes = this.tree.getNodeBoundingBox();
+      const n_nodes = this.notes.getNoteBoundingBox();
       const bounds = utilInstance.mergeBounds([b_nodes, n_nodes]);
       
       if(bounds == null) return;
 
+      console.log("ZOOM TO FIT ", bounds, view_window.getBoundingClientRect());
+      let prior = this.zs.getMixerZoom();
       this.zs.zoomToFitMixer(bounds, view_window.getBoundingClientRect());
+      this.mixer.renderChange(prior);
 
       //since bounds is in absolute terms (relative to the child div, we need to convert the top left into the scaled space)
       view_window.scroll({
@@ -1535,7 +1527,6 @@ redo() {
       })
 
 
-      this.mixer.renderChange();
 
 
 
@@ -1546,12 +1537,18 @@ redo() {
   }
 
   zoomOut(){
+
     if(this.viewer.view_expanded){
       this.zs.zoomOutViewer();
       this.viewer.renderChange();
     }else if(this.selected_editor_mode == 'mixer'){
+      const prior = this.zs.getMixerZoom();
       this.zs.zoomOutMixer();
-      this.mixer.renderChange();
+      this.mixer.renderChange(prior);
+
+
+
+
     } else {
       this.zs.zoomOutEditor()
       this.editor.renderChange();
@@ -1563,8 +1560,9 @@ redo() {
       this.zs.zoomInViewer();
       this.viewer.renderChange();
     }else if(this.selected_editor_mode == 'mixer'){
+      const prior = this.zs.getMixerZoom();
       this.zs.zoomInMixer();
-      this.mixer.renderChange();
+      this.mixer.renderChange(prior);
     } else {
       this.zs.zoomInEditor()
       this.editor.renderChange();

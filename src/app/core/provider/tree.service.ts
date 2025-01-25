@@ -656,7 +656,7 @@ export class TreeService {
    * this function returns the smallest bounding box that can contain all of the nodes. This function does not consider the scrolling (all measures are relative to the node parent (palette-scale-container). This means that the values will be the same no matter the scroll or the zoom. 
    * @returns The Bounds or null (if there are no nodes with which to measure)
    */
-  getNodeBoundingBox(current_zoom:number):Bounds|null{
+  getNodeBoundingBox():Bounds|null{
 
     if(this.nodes.length == 0) return null;
 
@@ -665,9 +665,6 @@ export class TreeService {
     .map(node => document.getElementById('scale-'+node))
     .filter(div => div != null)
     .map(div => { return {x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight}});
-
-
-    console.log("rect ", raw_rects)
 
     const min: Point = raw_rects.reduce((acc, el) => {
       let adj_x =  el.x;

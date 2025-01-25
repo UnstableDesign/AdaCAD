@@ -121,26 +121,25 @@ export class NotesService {
    * this function returns the smallest bounding box that can contain all of the notes. This function does not consider the scrolling (all measures are relative to the current view window). getClientRect factors in scale, so the x, y and width/height will have the current scaling factored in. To adjust for this, this function needs to take in the current zoom
    * @returns The Bounds or null (if there are no nodes with which to measure)
    */
-  getNoteBoundingBox(current_zoom):Bounds|null{
+  getNoteBoundingBox():Bounds|null{
     
-    if(this.notes.length == 0) return null;
-
     const raw_rects =  this.notes
     .map(note => document.getElementById('note-'+note.id))
     .filter(div => div !== null)
-    .map(div => div.getBoundingClientRect());
+    .map(div => { return {x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight}});
 
+    
     const min: Point = raw_rects.reduce((acc, el) => {
-      let adj_x =  el.x * 1/current_zoom;
-      let adj_y =  el.y * 1/current_zoom;
-      if(el.x < acc.x) acc.x = adj_x;
-      if(el.y < acc.y) acc.y = adj_y;
+      let adj_x =  el.x;
+      let adj_y =  el.y;
+      if(adj_x < acc.x) acc.x = adj_x;
+      if(adj_y < acc.y) acc.y = adj_y;
       return acc;
     }, {x: 1000000, y:100000});
 
     const max: Point = raw_rects.reduce((acc, el) => {
-      let adj_right = el.right * 1/current_zoom;
-      let adj_bottom = el.bottom * 1/current_zoom;
+      let adj_right = el.x + el.width;
+      let adj_bottom = el.y + el.height;
       if(adj_right > acc.x) acc.x = adj_right;
       if(adj_bottom  > acc.y) acc.y = adj_bottom;
       return acc;
@@ -152,9 +151,10 @@ export class NotesService {
       width: max.x - min.x,
       height: max.y - min.y
     }
-    console.log('BOUNDS FOR Notes', bounds)
 
+    console.log('BOUNDS FOR NOTES', min, max, bounds)
     return bounds;
+   
 
   }
 

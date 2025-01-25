@@ -345,38 +345,48 @@ handlePan(diff: Point){
     
 }
 
-  centerView(){
-    this.rescale();
-  }
+  // centerView(){
+  //   this.rescale();
+  // }
 
 
 
   /**
-   * @param scale 
+   * updates the view after a zoom event is called. Changes the scale of the palette scale container and 
+   * scrolls such that the top left point when zoom is called remains the same after the zoom is updated
+   * 
+   * the position of the operation does not change, only the scale does. 
    */
   rescale(){
-
-    /**TO DO  */
-    //figure out how to keep the content centered when this zoom takes place
-
 
     const view_window:HTMLElement = document.getElementById('scrollable-container');
     const container:HTMLElement = document.getElementById('palette-scale-container');
     if(view_window === null || view_window === undefined) return;
 
     //let the top left point of the scroll, this is given in terms of palette scale container. 
-
-
-    console.log("ZOOMS BEFORE/NOW", container.style.transform, this.zs.getMixerZoom())
     if(container === null) return;
 
-    // const scrollTop = container.parentElement.scrollTop;
-    // const scrollLeft = container.parentElement.scrollLeft;
-    container.style.transformOrigin = 'top left';
-    container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
+    // //what % of the range is this point 
+    let pcentX = view_window.scrollLeft / view_window.scrollWidth;
+    let pcentY = view_window.scrollTop / view_window.scrollHeight;
 
-    //consider adjusting scroll to the new 
- 
+
+    //transform to the top left 
+    //container.style.transformOrigin = scrollLeft+"px "+scrollTop+"px"; //this goes to the center point
+    container.style.transformOrigin = "top left"; //reset after moving as to not affect scrolling 
+    container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')'; 
+
+
+    // move the scroll by the same % within the new div size
+    let newScrollLeft =  view_window.scrollWidth * pcentX;
+    let newScrollTop =  view_window.scrollWidth * pcentY;
+
+
+    view_window.scroll({
+      left: newScrollLeft,
+      top: newScrollTop,
+      behavior: "instant"
+    });
 
     this.redrawConnections();
   }
