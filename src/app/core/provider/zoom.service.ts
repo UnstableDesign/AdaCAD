@@ -10,8 +10,8 @@ export class ZoomService {
   
 
   num_steps: number = 30;
-  zoom_min: number = .001;
-  zoom_step: number = .004;
+  zoom_min: number = .015;
+  zoom_step: number = .002;
   zoom_table: Array<number> = [];
 
   zoom_table_ndx_mixer: number = defaults.zoom_ndx_mixer;
