@@ -491,11 +491,7 @@ export class OperationComponent implements OnInit {
 
 
     this.offset = null;
-    let op_container = document.getElementById('scale-'+this.id);
-    let rect_op = op_container.getBoundingClientRect();
-
-    console.log("DRAG START ", $event )
-
+  
      if(this.multiselect.isSelected(this.id)){
       this.multiselect.setRelativePosition(this.topleft);
      }else{
@@ -516,7 +512,6 @@ export class OperationComponent implements OnInit {
 
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-'+this.id);
-    let rect_op = op_container.getBoundingClientRect();
     let rect_palette = parent.getBoundingClientRect();
 
 
@@ -542,7 +537,7 @@ export class OperationComponent implements OnInit {
         x: scaled_pointer.x - op_topleft_inscale.x,
         y: scaled_pointer.y - op_topleft_inscale.y
       }
-      console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
+      //console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
 
     }
 
