@@ -190,7 +190,6 @@ export class AppComponent implements OnInit{
   }
 
 
-
   clearAll() : void{
 
     this.vs.clearPin();
@@ -1507,12 +1506,14 @@ redo() {
       this.viewer.renderChange();
     }else if(this.selected_editor_mode == 'mixer'){
 
-     
-      const b_nodes = this.tree.getNodeBoundingBox();
-      const n_nodes = this.notes.getNoteBoundingBox();
-      const bounds = utilInstance.mergeBounds([b_nodes, n_nodes]);
-      console.log("MERGED BOUNDS", bounds);
+      let selections = this.multiselect.getSelections();  
 
+      let node_list = (selections.length == 0) ? this.tree.getNodeIdList() : selections;
+      let note_list = (selections.length == 0) ? this.notes.getNoteIdList() : [];
+
+      const b_nodes = this.tree.getNodeBoundingBox(node_list);
+      const n_nodes =  this.notes.getNoteBoundingBox(note_list);
+      const bounds = utilInstance.mergeBounds([b_nodes, n_nodes]);
       
       if(bounds == null) return;
 

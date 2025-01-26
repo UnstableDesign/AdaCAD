@@ -147,7 +147,6 @@ export class ZoomService {
   }
 
   setMixerIndexFromZoomValue(zoom: number){
-    console.log("SETTING TO ", zoom)
     let closest = this.zoom_table.reduce((acc, val, ndx) => {
       let diff = zoom - val;
       if(diff >= 0 && diff < acc.min) return {min: diff, ndx: ndx}
@@ -156,7 +155,7 @@ export class ZoomService {
     }, {min: 1000000, ndx: 0})
 
     this.zoom_table_ndx_mixer=  closest.ndx;
-    console.log("SET TO ", this.zoom_table_ndx_mixer, this.zoom_table[this.zoom_table_ndx_mixer])
+    // console.log("SET TO ", this.zoom_table_ndx_mixer, this.zoom_table[this.zoom_table_ndx_mixer])
 
   }
 

@@ -285,7 +285,7 @@ class Util {
     const tlbr = list.reduce((acc, val) => {
 
       if(val.topleft.x < acc.topleft.x) acc.topleft.x = val.topleft.x;
-      if(val.topleft.y < acc.topleft.y) acc.topleft.x = val.topleft.y;
+      if(val.topleft.y < acc.topleft.y) acc.topleft.y = val.topleft.y;
       if(val.topleft.x+val.width > acc.botright.x) acc.botright.x = val.topleft.x + val.width;
       if(val.topleft.y+val.height > acc.botright.y) acc.botright.y = val.topleft.y + val.height;
       return acc;

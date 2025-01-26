@@ -653,15 +653,15 @@ export class TreeService {
 
 
   /**
-   * this function returns the smallest bounding box that can contain all of the nodes. This function does not consider the scrolling (all measures are relative to the node parent (palette-scale-container). This means that the values will be the same no matter the scroll or the zoom. 
+   * this function returns the smallest bounding box that can contain all of the input nodes. This function does not consider the scrolling (all measures are relative to the node parent (palette-scale-container). This means that the values will be the same no matter the scroll or the zoom. 
    * @returns The Bounds or null (if there are no nodes with which to measure)
    */
-  getNodeBoundingBox():Bounds|null{
+  getNodeBoundingBox(node_ids: Array<number>):Bounds|null{
 
     if(this.nodes.length == 0) return null;
 
 
-    const raw_rects=  this.getNodeIdList()
+    const raw_rects= node_ids
     .map(node => document.getElementById('scale-'+node))
     .filter(div => div != null)
     .map(div => { return {x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight}});
@@ -689,7 +689,7 @@ export class TreeService {
       height: max.y - min.y
     }
 
-    console.log('BOUNDS FOR COMPONENTS', min, max, bounds)
+    // console.log('BOUNDS FOR COMPONENTS', min, max, bounds)
     return bounds;
   
   }
