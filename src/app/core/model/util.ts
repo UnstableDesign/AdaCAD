@@ -269,6 +269,38 @@ class Util {
   }
 
 
+
+  /**
+   * given a list of Bounds objects, this function will merge the bounds such that the top left point represents the top-most and left-most of the values and the width and height contain all values
+   * @param list 
+   * @returns 
+   */
+  mergeBounds(list: Array<Bounds>) : Bounds | null {
+
+    list = list.filter(el => el !== null && el !== undefined);
+    if(list.length == 0) return null;
+
+    const first = list.pop();
+
+    const tlbr = list.reduce((acc, val) => {
+
+      if(val.topleft.x < acc.topleft.x) acc.topleft.x = val.topleft.x;
+      if(val.topleft.y < acc.topleft.y) acc.topleft.y = val.topleft.y;
+      if(val.topleft.x+val.width > acc.botright.x) acc.botright.x = val.topleft.x + val.width;
+      if(val.topleft.y+val.height > acc.botright.y) acc.botright.y = val.topleft.y + val.height;
+      return acc;
+    }, {topleft: first.topleft, botright: {x: first.topleft.x + first.width, y: first.topleft.y + first.height}})
+
+
+    return {
+      topleft: {x: tlbr.topleft.x, y: tlbr.topleft.y},
+      width: (tlbr.botright.x - tlbr.topleft.x),
+      height: (tlbr.botright.y - tlbr.topleft.y),
+    }
+
+  }
+
+
   /**
    * finds the right-most component, used to create bounding box 
    * @param main the component we are comparing to

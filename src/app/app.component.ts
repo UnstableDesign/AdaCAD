@@ -9,7 +9,7 @@ import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { LoginComponent } from './core/modal/login/login.component';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { createCell } from './core/model/cell';
-import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, Point, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
 import { copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
@@ -109,6 +109,7 @@ export class AppComponent implements OnInit{
     private media: MediaService,
     private ms: MaterialsService,
     public multiselect: MultiselectService,
+    private notes: NotesService,
     private ops: OperationService,
     public scroll: ScrollDispatcher,
     public sys_serve: SystemsService,
@@ -187,7 +188,6 @@ export class AppComponent implements OnInit{
 
     this.recenterViews();
   }
-
 
 
   clearAll() : void{
@@ -1274,7 +1274,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
     this.mixer.refreshOperations();
     this.mixer.renderChange();
     this.editor.renderChange();
-  
+
     return Promise.resolve('alldone')
   })
   .catch(e => {
@@ -1460,11 +1460,6 @@ redo() {
       let comp= this.tree.getComponent(id);
       (<SubdraftComponent> comp).draftcontainer.updateName();
     }
-    
-   
-
-
-
   }
 
   renameWorkspace(name: string){
@@ -1500,13 +1495,62 @@ redo() {
     }
   }
 
+
+  zoomToFit(){
+
+    const view_window:HTMLElement = document.getElementById('scrollable-container');
+    if(view_window === null || view_window === undefined) return;
+
+
+    if(this.viewer.view_expanded){
+      this.viewer.renderChange();
+    }else if(this.selected_editor_mode == 'mixer'){
+
+      let selections = this.multiselect.getSelections();  
+
+      let node_list = (selections.length == 0) ? this.tree.getNodeIdList() : selections;
+      let note_list = (selections.length == 0) ? this.notes.getNoteIdList() : [];
+
+      const b_nodes = this.tree.getNodeBoundingBox(node_list);
+      const n_nodes =  this.notes.getNoteBoundingBox(note_list);
+      const bounds = utilInstance.mergeBounds([b_nodes, n_nodes]);
+      
+      if(bounds == null) return;
+
+      let prior = this.zs.getMixerZoom();
+      this.zs.zoomToFitMixer(bounds, view_window.getBoundingClientRect());
+      this.mixer.renderChange(prior);
+
+      //since bounds is in absolute terms (relative to the child div, we need to convert the top left into the scaled space)
+      view_window.scroll({
+        top: bounds.topleft.y*this.zs.getMixerZoom(),
+        left: bounds.topleft.x*this.zs.getMixerZoom(),
+        behavior: "instant",
+      })
+
+
+
+
+
+    } else {
+     // this.zs.zoomToFitEditor()
+      this.editor.renderChange();
+    }
+  }
+
   zoomOut(){
+
     if(this.viewer.view_expanded){
       this.zs.zoomOutViewer();
       this.viewer.renderChange();
     }else if(this.selected_editor_mode == 'mixer'){
+      const prior = this.zs.getMixerZoom();
       this.zs.zoomOutMixer();
-      this.mixer.renderChange();
+      this.mixer.renderChange(prior);
+
+
+
+
     } else {
       this.zs.zoomOutEditor()
       this.editor.renderChange();
@@ -1518,8 +1562,9 @@ redo() {
       this.zs.zoomInViewer();
       this.viewer.renderChange();
     }else if(this.selected_editor_mode == 'mixer'){
+      const prior = this.zs.getMixerZoom();
       this.zs.zoomInMixer();
-      this.mixer.renderChange();
+      this.mixer.renderChange(prior);
     } else {
       this.zs.zoomInEditor()
       this.editor.renderChange();

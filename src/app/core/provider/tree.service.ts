@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
-import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { BoolParam, Bounds, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, Point, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
 import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
@@ -649,6 +649,52 @@ export class TreeService {
     if(ndx === -1) return null;
     return this.nodes[ndx]; 
   }
+
+
+
+  /**
+   * this function returns the smallest bounding box that can contain all of the input nodes. This function does not consider the scrolling (all measures are relative to the node parent (palette-scale-container). This means that the values will be the same no matter the scroll or the zoom. 
+   * @returns The Bounds or null (if there are no nodes with which to measure)
+   */
+  getNodeBoundingBox(node_ids: Array<number>):Bounds|null{
+
+    if(this.nodes.length == 0) return null;
+
+
+    const raw_rects= node_ids
+    .map(node => document.getElementById('scale-'+node))
+    .filter(div => div != null)
+    .map(div => { return {x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight}});
+
+    const min: Point = raw_rects.reduce((acc, el) => {
+      let adj_x =  el.x;
+      let adj_y =  el.y;
+      if(adj_x < acc.x) acc.x = adj_x;
+      if(adj_y < acc.y) acc.y = adj_y;
+      return acc;
+    }, {x: 1000000, y:100000});
+
+    const max: Point = raw_rects.reduce((acc, el) => {
+      let adj_right = el.x + el.width;
+      let adj_bottom = el.y + el.height;
+      if(adj_right > acc.x) acc.x = adj_right;
+      if(adj_bottom  > acc.y) acc.y = adj_bottom;
+      return acc;
+    }, {x: 0, y:0});
+
+
+    let bounds:Bounds = {
+      topleft: {x: min.x, y: min.y},
+      width: max.x - min.x,
+      height: max.y - min.y
+    }
+
+    // console.log('BOUNDS FOR COMPONENTS', min, max, bounds)
+    return bounds;
+  
+  }
+
+
 
   getNodeIdList() : Array<number> {
     return this.nodes.map(node => node.id);

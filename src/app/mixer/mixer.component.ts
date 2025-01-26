@@ -255,19 +255,6 @@ addOp(event: any){
   this.palette.addOperation(event)
 }
 
-
-zoomIn(){
-  this.zs.zoomInMixer();
-  this.renderChange();
-
-}
-
-
-zoomOut(){
-  this.zs.zoomOutMixer();
-  this.renderChange();
-}
-
 createNewDraft(){
 
   const dialogRef = this.dialog.open(BlankdraftModal, {

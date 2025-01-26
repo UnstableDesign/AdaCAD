@@ -14,7 +14,7 @@ import { ParameterComponent } from './parameter/parameter.component';
 import { ZoomService } from '../../../core/provider/zoom.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
-import { CdkDragMove } from '@angular/cdk/drag-drop';
+import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 
 
 
@@ -122,6 +122,7 @@ export class OperationComponent implements OnInit {
 
    category_name: string = "";
 
+   offset: Point = null;
 
    
   constructor(
@@ -486,9 +487,11 @@ export class OperationComponent implements OnInit {
 
 
 
-  dragStart(e: any) {
-    console.log("DRAG START ", e.srcElement)
+  dragStart($event: CdkDragStart) {
 
+
+    this.offset = null;
+  
      if(this.multiselect.isSelected(this.id)){
       this.multiselect.setRelativePosition(this.topleft);
      }else{
@@ -496,24 +499,52 @@ export class OperationComponent implements OnInit {
      }
   }
 
+
+  /**
+   * ANGULARS default drag handler does not consider the scaled palette, it will move relative to the 
+   * absolute mouse position 
+   * @param $event 
+   */
   dragMove($event: CdkDragMove) {
+
+
+    //GET THE LOCATION OF THE POINTER RELATIVE TO THE TOP LEFT OF THE NODE
 
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-'+this.id);
     let rect_palette = parent.getBoundingClientRect();
 
-    const zoom_factor =  1/this.zs.getMixerZoom();
 
-    let screenX = $event.pointerPosition.x-rect_palette.x+parent.scrollLeft; 
-    let scaledX = screenX* zoom_factor;
-    let screenY = $event.pointerPosition.y-rect_palette.y+parent.scrollTop;
-    let scaledY = screenY * zoom_factor;
+    const zoom_factor =  1/this.zs.getMixerZoom();
+    
+    //this gives the position of
+    let op_topleft_inscale = {
+      x: op_container.offsetLeft,
+      y: op_container.offsetTop
+    }
+
+    
+    let scaled_pointer = {
+      x: ($event.pointerPosition.x-rect_palette.x + parent.scrollLeft) * zoom_factor,
+      y: ($event.pointerPosition.y-rect_palette.y+ parent.scrollTop) * zoom_factor,
+    }
+
+
+
+    if(this.offset == null){
    
+      this.offset = {
+        x: scaled_pointer.x - op_topleft_inscale.x,
+        y: scaled_pointer.y - op_topleft_inscale.y
+      }
+      //console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
+
+    }
 
 
     this.topleft = {
-      x: scaledX,
-      y: scaledY
+      x: scaled_pointer.x - this.offset.x,
+      y: scaled_pointer.y - this.offset.y
 
     }
     op_container.style.transform = 'none'; //negate angulars default positioning mechanism
