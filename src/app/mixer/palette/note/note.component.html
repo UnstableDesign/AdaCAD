@@ -6,6 +6,7 @@ class="note-container selectable-{{!disable_drag}}"
 id="note-{{note.id}}"
 [style.background]="note.color"
 cdkDrag
+(cdkDragStarted)="dragStart($event)"
 (cdkDragMoved)="dragMove($event)">
 
 
