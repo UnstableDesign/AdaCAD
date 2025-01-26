@@ -1274,7 +1274,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
     this.mixer.refreshOperations();
     this.mixer.renderChange();
     this.editor.renderChange();
-  
+
     return Promise.resolve('alldone')
   })
   .catch(e => {
