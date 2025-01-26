@@ -345,9 +345,9 @@ handlePan(diff: Point){
     
 }
 
-  // centerView(){
-  //   this.rescale();
-  // }
+  centerView(){
+    this.rescale();
+  }
 
 
 

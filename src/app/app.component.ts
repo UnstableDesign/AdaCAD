@@ -1511,10 +1511,11 @@ redo() {
       const b_nodes = this.tree.getNodeBoundingBox();
       const n_nodes = this.notes.getNoteBoundingBox();
       const bounds = utilInstance.mergeBounds([b_nodes, n_nodes]);
+      console.log("MERGED BOUNDS", bounds);
+
       
       if(bounds == null) return;
 
-      console.log("ZOOM TO FIT ", bounds, view_window.getBoundingClientRect());
       let prior = this.zs.getMixerZoom();
       this.zs.zoomToFitMixer(bounds, view_window.getBoundingClientRect());
       this.mixer.renderChange(prior);

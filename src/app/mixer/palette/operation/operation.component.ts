@@ -512,7 +512,7 @@ export class OperationComponent implements OnInit {
   dragMove($event: CdkDragMove) {
 
 
-    //GET THE LOCATION OF HTE POINTER RELATIVE TO THE TOP LEFT OF THE NODE
+    //GET THE LOCATION OF THE POINTER RELATIVE TO THE TOP LEFT OF THE NODE
 
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-'+this.id);
@@ -522,11 +522,13 @@ export class OperationComponent implements OnInit {
 
     const zoom_factor =  1/this.zs.getMixerZoom();
     
+    //this gives the position of
     let op_topleft_inscale = {
       x: op_container.offsetLeft,
       y: op_container.offsetTop
     }
 
+    
     let scaled_pointer = {
       x: ($event.pointerPosition.x-rect_palette.x + parent.scrollLeft) * zoom_factor,
       y: ($event.pointerPosition.y-rect_palette.y+ parent.scrollTop) * zoom_factor,
@@ -543,20 +545,6 @@ export class OperationComponent implements OnInit {
       console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
 
     }
-
-  
-    // let screenX = $event.pointerPosition.x-rect_palette.x+parent.scrollLeft; 
-    // let scaledX = screenX* zoom_factor; //convert to scaled units
-    // let screenY = $event.pointerPosition.y-rect_palette.y+parent.scrollTop;
-    // let scaledY = screenY * zoom_factor;
-   
-    // let screenX = $event.pointerPosition.x-rect_palette.x-this.offset.x; 
-    // let scaledX = screenX* zoom_factor; //convert to scaled units
-    // let screenY = $event.pointerPosition.y-rect_palette.y-this.offset.y;
-    // let scaledY = screenY * zoom_factor;
-   
-
-    // console.log("SCREEN X and Y ", screenX, screenY)
 
 
     this.topleft = {
