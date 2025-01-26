@@ -65,30 +65,10 @@ export class ZoomService {
    */
   zoomToFitMixer(bounds: Bounds, viewable: {width: number, height: number}){
 
-    let factor = 1;
-
-    console.log("BOUNDS ", bounds, viewable);
-    //get the constraining dimension from the viewable; 
-   
-    if(viewable.width > viewable.height){
-        //constrained by height
-        factor = viewable.height / bounds.height;
-        console.log('CONSTRAINED BY HEIGHT', factor)
-
-        // let res_width = objs.width * factor;
-        // if(res_width > viewable.height){
-        //   factor = objs.width/ viewable.width;
-        // }
-
-    }else{
-      factor = bounds.width / viewable.width;
-
-      let res_height = bounds.height * factor;
-      if(res_height > viewable.height){
-        factor = bounds.height/ viewable.height;
-      }
-    }
-    this.setMixerIndexFromZoomValue(factor);
+    const w_factor = viewable.width / bounds.width;
+    const h_factor = viewable.height / bounds.height;
+    const smaller = Math.min(w_factor, h_factor)
+    this.setMixerIndexFromZoomValue(smaller);
 
 
   }

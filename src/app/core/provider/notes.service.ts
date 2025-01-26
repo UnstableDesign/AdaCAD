@@ -123,6 +123,8 @@ export class NotesService {
    */
   getNoteBoundingBox():Bounds|null{
     
+    if(this.notes.length == 0) return null;
+
     const raw_rects =  this.notes
     .map(note => document.getElementById('note-'+note.id))
     .filter(div => div !== null)
