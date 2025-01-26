@@ -230,7 +230,14 @@
         <mat-toolbar class="footer">
           
           <div class="footer-left">
-      
+            <button 
+            [class.hide]="selected_editor_mode !== 'mixer'" 
+            [class.show]="selected_editor_mode === 'mixer'" 
+            mat-icon-button (click)="zoomToFit()">
+              <i class="fa-solid fa-arrows-to-eye"></i>
+            </button>
+            
+            
       
             <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>         
            
@@ -245,9 +252,7 @@
         
             <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
             
-            <button mat-icon-button (click)="zoomToFit()"><i class="fa-solid fa-arrows-to-eye"></i></button>
-            
-            
+          
             <button  
             mat-icon-button 
             [disabled]="ss.undo_disabled"
