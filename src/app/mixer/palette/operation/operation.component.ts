@@ -400,7 +400,7 @@ export class OperationComponent implements OnInit {
   drawImagePreview(){
     let param = this.paramsComps.get(0);
     console.log("DRAW IMAGE PREVIEW ", param)
-     param.drawImagePreview();
+    // param.drawImagePreview();
   }
 
   //returned from a file upload event

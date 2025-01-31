@@ -826,8 +826,8 @@ class Util {
     return max;
   }
 
-  hasOnlyUnset(cells: Array<Cell>) : boolean{
-    const hasValue = cells.find(el => getCellValue(el) !== null);
+  hasOnlyUnsetOrDown(cells: Array<Cell>) : boolean{
+    const hasValue = cells.find(el => (getCellValue(el) === true));
     if(hasValue === undefined) return true;
     else return false;
   }

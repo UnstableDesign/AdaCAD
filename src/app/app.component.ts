@@ -124,6 +124,8 @@ export class AppComponent implements OnInit{
     private zone: NgZone
   ){
 
+    console.log("OP COMPONENT CONSTRUCTED")
+
     this.current_version = this.vers.currentVersion();
   
     this.originOptions = origin_option_list;
@@ -161,15 +163,16 @@ export class AppComponent implements OnInit{
 
 
   ngOnInit(){
+    console.log("OP COMPONENT INIT")
 
     this.filename_form = new UntypedFormControl(this.files.getCurrentFileName(), [Validators.required]);
     this.filename_form.valueChanges.forEach(el => {this.renameWorkspace(el.trim())})
 
 
-    const analytics = getAnalytics();
-    logEvent(analytics, 'onload', {
-      items: [{ uid: this.auth.uid }]
-    });
+    // const analytics = getAnalytics();
+    // logEvent(analytics, 'onload', {
+    //   items: [{ uid: this.auth.uid }]
+    // });
 
     let dialogRef = this.dialog.open(WelcomeComponent, {
       height: '400px',
@@ -185,6 +188,7 @@ export class AppComponent implements OnInit{
 
 
   ngAfterViewInit() {
+    console.log("OP COMPONENT After INit")
 
     this.recenterViews();
   }
@@ -1100,14 +1104,17 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
     //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
+    console.log("REPLACE OUTDATED OPS")
     return this.tree.replaceOutdatedOps(data.ops);
   })
   .then(correctedOps => {    
     data.ops = correctedOps; 
+    console.log(" LOAD NODES")
     return this.loadNodes(data.nodes)
   })
   .then(id_map => {
       entry_mapping = id_map;
+      console.log(" LOAD TREE Nodes")
       return this.loadTreeNodes(id_map, data.treenodes);
     }
   ).then(treenodes => {
@@ -1188,14 +1195,18 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   })
   .then(el => {
+      console.log("VALIDATE NODES")
       return this.tree.validateNodes();
   })
   .then(el => {
     //console.log("performing top level ops");
+    console.log("VALIDATE NODES")
       return  this.tree.performTopLevelOps();
   })
   .then(el => {
     //delete any nodes that no longer need to exist
+    console.log("DELETE UNEEDED NODES")
+
     this.tree.getDraftNodes()
     .filter(el => el.draft === null)
     .forEach(el => {
@@ -1208,6 +1219,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
     })
   })
   .then(el => {
+    console.log("LOADING UI")
 
     return this.tree.nodes.forEach(node => {
       
@@ -1237,6 +1249,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   })
   .then(el => {
+    console.log("PLACE DATA")
 
     //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
     data.draft_nodes
@@ -1267,13 +1280,26 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
 
   })
-  .then(res => {
-    // this.palette.rescale(data.scale);
+  .then(res => {    
+    console.log("RENDER")
+
     this.loading = false;
+    console.log("UPDATE ORIGIN")
     this.updateOrigin(this.ws.selected_origin_option);
+
+    console.log("MIXER REFRESH OPERATIONS")
     this.mixer.refreshOperations();
+
+    console.log("MIXER REnder Change")
+
     this.mixer.renderChange();
+    console.log("MIXER REnder Change")
+
     this.editor.renderChange();
+    console.log("Editor REnder Change")
+
+    console.log("THE TREE ", this.tree.nodes)
+
 
     return Promise.resolve('alldone')
   })
