@@ -247,7 +247,7 @@ export class LoomComponent {
 
   
     loomChange(f:NgForm){
-
+      console.log("LOOM CHANGE")
       if(this.id == -1) return;
 
       const draft = this.tree.getDraft(this.id);
@@ -283,7 +283,7 @@ export class LoomComponent {
   
           this.tree.setLoomSettings(this.id, new_settings);      
          
-          utils.computeLoomFromDrawdown(draft.drawdown, new_settings)
+          utils.xcomputeLoomFromDrawdown(draft.drawdown, new_settings)
           .then(loom => {
             this.tree.setLoom(this.id, loom);
             const treadles = Math.max(numTreadles(loom), loom_settings.treadles);  
@@ -302,7 +302,7 @@ export class LoomComponent {
         }else if(loom_settings.type === 'jacquard' && new_settings.type === 'frame'){
             //from jacquard to floor loom (shaft/treadle) 'frame'
             this.tree.setLoomSettings(this.id, new_settings);      
-            utils.computeLoomFromDrawdown(draft.drawdown, new_settings)
+            utils.xcomputeLoomFromDrawdown(draft.drawdown, new_settings)
             .then(loom => {
               this.tree.setLoom(this.id, loom);
               this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);

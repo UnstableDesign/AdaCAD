@@ -808,10 +808,11 @@ handlePan(diff: Point){
    * @param d 
    */
   addSubdraftFromDraft(d: Draft){
+    console.log("ADD SUBDRAFT FROM DRAFT")
     let ls = defaults.loom_settings;
 
     let util = getLoomUtilByType(ls.type);
-    util.computeLoomFromDrawdown(d.drawdown,ls)
+    util.xcomputeLoomFromDrawdown(d.drawdown,ls)
     .then(loom => {
       return this.createSubDraft(d, loom, ls)
     }).then(sd => {
@@ -2162,6 +2163,7 @@ pasteConnection(from: number, to: number, inlet: number){
 
     if(obj === null) return;
 
+    console.log("SWEEP INLETS")
     return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)
       .then(viewRefs => {
         viewRefs.forEach(el => {

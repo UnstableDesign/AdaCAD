@@ -519,7 +519,8 @@ export class FileService {
 
       //force loom type to something with shafts;
       loom_settings.type = 'frame';
-      loom = await getLoomUtilByType(loom_settings.type).computeLoomFromDrawdown(draft.drawdown, loom_settings);
+      console.log("LOOM WAS NULL in saver")
+      loom = await getLoomUtilByType(loom_settings.type).xcomputeLoomFromDrawdown(draft.drawdown, loom_settings);
 
      }
 

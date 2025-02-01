@@ -344,7 +344,8 @@ export class AppComponent implements OnInit{
     }
   
      let loom_util = getLoomUtilByType(loom_settings.type);
-      return loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings)
+     console.log('GENERATE BLANK')
+      return loom_util.xcomputeLoomFromDrawdown(draft.drawdown, loom_settings)
       .then(loom => {
         return this.createNewDraftOnMixer(draft, loom, loom_settings)})
       .then(draftid => {
@@ -1200,12 +1201,12 @@ async processFileData(data: FileObj) : Promise<string|void>{
   })
   .then(el => {
     //console.log("performing top level ops");
-    console.log("VALIDATE NODES")
+    console.log("PERFORM TOP LEVEL NODES")
       return  this.tree.performTopLevelOps();
   })
   .then(el => {
     //delete any nodes that no longer need to exist
-    console.log("DELETE UNEEDED NODES")
+    console.log("DELETE UNNEEDED NODES")
 
     this.tree.getDraftNodes()
     .filter(el => el.draft === null)

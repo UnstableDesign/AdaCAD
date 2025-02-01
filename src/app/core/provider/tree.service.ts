@@ -227,11 +227,11 @@ export class TreeService {
    * recomputes the value of every loom. 
    */
   updateLooms(){
-
+    console.log("UDPATE LOOMS")
     this.getDraftNodes().forEach(dn => {
     
       const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings).then(loom => {
+      loom_utils.xcomputeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings).then(loom => {
         dn.loom = loom;
       });
     });
@@ -1284,8 +1284,10 @@ clearDraft(dn: DraftNode){
       const dn = <DraftNode> this.getNode(el.id);
       let loom_settings = (dn.loom_settings !== null) ? dn.loom_settings : defaults.loom_settings;
 
-      const loom_utils = getLoomUtilByType(loom_settings.type);
-      loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, loom_settings))
+      //const loom_utils = getLoomUtilByType(loom_settings.type);
+      const loom_utils = getLoomUtilByType(this.ws.type)
+      console.log("UPDATE DRAFTS FROM RESULTS", this.ws.type)
+      loom_fns.push(loom_utils.xcomputeLoomFromDrawdown(el.draft.drawdown, loom_settings))
      
     });
      return Promise.all(loom_fns);
@@ -1350,9 +1352,6 @@ clearDraft(dn: DraftNode){
    
     
     return Promise.all(op_fn_list).then( out => {
-      const flat:Array<number> = out.reduce((acc, el, ndx)=>{
-        return acc.concat(el);
-      }, []);
 
       return this.getNodesWithDependenciesSatisfied();
 
@@ -2271,6 +2270,7 @@ isValidIOTuple(io: IOTuple) : boolean {
  * @param loom_settings  the settings that should govern the loom generated
  */
   setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings) : Promise<Loom> {
+    console.log("SET DRAFT AND RECOMPUTE LOOM")
 
     const dn = <DraftNode> this.getNode(id);
     let ud_name = getDraftName(temp);
@@ -2302,7 +2302,8 @@ isValidIOTuple(io: IOTuple) : boolean {
    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings)
+    console.log("DN ", dn.loom_settings.type)
+    return loom_utils.xcomputeLoomFromDrawdown(temp.drawdown, loom_settings)
     .then(loom =>{
       dn.loom = loom;
       return Promise.resolve(loom);
