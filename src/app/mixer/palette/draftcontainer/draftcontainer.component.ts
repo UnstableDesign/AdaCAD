@@ -217,9 +217,6 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
   drawDraft(draft: Draft) : Promise<boolean>{
-    console.log("DRAFT Containter Draw")
-    return Promise.resolve(true);
-
 
     if(this.hasParent && this.ws.hide_mixer_drafts) return Promise.resolve(false);
     if(this.draft_rendering == null || this.draft_rendering == undefined)return Promise.resolve(false);

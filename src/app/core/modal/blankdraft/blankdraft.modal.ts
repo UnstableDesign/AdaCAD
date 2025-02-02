@@ -58,7 +58,7 @@ export class BlankdraftModal implements OnInit {
 
 
     const loom_utils = getLoomUtilByType(this.ws.type);
-    loom_utils.xcomputeLoomFromDrawdown(draft.drawdown, loom_settings)
+    loom_utils.computeLoomFromDrawdown(draft.drawdown, loom_settings)
     .then((loom) => {
       this.dialogRef.close({draft, loom, loom_settings});
 

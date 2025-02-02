@@ -51,7 +51,7 @@ const jacquard_utils: LoomUtil = {
     type: 'jacquard', 
     displayname: 'jacquard loom',
     dx: "draft exclusively from drawdown, disregarding any frame and treadle information",
-    xcomputeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings) : Promise<Loom>  => {
+    computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings) : Promise<Loom>  => {
       return Promise.resolve(null);
     },
     computeDrawdownFromLoom: (l: Loom) : Promise<Drawdown> => {
@@ -100,7 +100,7 @@ const jacquard_utils: LoomUtil = {
     type: 'direct', 
     displayname: 'direct-tie or dobby loom',
     dx: "draft from drawdown or threading/tieup/treadling. Assumes you are using a direct tie and mutiple treadle assignments",
-    xcomputeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings) : Promise<Loom>  => {
+    computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings) : Promise<Loom>  => {
         
         const l: Loom = {
             threading: [],
@@ -248,7 +248,7 @@ const jacquard_utils: LoomUtil = {
     type: 'frame', 
     displayname: 'shaft/treadle loom',
     dx: "draft from drawdown or threading/tieup/treadling. Assumes you are assigning treadles to specific frame via tieup",
-    xcomputeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings) : Promise<Loom>  => {
+    computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings) : Promise<Loom>  => {
         
       const loom: Loom = {
             threading: [],

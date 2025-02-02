@@ -353,7 +353,7 @@ export class OperationComponent implements OnInit {
 
 
     if(this.is_dynamic_op){
-
+      
       const opnode = <OpNode> this.tree.getNode(this.id);
       const op = <DynamicOperation> this.operations.getOp(opnode.name);
       //this is a hack to use an input draft to generate inlets

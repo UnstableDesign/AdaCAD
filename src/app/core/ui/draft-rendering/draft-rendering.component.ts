@@ -990,9 +990,6 @@ export class DraftRenderingComponent implements OnInit {
       public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any) : Promise<boolean>{
         if(draft == null) return;
 
-        //TRY THIS FOR SPEED TESTING
-        return Promise.resolve(true);
-
         this.colSystemMapping = draft.colSystemMapping;
         this.rowSystemMapping = draft.rowSystemMapping;
 

@@ -808,11 +808,10 @@ handlePan(diff: Point){
    * @param d 
    */
   addSubdraftFromDraft(d: Draft){
-    console.log("ADD SUBDRAFT FROM DRAFT")
     let ls = defaults.loom_settings;
 
     let util = getLoomUtilByType(ls.type);
-    util.xcomputeLoomFromDrawdown(d.drawdown,ls)
+    util.computeLoomFromDrawdown(d.drawdown,ls)
     .then(loom => {
       return this.createSubDraft(d, loom, ls)
     }).then(sd => {

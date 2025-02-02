@@ -227,11 +227,10 @@ export class TreeService {
    * recomputes the value of every loom. 
    */
   updateLooms(){
-    console.log("UDPATE LOOMS")
     this.getDraftNodes().forEach(dn => {
     
       const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      loom_utils.xcomputeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings).then(loom => {
+      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings).then(loom => {
         dn.loom = loom;
       });
     });
@@ -1286,8 +1285,7 @@ clearDraft(dn: DraftNode){
 
       //const loom_utils = getLoomUtilByType(loom_settings.type);
       const loom_utils = getLoomUtilByType(this.ws.type)
-      console.log("UPDATE DRAFTS FROM RESULTS", this.ws.type)
-      loom_fns.push(loom_utils.xcomputeLoomFromDrawdown(el.draft.drawdown, loom_settings))
+      loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, loom_settings))
      
     });
      return Promise.all(loom_fns);
@@ -2303,7 +2301,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
     console.log("DN ", dn.loom_settings.type)
-    return loom_utils.xcomputeLoomFromDrawdown(temp.drawdown, loom_settings)
+    return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings)
     .then(loom =>{
       dn.loom = loom;
       return Promise.resolve(loom);
