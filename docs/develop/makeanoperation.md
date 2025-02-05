@@ -72,7 +72,7 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) 
 export const all_up: Operation = {name, old_names, params, inlets, perform, generateName};
 ```
 
-### Explaining this file
+### Understanding this File
 
 The imports to this file bring in custom defined types and helpers that allow us to define our operation and manipulate the cells in a draft. 
 
@@ -113,7 +113,7 @@ Next, we describe the kind and number of inputs that a user can add to this oper
 const inlets = [];
 ```
 
-New the most important part, the code that runs anytime someone adds, changes or performs this operation. This function will be called anytime AdaCAD detects the need for the drafts to recompute.  
+Now the most important part: the code that runs anytime someone adds, changes or performs this operation. This function will be called anytime AdaCAD detects the need for the drafts to recompute.  
 
 To ensure interoperability, this function must take and produce inputs and outputs the same time. Specifically, the perform operation is called with an array of `OpParamVal` objects. This array contains data about the parameters and values currently set on the operation. It also takes in an array of `OpInputs` objects. These hold every draft that has been connected to an inlet/input to the operation.
 
@@ -151,7 +151,7 @@ Lastly, and most important, you package all the functions and variables you defi
 export const all_up: Operation = {name, old_names, params, inlets, perform, generateName};
 ```
 
-## 2. Register the Operation you Created with the Operation Service
+## 2. Register the Operation with the Operation Service
 
 Once the operation is complete, add it to the operation service. This angular service keeps a record of all the Operation objects available for use within AdaCAD. Essentially, AdaCAD won't know that you've created the all up operation unless you've added it here. 
 
@@ -182,7 +182,7 @@ Then, add an operation description that defines the operation and its applicatio
 }
 ```
 
-## 4. Classify your Operation
+## 4. Classify Your Operation
 All operations in AdaCAD belong to a category and these categories and associated operations are listed on the interface. Adding the operation to a classification like structure is the last place in AdaCAD to include all_up. You can add your operation to an existing category or add a new category of your own: 
 
 ```tsx
