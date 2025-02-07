@@ -124,6 +124,8 @@ export class AppComponent implements OnInit{
     private zone: NgZone
   ){
 
+    console.log("OP COMPONENT CONSTRUCTED")
+
     this.current_version = this.vers.currentVersion();
   
     this.originOptions = origin_option_list;
@@ -161,15 +163,16 @@ export class AppComponent implements OnInit{
 
 
   ngOnInit(){
+    console.log("OP COMPONENT INIT")
 
     this.filename_form = new UntypedFormControl(this.files.getCurrentFileName(), [Validators.required]);
     this.filename_form.valueChanges.forEach(el => {this.renameWorkspace(el.trim())})
 
 
-    const analytics = getAnalytics();
-    logEvent(analytics, 'onload', {
-      items: [{ uid: this.auth.uid }]
-    });
+    // const analytics = getAnalytics();
+    // logEvent(analytics, 'onload', {
+    //   items: [{ uid: this.auth.uid }]
+    // });
 
     let dialogRef = this.dialog.open(WelcomeComponent, {
       height: '400px',
@@ -185,6 +188,7 @@ export class AppComponent implements OnInit{
 
 
   ngAfterViewInit() {
+    console.log("OP COMPONENT After INit")
 
     this.recenterViews();
   }
@@ -588,6 +592,29 @@ export class AppComponent implements OnInit{
       this.saveFile();
     }
     ).catch(console.error);
+  }
+
+
+  /**
+   * runs code that (a) changes all loom types to jacquard and (b) sets all drafts to hidden
+   */
+  optimizeWorkspace() {
+
+    //set the defaults
+    this.ws.hide_mixer_drafts = true;
+    this.ws.type = 'jacquard';
+
+     const drafts = this.tree.getDraftNodes();
+     drafts.forEach(draft => {
+         draft.visible = false;
+        
+    })
+
+
+    this.mixer.redrawAllSubdrafts();
+
+
+
   }
 
 
@@ -1100,14 +1127,17 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
     //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
+   // console.log("REPLACE OUTDATED OPS")
     return this.tree.replaceOutdatedOps(data.ops);
   })
   .then(correctedOps => {    
     data.ops = correctedOps; 
+    //console.log(" LOAD NODES")
     return this.loadNodes(data.nodes)
   })
   .then(id_map => {
       entry_mapping = id_map;
+    //  console.log(" LOAD TREE Nodes")
       return this.loadTreeNodes(id_map, data.treenodes);
     }
   ).then(treenodes => {
@@ -1116,17 +1146,17 @@ async processFileData(data: FileObj) : Promise<string|void>{
       .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
       .map(tn => tn.entry);
     
-    const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors, scale}> = seednodes
+    const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors, scale, draft_visible}> = seednodes
     .map(sn =>  {
 
 
         let d:Draft =null;
         let loom:Loom = null;
         let render_colors = true;
+        let draft_visible = true;
         let scale = 1;
 
       const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
-      console.log("SEED DRAFT NODE", draft_node)
 
       let ls: LoomSettings = {
         frames: this.ws.min_frames,
@@ -1145,12 +1175,13 @@ async processFileData(data: FileObj) : Promise<string|void>{
           console.error("could not find draft with id in draft list");
         }
         else{
-          console.log("LOCATED DRAFT ", located_draft)
+          //console.log("LOCATED DRAFT ", located_draft)
           d = copyDraft(located_draft.draft)
           ls = copyLoomSettings(located_draft.loom_settings);
           loom = copyLoom(located_draft.loom);
           if(located_draft.render_colors !== undefined) render_colors = located_draft.render_colors; 
           if(located_draft.scale !== undefined) scale = located_draft.scale; 
+          if(located_draft.draft_visible !== undefined) draft_visible = located_draft.draft_visible; 
         } 
 
       }else{
@@ -1172,12 +1203,13 @@ async processFileData(data: FileObj) : Promise<string|void>{
           loom: loom,
           loom_settings: ls,
           render_colors: render_colors,
-          scale: scale
+          scale: scale,
+          draft_visible: draft_visible
           }
       
     });
 
-    const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors, seed.scale));
+    const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors, seed.scale, seed.draft_visible));
 
     const op_fns = data.ops.map(op => {
       const entry = entry_mapping.find(el => el.prev_id == op.node_id);
@@ -1188,14 +1220,18 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   })
   .then(el => {
+      console.log("VALIDATE NODES")
       return this.tree.validateNodes();
   })
   .then(el => {
     //console.log("performing top level ops");
+    console.log("PERFORM TOP LEVEL NODES")
       return  this.tree.performTopLevelOps();
   })
   .then(el => {
     //delete any nodes that no longer need to exist
+    console.log("DELETE UNNEEDED NODES")
+
     this.tree.getDraftNodes()
     .filter(el => el.draft === null)
     .forEach(el => {
@@ -1208,6 +1244,7 @@ async processFileData(data: FileObj) : Promise<string|void>{
     })
   })
   .then(el => {
+    console.log("LOADING UI")
 
     return this.tree.nodes.forEach(node => {
       
@@ -1249,6 +1286,8 @@ async processFileData(data: FileObj) : Promise<string|void>{
       (<DraftNode> node).loom_settings = np.loom_settings; 
       (<DraftNode> node).loom = copyLoom(np.loom); 
       if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
+      if(np.draft_visible !== undefined) (<DraftNode> node).visible = np.draft_visible; 
+      else (<DraftNode> node).visible = !this.ws.hide_mixer_drafts;
       if(np.scale !== undefined) (<DraftNode> node).scale = np.scale; 
     })
 
@@ -1256,10 +1295,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
     (<OperationComponent> op.component).updateChildren(this.tree.getNonCxnOutputs(op.id));
    })
 
-    // const dn = this.tree.getDraftNodes();
-    // dn.forEach(node => {
-    //   console.log("RES", node.draft, node.loom, node.loom_settings)
-    // })
 
     data.notes.forEach(note => {
       this.mixer.createNote(note);
@@ -1267,13 +1302,26 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
 
   })
-  .then(res => {
-    // this.palette.rescale(data.scale);
+  .then(res => {    
+    console.log("RENDER")
+
     this.loading = false;
+    console.log("UPDATE ORIGIN")
     this.updateOrigin(this.ws.selected_origin_option);
+
+    console.log("MIXER REFRESH OPERATIONS")
     this.mixer.refreshOperations();
+
+    console.log("MIXER REnder Change")
+
     this.mixer.renderChange();
+    console.log("MIXER REnder Change")
+
     this.editor.renderChange();
+    console.log("Editor REnder Change")
+
+    console.log("THE TREE ", this.tree.nodes)
+
 
     return Promise.resolve('alldone')
   })
@@ -1338,7 +1386,6 @@ saveFile(){
 
 setDraftsViewable(val: boolean){
   this.ws.hide_mixer_drafts = val;
-  this.mixer.redrawAllSubdrafts();
 }
 
 setAdvancedOperations(val: boolean){

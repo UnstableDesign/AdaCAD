@@ -740,6 +740,7 @@ export type OpNode = BaseNode & {
   loom_settings: LoomSettings,
   render_colors: boolean,
   scale: number,
+  visible: boolean,
   mark_for_deletion: boolean
  }
 

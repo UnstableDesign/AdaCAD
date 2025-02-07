@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Draft, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
 import { MediaService } from '../../../core/provider/media.service';
@@ -6,7 +6,6 @@ import { OperationDescriptionsService } from '../../../core/provider/operation-d
 import { OperationService } from '../../../core/provider/operation.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
-import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { InletComponent } from './inlet/inlet.component';
@@ -15,6 +14,7 @@ import { ZoomService } from '../../../core/provider/zoom.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
+import { MatMenuTrigger } from '@angular/material/menu';
 
 
 
@@ -29,6 +29,7 @@ export class OperationComponent implements OnInit {
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
   @ViewChildren(InletComponent) inletComps!: QueryList<InletComponent>;
   @ViewChildren(DraftContainerComponent) draftContainers!: QueryList<DraftContainerComponent>;
+  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
@@ -184,6 +185,10 @@ export class OperationComponent implements OnInit {
 
   }
 
+  onDoubleClick(){
+    this.trigger.openMenu();
+  }
+
 
   setPosition(pos: Point){
     this.topleft =  {x: pos.x, y:pos.y};
@@ -244,11 +249,6 @@ export class OperationComponent implements OnInit {
 
   }
 
-  mousedown(e: any) {
-    //this.disable_drag = false;
-    e.stopPropagation();
-  }
-
 
   hasPin() : boolean{
     if(!this.vs.hasPin()) return false;
@@ -274,7 +274,6 @@ export class OperationComponent implements OnInit {
 
 
   inputSelected(obj: any){
-    console.log("INLET SELECTED ", obj)
     let input_id = obj.inletid;
     let val = obj.val;
     this.onInputAdded.emit({id: this.id, ndx: input_id, val:val });
@@ -321,13 +320,12 @@ export class OperationComponent implements OnInit {
     this.onConnectionRemoved.emit(obj);
   }
 
+
+
   openHelpDialog() {
-    const dialogRef = this.dialog.open(OpHelpModal, {
-      data: {
-        name: this.op.name,
-        op: this.op
-      }
-    });
+
+    window.open('https://docs.adacad.org/docs/reference/operations/'+this.op.name, '_blank');
+;
 
   }
 
@@ -353,7 +351,7 @@ export class OperationComponent implements OnInit {
 
 
     if(this.is_dynamic_op){
-
+      
       const opnode = <OpNode> this.tree.getNode(this.id);
       const op = <DynamicOperation> this.operations.getOp(opnode.name);
       //this is a hack to use an input draft to generate inlets
@@ -399,8 +397,7 @@ export class OperationComponent implements OnInit {
 
   drawImagePreview(){
     let param = this.paramsComps.get(0);
-    console.log("DRAW IMAGE PREVIEW ", param)
-     param.drawImagePreview();
+    param.drawImagePreview();
   }
 
   //returned from a file upload event
@@ -484,6 +481,7 @@ export class OperationComponent implements OnInit {
 
     this.duplicateOp.emit({id: this.id});
   }
+
 
 
 

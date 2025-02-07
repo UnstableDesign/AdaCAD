@@ -1,9 +1,8 @@
 <div id='scale-{{id}}' class="operation-parent no-text-select selectable-{{!disable_drag}}"
 cdkDrag
-(mousedown)="mousedown($event)"
+(dblclick)="onDoubleClick()"
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
-[cdkDragDisabled] = "disable_drag"
 (cdkDragMoved)="dragMove($event)"
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"
@@ -32,7 +31,7 @@ cdkDrag
         </div>
 
 
-        <div class="top-row" >
+        <div class="top-row" cdkDragHandle>
 
         <div class="operation-details">
             <div class="name no-text-select">{{displayname}}</div>
@@ -86,6 +85,7 @@ cdkDrag
         </mat-menu>
        
         <button mat-icon-button
+        #trigger
         [matMenuTriggerFor]="editOptions"
         class="is-small fa-solid fa-ellipsis"
         matTooltip ="View Options">
@@ -107,7 +107,9 @@ cdkDrag
             [opid]='id' 
             [paramid]='i'
             (onOperationParamChange) = onParamChange($event)
-            (onFileUpload) = handleFile($event)>
+            (onFileUpload) = handleFile($event)
+            (preventDrag)="disableDrag()"
+            >
           </app-parameter>
 
           </ng-container>

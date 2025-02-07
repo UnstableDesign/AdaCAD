@@ -11,6 +11,7 @@ import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
+import { MatMenuTrigger } from '@angular/material/menu';
 
 
 @Component({
@@ -85,7 +86,7 @@ export class SubdraftComponent implements OnInit {
 
   set_connectable:boolean = false;
 
-  draft_visible: boolean = true;
+  // draft_visible: boolean = true;
 
   loom_settings: LoomSettings;
 
@@ -124,6 +125,7 @@ export class SubdraftComponent implements OnInit {
  
     const dn:DraftNode = <DraftNode> this.tree.getNode(this.id);
     this.use_colors = dn.render_colors;
+    
 
 
     if(this.tree.isSibling(this.id)) this.disableDrag();
@@ -141,6 +143,7 @@ export class SubdraftComponent implements OnInit {
   sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
   sd_container.style.top =  this.topleft.y+"px";
   sd_container.style.left =  this.topleft.x+"px";
+  this.onRedrawOutboundConnections.emit(this.id);
 
 
   }
@@ -356,12 +359,17 @@ openInEditor(event: any){
   }
 
 
+  onDoubleClick(){
+    this.draftcontainer.onDoubleClick();
+  }
+
 
 
  
   redrawExistingDraft(){
 
     const draft = this.tree.getDraft(this.id);
+    this.draftcontainer.draft_visible = this.tree.getDraftVisible(this.id);
     this.draftcontainer.drawDraft(draft);
 
   }
@@ -500,10 +508,12 @@ openInEditor(event: any){
     this.disable_drag = false;
   }
 
-  showhide(){
-    this.draft_visible = !this.draft_visible;
-    this.onSubdraftViewChange.emit(this.id);
-  }
+  // showhide(){
+  //   let vis = this.tree.getDraftVisible(this.id);
+  //   this.tree.setDraftVisiblity(this.id, !vis);
+  //  // this.draft_visible = !this.draft_visible;
+  //   this.onSubdraftViewChange.emit(this.id);
+  // }
 
   connectionClicked(id:number){
     this.has_active_connection  = true;

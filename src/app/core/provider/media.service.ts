@@ -71,6 +71,7 @@ export class MediaService {
    * @returns 
    */
   loadIndexedColorFile(id: number, ref: string, saved_data: {colors: Array<any>, color_mapping: Array<any>}) : Promise<IndexedColorImageInstance>{
+    //console.log("LOAD INDEXED COLOR FILE")
 
     if(id == -1){
       id = utilInstance.generateId(8);
@@ -111,6 +112,7 @@ export class MediaService {
 
         const pixels = imgdata.data;
 
+        //console.log("Create Pixel Array")
         //process the pixels into meaningful values;
         const all_colors: Array<any> = [];
         for(let i = 0; i < pixels.length; i+= 4){
@@ -334,7 +336,7 @@ export class MediaService {
   }
 
   createProximityMap(colors: Array<Color>) : Array<{a: number, b: number, dist: number}>{
-
+    //console.log("create proximity map")
     let prox = [];
     for(let a = 0; a < colors.length; a++){
       for(let b = a+1; b < colors.length; b++){
@@ -364,7 +366,7 @@ export class MediaService {
    * @param img - specific settings for this media instance
    */
   addSingleImageMediaInstance(id:number, ref: string, data: any) : MediaInstance{
-    console.log("LOADING IN DATA ", data)
+    //console.log("LOADING IN DATA ", data)
     let obj: MediaInstance = {id, ref,img: data, type: 'image'}
     this.current.push(obj);
     return obj;
@@ -408,7 +410,7 @@ export class MediaService {
 
 
   getMedia(id: number) : MediaInstance {
-    console.log("HAS MEDIA ", id)
+    //console.log("HAS MEDIA ", id)
     let obj = this.current.find(el => el.id == id);
     if(obj === undefined) return null;
     return obj;

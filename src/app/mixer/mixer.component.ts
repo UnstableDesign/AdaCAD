@@ -524,7 +524,7 @@ zoomChange(zoom_index:any){
       scale: 1
     }
 
-    this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true, 1);
+    this.tree.loadDraftData({prev_id: null, cur_id: id,}, draft, loom, loom_settings, true, 1, !this.ws.hide_mixer_drafts);
     this.palette.loadSubDraft(id, draft, nodep, dnproxy);
     return id;
   }
