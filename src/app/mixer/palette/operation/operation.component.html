@@ -1,6 +1,6 @@
 <div id='scale-{{id}}' class="operation-parent no-text-select selectable-{{!disable_drag}}"
 cdkDrag
-(mousedown)="mousedown($event)"
+(dblclick)="onDoubleClick()"
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
 (cdkDragMoved)="dragMove($event)"
@@ -85,6 +85,7 @@ cdkDrag
         </mat-menu>
        
         <button mat-icon-button
+        #trigger
         [matMenuTriggerFor]="editOptions"
         class="is-small fa-solid fa-ellipsis"
         matTooltip ="View Options">

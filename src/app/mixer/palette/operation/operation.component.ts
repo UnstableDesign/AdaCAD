@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Draft, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
 import { MediaService } from '../../../core/provider/media.service';
@@ -15,6 +15,7 @@ import { ZoomService } from '../../../core/provider/zoom.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
+import { MatMenuTrigger } from '@angular/material/menu';
 
 
 
@@ -29,6 +30,7 @@ export class OperationComponent implements OnInit {
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
   @ViewChildren(InletComponent) inletComps!: QueryList<InletComponent>;
   @ViewChildren(DraftContainerComponent) draftContainers!: QueryList<DraftContainerComponent>;
+  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
 
    @Input() id: number; //generated from the tree service
    @Input() name: string;
@@ -184,6 +186,12 @@ export class OperationComponent implements OnInit {
 
   }
 
+  onDoubleClick(){
+    console.log("HI");
+    this.trigger.openMenu();
+
+  }
+
 
   setPosition(pos: Point){
     this.topleft =  {x: pos.x, y:pos.y};
@@ -244,11 +252,6 @@ export class OperationComponent implements OnInit {
 
   }
 
-  mousedown(e: any) {
-    //this.disable_drag = false;
-    e.stopPropagation();
-  }
-
 
   hasPin() : boolean{
     if(!this.vs.hasPin()) return false;
@@ -274,7 +277,6 @@ export class OperationComponent implements OnInit {
 
 
   inputSelected(obj: any){
-    console.log("INLET SELECTED ", obj)
     let input_id = obj.inletid;
     let val = obj.val;
     this.onInputAdded.emit({id: this.id, ndx: input_id, val:val });
@@ -321,7 +323,11 @@ export class OperationComponent implements OnInit {
     this.onConnectionRemoved.emit(obj);
   }
 
+
+
   openHelpDialog() {
+
+    window.open('https://docs.adacad.org/docs/reference/operations/'+this.op.name, '_blank');
     const dialogRef = this.dialog.open(OpHelpModal, {
       data: {
         name: this.op.name,
