@@ -604,7 +604,15 @@ export class AppComponent implements OnInit{
     this.ws.hide_mixer_drafts = true;
     this.ws.type = 'jacquard';
 
-    this.setDraftsViewable(false);
+     const drafts = this.tree.getDraftNodes();
+     drafts.forEach(draft => {
+     draft.visible = false;
+    })
+
+
+    this.mixer.redrawAllSubdrafts();
+
+
 
   }
 
@@ -1377,14 +1385,6 @@ saveFile(){
 
 setDraftsViewable(val: boolean){
   this.ws.hide_mixer_drafts = val;
-
-  const drafts = this.tree.getDraftNodes();
-  drafts.forEach(draft => {
-    draft.visible = val;
-  })
-
-
-  this.mixer.redrawAllSubdrafts();
 }
 
 setAdvancedOperations(val: boolean){

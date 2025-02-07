@@ -142,6 +142,7 @@ export class SubdraftComponent implements OnInit {
   sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
   sd_container.style.top =  this.topleft.y+"px";
   sd_container.style.left =  this.topleft.x+"px";
+  this.onRedrawOutboundConnections.emit(this.id);
 
 
   }
@@ -363,6 +364,7 @@ openInEditor(event: any){
   redrawExistingDraft(){
 
     const draft = this.tree.getDraft(this.id);
+    this.draftcontainer.draft_visible = this.tree.getDraftVisible(this.id);
     this.draftcontainer.drawDraft(draft);
 
   }
@@ -501,12 +503,12 @@ openInEditor(event: any){
     this.disable_drag = false;
   }
 
-  showhide(){
-    let vis = this.tree.getDraftVisible(this.id);
-    this.tree.setDraftVisiblity(this.id, !vis);
-   // this.draft_visible = !this.draft_visible;
-    this.onSubdraftViewChange.emit(this.id);
-  }
+  // showhide(){
+  //   let vis = this.tree.getDraftVisible(this.id);
+  //   this.tree.setDraftVisiblity(this.id, !vis);
+  //  // this.draft_visible = !this.draft_visible;
+  //   this.onSubdraftViewChange.emit(this.id);
+  // }
 
   connectionClicked(id:number){
     this.has_active_connection  = true;

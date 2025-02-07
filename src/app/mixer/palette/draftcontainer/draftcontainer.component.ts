@@ -131,6 +131,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
       let draft = this.tree.getDraft(this.id);
+      this.draft_visible = this.tree.getDraftVisible(this.id);
 
       if(draft == undefined || draft == null){
         this.ud_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
@@ -182,9 +183,21 @@ export class DraftContainerComponent implements AfterViewInit{
   }
 
   toggleVisibility(){
-    console.log("VIS TOGGLED", this.id,  this.draft_visible, this.ws.hide_mixer_drafts)
+   // console.log("VIS TOGGLED", this.id,  this.draft_visible, this.ws.hide_mixer_drafts)
     this.draft_visible = !this.draft_visible;
     this.tree.setDraftVisiblity(this.id, this.draft_visible);
+    
+    const draft = this.tree.getDraft(this.id);
+
+    if(this.draft_rendering !== undefined && draft !== undefined && draft !== null){
+      this.draft_rendering.onNewDraftLoaded(this.id);
+      this.drawDraft(draft);
+    } else{
+      this.draft_rendering.clear();
+
+    }
+
+   
   }
 
   nameFocusOut(event){
@@ -220,7 +233,9 @@ export class DraftContainerComponent implements AfterViewInit{
 
   drawDraft(draft: Draft) : Promise<boolean>{
 
-    if(this.hasParent && this.ws.hide_mixer_drafts || !this.tree.getDraftVisible(this.id)) return Promise.resolve(false);
+
+
+    if(!this.tree.getDraftVisible(this.id)) return Promise.resolve(false);
     if(this.draft_rendering == null || this.draft_rendering == undefined)return Promise.resolve(false);
 
     const loom = this.tree.getLoom(this.id);
@@ -236,9 +251,9 @@ export class DraftContainerComponent implements AfterViewInit{
     }
 
 
-    console.log("DRAW CALLED FROM DRAW DRAFT in CONTAINTER")
     return this.draft_rendering.redraw(draft, loom, loom_settings, flags ).then(el => {
       this.tree.setDraftClean(this.id);
+      this.onDrawdownSizeChanged.emit(true);
       return Promise.resolve(true);
     })
 
