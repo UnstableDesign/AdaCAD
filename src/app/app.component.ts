@@ -606,7 +606,8 @@ export class AppComponent implements OnInit{
 
      const drafts = this.tree.getDraftNodes();
      drafts.forEach(draft => {
-     draft.visible = false;
+         draft.visible = false;
+        
     })
 
 
@@ -1126,17 +1127,17 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
     //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
-    console.log("REPLACE OUTDATED OPS")
+   // console.log("REPLACE OUTDATED OPS")
     return this.tree.replaceOutdatedOps(data.ops);
   })
   .then(correctedOps => {    
     data.ops = correctedOps; 
-    console.log(" LOAD NODES")
+    //console.log(" LOAD NODES")
     return this.loadNodes(data.nodes)
   })
   .then(id_map => {
       entry_mapping = id_map;
-      console.log(" LOAD TREE Nodes")
+    //  console.log(" LOAD TREE Nodes")
       return this.loadTreeNodes(id_map, data.treenodes);
     }
   ).then(treenodes => {

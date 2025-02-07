@@ -3,7 +3,6 @@ cdkDrag
 (mousedown)="mousedown($event)"
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
-[cdkDragDisabled] = "disable_drag"
 (cdkDragMoved)="dragMove($event)"
 (cdkDragEnded)="dragEnd($event)"
 (cdkDragStarted)="dragStart($event)"
@@ -32,7 +31,7 @@ cdkDrag
         </div>
 
 
-        <div class="top-row" >
+        <div class="top-row" cdkDragHandle>
 
         <div class="operation-details">
             <div class="name no-text-select">{{displayname}}</div>
@@ -107,7 +106,9 @@ cdkDrag
             [opid]='id' 
             [paramid]='i'
             (onOperationParamChange) = onParamChange($event)
-            (onFileUpload) = handleFile($event)>
+            (onFileUpload) = handleFile($event)
+            (preventDrag)="disableDrag()"
+            >
           </app-parameter>
 
           </ng-container>
