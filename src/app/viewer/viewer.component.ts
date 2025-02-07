@@ -176,8 +176,9 @@ getVisVariables(){
   //this is called, then, to rescale the view
   renderChange(){
     this.scale = this.zs.getViewerZoom();
+    this.view_rendering.scale = this.scale;
     if(this.id == -1) return;
-    this.view_rendering.redrawAll();
+    this.drawDraft(this.id);
   }
 
   /**
@@ -207,7 +208,7 @@ getVisVariables(){
       show_loom: false
     }
 
-    console.log("REDRAW CALLED FROM VIEW RENDERING")
+    //console.log("REDRAW CALLED FROM VIEW RENDERING")
     return this.view_rendering.redraw(draft, null, null, flags).then(el => {
       return Promise.resolve(true);
     })

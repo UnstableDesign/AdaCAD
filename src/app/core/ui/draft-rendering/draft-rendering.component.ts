@@ -966,7 +966,6 @@ export class DraftRenderingComponent implements OnInit {
       }
       
       public redrawAll(){
-        console.log("CALLED FROM REDRAW ALL")
         if(this.id == -1) return;
         const draft = this.tree.getDraft(this.id)
         const loom = this.tree.getLoom(this.id)

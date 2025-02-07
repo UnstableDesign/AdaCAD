@@ -617,8 +617,6 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
    * @returns 
    */
   async drawDraft(draft: Draft,  loom: Loom, loom_settings:LoomSettings, canvases: CanvasList, rf: RenderingFlags) : Promise<boolean> {
-    console.log("RENDER SERVICE DRAW ", draft, rf)
-
     let fns = [];
     // set the width and height
     let pixel_ratio = this.getPixelRatio(canvases.drawdown);
