@@ -93,6 +93,7 @@ export class DraftContainerComponent implements AfterViewInit{
     this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
     this.draft_name = this.tree.getDraftName(this.id);
     this.local_zoom = this.tree.getDraftScale(this.id);
+    this.draft_visible = this.tree.getDraftVisible(this.id);
     
     this.draft_rendering.onNewDraftLoaded(this.id);
     this.drawDraft(draft);  
@@ -181,8 +182,9 @@ export class DraftContainerComponent implements AfterViewInit{
   }
 
   toggleVisibility(){
-    console.log("VIS TOGGLED", this.draft_visible, this.ws.hide_mixer_drafts)
+    console.log("VIS TOGGLED", this.id,  this.draft_visible, this.ws.hide_mixer_drafts)
     this.draft_visible = !this.draft_visible;
+    this.tree.setDraftVisiblity(this.id, this.draft_visible);
   }
 
   nameFocusOut(event){
@@ -218,7 +220,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
   drawDraft(draft: Draft) : Promise<boolean>{
 
-    if(this.hasParent && this.ws.hide_mixer_drafts) return Promise.resolve(false);
+    if(this.hasParent && this.ws.hide_mixer_drafts || !this.tree.getDraftVisible(this.id)) return Promise.resolve(false);
     if(this.draft_rendering == null || this.draft_rendering == undefined)return Promise.resolve(false);
 
     const loom = this.tree.getLoom(this.id);
@@ -234,6 +236,7 @@ export class DraftContainerComponent implements AfterViewInit{
     }
 
 
+    console.log("DRAW CALLED FROM DRAW DRAFT in CONTAINTER")
     return this.draft_rendering.redraw(draft, loom, loom_settings, flags ).then(el => {
       this.tree.setDraftClean(this.id);
       return Promise.resolve(true);

@@ -200,7 +200,8 @@ export class DraftRenderingComponent implements OnInit {
 
   ngOnChanges(changes:SimpleChanges){
     if (changes['scale']) {
-     if(!changes['scale'].isFirstChange()) this.redrawAll();
+    //  console.log("NG ON CHANGES ", changes, this.id)
+     if(!changes['scale'].isFirstChange() && this.tree.getDraftVisible(this.id)) this.redrawAll();
     }
 
   }
@@ -966,6 +967,7 @@ export class DraftRenderingComponent implements OnInit {
       }
       
       public redrawAll(){
+        console.log("CALLED FROM REDRAW ALL")
         if(this.id == -1) return;
         const draft = this.tree.getDraft(this.id)
         const loom = this.tree.getLoom(this.id)
@@ -988,6 +990,8 @@ export class DraftRenderingComponent implements OnInit {
       
       //takes inputs about what to redraw
       public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any) : Promise<boolean>{
+       
+        console.log("REDRAW CALLED IN RENDERING", draft.id)
         if(draft == null) return;
 
         this.colSystemMapping = draft.colSystemMapping;

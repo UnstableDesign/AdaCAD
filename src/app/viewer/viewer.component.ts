@@ -207,6 +207,7 @@ getVisVariables(){
       show_loom: false
     }
 
+    console.log("REDRAW CALLED FROM VIEW RENDERING")
     return this.view_rendering.redraw(draft, null, null, flags).then(el => {
       return Promise.resolve(true);
     })

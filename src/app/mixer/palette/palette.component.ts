@@ -277,8 +277,8 @@ handlePan(diff: Point){
    */
   async downloadVisibleDraftsAsBmp() : Promise<any>{
 
-    const drafts: Array<SubdraftComponent> = this.tree.getDrafts();
-    const visible_drafts: Array<SubdraftComponent> = drafts.filter(el => el.draft_visible)
+
+    const visible_drafts: Array<SubdraftComponent> = this.tree.getDraftNodes().filter(el => el.visible).map(el=> <SubdraftComponent> el.component);
     const functions: Array<Promise<any>> = visible_drafts.map(el => el.draftcontainer.saveAsBmp());
     return Promise.all(functions).then(el =>
       console.log("Downloaded "+functions.length+" files")
@@ -579,7 +579,7 @@ handlePan(diff: Point){
     subdraft.instance.scale = this.zs.getMixerZoom();
 
 
-    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, loom, loom_settings, true, 1)
+    return this.tree.loadDraftData({prev_id: -1, cur_id: id}, d, loom, loom_settings, true, 1, true)
       .then(d => {
         return Promise.resolve(subdraft.instance);
         }
@@ -625,7 +625,6 @@ handlePan(diff: Point){
     this.setSubdraftSubscriptions(subdraft.instance);
     subdraft.instance.id = id;
     subdraft.instance.scale = this.zs.getMixerZoom();
-    subdraft.instance.draft_visible = true;
     subdraft.instance.use_colors = true;
     subdraft.instance.draft = d;
     subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
@@ -634,10 +633,6 @@ handlePan(diff: Point){
       const adj_topleft: Point = {x: nodep.topleft.x, y: nodep.topleft.y};
       
       subdraft.instance.topleft = adj_topleft;
-
-      if(draftp !== null && draftp !== undefined){
-        subdraft.instance.draft_visible = draftp.draft_visible;
-      }
 
       if(draftp !== null && draftp !== undefined && draftp.render_colors !== undefined){
         subdraft.instance.use_colors = draftp.render_colors;

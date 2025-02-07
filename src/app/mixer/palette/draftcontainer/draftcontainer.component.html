@@ -113,7 +113,7 @@
 
 
 
-<app-draft-rendering [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible"
+<app-draft-rendering [class.hidden]="!draft_visible"
 #draft_rendering
 source = "mixer"
 [id]="id"

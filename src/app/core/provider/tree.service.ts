@@ -259,7 +259,7 @@ export class TreeService {
   * @param loom the loom to associate with this node
   * @returns the created draft node and the entry associated with this
   */
-  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
+  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -302,6 +302,8 @@ export class TreeService {
    if(scale === undefined || scale === null)  (<DraftNode> nodes[0]).scale = 1;
    else (<DraftNode> nodes[0]).scale = scale;
 
+   if(draft_visible == undefined || draft_visible == null) (<DraftNode> nodes[0]).visible = true;
+   else (<DraftNode> nodes[0]).visible = draft_visible;
 
    //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode>nodes[0]))
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
@@ -845,21 +847,21 @@ export class TreeService {
     }
 
 
-    /**
-     * test if this node has just one child and that child subdraft is currently hidden 
-     * @param id 
-     * @returns a boolean 
-     */
-      opHasHiddenChild(id: number):boolean{
-          const tn: TreeNode = this.getTreeNode(id);
-          const outs = this.getNonCxnOutputs(id);
+  /**
+   * test if this node has just one child and that child subdraft is currently hidden 
+   * @param id 
+   * @returns a boolean 
+   */
+    opHasHiddenChild(id: number):boolean{
+        const tn: TreeNode = this.getTreeNode(id);
+        const outs = this.getNonCxnOutputs(id);
 
-          if(outs.length === 0) return false;
+        if(outs.length === 0) return false;
 
-          const child_id = outs.shift();
-          const sd = <SubdraftComponent> this.getComponent(child_id);
-          return !sd.draft_visible;
-      }
+        const child_id = outs.shift();
+        let child_visible = this.getDraftVisible(child_id);
+        return !child_visible;
+    }
   
     
 
@@ -1242,7 +1244,7 @@ clearDraft(dn: DraftNode){
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
       this.addConnection(parent, i, id, 0, cxn);
-      new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true, 1)); 
+      new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true, 1, !this.ws.hide_mixer_drafts)); 
       update_looms.push({id: id, draft:  res[i]});
       touched.push(id);
     }
@@ -1441,6 +1443,12 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   getDraftNodes():Array<DraftNode>{
     return this.nodes.filter(el => el.type === 'draft').map(el => <DraftNode> el);
+  }
+
+  getDraftVisible(id: number){
+    const dn:DraftNode = <DraftNode> this.getNode(id);
+    if(dn == null) return false; 
+    return dn.visible;
   }
 
   getDrafts():Array<SubdraftComponent>{
@@ -2126,7 +2134,7 @@ isValidIOTuple(io: IOTuple) : boolean {
           draft_name: getDraftName((<DraftNode>node).draft),
           draft: null,
           compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
-          draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
+          draft_visible:  ((<DraftNode>node).visible == undefined ) ? !this.ws.hide_mixer_drafts :  (<DraftNode>node).visible,
           loom: (loom_export === null) ? null :loom_export,
           loom_settings: node.loom_settings,
           render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors,
@@ -2259,6 +2267,11 @@ isValidIOTuple(io: IOTuple) : boolean {
     dn.render_colors = (dn.render_colors === undefined) ? true : dn.render_colors; 
     if(dn.component !== null) (<SubdraftComponent> dn.component).draft = draft;
 
+  }
+
+  setDraftVisiblity(id: number, visibile: boolean ){
+    const dn = <DraftNode> this.getNode(id);
+    dn.visible = visibile;
   }
 
 /**

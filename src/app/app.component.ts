@@ -596,6 +596,20 @@ export class AppComponent implements OnInit{
 
 
   /**
+   * runs code that (a) changes all loom types to jacquard and (b) sets all drafts to hidden
+   */
+  optimizeWorkspace() {
+
+    //set the defaults
+    this.ws.hide_mixer_drafts = true;
+    this.ws.type = 'jacquard';
+
+    this.setDraftsViewable(false);
+
+  }
+
+
+  /**
    * this function checks if the user has already started designing so that logging in does not override. 
    * it does this by checking if there is one or viewer drafts in the tree
    * @returns 
@@ -1123,17 +1137,17 @@ async processFileData(data: FileObj) : Promise<string|void>{
       .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
       .map(tn => tn.entry);
     
-    const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors, scale}> = seednodes
+    const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors, scale, draft_visible}> = seednodes
     .map(sn =>  {
 
 
         let d:Draft =null;
         let loom:Loom = null;
         let render_colors = true;
+        let draft_visible = true;
         let scale = 1;
 
       const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
-      console.log("SEED DRAFT NODE", draft_node)
 
       let ls: LoomSettings = {
         frames: this.ws.min_frames,
@@ -1152,12 +1166,13 @@ async processFileData(data: FileObj) : Promise<string|void>{
           console.error("could not find draft with id in draft list");
         }
         else{
-          console.log("LOCATED DRAFT ", located_draft)
+          //console.log("LOCATED DRAFT ", located_draft)
           d = copyDraft(located_draft.draft)
           ls = copyLoomSettings(located_draft.loom_settings);
           loom = copyLoom(located_draft.loom);
           if(located_draft.render_colors !== undefined) render_colors = located_draft.render_colors; 
           if(located_draft.scale !== undefined) scale = located_draft.scale; 
+          if(located_draft.draft_visible !== undefined) draft_visible = located_draft.draft_visible; 
         } 
 
       }else{
@@ -1179,12 +1194,13 @@ async processFileData(data: FileObj) : Promise<string|void>{
           loom: loom,
           loom_settings: ls,
           render_colors: render_colors,
-          scale: scale
+          scale: scale,
+          draft_visible: draft_visible
           }
       
     });
 
-    const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors, seed.scale));
+    const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom,seed.loom_settings, seed.render_colors, seed.scale, seed.draft_visible));
 
     const op_fns = data.ops.map(op => {
       const entry = entry_mapping.find(el => el.prev_id == op.node_id);
@@ -1249,7 +1265,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   })
   .then(el => {
-    console.log("PLACE DATA")
 
     //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
     data.draft_nodes
@@ -1262,6 +1277,8 @@ async processFileData(data: FileObj) : Promise<string|void>{
       (<DraftNode> node).loom_settings = np.loom_settings; 
       (<DraftNode> node).loom = copyLoom(np.loom); 
       if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
+      if(np.draft_visible !== undefined) (<DraftNode> node).visible = np.draft_visible; 
+      else (<DraftNode> node).visible = !this.ws.hide_mixer_drafts;
       if(np.scale !== undefined) (<DraftNode> node).scale = np.scale; 
     })
 
@@ -1269,10 +1286,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
     (<OperationComponent> op.component).updateChildren(this.tree.getNonCxnOutputs(op.id));
    })
 
-    // const dn = this.tree.getDraftNodes();
-    // dn.forEach(node => {
-    //   console.log("RES", node.draft, node.loom, node.loom_settings)
-    // })
 
     data.notes.forEach(note => {
       this.mixer.createNote(note);
@@ -1364,6 +1377,13 @@ saveFile(){
 
 setDraftsViewable(val: boolean){
   this.ws.hide_mixer_drafts = val;
+
+  const drafts = this.tree.getDraftNodes();
+  drafts.forEach(draft => {
+    draft.visible = val;
+  })
+
+
   this.mixer.redrawAllSubdrafts();
 }
 

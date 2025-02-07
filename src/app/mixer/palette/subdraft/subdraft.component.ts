@@ -85,7 +85,7 @@ export class SubdraftComponent implements OnInit {
 
   set_connectable:boolean = false;
 
-  draft_visible: boolean = true;
+  // draft_visible: boolean = true;
 
   loom_settings: LoomSettings;
 
@@ -124,6 +124,7 @@ export class SubdraftComponent implements OnInit {
  
     const dn:DraftNode = <DraftNode> this.tree.getNode(this.id);
     this.use_colors = dn.render_colors;
+    
 
 
     if(this.tree.isSibling(this.id)) this.disableDrag();
@@ -501,7 +502,9 @@ openInEditor(event: any){
   }
 
   showhide(){
-    this.draft_visible = !this.draft_visible;
+    let vis = this.tree.getDraftVisible(this.id);
+    this.tree.setDraftVisiblity(this.id, !vis);
+   // this.draft_visible = !this.draft_visible;
     this.onSubdraftViewChange.emit(this.id);
   }
 

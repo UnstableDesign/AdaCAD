@@ -71,7 +71,7 @@ export class MediaService {
    * @returns 
    */
   loadIndexedColorFile(id: number, ref: string, saved_data: {colors: Array<any>, color_mapping: Array<any>}) : Promise<IndexedColorImageInstance>{
-    console.log("LOAD INDEXED COLOR FILE")
+    //console.log("LOAD INDEXED COLOR FILE")
 
     if(id == -1){
       id = utilInstance.generateId(8);
@@ -92,7 +92,6 @@ export class MediaService {
       return  this.processMedia(obj);
       
     }).then(blob => {
-      console.log("Got download")
 
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
@@ -113,7 +112,7 @@ export class MediaService {
 
         const pixels = imgdata.data;
 
-        console.log("Create Pixel Array")
+        //console.log("Create Pixel Array")
         //process the pixels into meaningful values;
         const all_colors: Array<any> = [];
         for(let i = 0; i < pixels.length; i+= 4){
@@ -142,7 +141,6 @@ export class MediaService {
         let filewarning = "";
         let seen_vals = [];
         let unique_count = 0;
-        console.log("Count colors")
 
 
         for(let i = 0; i < all_colors.length && unique_count < 100; i++){
@@ -187,8 +185,6 @@ export class MediaService {
 
         const prox = this.createProximityMap(colors);
         if(color_mapping.length == 0){
-          console.log("create color map")
-
           color_mapping = this.createColorMap(colors, prox, -1);
         }
 
@@ -340,7 +336,7 @@ export class MediaService {
   }
 
   createProximityMap(colors: Array<Color>) : Array<{a: number, b: number, dist: number}>{
-    console.log("create proximity map")
+    //console.log("create proximity map")
     let prox = [];
     for(let a = 0; a < colors.length; a++){
       for(let b = a+1; b < colors.length; b++){
@@ -370,7 +366,7 @@ export class MediaService {
    * @param img - specific settings for this media instance
    */
   addSingleImageMediaInstance(id:number, ref: string, data: any) : MediaInstance{
-    console.log("LOADING IN DATA ", data)
+    //console.log("LOADING IN DATA ", data)
     let obj: MediaInstance = {id, ref,img: data, type: 'image'}
     this.current.push(obj);
     return obj;
@@ -414,7 +410,7 @@ export class MediaService {
 
 
   getMedia(id: number) : MediaInstance {
-    console.log("HAS MEDIA ", id)
+    //console.log("HAS MEDIA ", id)
     let obj = this.current.find(el => el.id == id);
     if(obj === undefined) return null;
     return obj;
