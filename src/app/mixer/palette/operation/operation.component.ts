@@ -186,9 +186,7 @@ export class OperationComponent implements OnInit {
   }
 
   onDoubleClick(){
-    console.log("HI");
     this.trigger.openMenu();
-
   }
 
 

@@ -11,6 +11,7 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
 import { ViewerService } from '../../../core/provider/viewer.service';
+import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
   selector: 'app-draftcontainer',
@@ -31,7 +32,9 @@ export class DraftContainerComponent implements AfterViewInit{
   @Output() onDrawdownSizeChanged = new EventEmitter();
  
   @ViewChild('bitmapImage') bitmap: any;
-  @ViewChild('draft_rendering') draft_rendering: DraftRenderingComponent;
+  @ViewChild('draft_rendering') draft_rendering: 
+  DraftRenderingComponent;
+  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
 
 
 
@@ -100,6 +103,10 @@ export class DraftContainerComponent implements AfterViewInit{
    
     this.startSizeObserver();
 
+  }
+
+  onDoubleClick(){
+    this.trigger.openMenu();
   }
 
   updateStyle(viewer_id: number){

@@ -11,6 +11,7 @@ import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
+import { MatMenuTrigger } from '@angular/material/menu';
 
 
 @Component({
@@ -357,6 +358,10 @@ openInEditor(event: any){
   
   }
 
+
+  onDoubleClick(){
+    this.draftcontainer.onDoubleClick();
+  }
 
 
 
