@@ -6,7 +6,6 @@ import { OperationDescriptionsService } from '../../../core/provider/operation-d
 import { OperationService } from '../../../core/provider/operation.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
-import { OpHelpModal } from '../../modal/ophelp/ophelp.modal';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { InletComponent } from './inlet/inlet.component';
@@ -328,12 +327,7 @@ export class OperationComponent implements OnInit {
   openHelpDialog() {
 
     window.open('https://docs.adacad.org/docs/reference/operations/'+this.op.name, '_blank');
-    const dialogRef = this.dialog.open(OpHelpModal, {
-      data: {
-        name: this.op.name,
-        op: this.op
-      }
-    });
+;
 
   }
 
