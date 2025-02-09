@@ -185,6 +185,11 @@ export class OperationComponent implements OnInit {
 
   }
 
+  mousedown(e: any) {
+    //this.disable_drag = false;
+    e.stopPropagation();
+  }
+
   onDoubleClick(){
     this.trigger.openMenu();
   }
