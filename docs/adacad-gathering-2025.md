@@ -6,7 +6,7 @@ title: "AdaCAD Gathering 2025"
 Need to ask question, want to meet the other attendees? Join the discussion on a private Discord channel for this event: [AdaCAD Gathering 2025 on Discord](https://discord.gg/bsMbEPEykd)
 :::
 
-The AdaCAD Gathering will take place June 2-6, 2025 in Boulder Colorado. This Working Group is supported by a [National Science Foundation grant]((https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346150&HistoricalAwards=false) focused on transitioning the AdaCAD open-source weaving software into a larger and more diverse open-source “eco-system” of users, developers, and maintainers. With this support, we are able to cover the costs of your flight, hotel, and meals for the duration of the trip.
+The AdaCAD Gathering will take place June 2-6, 2025 in Boulder Colorado. This Working Group is supported by a [National Science Foundation grant](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346150&HistoricalAwards=false) focused on transitioning the AdaCAD open-source weaving software into a larger and more diverse open-source “eco-system” of users, developers, and maintainers. With this support, we are able to cover the costs of your flight, hotel, and meals for the duration of the trip.
 
 This group will bring together ~10 experts from art, craft, open-source, and engineering to co-author founding documents, workshop governance structures, and establish policies that will found our eco-system and help AdaCAD function as a community owned and maintained tool. We especially want to develop a thoughtful and sustainable approach for weavers (and the weave-curious) to connect, share, and collaborate.
 
@@ -16,7 +16,7 @@ The tentative schedule for the working group is included below and would take pl
 
 ### Schedule
 
-last updated Oct 14:
+last updated Oct 14 (we are in the process of forming more detailed plans, next update planned for April 2025):
 
 
 | Date | Plan |
@@ -34,6 +34,7 @@ last updated Oct 14:
 - [Bhakti Ziek](https://bhaktiziek.com/) - Independent Author and Educator
 - [Bine Roth ](https://www.rca.ac.uk/more/staff/bine-roth/) - Royal College of London
 - [Chris Coleman](https://digitalcoleman.com/) - The Ohio State University
+- [Emily Winter](https://www.emilyfranceswinter.com/) - Co-Founder of The Weaving Mill.
 - [Jim McCann](https://www.cs.cmu.edu/~jmccann/) - Carnegie Mellon University
 - [Kaori Ueda](https://www.kyoto-saga.ac.jp/about/teachers/2156) - Kyoto Saga University of Arts
 - [Kathryn Walters](https://www.kmwalters.com/) - Swedish School of Textiles
@@ -48,20 +49,32 @@ Unstable Design Lab and ATLAS Institute \
 University of Colorado, Boulder \
 [https://www.colorado.edu/atlas](https://www.colorado.edu/atlas)
 
-Hotel: To Be Determined
-
 ### Hosts and Organizing Committee
 Please reach out to our organizing team if you have any questions about the event.
 
-- [Laura Devendorf](http://artfordorks.com/) - Director, Unstable Design Lab
-- [Deanna Gelosi](https://deannagelosi.com) - PhD Student
-- [Etta Sandry](https://ettasandry.com/) - PhD Student
+- [Laura Devendorf](http://artfordorks.com/) - laura.devendorf@colorado.edu
+- [Deanna Gelosi](https://deannagelosi.com) - deanna.gelosi@colorado.edu
+- [Etta Sandry](https://ettasandry.com/) - etta.sandry@colorado.edu
+
+### Questions or Requests 
+We'd love to make this event as comfortable as possible for you. Please let us know what you need in order to make this happen by writing to Laura via email or Discord. This might keep us informed of any food allergies (or preferences, things you really want to try) as well as any accessibility concerns.  
+
+
 
 ## Travel
-The best way to get to Boulder is to fly into and out from Denver International Airport (DEN). This is a major hub in the United States, especially for United/Lufthansa.
+Travel has been arranged for out of town guests: 
 
-Travel from the airport to boulder is simplest using the [AB1 bus](https://app.rtd-denver.com/route/AB1/schedule?serviceType=3&direction=Eastbound&branch=) line, which runs every hour between 5AM and 11PM. Ride share services like Uber and Lyft are also available. The ride from the airport to Boulder is roughly 1 hour.
+### Flights
+If you have questions or concerns about your travel, or require any changes, please contact Deanna Gelosi via email or through Discord. 
 
+### Hotel
+Individual rooms will soon be booked in your name at the [Moxy Hotel](https://www.marriott.com/en-us/hotels/denbx-moxy-boulder/overview/) in Boulder with check in on  June 2 and checkout on June 6. This hotel is located directly adjacent to the CU Boulder campus and is directly accessible via the [AB1 bus route](https://maps.app.goo.gl/sES2AdgHym5sceTW7) that runs to and from the Denver International Airport. If you need to change your hotel or dates for any reason, please contact Deanna Gelosi via email or through Discord. 
+
+<!-- The best way to get to Boulder is to fly into and out from Denver International Airport (DEN). This is a major hub in the United States, especially for United/Lufthansa.-->
+
+### Getting From the Airport to Boulder
+Travel from the airport to boulder is simplest using the [AB1 bus](https://app.rtd-denver.com/route/AB1/schedule?serviceType=3&direction=Eastbound&branch=) line, which runs every hour between 5AM and 11PM. Ride share services like Uber and Lyft are also available. The ride from the airport to Boulder is roughly 1 hour. The Moxy hotel is located directly on the AB1 route (as well as many other local routes) via the [Broadway and Euclid Stop](https://maps.app.goo.gl/sES2AdgHym5sceTW7). From there it is a seven minute walk to the hotel or a five minute walk to the main venue at the ATLAS Institute.  
+<!-- 
 ### Booking Travel
 
 **Please send your ideal flights to Deanna Gelosi** (deanna.gelosi@colorado.edu). Keep in mind that whenever possible, the grant funding requires us to use US carriers (e.g. United/Luftansa or Delta/KLM etc). Please include: 
@@ -87,7 +100,7 @@ Travel from the airport to boulder is simplest using the [AB1 bus](https://app.r
 - Email address
 - Frequent flyer number, if applicable
 - TSA pre-check or Known Traveler Number, if applicable
-- Seat preference
+- Seat preference --> 
 
 ## About Boulder
 
@@ -109,5 +122,4 @@ Boulder is a walkable/bikeable city and your hotel will be within walking distan
 - [Rocky Mountain National Park](https://www.nps.gov/romo/index.htm)
 
 ### High Altitude
-
 Boulder is 5,430 feet/1,655 meters above sea level. The weather can be erratic, the sun can be very strong, and the air is thin. Plan to wear sunblock, hat, sunglasses, and bring a bottle of water with you all day. Bring a wind breaker, rain coat, and maybe a light down jacket (it is rare but not impossible to get snow in June). A stray thunderstorm is likely in early June.
