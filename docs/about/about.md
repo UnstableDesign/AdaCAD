@@ -12,6 +12,6 @@ AdaCAD is an experimental workspace that applies [parametric design](/reference/
 AdaCAD was first developed and 2017 and is maintained by Laura Devendorf and the [Unstable Design Lab](https://unstable.design/) with input and [contributions](./contributors.md) by a broader community of experimental weavers. **It is "homemade" software made by curious weaver/coders so bugs and oddities may emerge** You can help the project by reporting any bugs you find via [GitHub](https://github.com/UnstableDesign/AdaCAD/issues), by posting to the [Discord Community](https://discord.gg/uv2HuuFj), or by writing to us at unstabledesignlab (at) gmail.com.   
 
 
-
-
+## Why is it called AdaCAD 
+We originally named the project AdaCAD as a nod to Ada Lovelace. CAD is an acronym for Computer-Aided Design. We pronounce it eh-duh-cad. In reference to charles Babbage's Analytical Engine (which is often considered the first computer), Ada Lovelace famously wrote that "The Analytical Engine weaves algebraic patterns, just as the Jacquard loom weaves flowers and leaves". We chose the name to mark the continued evolution of algebra, algorithm and cloth that have been explored by weavers and coders, from Ada Lovelace to Ada Dietz. 
 

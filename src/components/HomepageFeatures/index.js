@@ -4,29 +4,29 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: 'Parametric Design For Woven Structures',
+    title: '📗 About',
     img: require('@site/static/img/layer_example.gif').default,
     description: (
       <>
-Instead of filling a blank canvas with your drafts and bindings, in AdaCAD, you grow drafts from the ground up by combining different operations. This makes woven structure design algorithmic and playful. 
+      AdaCAD is an experimental workspace that applies <a href="/reference/glossary/parametric-design.md">parametric design</a> to the domain of weave <a href="/reference/glossary/draft.md">drafting</a>. It supports algorithmic and playful approaches to developing woven structures and cloth, for <a href="../reference/glossary/harness-loom.md">shaft</a>, <a href="../reference/glossary/direct-tie-loom.md">dobby</a>,  and <a href="(../reference/glossary/jacquard-loom.md">jacquard</a> looms. 
 </>
     ),
   },
   {
-    title: 'Designed for Experimental Weaving',
+    title: '🖥️ Use it Online',
     img: require('@site/static/img/sample7b.jpg').default,
     description: (
       <>
-        AdaCAD is developed in conversation with experimental weavers across fiber arts and engineering and, thus, offers specific support for complex structure development. 
-      </>
+  AdaCAD is freely accessible online at <a href="adacad.org">adacad.org</a>, you do not need to download or install it on your computer. We recommend using the Chrome browser on a laptop or desktop computer for the best experience. 
+</>
     ),
   },
   {
-    title: 'Open Source',
+    title: '🍎 Learn More',
     img: require('@site/static/img/code.png').default,
     description: (
       <>
-        AdaCAD is an open-source tool, meaning that anyone can add to the code base to add new operations and features. 
+        This website includes examples, templates, and resources to help you get started. We also provide a glossary to clarify our terminology and a reference documenting each operation in the interface. 
       </>
     ),
   },
@@ -35,11 +35,11 @@ Instead of filling a blank canvas with your drafts and bindings, in AdaCAD, you 
 function Feature({img, title, description}) {
   return (
     <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <img src={img}></img>
+      <div className="text--left">
+        {/* <img src={img}></img> */}
         {/* <Svg className={styles.featureSvg} role="img" /> */}
       </div>
-      <div className="text--center padding-horiz--md">
+      <div className="text--left padding-horiz--md">
         <h3>{title}</h3>
         <p>{description}</p>
       </div>

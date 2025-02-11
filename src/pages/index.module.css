@@ -3,9 +3,31 @@
  * and scoped locally.
  */
 
+ @keyframes playful{
+
+  from {
+    background-position-x: 0px;
+  }
+
+  to {
+    background-position-x: 100px;
+  }
+
+ }
+
 .heroBanner {
+  animation-name: playful;
+  animation-duration: 10s;
+  animation-iteration-count: infinite;
+  animation-direction:alternate-reverse;
+  background-size: 40px 40px;
+
+  background-image:
+    linear-gradient(to right, grey 1px, transparent 1px),
+    linear-gradient(to bottom, grey 1px, transparent 1px);
+  color: black;
   padding: 4rem 0;
-  text-align: center;
+  text-align: left;
   position: relative;
   overflow: hidden;
 }
@@ -19,7 +41,7 @@
 .buttons {
   display: flex;
   padding: 4px;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content: left;
 }
 

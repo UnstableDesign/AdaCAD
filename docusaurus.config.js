@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'AdaCAD',
-  tagline: 'AdaCAD is an experimental workspace that applies parametric design to the domain of weave drafting. It supports algorithmic and playful approaches to developing woven structures and cloth, for shaft and jacquard looms.',
+  tagline: 'an algorithmic and playful approach to woven drafts',
   favicon: 'img/favicon.ico',
 
 
@@ -71,7 +71,7 @@ const config = {
         title: 'AdaCAD',
         logo: {
           alt: 'AdaCAD Logo',
-          src: 'img/adalogo.svg',
+          src: 'img/logo.svg',
         },
         items: [
           {
@@ -82,24 +82,21 @@ const config = {
           },
           {
             type: 'docSidebar',
-            sidebarId: 'referenceSidebar',
-            position: 'left',
-            label: 'Reference',
-          },
-          {
-            type: 'docSidebar',
             sidebarId: 'devSidebar',
             position: 'left',
             label: 'Develop',
           },
-          // {
-          //   type: 'docSidebar',
-          //   sidebarId: 'communityDocsSidebar',
-          //   position: 'left',
-          //   label: 'Community',
-          // },
-          
-          {to: '/blog', label: 'Blog', position: 'left'},
+          {
+            type: 'docSidebar',
+            sidebarId: 'aboutSidebar',
+            position: 'left',
+            label: 'About',
+          },
+          {
+            href: 'https://discord.gg/Be7ukQcvrC',
+            label: 'Discord Community',
+            position: 'right',
+          },  
           {
             href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
             label: 'GitHub',
@@ -121,10 +118,6 @@ const config = {
               {
                 label: 'Learn',
                 to: '/docs/learn/getting-started',
-              },
-              {
-                label: 'Reference',
-                to: 'docs/reference/operations',
               },
               {
                 label: 'Develop',
@@ -170,6 +163,10 @@ const config = {
                 label: 'GitHub',
                 href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
               },
+              {
+                href: 'https://discord.gg/Be7ukQcvrC',
+                label: 'Discord Community',
+              },  
               {
                 label: 'Creative Commons Attribution ShareAlike',
                 href: 'https://creativecommons.org/licenses/by-sa/4.0/',
