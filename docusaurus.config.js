@@ -7,18 +7,14 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'AdaCAD',
-  tagline: 'an algorithmic and playful approach to woven drafts',
+  tagline: 'an algorithmic and playful approach to drafting',
   favicon: 'img/favicon.ico',
 
 
   // Set the production url of your site here
   url: 'https://docs.adacad.org',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
   organizationName: 'unstabledesignlab', // Usually your GitHub org/user name.
   projectName: 'AdaCAD_Documentation', // Usually your repo name.
   //trailingSlash: false,
@@ -30,8 +26,6 @@ const config = {
 //  onBrokenMarkdownLinks: 'ignore',
 
   
-
-
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
@@ -66,7 +60,7 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/docusaurus-social-card.jpg',
+      image: 'img/adacad-social-card.png',
       navbar: {
         title: 'AdaCAD',
         logo: {
@@ -74,6 +68,12 @@ const config = {
           src: 'img/logo.svg',
         },
         items: [
+          {
+            type: 'docSidebar',
+            sidebarId: 'aboutSidebar',
+            position: 'left',
+            label: 'About',
+          },
           {
             type: 'docSidebar',
             sidebarId: 'learnSidebar',
@@ -87,18 +87,12 @@ const config = {
             label: 'Develop',
           },
           {
-            type: 'docSidebar',
-            sidebarId: 'aboutSidebar',
-            position: 'left',
-            label: 'About',
-          },
-          {
             href: 'https://discord.gg/Be7ukQcvrC',
             label: 'Discord Community',
             position: 'right',
           },  
           {
-            href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
+            href: 'https://github.com/UnstableDesign/AdaCAD',
             label: 'GitHub',
             position: 'right',
           },
@@ -116,28 +110,27 @@ const config = {
             title: 'Site',
             items: [
               {
+                label: 'About',
+                to: '/docs/about/',
+              },
+              {
                 label: 'Learn',
                 to: '/docs/learn/getting-started',
               },
               {
                 label: 'Develop',
                 to: 'docs/develop/install',
-              },
-              // {
-              //   label: 'Community',
-              //   to: 'docs/community/',
-              // },
-              {
-                label: 'Blog',
-                to: '/blog',
-              },
+              }
             ],
           },
           {
             title: 'Authors',
             items: [
       
-              
+              {
+                label: 'Contributors List',
+                href: '/docs/about/contributors',
+              },
               {
                 label: 'Unstable Design Lab',
                 href: 'https://unstable.design/',
@@ -161,7 +154,7 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/UnstableDesign/AdaCAD_Documentation',
+                href: 'https://github.com/UnstableDesign/AdaCAD',
               },
               {
                 href: 'https://discord.gg/Be7ukQcvrC',

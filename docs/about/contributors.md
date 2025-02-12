@@ -40,3 +40,7 @@ Additional Support for the Project has come from:
 - [Mikhaila Friske](https://www.mikhailafriske.com/), developed first iteration 
 - [Shanel Wu](https://sminliwu.github.io/), first iteration study, developed modules for unfabrication and pedals 
 - [Xavier Corr](https://xaviercorr.com/), support on loom pedals project 
+
+## Logo Design
+
+- Our logo was designed by [Joel Swanson](joelswanson.art)
