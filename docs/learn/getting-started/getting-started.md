@@ -5,11 +5,10 @@ sidebar_position: 1
 # Getting Started
 
 ## Step 1: Open an AdaCAD Workspace
-<!-- <a class='button_open primary' href="https://adacad.org/?ex=first_workspace" target="_blank">Open the "Getting Started" Workpace</a> -->
 
 <a class='button_open primary' href="https://adacad.org/" target="_blank">Click Here to Open a Workspace</a>
 
-Looking for an older version of AdaCAD? Find it on the [compare versions](./compare_versions.md) page. 
+Looking for an older version of AdaCAD? Find it on the [compare versions](../../about/compare_versions.md) page. 
 
 ## Step 2: Create your First Draft
 There are two ways you can make a draft in AdaCAD: Draft Mode and Workspace Mode. You can switch between these two modes by using the "design mode" toggle in the header. 
