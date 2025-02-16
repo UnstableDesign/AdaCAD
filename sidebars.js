@@ -43,9 +43,10 @@ const sidebars = {
       collapsed: false,
       collapsible: false,
       items: [
+        'learn/getting-started/interface',
+        'learn/getting-started/editor',
         'learn/getting-started/dataflow',
         'learn/getting-started/weave',
-        'learn/getting-started/interface',
       ],
     },
 //insert reference sidebar

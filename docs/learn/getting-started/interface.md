@@ -2,6 +2,9 @@
 
 This page guides offers resources to navigate AdaCAD interface and learn about the various features that are available. 
 
+
+
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -10,8 +13,25 @@ import TabItem from '@theme/TabItem';
 <Tabs>
 <TabItem value="adacad4" label="AdaCAD 4" default>
 
-        We created the following video to introduce you to the interface for AdaCAD 4:
+
+ We created the following video to introduce you to the interface for AdaCAD 4:
         <iframe width="560" height="315" src="https://www.youtube.com/embed/ZJrypg-7WKw?si=a49QDBIdRDOkoEoT" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+     This image breaks apart the interface into different regions, explaining the features that would be most commonly used in each of those regions. 
+
+![file](./img/UI_workspace.png)
+
+
+
+
+
+
+
+![file](./img/MWFAE_FollowAlong_Page_2.jpg)
+
+       
+
 
 
 </TabItem>

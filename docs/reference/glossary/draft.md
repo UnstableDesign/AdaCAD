@@ -1,13 +1,16 @@
 # Draft
 
-A draft is an abstract representation of a [cloth](cloth.md). For example, the two images below show the correspondence between a simulated cloth and the draft that would be used to create the cloth. 
+A draft is an abstract representation of a [cloth](cloth.md). For example, the two images below show the correspondence between a simulated cloth and the draft that would be used to create the cloth.  In AdaCAD, each square in the draft (which we call a draft cell), represents a location at which a single [warp](warp.md) [end](end.md) and [weft](weft.md) [pick](pick.md) cross. A black cell represents a place where the warp is lifted when the weft is passed through, and a white cell is a location where the warp remains lowered. 
 
-The draft is a form of notation that describes the structure of the cloth. Each square in the draft (which we call a draft cell), represents a location at which a single [warp](warp.md) [end](end.md) and [weft](weft.md) [pick](pick.md) cross.
 
 
 ![file](./img/sim.png)
 
 ![file](./img/draft.png)
+
+
+
+
 
 ## Parts of A Draft
 

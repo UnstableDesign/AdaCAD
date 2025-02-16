@@ -23,6 +23,13 @@ import TabItem from '@theme/TabItem';
 
         <iframe width="560" height="315" src="https://www.youtube.com/embed/zrmt8_4p7y4?si=Y4TSVZ82WfKvN4GE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
 
+Video Summary: 
+
+0. Create a draft or dataflow that matches the size of your loom (e.g. as many ends as your loom is configured to weave and as many pics as you need to complete the cloth.)
+1. Download the draft you'd like to weave by double-clicking the draft and selecting "Download as Bitmap". This will save a bitmap where-ever your computer stores downloads from the web in a .jpg format. 
+2. Open this file using the TC2 software. When it prompts you that your file has "More than 2 colors in Pattern". Push the "Bilevel" button. 
+3. Start weaving. 
+
 </TabItem>
 
 <TabItem value="adacad3" label="AdaCAD 3">
@@ -51,11 +58,7 @@ import TabItem from '@theme/TabItem';
 
 # Weave Drafts on an AVL Compudobby Loom
 
-:::warning
-this process has only been tested in AdaCAD 4
-:::
-
-In AdaCAD 4, we are able to download .WIF files that can be directly uploaded onto our AVL CompuDobby Loom TC2. The video below walks you though this process. 
+You are able to download .WIF files that can be directly uploaded onto our AVL CompuDobby Loom TC2. The video below walks you though this process. 
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/nhHUUaMHx_Y?si=PJdnXeZRILSegAMb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
