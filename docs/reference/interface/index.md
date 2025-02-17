@@ -1,9 +1,21 @@
-# Interface Guide
-
+# Interface
 This page guides offers resources to navigate AdaCAD interface and learn about the various features that are available. 
 
+## Overview
+The interface is organized into different parts, each which control a different set of features: 
+
+![file](./img/interface_tour.jpeg)
+
+These parts consist of: 
+
+- [**topbar**](./topbar): for controlling application-wide functions and settings such as loading and saving files, changing preferences, viewing examples, and logging in and out. 
+- [**viewer**](./viewer): for controlling application-wide functions and settings such as loading and saving files, changing preferences, viewing examples, and logging in and out. 
+- [**workspace**](./workspace): for designing and editing dataflows that generate drafts
+- [**draft editor**](./draft_editor): for designing and editing individual drafts using a point paper drafting style
 
 
+
+## Video Tour
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -16,19 +28,6 @@ import TabItem from '@theme/TabItem';
 
  We created the following video to introduce you to the interface for AdaCAD 4:
         <iframe width="560" height="315" src="https://www.youtube.com/embed/ZJrypg-7WKw?si=a49QDBIdRDOkoEoT" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-
-
-     This image breaks apart the interface into different regions, explaining the features that would be most commonly used in each of those regions. 
-
-![file](./img/UI_workspace.png)
-
-
-
-
-
-
-
-![file](./img/MWFAE_FollowAlong_Page_2.jpg)
 
        
 

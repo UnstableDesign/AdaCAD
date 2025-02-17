@@ -26,7 +26,7 @@ const FeatureList = [
     img: require('@site/static/img/code.png').default,
     description: (
       <>
-       New to AdaCAD? Start with our <a href="/docs/learn/getting-started/">getting started instructions</a>, <a href="/docs/category/examples">examples</a>, <a href="/docs/category/templates">templates</a>. Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a> and <a href="/docs/category/glossary">concepts</a>. 
+       New to AdaCAD? Start with our <a href="/docs/learn/getting-started/">getting started</a> page and <a href="/docs/category/tutorials">tutorials</a>. Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a>, <a href="/docs/category/glossary">concepts</a>, <a href="/docs/category/interface">interface features</a> and <a href="/docs/category/examples">examples</a>. 
       </>
     ),
   }

@@ -16,6 +16,11 @@
   "dependencies": {
     "@docusaurus/core": "^3.2.1",
     "@docusaurus/preset-classic": "^3.2.1",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-brands-svg-icons": "^6.7.2",
+    "@fortawesome/free-regular-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^1.2.1",
     "prism-react-renderer": "^1.3.5",
@@ -24,7 +29,7 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.2.1",
-     "remarkable-admonitions": "^0.2.1"
+    "remarkable-admonitions": "^0.2.1"
   },
   "browserslist": {
     "production": [
