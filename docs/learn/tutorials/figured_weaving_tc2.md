@@ -1,4 +1,4 @@
-# Figured Weaving Drafts
+# Make Figured Weaving Drafts
 
 ![file](./img/ada_indexed_color.png)
 

@@ -39,6 +39,11 @@ const sidebars = {
       id: 'learn/getting-started/getting-started', // document ID
       label: 'Getting Started', // sidebar label
     },
+    {
+      type: 'doc',
+      id: 'learn/help/topics',
+      label: 'Features'
+    },
     // { 
     //   type: 'category',
     //   label: 'Getting Started',
@@ -174,12 +179,10 @@ const sidebars = {
     'reference/interface/draft_editor',
     'reference/interface/viewer',
     'reference/interface/compare_versions',
- 
-   ]
-}
+      ]
+    }
     
   ]},
-
 
 
 // end reference sidebar

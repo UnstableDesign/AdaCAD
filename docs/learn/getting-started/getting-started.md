@@ -5,9 +5,9 @@ sidebar_position: 1
 # Getting Started
 At a high level, using AdaCAD involves the following steps: 
 
-1. **Open an AdaCAD Workspace:** To start using AdaCAD, visit [adacad.org](https://adacad.org/).Looking for an older version of AdaCAD? Find it on the [compare versions](../../about/compare_versions.md) page. 
+1. **Open an AdaCAD Workspace:** To start using AdaCAD, visit [adacad.org](https://adacad.org/). Looking for an older version of AdaCAD? Find it on the [compare versions](../../about/compare_versions.md) page. You can also learn more about the [interface](../../reference/interface/index.md) in our Reference section.
 
-2. **Create a Draft:** There are two ways you can make a draft in AdaCAD: In what we call [traditional drafting](./editor.md) of drafting on point paper or by  [dataflow drafting](./dataflow.md) You can switch between these two modes by using the "design mode" toggle in the header. 
+2. **Create a Draft:** There are two ways you can make a draft in AdaCAD: Using traditional point paper drafting in our [draft editor](../../reference/interface/draft_editor.md) or by [dataflow drafting](../../reference/glossary/dataflow.md) in the [workspace](../../reference/interface/workspace.md) You can switch between these two modes by using the "design mode" toggle in the [top bar](../../reference/interface/topbar.md). 
 
 3. **Weave the Draft:** Once you have created a draft, [weave it on your loom](./weave.md). You can export drafts from AdaCAD to upload to computerized looms such as the TC2 or AVL Compudobby Loom. You can also manually follow patterns to setup analog looms.
 
