@@ -1,7 +1,9 @@
 # Make Figured Weaving Drafts
 <div class="emph">
-In this example, we'll generate a workflow for uploading an image and assigning shaded structures to different color regions of the image. You can make the entire file yourself following the instructions below or simply open our [pre-made figure weaving template](https://adacad.org) and play. 
+Generate a workflow for uploading an image and assigning shaded structures to different color regions of the image. 
 </div>
+
+You can make the entire file yourself following the instructions below or simply open our [pre-made figure weaving template](https://adacad.org) and play. 
 
 ![file](./img/ada_indexed_color.png)
 

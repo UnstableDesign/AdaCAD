@@ -16,6 +16,7 @@
   --ifm-color-primary-light: #4f61c9;
   --ifm-color-primary-lighter: #6275e0;
   --ifm-color-primary-lightest: #7487f5;
+  --ifm-color-primary-text: #ffffff;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
@@ -29,6 +30,7 @@
   --ifm-color-primary-light: #f2de6b;
   --ifm-color-primary-lighter: #f0e39a;
   --ifm-color-primary-lightest: #ede5ba;
+  --ifm-color-primary-text: #000000;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
@@ -38,6 +40,31 @@
   text-transform:uppercase;
   margin-top: 1em !important;
 
+}
+
+.card{
+  width: 100%;
+  color: black;
+}
+
+.card p{
+  font-size: 2em;
+  line-height: normal;
+}
+
+
+.card h2{
+  font-size: 1em;
+  text-transform: uppercase;
+}
+
+.card h2::first-letter {
+  color: transparent; 
+  margin: -10px;   
+}
+
+.card .text--truncate{
+  text-wrap: auto;
 }
 
 a code{

@@ -53,7 +53,11 @@ const sidebars = {
       label: 'Tutorials', 
       collapsed: false,
       collapsible: true,
-      link: {type: 'doc', id: 'learn/tutorials/index'},
+      link: {
+        type: 'generated-index',
+        title: 'Tutorials',
+        description: 'Tutorials offer step by step instructions to help you build your own workspace. '
+      },
         items: [
           'learn/tutorials/figured_weaving_tc2',
           'learn/tutorials/block_threading',

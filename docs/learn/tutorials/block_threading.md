@@ -1,7 +1,9 @@
 # Generating Threading Sequences
 <div class="emph">
-In this example, we'll generate a workflow that produces a threading, treadling and tie-up based on unit blocks. These instructions will walk you through how to make the file from scratch but you can also open the pre-made template via the "Designing For Harness Looms" Example. 
+Generate a workflow that produces a threading, treadling and tie-up based on unit blocks. 
 </div>
+
+These instructions will walk you through how to make the file from scratch but you can also open the pre-made template via the "Designing For Harness Looms" Example. 
 
 **What You'll Need**
 
