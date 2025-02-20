@@ -3,7 +3,9 @@ sidebar_position: 1
 ---
 
 # Getting Started
+<div class="emph">
 At a high level, using AdaCAD involves the following steps: 
+</div>
 
 1. **Open an AdaCAD Workspace:** To start using AdaCAD, visit [adacad.org](https://adacad.org/). Looking for an older version of AdaCAD? Find it on the [compare versions](../../about/compare_versions.md) page. You can also learn more about the [interface](../../reference/interface/index.md) in our Reference section.
 

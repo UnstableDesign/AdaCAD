@@ -1,15 +1,15 @@
 ---
 sidebar_position: 3
 tags: [Jacquard, TC2, AdaCAD 3, AdaCAD 4]
-hide_table_of_contents: true
 
 ---
 
 # Weave AdaCAD Drafts
-
+<div class="emph">
 You can weave the drafts created in AdaCAD on a variety of looms. For analog looms, you might do this directly by viewing the draft page, for computerized looms, you can export AdaCAD files in formats that communicate to different looms. Specifically, you can export bitmaps for weaving on a TC2 and .WIF files for weaving on dobby looms or editing in other softwares that support the .WIF format. The instructions below focus specifically on exporting drafts from AdaCAD so you can weave them on a [TC2](#weave-drafts-on-a-tc2) or [AVL Compu-dobby loom](#weave-drafts-on-an-avl-compudobby-loom). 
+</div>
 
-# Weave Drafts on a TC2
+## Weave Drafts on a TC2
 
 
 import Tabs from '@theme/Tabs';
@@ -56,14 +56,14 @@ Video Summary:
 </Tabs>
 
 
-# Weave Drafts on an AVL Compudobby Loom
+## Weave Drafts on an AVL Compudobby Loom
 
 You are able to download .WIF files that can be directly uploaded onto our AVL CompuDobby Loom TC2. The video below walks you though this process. 
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/nhHUUaMHx_Y?si=PJdnXeZRILSegAMb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 
-# Support for other Kinds of Looms
+## Support for other Kinds of Looms
 
 Are you interested in using AdaCAD to draft for looms we have not listed here? Feel free to let us know by emailing us at unstabledesignlab@gmail.com
 

@@ -56,9 +56,23 @@ const config = {
     ],
   ],
 
+
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      announcementBar: {
+        id: 'events',
+        content:
+          'Were Celebrating the New Release with Events!  <a target="_blank" rel="noopener noreferrer" href="#">this survey</a>',
+        backgroundColor: '#0000ff',
+        textColor: '#ffffff',
+        isCloseable: true,
+      },
+      tableOfContents: {
+        minHeadingLevel: 2,
+        maxHeadingLevel: 6,
+      },
       // Replace with your project's social card
       image: 'img/adacad-social-card.png',
       navbar: {
@@ -73,18 +87,21 @@ const config = {
             sidebarId: 'aboutSidebar',
             position: 'left',
             label: 'About',
+            className: 'about'
           },
           {
             type: 'docSidebar',
             sidebarId: 'learnSidebar',
             position: 'left',
             label: 'Learn',
+            className: 'learn'
           },
           {
             type: 'docSidebar',
             sidebarId: 'devSidebar',
             position: 'left',
             label: 'Develop',
+            className: 'develop'
           },
           {
             href: 'https://discord.gg/Be7ukQcvrC',
@@ -103,6 +120,13 @@ const config = {
           },
         ],
       },
+      docs: {
+        sidebar: {
+          hideable: false,
+          autoCollapseCategories: true,
+        },
+      }
+      ,
       footer: {
         style: 'dark',
         links: [

@@ -34,6 +34,34 @@
 
 
 
+.sidebarHeading{
+  text-transform:uppercase;
+  margin-top: 1em !important;
+
+}
+
+a code{
+  background-color:var(--ifm-color-primary);
+  border: none;
+  color: white !important;
+  border-radius: var(--ifm-code-border-radius);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--ifm-code-font-size);
+  padding: var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal);
+  vertical-align: middle;
+}
+
+.emph p{
+  font-size: 1.5em;
+}
+
+
+h2, h3, h4{
+  margin: 1em 0;
+
+}
+
+
 td img{
   max-width: 100%; 
   object-fit: scale-down;

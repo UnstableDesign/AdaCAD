@@ -14,11 +14,8 @@ The buttons in this window let you add new kinds of nodes to your dataflow works
 
 ## b. Add Operations to Workspace
 This side panel allows you to search through and add operations to your workspace. By default, it only shows basic operations. To see all operations, you must enable the "Show Advanced Operations" toggle. 
-
--  <FAIcon icon="fa-solid fa-search" size="1x" /> type in the name of the operation you are looking for into this search box. As you type, the operations below will only include those that match your search.
-
+- <FAIcon icon="fa-solid fa-search" size="1x" /> type in the name of the operation you are looking for into this search box. As you type, the operations below will only include those that match your search.
 - the **show advanced operations** toggle is used to show or hide operations that we consider to be advanced. We use it to reduce clutter for new users but once you get a hang of things, flip this toggle to show and explore all the operations AdaCAD has to offer. 
-
 - The rest of the window is devoted to showing one button for each [operation](../glossary/operation.md) that AdaCAD supports. Clicking on any of the operations in this list adds it to your workspace. Operations are grouped and color-coded based on how they tend to be used in the drafting process. You can explore these groupings and all the operations we currently offer by clicking [Reference->Operations(A-Z)](../operations/index.md) in the left sidebar of this page. 
 
 
