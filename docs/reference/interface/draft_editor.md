@@ -74,6 +74,33 @@ Each time you click on the letter or number associated with a pick or end, it wi
 
 
 ## e. Resize Window
-You can press this button and drag to the left or right to expand/contract the amount of the screen that is devoted to the Draft editor. 
+You can press this button and drag to the left or right to expand/contract the amount of the screen that is devoted to the Draft Editor. 
+
+
+## e. Adjust View, Save and Share
+The footer in this section is devoted to managing the state of the workspace. The left-most set of controls allow you to zoom in and out of the workspace. 
+
+
+- <FAIcon icon="fa-solid fa-search-minus" size="1x" /> **Zoom Out**: This button will zoom out from the top left corner of the view. You can also do this by pressing `command` + `-` key
+-  **Zoom Slider**: Reflects the current level of zoom and can be moved freely to zoom in and out
+- <FAIcon icon="fa-solid fa-search-plus" size="1x" /> **Zoom In**: This button will zoom in from the top left corner of the view. You can also do this by pressing `command` + `+`
+
+
+Next, we encounter the buttons that control the state of our design: 
+- <FAIcon icon="fa-solid fa-rotate-left" size="1x" /> **Undo**: AdaCAD stores your last 10 edits. If you want to move back to a previous edit, use this "undo" button. You can also do this by pressing `command` + `z`
+- <FAIcon icon="fa-solid fa-rotate-right" size="1x" /> **Redo**: If you want to move forward to an edit that you had previously un-done, use this "redo" button.
+
+:::info
+
+There is currently a known bug where clicking undo or redo from the draft editor will send you back to the workspace. You have to manually go back to the draft editor to see the effect of the action. We intend to fix this soon!
+
+:::
+
+In the center of the footer, we'll occasionally add tips and tricks to try. 
+
+To the right, we have options for naming and downloading or sharing the workspace. 
+- the **filename** text box allows you to give this workspace a name. This is the name that will be used to label the workspace if you download it (e.g. your_name.ada) or if you choose to save it on your AdaCAD account. 
+- <FAIcon icon="fa-solid fa-download" size="1x" /> **Download**: click this to download the workspace as a .ada file. Additionally, if you have a draft selected on the workspace, you can choose to download that draft as a .WIF, bitmap or image file. 
+- <FAIcon icon="fa-solid fa-share-nodes" size="1x" /> **Share**: Click this button to create a link to your workspace. Anyone who visits that link will get to open and edit your workspace. 
 
 

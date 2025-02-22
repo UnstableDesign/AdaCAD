@@ -1,7 +1,7 @@
 # Topbar
-
+<div class="emph">
 The topbar consists of a series of menus and functions that manage the AdaCAD application overall. 
-
+</div>
 
 ![file](./img/topbar_key.jpeg)
 The topbar is split into several regions, and we'll explain the function of each region below: 

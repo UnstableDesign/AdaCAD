@@ -1,8 +1,7 @@
 # Interface
-This page guides offers resources to navigate AdaCAD interface and learn about the various features that are available. 
-
-## Overview
-The interface is organized into different parts, each which control a different set of features: 
+<div class="emph">
+The AdaCAD interface is organized into different parts, each which control a different set of features
+ </div>
 
 ![file](./img/interface_tour.jpeg)
 

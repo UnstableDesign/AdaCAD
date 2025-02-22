@@ -1,3 +1,8 @@
+
+import OperationCard from '@site/src/components/OperationCard';
+
+
+
 # Operations
 
 AdaCAD offers over 50 [operations](../glossary/operation.md) that you can build into [dataflows](../glossary/dataflow.md) to generate drafts. This page groups operations by their function, previews their design, and links to the full details of each operation (which you can also find on the left sidebar).
@@ -15,6 +20,7 @@ compound/complex -->
 
 A weave structure is the order or pattern of interlacement between the warp and weft threads. There are different families of woven structure that share core properties, such as plain weave, twill, and satin. Each of the operations is capable of generating structures that obey the rules of a given family. 
 
+<OperationCard name="combos" displayName="all possible structures" />
 
  | operation name  | examples |
  | -------- | ------- | 

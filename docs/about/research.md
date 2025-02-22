@@ -4,7 +4,9 @@ sidebar-position: 2
 
 # Research 
 
+<div class="emph">
 AdaCAD is part of an active and ongoing research project that includes the [Experimental Weaving Residency](https://unstable.design/experimental-weaving-resdiency/), the [Experimental Weaving Talk Series](https://unstable.design/experimental-weaving-talks/) and the [Experimental Textiles Course Curriculum](https://extx.unstable.design/). Collectively, these programs explore methods to bridge craft and engineering for the sake of creating more robust, sustainable, and aesthetically rich interactions with technology. The project is supported by National Science Foundation Grants [#2346150](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346150&HistoricalAwards=false), [#1943109](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1943109), and [#1755587](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1755587). 
+</div>
 
 
 ## Original Projects

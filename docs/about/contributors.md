@@ -3,7 +3,11 @@ sidebar-position: 1
 ---
 
 # Contributors
-AdaCAD has taken shape with the support and input of many experimental weavers. If you have talked to us about AdaCAD, participated in a workshop, reported a bug or found a typo in our documentation - you have contributed! We'd like to note the specific contributions of community members below: 
+<div class="emph">
+AdaCAD has taken shape with the support and input of many experimental weavers. If you have talked to us about AdaCAD, participated in a workshop, reported a bug or found a typo in our documentation - you have contributed! 
+</div>
+
+We'd like to note the specific contributions of community members below: 
 
 - [Alex McLean, Then Try This](https://thentrythis.org/about/alex-mclean/): 
 Overall interface feedback and development of the Bitfield Operation

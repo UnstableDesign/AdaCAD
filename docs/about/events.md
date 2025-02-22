@@ -1,5 +1,8 @@
 # Events
 
+
+## Past Events
+
 ## 2024
 
 AdaCAD workshop at Midwest Fiber Arts Educators Network Meeting
@@ -9,6 +12,7 @@ Symposium for Computational Fabrication Summer School
 University of Copenhagen, Denmark
 
 Open Source Arts Contributors Conference
+Denver University
 
 Weaving Counterfactual Narratives of Technical Progress
 Wearables Collective Conference Keynote
@@ -23,6 +27,7 @@ Textile Jam (with Unstable Design Lab)
 Carnegie Mellon University Textiles Lab
 
 Open Source Arts Contributors Conference
+Denver University
 
 Sketching-in-Hardware
 
