@@ -2,39 +2,32 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
 
-
-// export default function HomepageFeatures({}) {
-//   return (
-//     <section className={styles.features}>
-//       <div className="container">
-//         <div className="row">
-//           {FeatureList.map((props, idx) => (
-//             <Feature key={idx} {...props} />
-//           ))}
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
 export const OperationCard = ({children, name, display}) => (
 
+  <article className={clsx('margin-bottom--lg')} >
+  <a 
+  className={clsx('card padding--lg')}
+  href={`${name}/`}
+  style={{backgroundImage: `url($require('@site/docs/reference/operations/img/'+name+'.png')`}}>
+  <div className="text--left padding-horiz--md">
+          {
+            <img
+            src={require('@site/docs/reference/operations/img/'+name+'.png').default}
+            alt="Image of the operation"
+          />
+          }
+ 
+        <h2># {display}</h2>
+        <p>{children}</p>
+ 
+
+  </div>
+
+     
+  </a>
+  </article>    
 
 
-  <div className={clsx('col col--4')}>
-      <div className="text--left">         
-        {
-          <img
-          src={require('@site/docs/reference/operations/img/'+name+'.png').default}
-          alt="Image of the operation"
-        />
-        }
-      </div>
-      <div className="text--left padding-horiz--md">
-        <h2>{name}</h2>
-        <p>{display}</p>
-      </div>
-    </div>
 
 
 

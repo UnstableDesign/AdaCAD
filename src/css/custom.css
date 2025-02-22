@@ -94,6 +94,13 @@ td img{
   object-fit: scale-down;
 }
 
+table td a{
+  font-size: 1.5em;
+  font-weight: bold;
+  line-height: auto;
+  color: black;
+}
+
 img{
   max-width: 100%; 
   object-fit: scale-down;
