@@ -49,11 +49,16 @@ const sidebars = {
       label: 'How to AdaCAD', // sidebar label
     },
     {
+      type: 'doc',
+      id: 'learn/workshops-and-events', // document ID
+      label: 'Workshops and Events', // sidebar label
+    },
+    {
       type: 'category',
       label: 'Tutorials', 
       collapsed: false,
       collapsible: true,
-      link: { type: 'doc', id: 'learn/tutorials/index'},
+      link: {type: 'doc', id:'learn/tutorials/index'},
         items: [
           'learn/tutorials/figured_weaving_tc2',
           'learn/tutorials/block_threading',
@@ -66,10 +71,7 @@ const sidebars = {
       label: 'Stories', 
       collapsed: true,
       collapsible: true,
-      link: {
-        type: 'generated-index',
-        title: 'Stories',
-        description: 'Stories focus on projects created in collaboration with the Unstable Design Lab. They walk you though concepts and research with an eye towards using AdaCAD to replicate the behaviors we explored in your work.'},
+      link: {type: 'doc', id:'learn/examples/index'},
       items: [
         'learn/examples/lattice-tutorial',
         'learn/examples/hygromorphic-linen'

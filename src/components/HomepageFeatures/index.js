@@ -19,7 +19,7 @@ const FeatureList = [
     img: require('@site/static/img/sample7b.jpg').default,
     description: (
       <>
-  AdaCAD is freely accessible online at <a href="adacad.org">adacad.org</a>, you do not need to download or install it on your computer. We recommend using the Chrome browser on a laptop or desktop computer for the best experience. 
+  AdaCAD is freely accessible online at <a href="https://adacad.org">adacad.org</a>, you do not need to download or install it on your computer. We recommend using the Chrome browser on a laptop or desktop computer for the best experience. 
 </>
     ),
   },
@@ -28,7 +28,7 @@ const FeatureList = [
     img: require('@site/static/img/code.png').default,
     description: (
       <>
-       New to AdaCAD? Start with our <a href="/docs/learn/getting-started/">getting started</a> page and <a href="/docs/category/tutorials">tutorials</a>. Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a>, <a href="/docs/category/glossary">concepts</a>, <a href="/docs/category/interface">interface features</a> and <a href="/docs/category/examples">examples</a>. 
+       New to AdaCAD? Start with our <a href="/docs/learn/getting-started/">getting started</a> page and <a href="/docs/learn/tutorials/">tutorials</a>. Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a>, <a href="/docs/reference/glossary">concepts</a>, <a href="/docs/reference/interface">interface features</a> and <a href="/docs/learn/examples">stories</a>. 
       </>
     ),
   }

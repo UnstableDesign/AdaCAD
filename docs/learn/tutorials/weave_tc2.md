@@ -4,7 +4,7 @@ tags: [Jacquard, TC2, AdaCAD 3, AdaCAD 4]
 
 ---
 
-# Generate Files for a TC2
+# Generate Files and Weave on a TC2
 <div class="emph">
 AdaCAD  exports [bitmap image files](../../reference/glossary/bitmap-image.md) that you can directly load and weave them a [TC2](#weave-drafts-on-a-tc2) Digital [Jaquard](../../reference/glossary/jacquard-loom.md) Loom
 </div>
@@ -26,13 +26,14 @@ import TabItem from '@theme/TabItem';
 
         <iframe width="560" height="315" src="https://www.youtube.com/embed/zrmt8_4p7y4?si=Y4TSVZ82WfKvN4GE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
 
-###  Step-By-Step 
+###  Step-By-Step (Create File)
 
 
-:::tip 
-Follow along by loading [our pre-made template for making TC2 compatible files](https://adacad.org/?ex=quicktc2) If you start from this template, you can skip to step 3. 
+:::tip
+
+Follow along with this example in AdaCAD 4: [Drafting for Jacquard, Lesson 1](https://adacad-4-1.web.app/?ex=TC2_lesson1)
+
 :::
-
 
 1. To make a draft for the TC2, we're going to create a [draft](../../reference/glossary/draft.md) via a [dataflow](../../reference/glossary/dataflow.md) on the [workspace](../../reference/interface/workspace.md) that matches the size of your loom (e.g. as many [ends](../../reference/glossary/end.md) as your loom is configured to weave and as many [picks](../../reference/glossary/pick.md) as you need to complete or repeat your the pattern.)  In this example, we're going to create a draft that just repeats a single structure across the width of our cloth. You can choose your favorite structure from any of the operations listed in the [structure](../../reference/operations/index.md#structure). To add this structure to the workspace, click the name of the structure you'd like to use in the [operations list](../../reference/interface/workspace.md#b-add-operations-to-workspace) on the left sidebar of the workspace view. Play with the [parameters](../../reference/glossary/parameter.md) of the structure operation you chose until you find something that suits you. 
 
@@ -42,6 +43,8 @@ Follow along by loading [our pre-made template for making TC2 compatible files](
 
 
 4. *OPTIONAL* If you'd like to add a selvedge to the draft, you can do so by selecting or search for the [`selvedge`](../../reference/operations/selvedge.md) operation from the operations list on the left sidebar. If it is not showing up, make sure "Show Advanced Operations" is selected. Additionally, select a structure from the operations list that fits what you'd like to use as the selvedge structure. Most often this is [`tabby`](../../reference/operations/tabbyder.md) or some derivative. Connect/click the [<FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> outlet](../../reference/glossary/outlet.md) from the draft created by the rectangle operation you selected to the [<FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> draft inlet](../../reference/glossary/inlet.md) on the selvedge operation. Next connect/click the [<FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> outlet](../../reference/glossary/outlet.md) from the structure you'd like to use in the selvedge to the [<FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> selvedge inlet](../../reference/glossary/inlet.md) on the selvedge operation. Now, you should see your selvedge structured repeated on either side. Increase or decrease the number in the selvedge operation ends to make the region wider or smaller. What you might notice, now, is that your final draft is wider (e.g. has too many ends) for your loom. Decrease the number in the ends parameter of the rectangle operation until it fits your loom.  
+
+## Step-By-Step (Upload to the Loom)
 
 5.  Download the draft you'd like to weave by double-clicking the draft and selecting "Download as Bitmap". This will save a bitmap where-ever your computer stores downloads from the web in a .jpg format.The default name for every draft is "drafty" so file will be named drafty.jpg. You can also give your draft and the file a custom name by selecting the draft and changing the name within the [draft viewer](../../reference/interface/viewer.md#d-view-and-download-tools) before you hit the download button.
 

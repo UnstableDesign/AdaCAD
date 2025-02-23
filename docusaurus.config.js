@@ -64,9 +64,9 @@ const config = {
       announcementBar: {
         id: 'events',
         content:
-          'Were Celebrating the New Release with Events!  <a target="_blank" rel="noopener noreferrer" href="#">this survey</a>',
-        backgroundColor: '#0000ff',
-        textColor: '#ffffff',
+          '🚀 The Newest Version of AdaCAD has Launched!  <a target="_blank" rel="noopener noreferrer" href="https://docs.adacad.org/docs/learn/workshops-and-events">Learn More at an upcoming Workshop</a>✨',
+        backgroundColor: 'hotpink',
+        textColor: '#000000',
         isCloseable: true,
       },
       tableOfContents: {
@@ -128,69 +128,7 @@ const config = {
       }
       ,
       footer: {
-        style: 'dark',
-        links: [
-          {
-            title: 'Site',
-            items: [
-              {
-                label: 'About',
-                to: '/docs/about/',
-              },
-              {
-                label: 'Learn',
-                to: '/docs/learn/getting-started',
-              },
-              {
-                label: 'Develop',
-                to: 'docs/develop/install',
-              }
-            ],
-          },
-          {
-            title: 'Authors',
-            items: [
-      
-              {
-                label: 'Contributors List',
-                href: '/docs/about/contributors',
-              },
-              {
-                label: 'Unstable Design Lab',
-                href: 'https://unstable.design/',
-              },
-              {
-                label: 'ATLAS Institute',
-                href: 'https://www.colorado.edu/atlas/',
-              },
-              {
-                label: 'University of Colorado Boulder',
-                href: 'https://www.colorado.edu/',
-              }
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Instagram',
-                href: 'https://www.instagram.com/unstabledesignlab/?hl=en',
-              },
-              {
-                label: 'GitHub',
-                href: 'https://github.com/UnstableDesign/AdaCAD',
-              },
-              {
-                href: 'https://discord.gg/Be7ukQcvrC',
-                label: 'Discord Community',
-              },  
-              {
-                label: 'Creative Commons Attribution ShareAlike',
-                href: 'https://creativecommons.org/licenses/by-sa/4.0/',
-              },
-            ],
-          },
-        ],
+        style: 'light',
         copyright: `Copyright © ${new Date().getFullYear()} Unstable Design Lab, Inc. Creative Commons Attribution ShareAlike.`,
       },
       prism: {

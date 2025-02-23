@@ -4,7 +4,7 @@
 Tutorials offer step by step instructions to help you build your own workspace.
 </div>
 
-
+<a href="figured_weaving_tc2">
 <div class="tutorial-card card">
     <div class="card-left">
     ![](./img/figured_square.png)
@@ -16,7 +16,9 @@ Tutorials offer step by step instructions to help you build your own workspace.
     </div>
 
 </div>
+</a>
 
+<a href="block_threading">
 <div class="tutorial-card card">
     <div class="card-left">
     ![](./img/threading_seq_square.png)
@@ -29,8 +31,9 @@ Tutorials offer step by step instructions to help you build your own workspace.
     </div>
 
 </div>
+</a>
 
-
+<a href="weave_tc2">
 <div class="tutorial-card card">
     <div class="card-left">
     ![](./img/tc2_square.png)
@@ -43,8 +46,9 @@ Tutorials offer step by step instructions to help you build your own workspace.
     </div>
 
 </div>
+</a>
 
-
+<a href="weave_avl">
 <div class="tutorial-card card">
     <div class="card-left">
     ![](./img/weave_square.png)
@@ -57,4 +61,4 @@ Tutorials offer step by step instructions to help you build your own workspace.
     </div>
 
 </div>
-
+</a>
