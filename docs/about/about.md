@@ -8,8 +8,6 @@ AdaCAD is an experimental workspace that applies [parametric design](/reference/
 
 ### 💻 AdaCAD is freely accessible online (at [adacad.org](adacad.org))
 You do not need to download or install it on your computer. We have tested it on some iPads but we recommend using the [Chrome](https://www.google.com/chrome/) browser on a laptop or desktop computer for the best experience. 
-<!-- We are also continually updating AdaCAD to experiment with new features, which means that there is [more than one version of AdaCAD that you can choose from](../about/compare_versions.md).  -->
-
 
 ### 🧪 aims to support "experimental weavers"
 "Experimental weavers" is a term we use to describe weavers, engineers looking to develop woven based applications, and creative coders. We use this umbrella term to acknowledge that many of our users occupy multiple categories simultaneously. 

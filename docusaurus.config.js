@@ -19,8 +19,8 @@ const config = {
   projectName: 'AdaCAD_Documentation', // Usually your repo name.
   //trailingSlash: false,
 
-  onBrokenLinks: 'warn', //throw
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: 'throw', //throw
+  onBrokenMarkdownLinks: 'throw',
 
 //   onBrokenLinks: 'warn',
 //  onBrokenMarkdownLinks: 'ignore',

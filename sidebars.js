@@ -53,26 +53,23 @@ const sidebars = {
       label: 'Tutorials', 
       collapsed: false,
       collapsible: true,
-      link: {
-        type: 'generated-index',
-        title: 'Tutorials',
-        description: 'Tutorials offer step by step instructions to help you build your own workspace. '
-      },
+      link: { type: 'doc', id: 'learn/tutorials/index'},
         items: [
           'learn/tutorials/figured_weaving_tc2',
           'learn/tutorials/block_threading',
-          'learn/getting-started/weave',
+          'learn/tutorials/weave_tc2',
+          'learn/tutorials/weave_avl'
         ],
     },
     {
       type: 'category',
-      label: 'Examples', 
+      label: 'Stories', 
       collapsed: true,
       collapsible: true,
       link: {
         type: 'generated-index',
-        title: 'Examples',
-        description: 'Examples focus on projects created in collaboration with the Unstable Design Lab. They walk you though concepts and research with an eye towards using AdaCAD to replicate the behaviors in your work.'},
+        title: 'Stories',
+        description: 'Stories focus on projects created in collaboration with the Unstable Design Lab. They walk you though concepts and research with an eye towards using AdaCAD to replicate the behaviors we explored in your work.'},
       items: [
         'learn/examples/lattice-tutorial',
         'learn/examples/hygromorphic-linen'

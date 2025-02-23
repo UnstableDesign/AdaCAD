@@ -14,13 +14,13 @@ Overall interface feedback and development of the Bitfield Operation
 - [Annet Couwenberg, Maryland Institute College of Art](www.annetcouwenberg.com)
 - [Belinda Rose, Belinda Rose Weave](www.belindarose.co.uk)
 - [Elizabeth Meiklejohn](elizabethmeiklejohn.com):
-Speculating on Future features and inspired the [lattice structure](../examples/lattice-tutorial.md) example. 
+Speculating on Future features and inspired the [lattice structure](../learn/examples/lattice-tutorial.md) example. 
 - [Jane Patrick and Barry Schacht, Schacht Spindle Company, Inc](www.schachtspindle.com)
 - [Julia Wright, Unspun](www.juliawright.studio)
 - [Kathryn Walters](kmwalters.com):
-Inspired and co-developed the [Layer Notation](../../reference/operations/notation.md) operation as well as [Animated Linen](../examples/hygromorphic-linen.md) examples. 
+Inspired and co-developed the [Layer Notation](../reference/operations/notation.md) operation as well as [Animated Linen](../learn/examples/hygromorphic-linen.md) examples. 
 - [Marianne Fairbanks, UW Madison](mariannefairbanks.com):
-Inspired and co-developed [All Possible Structures](../../reference/operations/combos.md) operation. 
+Inspired and co-developed [All Possible Structures](../reference/operations/combos.md) operation. 
 - [Steven Frost, Associate Director of the Unstable Design Lab and CU Boulder Faculty](www.stevenfrost.com)
 - [Vibeke Vestby, TC2 looms, Tronrud Engineering Moss](www.digitalweaving.no)
 

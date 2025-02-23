@@ -34,6 +34,33 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+.tutorial-card{
+  display: flex;
+  flex-direction: row;
+  margin: 1em;
+}
+
+.tutorial-card {
+  display: flex;
+  flex-direction: row;
+  margin: 1em;
+}
+
+
+.card-left{
+ max-height: 300px;
+ max-width: 300px;
+ overflow: hidden;
+ object-fit: scale-down;
+
+}
+
+.card-right{
+
+  margin: 1em;
+  max-width: 60%;
+}
+
 
 
 .sidebarHeading{
@@ -58,10 +85,15 @@
   text-transform: uppercase;
 }
 
-.card h2::first-letter {
+/* .card h2::first-letter {
   color: transparent; 
   margin: -10px;   
-}
+} */
+
+/* .tutorial-card .card h2::first-letter {
+  color: black; 
+  margin: 0;
+} */
 
 .card .text--truncate{
   text-wrap: auto;

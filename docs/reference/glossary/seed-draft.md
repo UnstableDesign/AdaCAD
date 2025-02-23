@@ -1,7 +1,7 @@
 # Seed Draft
 
 
-This term describes a draft that has been created directly by the user, rather than automatically by an operations in a dataflow. These are the only drafts in AdaCAD that can be directly edited by the user in the [editor interface](../../learn/getting-started/interface.md#interface-guide) and while they can be used as inputs to operations, their design is unaffected by changes in the dataflow.  
+This term describes a draft that has been created directly by the user, rather than automatically by an operations in a dataflow. These are the only drafts in AdaCAD that can be directly edited by the user in the [editor interface](../../reference/interface/draft_editor.md) and while they can be used as inputs to operations, their design is unaffected by changes in the dataflow.  
 
 ![file](./img/seeddraft_ui.png)
 

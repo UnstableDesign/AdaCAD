@@ -37,7 +37,7 @@ You can make the entire file yourself following the instructions below or simply
 
 - Option 3 - Pad the Image by Adding a Wide Selvedge: If you only want the image to weave in the center of the cloth, surrounded by a margin of a second structure you would search for and select the [`selvedge`](../../reference/operations/selvedge.md) operation and add it to your workspace. Connect the [<FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> outlet](../../reference/glossary/outlet.md) of the [`image map`](../../reference/operations/imagemap.md) operation and connect it to an [<FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> draft inlet](../../reference/glossary/inlet.md) of [`selvedge`](../../reference/operations/selvedge.md) operation. Next, determine the structure you'd like to use as the selvedge. The simplest way to do this is probably to add a [`tabby`](../../reference/operations/tabbyder.md) operation and connect the [<FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> outlet](../../reference/glossary/outlet.md) of the [`tabby`](../../reference/operations/tabbyder.md) operation and connect it to an [<FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> selvedge inlet](../../reference/glossary/inlet.md) on the [`selvedge`](../../reference/operations/selvedge.md) operation. By default, the selvedge operation adds 12 ends of the draft connected to the selvedge inlet to each side of the draft connected at the draft inlet. If you wanted to expand this to span your entire loom you would need to change that number to:  `(your loom's width - width of the image draft) / 2`. 
 
-6. Next steps: Once you have a draft that's ready to weave, following the instructions at [weave AdaCAD Drafts](./weave.md). If you find that your imagery is not weaving square (e.g. the image is stretched out in the length or width), you can change the file to compensate for the stretching in a few ways. First, you can follow the suggestion listed as Option 1 above, and simply change the width/height parameters on the `image map` operation to account for the amount it is stretched on loom (e.g. if the height is stretched too long, you can "squish" the image height by reducing the number in the height parameter). 
+6. Next steps: Once you have a draft that's ready to weave, following the instructions to [weave AdaCAD Drafts on TC2 digital looms](./weave_tc2.md). If you find that your imagery is not weaving square (e.g. the image is stretched out in the length or width), you can change the file to compensate for the stretching in a few ways. First, you can follow the suggestion listed as Option 1 above, and simply change the width/height parameters on the `image map` operation to account for the amount it is stretched on loom (e.g. if the height is stretched too long, you can "squish" the image height by reducing the number in the height parameter). 
 
 **Keep Playing**
 
@@ -45,3 +45,9 @@ All done with the steps above? Keep playing by considering challenging yourself 
 
 <!-- Play with different color sequences by adding a changing the systems & materials input to 
 set materials and systems -->
+
+## More information: 
+[The Woven Pixel: Designing for Jacquard and Dobby Looms Using Photoshop®
+Schlein, Alice, and Ziek, Bhakti Bridgewater Press 2006](https://www.handweaving.net/document-detail/8419/the-woven-pixel-designing-for-jacquard-and-dobby-looms-using-photoshop-schlein-alice-and-ziek-bhakti-bridgewater-press)
+
+
