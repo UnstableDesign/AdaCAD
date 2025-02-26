@@ -31,7 +31,7 @@ import TabItem from '@theme/TabItem';
 
 :::tip
 
-Follow along with this example in AdaCAD 4: [Drafting for Jacquard, Lesson 1](https://adacad-4-1.web.app/?ex=TC2_lesson1)
+Follow along with this example in AdaCAD 4: [Drafting for Jacquard, Lesson 1](https://adacad.org?ex=TC2_lesson1)
 
 :::
 

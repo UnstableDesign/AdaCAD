@@ -7,14 +7,14 @@ Generate a workflow for uploading an image and assigning shaded structures to di
 ![file](./img/ada_indexed_color.jpg)
 
 ### What You'll Need
-- An indexed color image. If you don't have one handy, you can download one [here](./img/ada_indexed_color.jpg)
+- An indexed color image. If you don't have one handy, you can download one [here](./img/Ada_Indexed.png)
 - A blank workspace at [adacad.org](https://adacad.org). 
 
 
 ### Process 
 
 :::tip
-You can make the entire file yourself following the instructions below or simply open our [pre-made figure weaving template](https://adacad.org) and play. f
+You can make the entire file yourself following the instructions below or simply open our [pre-made figure weaving template](https://adacad.org/?ex=weaving_imagery) and play.
 :::
 
 

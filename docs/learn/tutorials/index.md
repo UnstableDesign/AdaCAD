@@ -36,7 +36,7 @@ Tutorials offer step by step instructions to help you build your own workspace.
 <a href="weave_tc2">
 <div class="tutorial-card card">
     <div class="card-left">
-    ![](./img/tc2_square.png)
+    ![](./img/tc2_square.jpg)
     </div>
     <div class="card-right">
     ## Generate Drafts and Weave Them on a TC2

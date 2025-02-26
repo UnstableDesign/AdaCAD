@@ -68,7 +68,7 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Stories', 
+      label: 'Research Projects', 
       collapsed: true,
       collapsible: true,
       link: {type: 'doc', id:'learn/examples/index'},
