@@ -3,8 +3,8 @@
 [![Youtube Channel](https://img.shields.io/badge/youtube-channel-red?logo=youtube&logoColor=red)](https://www.youtube.com/watch?v=nhHUUaMHx_Y&list=UULFRK7RAt8Z7Nw1u3aJ0FyPuQ)
 [![Access](https://img.shields.io/badge/use-adacad.org-blue)](https://adacad.org)
 
+![Adacad_logo2025_small](https://github.com/user-attachments/assets/67070e9b-8695-493e-a2c0-8be6fde9a26d)
 
-![Adacad_logo2025_Square](https://github.com/user-attachments/assets/ecbef2c5-22e4-4eb4-a8e4-b29e9f7a4c19)
 # AdaCAD
 AdaCAD is an experimental workspace that applies parametric design to the domain of weave drafting. It supports algorithmic and playful approaches to developing woven structures and cloth, for shaft and jacquard looms.
 
