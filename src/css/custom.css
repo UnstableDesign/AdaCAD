@@ -52,6 +52,8 @@
  max-width: 300px;
  overflow: hidden;
  object-fit: scale-down;
+ display: flex;
+ align-items: center;
 
 }
 
@@ -142,6 +144,12 @@ iframe {
   display: block;
   object-fit:scale-down;
   padding: 1em;
+}
+
+.card-dx{
+  padding: 1em 0 0 0;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .primary{

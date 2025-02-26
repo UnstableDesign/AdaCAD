@@ -14,7 +14,7 @@ Generate a workflow for uploading an image and assigning shaded structures to di
 ### Process 
 
 :::tip
-You can make the entire file yourself following the instructions below or simply open our [pre-made figure weaving template](https://adacad.org) and play. 
+You can make the entire file yourself following the instructions below or simply open our [pre-made figure weaving template](https://adacad.org) and play. f
 :::
 
 
