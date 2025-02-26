@@ -28,9 +28,9 @@ Prefer learning by doing? Pick a project in our [tutorials](../tutorials/index.m
 To make AdaCAD accessible to weavers and other weave-curious folks, we do our best to develop content that shows both how to use AdaCAD and offers exciting examples and artifacts generated in our research lab. Here are a few other resources you might look to for instruction: 
 
 - [Unstable Design Lab YouTube Channel](https://www.youtube.com/playlist?list=PLy2lIjrar_02XiqfJG8kLpeWOyCtDXeFJ)
-- [Explore AdaCAD Tutorials](../../category/tutorials)
-- [Explore Project Stories](../../category/examples)
+- [Explore AdaCAD Tutorials](../tutorials/index.md)
+- [Explore Research Projects via AdaCAD](../examples/index.md)
 - [Join and Browse Conversations in the AdaCAD Discord Community](https://discord.com/invite/Be7ukQcvrC) 
-- [Lookup Unknown or Confusion Terms in the Glossary](../../category/glossary/)
+- [Lookup Unknown or Confusion Terms in the Glossary](../../reference/glossary/index.md)
 - [Explore the Features of the Interface](../../reference/interface/index.md)
 - [Explore All the Current Operations](../../reference/operations/index.md)

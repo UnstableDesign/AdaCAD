@@ -6,7 +6,7 @@ AdaCAD is an experimental workspace that applies [parametric design](/reference/
 
 
 
-### 💻 AdaCAD is freely accessible online (at [adacad.org](adacad.org))
+### 💻 AdaCAD is freely accessible online (at [adacad.org](http://adacad.org))
 You do not need to download or install it on your computer. We have tested it on some iPads but we recommend using the [Chrome](https://www.google.com/chrome/) browser on a laptop or desktop computer for the best experience. 
 
 ### 🧪 aims to support "experimental weavers"
