@@ -10,22 +10,23 @@
   }
 
   to {
-    background-position-x: 100px;
+    background-position-x: 1500px;
   }
 
  }
 
 .heroBanner {
   animation-name: playful;
-  animation-duration: 10s;
+  animation-duration: 100s;
   animation-iteration-count: infinite;
   animation-direction:alternate-reverse;
-  background-size: 40px 40px;
+  background-size: 2500px 324px;
+  animation-timing-function: linear;
+  background-image: url('/img/WebBackground.png');
 
-  background-image:
+  /* background-image:
     linear-gradient(to right, grey 1px, transparent 1px),
-    linear-gradient(to bottom, grey 1px, transparent 1px);
-  color: black;
+    linear-gradient(to bottom, grey 1px, transparent 1px); */
   padding: 4rem 0;
   text-align: left;
   position: relative;

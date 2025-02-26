@@ -1,5 +1,3 @@
 # Structure
 
-:::info
-
-Coming soon.
+Structure is the term we use to speak to the relationship between interlacements (or sometimes called bindings) in a cloth. A structure, for us, describes a minimal draft unit that is repeated over regions of a cloth or combined to create compound structures. Where the terms draft and drawdown speak to the bitmap values of a draft, structure speaks to the named relationship and physical "structure" of the resulting cloth.  

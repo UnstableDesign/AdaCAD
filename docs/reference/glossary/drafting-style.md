@@ -8,11 +8,6 @@ The type of loom that you select in the Draft editor determines your options for
 
 
 
-
-
-
-
-
 ## Threading-First Drafting
 In threading-first drafting, the user will see the threading, tieup, and treadling/lift-plan in full color while the drawdown remains greyed out. The drawdown will be populated by the design choices made in the other regions of the draft. 
 

@@ -4,3 +4,5 @@ A horizontal loom where each [warp](warp) is threaded through a heddle, and each
 
 In a direct-tie or dobby loom, each shaft is attached to a lever and a or semi-automated  or  process is to lift and lower the shafts, using the levers, in different combinations. 
 
+To explore more about how you can connect AdaCAD files to Dobby looms, visit [Our Tutorial on Weaving on Dobby Looms](../../learn/tutorials/weave_avl.md)
+

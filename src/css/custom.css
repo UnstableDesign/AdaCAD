@@ -16,28 +16,110 @@
   --ifm-color-primary-light: #4f61c9;
   --ifm-color-primary-lighter: #6275e0;
   --ifm-color-primary-lightest: #7487f5;
+  --ifm-color-primary-text: #ffffff;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #3f51b5;
-  --ifm-color-primary-dark: #1b2b89;
-  --ifm-color-primary-darker: #0c1a6d;
-  --ifm-color-primary-darkest: #010e54;
-  --ifm-color-primary-light: #4f61c9;
-  --ifm-color-primary-lighter: #6275e0;
-  --ifm-color-primary-lightest: #7487f5;
+  --ifm-color-primary: #f2d010;
+  --ifm-color-primary-dark: #cfb20f;
+  --ifm-color-primary-darker: #917d0a;
+  --ifm-color-primary-darkest: #675807;
+  --ifm-color-primary-light: #f2de6b;
+  --ifm-color-primary-lighter: #f0e39a;
+  --ifm-color-primary-lightest: #ede5ba;
+  --ifm-color-primary-text: #000000;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
-.adacad{
-  margin: 4px;
+.tutorial-card{
+  display: flex;
+  flex-direction: row;
+  margin: 1em;
 }
 
-.beta{
-  margin: 4px;
+.tutorial-card {
+  display: flex;
+  flex-direction: row;
+  margin: 1em;
+}
+
+
+.card-left{
+ max-height: 300px;
+ max-width: 300px;
+ overflow: hidden;
+ object-fit: scale-down;
+ display: flex;
+ align-items: center;
+
+}
+
+.card-right{
+
+  margin: 1em;
+  max-width: 60%;
+}
+
+
+
+.sidebarHeading{
+  text-transform:uppercase;
+  margin-top: 1em !important;
+
+}
+
+.card{
+  width: 100%;
+  color: black;
+}
+
+.card p{
+  font-size: 2em;
+  line-height: normal;
+}
+
+
+.card h2{
+  font-size: 1em;
+  text-transform: uppercase;
+}
+
+/* .card h2::first-letter {
+  color: transparent; 
+  margin: -10px;   
+} */
+
+/* .tutorial-card .card h2::first-letter {
+  color: black; 
+  margin: 0;
+} */
+
+.card .text--truncate{
+  text-wrap: auto;
+}
+
+a code{
+  background-color:var(--ifm-color-primary);
+  border: none;
+  color: white !important;
+  border-radius: var(--ifm-code-border-radius);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--ifm-code-font-size);
+  padding: var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal);
+  vertical-align: middle;
+}
+
+.emph{
+  font-size: 1.5em;
+}
+
+
+h2, h3, h4{
+  margin: 1em 0;
+
 }
 
 
@@ -46,8 +128,15 @@ td img{
   object-fit: scale-down;
 }
 
+table td a{
+  font-size: 1.5em;
+  font-weight: bold;
+  line-height: auto;
+  color: black;
+}
+
 img{
-  max-width: 800px; 
+  max-width: 100%; 
   object-fit: scale-down;
 }
 
@@ -55,6 +144,12 @@ iframe {
   display: block;
   object-fit:scale-down;
   padding: 1em;
+}
+
+.card-dx{
+  padding: 1em 0 0 0;
+  font-size: 16px;
+  line-height: 24px;
 }
 
 .primary{

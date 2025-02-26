@@ -2,13 +2,15 @@ import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
 
+
+
 const FeatureList = [
   {
     title: '📗 About',
     img: require('@site/static/img/layer_example.gif').default,
     description: (
       <>
-      AdaCAD is an experimental workspace that applies <a href="/reference/glossary/parametric-design.md">parametric design</a> to the domain of weave <a href="/reference/glossary/draft.md">drafting</a>. It supports algorithmic and playful approaches to developing woven structures and cloth, for <a href="../reference/glossary/harness-loom.md">shaft</a>, <a href="../reference/glossary/direct-tie-loom.md">dobby</a>,  and <a href="(../reference/glossary/jacquard-loom.md">jacquard</a> looms. 
+      AdaCAD is an experimental workspace that applies <a href="/docs/reference/glossary/parametric-design">parametric design</a> to the domain of weave <a href="/docs/reference/glossary/draft">drafting</a>. It supports algorithmic and playful approaches to developing woven structures and cloth, for <a href="docs/reference/glossary/harness-loom">shaft</a>, <a href="/docs/reference/glossary/direct-tie-loom">dobby</a>,  and <a href="/docs/reference/glossary/jacquard-loom">jacquard</a> looms. 
 </>
     ),
   },
@@ -17,7 +19,7 @@ const FeatureList = [
     img: require('@site/static/img/sample7b.jpg').default,
     description: (
       <>
-  AdaCAD is freely accessible online at <a href="adacad.org">adacad.org</a>, you do not need to download or install it on your computer. We recommend using the Chrome browser on a laptop or desktop computer for the best experience. 
+  AdaCAD is freely accessible online at <a href="https://adacad.org">adacad.org</a>, you do not need to download or install it on your computer. We recommend using the Chrome browser on a laptop or desktop computer for the best experience. 
 </>
     ),
   },
@@ -26,10 +28,37 @@ const FeatureList = [
     img: require('@site/static/img/code.png').default,
     description: (
       <>
-        This website includes examples, templates, and resources to help you get started. We also provide a glossary to clarify our terminology and a reference documenting each operation in the interface. 
+       New to AdaCAD? Start with our <a href="/docs/learn/getting-started/">getting started</a> page and <a href="/docs/learn/tutorials/">tutorials</a>. Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a>, <a href="/docs/reference/glossary">concepts</a>, <a href="/docs/reference/interface">interface features</a> and <a href="/docs/learn/examples">stories</a>. 
       </>
     ),
-  },
+  }
+  // {
+  //   title: '👯‍♀️ Open Source',
+  //   img: require('@site/static/img/code.png').default,
+  //   description: (
+  //     <>
+  //      AdaCAD is an open source project! If you'd like to add a feature, start by adding your own operation. 
+  //     </>
+  //   ),
+  // },
+  // {
+  //   title: '🧪 Experimental',
+  //   img: require('@site/static/img/code.png').default,
+  //   description: (
+  //     <>
+  //      AdaCAD is an open source project! If you'd like to add a feature, start by adding your own operation. 
+  //     </>
+  //   ),
+  // },
+  // {
+  //   title: '🧪 Experimental',
+  //   img: require('@site/static/img/code.png').default,
+  //   description: (
+  //     <>
+  //      AdaCAD is an open source project! If you'd like to add a feature, start by adding your own operation. 
+  //     </>
+  //   ),
+  // },
 ];
 
 function Feature({img, title, description}) {
