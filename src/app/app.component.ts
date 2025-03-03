@@ -1654,7 +1654,8 @@ redo() {
         utilInstance.saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
         break;
       case 'jpg':
-        utilInstance.saveAsPrint(b, draft, true, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
+        let visvars = this.viewer.getVisVariables();
+        utilInstance.saveAsPrint(b, draft, visvars.use_floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
         break;
       case 'wif':
         let loom = this.tree.getLoom(this.vs.getViewer() );
