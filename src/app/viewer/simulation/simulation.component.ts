@@ -69,7 +69,6 @@ export class SimulationComponent implements OnInit {
 
 
   ngAfterViewInit(){
-    console.log("START SIM")
     
     const parent_div = document.getElementById('static_draft_view');
     const parent_rect = parent_div.getBoundingClientRect();
