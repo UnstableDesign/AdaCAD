@@ -59,9 +59,7 @@ export class FileService {
 
      ada: async (filename: string, src: string, id: number, desc: string, data: any,  from_share: string) : Promise<LoadResponse> => {
 
-    
-      console.log("LOADER CALLED")
-
+  
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
       if(from_share == undefined) from_share = '' 
@@ -116,7 +114,6 @@ export class FileService {
         if(draft_nodes == undefined) draft_nodes = [];
 
         if(draft_nodes !== undefined){
-          console.log("DRAFT NOTES IS ", draft_nodes)
 
           draft_nodes.forEach(el => {
 
@@ -151,7 +148,6 @@ export class FileService {
           const loom = data.looms.find(loom => loom.draft_id === node.node_id);
           const draft = data.drafts.find(draft => draft.id === node.node_id);
 
-          console.log("LOADING DRAFT NODE", node, draft)
 
           const dn: DraftNodeProxy = {
             node_id: (node === undefined) ? -1 : node.node_id,

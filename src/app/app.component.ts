@@ -124,7 +124,6 @@ export class AppComponent implements OnInit{
     private zone: NgZone
   ){
 
-    console.log("OP COMPONENT CONSTRUCTED")
 
     this.current_version = this.vers.currentVersion();
   
@@ -163,7 +162,6 @@ export class AppComponent implements OnInit{
 
 
   ngOnInit(){
-    console.log("OP COMPONENT INIT")
 
     this.filename_form = new UntypedFormControl(this.files.getCurrentFileName(), [Validators.required]);
     this.filename_form.valueChanges.forEach(el => {this.renameWorkspace(el.trim())})
@@ -188,7 +186,6 @@ export class AppComponent implements OnInit{
 
 
   ngAfterViewInit() {
-    console.log("OP COMPONENT After INit")
 
     this.recenterViews();
   }
@@ -267,7 +264,6 @@ export class AppComponent implements OnInit{
 
   toggleEditorMode(){
 
-    console.log("ON TOGGLE ", this.selected_editor_mode)
     switch(this.selected_editor_mode){
       case 'draft':
 
@@ -287,7 +283,6 @@ export class AppComponent implements OnInit{
           this.generateBlankDraftAndPlaceInMixer(obj, 'toggle');
 
         }else{
-          console.log("LOADING ", this.vs.getViewer())
           this.editor.loadDraft(this.vs.getViewer());
           this.editor.onFocus(); 
         }
@@ -464,7 +459,7 @@ export class AppComponent implements OnInit{
    * @param user 
    */
   initLoginLogoutSequence(user:User) {
-    console.log("IN LOGIN/LOGOUT ", user)
+    console.log("IN LOGIN/LOGOUT ")
     /** TODO: check also if the person is online */
 
 
@@ -1220,17 +1215,14 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   })
   .then(el => {
-      console.log("VALIDATE NODES")
       return this.tree.validateNodes();
   })
   .then(el => {
     //console.log("performing top level ops");
-    console.log("PERFORM TOP LEVEL NODES")
       return  this.tree.performTopLevelOps();
   })
   .then(el => {
     //delete any nodes that no longer need to exist
-    console.log("DELETE UNNEEDED NODES")
 
     this.tree.getDraftNodes()
     .filter(el => el.draft === null)
@@ -1244,7 +1236,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
     })
   })
   .then(el => {
-    console.log("LOADING UI")
 
     return this.tree.nodes.forEach(node => {
       
@@ -1303,24 +1294,14 @@ async processFileData(data: FileObj) : Promise<string|void>{
 
   })
   .then(res => {    
-    console.log("RENDER")
 
     this.loading = false;
-    console.log("UPDATE ORIGIN")
     this.updateOrigin(this.ws.selected_origin_option);
 
-    console.log("MIXER REFRESH OPERATIONS")
     this.mixer.refreshOperations();
-
-    console.log("MIXER REnder Change")
-
     this.mixer.renderChange();
-    console.log("MIXER REnder Change")
-
     this.editor.renderChange();
-    console.log("Editor REnder Change")
 
-    console.log("THE TREE ", this.tree.nodes)
 
 
     return Promise.resolve('alldone')
