@@ -7,7 +7,7 @@
   <div class="container">
     <div class="left">
      Want to learn more about AdaCAD 4?
-      <button mat-raised-button cdkFocusInitial mat-dialog-close color="primary" (click)="loadDocs()">Browse the Documentation</button>
+      <button mat-raised-button (click)="loadDocs()">Browse the Documentation</button>
 
     </div>
     <div class="right">
@@ -19,6 +19,6 @@
 
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button mat-dialog-close >Close</button>
+  <button mat-button cdkFocusInitial color="primary" mat-dialog-close >Close</button>
 </mat-dialog-actions>
 
