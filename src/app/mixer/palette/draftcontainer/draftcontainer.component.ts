@@ -50,7 +50,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
   draft_visible: boolean = true;
 
-  use_colors: boolean = false;
+  use_colors: boolean = true;
 
   outlet_connected: boolean = true;
 
@@ -288,6 +288,9 @@ export class DraftContainerComponent implements AfterViewInit{
 
   async saveAsPrint() {
     let draft = this.tree.getDraft(this.id);
+
+    
+
 
     utilInstance.saveAsPrint(
       this.bitmap.nativeElement,
