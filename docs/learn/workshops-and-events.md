@@ -19,15 +19,18 @@ Workshops will offer lessons where the project team guides you though an activit
 
 <div class="tutorial-card card padding__top__lg" >
     <div class="card-left card__header">
-    ![](./img/ws_intro.png )
+    ![](./img/ws_intro.png)
     </div>
     <div class="card-right card__body">
     ## Wednesday, March 19 2025, 9am-10am Mountain Time
      Getting Started with AdaCAD
      <div class="card-dx"> This workshop will introduce you to our [interface](../reference/interface/index.md), including both the [workspace](../reference/interface/workspace.md) and [draft editor](../reference/interface/draft_editor.md), and help you create your first [dataflow](../reference/glossary/dataflow.md). Attendees will be guided through the activity and will have time for asking questions and answers. The workshop will be recorded and shared after the event. This workshop will assume that attendees have a basic understanding of weaving and drafting.</div>
+
      
      <div class="card__footer">
-       <Link class="button button--secondary button--block" to="https://cuboulder.qualtrics.com/jfe/form/SV_5Bf1YcR9iy1gEaq" target="_blank">Register</Link>
+   <Link class="button button--primary button--block" to="https://www.youtube.com/watch?v=xS_DZB3A7yY" target="_blank">Watch the Workshop Recording</Link>
+
+
     </div>
 
     </div>
