@@ -76,12 +76,34 @@ cdkDrag
           <i class="fa-solid fa-circle-info"></i> help
           </button> 
 
+          <button  mat-menu-item
+          (click)="saveAsBmp()"
+          matTooltip ="Download as Bitmap">
+          <i class="fa-solid fa-download"></i> download as bitmap
+          </button>
+    
+          <button  mat-menu-item
+          (click)="saveAsPrint()"
+          matTooltip ="Download as Printable Image">
+          <i class="fa-solid fa-image"></i> download as image
+          </button>
+    
+          <button  mat-menu-item
+          (click)="saveAsWif()"
+          matTooltip ="Download as .WIF file">
+          <i class="fa-solid fa-file"></i> download as .WIF file
+          </button>
+
           <button 
           mat-menu-item
           (click)="delete()">
           <i class="fa-solid fa-times"></i> delete  
   
           </button>
+
+          
+         
+    
         
         </mat-menu>
        

@@ -50,7 +50,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
   draft_visible: boolean = true;
 
-  use_colors: boolean = false;
+  use_colors: boolean = true;
 
   outlet_connected: boolean = true;
 
@@ -289,10 +289,15 @@ export class DraftContainerComponent implements AfterViewInit{
   async saveAsPrint() {
     let draft = this.tree.getDraft(this.id);
 
+    console.log("CURRENT VIEW ", this.current_view)
+    let floats = (this.current_view == 'draft') ? false : true;
+    let color = (this.current_view == 'visual') ? true : false;
+
     utilInstance.saveAsPrint(
       this.bitmap.nativeElement,
       draft,
-      this.use_colors,
+      color,
+      floats,
       this.ws.selected_origin_option, 
       this.ms,
       this.ss,
@@ -340,7 +345,7 @@ export class DraftContainerComponent implements AfterViewInit{
         this.local_zoom = event;
         const dn = <DraftNode> this.tree.getNode(this.id);
         dn.scale = this.local_zoom;
-        this.draft_rendering.redrawAll();
+        this.draft_rendering.rescale(dn.scale);
     }
   
 

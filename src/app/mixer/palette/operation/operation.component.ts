@@ -269,6 +269,32 @@ export class OperationComponent implements OnInit {
   }
 
 
+  /**
+   * TO DO - right now, this defalts to the first child, if there are multiple children, does not offer a way to select...figure that part out
+   */
+  async saveAsWif() {
+
+    if(this.draftContainers.length > 0){
+      this.draftContainers.get(0).saveAsWif();
+    }
+  
+  }
+
+  async saveAsPrint() {
+    if(this.draftContainers.length > 0){
+      this.draftContainers.get(0).saveAsPrint();
+    }
+  }
+
+  async saveAsBmp() : Promise<any> {
+    if(this.draftContainers.length > 0){
+      this.draftContainers.get(0).saveAsBmp();
+    }
+   
+  }
+
+
+
 
   unpinFromView(){
     this.vs.clearPin();

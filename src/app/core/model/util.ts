@@ -1173,7 +1173,7 @@ async saveAsWif(fs: FileService, draft: Draft, loom:Loom, loom_settings:LoomSett
   
 }
 
-async saveAsPrint(el: any, draft: Draft, use_colors: boolean, selected_origin_option: number, ms: MaterialsService, ss: SystemsService, fs: FileService ) {
+async saveAsPrint(el: any, draft: Draft, floats: boolean, use_colors: boolean, selected_origin_option: number, ms: MaterialsService, ss: SystemsService, fs: FileService ) {
 
   let b = el;
   let context = b.getContext('2d');
@@ -1256,7 +1256,7 @@ let system = null;
 
 
     }
-  let img = getDraftAsImage(draft, 10, true, use_colors, ms.getShuttles());  
+  let img = getDraftAsImage(draft, 10, floats, use_colors, ms.getShuttles());  
   context.putImageData(img, 30, 30);
 
   context.font = "12px Arial";
