@@ -74,7 +74,8 @@ const sidebars = {
       link: {type: 'doc', id:'learn/examples/index'},
       items: [
         'learn/examples/lattice-tutorial',
-        'learn/examples/hygromorphic-linen'
+        'learn/examples/hygromorphic-linen',
+        'learn/examples/forcepocket',
       ],
     },
 

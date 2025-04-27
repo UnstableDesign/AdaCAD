@@ -14,7 +14,7 @@ In this tutorial, we are taking inspiration from one of Elizabeth Meiklejohn's s
 
 :::tip
 
-Follow along with this example in AdaCAD 4: [Lattice Structures](https://adacad-4-1.web.app/?ex=sample7b)
+Follow along with this example in AdaCAD 4: [Lattice Structures](https://adacad.org/?ex=sample7b)
 
 :::
 

@@ -45,8 +45,9 @@ Workshops will offer lessons where the project team guides you though an activit
     Weaving Imagery in AdaCAD
      <div class="card-dx"> We'll walk you through the process of creating [dataflows](../reference/glossary/dataflow.md) for assigning shaded structures like [`shaded satin`](../reference/operations/shaded_satin.md) to regions of an image using the [`image map`](../reference/operations/imagemap.md) operation. Additionally, we'll help you format these drafts for weaving on TC2 digital looms.</div>
          <div class="card__footer">
-       <Link class="button button--secondary button--block" to="https://cuboulder.qualtrics.com/jfe/form/SV_5Bf1YcR9iy1gEaq" target="_blank">Register</Link>
-    </div>
+        <Link class="button button--primary button--block" to="https://www.youtube.com/watch?v=xS_DZB3A7yY" target="_blank">Watch the Workshop Recording</Link>
+
+        </div>
     </div>
 </div>
 
@@ -59,7 +60,7 @@ Workshops will offer lessons where the project team guides you though an activit
     Drafting for Harness and Dobby
      <div class="card-dx"> We'll walk you through the process of creating [dataflows](../reference/glossary/dataflow.md) that produce patterned threading sequences using the [`pattern across width`](../reference/operations/warp_profile.md) operation. We'll then use the [`generate drawdown`](../reference/operations/drawdown.md) operation to combine these threadings with treadling and tieup drafts. </div>
          <div class="card__footer">
-       <Link class="button button--secondary button--block" to="https://cuboulder.qualtrics.com/jfe/form/SV_5Bf1YcR9iy1gEaq" target="_blank">Register</Link>
+       <Link class="button button--secondary button--block" to="https://www.youtube.com/watch?v=eVma5l__VRk" target="_blank">Register</Link>
     </div>
 
     </div>

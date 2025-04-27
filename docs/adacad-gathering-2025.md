@@ -12,20 +12,89 @@ This group will bring together ~10 experts from art, craft, open-source, and eng
 
 The tentative schedule for the working group is included below and would take place over five days, with two days devoted to arrival/departure and three days focused on group activities. While the impetus for the gathering is AdaCAD, we are planning activities that could be useful to participants more broadly. We also intend to keep the working schedule humane so that we can build connections and think creatively about open-source/craft futures.
 
-## 2025 Gathering
+# 2025 Gathering
 
-### Schedule
+## Schedule
 
-last updated Oct 14 (we are in the process of forming more detailed plans, next update planned for April 2025):
+last updated Monday April 21, 2025
+
+### Monday, June 2
+Participants arrive, optional dinner at [Cafe Aion](https://thehillboulder.com/go/cafe-aion)
+
+### Tuesday, June 3
+Location: ATLAS Institute
+
+9:00-10:00: 
+- Breakfast / Chatting
+
+10:00-11:00: 
+-	Begin Event: Welcome, ground the event, state of the project. 
+-	Intros by Participants  - what do you do, what’s a question or challenge you are facing?
+
+12:30 – 2:00:
+- Lunch
+
+2:00 – 4:30: 
+-	Tour of the ATLAS Institute
+-	Playful Design Activity and Share Out
+-	Participant ideas for Day 3 Topics or Activities
+
+4:30 – 5:00: 
+- Close for the Day
+
+6:30 – 8:00:
+- Dinner at [Sherpa’s Adventure](https://sherparestaurantboulder.com/)
 
 
-| Date | Plan |
-| ------ | ---- | 
-| Monday, June 2 | Arrivals, optional evening event| 
-| Tuesday, June 3 | Welcome, ground the event, state of the project. Tour and getting to know each other (short presentations about participants' practice and work). Evening social event |
-| Wednesday, June 4 | Discuss the AdaCAD project, including setting development milestones, evaluation metrics, resources for governance. Split into groups devoted to topic. Free Evening.|
-| Thursday, June 5 | Discuss topics of interest to participants. This may include discussing the question what does **open source** mean for craft? It could also involve a "clinic" devoted to challenges participants are facing and how we might approach them. Possible field trip.|
-| Friday, June 6 | Departures | 
+### Wednesday, June 4
+Location: ATLAS Institute
+
+9:00-10:00: 
+- Breakfast and Chatting
+
+10:00 – 12:30: 
+- Governance Discussion
+- Health and “Growth” Metrics
+- Finance
+- Community Agreements and Handling Conflict 
+
+12:30 – 2:00 
+- Lunch
+
+2:00 – 4:30: 
+- Speculating on Weaving/Coding Futures
+
+4:30 – 5:00: 
+- Close for the Day. 
+
+6:30-8:30
+- Dinner at [Barcetta](https://www.barchetta.pizza/)
+
+
+### Thursday, June 5 
+Location: ATLAS Institute
+Note: We're leaving this day flexible to adapt to interests and concerns from our participants. 
+
+9:00-10:00: 
+- Breakfast / Chatting
+
+10:00-12:30: 
+- Emerging Discussion 1 / What Questions Do you Want to Ask this Group
+
+12:00 – 1:00 
+- Lunch
+
+1:00 -3:00:   
+-  Concrete Next Steps 
+-  Annotating Founding Documents
+
+Afternoon: Group Outing 
+
+
+6:30  Dinner at the [Chautauqua Dining Hall](https://www.chautauqua.com/dining/dining-hall/)
+
+### Friday, June 6 
+Departures 
 
 
 ### Confirmed Attendees 
@@ -62,7 +131,7 @@ We'd love to make this event as comfortable as possible for you. Please let us k
 
 
 ## Travel
-Travel has been arranged for out of town guests: 
+Travel has been arranged for out of town guests.  
 
 ### Flights
 If you have questions or concerns about your travel, or require any changes, please contact Deanna Gelosi via email or through Discord. 
