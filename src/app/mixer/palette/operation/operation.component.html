@@ -1,7 +1,6 @@
 <div id='scale-{{id}}' class="operation-parent no-text-select selectable-{{!disable_drag}}"
 cdkDrag
 (mousedown)="mousedown($event)"
-(dblclick)="onDoubleClick()"
 (click)='toggleSelection($event)' 
 [style.z-index] = "zndx"
 (cdkDragMoved)="dragMove($event)"
@@ -14,7 +13,7 @@ cdkDrag
 
 
   <div class="operation-container" [style.background-color]="opdescriptions.getCatColor(category_name)">
-        <div class="cxn-row" cdkDragHandle>
+        <div class="cxn-row" cdkDragHandle >
             <div  *ngFor="let input of opnode.inlets; let i = index" class="input-group">
               
               <app-inlet 
@@ -32,7 +31,8 @@ cdkDrag
         </div>
 
 
-        <div class="top-row" cdkDragHandle>
+        <div class="top-row " (dblclick)="onDoubleClick($event)"
+ cdkDragHandle>
 
         <div class="operation-details">
             <div class="name no-text-select">{{displayname}}</div>
@@ -144,7 +144,7 @@ cdkDrag
       </div>
 
 
-      <div class="outputs">
+      <div class="outputs" (dblclick)="onDoubleClick($event)">
         <app-draftcontainer class="draftrendering from_operation" 
         *ngFor="let child_id of children" 
         [id]="child_id" 

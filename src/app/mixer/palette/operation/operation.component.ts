@@ -190,7 +190,7 @@ export class OperationComponent implements OnInit {
     e.stopPropagation();
   }
 
-  onDoubleClick(){
+  onDoubleClick(event: any){
     this.trigger.openMenu();
   }
 
