@@ -172,10 +172,10 @@ export class AppComponent implements OnInit{
     //   items: [{ uid: this.auth.uid }]
     // });
 
-    let dialogRef = this.dialog.open(WelcomeComponent, {
-      height: '400px',
-      width: '600px',
-    });
+    // let dialogRef = this.dialog.open(WelcomeComponent, {
+    //   height: '400px',
+    //   width: '600px',
+    // });
 
   
 
