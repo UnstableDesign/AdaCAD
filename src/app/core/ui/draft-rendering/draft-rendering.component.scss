@@ -3,7 +3,16 @@
 //     width: fit-content;
 //     height: fit-content;
 //   }
-  
+
+.origin-marker{
+  position: absolute;
+  background-color: blue;
+  width: var(--cell-width);
+  height: var(--cell-width);
+  left:0px;
+  top: calc(-1 * var(--cell-width));
+}
+
 .app-selection{
     display: block;
     position: absolute;
@@ -427,6 +436,7 @@
   .drawdown-container{
     display: flex;
     padding: var(--cell-width) 0px;
+
   }
   
   .drawdown-container.origin0,
