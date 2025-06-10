@@ -195,6 +195,8 @@ export class DraftRenderingComponent implements OnInit {
     this.divWesy =  document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
     this.divWasy =  document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
     this.refreshWarpAndWeftSystemNumbering();
+    this.refreshOriginMarker();
+
         
   }
 
@@ -928,13 +930,14 @@ export class DraftRenderingComponent implements OnInit {
       */
       //this does not draw on canvas but just rescales the canvas
       public rescale(scale: number){
-        
         if(this.id == -1) return;
 
           const draft = this.tree.getDraft(this.id);
           const loom = this.tree.getLoom(this.id);
           const loom_settings = this.tree.getLoomSettings(this.id);
-          this.render.rescale(draft, loom, loom_settings, scale, this.canvases);
+          this.render.rescale(draft, loom, loom_settings, scale, this.canvases)
+          this.refreshOriginMarker();
+
 
            
       }
@@ -990,6 +993,7 @@ export class DraftRenderingComponent implements OnInit {
       
       //takes inputs about what to redraw
       public redraw(draft:Draft, loom: Loom, loom_settings:LoomSettings, flags:any) : Promise<boolean>{
+
        
         if(draft == null) return;
 
@@ -1012,8 +1016,11 @@ export class DraftRenderingComponent implements OnInit {
         }
 
         return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
+
+          console.log("REDRAW IN ", this.source, this.scale)
           this.render.rescale(draft, loom, loom_settings, this.scale, this.canvases)
           this.refreshWarpAndWeftSystemNumbering();
+          this.refreshOriginMarker();
           this.selection.redraw();     
 
           return Promise.resolve(res);
@@ -1023,6 +1030,11 @@ export class DraftRenderingComponent implements OnInit {
         
         
         
+      }
+
+      refreshOriginMarker(){
+        const div = document.getElementById("origin-marker-"+this.source+"-"+this.id);
+        div.style.transform= "scale("+this.scale+")";
       }
 
       refreshWarpAndWeftSystemNumbering(){

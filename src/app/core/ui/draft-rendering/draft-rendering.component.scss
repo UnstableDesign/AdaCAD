@@ -6,11 +6,12 @@
 
 .origin-marker{
   position: absolute;
-  background-color: blue;
+  color: black;
   width: var(--cell-width);
   height: var(--cell-width);
   left:0px;
   top: calc(-1 * var(--cell-width));
+  text-align: center;
 }
 
 .app-selection{
