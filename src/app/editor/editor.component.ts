@@ -7,7 +7,7 @@ import { createCell } from '../core/model/cell';
 import { DesignMode, Drawdown, LoomSettings, OpNode } from '../core/model/datatypes';
 import { defaults, draft_pencil } from '../core/model/defaults';
 import { createBlankDrawdown, createDraft, getDraftName } from '../core/model/drafts';
-import { isFrame } from '../core/model/looms';
+import { getLoomUtilByType, isFrame } from '../core/model/looms';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
@@ -77,6 +77,8 @@ export class EditorComponent implements OnInit {
   scale: number = 0;
 
   pencil: string;
+
+  dressing_info: Array<{label: string, value: string}> = [];
   
   
   
@@ -109,6 +111,17 @@ export class EditorComponent implements OnInit {
     
     ngAfterViewInit() {
       this.scale = this.zs.getEditorZoom();
+    }
+
+
+    updateWeavingInfo(){
+      const loom = this.tree.getLoom(this.id);
+      const draft = this.tree.getDraft(this.id);
+      const loom_settings = this.tree.getLoomSettings(this.id);
+      let utils = getLoomUtilByType(loom_settings.type);
+      this.dressing_info = utils.getDressingInfo(draft.drawdown, loom, loom_settings);
+
+
     }
     
     
@@ -260,7 +273,7 @@ export class EditorComponent implements OnInit {
       this.draftname = getDraftName(draft);
       this.weaveRef.onNewDraftLoaded(id);
       this.redraw();
-
+      this.updateWeavingInfo();
       return Promise.resolve(null);
       
       
@@ -292,6 +305,7 @@ export class EditorComponent implements OnInit {
     public drawdownUpdated(){
       this.vs.updateViewer();
       this.loom.updateLoom();
+      this.updateWeavingInfo();
       this.saveChanges.emit();
     }  
     
@@ -331,6 +345,7 @@ export class EditorComponent implements OnInit {
       if(loom_settings.type == 'jacquard')
         this.dm.selectDraftEditSource('drawdown')
       
+      this.updateWeavingInfo();
       this.saveChanges.emit();
       
     }

@@ -89,6 +89,14 @@ const jacquard_utils: LoomUtil = {
     },
     deleteFromTreadling: (loom: Loom, i: number) : Loom => {
       return loom;
+    },
+    getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
+      return [
+        {label: 'loom type', value: 'jacquard'},
+        {label: 'warp density', value: ls.epi+" "+ls.units},
+        {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'weft picks', value: wefts(dd)+" picks"}
+      ];
     }
 
   }
@@ -238,6 +246,17 @@ const jacquard_utils: LoomUtil = {
     deleteFromTreadling: (loom: Loom, i: number) : Loom => {
       loom.treadling.splice(i, 1);
       return loom;
+    },
+    getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
+      return [
+        {label: 'loom type', value: 'direct tie/dobby'},
+        {label: 'warp density', value: ls.epi+" "+ls.units},
+        {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'weft picks', value: wefts(dd)+" picks"},
+        {label: 'number of frames provided by loom', value: ls.frames+" frames"},
+        {label: 'number of frames required by pattern', value: numFrames(loom)+" frames"},
+        
+      ];
     }
   }
 
@@ -453,9 +472,20 @@ const jacquard_utils: LoomUtil = {
       return loom;
     },
     deleteFromTreadling: (loom: Loom, i: number) : Loom => {
-      console.log("SPLICING FROM ", i)
       loom.treadling.splice(i, 1);
       return loom;
+    },
+     getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
+      return [
+        {label: 'loom type', value: 'frame loom'},
+        {label: 'warp density', value: ls.epi+" "+ls.units},
+        {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'weft picks', value: wefts(dd)+" picks"},
+        {label: 'number of frames provided by loom', value: ls.frames+" frames"},
+        {label: 'number of frames required by pattern', value: numFrames(loom)+" frames"},
+        {label: 'number of treadles provided by loom', value: ls.treadles+" treadles"},
+        {label: 'number of frames required by pattern', value: numTreadles(loom)+" treadles"},
+      ];
     }
 
   

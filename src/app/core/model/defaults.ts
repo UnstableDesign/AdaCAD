@@ -36,7 +36,7 @@ export const defaults = {
       zoom_ndx_editor: 12,
       zoom_ndx_viewer: 7,
       show_advanced_operations: false,
-      share_url_base: 'https://adacad-4-1.web.app/?share='
+      share_url_base: 'https://adacad.org/?share='
 
 }
 

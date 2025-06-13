@@ -200,6 +200,24 @@
    </mat-expansion-panel>
 
 
+    <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <i class="fa-solid fa-circle-info"></i>
+          Information
+        </mat-panel-title>
+   
+    </mat-expansion-panel-header>
+
+    <mat-label>Loom Type</mat-label>
+    <div *ngFor="let line of dressing_info">
+      {{line.label}}: {{line.value}}
+    </div>
+   
+
+   </mat-expansion-panel>
+
+
   </mat-accordion>
 
 </div>

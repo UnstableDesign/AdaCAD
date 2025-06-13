@@ -707,6 +707,8 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     canvases.weft_systems.style.height =(draft.rowShuttleMapping.length * cell_size)*factor+"px";
     canvases.weft_systems.style.width =  defaults.draft_detail_cell_size*factor+"px";
 
+
+    
   }
 
   
