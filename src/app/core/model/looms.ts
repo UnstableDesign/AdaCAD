@@ -1,6 +1,7 @@
 
 import { getCellValue, setCellValue } from "./cell";
 import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
+import { defaults, density_units } from "./defaults";
 import { createBlankDrawdown, warps, wefts } from "./drafts";
 import utilInstance from "./util";
 
@@ -39,6 +40,16 @@ export const convertEPItoMM = (ls: LoomSettings) : number => {
   }else{
 
     return (25.4/ls.epi);
+  }
+
+}
+
+export  const calcWidth = (drawdown: Drawdown, loom_settings: LoomSettings) : number => {
+
+  if(loom_settings.units == 'in'){
+    return warps(drawdown) / loom_settings.epi;
+  }else{
+    return warps(drawdown) / loom_settings.epi * 10;
   }
 
 }
@@ -91,10 +102,15 @@ const jacquard_utils: LoomUtil = {
       return loom;
     },
     getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
+
+     let unit_string = density_units.find(el => el.value == ls.units)
+
       return [
         {label: 'loom type', value: 'jacquard'},
-        {label: 'warp density', value: ls.epi+" "+ls.units},
+        {label: 'warp density', value: ls.epi+" "+unit_string.viewValue},
         {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'width', value: calcWidth(dd, ls)+" "+ls.units},
+
         {label: 'weft picks', value: wefts(dd)+" picks"}
       ];
     }
@@ -248,15 +264,28 @@ const jacquard_utils: LoomUtil = {
       return loom;
     },
     getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
-      return [
+
+      let unit_string = density_units.find(el => el.value == ls.units)
+
+      let base_info =  [
         {label: 'loom type', value: 'direct tie/dobby'},
-        {label: 'warp density', value: ls.epi+" "+ls.units},
+      
+        {label: 'warp density', value: ls.epi+" "+unit_string.viewValue},
         {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'width', value: calcWidth(dd, ls)+" "+ls.units},
+       
         {label: 'weft picks', value: wefts(dd)+" picks"},
-        {label: 'number of frames provided by loom', value: ls.frames+" frames"},
-        {label: 'number of frames required by pattern', value: numFrames(loom)+" frames"},
+        {label: 'frames', value: numFrames(loom)+" required, "+ls.frames+" available"},
         
       ];
+
+      for(let i = 1; i < numFrames(loom); i++){
+
+        let label = "# ends in frame "+i;
+        let value = loom.threading.filter(el => el == i).length+""
+        base_info.push({label, value})
+      }
+      return base_info;
     }
   }
 
@@ -476,16 +505,41 @@ const jacquard_utils: LoomUtil = {
       return loom;
     },
      getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
-      return [
+
+      let unit_string = density_units.find(el => el.value == ls.units)
+
+     let base_info = 
+ [
         {label: 'loom type', value: 'frame loom'},
-        {label: 'warp density', value: ls.epi+" "+ls.units},
+        {label: 'warp density', value: ls.epi+" "+unit_string.viewValue},
         {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'width', value: calcWidth(dd, ls)+" "+ls.units},
+
         {label: 'weft picks', value: wefts(dd)+" picks"},
-        {label: 'number of frames provided by loom', value: ls.frames+" frames"},
-        {label: 'number of frames required by pattern', value: numFrames(loom)+" frames"},
-        {label: 'number of treadles provided by loom', value: ls.treadles+" treadles"},
-        {label: 'number of frames required by pattern', value: numTreadles(loom)+" treadles"},
+        {label: 'frames', value: numFrames(loom)+" required, "+ls.frames+" available"},
+        {label: 'treadles', value: numTreadles(loom)+" required, "+ls.treadles+" available"},
       ];
+
+      for(let i = 1; i < numFrames(loom); i++){
+
+        let label = "# ends in frame "+i;
+        let value = loom.threading.filter(el => el == i).length+""
+        base_info.push({label, value})
+      }
+
+      for(let j = 0; j < numTreadles(loom); j++){
+
+        let label = "frames on treadle "+(j+1);
+        let value = loom.tieup.reduce((acc, el, ndx) => {
+          if(el[j] == true)
+            return acc + "" + (ndx+1)+",";
+          else
+            return acc;
+        }, "")
+        base_info.push({label, value})
+      }
+
+      return base_info;
     }
 
   

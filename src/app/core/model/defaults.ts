@@ -34,7 +34,7 @@ export const defaults = {
       mixer_mode: 'move',
       zoom_ndx_mixer: 10,
       zoom_ndx_editor: 12,
-      zoom_ndx_viewer: 7,
+      zoom_ndx_viewer: 10,
       show_advanced_operations: false,
       share_url_base: 'https://adacad.org/?share='
 
