@@ -55,6 +55,7 @@ export class LoomComponent {
       const loom_settings = this.tree.getLoomSettings(this.id);
 
 
+      console.log("LOADING LOOM FOR ", this.id, loom, loom_settings)
 
       this.enabled = !this.tree.hasParent(this.id);
       this.units = loom_settings.units;
