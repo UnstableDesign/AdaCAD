@@ -32,6 +32,7 @@ export class LoomComponent {
   width: number = 0;
   density_units;
   loomtypes;
+  enabled: boolean = false;
 
 
   constructor(
@@ -53,6 +54,9 @@ export class LoomComponent {
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
 
+
+
+      this.enabled = !this.tree.hasParent(this.id);
       this.units = loom_settings.units;
       this.type = loom_settings.type;
       this.epi = loom_settings.epi;
