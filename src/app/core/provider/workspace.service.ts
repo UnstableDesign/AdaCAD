@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { defaults } from '../model/defaults';
+import { LoomSettings } from '../model/datatypes';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,19 @@ export class WorkspaceService {
 
 
   constructor() { }
+
+
+  getWorkspaceLoomSettings() : LoomSettings{
+    const ls:LoomSettings = {
+      type: this.type,
+      epi: this.epi, 
+      frames: this.min_frames,
+      treadles: this.min_treadles,
+      units: this.units
+    }
+    return ls;
+  }
+
 
   initDefaultWorkspace(){
     this.min_frames = defaults.loom_settings.frames; 
