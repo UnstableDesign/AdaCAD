@@ -251,7 +251,6 @@ export class LoomComponent {
 
   
     loomChange(f:NgForm){
-      console.log("LOOM CHANGE")
       if(this.id == -1) return;
 
       const draft = this.tree.getDraft(this.id);
@@ -345,6 +344,7 @@ export class LoomComponent {
   
         }else if(loom_settings.type == 'frame' && new_settings.type == 'direct'){
           // from floor to direct
+          //THIS IS BROKEN
           const converted_loom = convertTieupToLiftPlan(loom);
           this.tree.setLoom(this.id, converted_loom);
           this.frames = numFrames(converted_loom);

@@ -279,9 +279,9 @@ const jacquard_utils: LoomUtil = {
         
       ];
 
-      for(let i = 1; i < numFrames(loom); i++){
+      for(let i = 0; i < numFrames(loom); i++){
 
-        let label = "# ends in frame "+i;
+        let label = "# ends in frame "+(i+1);
         let value = loom.threading.filter(el => el == i).length+""
         base_info.push({label, value})
       }
@@ -520,9 +520,9 @@ const jacquard_utils: LoomUtil = {
         {label: 'treadles', value: numTreadles(loom)+" required, "+ls.treadles+" available"},
       ];
 
-      for(let i = 1; i < numFrames(loom); i++){
+      for(let i = 0; i < numFrames(loom); i++){
 
-        let label = "# ends in frame "+i;
+        let label = "# ends in frame "+(i+1);
         let value = loom.threading.filter(el => el == i).length+""
         base_info.push({label, value})
       }
@@ -1011,7 +1011,9 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
       converted.treadling = loom.treadling.map(treadle_vals => {
 
         if(treadle_vals.length == 0) return [];
+
           let active_treadle = treadle_vals[0];
+         
           let tieupcol: Array<boolean> = loom.tieup.reduce((acc, el, ndx) => {
             return acc.concat(el[active_treadle])
           }, [] );
@@ -1022,10 +1024,13 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
       return converted;
     }
 
-        /**
+    /**
      * assumes the input to the function is a loom of type that uses a direct tie and lift plan and converts it to a loom that uses a tieup and treadling. 
      */
     export const convertLiftPlanToTieup = (loom: Loom) : Loom => {
+
+      //used when direct tie is converted to frame
+
 
       let tieup_ndx = 0;
       let shafts = numFrames(loom);
@@ -1045,17 +1050,19 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
 
       //look at each pick
       loom.treadling.forEach(pick => {
-        let pick_as_int: number = 0;
+        let pick_as_string: string = '';
        
         if(pick.length != 0) {
 
-          pick_as_int = parseInt(pick.reduce((acc, el, ndx) => {
-            return acc + ((el) ? 1 : 0);
-          }, ''), 2);
-        
+          pick_as_string = "";
+          for(let i = 0; i < shafts; i++){
+            if(pick.findIndex(el => el == i)!== -1)
+              pick_as_string =  pick_as_string + '1';
+            else 
+              pick_as_string =  pick_as_string + '0';
+          }
 
-          console.log("SEEN ", seen, pick_as_int)
-          let ndx = seen.findIndex(el => el == pick_as_int);
+          let ndx = seen.findIndex(el => el == pick_as_string);
           if(ndx !== -1){
             //this pick will be assigned to an existing tieup column
             converted.treadling.push([ndx]);
@@ -1070,7 +1077,7 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
             for(let i = 0; i < shafts; i++){
               converted.tieup[i][tieup_ndx] = col[i];
             }
-            seen.push(pick_as_int)
+            seen.push(pick_as_string)
             tieup_ndx++;
           }
         }else{
