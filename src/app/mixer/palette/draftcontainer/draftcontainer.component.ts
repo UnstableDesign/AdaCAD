@@ -193,19 +193,22 @@ export class DraftContainerComponent implements AfterViewInit{
    // console.log("VIS TOGGLED", this.id,  this.draft_visible, this.ws.hide_mixer_drafts)
     this.draft_visible = !this.draft_visible;
     this.tree.setDraftVisiblity(this.id, this.draft_visible);
+    this.updateDraftRendering();
     
+  }
+
+  updateDraftRendering(){
     const draft = this.tree.getDraft(this.id);
 
-    if(this.draft_rendering !== undefined && draft !== undefined && draft !== null){
-      this.draft_rendering.onNewDraftLoaded(this.id);
-      this.drawDraft(draft);
-    } else{
-      this.draft_rendering.clear();
-
-    }
-
-   
+        if(this.draft_rendering !== undefined && draft !== undefined && draft !== null){
+          this.draft_rendering.onNewDraftLoaded(this.id);
+          this.drawDraft(draft);
+        } else{
+          this.draft_rendering.clear();
+        }
   }
+
+
 
   nameFocusOut(event){
   }

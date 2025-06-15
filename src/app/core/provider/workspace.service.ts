@@ -23,6 +23,7 @@ export class WorkspaceService {
   show_materials: boolean = defaults.show_materials;
   black_cell_up: boolean = defaults.black_cell_up;
   number_threading: boolean = defaults.number_threading;
+  
   hide_mixer_drafts: boolean = defaults.hide_mixer_drafts;
   show_advanced_operations: boolean = defaults.show_advanced_operations;
   /**

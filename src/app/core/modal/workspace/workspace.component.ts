@@ -18,7 +18,7 @@ export class WorkspaceComponent {
   @Output() onDensityUnitOverride = new EventEmitter <any>(); 
   @Output() onOptimizeWorkspace = new EventEmitter <any>(); 
   @Output() onAdvanceOpsChange = new EventEmitter <any>(); 
-
+  @Output() onDraftVisibilityChange = new EventEmitter<any>();
 
   unitOptions: any;
   originOptions: any;
@@ -42,8 +42,10 @@ setAdvancedOperations(val: boolean){
   this.onAdvanceOpsChange.emit();
 }
 
-setDraftsViewable(val: boolean){
-  this.ws.hide_mixer_drafts = val;
+setDraftsViewable(){
+  //redraw the mixer
+  console.log("Value is ", this.ws.hide_mixer_drafts)
+  this.onDraftVisibilityChange.emit();
 }
 
 overrideLoomType(){

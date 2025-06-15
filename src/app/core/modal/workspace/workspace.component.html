@@ -63,18 +63,16 @@
 
 <mat-expansion-panel hideToggle expanded>
 <mat-expansion-panel-header>
-<mat-panel-title> Dataflow </mat-panel-title>
+<mat-panel-title> Hide Drafts on All Operations </mat-panel-title>
 <!-- <mat-panel-description> Controls if and how drafts are shown in dataflows</mat-panel-description> -->
 </mat-expansion-panel-header>
-<p>This controls if and how drafts are shown in dataflows. Use this to set the default for if drafts are shown or hidden within operations that generated them. Turn this to "On" if you are experiencing slowdowns.</p>
+<p>This controls if if you would like to see the outcome of each operation as a draft, or just the operation information (which can be helpful to save space). Turn this to "On" if you are experiencing slowdowns.</p>
 <div>    
-    <mat-slide-toggle [(ngModel)]="this.ws.hide_mixer_drafts">
+    <mat-slide-toggle (change)="setDraftsViewable()" [(ngModel)]="this.ws.hide_mixer_drafts">
+        {{this.ws.hide_mixer_drafts}}
         <span *ngIf="this.ws.hide_mixer_drafts">On (Drafts Hidden)</span>
         <span *ngIf="!this.ws.hide_mixer_drafts">Off (Drafts Shown)</span>
     </mat-slide-toggle>
-    <p>Set all....</p>
-        <button mat-raised-button>Hide all Drafts</button>
-        <button mat-raised-button>Show all Drafts</button>
 </div>
 </mat-expansion-panel>  
 

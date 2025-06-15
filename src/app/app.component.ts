@@ -1048,10 +1048,13 @@ onPasteSelections(){
   this.workspace_modal.componentInstance.onDensityUnitOverride.subscribe(event => {
     this.overrideDensityUnits();
   });
+
+  this.workspace_modal.componentInstance.onDraftVisibilityChange.subscribe(event => {
+    this.overrideDraftVisibility();
+  });
   // this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
   //   this.openAdaFiles(false);
   // });
-
 
 }
 
@@ -1143,6 +1146,27 @@ overrideDensityUnits(){
 
 }
 
+
+overrideDraftVisibility(){
+
+  const dns: Array<DraftNode> = this.tree.getDraftNodes()
+  .filter(dn => this.tree.hasParent(dn.id) === true)
+  dns.forEach(dn => {
+    dn.visible = !this.ws.hide_mixer_drafts;
+  });
+
+  const ops: Array<OperationComponent> = this.tree.getOperations()
+  ops.forEach(op => {
+    op.draftContainers.forEach(container => {
+      container.draft_visible = !this.ws.hide_mixer_drafts;
+      container.updateDraftRendering();
+    })
+  })
+
+
+
+  this.saveFile();
+}
 
 
 
