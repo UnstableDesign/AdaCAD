@@ -325,7 +325,6 @@ export class EditorComponent implements OnInit {
     
     public loomSettingsUpdated(){
 
-      console.log("LOOM SETTINGS UPDATED", this.id)
       
       if(this.id == -1) return;
 
@@ -334,7 +333,12 @@ export class EditorComponent implements OnInit {
       const draft = this.tree.getDraft(this.id);
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
+
+      console.log("LOOM SETTINGS UPDATED", loom_settings.units)
+
+
       this.loom.type = loom_settings.type;
+      this.loom.units = loom_settings.units;
       this.weaveRef.isFrame = isFrame(loom_settings);
       this.weaveRef.epi = loom_settings.epi;
       this.weaveRef.selected_loom_type = loom_settings.type;

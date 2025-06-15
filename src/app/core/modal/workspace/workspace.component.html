@@ -4,7 +4,6 @@
 <mat-expansion-panel hideToggle expanded>
   <mat-expansion-panel-header>
     <mat-panel-title> Origin </mat-panel-title>
-    <!-- <mat-panel-description> Set the orientation of your draft and structures</mat-panel-description> -->
   </mat-expansion-panel-header>
   <div>   
     <p>This setting allows you to specify the orientation of your draft and structures.</p>
@@ -51,7 +50,8 @@
     <mat-radio-group
         aria-labelledby="example-radio-group-label"
         class="example-radio-group"
-        [(ngModel)]="this.ws.units">
+        [(ngModel)]="this.ws.units"
+        (change)="overrideDensityUnits()">
         @for (unit of unitOptions; track unit) {
             <mat-radio-button class="example-radio-button" [value]="unit.value">{{unit.viewValue}}</mat-radio-button>
 
@@ -112,12 +112,12 @@
 
 <p>Any drafts with (warp ends x weft picks) larger the number specified below will be forced to be "jacquard" type, meaning they won't need AdaCAD to compute threading, tieup and treadling information which can be particularly slow on large drafts.</p>
 
-<mat-slider [(ngModel)]="this.ws.force_jacquard_threshold" min="1" max="1000000" step="1000" showTickMarks discrete>
+<mat-slider min="1" max="1000000" step="1000" showTickMarks discrete>
   <input matSliderThumb>
 </mat-slider> {{this.ws.force_jacquard_threshold}}
 
 <p>Certain compound operations require that AdaCAD computes and least common multiple (LCM) calculation to ensure that all drafts repeat at even intervals. This can slow or crash the software when drafts are very large. Use the slider below to set the maximum size for which an LCM is computed. Drafts with a number of warps or wefts over this number will not be evenly repeated within a draft.</p>
-<mat-slider [(ngModel)]="this.ws.largest_lcm_factor" min="1" max="1000" step="10" showTickMarks discrete>
+<mat-slider  min="1" max="1000" step="10" showTickMarks discrete>
   <input matSliderThumb>
 </mat-slider> {{this.ws.largest_lcm_factor}}
 

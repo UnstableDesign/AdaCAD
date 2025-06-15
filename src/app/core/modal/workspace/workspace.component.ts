@@ -15,6 +15,7 @@ import { density_units, loom_types, origin_option_list } from '../../model/defau
 export class WorkspaceComponent {
 
   @Output() onLoomTypeOverride = new EventEmitter <any>(); 
+  @Output() onDensityUnitOverride = new EventEmitter <any>(); 
   @Output() onOptimizeWorkspace = new EventEmitter <any>(); 
   @Output() onAdvanceOpsChange = new EventEmitter <any>(); 
 
@@ -46,8 +47,11 @@ setDraftsViewable(val: boolean){
 }
 
 overrideLoomType(){
-  console.log('set loom type', this.ws.type)
   this.onLoomTypeOverride.emit();
+}
+
+overrideDensityUnits(){
+  this.onDensityUnitOverride.emit();
 }
 
 

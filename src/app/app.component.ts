@@ -10,7 +10,7 @@ import { LoginComponent } from './core/modal/login/login.component';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { createCell } from './core/model/cell';
 import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, Point, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
-import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
+import { defaults, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
 import utilInstance from './core/model/util';
@@ -1044,6 +1044,10 @@ onPasteSelections(){
   this.workspace_modal.componentInstance.onLoomTypeOverride.subscribe(event => {
     this.overrideLoomTypes();
   });
+
+  this.workspace_modal.componentInstance.onDensityUnitOverride.subscribe(event => {
+    this.overrideDensityUnits();
+  });
   // this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
   //   this.openAdaFiles(false);
   // });
@@ -1092,7 +1096,6 @@ originChange(e:any){
 
 //This will go through all the looms that have been assigned and convert them to the new type specified in the workspace settings. 
 overrideLoomTypes(){
-  console.log("UPDATING LOOMS TYPES")
 
   const dns: Array<DraftNode> = this.tree.getDraftNodes()
   .filter(el => el.loom_settings !== null && el.loom_settings !== undefined);
@@ -1106,7 +1109,6 @@ overrideLoomTypes(){
   });
 
   Promise.all(fns).then(outs => {
-    console.log("OUTS", outs)
 
     for(let i = 0; i < outs.length; i++){
       this.tree.setLoom(dns[i].id, outs[i]);
@@ -1121,6 +1123,22 @@ overrideLoomTypes(){
     console.error(err);
   })
 
+
+
+}
+
+
+//This will go through all the looms that have been assigned and convert them to the new type specified in the workspace settings. 
+overrideDensityUnits(){
+
+  const dns: Array<DraftNode> = this.tree.getDraftNodes()
+  .filter(el => el.loom_settings !== null && el.loom_settings !== undefined);
+  dns.forEach(dn => {
+    dn.loom_settings.units = this.ws.units;
+  });
+
+  //call this to update the editor (if, by chance, the loom is showing)
+  this.editor.loomSettingsUpdated();
 
 
 }
