@@ -324,12 +324,17 @@ export class EditorComponent implements OnInit {
     }
     
     public loomSettingsUpdated(){
+
+      console.log("LOOM SETTINGS UPDATED", this.id)
       
       if(this.id == -1) return;
+
+
       
       const draft = this.tree.getDraft(this.id);
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
+      this.loom.type = loom_settings.type;
       this.weaveRef.isFrame = isFrame(loom_settings);
       this.weaveRef.epi = loom_settings.epi;
       this.weaveRef.selected_loom_type = loom_settings.type;
@@ -340,11 +345,11 @@ export class EditorComponent implements OnInit {
         weft_systems: true, 
         warp_materials: true,
         weft_materials:true
-      });    
-     
-      if(loom_settings.type == 'jacquard')
-        this.dm.selectDraftEditSource('drawdown')
+      });  
       
+      if (loom_settings.type === 'jacquard') this.dm.selectDraftEditSource('drawdown');
+      else this.dm.selectDraftEditSource('loom');
+          
       this.updateWeavingInfo();
       this.saveChanges.emit();
       

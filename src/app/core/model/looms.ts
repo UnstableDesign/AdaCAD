@@ -55,6 +55,44 @@ export  const calcWidth = (drawdown: Drawdown, loom_settings: LoomSettings) : nu
 }
 
 
+export const convertLoom = (drawdown: Drawdown, l: Loom, from_ls: LoomSettings, to_ls: LoomSettings) : Promise<Loom> => {
+
+  //if the loom is null, force the previous type to jcquard
+  if(l == null){
+    from_ls.type = 'jacquard'
+  }
+
+
+  if(from_ls.type == to_ls.type) return Promise.resolve(l);
+  if(from_ls == null || from_ls == undefined) return Promise.reject("no prior loom settings found");
+  if(to_ls == null || to_ls == undefined) return Promise.reject("no current loom settings found");
+
+  const  utils = getLoomUtilByType(to_ls.type);
+  
+   if(from_ls.type === 'jacquard' && to_ls.type === 'direct'){  
+        return utils.computeLoomFromDrawdown(drawdown, to_ls)
+   }else if(from_ls.type === 'jacquard' && to_ls.type === 'frame'){
+        return utils.computeLoomFromDrawdown(drawdown, to_ls)       
+   }else if(from_ls.type === 'direct' && to_ls.type === 'jacquard'){
+        return Promise.resolve(null);
+    }else if(from_ls.type == 'direct' && to_ls.type == 'frame'){
+        // from direct-tie to floor
+        const new_l = convertLiftPlanToTieup(l);
+        return  Promise.resolve(new_l);
+   }else if(from_ls.type === 'frame' && to_ls.type === 'jacquard'){
+        return Promise.resolve(null);
+  }else if(from_ls.type == 'frame' && to_ls.type == 'direct'){
+          // from floor to direct
+          //THIS IS BROKEN
+          const converted_loom = convertTieupToLiftPlan(l);
+          return Promise.resolve(converted_loom);
+  }
+   
+  return Promise.reject("Loom type conversion not found");
+
+}
+
+
 
 /*********** ESTABLISH SPECIFIC TYPES OF LOOMS and A CORE SET OF FUNCTIONS FOR EACH ************/
 

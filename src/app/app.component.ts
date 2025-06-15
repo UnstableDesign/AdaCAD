@@ -12,7 +12,7 @@ import { createCell } from './core/model/cell';
 import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, Point, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
-import { copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
+import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
 import utilInstance from './core/model/util';
 import { AuthService } from './core/provider/auth.service';
 import { DesignmodesService } from './core/provider/designmodes.service';
@@ -1040,6 +1040,10 @@ onPasteSelections(){
   this.workspace_modal.componentInstance.onAdvanceOpsChange.subscribe(event => {
     this.setAdvancedOperations();
   });
+
+  this.workspace_modal.componentInstance.onLoomTypeOverride.subscribe(event => {
+    this.overrideLoomTypes();
+  });
   // this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
   //   this.openAdaFiles(false);
   // });
@@ -1083,6 +1087,42 @@ originChange(e:any){
   this.mixer.originChange(); //force a redraw so that the weft/warp system info is up to date
   this.editor.redraw();
   this.saveFile();
+}
+
+
+//This will go through all the looms that have been assigned and convert them to the new type specified in the workspace settings. 
+overrideLoomTypes(){
+  console.log("UPDATING LOOMS TYPES")
+
+  const dns: Array<DraftNode> = this.tree.getDraftNodes()
+  .filter(el => el.loom_settings !== null && el.loom_settings !== undefined);
+  const fns: Array<any> = [];
+  const settings: Array<LoomSettings> = [];
+  dns.forEach(dn => {
+    const updated_settings = copyLoomSettings(dn.loom_settings);
+    updated_settings.type = this.ws.type;
+    settings.push(updated_settings);
+    fns.push(convertLoom(dn.draft.drawdown, dn.loom, dn.loom_settings, updated_settings))
+  });
+
+  Promise.all(fns).then(outs => {
+    console.log("OUTS", outs)
+
+    for(let i = 0; i < outs.length; i++){
+      this.tree.setLoom(dns[i].id, outs[i]);
+      this.tree.setLoomSettings(dns[i].id, settings[i]);      
+
+    }
+
+    //call this to update the editor (if, by chance, the loom is showing)
+    this.editor.loomSettingsUpdated();
+  }).catch(err => {
+    //given that we've stripped any undefined loom settings, this should nevercall, but just in case. 
+    console.error(err);
+  })
+
+
+
 }
 
 

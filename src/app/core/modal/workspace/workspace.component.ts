@@ -14,6 +14,7 @@ import { density_units, loom_types, origin_option_list } from '../../model/defau
 
 export class WorkspaceComponent {
 
+  @Output() onLoomTypeOverride = new EventEmitter <any>(); 
   @Output() onOptimizeWorkspace = new EventEmitter <any>(); 
   @Output() onAdvanceOpsChange = new EventEmitter <any>(); 
 
@@ -42,6 +43,11 @@ setAdvancedOperations(val: boolean){
 
 setDraftsViewable(val: boolean){
   this.ws.hide_mixer_drafts = val;
+}
+
+overrideLoomType(){
+  console.log('set loom type', this.ws.type)
+  this.onLoomTypeOverride.emit();
 }
 
 
