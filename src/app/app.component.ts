@@ -43,6 +43,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { ViewadjustService } from './core/provider/viewadjust.service';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
 import { ShareComponent } from './core/modal/share/share.component';
+import { WorkspaceComponent } from './core/modal/workspace/workspace.component';
 
 
 
@@ -68,6 +69,7 @@ export class AppComponent implements OnInit{
   version_modal: MatDialog |any;
   upload_modal: MatDialog |any;
   example_modal: MatDialog |any;
+  workspace_modal: MatDialog |any;
   material_modal: MatDialog |any;
   loading: boolean;
 
@@ -87,8 +89,6 @@ export class AppComponent implements OnInit{
 
   loomOptions: any;
   
-  unitOptions: any;
-
   editorModes: any;
 
   selected_editor_mode: any;
@@ -127,9 +127,6 @@ export class AppComponent implements OnInit{
 
     this.current_version = this.vers.currentVersion();
   
-    this.originOptions = origin_option_list;
-    this.loomOptions = loom_types;
-    this.unitOptions = density_units;
     this.editorModes = editor_modes;
     this.selected_editor_mode = defaults.editor;
 
@@ -1032,6 +1029,24 @@ onPasteSelections(){
 
 }
 
+
+  openWorkspaceSettings() {
+    if(this.workspace_modal != undefined && this.workspace_modal.componentInstance != null) return;
+
+  this.workspace_modal = this.dialog.open(WorkspaceComponent, {data: {}});
+  this.workspace_modal.componentInstance.onOptimizeWorkspace.subscribe(event => {
+    this.optimizeWorkspace();
+  });
+  this.workspace_modal.componentInstance.onAdvanceOpsChange.subscribe(event => {
+    this.setAdvancedOperations();
+  });
+  // this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
+  //   this.openAdaFiles(false);
+  // });
+
+
+}
+
   //need to handle this and load the file somehow
   openNewFileDialog() {
   if(this.upload_modal != undefined && this.upload_modal != null) return;
@@ -1365,12 +1380,8 @@ saveFile(){
     });
 }
 
-setDraftsViewable(val: boolean){
-  this.ws.hide_mixer_drafts = val;
-}
 
-setAdvancedOperations(val: boolean){
-  this.ws.show_advanced_operations = val;
+setAdvancedOperations(){
   this.mixer.refreshOperations();
 }
 

@@ -36,7 +36,10 @@ export const defaults = {
       zoom_ndx_editor: 12,
       zoom_ndx_viewer: 10,
       show_advanced_operations: false,
-      share_url_base: 'https://adacad.org/?share='
+      share_url_base: 'https://adacad.org/?share=',
+      force_jacquard_threshold: 10000,
+      largest_lcm_factor: 500
+
 
 }
 

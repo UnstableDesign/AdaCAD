@@ -58,6 +58,7 @@ import { ImageeditorComponent } from './modal/imageeditor/imageeditor.component'
 import { MediaService } from './provider/media.service';
 import { OperationService } from './provider/operation.service';
 import { ShareComponent } from './modal/share/share.component';
+import { WorkspaceComponent } from './modal/workspace/workspace.component';
 
 
 
@@ -114,7 +115,8 @@ import { ShareComponent } from './modal/share/share.component';
         WelcomeComponent,
         SelectionComponent,
         DraftRenderingComponent,
-        ShareComponent
+        ShareComponent,
+        WorkspaceComponent
     ],
     providers: [
         UploadService,

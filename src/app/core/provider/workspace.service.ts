@@ -31,6 +31,11 @@ export class WorkspaceService {
    */
   selected_origin_option: number = defaults.selected_origin_option;
 
+  /*
+  these thresholds help control for slowdowns
+  */
+  force_jacquard_threshold: number = defaults.force_jacquard_threshold;
+  largest_lcm_factor: number = defaults.largest_lcm_factor;
 
 
   constructor() { }
