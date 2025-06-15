@@ -1052,9 +1052,10 @@ onPasteSelections(){
   this.workspace_modal.componentInstance.onDraftVisibilityChange.subscribe(event => {
     this.overrideDraftVisibility();
   });
-  // this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
-  //   this.openAdaFiles(false);
-  // });
+
+    this.workspace_modal.componentInstance.onOperationSettingsChange.subscribe(event => {
+      this.mixer.refreshOperations();
+  });
 
 }
 

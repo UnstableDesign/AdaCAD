@@ -19,6 +19,7 @@ export class WorkspaceComponent {
   @Output() onOptimizeWorkspace = new EventEmitter <any>(); 
   @Output() onAdvanceOpsChange = new EventEmitter <any>(); 
   @Output() onDraftVisibilityChange = new EventEmitter<any>();
+  @Output() onOperationSettingsChange = new EventEmitter<any>();
 
   unitOptions: any;
   originOptions: any;
@@ -44,7 +45,6 @@ setAdvancedOperations(val: boolean){
 
 setDraftsViewable(){
   //redraw the mixer
-  console.log("Value is ", this.ws.hide_mixer_drafts)
   this.onDraftVisibilityChange.emit();
 }
 
@@ -56,6 +56,19 @@ overrideDensityUnits(){
   this.onDensityUnitOverride.emit();
 }
 
+operationSettingsChange(){
+  this.onOperationSettingsChange.emit();
+}
+
+hideDrafts(){
+  this.ws.hide_mixer_drafts = true;
+  this.setDraftsViewable();
+}
+
+setJacquardThreshold(value: number){
+  console.log("VALUE", value);
+  this.ws.force_jacquard_threshold = value;
+}
 
  
 

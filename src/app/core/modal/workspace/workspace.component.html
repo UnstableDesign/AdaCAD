@@ -69,19 +69,12 @@
 <p>This controls if if you would like to see the outcome of each operation as a draft, or just the operation information (which can be helpful to save space). Turn this to "On" if you are experiencing slowdowns.</p>
 <div>    
     <mat-slide-toggle (change)="setDraftsViewable()" [(ngModel)]="this.ws.hide_mixer_drafts">
-        {{this.ws.hide_mixer_drafts}}
-        <span *ngIf="this.ws.hide_mixer_drafts">On (Drafts Hidden)</span>
-        <span *ngIf="!this.ws.hide_mixer_drafts">Off (Drafts Shown)</span>
+        Hide Drafts 
+        <!-- <span *ngIf="this.ws.hide_mixer_drafts">On (Drafts Hidden)</span>
+        <span *ngIf="!this.ws.hide_mixer_drafts">Off (Drafts Shown)</span> -->
     </mat-slide-toggle>
 </div>
 </mat-expansion-panel>  
-
-    <!-- <button mat-menu-item [matMenuTriggerFor]="showDrafts">Show Drafts on Dataflow by Default</button>
-
-    <mat-menu #showDrafts="matMenu">
-    <button [class.active]="!this.ws.hide_mixer_drafts" mat-menu-item (click)="setDraftsViewable(false)">yes</button>
-    <button [class.active]="this.ws.hide_mixer_drafts" mat-menu-item (click)="setDraftsViewable(true)">no</button>
-    </mat-menu>     -->
 
     <!-- <button mat-menu-item [matMenuTriggerFor]="showAdvancedOps">Show Advanced Operations</button> -->
 
@@ -92,9 +85,9 @@
 
 <div>    
     <p>This controls which operations are shown in the interface.</p>
-<mat-slide-toggle [(ngModel)]="this.ws.show_advanced_operations"></mat-slide-toggle>
-                <span *ngIf="this.ws.show_advanced_operations">On (Advanced Operations Shown)</span>
-                <span *ngIf="!this.ws.show_advanced_operations">Off (Show Only Basic Operations)</span>
+<mat-slide-toggle (change)="operationSettingsChange()" [(ngModel)]="this.ws.show_advanced_operations">Show Advanced Operations </mat-slide-toggle>
+                
+           
 </div>
 </mat-expansion-panel>  
 
@@ -106,12 +99,12 @@
 <p>Use the buttons and sliders below to adjust settings that may lead to long processing times.</p>
 <div>    
 <p>Hiding all drafts can help when you have many large drafts in the dataflow</p>
-<button mat-raised-button>Hide all Drafts </button>
+<button mat-raised-button (click)="hideDrafts()">Hide all Drafts </button>
 
 <p>Any drafts with (warp ends x weft picks) larger the number specified below will be forced to be "jacquard" type, meaning they won't need AdaCAD to compute threading, tieup and treadling information which can be particularly slow on large drafts.</p>
 
-<mat-slider min="1" max="1000000" step="1000" showTickMarks discrete>
-  <input matSliderThumb>
+<mat-slider min="0" max="100000" step="100" showTickMarks discrete>
+  <input matSliderThumb (valueChange) = "setJacquardThreshold($event)">
 </mat-slider> {{this.ws.force_jacquard_threshold}}
 
 <p>Certain compound operations require that AdaCAD computes and least common multiple (LCM) calculation to ensure that all drafts repeat at even intervals. This can slow or crash the software when drafts are very large. Use the slider below to set the maximum size for which an LCM is computed. Drafts with a number of warps or wefts over this number will not be evenly repeated within a draft.</p>
