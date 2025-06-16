@@ -61,13 +61,24 @@ export class StateService {
     return cur_state;
   }
 
+
+  public getFileSize(name: string, obj: any) : number {
+    const str = JSON.stringify(obj);
+    const size = new Blob([str]).size;
+    console.log(name+" is ", size);
+    return size;
+
+  }
+
+
+
 /**
  * this is called every-time there is an action that needs saving on the stack. 
  * this includes the creation of a new file
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
 
-    // console.log("ADD MIXER HX", ada.file.draft_nodes)
+    console.log("ADD MIXER HX", ada.file.draft_nodes)
 
     var state = {
       draft: null,
@@ -85,6 +96,21 @@ export class StateService {
         indexed_image_data: ada.file.indexed_image_data.slice() 
       }
     }
+    // this.getFileSize("version", ada.file.version);
+    // this.getFileSize("workspace", ada.file.workspace);
+    // this.getFileSize("type", ada.file.type);
+    // this.getFileSize("nodes", ada.file.nodes);
+    // this.getFileSize("tree", ada.file.tree);
+    // this.getFileSize("draft nodes", ada.file.draft_nodes);
+    // this.getFileSize("ops", ada.file.ops);
+    // this.getFileSize("notes", ada.file.notes);
+    // this.getFileSize("materials", ada.file.materials);
+    // this.getFileSize("indexed_image_data", ada.file.indexed_image_data);
+
+    // console.log('DRAFT NODES # ', ada.file.draft_nodes.length);
+    // console.log('DRAFT NODES Values', ada.file.draft_nodes);
+
+
 
     if(this.files.connected){
   
@@ -100,7 +126,17 @@ export class StateService {
         }
       })
 
-      this.files.writeFileData(this.files.getCurrentFileId(), ada.file)
+
+      
+      if(this.getFileSize("file", ada.file) < 16000000){
+        this.files.writeFileData(this.files.getCurrentFileId(), ada.file);
+        return 0; 
+      }
+      else{
+        console.error("WRITE TOO LARGE");
+        return 1;
+
+      } 
     } 
   }
 

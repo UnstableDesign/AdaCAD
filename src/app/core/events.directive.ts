@@ -75,7 +75,10 @@ export class EventsDirective {
       if(e.key =="s" && e.metaKey){
         this.fs.saver.ada()
         .then(so => {
-          this.ss.addMixerHistoryState(so);
+          const err = this.ss.addMixerHistoryState(so);
+          if(err == 1){
+            //TO DO: handle error state
+          }
         });
         e.preventDefault();
       }

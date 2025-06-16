@@ -52,6 +52,11 @@ overrideLoomType(){
   this.onLoomTypeOverride.emit();
 }
 
+forceJacquard(){
+  this.ws.type == 'jacquard';
+  this.overrideLoomType();
+}
+
 overrideDensityUnits(){
   this.onDensityUnitOverride.emit();
 }

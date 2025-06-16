@@ -101,6 +101,10 @@
 <p>Hiding all drafts can help when you have many large drafts in the dataflow</p>
 <button mat-raised-button (click)="hideDrafts()">Hide all Drafts </button>
 
+<p>Changing all drafts to have a loom type of Jacquard helps speed up computation.</p>
+<button mat-raised-button (click)="forceJacquard()">Convert all Drafts to Jacquard </button>
+
+<!-- 
 <p>Any drafts with (warp ends x weft picks) larger the number specified below will be forced to be "jacquard" type, meaning they won't need AdaCAD to compute threading, tieup and treadling information which can be particularly slow on large drafts.</p>
 
 <mat-slider min="0" max="100000" step="100" showTickMarks discrete>
@@ -110,7 +114,7 @@
 <p>Certain compound operations require that AdaCAD computes and least common multiple (LCM) calculation to ensure that all drafts repeat at even intervals. This can slow or crash the software when drafts are very large. Use the slider below to set the maximum size for which an LCM is computed. Drafts with a number of warps or wefts over this number will not be evenly repeated within a draft.</p>
 <mat-slider  min="1" max="1000" step="10" showTickMarks discrete>
   <input matSliderThumb>
-</mat-slider> {{this.ws.largest_lcm_factor}}
+</mat-slider> {{this.ws.largest_lcm_factor}} -->
 
 
 

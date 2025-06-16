@@ -228,7 +228,10 @@ export class AppComponent implements OnInit{
   
      this.fs.saver.ada()
         .then(so => {
-          this.ss.addMixerHistoryState(so);
+          const err = this.ss.addMixerHistoryState(so);
+          if(err == 1){
+            //TO DO: add error handling
+          }
         });
     }
   
@@ -1459,7 +1462,11 @@ saveFile(){
   //if this user is logged in, write it to the
   this.fs.saver.ada()
     .then(so => {
-      this.ss.addMixerHistoryState(so);
+      const err = this.ss.addMixerHistoryState(so);
+      if(err == 1){
+        //TO DO - create error message
+        
+      }
     });
 }
 

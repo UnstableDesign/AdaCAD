@@ -2134,7 +2134,7 @@ isValidIOTuple(io: IOTuple) : boolean {
           draft: null,
           compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
           draft_visible:  ((<DraftNode>node).visible == undefined ) ? !this.ws.hide_mixer_drafts :  (<DraftNode>node).visible,
-          loom: (loom_export === null) ? null :loom_export,
+          loom: (loom_export === null || this.hasParent(node.id)) ? null :loom_export,
           loom_settings: node.loom_settings,
           render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors,
           scale: ((<DraftNode>node).scale == undefined ) ? 1 :  (<DraftNode>node).scale
