@@ -229,6 +229,8 @@ export class AppComponent implements OnInit{
      this.fs.saver.ada()
         .then(so => {
           const err = this.ss.addMixerHistoryState(so);
+           this.ss.writeStateToTimeline(so);
+
           if(err == 1){
             //TO DO: add error handling
           }
@@ -1493,6 +1495,8 @@ saveFile(){
   this.fs.saver.ada()
     .then(so => {
       const err = this.ss.addMixerHistoryState(so);
+      this.ss.writeStateToTimeline(so);
+
       if(err == 1){
         //TO DO - create error message
         

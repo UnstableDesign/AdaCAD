@@ -76,6 +76,7 @@ export class EventsDirective {
         this.fs.saver.ada()
         .then(so => {
           const err = this.ss.addMixerHistoryState(so);
+          this.ss.writeStateToTimeline(so);
           if(err == 1){
             //TO DO: handle error state
           }

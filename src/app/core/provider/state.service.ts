@@ -84,22 +84,7 @@ export class StateService {
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
     let err = 0;
 
-    var state = {
-      draft: null,
-      ada: {
-        version: ada.file.version,
-        workspace: ada.file.workspace,
-        zoom: ada.file.zoom,
-        type: ada.file.type,
-        nodes: ada.file.nodes.slice(),
-        tree: ada.file.tree.slice(),
-        draft_nodes: ada.file.draft_nodes.slice(),
-        ops: ada.file.ops.slice(),
-        notes: ada.file.notes.slice(),
-        materials: ada.file.materials.slice(),
-        indexed_image_data: ada.file.indexed_image_data.slice() 
-      }
-    }
+  
     // this.getFileSize("version", ada.file.version);
     // this.getFileSize("workspace", ada.file.workspace);
     // this.getFileSize("type", ada.file.type);
@@ -142,21 +127,40 @@ export class StateService {
       } 
     } 
   }
+  return err;
+}
 
+
+public writeStateToTimeline(ada:{json: string, file: SaveObj}){
+    var state = {
+      draft: null,
+      ada: {
+        version: ada.file.version,
+        workspace: ada.file.workspace,
+        zoom: ada.file.zoom,
+        type: ada.file.type,
+        nodes: ada.file.nodes.slice(),
+        tree: ada.file.tree.slice(),
+        draft_nodes: ada.file.draft_nodes.slice(),
+        ops: ada.file.ops.slice(),
+        notes: ada.file.notes.slice(),
+        materials: ada.file.materials.slice(),
+        indexed_image_data: ada.file.indexed_image_data.slice() 
+      }
+    }
   if(this.active_id > 0){
 
-    this.timeline.splice(0, this.active_id);
-    this.active_id = 0;
-    this.redo_disabled = true;
+      this.timeline.splice(0, this.active_id);
+      this.active_id = 0;
+      this.redo_disabled = true;
 
-  }
+    }
 
   //add the new element to position 0
   var len = this.timeline.unshift(state);
   if(len > this.max_size) this.timeline.pop();
   if(this.timeline.length > 1) this.undo_disabled = false;
   
-  return err;
 }
 
 
