@@ -1034,7 +1034,7 @@ export class DraftRenderingComponent implements OnInit {
 
       refreshOriginMarker(){
         const div = document.getElementById("origin-marker-"+this.source+"-"+this.id);
-        div.style.transform= "scale("+this.scale+")";
+        if(div !==  null) div.style.transform= "scale("+this.scale+")";
       }
 
       refreshWarpAndWeftSystemNumbering(){

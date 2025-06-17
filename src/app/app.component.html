@@ -45,7 +45,7 @@
 
         <mat-menu #file="matMenu">
           <button mat-menu-item (click)="loadBlankFile()">New Workspace</button>
-          <button mat-menu-item [disabled]="!files.connected || !auth.isLoggedIn" (click)="openAdaFiles(false)">Manage Saved Files</button>
+          <button mat-menu-item [disabled]="!files.connected || !auth.isLoggedIn" (click)="openAdaFiles('load')">Manage Saved Files</button>
           <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button >
             <!-- <button mat-menu-item (click)="redo()" >Import Bitmaps</button> -->
             <button mat-menu-item [matMenuTriggerFor]="downloadMenu">Export</button>
@@ -64,7 +64,7 @@
 
         <mat-menu #openFile="matMenu">
           <button mat-menu-item (click)="openNewFileDialog()">From Computer</button>
-          <button mat-menu-item [disabled]="!files.connected || !auth.isLoggedIn" (click)="openAdaFiles(true)">From AdaCAD Cloud
+          <button mat-menu-item [disabled]="!files.connected || !auth.isLoggedIn" (click)="openAdaFiles('load')">From AdaCAD Cloud
             <span *ngIf="!auth.isLoggedIn">you must login to use this feature </span>
           </button>
         </mat-menu>

@@ -53,7 +53,7 @@ overrideLoomType(){
 }
 
 forceJacquard(){
-  this.ws.type == 'jacquard';
+  this.ws.type =  'jacquard';
   this.overrideLoomType();
 }
 

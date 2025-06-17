@@ -2,12 +2,22 @@
 cdkDrag
  cdkDragRootElement=".cdk-overlay-pane" 
  cdkDragHandle>
- <span *ngIf="data.selectOnly" >Load Workspaces From AdaCAD</span>
- <span *ngIf="!data.selectOnly">Manage Workspaces</span>
-
-
-
+ <span *ngIf="data.type=='load'" >Load Workspaces From AdaCAD</span>
+ <span *ngIf="data.type=='manage'">Manage Workspaces</span>
 </p>
+
+
+
+
+ <div class="welcome" *ngIf="data.type=='welcome'">
+  <h1>Welcome back</h1>
+  <h2>Where would you like to start?</h2>
+  <div class="welcome-options">
+  <button mat-raised-button mat-dialog-close (click)="openMostRecent()">Open your most recent file</button>
+  <button mat-raised-button mat-dialog-close>Start a blank file</button>
+  <h2>Or, select a file below</h2>
+  </div>
+ </div>
 
 <mat-dialog-content class="filebrowser">
 

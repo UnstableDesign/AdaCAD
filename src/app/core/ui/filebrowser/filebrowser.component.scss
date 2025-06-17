@@ -1,3 +1,17 @@
+.welcome{
+    padding: 24px 24px 0px 24px;
+}
+
+.welcome-options{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+h1{
+    font-size: 2em;
+}
+
 h2{
     color: rgba(0,0,0,.54);
     padding-bottom: 12px;

@@ -70,6 +70,11 @@ export class StateService {
 
   }
 
+  public hasTimeline(){
+    if(this.timeline.length > 0) return true;
+    return false;
+  }
+
 
 
 /**
@@ -77,8 +82,7 @@ export class StateService {
  * this includes the creation of a new file
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
-
-    console.log("ADD MIXER HX", ada.file.draft_nodes)
+    let err = 0;
 
     var state = {
       draft: null,
@@ -130,11 +134,10 @@ export class StateService {
       
       if(this.getFileSize("file", ada.file) < 16000000){
         this.files.writeFileData(this.files.getCurrentFileId(), ada.file);
-        return 0; 
       }
       else{
         console.error("WRITE TOO LARGE");
-        return 1;
+        err = 1;
 
       } 
     } 
@@ -152,9 +155,8 @@ export class StateService {
   var len = this.timeline.unshift(state);
   if(len > this.max_size) this.timeline.pop();
   if(this.timeline.length > 1) this.undo_disabled = false;
-
   
-
+  return err;
 }
 
 

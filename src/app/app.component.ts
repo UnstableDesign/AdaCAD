@@ -126,6 +126,7 @@ export class AppComponent implements OnInit{
 
 
     this.current_version = this.vers.currentVersion();
+    console.log("STARTING STATE has timeline", this.ss.hasTimeline())
   
     this.editorModes = editor_modes;
     this.selected_editor_mode = defaults.editor;
@@ -139,7 +140,7 @@ export class AppComponent implements OnInit{
           })
     
        }
-
+ 
        this.scrollingSubscription = this.scroll
        .scrolled()
        .subscribe((data: any) => {
@@ -183,7 +184,6 @@ export class AppComponent implements OnInit{
 
 
   ngAfterViewInit() {
-
     this.recenterViews();
   }
 
@@ -452,37 +452,9 @@ export class AppComponent implements OnInit{
     }
   
 
-
-  /**
-   * this is called anytime a user event is fired, 
-   * TODO, if the person was LOGGED IN and now LOGGED OUT
-   * @param user 
-   */
-  initLoginLogoutSequence(user:User) {
-    console.log("IN LOGIN/LOGOUT ")
-    /** TODO: check also if the person is online */
-
-
-
-    let searchParams = new URLSearchParams(window.location.search);
-    if(searchParams.has('ex')){
-      this.loadExampleAtURL(searchParams.get('ex'));  
-      return;
-    }
-
-    if(searchParams.has('share')){
-      this.loadFromShare(searchParams.get('share'));  
-      return;
-    }
-
-    if(user === null){
-      console.log("USER IS NULL")
-      this.loadStarterFile();
-    }else{
-
-      if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
-
-        this.auth.getMostRecentFileIdFromUser(user).then(async fileid => {
+  loadMostRecent(){
+    const user = this.auth.uid;
+    this.auth.getMostRecentFileIdFromUser(user).then(async fileid => {
 
           if(fileid !== null){
 
@@ -509,7 +481,7 @@ export class AppComponent implements OnInit{
           }else{
              this.auth.getMostRecentAdaFromUser(user).then(async adafile => {
                 if(adafile !== null){
-                    let fileid = await this.files.convertAdaToFile(user.uid, adafile); 
+                    let fileid = await this.files.convertAdaToFile(user, adafile); 
                     console.log("convert ada to file id ", fileid)
             
                     let ada = await this.files.getFile(fileid);
@@ -533,22 +505,75 @@ export class AppComponent implements OnInit{
              });
           }
         }) 
+  }  
 
-      }else{
-        
-        //this.loadBlankFile();
+  /**
+   * this is called anytime a user event is fired, 
+   * TODO, if the person was LOGGED IN and now LOGGED OUT
+   * @param user 
+   */
+  initLoginLogoutSequence(user:User) {
+    console.log("IN LOGIN/LOGOUT ", user)
+    /** TODO: check also if the person is online */
+
+
+    //check history first 
+    console.log("STARTING STATE has timeline", this.ss.hasTimeline())
+
+    if(this.ss.hasTimeline()){
+
+      //IS LOGGED IN - save current state to DB. 
+      if(user !== null){
         this.saveFile();
-        this.files.writeNewFileMetaData(
-          user.uid, 
-          this.files.getCurrentFileId(), 
-          this.files.getCurrentFileName(), 
-          this.files.getCurrentFileDesc(),
-          this.files.getCurrentFileFromShare())
+      }
+
+
+    }else{
+
+        let searchParams = new URLSearchParams(window.location.search);
+        if(searchParams.has('ex')){
+          this.loadExampleAtURL(searchParams.get('ex'));  
+          return;
+        }
+
+        if(searchParams.has('share')){
+          this.loadFromShare(searchParams.get('share'));  
+          return;
+        }
+
+        if(user === null){
+           this.loadStarterFile();
+        }else{
+           this.loadBlankFile();
+           this.openAdaFiles("welcome"); 
+        }
+
+
+    }
+
+    // if(user === null){
+    //   //Called on logout - can you tell a logout
+    //   if(this.auth.isFirstSession) this.loadStarterFile();
+    //   //do nothing
+    // }else{
+    //   this.loadBlankFile();
+
+      // if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
+      //   this.openAdaFiles("welcome"); 
+      // }else{
+      //   console.log("ON LOGOUT?")
+      //   this.saveFile();
+      //   this.files.writeNewFileMetaData(
+      //     user.uid, 
+      //     this.files.getCurrentFileId(), 
+      //     this.files.getCurrentFileName(), 
+      //     this.files.getCurrentFileDesc(),
+      //     this.files.getCurrentFileFromShare())
 
     
-      }
+      // }
       
-    }
+    //}
   }
 
   insertPasteFile(result: LoadResponse){
@@ -720,18 +745,20 @@ export class AppComponent implements OnInit{
 
     this.prepAndLoadFile(meta.name, 'db',fileid, meta.desc, ada, meta.from_share)
     .then(res => {
-        this.saveFile();
+        //this.saveFile();
     });
   
     
   }
 
+  /**
+   * clear the screen and start a new workspace
+   */
   loadBlankFile(){
     this.clearAll();
     this.files.setCurrentFile(this.files.generateFileId(), 'new file', '', '')
     .then(res => {
       this.filename_form.setValue(this.files.getCurrentFileName())
-      this.saveFile();
     });
   }
 
@@ -770,7 +797,6 @@ export class AppComponent implements OnInit{
     });
 
     this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
-      console.log(res);
       if(res.status == 404) return;
       this.clearAll();
       return this.fs.loader.ada(name, 'upload',-1, '', res.body, '')
@@ -972,13 +998,13 @@ onPasteSelections(){
    * @param selectOnly 
    * @returns 
    */
-  openAdaFiles(selectOnly:boolean) {
+  openAdaFiles(type: string) {
       if(this.filebrowser_modal != undefined && this.filebrowser_modal.componentInstance != null) return;
 
     this.filebrowser_modal = this.dialog.open(FilebrowserComponent, {
       width: '600px',
       data: {
-      selectOnly: selectOnly
+      type: type
      }});
 
     this.filebrowser_modal.componentInstance.onLoadFromDB.subscribe(event => {
@@ -990,9 +1016,13 @@ onPasteSelections(){
     });
 
     this.filebrowser_modal.componentInstance.onDuplicateFile.subscribe(event => {
-
       this.duplicateFileInDB(event);
     });
+
+    this.filebrowser_modal.componentInstance.onLoadMostRecent.subscribe(event => {
+      this.loadMostRecent();
+    });
+
 
 
 
@@ -1026,7 +1056,7 @@ onPasteSelections(){
     this.loadFromShare(event);
   });
   this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
-    this.openAdaFiles(false);
+    this.openAdaFiles('load');
   });
 
 

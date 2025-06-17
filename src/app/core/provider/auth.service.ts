@@ -109,9 +109,9 @@ export class AuthService {
    * checks to see if this user has an id already saved for their last used file
    * @param user 
    */
-  getMostRecentFileIdFromUser(user: any): Promise<number>{
+  getMostRecentFileIdFromUser(uid: any): Promise<number>{
     
-    return this.getAccount(user.uid).then(data => {
+    return this.getAccount(uid).then(data => {
       if(data.last_opened === undefined) return Promise.resolve(null);
       else return Promise.resolve(data.last_opened)
   
