@@ -78,7 +78,7 @@ export class FilesystemService {
           this.isShared(data.key).then(res => {
             this.file_tree[ndx].shared = res;
             this.shared_file_change$.next(this.file_tree.slice());
-          })
+          }).catch(err => console.error("caught"))
  
         }
 
@@ -377,14 +377,13 @@ createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
  * @param file_id 
  */
 isShared(file_id:string) : Promise<ShareObj> {
-
   // if(!this.connected) return Promise.reject("no internet connection");
 
   const db = getDatabase();
 
-  return fbget(fbref(db, `shared/${file_id}`))
+  const ref = fbref(db,'shared/' + file_id);
+  return fbget(ref)
   .then((filedata) => {
-
       if(filedata.exists()){
 
         const share_obj:ShareObj = {
@@ -401,7 +400,7 @@ isShared(file_id:string) : Promise<ShareObj> {
         return Promise.resolve(share_obj);
         
       }else{
-       return Promise.resolve(null)
+       return Promise.reject('No shared file with id: '+file_id)
       }
 
     })
