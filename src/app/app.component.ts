@@ -1,6 +1,6 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { HttpClient } from '@angular/common/http';
-import { Component, NgZone, OnInit, Optional, ViewChild } from '@angular/core';
+import { Component, NgZone, OnInit, Optional, ViewChild, inject } from '@angular/core';
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { Auth, User, authState } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,9 +10,9 @@ import { LoginComponent } from './core/modal/login/login.component';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { createCell } from './core/model/cell';
 import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, Point, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
-import { defaults, density_units, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
+import { defaults, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
-import { copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
+import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
 import utilInstance from './core/model/util';
 import { AuthService } from './core/provider/auth.service';
 import { DesignmodesService } from './core/provider/designmodes.service';
@@ -43,6 +43,9 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { ViewadjustService } from './core/provider/viewadjust.service';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
 import { ShareComponent } from './core/modal/share/share.component';
+import { WorkspaceComponent } from './core/modal/workspace/workspace.component';
+import { catchError, throwError } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 
@@ -68,6 +71,7 @@ export class AppComponent implements OnInit{
   version_modal: MatDialog |any;
   upload_modal: MatDialog |any;
   example_modal: MatDialog |any;
+  workspace_modal: MatDialog |any;
   material_modal: MatDialog |any;
   loading: boolean;
 
@@ -87,8 +91,6 @@ export class AppComponent implements OnInit{
 
   loomOptions: any;
   
-  unitOptions: any;
-
   editorModes: any;
 
   selected_editor_mode: any;
@@ -96,6 +98,9 @@ export class AppComponent implements OnInit{
   current_version: string; 
 
   filename_form: UntypedFormControl;
+
+  private snackBar = inject(MatSnackBar);
+
 
   constructor(
     public auth: AuthService,
@@ -127,9 +132,6 @@ export class AppComponent implements OnInit{
 
     this.current_version = this.vers.currentVersion();
   
-    this.originOptions = origin_option_list;
-    this.loomOptions = loom_types;
-    this.unitOptions = density_units;
     this.editorModes = editor_modes;
     this.selected_editor_mode = defaults.editor;
 
@@ -142,7 +144,7 @@ export class AppComponent implements OnInit{
           })
     
        }
-
+ 
        this.scrollingSubscription = this.scroll
        .scrolled()
        .subscribe((data: any) => {
@@ -186,7 +188,6 @@ export class AppComponent implements OnInit{
 
 
   ngAfterViewInit() {
-
     this.recenterViews();
   }
 
@@ -224,14 +225,13 @@ export class AppComponent implements OnInit{
   }
 
    /**
-   * adds a state to the timeline. This should be called 
-   * each time a user performs an action that they should be able to undo/redo
+   * adds a state to the timeline but DOES NOT SAVE TO DB. This is to be called on load, where we don't want to have a saving change, but we do want to record the initial state of the workspace. 
    */
-    addTimelineState(){
+    addTimelineStateOnly(){
   
      this.fs.saver.ada()
         .then(so => {
-          this.ss.addMixerHistoryState(so);
+           this.ss.writeStateToTimeline(so);
         });
     }
   
@@ -280,7 +280,10 @@ export class AppComponent implements OnInit{
             frames: defaults.loom_settings.frames,
             treadles:defaults.loom_settings.treadles
           }
-          this.generateBlankDraftAndPlaceInMixer(obj, 'toggle');
+          this.generateBlankDraftAndPlaceInMixer(obj, 'toggle')
+          .then(res => {
+            this.saveFile();
+          })
 
         }else{
           this.editor.loadDraft(this.vs.getViewer());
@@ -325,6 +328,8 @@ export class AppComponent implements OnInit{
    */
   generateBlankDraftAndPlaceInMixer(obj: any, origin: 'toggle' | 'editor' | 'starter' ) : Promise<number>{
 
+    console.log("MAKING BLANK DRAFT")
+
     //if it has a parent and it does not yet have a view ref. 
    //this.tree.setSubdraftParent(id, -1)
     const draft = initDraftWithParams({warps: obj.warps, wefts: obj.wefts});
@@ -343,7 +348,7 @@ export class AppComponent implements OnInit{
       .then(loom => {
         return this.createNewDraftOnMixer(draft, loom, loom_settings)})
       .then(draftid => {
-
+        console.log("FROM ORIGIN ", origin)
         switch(origin){
           case 'toggle':
             this.editor.loadDraft(draftid);
@@ -354,23 +359,17 @@ export class AppComponent implements OnInit{
             this.vs.setViewer(draftid);
             this.editor.loadDraft(draftid);
             this.editor.onFocus();
-            this.saveFile();
             break;
 
           case 'editor':
             this.vs.setViewer(draftid);
             this.editor.loadDraft(draftid);
             this.editor.onFocus();
-            this.saveFile();
             break;
         }
 
-          return Promise.resolve(draftid);
+        return Promise.resolve(draftid);
         })
-       
-
-
-
     }
 
   updateViewAdjustBar(){
@@ -452,6 +451,69 @@ export class AppComponent implements OnInit{
     }
   
 
+  loadMostRecent():Promise<any>{
+    const user = this.auth.uid;
+
+
+    return this.auth.getMostRecentFileIdFromUser(user)
+    .then(fileid => {
+
+      if(fileid !== null){
+
+        let fns = [this.files.getFile(fileid), this.files.getFileMeta(fileid)];
+        return Promise.all(fns)
+        .then(res => {
+          const ada = res[0];
+          const meta = res[1];
+
+          if(ada === undefined){
+            return Promise.reject("no ada file found at specified file id")
+          }else if(meta === undefined){
+            this.files.setCurrentFileInfo(fileid, 'file name not found', '', '');
+            return this.prepAndLoadFile('file name not found', 'db', fileid, '', ada, '');    
+          }else{
+            this.files.setCurrentFileInfo(fileid, meta.name, meta.desc, meta.from_share);
+            return this.prepAndLoadFile(meta.name,'db', fileid, meta.desc, ada,  meta.from_share);
+          }
+        })
+        .catch(err => {
+          return Promise.reject("error on getFile "+err)
+
+        })
+      }else{
+          //handle a legacy case where "ada" was stored instead of fileid.
+          this.auth.getMostRecentAdaFromUser(user)
+          .then( adafile => {
+              if(adafile == null){
+                return Promise.reject("No recent file located")
+              }
+
+              const fns = [
+                this.files.convertAdaToFile(user, adafile),
+                this.files.getFile(fileid), 
+                this.files.getFileMeta(fileid)
+               ]
+              
+              return Promise.all(fns)
+              .then(res => {
+                const fileid = res[0];
+                const ada = res[1];
+                const meta = res[2];
+
+                if(ada === undefined){
+                  return Promise.reject("No Ada File Found")
+                }else if(meta === undefined){
+                  this.files.setCurrentFileInfo(fileid, 'file name not found', '', '');
+                  return this.prepAndLoadFile('file name not found','db', fileid, '', ada, '');
+                }else{
+                  this.files.setCurrentFileInfo(fileid, meta.name, meta.desc, meta.from_share);
+                  return this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada, meta.from_share);
+                }
+              })
+          });
+      }
+    }) 
+  }  
 
   /**
    * this is called anytime a user event is fired, 
@@ -459,96 +521,83 @@ export class AppComponent implements OnInit{
    * @param user 
    */
   initLoginLogoutSequence(user:User) {
-    console.log("IN LOGIN/LOGOUT ")
+    console.log("IN LOGIN/LOGOUT ", user)
     /** TODO: check also if the person is online */
 
 
+    //check history first 
+    console.log("STARTING STATE has timeline", this.ss.hasTimeline())
 
-    let searchParams = new URLSearchParams(window.location.search);
-    if(searchParams.has('ex')){
-      this.loadExampleAtURL(searchParams.get('ex'));  
-      return;
-    }
+    if(this.ss.hasTimeline()){
 
-    if(searchParams.has('share')){
-      this.loadFromShare(searchParams.get('share'));  
-      return;
-    }
+      //IS LOGGED IN - save current state to DB. 
+      if(user !== null){
+        this.saveFile();
+      }
 
-    if(user === null){
-      console.log("USER IS NULL")
-      this.loadStarterFile();
+
     }else{
 
-      if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
-
-        this.auth.getMostRecentFileIdFromUser(user).then(async fileid => {
-
-          if(fileid !== null){
-
-            const ada = await this.files.getFile(fileid).catch(e => {
-              console.error("error on get file ", e)
-            });
-
-
-            const meta = await this.files.getFileMeta(fileid).catch(console.error);           
-
-            if(ada === undefined){
-                this.loadBlankFile();
-
-              }else if(meta === undefined){
-                this.files.setCurrentFileInfo(fileid, 'file name not found', '', '');
-                this.prepAndLoadFile('file name not found', 'db', fileid, '', ada, '');
+        let searchParams = new URLSearchParams(window.location.search);
+        if(searchParams.has('ex')){
+            this.loadExampleAtURL(searchParams.get('ex'))
+            history.pushState({page: 1}, "AdaCAD.org ", "")
+          
+        }else if(searchParams.has('share')){
+          this.loadFromShare(searchParams.get('share'))
+          .then(res => {
+            this.openSnackBar('Loading Shared File #'+searchParams.get('share'))
+            this.addTimelineStateOnly();
+          })
+          .catch(err => {
+            this.openSnackBar('ERROR: we cannot find a shared file with id: '+searchParams.get('share'))
+            this.loadBlankFile().then(el => this.addTimelineStateOnly())
+          }) 
+          history.pushState({page: 1}, "AdaCAD.org ", "")
+        }else if(user === null){
+           this.loadStarterFile()
+           .then(res => {
+              this.addTimelineStateOnly();
+           })
+           .catch(err => {
+              this.loadBlankFile().then(res => { this.addTimelineStateOnly();})
+              console.error(err)
               
-              }else{
+           })
+        }else{
+           this.loadBlankFile()
+           .then(res => {
+              this.addTimelineStateOnly();
+              this.openAdaFiles("welcome"); 
+           })
+        }
 
-                this.files.setCurrentFileInfo(fileid, meta.name, meta.desc, meta.from_share);
-                this.prepAndLoadFile(meta.name,'db', fileid, meta.desc, ada,  meta.from_share);
-              }
 
-          }else{
-             this.auth.getMostRecentAdaFromUser(user).then(async adafile => {
-                if(adafile !== null){
-                    let fileid = await this.files.convertAdaToFile(user.uid, adafile); 
-                    console.log("convert ada to file id ", fileid)
-            
-                    let ada = await this.files.getFile(fileid);
-                    let meta = await this.files.getFileMeta(fileid);           
-                    
-                    if(ada === undefined){
-                      this.loadBlankFile();
-                    }else if(meta === undefined){
-                      this.files.setCurrentFileInfo(fileid, 'file name not found', '', '');
-                      this.prepAndLoadFile('file name not found','db', fileid, '', ada, '');
-      
-                    }else{
-                      this.files.setCurrentFileInfo(fileid, meta.name, meta.desc, meta.from_share);
-                      this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada, meta.from_share);
-                    }
+    }
 
-                }else{
-                  this.loadBlankFile();
-                  return;
-                }
-             });
-          }
-        }) 
+    // if(user === null){
+    //   //Called on logout - can you tell a logout
+    //   if(this.auth.isFirstSession) this.loadStarterFile();
+    //   //do nothing
+    // }else{
+    //   this.loadBlankFile();
 
-      }else{
-        
-        //this.loadBlankFile();
-        this.saveFile();
-        this.files.writeNewFileMetaData(
-          user.uid, 
-          this.files.getCurrentFileId(), 
-          this.files.getCurrentFileName(), 
-          this.files.getCurrentFileDesc(),
-          this.files.getCurrentFileFromShare())
+      // if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
+      //   this.openAdaFiles("welcome"); 
+      // }else{
+      //   console.log("ON LOGOUT?")
+      //   this.saveFile();
+      //   this.files.writeNewFileMetaData(
+      //     user.uid, 
+      //     this.files.getCurrentFileId(), 
+      //     this.files.getCurrentFileName(), 
+      //     this.files.getCurrentFileDesc(),
+      //     this.files.getCurrentFileFromShare())
 
     
-      }
+      // }
       
-    }
+    //}
   }
 
   insertPasteFile(result: LoadResponse){
@@ -655,15 +704,14 @@ export class AppComponent implements OnInit{
      * so if it is shared again, that information is retained. 
      * @param shareid 
      */
-    async loadFromShare(shareid: string){
+    loadFromShare(shareid: string) : Promise<any>{
       let share_id = -1;
       console.log("LOAD FROM SHARE ", shareid, this.auth.isLoggedIn)
 
-   
-
+  
       //GET THE SHARED FILE
-      this.files.isShared(shareid).then(share_obj => {
-
+      return this.files.isShared(shareid)
+      .then(share_obj => {
         if(share_obj == null){
           return Promise.reject("NO SHARED FILE EXISTS")
         }
@@ -674,10 +722,12 @@ export class AppComponent implements OnInit{
 
       }).then(file_objs=>{
 
-       if(this.auth.isLoggedIn) this.loadFromShareWhileLoggedIn(file_objs);
-       else this.loadFromShareWhileLoggedOut(file_objs);
+       if(this.auth.isLoggedIn) return this.loadFromShareWhileLoggedIn(file_objs);
+       else return this.loadFromShareWhileLoggedOut(file_objs);
 
-       
+      }).catch(err =>{
+        console.error(err);
+        return Promise.reject(err);
       })
     }
 
@@ -686,9 +736,9 @@ export class AppComponent implements OnInit{
      * local directory
      * @param file_objs 
      */
-    loadFromShareWhileLoggedIn(file_objs:any){
+    loadFromShareWhileLoggedIn(file_objs:any):Promise<any>{
 
-      this.files.duplicate(this.auth.uid, file_objs[1].filename, file_objs[1].desc, file_objs[0], file_objs[2])
+      return this.files.duplicate(this.auth.uid, file_objs[1].filename, file_objs[1].desc, file_objs[0], file_objs[2])
         .then(fileid => {
           return Promise.all([this.files.getFile(fileid), this.files.getFileMeta(fileid), fileid]);
         }).then(file_data => {
@@ -704,9 +754,9 @@ export class AppComponent implements OnInit{
      * a new id in the case they eventually login. 
      * @param share_id 
      */
-    loadFromShareWhileLoggedOut(file_objs: any){
+    loadFromShareWhileLoggedOut(file_objs: any) : Promise<any>{
       
-      this.prepAndLoadFile(file_objs[1].filename, 'db', utilInstance.generateId(8), file_objs[1].desc, file_objs[0], file_objs[2]);
+      return this.prepAndLoadFile(file_objs[1].filename, 'db', utilInstance.generateId(8), file_objs[1].desc, file_objs[0], file_objs[2]);
    
 
     }
@@ -714,24 +764,31 @@ export class AppComponent implements OnInit{
   
 
   //must be online
-  async loadFromDB(fileid: number){
-    const ada = await this.files.getFile(fileid);
-    const meta = await this.files.getFileMeta(fileid); 
-
-    this.prepAndLoadFile(meta.name, 'db',fileid, meta.desc, ada, meta.from_share)
+  loadFromDB(fileid: number) : Promise<any>{
+    let fns = [this.files.getFile(fileid), this.files.getFileMeta(fileid)];
+    return Promise.all(fns)
     .then(res => {
-        this.saveFile();
-    });
+      const ada = res[0];
+      const meta = res[1];
+      return this.prepAndLoadFile(meta.name, 'db',fileid, meta.desc, ada, meta.from_share)
+    })
+    .catch(err => {
+      return Promise.reject(err);
+    })
+
+
   
-    
   }
 
-  loadBlankFile(){
+  /**
+   * clear the screen and start a new workspace
+   */
+  loadBlankFile():Promise<any>{
     this.clearAll();
-    this.files.setCurrentFile(this.files.generateFileId(), 'new file', '', '')
+    return this.files.setCurrentFile(this.files.generateFileId(), 'new file', '', '')
     .then(res => {
-      this.filename_form.setValue(this.files.getCurrentFileName())
-      this.saveFile();
+       this.filename_form.setValue(this.files.getCurrentFileName())
+       return Promise.resolve(true);
     });
   }
 
@@ -740,9 +797,11 @@ export class AppComponent implements OnInit{
   /**
    * loading the starter file will not clear the prior workspace as it assumes that the space is empty on first load
    */
-  loadStarterFile(){
+  loadStarterFile(): Promise<any>{
 
-    this.files.setCurrentFile(this.files.generateFileId(), 'welcome', '', '').then(res => {
+    return this.files.setCurrentFile(this.files.generateFileId(), 'welcome', '', '')
+    .then(res => {
+
       let obj = {
         warps: defaults.warps,
         wefts: defaults.wefts,
@@ -755,29 +814,62 @@ export class AppComponent implements OnInit{
 
       this.filename_form.setValue(this.files.getCurrentFileName())
 
-      this.generateBlankDraftAndPlaceInMixer(obj, 'starter');
+      return this.generateBlankDraftAndPlaceInMixer(obj, 'starter');
     });
 
     
     
   }
 
+  handleError(){
+    console.log("ERROR!")
+  }
 
+
+  //Unlike other functions that can return a promise that is rejected with the parent funciton handling the error, the http.get makes it hard to return upon completion, instead, we just handle the failure case internally
   loadExampleAtURL(name: string){
     const analytics = getAnalytics();
     logEvent(analytics, 'onurl', {
       items: [{ uid: this.auth.uid, name: name }]
     });
 
-    this.http.get('assets/examples/'+name+".ada", {observe: 'response'}).subscribe((res) => {
-      console.log(res);
-      if(res.status == 404) return;
-      this.clearAll();
-      return this.fs.loader.ada(name, 'upload',-1, '', res.body, '')
-     .then(loadresponse => {
-       this.loadNewFile(loadresponse, 'loadURL')
-     });
-    }); 
+    this.http.get('assets/examples/'+name+".ada", {observe: 'response'})
+    .pipe(
+      catchError(error => {
+        console.error('Error occurred:', error);
+        //return throwError(() => new Error('Custom error: ' + error.message));
+        return Promise.reject("file not found")
+
+      })
+    )
+    .subscribe({
+      next: data => {
+        console.log('Data received:', data);
+        this.openSnackBar('opening example '+name)
+        this.clearAll();
+        return this.fs.loader.ada(name, 'upload',-1, '', data.body, '')
+        .then(loadresponse => {
+          return this.loadNewFile(loadresponse, 'loadURL')
+        })
+        .then(res => {
+          this.addTimelineStateOnly();
+        })
+      },
+      error: err => {
+        this.openSnackBar('ERROR: no example found with name: '+name)
+        this.loadBlankFile().then(el => this.addTimelineStateOnly());
+      }
+    });
+
+
+  }
+
+  openSnackBar(message: string){
+        let snackBarRef = this.snackBar.open(message,'close', {
+          duration: 5000
+        });
+     
+
   }
 
 
@@ -787,8 +879,6 @@ export class AppComponent implements OnInit{
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string) : Promise<any>{
-
-    console.log("LOAD NEW FILE ", result)
 
    return this.files.setCurrentFile(result.id, result.name, result.desc, result.from_share)
    .then(res => {
@@ -972,27 +1062,49 @@ onPasteSelections(){
    * @param selectOnly 
    * @returns 
    */
-  openAdaFiles(selectOnly:boolean) {
+  openAdaFiles(type: string) {
       if(this.filebrowser_modal != undefined && this.filebrowser_modal.componentInstance != null) return;
 
     this.filebrowser_modal = this.dialog.open(FilebrowserComponent, {
       width: '600px',
       data: {
-      selectOnly: selectOnly
+      type: type
      }});
 
     this.filebrowser_modal.componentInstance.onLoadFromDB.subscribe(event => {
-      this.loadFromDB(event);
+      this.openSnackBar('loading file from database')
+      this.loadFromDB(event)
+      .then(res => {
+        this.addTimelineStateOnly();
+      })
+      .catch(err => {
+        console.error(err);
+        this.openSnackBar('ERROR: we could not find this file in the database')
+        this.loadBlankFile().then(res => {this.addTimelineStateOnly()})
+      });
     });
 
     this.filebrowser_modal.componentInstance.onCreateFile.subscribe(event => {
-      this.loadBlankFile();
+        this.loadBlankFile().then(res => {this.addTimelineStateOnly()})
     });
 
     this.filebrowser_modal.componentInstance.onDuplicateFile.subscribe(event => {
-
       this.duplicateFileInDB(event);
     });
+
+    this.filebrowser_modal.componentInstance.onLoadMostRecent.subscribe(event => {
+       this.openSnackBar('Loading Most Recent File')
+      this.loadMostRecent()
+      .then(res => {
+          this.addTimelineStateOnly();
+      })
+      .catch(err => {
+         this.openSnackBar('The most recent file could not be found:'+err)
+        console.error(err);
+        this.loadBlankFile().then(res => {this.addTimelineStateOnly()})
+      })
+    });
+
 
 
 
@@ -1009,7 +1121,7 @@ onPasteSelections(){
       this.viewer.redraw(this.vs.getViewer());
       if(this.selected_editor_mode == 'mixer') this.mixer.redrawAllSubdrafts();
       else this.editor.redraw();
-      this.addTimelineState();
+      this.saveFile();
 
     });
   }
@@ -1020,15 +1132,46 @@ onPasteSelections(){
 
   this.example_modal = this.dialog.open(ExamplesComponent, {data: {}});
   this.example_modal.componentInstance.onLoadExample.subscribe(event => {
-    this.loadExampleAtURL(event);
+    this.loadExampleAtURL(event)    
   });
+  
   this.example_modal.componentInstance.onLoadSharedFile.subscribe(event => {
     this.loadFromShare(event);
   });
   this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
-    this.openAdaFiles(false);
+    this.openAdaFiles('load');
   });
 
+
+}
+
+
+  openWorkspaceSettings() {
+    if(this.workspace_modal != undefined && this.workspace_modal.componentInstance != null) return;
+
+  this.workspace_modal = this.dialog.open(WorkspaceComponent, {data: {}});
+  this.workspace_modal.componentInstance.onOptimizeWorkspace.subscribe(event => {
+    this.optimizeWorkspace();
+  });
+  this.workspace_modal.componentInstance.onAdvanceOpsChange.subscribe(event => {
+    this.setAdvancedOperations();
+  });
+
+  this.workspace_modal.componentInstance.onLoomTypeOverride.subscribe(event => {
+    this.overrideLoomTypes();
+  });
+
+  this.workspace_modal.componentInstance.onDensityUnitOverride.subscribe(event => {
+    this.overrideDensityUnits();
+  });
+
+  this.workspace_modal.componentInstance.onDraftVisibilityChange.subscribe(event => {
+    this.overrideDraftVisibility();
+  });
+
+    this.workspace_modal.componentInstance.onOperationSettingsChange.subscribe(event => {
+      this.mixer.refreshOperations();
+  });
 
 }
 
@@ -1070,6 +1213,77 @@ originChange(e:any){
   this.saveFile();
 }
 
+
+//This will go through all the looms that have been assigned and convert them to the new type specified in the workspace settings. 
+overrideLoomTypes(){
+
+  const dns: Array<DraftNode> = this.tree.getDraftNodes()
+  .filter(el => el.loom_settings !== null && el.loom_settings !== undefined);
+  const fns: Array<any> = [];
+  const settings: Array<LoomSettings> = [];
+  dns.forEach(dn => {
+    const updated_settings = copyLoomSettings(dn.loom_settings);
+    updated_settings.type = this.ws.type;
+    settings.push(updated_settings);
+    fns.push(convertLoom(dn.draft.drawdown, dn.loom, dn.loom_settings, updated_settings))
+  });
+
+  Promise.all(fns).then(outs => {
+
+    for(let i = 0; i < outs.length; i++){
+      this.tree.setLoom(dns[i].id, outs[i]);
+      this.tree.setLoomSettings(dns[i].id, settings[i]);      
+
+    }
+
+    //call this to update the editor (if, by chance, the loom is showing)
+    this.editor.loomSettingsUpdated();
+  }).catch(err => {
+    //given that we've stripped any undefined loom settings, this should nevercall, but just in case. 
+    console.error(err);
+  })
+
+
+
+}
+
+
+//This will go through all the looms that have been assigned and convert them to the new type specified in the workspace settings. 
+overrideDensityUnits(){
+
+  const dns: Array<DraftNode> = this.tree.getDraftNodes()
+  .filter(el => el.loom_settings !== null && el.loom_settings !== undefined);
+  dns.forEach(dn => {
+    dn.loom_settings.units = this.ws.units;
+  });
+
+  //call this to update the editor (if, by chance, the loom is showing)
+  this.editor.loomSettingsUpdated();
+
+
+}
+
+
+overrideDraftVisibility(){
+
+  const dns: Array<DraftNode> = this.tree.getDraftNodes()
+  .filter(dn => this.tree.hasParent(dn.id) === true)
+  dns.forEach(dn => {
+    dn.visible = !this.ws.hide_mixer_drafts;
+  });
+
+  const ops: Array<OperationComponent> = this.tree.getOperations()
+  ops.forEach(op => {
+    op.draftContainers.forEach(container => {
+      container.draft_visible = !this.ws.hide_mixer_drafts;
+      container.updateDraftRendering();
+    })
+  })
+
+
+
+  this.saveFile();
+}
 
 
 
@@ -1361,16 +1575,18 @@ saveFile(){
   //if this user is logged in, write it to the
   this.fs.saver.ada()
     .then(so => {
-      this.ss.addMixerHistoryState(so);
+      const err = this.ss.addMixerHistoryState(so);
+      this.ss.writeStateToTimeline(so);
+
+      if(err == 1){
+        //TO DO - create error message
+        
+      }
     });
 }
 
-setDraftsViewable(val: boolean){
-  this.ws.hide_mixer_drafts = val;
-}
 
-setAdvancedOperations(val: boolean){
-  this.ws.show_advanced_operations = val;
+setAdvancedOperations(){
   this.mixer.refreshOperations();
 }
 

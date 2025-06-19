@@ -278,6 +278,7 @@ export type LoomUtil = {
   pasteThreading: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
   pasteTreadling: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
   pasteTieup: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number)=> Loom
+  getDressingInfo: (dd: Drawdown, l: Loom, ls: LoomSettings)=> Array<{label: string, value: string}>;
 }
 
 

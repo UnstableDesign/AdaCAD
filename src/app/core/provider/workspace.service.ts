@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { defaults } from '../model/defaults';
+import { LoomSettings } from '../model/datatypes';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class WorkspaceService {
   show_materials: boolean = defaults.show_materials;
   black_cell_up: boolean = defaults.black_cell_up;
   number_threading: boolean = defaults.number_threading;
+  
   hide_mixer_drafts: boolean = defaults.hide_mixer_drafts;
   show_advanced_operations: boolean = defaults.show_advanced_operations;
   /**
@@ -30,9 +32,27 @@ export class WorkspaceService {
    */
   selected_origin_option: number = defaults.selected_origin_option;
 
+  /*
+  these thresholds help control for slowdowns
+  */
+  force_jacquard_threshold: number = defaults.force_jacquard_threshold;
+  largest_lcm_factor: number = defaults.largest_lcm_factor;
 
 
   constructor() { }
+
+
+  getWorkspaceLoomSettings() : LoomSettings{
+    const ls:LoomSettings = {
+      type: this.type,
+      epi: this.epi, 
+      frames: this.min_frames,
+      treadles: this.min_treadles,
+      units: this.units
+    }
+    return ls;
+  }
+
 
   initDefaultWorkspace(){
     this.min_frames = defaults.loom_settings.frames; 

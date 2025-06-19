@@ -6,7 +6,6 @@ import { WorkspaceService } from '../../provider/workspace.service';
 import { FileService } from '../../provider/file.service';
 import { LoginComponent } from '../../modal/login/login.component';
 import { ShareComponent } from '../../modal/share/share.component';
-import { share } from 'rxjs';
 import { defaults } from '../../model/defaults';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -24,6 +23,7 @@ export class FilebrowserComponent implements OnInit {
   @Output() onCreateFile: any = new EventEmitter();
   @Output() onDuplicateFile: any = new EventEmitter();
   @Output() onShareFile: any = new EventEmitter();
+  @Output() onLoadMostRecent: any = new EventEmitter();
 
   
   unopened_filelist = [];
@@ -81,6 +81,10 @@ export class FilebrowserComponent implements OnInit {
 
   createBlankFile(){
     this.onCreateFile.emit();
+  }
+
+  openMostRecent(){
+    this.onLoadMostRecent.emit();
   }
 
   /**

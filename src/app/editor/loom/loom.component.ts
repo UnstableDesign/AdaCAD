@@ -5,7 +5,7 @@ import { defaults, density_units, loom_types } from '../../core/model/defaults';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from '../../core/model/drafts';
 import { TreeService } from '../../core/provider/tree.service';
 import { LoomSettings, LoomUtil } from '../../core/model/datatypes';
-import { convertLiftPlanToTieup, convertTieupToLiftPlan, generateDirectTieup, getLoomUtilByType, isFrame, numFrames, numTreadles } from '../../core/model/looms';
+import { convertLiftPlanToTieup, convertLoom, convertTieupToLiftPlan, copyLoomSettings, generateDirectTieup, getLoomUtilByType, isFrame, numFrames, numTreadles } from '../../core/model/looms';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 
 @Component({
@@ -32,6 +32,7 @@ export class LoomComponent {
   width: number = 0;
   density_units;
   loomtypes;
+  enabled: boolean = false;
 
 
   constructor(
@@ -53,6 +54,7 @@ export class LoomComponent {
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
 
+      this.enabled = !this.tree.hasParent(this.id);
       this.units = loom_settings.units;
       this.type = loom_settings.type;
       this.epi = loom_settings.epi;
@@ -187,7 +189,6 @@ export class LoomComponent {
   }
   
   public weftNumChange(e:any) {
-    console.log("WEFT CHANGE ", e)
 
     if(e.wefts === "" || e.wefts =="null") return;
   
@@ -213,7 +214,6 @@ export class LoomComponent {
     }else{
 
       var diff = wefts(draft.drawdown) - e.wefts;
-      console.log("DIFF ",diff, draft)
       for(var i = 0; i < diff; i++){  
         let ndx = wefts(draft.drawdown)-1;
         draft.drawdown = deleteDrawdownRow(draft.drawdown, ndx);
@@ -245,115 +245,49 @@ export class LoomComponent {
    
   }
 
-  
-    loomChange(f:NgForm){
-      console.log("LOOM CHANGE")
+  convertAndUpdateView(){
+    
+  }
+
+
+
+
+    loomChange(f: NgForm){
+      this.type =  f.value.loomtype;
       if(this.id == -1) return;
 
       const draft = this.tree.getDraft(this.id);
       const loom = this.tree.getLoom(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
-      this.type =  f.value.loomtype;
+      
+      const new_settings:LoomSettings = copyLoomSettings(loom_settings);
+      new_settings.type = this.type;
+ 
+      convertLoom(draft.drawdown, loom, loom_settings, new_settings).then(loom => {
 
-      if (loom_settings.type === 'jacquard') this.dm.selectDraftEditSource('drawdown');
-      else{
-        this.dm.selectDraftEditSource('loom');
-      }
-   
-      let utils:LoomUtil = null;
-    
-        const new_settings:LoomSettings = {
-          type: f.value.loomtype,
-          epi: loom_settings.epi,
-          units: loom_settings.units,
-          frames: loom_settings.frames,
-          treadles: loom_settings.treadles
-        }
-    
-  
-        //make null effectively function as though it was jacquard
-        if(loom_settings.type === null) loom_settings.type == 'jacquard';
-  
-        //there are several combinations that could take place
-  
-        //from jacquard to direct tie loom
-        utils = getLoomUtilByType(new_settings.type);
-  
-        if(loom_settings.type === 'jacquard' && new_settings.type === 'direct'){
-  
-          this.tree.setLoomSettings(this.id, new_settings);      
-         
-          utils.computeLoomFromDrawdown(draft.drawdown, new_settings)
-          .then(loom => {
-            this.tree.setLoom(this.id, loom);
-            const treadles = Math.max(numTreadles(loom), loom_settings.treadles);  
-            const frames = Math.max(numFrames(loom), loom_settings.frames);
-            this.treadles = Math.max(treadles, frames);
-            this.frames = Math.max(treadles, frames);
-            // this.redraw(draft, loom, new_settings, {loom: true});
-  
-          
-            this.loomSettingsUpdated.emit();
-  
-  
-  
-          });
-  
-        }else if(loom_settings.type === 'jacquard' && new_settings.type === 'frame'){
-            //from jacquard to floor loom (shaft/treadle) 'frame'
-            this.tree.setLoomSettings(this.id, new_settings);      
-            utils.computeLoomFromDrawdown(draft.drawdown, new_settings)
-            .then(loom => {
-              this.tree.setLoom(this.id, loom);
-              this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
-              this.frames = Math.max(numFrames(loom), loom_settings.frames);
-              this.loomSettingsUpdated.emit();
-  
-            });
-        }else if(loom_settings.type === 'direct' && new_settings.type === 'jacquard'){
-          // from direct-tie to jacquard
-          //do nothing, we'll just keep the drawdown
-          this.tree.setLoom(this.id, null);
-          this.tree.setLoomSettings(this.id, new_settings);      
-          this.loomSettingsUpdated.emit();
-  
-        }else if(loom_settings.type === 'frame' && new_settings.type === 'jacquard'){
-          // from direct-tie to jacquard
-          //do nothing, we'll just keep the drawdown
-          this.tree.setLoom(this.id, null);
-          this.tree.setLoomSettings(this.id, new_settings);      
-          this.loomSettingsUpdated.emit();
-  
-        }else if(loom_settings.type == 'direct' && new_settings.type == 'frame'){
-        // from direct-tie to floor
-  
-        const converted_loom = convertLiftPlanToTieup(loom);
-        this.tree.setLoom(this.id, converted_loom);
-        this.frames = numFrames(converted_loom);
-        this.treadles = numTreadles(converted_loom);
-        this.tree.setLoomSettings(this.id, new_settings);      
-        //this.redraw(draft, converted_loom, new_settings, {loom: true});
-        this.loomSettingsUpdated.emit();
-  
-  
-  
-  
-  
-        }else if(loom_settings.type == 'frame' && new_settings.type == 'direct'){
-          // from floor to direct
-          const converted_loom = convertTieupToLiftPlan(loom);
-          this.tree.setLoom(this.id, converted_loom);
-          this.frames = numFrames(converted_loom);
-          this.treadles = numTreadles(converted_loom);
-          this.tree.setLoomSettings(this.id, new_settings);      
-          //this.redraw(draft, converted_loom, new_settings, {loom: true});
-          this.loomSettingsUpdated.emit();
-  
-  
-        }
-  
-  
-    
+           this.tree.setLoom(this.id, loom);
+           this.tree.setLoomSettings(this.id, new_settings);      
+
+           const treadles = Math.max(numTreadles(loom), loom_settings.treadles);  
+           const frames = Math.max(numFrames(loom), loom_settings.frames);
+           this.treadles = Math.max(treadles, frames);
+           this.frames = Math.max(treadles, frames);
+           this.loomSettingsUpdated.emit();
+
+      }).catch(err => {
+        //if there is an error here, it just overwrites the type to jacquard. 
+        console.error(err);
+        this.tree.setLoom(this.id, null);
+        this.tree.setLoomSettings(this.id, {
+          type: 'jacquard',
+          units: this.ws.units, 
+          frames: this.ws.min_frames, 
+          treadles: this.ws.min_treadles,
+          epi: this.ws.epi
+        });
+
+      })
+
       } 
 
       updateMinTreadles(f: NgForm){

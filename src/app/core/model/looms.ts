@@ -1,6 +1,7 @@
 
 import { getCellValue, setCellValue } from "./cell";
 import { Draft, Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
+import { defaults, density_units } from "./defaults";
 import { createBlankDrawdown, warps, wefts } from "./drafts";
 import utilInstance from "./util";
 
@@ -40,6 +41,54 @@ export const convertEPItoMM = (ls: LoomSettings) : number => {
 
     return (25.4/ls.epi);
   }
+
+}
+
+export  const calcWidth = (drawdown: Drawdown, loom_settings: LoomSettings) : number => {
+
+  if(loom_settings.units == 'in'){
+    return warps(drawdown) / loom_settings.epi;
+  }else{
+    return warps(drawdown) / loom_settings.epi * 10;
+  }
+
+}
+
+
+export const convertLoom = (drawdown: Drawdown, l: Loom, from_ls: LoomSettings, to_ls: LoomSettings) : Promise<Loom> => {
+
+  //if the loom is null, force the previous type to jcquard
+  if(l == null){
+    from_ls.type = 'jacquard'
+  }
+
+
+  if(from_ls.type == to_ls.type) return Promise.resolve(l);
+  if(from_ls == null || from_ls == undefined) return Promise.reject("no prior loom settings found");
+  if(to_ls == null || to_ls == undefined) return Promise.reject("no current loom settings found");
+
+  const  utils = getLoomUtilByType(to_ls.type);
+  
+   if(from_ls.type === 'jacquard' && to_ls.type === 'direct'){  
+        return utils.computeLoomFromDrawdown(drawdown, to_ls)
+   }else if(from_ls.type === 'jacquard' && to_ls.type === 'frame'){
+        return utils.computeLoomFromDrawdown(drawdown, to_ls)       
+   }else if(from_ls.type === 'direct' && to_ls.type === 'jacquard'){
+        return Promise.resolve(null);
+    }else if(from_ls.type == 'direct' && to_ls.type == 'frame'){
+        // from direct-tie to floor
+        const new_l = convertLiftPlanToTieup(l);
+        return  Promise.resolve(new_l);
+   }else if(from_ls.type === 'frame' && to_ls.type === 'jacquard'){
+        return Promise.resolve(null);
+  }else if(from_ls.type == 'frame' && to_ls.type == 'direct'){
+          // from floor to direct
+          //THIS IS BROKEN
+          const converted_loom = convertTieupToLiftPlan(l);
+          return Promise.resolve(converted_loom);
+  }
+   
+  return Promise.reject("Loom type conversion not found");
 
 }
 
@@ -89,6 +138,19 @@ const jacquard_utils: LoomUtil = {
     },
     deleteFromTreadling: (loom: Loom, i: number) : Loom => {
       return loom;
+    },
+    getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
+
+     let unit_string = density_units.find(el => el.value == ls.units)
+
+      return [
+        {label: 'loom type', value: 'jacquard'},
+        {label: 'warp density', value: ls.epi+" "+unit_string.viewValue},
+        {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'width', value: calcWidth(dd, ls)+" "+ls.units},
+
+        {label: 'weft picks', value: wefts(dd)+" picks"}
+      ];
     }
 
   }
@@ -238,6 +300,30 @@ const jacquard_utils: LoomUtil = {
     deleteFromTreadling: (loom: Loom, i: number) : Loom => {
       loom.treadling.splice(i, 1);
       return loom;
+    },
+    getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
+
+      let unit_string = density_units.find(el => el.value == ls.units)
+
+      let base_info =  [
+        {label: 'loom type', value: 'direct tie/dobby'},
+      
+        {label: 'warp density', value: ls.epi+" "+unit_string.viewValue},
+        {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'width', value: calcWidth(dd, ls)+" "+ls.units},
+       
+        {label: 'weft picks', value: wefts(dd)+" picks"},
+        {label: 'frames', value: numFrames(loom)+" required, "+ls.frames+" available"},
+        
+      ];
+
+      for(let i = 0; i < numFrames(loom); i++){
+
+        let label = "# ends in frame "+(i+1);
+        let value = loom.threading.filter(el => el == i).length+""
+        base_info.push({label, value})
+      }
+      return base_info;
     }
   }
 
@@ -453,9 +539,45 @@ const jacquard_utils: LoomUtil = {
       return loom;
     },
     deleteFromTreadling: (loom: Loom, i: number) : Loom => {
-      console.log("SPLICING FROM ", i)
       loom.treadling.splice(i, 1);
       return loom;
+    },
+     getDressingInfo: (dd: Drawdown, loom: Loom, ls: LoomSettings) : Array<{label: string, value: string}> => {
+
+      let unit_string = density_units.find(el => el.value == ls.units)
+
+     let base_info = 
+ [
+        {label: 'loom type', value: 'frame loom'},
+        {label: 'warp density', value: ls.epi+" "+unit_string.viewValue},
+        {label: 'warp ends', value: warps(dd)+" ends"},
+        {label: 'width', value: calcWidth(dd, ls)+" "+ls.units},
+
+        {label: 'weft picks', value: wefts(dd)+" picks"},
+        {label: 'frames', value: numFrames(loom)+" required, "+ls.frames+" available"},
+        {label: 'treadles', value: numTreadles(loom)+" required, "+ls.treadles+" available"},
+      ];
+
+      for(let i = 0; i < numFrames(loom); i++){
+
+        let label = "# ends in frame "+(i+1);
+        let value = loom.threading.filter(el => el == i).length+""
+        base_info.push({label, value})
+      }
+
+      for(let j = 0; j < numTreadles(loom); j++){
+
+        let label = "frames on treadle "+(j+1);
+        let value = loom.tieup.reduce((acc, el, ndx) => {
+          if(el[j] == true)
+            return acc + "" + (ndx+1)+",";
+          else
+            return acc;
+        }, "")
+        base_info.push({label, value})
+      }
+
+      return base_info;
     }
 
   
@@ -927,7 +1049,9 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
       converted.treadling = loom.treadling.map(treadle_vals => {
 
         if(treadle_vals.length == 0) return [];
+
           let active_treadle = treadle_vals[0];
+         
           let tieupcol: Array<boolean> = loom.tieup.reduce((acc, el, ndx) => {
             return acc.concat(el[active_treadle])
           }, [] );
@@ -938,10 +1062,13 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
       return converted;
     }
 
-        /**
+    /**
      * assumes the input to the function is a loom of type that uses a direct tie and lift plan and converts it to a loom that uses a tieup and treadling. 
      */
     export const convertLiftPlanToTieup = (loom: Loom) : Loom => {
+
+      //used when direct tie is converted to frame
+
 
       let tieup_ndx = 0;
       let shafts = numFrames(loom);
@@ -961,17 +1088,19 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
 
       //look at each pick
       loom.treadling.forEach(pick => {
-        let pick_as_int: number = 0;
+        let pick_as_string: string = '';
        
         if(pick.length != 0) {
 
-          pick_as_int = parseInt(pick.reduce((acc, el, ndx) => {
-            return acc + ((el) ? 1 : 0);
-          }, ''), 2);
-        
+          pick_as_string = "";
+          for(let i = 0; i < shafts; i++){
+            if(pick.findIndex(el => el == i)!== -1)
+              pick_as_string =  pick_as_string + '1';
+            else 
+              pick_as_string =  pick_as_string + '0';
+          }
 
-          console.log("SEEN ", seen, pick_as_int)
-          let ndx = seen.findIndex(el => el == pick_as_int);
+          let ndx = seen.findIndex(el => el == pick_as_string);
           if(ndx !== -1){
             //this pick will be assigned to an existing tieup column
             converted.treadling.push([ndx]);
@@ -986,7 +1115,7 @@ export const isFrame = (loom_settings: LoomSettings) : boolean => {
             for(let i = 0; i < shafts; i++){
               converted.tieup[i][tieup_ndx] = col[i];
             }
-            seen.push(pick_as_int)
+            seen.push(pick_as_string)
             tieup_ndx++;
           }
         }else{

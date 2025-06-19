@@ -520,6 +520,9 @@ export class FileService {
 
 
 
+
+
+    console.log("LOOM TYPE IS ",  loom_settings.type)
      if(loom === null){
 
       //force loom type to something with shafts;
@@ -531,20 +534,32 @@ export class FileService {
 
       const shuttles: Array<Material> = this.ms.getShuttles();
         //will need to import the obj for draft2wif.ts and then use it and pass this.weave for fileContents
-      var fileContents = "[WIF]\nVersion=1.1\nDate=June 11, 2024\nDevelopers=Emma Goodwill and Laura Devendorf, Unstable Design Lab at the University of Colorado Boulder\nSource Program=AdaCAD\nSource Version=4.1\n[CONTENTS]";
       var fileType = "text/plain";
 
-      fileContents += "\nCOLOR PALETTE=yes\nWEAVING=yes\nWARP=yes\nWEFT=yes\nTIEUP=yes\nCOLOR TABLE=yes\nTHREADING=yes\nWARP COLORS=yes\nTREADLING=yes\nWEFT COLORS=yes\n";
+      var fileContents = "[WIF]\nVersion=1.1\nDate=June 11, 2024\nDevelopers=unstabledesignlab@gmail.com\nSource Program=AdaCAD\nSource Version="+this.vs.currentVersion()+"\n[CONTENTS]";
+
+      if(loom_settings.type == 'direct'){
+        fileContents += "\nCOLOR PALETTE=true\nWEAVING=true\nWARP=true\nWEFT=true\nLIFTPLAN=true\nCOLOR TABLE=true\nWARP COLORS=true\nTREADLING=true\nWEFT COLORS=true\n";
+      }else{
+        fileContents += "\nCOLOR PALETTE=true\nWEAVING=true\nWARP=true\nWEFT=true\nTIEUP=true\nCOLOR TABLE=true\nTHREADING=true\nWARP COLORS=true\nTREADLING=true\nWEFT COLORS=true\n";
+      }
       
+      
+      //COLOR PALETTE DEFINITION
       fileContents += "[COLOR PALETTE]\n";
       fileContents += "Entries=" + (shuttles.length).toString() +"\n";
       fileContents += "Form=RGB\nRange=0,255\n";
 
+
+      // WEAVING
       fileContents += "[WEAVING]\nShafts=";
       fileContents += numFrames(loom).toString();
       fileContents += "\nTreadles=";
       fileContents += numTreadles(loom).toString();
       fileContents += "\nRising Shed=yes\n";
+
+
+      // WARP
       fileContents += "[WARP]\nThreads=";
       fileContents += warps(draft.drawdown).toString();
       
@@ -554,8 +569,11 @@ export class FileService {
           warpColors.push(draft.colShuttleMapping[i]);
         }
       }
-      fileContents += "\nColors=" + warpColors.length.toString();
+      fileContents += "\nColors=" + warpColors.length.toString(); //check if this is correct, might just need an index into the palette
 
+      //consider adding thickness and spacing in here at some point. 
+
+      // WEFT
       fileContents += "\n[WEFT]\nThreads=";
       fileContents += wefts(draft.drawdown).toString();
       var weftColors = [];
@@ -564,33 +582,46 @@ export class FileService {
           weftColors.push(draft.colShuttleMapping[i]);
         }
       }
+
+      //check if this is coorect, potentially just an index
       fileContents += "\nColors=" + weftColors.length.toString();
 
-      fileContents += "\n[TIEUP]\n";
+      // TIEUP?
+      if(loom_settings.type == 'frame'){
+
+          fileContents += "\n[TIEUP]\n";
 
 
-      var treadles = [];
-      for (var i =0; i < loom.tieup.length;i++) {
-        for (var j = 0; j < loom.tieup[i].length;j++) {
-          if (loom.tieup[i][j] && !treadles.includes(j)) {
-            treadles.push(j);
-          }
-        }
+              var treadles = [];
+              for (var i =0; i < loom.tieup.length;i++) {
+                for (var j = 0; j < loom.tieup[i].length;j++) {
+                  if (loom.tieup[i][j] && !treadles.includes(j)) {
+                    treadles.push(j);
+                  }
+                }
+              }
+              for (var i =0; i < treadles.length; i++) {
+                fileContents += (treadles[i]+1).toString() + "=";
+                var lineMarked = false;
+                for (var j = 0; j < loom.tieup.length; j++){
+                  if (loom.tieup[j][treadles[i]]) { 
+                    if (lineMarked) {
+                      fileContents += ",";
+                    }
+                    fileContents += (j+1).toString();
+                    lineMarked=true;
+                  }
+                }
+                fileContents += "\n";
+              }
+      }else{
+               fileContents += "\n";
+
       }
-      for (var i =0; i < treadles.length; i++) {
-        fileContents += (treadles[i]+1).toString() + "=";
-        var lineMarked = false;
-        for (var j = 0; j < loom.tieup.length; j++){
-          if (loom.tieup[j][treadles[i]]) { 
-            if (lineMarked) {
-              fileContents += ",";
-            }
-            fileContents += (j+1).toString();
-            lineMarked=true;
-          }
-        }
-        fileContents += "\n";
-      }
+
+
+
+      //COLOR TABLE
 
       fileContents+= "[COLOR TABLE]\n";
       //Reference: https://css-tricks.com/converting-color-spaces-in-javascript/ for conversion for hex to RGB
@@ -609,6 +640,8 @@ export class FileService {
         }
       }
       
+      //THREADING 
+
       fileContents += "[THREADING]\n";
       for (var i=0; i <loom.threading.length; i++) {
         var frame = loom.threading[i];
@@ -617,24 +650,44 @@ export class FileService {
         }
       }
 
+
+      //WARP COLORS (I believe this overwrites the default color specified in warps)
       fileContents += "[WARP COLORS]\n";
       for (var i = 0; i < draft.colShuttleMapping.length; i++) {
         fileContents += (i+1).toString() + "=" + (draft.colShuttleMapping[(draft.colShuttleMapping.length)-(i+1)]+1).toString() + "\n";
       }
 
       //THIS WILL ONLY WORK WITH FRAME LOOM DRAFT STYLE
-      fileContents += "[TREADLING]\n";
-      for (var i = 0; i < loom.treadling.length; i++) {
-        if (loom.treadling[i].length != 0){
+      if(loom_settings.type !== 'direct'){
 
-          fileContents += (i+1).toString() + "="; 
-          const commaSeparated =  loom.treadling[i].map(el => (el+1).toString()).join(',');
-          fileContents += commaSeparated;
-          fileContents += "\n";
+        fileContents += "[TREADLING]\n";
+        for (var i = 0; i < loom.treadling.length; i++) {
+          if (loom.treadling[i].length != 0){
+
+            fileContents += (i+1).toString() + "="; 
+            const commaSeparated =  loom.treadling[i].map(el => (el+1).toString()).join(',');
+            fileContents += commaSeparated;
+            fileContents += "\n";
+          }
         }
       }
 
+      //LIFT PLAN
+      if(loom_settings.type == 'direct'){
 
+        fileContents += "[LIFTPLAN]\n";
+        for (var i = 0; i < loom.treadling.length; i++) {
+          if (loom.treadling[i].length != 0){
+
+            fileContents += (i+1).toString() + "="; 
+            const commaSeparated =  loom.treadling[i].map(el => (el+1).toString()).join(',');
+            fileContents += commaSeparated;
+            fileContents += "\n";
+          }
+        }
+      }
+
+      //WEFT COLORS
       fileContents += "[WEFT COLORS]\n";
       for (var i = 0; i < draft.rowShuttleMapping.length; i++) { // will likely have to change the way I import too
         fileContents += (i+1).toString() + "=" + (draft.rowShuttleMapping[i]+1).toString() + "\n";

@@ -61,14 +61,78 @@ export class StateService {
     return cur_state;
   }
 
+
+  public getFileSize(name: string, obj: any) : number {
+    const str = JSON.stringify(obj);
+    const size = new Blob([str]).size;
+    console.log(name+" is ", size);
+    return size;
+
+  }
+
+  public hasTimeline(){
+    if(this.timeline.length > 0) return true;
+    return false;
+  }
+
+
+
 /**
  * this is called every-time there is an action that needs saving on the stack. 
  * this includes the creation of a new file
  */
   public addMixerHistoryState(ada:{json: string, file: SaveObj}){
+    let err = 0;
 
-    // console.log("ADD MIXER HX", ada.file.draft_nodes)
+  
+    // this.getFileSize("version", ada.file.version);
+    // this.getFileSize("workspace", ada.file.workspace);
+    // this.getFileSize("type", ada.file.type);
+    // this.getFileSize("nodes", ada.file.nodes);
+    // this.getFileSize("tree", ada.file.tree);
+    // this.getFileSize("draft nodes", ada.file.draft_nodes);
+    // this.getFileSize("ops", ada.file.ops);
+    // this.getFileSize("notes", ada.file.notes);
+    // this.getFileSize("materials", ada.file.materials);
+    // this.getFileSize("indexed_image_data", ada.file.indexed_image_data);
 
+    // console.log('DRAFT NODES # ', ada.file.draft_nodes.length);
+    // console.log('DRAFT NODES Values', ada.file.draft_nodes);
+
+
+
+    if(this.files.connected){
+  
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if(user !== null){
+      //do a quick correction for any undefined loom settings
+      ada.file.draft_nodes.forEach(dn => {
+        if(dn.loom_settings == undefined){
+          dn.loom_settings = null;
+        }
+      })
+
+
+      
+      if(this.getFileSize("file", ada.file) < 16000000){
+        this.files.writeFileData(this.files.getCurrentFileId(), ada.file);
+        this.files.writeFileMetaData(user.uid, this.files.getCurrentFileId(), this.files.getCurrentFileName(), this.files.getCurrentFileDesc(), this.files.getCurrentFileFromShare());
+      }
+      else{
+        console.error("WRITE TOO LARGE");
+        err = 1;
+
+      } 
+    } 
+  }
+  return err;
+}
+
+
+public writeStateToTimeline(ada:{json: string, file: SaveObj}){
     var state = {
       draft: null,
       ada: {
@@ -85,40 +149,19 @@ export class StateService {
         indexed_image_data: ada.file.indexed_image_data.slice() 
       }
     }
-
-    if(this.files.connected){
-  
-
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if(user !== null){
-      //do a quick correction for any undefined loom settings
-      ada.file.draft_nodes.forEach(dn => {
-        if(dn.loom_settings == undefined){
-          dn.loom_settings = null;
-        }
-      })
-
-      this.files.writeFileData(this.files.getCurrentFileId(), ada.file)
-    } 
-  }
-
   if(this.active_id > 0){
 
-    this.timeline.splice(0, this.active_id);
-    this.active_id = 0;
-    this.redo_disabled = true;
+      this.timeline.splice(0, this.active_id);
+      this.active_id = 0;
+      this.redo_disabled = true;
 
-  }
+    }
 
   //add the new element to position 0
   var len = this.timeline.unshift(state);
   if(len > this.max_size) this.timeline.pop();
   if(this.timeline.length > 1) this.undo_disabled = false;
-
   
-
 }
 
 

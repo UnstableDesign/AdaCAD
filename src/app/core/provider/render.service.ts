@@ -80,12 +80,12 @@ draft_cell_size: number;
    calculateCellSize(draft: Draft): number{
 
     let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
-    if(max_bound*this.draft_cell_size < 4096){
-      return Math.floor(this.draft_cell_size);
+    if(max_bound*defaults.draft_detail_cell_size < 4096){
+      return Math.floor(defaults.draft_detail_cell_size);
     }else if(max_bound < 4096){
       return  Math.floor(4096/max_bound);
     }else{
-      this.draft_cell_size = 1;
+      //this.draft_cell_size = 1;
       return 1;
     }
 
@@ -671,6 +671,10 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
   rescale(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList){
     let cell_size = this.calculateCellSize(draft);
 
+
+    // console.log("rescale in render service (factor, cell_size)", factor, cell_size )
+
+
     canvases.drawdown.style.width = (warps(draft.drawdown)*cell_size* factor)+"px";
     canvases.drawdown.style.height = (wefts(draft.drawdown)*cell_size* factor)+"px";
 
@@ -703,6 +707,8 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     canvases.weft_systems.style.height =(draft.rowShuttleMapping.length * cell_size)*factor+"px";
     canvases.weft_systems.style.width =  defaults.draft_detail_cell_size*factor+"px";
 
+
+    
   }
 
   

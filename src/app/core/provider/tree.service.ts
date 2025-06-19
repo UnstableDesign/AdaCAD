@@ -1235,9 +1235,9 @@ clearDraft(dn: DraftNode){
     if(active_tn_tuple !== undefined){
       let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
       if(cxn_child.length > 0){
-      this.setDraftOnly(cxn_child[0], res[i]);
-      touched.push(cxn_child[0]);
-      update_looms.push({id: cxn_child[0], draft: res[i]});
+        this.setDraftOnly(cxn_child[0], res[i]);
+        touched.push(cxn_child[0]);
+        update_looms.push({id: cxn_child[0], draft: res[i]});
       }
     }else{
     //this is a new draft
@@ -1283,19 +1283,18 @@ clearDraft(dn: DraftNode){
      let loom_fns = [];
      update_looms.forEach(el => {
       const dn = <DraftNode> this.getNode(el.id);
-      let loom_settings = (dn.loom_settings !== null) ? dn.loom_settings : defaults.loom_settings;
+      dn.loom_settings = (dn.loom_settings !== null) ? dn.loom_settings : this.ws.getWorkspaceLoomSettings();
 
       //const loom_utils = getLoomUtilByType(loom_settings.type);
-      const loom_utils = getLoomUtilByType(this.ws.type)
-      loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, loom_settings))
-     
+      const loom_utils = getLoomUtilByType(dn.loom_settings.type)
+      loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, dn.loom_settings))
     });
      return Promise.all(loom_fns);
-    }).then((returned_looms) => {
-
+    }).then((returned_looms) => {    
       update_looms.forEach((el, ndx) => {
         const dn = <DraftNode> this.getNode(el.id);
-        if(returned_looms[ndx] !== null) dn.loom = copyLoom(returned_looms[ndx]);
+        if(returned_looms[ndx] === null) dn.loom = null; 
+        else dn.loom = copyLoom(returned_looms[ndx]);
         dn.dirty = true;
       })
 
@@ -2135,7 +2134,7 @@ isValidIOTuple(io: IOTuple) : boolean {
           draft: null,
           compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
           draft_visible:  ((<DraftNode>node).visible == undefined ) ? !this.ws.hide_mixer_drafts :  (<DraftNode>node).visible,
-          loom: (loom_export === null) ? null :loom_export,
+          loom: (loom_export === null || this.hasParent(node.id)) ? null :loom_export,
           loom_settings: node.loom_settings,
           render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors,
           scale: ((<DraftNode>node).scale == undefined ) ? 1 :  (<DraftNode>node).scale
@@ -2281,7 +2280,6 @@ isValidIOTuple(io: IOTuple) : boolean {
  * @param loom_settings  the settings that should govern the loom generated
  */
   setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings) : Promise<Loom> {
-    console.log("SET DRAFT AND RECOMPUTE LOOM")
 
     const dn = <DraftNode> this.getNode(id);
     let ud_name = getDraftName(temp);
@@ -2297,13 +2295,9 @@ isValidIOTuple(io: IOTuple) : boolean {
      dn.draft.id = id;
 
     if(loom_settings === null || loom_settings === undefined){
-      dn.loom_settings = {
-        type: this.ws.type,
-        epi: this.ws.epi,
-        units: this.ws.units,
-        frames: this.ws.min_frames,
-        treadles: this.ws.min_treadles
-      }
+
+      dn.loom_settings = this.ws.getWorkspaceLoomSettings();
+        
     } 
     else dn.loom_settings = loom_settings;
 
@@ -2313,7 +2307,6 @@ isValidIOTuple(io: IOTuple) : boolean {
    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    console.log("DN ", dn.loom_settings.type)
     return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings)
     .then(loom =>{
       dn.loom = loom;

@@ -35,7 +35,6 @@ export class FilesystemService {
  constructor(@Optional() private auth: Auth) {
 
       const db = getDatabase();
-
       const presenceRef = ref(db, "disconnectmessage");
      
       // Write a string when this client loses connection
@@ -57,7 +56,6 @@ export class FilesystemService {
       //SETUP COLLECTION OF SHARED FILES (DOES NOT REQUIRE LOGIN)
       const sharedFiles = query(ref(db, 'shared'));
 
-
       onChildAdded(sharedFiles, (childsnapshot) => {
         //only add values that haven't already been added
         if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) !== undefined){
@@ -75,10 +73,11 @@ export class FilesystemService {
       onChildChanged(sharedFiles, (data) => {
         const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
         if(ndx !== -1){
+
           this.isShared(data.key).then(res => {
             this.file_tree[ndx].shared = res;
             this.shared_file_change$.next(this.file_tree.slice());
-          })
+          }).catch(err => console.error("caught"))
  
         }
 
@@ -126,10 +125,16 @@ export class FilesystemService {
 
           //only add values that haven't already been added
           if(this.file_tree.find(el => el.id === parseInt(childsnapshot.key)) === undefined){
+            
+            this.addToTree(parseInt(childsnapshot.key), childsnapshot.val(), undefined);
+
+
             this.isShared(childsnapshot.key).then(res => {
-              this.addToTree(parseInt(childsnapshot.key), childsnapshot.val(), res);
+              this.updateShareObj(parseInt(childsnapshot.key), res);
               this.file_tree_change$.next(this.file_tree.slice());
 
+            }).catch(err => {
+              //file note shared 
             })
 
 
@@ -146,9 +151,13 @@ export class FilesystemService {
         onChildChanged(userFiles, (data) => {
             const ndx = this.file_tree.findIndex(el => parseInt(el.id) === parseInt(data.key));
             if(ndx !== -1){
+              this.file_tree[ndx].meta.name = data.val().name;
+
               this.isShared(data.key).then(res => {
-                this.file_tree[ndx].meta.name = data.val().name;
                 this.file_tree[ndx].shared = res;
+                this.file_tree_change$.next(this.file_tree.slice());
+
+              }).catch(err => {
                 this.file_tree_change$.next(this.file_tree.slice());
               })
      
@@ -171,7 +180,7 @@ export class FilesystemService {
   }
 
   /**
-    sets the current file data
+    sets the current file data locally 
    */
   public setCurrentFile(id: number, name: string, desc: string, from_share: string) : Promise<boolean>{
 
@@ -239,9 +248,20 @@ export class FilesystemService {
     })
   }
 
+  /**
+   * adds to the local tree for the UI
+   */
+  updateShareObj(fileid: number, shared: ShareObj){
+
+    const ndx = this.file_tree.findIndex(el => el.id == fileid);
+    if(ndx !== -1){
+      this.file_tree[ndx].shared = shared;
+    }
+  }
+
 
   /**
-   * sets the current metadata
+   * sets the current metadata locally only
    * @param fileid 
    * @param name 
    * @param desc 
@@ -258,26 +278,10 @@ export class FilesystemService {
     this.current_file_name = name;
     this.current_file_desc = desc;
     this.current_file_from_share = from_share;
-    const stamp = Date.now();
-
-    if(!this.connected) return;
-
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if(user){
-      const db = getDatabase();
-      update(fbref(db, `users/${user.uid}`),{last_opened: fileid});
-      update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
-        name: name, 
-        desc: desc,
-        timestamp: stamp,
-        from_share: from_share});
-    }
-
-
 
   }
 
+  //performs this action locally and writes the changes to the database
   renameFile(fileid: number, newname: string){
   
     if(fileid === null || fileid == undefined) return; 
@@ -289,6 +293,7 @@ export class FilesystemService {
 
     const auth = getAuth();
     const user = auth.currentUser;
+    
     if(user){
       const db = getDatabase();
       update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
@@ -327,7 +332,7 @@ export class FilesystemService {
     
    const fileid = this.generateFileId();
    this.writeFileData(fileid, ada);
-   this.writeNewFileMetaData(uid, fileid, 'recovered draft', '', '')
+   this.writeFileMetaData(uid, fileid, 'recovered draft', '', '')
    return Promise.resolve(fileid);
     
   }
@@ -340,7 +345,7 @@ duplicate(uid: string, name: string, desc: string, ada: any, from_share: string)
 
   const fileid = this.generateFileId();
   this.writeFileData(fileid, ada);
-  this.writeNewFileMetaData(uid, fileid, name, desc, from_share)
+  this.writeFileMetaData(uid, fileid, name, desc, from_share)
   return Promise.resolve(fileid);
     
   }
@@ -377,14 +382,13 @@ createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
  * @param file_id 
  */
 isShared(file_id:string) : Promise<ShareObj> {
-
   // if(!this.connected) return Promise.reject("no internet connection");
 
   const db = getDatabase();
 
-  return fbget(fbref(db, `shared/${file_id}`))
+  const ref = fbref(db,'shared/' + file_id);
+  return fbget(ref)
   .then((filedata) => {
-
       if(filedata.exists()){
 
         const share_obj:ShareObj = {
@@ -401,7 +405,7 @@ isShared(file_id:string) : Promise<ShareObj> {
         return Promise.resolve(share_obj);
         
       }else{
-       return Promise.resolve(null)
+       return Promise.reject('No shared file with id: '+file_id)
       }
 
     })
@@ -486,7 +490,7 @@ removeSharedFile(file_id: string) : Promise<any> {
    * gets the file at a given id
    * @returns the file data
    */
-getFile(fileid: number) : Promise<any> {
+  getFile(fileid: number) : Promise<any> {
     if(!this.connected) return Promise.reject("get file is not logged in");
 
 
@@ -564,6 +568,11 @@ getFile(fileid: number) : Promise<any> {
 
 
 
+    /**
+     * usually called after new data is written, this updates the time at which the file was updated and makes sure the current file id is the one that is saved as the last file opened. 
+     * @param fileid 
+     * @returns 
+     */
   updateSaveTime(fileid: number){
     if(!this.connected) return;
     const auth = getAuth();
@@ -573,8 +582,13 @@ getFile(fileid: number) : Promise<any> {
 
     const stamp = Date.now();
     const db = getDatabase();
+    update(fbref(db, `users/${user.uid}`),{last_opened: fileid});
     update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
-      timestamp: stamp});
+      timestamp: stamp,
+    });
+
+
+    
   }
 
 
@@ -586,9 +600,12 @@ getFile(fileid: number) : Promise<any> {
    */
   writeFileData(fileid: number, cur_state: SaveObj) {
 
+    console.log("WRITING FILE DATA FOR ", fileid)
+
     if(!this.connected) return;
 
     const db = getDatabase();
+    const auth = getAuth();
     const ref = fbref(db, 'filedata/'+fileid);
 
     update(ref,{ada: cur_state})
@@ -601,7 +618,7 @@ getFile(fileid: number) : Promise<any> {
   }
 
 
-  writeNewFileMetaData(uid: string, fileid: number, name: string, desc: string, from_share: string) {
+ writeFileMetaData(uid: string, fileid: number, name: string, desc: string, from_share: string) {
 
       if(!this.connected) return;
 
@@ -613,10 +630,11 @@ getFile(fileid: number) : Promise<any> {
         name: name,
         desc: desc,
         timestamp: stamp, 
-        last_opened:fileid,
         from_share: from_share
       });
-   }
+      update(fbref(db, 'users/'+uid),{last_opened: fileid});
+
+    }
     
     
 

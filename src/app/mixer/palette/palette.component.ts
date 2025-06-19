@@ -267,7 +267,12 @@ handlePan(diff: Point){
 
    this.fs.saver.ada()
       .then(so => {
-        this.ss.addMixerHistoryState(so);
+        const err = this.ss.addMixerHistoryState(so);
+        this.ss.writeStateToTimeline(so);
+        if(err == 1){
+          //TO DO SET AN ERROR STATE HERE IF 
+        }
+       
       });
   }
 

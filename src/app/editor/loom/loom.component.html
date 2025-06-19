@@ -11,10 +11,12 @@
     </mat-form-field>
 
      
+    <!-- TO DO DISABLE THESE IF EDITS ARE NOT ENABLED-->
     <mat-form-field >
       <mat-label>Warp Ends</mat-label>            
 
       <input matInput name="warps" 
+      [disabled] = "!enabled"
       [(ngModel)]="warps" 
       type="number" 
       [min]="1" 
@@ -30,6 +32,7 @@
       <mat-label>Weft Picks</mat-label>            
 
       <input matInput name="wefts" 
+      [disabled] = "!enabled"
       [(ngModel)]="wefts" 
       type="number" 
       min="2" 
@@ -77,6 +80,7 @@
     <mat-form-field class="fullwidth">
       <mat-label>width</mat-label>
       <input matInput 
+      [disabled] = "!enabled"
       name="width" 
       [(ngModel)]="width" 
       step="0.125" 
