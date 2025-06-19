@@ -119,6 +119,7 @@ export class StateService {
       
       if(this.getFileSize("file", ada.file) < 16000000){
         this.files.writeFileData(this.files.getCurrentFileId(), ada.file);
+        this.files.writeFileMetaData(user.uid, this.files.getCurrentFileId(), this.files.getCurrentFileName(), this.files.getCurrentFileDesc(), this.files.getCurrentFileFromShare());
       }
       else{
         console.error("WRITE TOO LARGE");

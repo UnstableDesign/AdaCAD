@@ -672,7 +672,7 @@ private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number,
     let cell_size = this.calculateCellSize(draft);
 
 
-    console.log("rescale in render service (factor, cell_size)", factor, cell_size )
+    // console.log("rescale in render service (factor, cell_size)", factor, cell_size )
 
 
     canvases.drawdown.style.width = (warps(draft.drawdown)*cell_size* factor)+"px";

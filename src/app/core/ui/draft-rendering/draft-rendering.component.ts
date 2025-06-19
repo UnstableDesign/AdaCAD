@@ -1017,7 +1017,7 @@ export class DraftRenderingComponent implements OnInit {
 
         return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
 
-          console.log("REDRAW IN ", this.source, this.scale)
+          // console.log("REDRAW IN ", this.source, this.scale)
           this.render.rescale(draft, loom, loom_settings, this.scale, this.canvases)
           this.refreshWarpAndWeftSystemNumbering();
           this.refreshOriginMarker();

@@ -131,7 +131,6 @@ export class AppComponent implements OnInit{
 
 
     this.current_version = this.vers.currentVersion();
-    console.log("STARTING STATE has timeline", this.ss.hasTimeline())
   
     this.editorModes = editor_modes;
     this.selected_editor_mode = defaults.editor;
@@ -540,19 +539,21 @@ export class AppComponent implements OnInit{
     }else{
 
         let searchParams = new URLSearchParams(window.location.search);
-        console.log("SEARCH PARAMS ", searchParams)
         if(searchParams.has('ex')){
             this.loadExampleAtURL(searchParams.get('ex'))
+            history.pushState({page: 1}, "AdaCAD.org ", "")
           
         }else if(searchParams.has('share')){
           this.loadFromShare(searchParams.get('share'))
           .then(res => {
+            this.openSnackBar('Loading Shared File #'+searchParams.get('share'))
             this.addTimelineStateOnly();
           })
           .catch(err => {
             this.openSnackBar('ERROR: we cannot find a shared file with id: '+searchParams.get('share'))
             this.loadBlankFile().then(el => this.addTimelineStateOnly())
           }) 
+          history.pushState({page: 1}, "AdaCAD.org ", "")
         }else if(user === null){
            this.loadStarterFile()
            .then(res => {
