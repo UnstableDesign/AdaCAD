@@ -35,7 +35,6 @@ export class SimulationComponent implements OnInit {
   showing_wefts: boolean = true;
   showing_topo: boolean = false;
   showing_draft: boolean = false;
-  boundary: number = 10;
   radius: number = 40;
   current_simdata: SimulationData = null;
   tanFOV: number = 0;
@@ -162,9 +161,6 @@ export class SimulationComponent implements OnInit {
    * @param end 
    */
   updateSelection(start: Interlacement, end: Interlacement){
-    console.log("UPDATE SELECTION CALLED", start, end)
-
-    console.log("UPDATE SELECTION ", start, end)
 
     let width = end.j - start.j;
     if(width <= 0) return;
@@ -183,7 +179,7 @@ export class SimulationComponent implements OnInit {
    
       //since we trimmed the draft, the selection is now the entire trimmed draft
       this.selection_bounds  = {
-        topleft: {x: this.boundary, y: this.boundary},
+        topleft: {x: 0, y: 0},
         width, height
       }
       this.recalcAndRenderSimData(crop, loom_settings,  this.selection_bounds);
@@ -191,7 +187,7 @@ export class SimulationComponent implements OnInit {
     }else{
 
       this.selection_bounds  = {
-        topleft: {x: start.j+this.boundary, y: start.i+this.boundary},
+        topleft: {x: start.j, y: start.i},
         width, height
       }
   
@@ -206,7 +202,7 @@ export class SimulationComponent implements OnInit {
   resetSelectionBounds(draft: Draft){
     if(draft == null) draft = this.tree.getDraft(this.id);
     this.selection_bounds = {
-      topleft: {x: this.boundary, y: this.boundary},
+      topleft: {x: 0, y: 0},
       width: warps(draft.drawdown),
       height: wefts(draft.drawdown)
     }
@@ -311,7 +307,6 @@ export class SimulationComponent implements OnInit {
       this.layer_threshold, 
       this.max_interlacement_width, 
       this.max_interlacement_height,
-      this.boundary,
       this.radius,
       this.ms
       )

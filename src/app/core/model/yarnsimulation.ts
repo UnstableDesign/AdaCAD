@@ -1,10 +1,11 @@
 
+import { D } from "@angular/cdk/keycodes";
 import { drawdown } from "../operations/drawdown/drawdown";
 import { MaterialsService } from "../provider/materials.service";
 import { getCellValue } from "./cell";
 import { Draft, Drawdown, CNFloat, CNIndex, CNType, Cell, ContactNeighborhood, SimulationVars, YarnVertex } from "./datatypes";
 import { warps, wefts } from "./drafts";
-
+import utilInstance from "./util";
 
 
 
@@ -87,6 +88,7 @@ import { warps, wefts } from "./drafts";
   }
 
   const getFace = (ndx:CNIndex, warps: number, cns:Array<ContactNeighborhood>) : boolean => {
+    console.log("GET FACE OF ", ndx.i, ndx.j)
     let cn = getCN(ndx, warps, cns);
     return cn.face
   }
@@ -103,6 +105,7 @@ import { warps, wefts } from "./drafts";
   }
 
   const setMvY = (ndx: CNIndex, warps: number, cns:Array<ContactNeighborhood>, mv_y: number) : Array<ContactNeighborhood> => {
+    if(ndx.j < 0 || ndx.j >= warps) return cns;
     let cn = getCN(ndx, warps, cns);
     cn.mv.y = mv_y;
     return cns;
@@ -114,6 +117,7 @@ import { warps, wefts } from "./drafts";
   }
 
   const setMvZ = (ndx: CNIndex, warps: number, cns:Array<ContactNeighborhood>, mv_z: number) : Array<ContactNeighborhood> => {
+    if(ndx.j < 0 || ndx.j >= warps) return cns;
     let cn = getCN(ndx, warps, cns);
     cn.mv.z = mv_z;
     return cns;
@@ -136,6 +140,37 @@ import { warps, wefts } from "./drafts";
   }
 
   /**
+   * in cases where we want to render this as though it were repeating, we do need to consider the edges and, if neccessary, set the beginning and ending indexes beyond the bounds of the cloth such that we can determine the behavior of the float. Essentially, this calculates "if this was a repeating structure, where would this weft have started"
+   */
+  const inferLeftIndex = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNIndex => {
+    console.log("INFER LEFT OF ", ndx)
+    if(ndx.id == 0) console.error("inferring left index from left ACN node");
+
+    //get all the active ACNs associated with this row. There should always be at least 2
+    let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN");
+    let closing_acn = active_acns.pop();
+    console.log("CLOSING NDX ", closing_acn)
+
+    if(closing_acn.ndx.id == 1) console.error("found right index when searching for left");
+
+    let dist_to_end = warps - closing_acn.ndx.j;
+    return {i: closing_acn.ndx.i, j: -dist_to_end, id: closing_acn.ndx.id}
+  }
+
+  const inferRightIndex = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNIndex => {
+
+    //should always start at a left (id: 0)
+    if(ndx.id == 1) console.error("inferring right index from right-sided ACN node", ndx);
+
+    //get all the active ACNs associated with this row. There should always be at least 2
+    let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN");
+    let first_acn = active_acns.shift();
+    console.log("FIRST ACN ", first_acn)
+    if(ndx.id == 0) console.error("found left index when searching for right");
+    return {i: first_acn.ndx.i, j: warps+first_acn.ndx.j, id: first_acn.ndx.id}
+  }
+
+  /**
    * searches starting at the index for begin for two nodes of type ACN, which cooresond to a float
    * @param begin 
    * @param left 
@@ -143,87 +178,97 @@ import { warps, wefts } from "./drafts";
    */
   export const getNextWeftFloat = (begin: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNFloat => {
 
-    
+    console.log("GET NEXT ", begin)
+
     let float_started = false;
     let face = false;
     let l_ndx = {i: -1, j: -1, id: 0};
     let r_ndx = {i: -1, j: -1, id: 0};
+    let edge = false;
 
 
-      //walk the row from float to float
+      //walk the row from ACN to ACN
       for(let j = begin.j; j < warps; j++){
 
-        //check the left side of this node
-        //if begin.id == 1 and j == 0 - don't check this
-        if(begin.id == 0 || j != begin.j){
-          if(getNodeType({i:begin.i, j, id:0}, warps, cns) == 'ACN'){
-            if(!float_started){
-              float_started = true
-              face = getFace({i:begin.i, j, id: 0}, warps, cns);
-              l_ndx = {i:begin.i, j, id: 0}
-            }else{
-              r_ndx = {i:begin.i, j, id: 0};
-              return {left:l_ndx, right:r_ndx, face}
-            }
-          }
+      //is the left hand side of this node contain an ACN?
+      if(getNodeType({i:begin.i, j, id:0}, warps, cns) == 'ACN'){
+        //valid floats much start on the left and end on the right
+        
+        if(!float_started){
+          float_started = true
+          face = getFace({i:begin.i, j, id: 0}, warps, cns);
+          l_ndx = {i:begin.i, j, id: 0}
         }
-
+      }
+    
        //check the right side of this node
         if(getNodeType({i:begin.i, j, id:1}, warps, cns) == 'ACN'){
-          if(!float_started){
-            float_started = true
-            face = getFace({i:begin.i, j, id: 1}, warps, cns);
-            l_ndx = {i:begin.i, j, id: 1}
-          }else{
+          if(float_started){
             r_ndx = {i:begin.i, j, id: 1};
-            return {left:l_ndx, right:r_ndx, face}
+            return {left:l_ndx, right:r_ndx, face, edge}
+          }else{
+            //we've reached the end of a float that began at the start of this row
+            edge = true;
+            face = getFace({i:begin.i, j, id: 1}, warps, cns);
+            r_ndx = {i:begin.i, j, id: 1};
+            l_ndx = inferLeftIndex({i:begin.i, j, id: 1}, warps, cns);
+            return {left:l_ndx, right:r_ndx, face, edge}
           }
         }
-        
+      }
+
+ 
+      //if we got to the end and there was a float started that isn't finished, we need to wrap around to find the finish
+      if(float_started){
+         edge = true;
+         face = getFace({i:begin.i, j:begin.j, id: 0}, warps, cns);
+         r_ndx = inferRightIndex({i:begin.i, j:begin.j, id: 0 }, warps, cns);
+         l_ndx = {i:begin.i, j:begin.j, id: 0};;
+         return {left:l_ndx, right:r_ndx, face, edge}
       }
 
     return null; //no complete float found
   } 
 
 
+  //given a list of j's that are attached under a float, this aims to make sense of those and build them into a float
   const extractFloat = (i: number, warps: number, face: boolean, segments: Array<number>, cns:Array<ContactNeighborhood>) : {float: CNFloat, last: number} => {
 
     //walk to the first ACN
     let start = null;
     let end = null;
+
     for(let s = 0; s < segments.length; s++){
      
       //check the left side
-      if(getNodeType({i, j:segments[s], id:0}, warps, cns) == 'ACN'){
+      let adj_j = utilInstance.mod(segments[s],warps);
+      if(getNodeType({i, j:adj_j, id:0}, warps, cns) == 'ACN'){
         if(start == null){
           start = {i, j:segments[s], id:0}
-        }else{
-          end = {i, j:segments[s], id:0};
-          return {float: {left: start, right:end, face: face}, last:s}
         }
       }
       //check the right side
-      if(getNodeType({i, j:segments[s], id:1}, warps, cns) == 'ACN'){
-        if(start == null){
-          start = {i, j:segments[s], id:0}
-        }else{
-          end = {i, j:segments[s], id:0};
-          return {float: {left: start, right:end, face: face}, last:s}
-
-        }
+      if(getNodeType({i, j:adj_j, id:1}, warps, cns) == 'ACN'){
+          if(start !== null){
+          end = {i, j:segments[s], id:1};
+          let edge = (end.j >= warps-1 || start.j <= 0);
+          return {float: {left: start, right:end, face, edge}, last:segments[s]}
+          }
       }
-      //got to the end and there was no closing this might mean we have reached the end of the row. 
-      return {float: null, last:s}
 
     }
+      //got to the end and there was no closing this might mean we have reached the end of the row. 
+      return {float: null, last:segments.length}
 
 
 
   }
 
+  
+
 
   /**
-   * get all the floats with teh same face value that share an edge with the input float that reside on the row indicated by i
+   * get all the floats with teh same face value that share an edge with the input float that reside on the row indicated by i. Given that if we are assuming repeats, some indexes might be beyond or not actually existing in the cn list
    * @param i 
    * @param warps 
    * @param float 
@@ -234,34 +279,45 @@ import { warps, wefts } from "./drafts";
     let attached = [];
     let segments = [];
 
+
     if(i < 0) return [];
 
 
+    //walk along the input float and push any lower neighbors that match face
     for(let j = float.left.j; j <= float.right.j ; j++){
-      let face = getFace({i, j, id:0}, warps, cns);
+      let adj_j = utilInstance.mod(j,warps); //protect when float ends are out of range
+      let face = getFace({i, j:adj_j, id:0}, warps, cns);
       if(float.face !== null && float.face == face){
         segments.push(j)
       }
     }
+
+    if(segments.length == 0) return [];
+
     //walk left to find attached
     let edge_found = false;
-    for(let j_left = segments[0]; j_left >= 0 && !edge_found; j_left--){
-       let face = getFace({i, j:j_left, id:0}, warps, cns);
+    for(let count = 1; count < warps && !edge_found; count++){
+       let adj_j = utilInstance.mod((segments[0] - count),warps);
+      console.log("ADJ J LEFT ", adj_j, segments, (segments[0] - count), warps)
+
+       let face = getFace({i, j: adj_j, id:0}, warps, cns);
         if(float.face !== null && float.face == face){
-          segments.unshift(j_left)
+          segments.unshift((segments[0] - count))
         }else{
           edge_found = true;
         }
     }
 
+
     //walk right to find attached
     edge_found = false;
-    for(let j_right = segments[segments.length-1]; j_right < warps && !edge_found; j_right++){
-       let face = getFace({i, j:j_right, id:0}, warps, cns);
+    for(let count = 1; count < warps && !edge_found; count++){
+      let adj_j = utilInstance.mod((segments[segments.length-1] + count),warps);
+       let face = getFace({i, j:adj_j, id:0}, warps, cns);
         if(float.face !== null && float.face == face){
-          segments.push(j_right);
+          segments.push((segments[segments.length-1] + count));
         }else{
-          edge_found;
+          edge_found = true;
         }
     }
 
@@ -270,10 +326,10 @@ import { warps, wefts } from "./drafts";
     while(segments.length > 0){
       let extracted = extractFloat(i, warps, float.face, segments, cns);
       if(extracted.float !== null){
-        attached.push(float)
+        attached.push(extracted.float)
       }
-      segments = segments.filter((el, ndx) => ndx > extracted.last);
 
+      segments = segments.filter((el, ndx) => ndx > extracted.last);
     }
 
     return attached;
@@ -293,13 +349,11 @@ import { warps, wefts } from "./drafts";
       let top_length = float.right.j - float.left.j;
       let bottom_length = el.right.j - el.left.j;      
       
-      if(float.right.j > el.right.j && float.left.j > el.right.j)  acc.push("BUILD");
-      if(float.right.j < el.right.j && float.left.j < el.right.j)  acc.push("BUILD");
-
-      if(top_length == bottom_length) acc.push("STACK");
-
-      if(float.left.j == el.left.j || float.right.j == el.right.j){
-        if(top.length > bottom_length){
+      if(float.right.j > el.right.j && float.left.j > el.left.j)  acc.push("BUILD");
+      else if(float.right.j < el.right.j && float.left.j < el.left.j)  acc.push("BUILD");
+      else if(float.right.j == el.right.j && float.left.j == el.left.j ) acc.push("STACK");
+      else if(float.left.j == el.left.j || float.right.j == el.right.j){
+        if(top_length > bottom_length){
           if(float.face == false) acc.push("SLIDE-OVER")
           else acc.push("SLIDE-UNDER")
         }else{
@@ -308,14 +362,16 @@ import { warps, wefts } from "./drafts";
         }
       }  
 
-      if(float.left.j < el.left.j && float.right.i > el.right.i){
+      else if(float.left.j < el.left.j && float.right.i > el.right.i){
         if(float.face == false) acc.push("SLIDE-OVER");  
         else acc.push("SLIDE-UNDER");  
       }
 
-      if(float.left.j > el.left.j && float.right.i < el.right.i){
+      else if(float.left.j > el.left.j && float.right.i < el.right.i){
         if(float.face == false) acc.push("SLIDE-UNDER");  
         else acc.push("SLIDE-OVER");  
+      }else{
+        console.error(" UNACCOUNTED FOR RELATIONSHIP FOUND BETWEEN ", float, el)
       }
       return acc;
     }, []);
@@ -336,7 +392,7 @@ import { warps, wefts } from "./drafts";
    * @param i the row number
    * @param cns the list of current contact neighborhoods
    */
-  export const packRow = (i: number, warps: number,  cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
+  export const packRow = (i: number, warps: number,  cns: Array<ContactNeighborhood>, assume_repeats:boolean) : Array<ContactNeighborhood> => {
 
 
       let float:CNFloat = getNextWeftFloat({i:i,j:0, id:0}, warps, cns)
@@ -344,9 +400,10 @@ import { warps, wefts } from "./drafts";
       while(float !== null ){
         //get all of the attached floats on the next row down 
         let attached: Array<CNFloat> = getAttachedFloats(i-1, warps, float, cns);
-        
+
         //determine what kind of relationship the 
         let reltn = getWarpwiseRelationship(float, attached);
+        //console.log(" FLOAT/Attached", float, attached, reltn)
 
         if(reltn.find(el => el == "BUILD") !== undefined){
           cns = setMvY(float.left, warps, cns, 0);
@@ -373,17 +430,16 @@ import { warps, wefts } from "./drafts";
           } 
         }
 
-        float = getNextWeftFloat({i:i,j:float.right.j, id:float.right.id}, warps, cns)      
+        //the ending float should always end on a right and start on a left 
+        float = getNextWeftFloat({i:i,j:float.right.j+1, id:0}, warps, cns)      
         }        
       
         return cns;
 
-
-
   }
 
   /**
-   * walks through a row of the draft and adds the heddle value and sets active nodes on interlacements
+   * Walks through the values in a given draft row and adds active nodes on both sides of any interlacement (shift from face a to b or b to a). It is also going to add active nodes on edges but looking at it's relationship to the start or end of the row. 
    * @param i the row id
    * @param dd the drawdown
    * @param cns the list of contact neighborhoods
@@ -391,8 +447,7 @@ import { warps, wefts } from "./drafts";
    */
   export const parseRow = (i:number, dd: Drawdown, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
     let width = warps(dd);
-      console.log("PARSING I", i)
-
+    let height = wefts(dd);
     for(let j = 0; j < warps(dd); j++){
 
       cns = setIndex({i, j, id:0}, width, cns);
@@ -406,41 +461,55 @@ import { warps, wefts } from "./drafts";
       cns = setFace({i, j, id:3},  width, cns, getCellValue(dd[i][j]))
      
 
+
+
       //check left 
-      if(j > 0 && getCellValue(dd[i][j]) != getCellValue(dd[i][j-1])){
+      if(j == 0 && getCellValue(dd[i][j]) != getCellValue(dd[i][width-1])){
+        cns = setNodeType({i, j, id:0}, width, cns, 'ACN')
+      }else if(j > 0 && getCellValue(dd[i][j]) != getCellValue(dd[i][j-1])){
         cns = setNodeType({i, j, id:0}, width, cns, 'ACN')
       }else{
         cns = setNodeType({i, j, id:0}, width, cns, 'PCN')
       }
 
       //check right
-      if(j < warps(dd)-1 && getCellValue(dd[i][j]) != getCellValue(dd[i][j+1])){
+      if(j == width -1 && getCellValue(dd[i][j]) != getCellValue(dd[i][0])){
+        cns = setNodeType({i, j, id:1}, width, cns, 'ACN')
+      } else if(j < width-1 && getCellValue(dd[i][j]) != getCellValue(dd[i][j+1])){
         cns = setNodeType({i, j, id:1}, width, cns, 'ACN')
       }else{
         cns = setNodeType({i, j, id:1}, width, cns, 'PCN')
       }
 
-      //check top
-      if(i < wefts(dd)-1 && getCellValue(dd[i][j]) != getCellValue(dd[i+1][j])){
+      //check TOP 
+      if(i == 0 && getCellValue(dd[i][j]) != getCellValue(dd[height-1][j])){
+        cns = setNodeType({i, j, id:2}, width, cns, 'ACN')
+      }else if(i > 0 && getCellValue(dd[i][j]) != getCellValue(dd[i-1][j])){
         cns = setNodeType({i, j, id:2}, width, cns, 'ACN')
       }else{
         cns = setNodeType({i, j, id:2}, width, cns, 'PCN')
       }
 
-      //check bottom 
-      if(i > 0 && getCellValue(dd[i][j]) != getCellValue(dd[i-1][j])){
+      //check BOTTOM
+      if(i == height-1 && getCellValue(dd[i][j]) != getCellValue(dd[0][j])){
+        cns = setNodeType({i, j, id:3}, width, cns, 'ACN')
+      }else if(i < height-1 && getCellValue(dd[i][j]) != getCellValue(dd[i+1][j])){
         cns = setNodeType({i, j, id:3}, width, cns, 'ACN')
       }else{
         cns = setNodeType({i, j, id:3}, width, cns, 'PCN')
       }
+
+
     }
     return cns;
   }
 
+
+
   export const parseDrawdown = (dd: Drawdown, cns: Array<ContactNeighborhood>) : Promise<Array<ContactNeighborhood>> => {
     for(let i = 0; i < wefts(dd); i++){
          cns = parseRow(i, dd, cns);
-         cns = packRow(i, warps(dd), cns);
+         cns = packRow(i, warps(dd), cns, true);
     }
     return Promise.resolve(cns);
   }
@@ -506,8 +575,6 @@ import { warps, wefts } from "./drafts";
           return acc;
         }, {el: null, dist:10000});
 
-      console.log("OPTS",opts, closest)
-
         return closest.el.y;
 
       }
@@ -517,42 +584,49 @@ import { warps, wefts } from "./drafts";
     }
 
 
-   const createVertex = (ndx: CNIndex, warps:number, vtxs: Array<YarnVertex>, cns:Array<ContactNeighborhood>, sim: SimulationVars) : YarnVertex =>{
+   const createVertex = (ndx: CNIndex, d:Draft, vtxs: Array<YarnVertex>, cns:Array<ContactNeighborhood>, sim: SimulationVars) : YarnVertex =>{
+
+    let width = warps(d.drawdown);
+    let weft_material_id = d.rowShuttleMapping[ndx.i];
+    let weft_diameter = sim.ms.getDiameter(weft_material_id);
+    let warp_material_id = d.colShuttleMapping[ndx.j];
+    let warp_diameter = sim.ms.getDiameter(warp_material_id);
+
 
 
     let stack = false;
-    let y = ndx.i * sim.ms.getDiameter(0); //set a baseline based on the row and material width
-    let mvy = Math.abs(getMvY(ndx, warps, cns));
+    let y = ndx.i * weft_diameter; //set a baseline based on the row and material width
+    let mvy = Math.abs(getMvY(ndx, width, cns));
 
     //handle any .5 values created to indicate a stack
     if(Math.floor(mvy) != mvy){
       stack = true;
-      mvy = Math.ceil(mvy);
+      mvy = Math.floor(mvy);
     } 
 
-    let reference_i = ndx.i - mvy; //slide values are always negative
-    console.log("**** REFERENCE I **** ", reference_i)
-    if(reference_i > 0){
+    let reference_i = ndx.i - mvy -1; //slide values are always negative
+    if(reference_i >= 0){
 
-      let reference_y = getReferenceY(ndx, reference_i, vtxs);
-      console.log("REFERENCE Y IS ", reference_y)
-      if(stack) y = reference_y + sim.ms.getDiameter(0)/2;
-      else y = reference_y + sim.ms.getDiameter(0);
+      let reference_y =  getReferenceY(ndx, reference_i, vtxs);
+      if(stack) y = reference_y + weft_diameter/2;
+      else y = reference_y + weft_diameter;
     }
 
     
     //let the layer first
-    let z = getMvZ(ndx, warps, cns) * sim.layer_spacing;
+    let z = getMvZ(ndx, width, cns) * sim.layer_spacing;
     //then adjust for which side of the warp it is sitting upon. 
-    if(getFace(ndx, warps, cns)) z += sim.ms.getDiameter(0);
-    else z -= sim.ms.getDiameter(0);
+    if(getFace(ndx, width, cns)) z += warp_diameter;
+    else z -= warp_diameter;
 
 
     let x = sim.warp_spacing * ndx.j;
-    if(ndx.id == 0) x -= sim.ms.getDiameter(0);
-    if(ndx.id == 1) x += sim.ms.getDiameter(0);
+    if(ndx.id == 0) x -= warp_diameter;
+    if(ndx.id == 1) x += warp_diameter;
 
-    return {ndx,x, y, z}
+    console.log("CREATED VERTEX AT ", ndx, getCN(ndx, width, cns), {ndx,x, y, z})
+
+    return {ndx,x, y, z, weft_material_id}
 
 
   }
@@ -576,11 +650,12 @@ import { warps, wefts } from "./drafts";
       if(direction){
         for(let j = 0; j < warpnum; j++){
           if(getNodeType({i, j, id:0}, warpnum, cns) == 'ACN'){
-            let vtx = createVertex({i, j, id:0}, warpnum, vtx_list, cns, sim);
+            let vtx = createVertex({i, j, id:0}, draft, vtx_list, cns, sim);
             vtx_list.push(vtx);
           }
+
            if(getNodeType({i, j, id:1}, warpnum, cns) == 'ACN'){
-            let vtx = createVertex({i, j, id:0}, warpnum, vtx_list, cns, sim);
+            let vtx = createVertex({i, j, id:1}, draft, vtx_list, cns, sim);
             vtx_list.push(vtx);
           }
         }
@@ -588,11 +663,11 @@ import { warps, wefts } from "./drafts";
       }else{
         for(let j = warpnum-1; j >= 0; j--){
           if(getNodeType({i, j, id:1}, warpnum, cns) == 'ACN'){
-            let vtx = createVertex({i, j, id:0}, warpnum, vtx_list, cns, sim);
+            let vtx = createVertex({i, j, id:1}, draft, vtx_list, cns, sim);
             vtx_list.push(vtx);
           }
            if(getNodeType({i, j, id:0}, warpnum, cns) == 'ACN'){
-            let vtx = createVertex({i, j, id:0}, warpnum, vtx_list, cns, sim);
+            let vtx = createVertex({i, j, id:0}, draft, vtx_list, cns, sim);
             vtx_list.push(vtx);
           }
         }
@@ -602,6 +677,15 @@ import { warps, wefts } from "./drafts";
     }
    
     return Promise.resolve(vtx_list);
+  }
+
+  /**
+   * it is possible that some ACS, particularly those assocated with edges or segments that cross between two faces, will not get assigned move numbers. This function has these ACNS inherit their move factors 
+   * @param d 
+   * @param cns 
+   */
+  export const cleanACNs = (d: Drawdown, cns: Array<ContactNeighborhood>) : Promise<Array<ContactNeighborhood>> => {
+    return Promise.resolve(cns);
   }
 
   export const calcClothHeightOffsetFactor = (diam: number, radius: number, offset: number) : number => {

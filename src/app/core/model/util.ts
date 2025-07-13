@@ -1173,6 +1173,17 @@ async saveAsWif(fs: FileService, draft: Draft, loom:Loom, loom_settings:LoomSett
   
 }
 
+
+/**
+ * a stricter variant of the mod operator that will never return a - number
+ * @param n 
+ * @param m 
+ * @returns 
+ */
+mod(n: number, m:number){
+  return ((n % m) + m) % m;
+}
+
 async saveAsPrint(el: any, draft: Draft, floats: boolean, use_colors: boolean, selected_origin_option: number, ms: MaterialsService, ss: SystemsService, fs: FileService ) {
 
   let b = el;

@@ -806,8 +806,9 @@ export type CNIndex = {
 
 export type CNFloat = {
   left: CNIndex, 
-  right: CNIndex
-  face: boolean
+  right: CNIndex,
+  face: boolean,
+  edge: boolean
 }
 
 /**
@@ -827,7 +828,8 @@ export type YarnVertex = {
   x: number, 
   y: number, 
   z: number, 
-  ndx: CNIndex
+  ndx: CNIndex,
+  weft_material_id: number
 };
 
 
@@ -859,7 +861,6 @@ export type SimulationVars = {
   layer_threshold: number,
   max_interlacement_width: number,
   max_interlacement_height: number,
-  boundary: number,
   radius: number,
   ms: MaterialsService
 }
