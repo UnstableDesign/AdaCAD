@@ -796,41 +796,41 @@ export interface TreeNode{
  */
 export type YarnCell = number;
 
+export type CNType = 'ACN' | 'ECN'| 'PCN'; 
+
+export type CNIndex = {
+  i: number, 
+  j: number,
+  id: number
+}
+
+export type CNFloat = {
+  left: CNIndex, 
+  right: CNIndex
+  face: boolean
+}
 
 /**
  * represts the point of this yarn within the simulation
  */
+
+export type ContactNeighborhood = {
+  face: boolean,
+  node_type: CNType,
+  mv: {y: number, z: number}
+  ndx: CNIndex
+}
+
+
+
 export type YarnVertex = {
   x: number, 
   y: number, 
   z: number, 
-  i: number, 
-  j: number
-};
-
-/**
- * used in the relaxing round of the simulation to store teh amount of deflection that should be inflicted on any individual vertex. 
- */
-export type Deflection = {
-  dx: number, 
-  dy: number, 
-  dz: number, 
-  i: number, 
-  j: number
+  ndx: CNIndex
 };
 
 
-
-
-/**
- * used to calculate arching of floats
- */
-export type YarnFloat = {
-  heddle: boolean, 
-  end: number,
-  start: number,
-  layer: number
-}
 
 
 
@@ -844,64 +844,13 @@ export type YarnSimSettings = {
 
 }
 
-export type WarpInterlacementTuple = {
-  j: number, 
-  i_top: number,
-  i_bot: number,
-  orientation: boolean; //true = black cell over white, false white over black. 
-}
 
-export type WeftInterlacementTuple = {
-  i: number, 
-  j_left: number,
-  j_right: number,
-  orientation: boolean //true = black left white right 
-}
-
-export type InterlacementLayerMap = {
-  i: number, 
-  j: number,
-  layer: number
-
-}
-
-//marks a point of interlacement between wefts and warps
-// x -             - x
-// - x === true    x - == false
-export type TopologyVtx ={
-  id: string,
-  i_top: number,
-  i_bot: number,
-  j_left: number,
-  j_right: number,
-  z_pos: number,
-  orientation: boolean;
-
-}
-
-export type WarpRange ={
-  j_left: number, 
-  j_right: number
-
-}
-
-export type WarpWeftLayerCount = {
-  ndx: number, 
-  count: number,
-  layer: number
-}
-
-export type WarpHeight = {
-  over: number,
-  under: number
-}
 
 export type SimulationData = {
   draft: Draft,
   sim: SimulationVars,
-  topo: Array<TopologyVtx>,
-  vtxs: VertexMaps,
-  layer_maps: LayerMaps
+  topo: Array<ContactNeighborhood>,
+  weft_vtxs: Array<YarnVertex>,
 };
 
 export type SimulationVars = {
@@ -913,16 +862,6 @@ export type SimulationVars = {
   boundary: number,
   radius: number,
   ms: MaterialsService
-}
-
-export type LayerMaps = {
-  warp: Array<Array<number>>,
-  weft: Array<Array<number>>
-}
-
-export type VertexMaps = {
-  warps: Array<Array<YarnVertex>>,
-  wefts: Array<Array<YarnVertex>>
 }
 
 

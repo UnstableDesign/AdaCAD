@@ -1,6 +1,5 @@
-import { drawdown } from "../operations/drawdown/drawdown";
 import { createCell, getCellValue, setCellValue } from "./cell";
-import { Draft, Drawdown, YarnFloat, Cell, CompressedDraft, Material, DraftCellColor } from "./datatypes";
+import { Draft, Drawdown, Cell, CompressedDraft, Material, DraftCellColor } from "./datatypes";
 import { defaults, rendering_color_defaults } from "./defaults";
 import utilInstance from "./util";
 
