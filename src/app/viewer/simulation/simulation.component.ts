@@ -1,12 +1,14 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { TreeService } from '../../core/provider/tree.service';
 import { SimulationService } from '../../core/provider/simulation.service';
-import { Bounds, Draft, Interlacement, LoomSettings, SimulationData } from '../../core/model/datatypes';
+import { Bounds, Draft, Interlacement, LoomSettings, SimulationData, SimulationVars } from '../../core/model/datatypes';
 import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { cropDraft, warps, wefts } from '../../core/model/drafts';
+import {GUI} from 'dat.gui'
+import { defaults } from '../../core/model/defaults';
 
 @Component({
   selector: 'app-simulation',
@@ -23,20 +25,13 @@ export class SimulationComponent implements OnInit {
   scene;
   camera;
   controls;
+  gui;
   sim_expanded: boolean = false;
-  layer_spacing: number = 10;
-  layer_threshold: number = 1;
-  warp_threshold: number = 10;
-  max_interlacement_width: number = 10;
-  max_interlacement_height: number = 10;
-  showing_warp_layer_map: boolean = false;
-  showing_weft_layer_map: boolean = false;
-  showing_warps: boolean = true;
-  showing_wefts: boolean = true;
-  showing_topo: boolean = false;
-  showing_draft: boolean = false;
-  radius: number = 40;
-  current_simdata: SimulationData = null;
+
+  simVars: SimulationVars = null;
+  simData: SimulationData = null;
+
+
   tanFOV: number = 0;
   originalHeight: number = 0; 
   dirty: boolean; //flags the need to recompute 
@@ -46,9 +41,15 @@ export class SimulationComponent implements OnInit {
   constructor(
     private tree: TreeService, 
     public ms: MaterialsService,  
-    public simulation: SimulationService) {
+    public sim: SimulationService) {
 
-
+    this.simVars = {
+      warp_spacing: 10,
+      wefts_as_written: defaults.wefts_as_written,
+      layer_spacing: defaults.layer_spacing, 
+      radius: 40, 
+      ms: this.ms
+    }
 
 
   }
@@ -61,6 +62,7 @@ export class SimulationComponent implements OnInit {
   // }
 
   ngOnInit(): void {
+
 
     
   }
@@ -78,6 +80,18 @@ export class SimulationComponent implements OnInit {
     let width = parent_rect.width;
     let height = parent_rect.height;
 
+    this.gui = new GUI({autoPlace: false});
+    div.appendChild(this.gui.domElement)
+
+    const weft_change = this.gui.add(this.simVars, 'wefts_as_written');
+    weft_change.onChange((value) => {
+          this.handleWeftAsWrittenChange(value); // `this` refers to the App instance
+        });
+    
+    const warp_spacing_change = this.gui.add(this.simVars, 'warp_spacing', 1, 50, 1);
+    warp_spacing_change.onChange((value) => {
+          this.handleWarpSpacingChange(value); // `this` refers to the App instance
+        });
 
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize( width, height );
@@ -105,24 +119,21 @@ export class SimulationComponent implements OnInit {
 
   }
 
-  calcDefaultLayerSpacing(draft: Draft){
-
-    let max_weft = draft.rowShuttleMapping.reduce((acc, val) => {
-      let diam = this.ms.getDiameter(val);
-      if(diam > acc) return diam;
-      return acc;
-    }, 0);
-
-    let max_warp = draft.colShuttleMapping.reduce((acc, val) => {
-      let diam = this.ms.getDiameter(val);
-      if(diam > acc) return diam;
-      return acc;
-    }, 0);
-
-    return (max_weft/2 + max_warp/2) * 10;
-
+  handleWeftAsWrittenChange(value) {
+      console.log("SIM VARS ARE ", this.simVars, value)
+    this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
+      this.simData = simdata;
+      this.redrawCurrentSim();
+    })  
   }
 
+  handleWarpSpacingChange(value) {
+      console.log("SIM VARS ARE ", this.simVars, value)
+    this.sim.recomputeVerticies(this.simData, this.simVars).then(simdata => {
+      this.simData = simdata;
+      this.redrawCurrentSim();
+    })  
+  }
 
 
 
@@ -136,7 +147,12 @@ export class SimulationComponent implements OnInit {
 
 
   endSimulation(){
-    this.simulation.endSimulation(this.scene);
+    this.sim.endSimulation(this.scene);
+  }
+
+  public resetSimVars(d: Draft, ls: LoomSettings){
+   this.simVars.warp_spacing  = convertEPItoMM(ls);
+   this.simVars.layer_spacing  = defaults.layer_spacing;
   }
 
 
@@ -144,11 +160,14 @@ export class SimulationComponent implements OnInit {
 
     const draft = this.tree.getDraft(id);
     const loom_settings = this.tree.getLoomSettings(id);
+    
+    //reset the sim vars 
+    this.resetSimVars(draft, loom_settings);
 
-    this.layer_spacing = this.calcDefaultLayerSpacing(draft);
-    this.simulation.setupSimulation(this.renderer, this.scene, this.camera, this.controls);
+   //this.layer_spacing = this.calcDefaultLayerSpacing(draft);
+    this.sim.setupSimulation(this.renderer, this.scene, this.camera, this.controls, this.gui);
     this.resetSelectionBounds(draft);
-    this.recalcAndRenderSimData(draft, loom_settings, this.selection_bounds);
+    this.recalcAndRenderSimData(draft, this.selection_bounds);
     return Promise.resolve('done')
   
   }
@@ -171,7 +190,7 @@ export class SimulationComponent implements OnInit {
 
 
     //recalc if this was currently too large to render or if we are making a new selection within an existing  
-    if(this.current_simdata == null || this.render_size_error){
+    if(this.simData == null || this.render_size_error){
 
       let draft = this.tree.getDraft(this.id);
       let loom_settings = this.tree.getLoomSettings(this.id);
@@ -182,7 +201,7 @@ export class SimulationComponent implements OnInit {
         topleft: {x: 0, y: 0},
         width, height
       }
-      this.recalcAndRenderSimData(crop, loom_settings,  this.selection_bounds);
+      this.recalcAndRenderSimData(crop, this.selection_bounds);
 
     }else{
 
@@ -192,7 +211,7 @@ export class SimulationComponent implements OnInit {
       }
   
       console.log("RENDERING UPDATED DATA ", this.selection_bounds)
-      this.simulation.renderSimdata(this.scene, this.selection_bounds, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
+      this.sim.redraw(this.scene, this.selection_bounds, this.simData, this.simVars);
 
     }
 
@@ -214,7 +233,7 @@ export class SimulationComponent implements OnInit {
   unsetSelection(){
 
     this.resetSelectionBounds(null);
-    this.simulation.renderSimdata(this.scene, this.selection_bounds, this.current_simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map, this.showing_topo, this.showing_draft);
+    this.sim.redraw(this.scene, this.selection_bounds, this.simData, this.simVars);
   }
 
   /**
@@ -223,11 +242,11 @@ export class SimulationComponent implements OnInit {
    * @param draft 
    * @param loom_settings 
    */
-  updateSimulation(draft: Draft, loom_settings: LoomSettings){
+  updateSimulation(draft: Draft, loom_settings: LoomSettings, sim: SimulationVars){
     
 
     if(!this.dirty) return; //only recalc and redraw when there is a change that requires it. 
-    this.recalcAndRenderSimData(draft, loom_settings, this.selection_bounds);
+    this.recalcAndRenderSimData(draft, this.selection_bounds);
 
   }
 
@@ -236,97 +255,86 @@ export class SimulationComponent implements OnInit {
   // }
 
   snapToX(){
-    this.simulation.snapToX(this.controls);
+    this.sim.snapToX(this.controls);
   }
 
-  toggleWefts(){
-    if(!this.showing_wefts) this.simulation.showWefts();
-    else this.simulation.hideWefts();
-  }
+  // toggleWefts(){
+  //   if(!this.showing_wefts) this.simulation.showWefts();
+  //   else this.simulation.hideWefts();
+  // }
 
-  toggleDraft(){
-    if(!this.showing_draft) this.simulation.showDraft();
-    else this.simulation.hideDraft();
-  }
+  // toggleDraft(){
+  //   if(!this.showing_draft) this.simulation.showDraft();
+  //   else this.simulation.hideDraft();
+  // }
 
-  toggleWarps(){
-    if(!this.showing_warps) this.simulation.showWarps();
-    else this.simulation.hideWarps();
-  }
+  // toggleWarps(){
+  //   if(!this.showing_warps) this.simulation.showWarps();
+  //   else this.simulation.hideWarps();
+  // }
 
 
-  toggleTopo(){
-    if(!this.showing_topo) this.simulation.showTopo();
-    else this.simulation.hideTopo();
-  }
+  // toggleTopo(){
+  //   if(!this.showing_topo) this.simulation.showTopo();
+  //   else this.simulation.hideTopo();
+  // }
 
-  toggleWeftLayerView(){
-    if(!this.showing_weft_layer_map) this.simulation.showWeftLayerMap();
-    else this.simulation.hideWeftLayerMap();
-  }
+  // toggleWeftLayerView(){
+  //   if(!this.showing_weft_layer_map) this.simulation.showWeftLayerMap();
+  //   else this.simulation.hideWeftLayerMap();
+  // }
 
-  toggleWarpLayerView(){
-    if(!this.showing_warp_layer_map) this.simulation.showWarpLayerMap();
-    else this.simulation.hideWarpLayerMap();
-  }
+  // toggleWarpLayerView(){
+  //   if(!this.sim.showing_warp_layer_map) this.simulation.showWarpLayerMap();
+  //   else this.simulation.hideWarpLayerMap();
+  // }
 
 
   changeRadius(e: any){
     let draft = this.tree.getDraft(this.id);
     let loom_settings = this.tree.getLoomSettings(this.id);
-    this.recalcAndRenderSimData(draft, loom_settings, this.selection_bounds);
+    this.recalcAndRenderSimData(draft, this.selection_bounds);
   }
 
 
-  // changeLayerSpacing(e: any){
-
-  //   this.simulation.redrawCurrentSim(this.scene, this.draft)
-  // }
-
-
-  //this will update the colors on the current sim without recomputing the layer maps
+  //redraws whatever is stored at this.simData. 
   redrawCurrentSim(){
+    this.sim.redraw(this.scene, this.selection_bounds, this.simData, this.simVars)
+
+  }
+
+  redrawSimColors(){
     let draft = this.tree.getDraft(this.id);
-    this.simulation.redrawCurrentSim(this.scene, draft)
+    this.sim.redrawSimColors(this.scene, draft, this.simVars)
 
   }
 
   /**
-   * recomputes the simulation data for a given draft and selection (e.g. if will only compute the selection if there is one). Loom settings is passed to speak for the EPI. 
+   * recomputes the topology and verticies of the simulation data for a given draft and selection (e.g. if will only compute the selection if there is one). Loom settings is passed to speak for the EPI. 
    * @param draft 
    * @param loom_settings 
    * @param selection the bounds of the selection or null if no selection has been made. 
    */
-  recalcAndRenderSimData(draft: Draft, loom_settings: LoomSettings, selection: Bounds){
+  recalcAndRenderSimData(draft: Draft, selection: Bounds){
 
-    this.simulation.recalcSimData(
-      this.scene, 
-      draft, 
-      convertEPItoMM(loom_settings), 
-      this.layer_spacing, 
-      this.layer_threshold, 
-      this.max_interlacement_width, 
-      this.max_interlacement_height,
-      this.radius,
-      this.ms
-      )
+    this.sim.recalcSimData(draft, this.simVars)
     .then(simdata => {
+      
+      this.simData = simdata;
+
       document.getElementById('sizeerror').style.display = "none"
       document.getElementById('simulation_container').style.display = "flex";
       this.render_size_error = false;
-      this.current_simdata = simdata;
-      this.simulation.renderSimdata(this.scene, selection,  simdata, this.showing_warps, this.showing_wefts, this.showing_warp_layer_map, this.showing_weft_layer_map,this.showing_topo, this.showing_draft);
+      this.sim.redraw(this.scene, selection, this.simData, this.simVars);
+    
     }).catch(err => {
+
+      this.simData = null;
       console.error("Gen Sim Data Returned Error", err);
-      this.current_simdata = null;
       this.render_size_error = true;
       document.getElementById('sizeerror').style.display = "block"
       document.getElementById('simulation_container').style.display = "none"
     })
-  
-
-
-
   }
 
 
@@ -341,12 +349,10 @@ export class SimulationComponent implements OnInit {
 
 
   pageClose(){
-    this.simulation.endSimulation(this.scene);
+    this.sim.endSimulation(this.scene);
   }
 
   expandSimulation(){
-
-    console.log("EXPAND")
    
     this.onExpanded.emit();
     this.sim_expanded = !this.sim_expanded;
@@ -358,7 +364,6 @@ export class SimulationComponent implements OnInit {
    * this gets called even if its not open!
    */
   onWindowResize() {
-    console.log("ON RESIZE")
     let width;
 
     if(this.sim_expanded)   width = 2*window.innerWidth/3;

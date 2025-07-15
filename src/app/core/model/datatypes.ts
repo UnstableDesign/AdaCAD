@@ -796,7 +796,13 @@ export interface TreeNode{
  */
 export type YarnCell = number;
 
-export type CNType = 'ACN' | 'ECN'| 'PCN'; 
+/**
+ * ACN - actual contact point
+ * ECN - empty contact point
+ * PCN - potential contact point (there is a weft that float over this point)
+ * VCN - virtual contact point (used only to draw ends of rows for sim when you want full width no matter what)
+ */
+export type CNType = 'ACN' | 'ECN'| 'PCN' | 'VCN'; 
 
 export type CNIndex = {
   i: number, 
@@ -828,9 +834,15 @@ export type YarnVertex = {
   x: number, 
   y: number, 
   z: number, 
-  ndx: CNIndex,
-  weft_material_id: number
+  ndx: CNIndex
 };
+
+export type WeftPath = {
+  system: number,
+  material: number,
+  vtxs: Array<YarnVertex>,
+  pics: Array<number> // the id's of the pics that fit this description
+}
 
 
 
@@ -850,17 +862,14 @@ export type YarnSimSettings = {
 
 export type SimulationData = {
   draft: Draft,
-  sim: SimulationVars,
   topo: Array<ContactNeighborhood>,
-  weft_vtxs: Array<YarnVertex>,
+  wefts: Array<WeftPath>
 };
 
 export type SimulationVars = {
   warp_spacing: number, 
   layer_spacing: number,
-  layer_threshold: number,
-  max_interlacement_width: number,
-  max_interlacement_height: number,
+  wefts_as_written: boolean,
   radius: number,
   ms: MaterialsService
 }
