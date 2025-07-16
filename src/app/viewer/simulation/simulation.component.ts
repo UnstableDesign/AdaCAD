@@ -44,6 +44,7 @@ export class SimulationComponent implements OnInit {
     public sim: SimulationService) {
 
     this.simVars = {
+      pack: defaults.pack,
       warp_spacing: 10,
       wefts_as_written: defaults.wefts_as_written,
       layer_spacing: defaults.layer_spacing, 
@@ -55,11 +56,11 @@ export class SimulationComponent implements OnInit {
   }
 
 
-  // @HostListener('window:resize', ['$event'])
-  // onResize(event) {
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
     
-  //   this.onWindowResize();
-  // }
+    this.onWindowResize();
+  }
 
   ngOnInit(): void {
 
@@ -83,6 +84,11 @@ export class SimulationComponent implements OnInit {
     this.gui = new GUI({autoPlace: false});
     div.appendChild(this.gui.domElement)
 
+    const pack = this.gui.add(this.simVars, 'pack', 0, 100);
+    pack.onChange((value) => {
+          this.handlePackChange(value); // `this` refers to the App instance
+        });
+    
     const weft_change = this.gui.add(this.simVars, 'wefts_as_written');
     weft_change.onChange((value) => {
           this.handleWeftAsWrittenChange(value); // `this` refers to the App instance
@@ -92,6 +98,12 @@ export class SimulationComponent implements OnInit {
     warp_spacing_change.onChange((value) => {
           this.handleWarpSpacingChange(value); // `this` refers to the App instance
         });
+
+    const layer_spacing_change = this.gui.add(this.simVars, 'layer_spacing', 0, 50, 1);
+    layer_spacing_change.onChange((value) => {
+          this.handleLayerSpacingChange(value); // `this` refers to the App instance
+        });
+
 
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize( width, height );
@@ -119,16 +131,30 @@ export class SimulationComponent implements OnInit {
 
   }
 
-  handleWeftAsWrittenChange(value) {
-      console.log("SIM VARS ARE ", this.simVars, value)
+  handlePackChange(value) {
     this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })  
   }
 
+
+  handleWeftAsWrittenChange(value) {
+    this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
+      this.simData = simdata;
+      this.redrawCurrentSim();
+    })  
+  }
+
+  handleLayerSpacingChange(value) {
+    this.sim.recomputeVerticies(this.simData, this.simVars).then(simdata => {
+      this.simData = simdata;
+      this.redrawCurrentSim();
+    })  
+  }
+
+
   handleWarpSpacingChange(value) {
-      console.log("SIM VARS ARE ", this.simVars, value)
     this.sim.recomputeVerticies(this.simData, this.simVars).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();

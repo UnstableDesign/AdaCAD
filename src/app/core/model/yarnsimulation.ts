@@ -156,67 +156,127 @@ import utilInstance from "./util";
     let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN" && el.ndx.id == 1);
     if(active_acns.length == 0) console.error("no ACNS indexes found on right side nodes");
     let first_acn = active_acns.shift();
+    console.log("ACTIVE / FIRST ACN ", active_acns, first_acn)
     return {i: first_acn.ndx.i, j: warps+first_acn.ndx.j, id: first_acn.ndx.id}
   }
 
+
   /**
-   * searches starting at the index for begin for two nodes of type ACN, which cooresond to a float
+   * uses the contact neighborhoods on this row to get a list of floats. Some floats may be out of range (> warps) so that they can readily apply to the warpwise relationships
+   * @param i 
+   * @param warps 
+   * @param cns 
+   * @returns 
+   */
+  export const getRowAsFloats = (i: number, warps: number, cns: Array<ContactNeighborhood>) : Array<CNFloat> => {
+
+    let floats = [];
+    let lefts = cns.filter(el => el.node_type == 'ACN' && el.ndx.i == i && el.ndx.id == 0);
+    let rights = cns.filter(el => el.node_type == 'ACN' && el.ndx.i == i && el.ndx.id == 1);
+    if(lefts.length !== rights.length) console.error("THIS ROW HAS AN UNEVEN NUMBER OF ACNS")
+
+    lefts.forEach(left => {
+      let found = false;
+     
+      for(let j = left.ndx.j; j < warps && !found; j++){
+        let right = rights.find(el => el.ndx.j == j);
+        if(right !== undefined){
+          found = true;
+          floats.push({
+            left:left.ndx, 
+            right: right.ndx,
+            edge: false,
+            face: left.face 
+          })
+        }
+      }
+
+      if(!found){
+        let right = rights.shift();
+        floats.push({
+            left:left.ndx, 
+            right: {i: right.ndx.i, j: warps+right.ndx.j, id:1}, //get the first in the list
+            edge: false,
+            face: left.face 
+          })
+      }
+
+
+    })
+
+    return floats;
+
+
+  }
+
+  /**
+   * searches starting at the index for begin for two nodes of type ACN, which correspond to a float
+   * this can return j values that are out of range since it measure how long the float would be if it repeated, not just from start to finish. 
    * @param begin 
    * @param left 
    * @param right 
    */
-  export const getNextWeftFloat = (begin: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNFloat => {
+  // export const getNextWeftFloat = (begin: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNFloat => {
+
+  //   let float_started = false;
+  //   let face = false;
+  //   let l_ndx = {i: -1, j: -1, id: 0};
+  //   let r_ndx = {i: -1, j: -1, id: 0};
+  //   let edge = false;
 
 
-    let float_started = false;
-    let face = false;
-    let l_ndx = {i: -1, j: -1, id: 0};
-    let r_ndx = {i: -1, j: -1, id: 0};
-    let edge = false;
+  //     //walk the row from ACN to ACN
+  //     for(let j = begin.j; j < warps; j++){
 
-
-      //walk the row from ACN to ACN
-      for(let j = begin.j; j < warps; j++){
-
-      //is the left hand side of this node contain an ACN?
-      if(getNodeType({i:begin.i, j, id:0}, warps, cns) == 'ACN'){
-        //valid floats much start on the left and end on the right
+  //     //is the left hand side of this node contain an ACN?
+  //     if(getNodeType({i:begin.i, j, id:0}, warps, cns) == 'ACN'){
+  //       //valid floats much start on the left and end on the right
         
-        if(!float_started){
-          float_started = true
-          face = getFace({i:begin.i, j, id: 0}, warps, cns);
-          l_ndx = {i:begin.i, j, id: 0}
-        }
-      }
+  //       if(!float_started){
+  //         float_started = true
+  //         face = getFace({i:begin.i, j, id: 0}, warps, cns);
+  //         l_ndx = {i:begin.i, j, id: 0}
+  //       }
+  //     }
     
-       //check the right side of this node
-        if(getNodeType({i:begin.i, j, id:1}, warps, cns) == 'ACN'){
-          if(float_started){
-            r_ndx = {i:begin.i, j, id: 1};
-            return {left:l_ndx, right:r_ndx, face, edge}
-          }else{
-            //we've reached the end of a float that began at the start of this row
-            edge = true;
-            face = getFace({i:begin.i, j, id: 1}, warps, cns);
-            r_ndx = {i:begin.i, j, id: 1};
-            l_ndx = inferLeftIndex({i:begin.i, j, id: 1}, warps, cns);
-            return {left:l_ndx, right:r_ndx, face, edge}
-          }
-        }
-      }
+  //      //check the right side of this node
+  //       if(getNodeType({i:begin.i, j, id:1}, warps, cns) == 'ACN'){
+  //         if(float_started){
+  //           console.log("end found AT ", j, " right ")
+
+  //           r_ndx = {i:begin.i, j, id: 1};
+  //           return {left:l_ndx, right:r_ndx, face, edge}
+  //         }else{
+  //            console.log("this float is starting on the left")
+
+  //           //we've reached the end of a float that began at the start of this row
+  //           edge = true;
+  //           face = getFace({i:begin.i, j, id: 1}, warps, cns);
+  //           r_ndx = {i:begin.i, j, id: 1};
+  //           l_ndx = inferLeftIndex({i:begin.i, j, id: 1}, warps, cns);
+  //           return {left:l_ndx, right:r_ndx, face, edge}
+  //         }
+  //       }
+  //     }
 
  
-      //if we got to the end and there was a float started that isn't finished, we need to wrap around to find the finish
-      if(float_started){
-         edge = true;
-         face = getFace({i:begin.i, j:begin.j, id: 0}, warps, cns);
-         r_ndx = inferRightIndex({i:begin.i, j:begin.j, id: 0 }, warps, cns);
-         l_ndx = {i:begin.i, j:begin.j, id: 0};;
-         return {left:l_ndx, right:r_ndx, face, edge}
-      }
+  //     //if we got to the end and there was a float started that isn't finished, we need to wrap around to find the finish
+  //     if(float_started){
+  //        console.log("this never ended")
 
-    return null; //no complete float found
-  } 
+  //        edge = true;
+  //        face = getFace({i:begin.i, j:begin.j, id: 0}, warps, cns);
+  //        r_ndx = inferRightIndex({i:begin.i, j:begin.j, id: 0 }, warps, cns);
+  //         console.log("this never ended, inferring end of", r_ndx.j)
+
+  //        l_ndx = {i:begin.i, j:begin.j, id: 0};
+
+
+  //        return {left:l_ndx, right:r_ndx, face, edge}
+  //     }
+
+  //   return null; //no complete float found
+  // } 
 
 
   //given a list of j's that are attached under a float, this aims to make sense of those and build them into a float
@@ -267,7 +327,7 @@ import utilInstance from "./util";
     let attached = [];
     let segments = [];
 
-    console.log("GET FLOATS ATTACHED TO ", float)
+    //console.log("GET FLOATS ATTACHED TO ", float)
 
 
     if(i < 0) return [];
@@ -372,6 +432,7 @@ import utilInstance from "./util";
       return acc;
     }, []);
 
+
     return res;
     
 
@@ -382,7 +443,6 @@ import utilInstance from "./util";
 
   }
 
-
   /**
    * analyses the relationship between the current row's CNS and the previous rows CNS to determine if and how far the floats on this row can pack. 
    * @param i the row number
@@ -391,56 +451,121 @@ import utilInstance from "./util";
   export const packRow = (i: number, warps: number,  cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
 
 
-      let float:CNFloat = getNextWeftFloat({i:i,j:0, id:0}, warps, cns)
+      let floats: Array<CNFloat> = getRowAsFloats(i, warps, cns);
+     // let float:CNFloat = getNextWeftFloat({i:i,j:0, id:0}, warps, cns)
+     // console.log("ANALYZING FLOAT ", float)
 
-      while(float !== null){
-
+     floats.forEach(float => {
         if(float.face != null){
-
-     
 
           //get all of the attached floats on the next row down 
           let attached: Array<CNFloat> = getAttachedFloats(i-1, warps, float, cns);
           //determine what kind of relationship the 
           let reltn = getWarpwiseRelationship(float, attached);
+          console.log("FOUND RELATIONS ", reltn)
+            //adjust the right side of the float to clamp the value in: 
+            float.right.j = utilInstance.mod(float.right.j, warps);
+        
+            if(reltn.find(el => el == "BUILD") !== undefined){
+              cns = setMvY(float.left, warps, cns, 0);
+              cns = setMvY(float.right, warps, cns, 0);
 
-          if(reltn.find(el => el == "BUILD") !== undefined){
-            cns = setMvY(float.left, warps, cns, 0);
-            cns = setMvY(float.right, warps, cns, 0);
-          }else if(reltn.find(el => el == "STACK") !== undefined){
-            cns = setMvY(float.left, warps, cns, -.5);
-            cns = setMvY(float.right, warps, cns, -.5);
-          }else{
-            //SLIDE OVER OR UNDER
-            let current_left_mv = getMvY(float.left, warps, cns)
-            let current_left_mz = getMvZ(float.left, warps, cns)
-            let current_right_mv = getMvY(float.right, warps, cns)
-            let current_right_mz = getMvZ(float.right, warps, cns)
-            cns = setMvY(float.left, warps, cns, current_left_mv-1);
-            cns = setMvY(float.left, warps, cns, current_right_mv-1);
-          
-            if(reltn.find(el => el == "STACK-OVER") !== undefined){
-              cns = setMvZ(float.left, warps, cns, current_left_mz+1);
-              cns = setMvZ(float.right, warps, cns, current_right_mz+1);
-            }
-            if(reltn.find(el => el == "STACK-UNDER") !== undefined){
-              cns = setMvZ(float.left, warps, cns, current_left_mz-1);
-              cns = setMvZ(float.right, warps, cns, current_right_mz-1);
-            } 
+            }else if(reltn.find(el => el == "STACK") !== undefined){
+              cns = setMvY(float.left, warps, cns, -.5);
+              cns = setMvY(float.right, warps, cns, -.5);
+            }else{
+              //SLIDE OVER OR UNDER
+            
+              let current_left_mv = getMvY(float.left, warps, cns)
+              let current_left_mz = getMvZ(float.left, warps, cns)
+              let current_right_mv = getMvY(float.right, warps, cns)
+              let current_right_mz = getMvZ(float.right, warps, cns)
+              cns = setMvY(float.left, warps, cns, current_left_mv-1);
+              cns = setMvY(float.right, warps, cns, current_right_mv-1);
+            
+              if(reltn.find(el => el == "SLIDE-OVER") !== undefined){
+                cns = setMvZ(float.left, warps, cns, current_left_mz+1);
+                cns = setMvZ(float.right, warps, cns, current_right_mz+1);
+              }
+              if(reltn.find(el => el == "SLIDE-UNDER") !== undefined){
+                cns = setMvZ(float.left, warps, cns, current_left_mz-1);
+                cns = setMvZ(float.right, warps, cns, current_right_mz-1);
+              } 
           }
         }
-
-         console.log("CURRENT FLOAT ", float)
-        //the ending float should always end on a right and start on a left 
-        float = getNextWeftFloat({i:i,j:float.right.j+1, id:0}, warps, cns)  
-  
-      } 
-
-     
-      
+      });
       return cns;
+    }
 
-  }
+
+      // while(float !== null){
+
+      //   if(float.face != null){
+
+
+  
+
+      //     //get all of the attached floats on the next row down 
+      //     let attached: Array<CNFloat> = getAttachedFloats(i-1, warps, float, cns);
+      //     //determine what kind of relationship the 
+      //     let reltn = getWarpwiseRelationship(float, attached);
+
+      //     console.log("ATTACHED/RELTN ", attached, reltn)
+        
+          
+
+      //   //recreate this while ensuring that all j values will wrap
+      //     let clamped_float = {
+      //       left: {
+      //         i: float.left.i, 
+      //         j: utilInstance.mod(float.left.j, warps), 
+      //         id: 0}, 
+      //       right: {
+      //         i: float.right.i, 
+      //         j: utilInstance.mod(float.right.j, warps), 
+      //         id: 0}, 
+      //       edge: float.edge, 
+      //       face: float.face
+      //     }
+     
+
+
+      //     if(reltn.find(el => el == "BUILD") !== undefined){
+      //       cns = setMvY(float.left, warps, cns, 0);
+      //       cns = setMvY(float.right, warps, cns, 0);
+      //     }else if(reltn.find(el => el == "STACK") !== undefined){
+      //        if(weftInBounds(float.left.j, warps)) cns = setMvY(float.left, warps, cns, -.5);
+      //       if(weftInBounds(float.right.j, warps))cns = setMvY(float.right, warps, cns, -.5);
+      //     }else{
+      //       //SLIDE OVER OR UNDER
+           
+      //       let current_left_mv = getMvY(float.left, warps, cns)
+      //       let current_left_mz = getMvZ(float.left, warps, cns)
+      //       let current_right_mv = getMvY(float.right, warps, cns)
+      //       let current_right_mz = getMvZ(float.right, warps, cns)
+      //       cns = setMvY(float.left, warps, cns, current_left_mv-1);
+      //       cns = setMvY(float.left, warps, cns, current_right_mv-1);
+          
+      //       if(reltn.find(el => el == "STACK-OVER") !== undefined){
+      //         cns = setMvZ(float.left, warps, cns, current_left_mz+1);
+      //         cns = setMvZ(float.right, warps, cns, current_right_mz+1);
+      //       }
+      //       if(reltn.find(el => el == "STACK-UNDER") !== undefined){
+      //         cns = setMvZ(float.left, warps, cns, current_left_mz-1);
+      //         cns = setMvZ(float.right, warps, cns, current_right_mz-1);
+      //       } 
+      //     }
+      //   }
+
+      //   //  console.log("CURRENT FLOAT ", float)
+      //   //the ending float should always end on a right and start on a left but there are times where it starts on the left and does not end
+
+      //   float = getNextWeftFloat({i:i,j:float.right.j+1, id:0}, warps, cns)  
+        
+      // } 
+
+    
+  
 
   /**
    * Walks through the values in a given draft row and adds active nodes on both sides of any interlacement (shift from face a to b or b to a). It is also going to add active nodes on edges but looking at it's relationship to the start or end of the row. 
@@ -453,7 +578,7 @@ import utilInstance from "./util";
     let width = warps(dd);
     let height = wefts(dd);
 
-    for(let j = 0; j < warps(dd); j++){
+    for(let j = 0; j < width; j++){
     let cell = dd[i][j];
 
 
@@ -480,8 +605,14 @@ import utilInstance from "./util";
           cns = setNodeType({i, j, id:0}, width, cns, 'ACN')
         }
       }else{
+
         if(cell.is_set){
            cns = setNodeType({i, j, id:0}, width, cns, 'VCN')//just in case rendering full width
+          
+           //peek around to the end of the to what the next value would be if this repeated and then add a point there if it's opposite
+           if(setAndOpposite(cell, dd[i][width-1])){
+              cns = setNodeType({i, j, id:0}, width, cns, 'ACN')
+           }
         }
       }
 
@@ -497,6 +628,10 @@ import utilInstance from "./util";
       }else{
           if(cell.is_set){
            cns = setNodeType({i, j, id:1}, width, cns, 'VCN')//just in case rendering full width
+                      //peek around to the end of the to what the next value would be if this repeated and then add a point there if it's opposite
+           if(setAndOpposite(cell, dd[i][0])){
+              cns = setNodeType({i, j, id:1}, width, cns, 'ACN')
+           }
         }
       }
    
@@ -536,12 +671,11 @@ import utilInstance from "./util";
   }
 
   const determineRightEdgeBehavior = (top: number, bottom: number, j: number, warps: number, cns: Array<ContactNeighborhood>) : {cns: Array<ContactNeighborhood>, next_j: number} => {
-
     let top_f = getFace({i:top, j, id: 0}, warps, cns);
     let bottom_f = getFace({i:bottom, j, id: 0}, warps, cns);
 
-    if(setAndSameFaces(top_f, bottom_f)){
 
+    if(setAndSameFaces(top_f, bottom_f)){
       cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
       cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
       cns = setNodeType({i:top, j, id:1}, warps, cns, 'ECN');
@@ -551,10 +685,12 @@ import utilInstance from "./util";
     }else if(setAndOppositeFaces(top_f, bottom_f)){
 
       cns = setNodeType({i:top, j, id:1}, warps, cns, 'ACN');
+      cns = setNodeType({i:bottom, j, id:1}, warps, cns, 'ACN');
       return {cns, next_j: -1};
 
     }else if(top_f == null){
       if(bottom_f == true){
+
         for(let search = j-1; j <= 0; search--){
           if(getFace({i:top, j:search, id:0}, warps, cns) !== null){
              cns = setNodeType({i:bottom, j:search, id:1}, warps, cns, 'ACN');
@@ -565,6 +701,7 @@ import utilInstance from "./util";
         return {cns, next_j:-1}
       }
       else if(bottom_f == false){
+
         cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
         cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
         cns = setNodeType({i:top, j, id:1}, warps, cns, 'ECN');
@@ -583,7 +720,11 @@ import utilInstance from "./util";
     let top_f = getFace({i:top, j, id: 0}, warps, cns);
     let bottom_f = getFace({i:bottom, j, id: 0}, warps, cns);
 
+    console.log('LEFT EDGE', top_f, bottom_f)
+
+
     if(setAndSameFaces(top_f, bottom_f)){
+      console.log("SET AND SAME")
 
       cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
       cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
@@ -592,12 +733,16 @@ import utilInstance from "./util";
       return {cns, next_j: j+1};
 
     }else if(setAndOppositeFaces(top_f, bottom_f)){
+      console.log("SET AND OP")
 
       cns = setNodeType({i:top, j, id:0}, warps, cns, 'ACN');
+      cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ACN');
       return {cns, next_j: -1};
 
     }else if(top_f == null){
       if(bottom_f == true){
+        console.log("UNSET (top) and RAISED (bottom)")
+
         for(let search = j+1; j < warps; search++){
           if(getFace({i:top, j:search, id:0}, warps, cns) !== null){
              cns = setNodeType({i:bottom, j:search, id:0}, warps, cns, 'ACN');
@@ -608,6 +753,8 @@ import utilInstance from "./util";
         return {cns, next_j:-1}
       }
       else if(bottom_f == false){
+                console.log("UNSET (top) and Lowered (bottom)")
+
         cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
         cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
         cns = setNodeType({i:top, j, id:1}, warps, cns, 'ECN');
@@ -615,6 +762,8 @@ import utilInstance from "./util";
         return {cns, next_j: j+1};
       }
       else {
+        console.log("UNSET BOTH")
+
         return {cns, next_j: j+1};
       }
     }
@@ -624,14 +773,16 @@ import utilInstance from "./util";
   /** checks this row against the last row of the same material and system type and sees if the edge will interlace. If not, it removes any ACNs that would be pulled out in this pic */
   export const pullRow = (i:number, warps: number, prev_i_list: Array<number>, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
    
+    console.log("PULLING ", i, warps, prev_i_list);
+
     if(prev_i_list.length == 0) return cns;
 
     const last = prev_i_list[prev_i_list.length-1];
-    const direction = prev_i_list.length % 2 == 0; //true means the previous row went from left to right
+    const direction = prev_i_list.length % 2 == 1; //true means the previous row went from left to right
 
     if(direction){
 
-      let obj: {cns: Array<ContactNeighborhood>, next_j: number} = determineRightEdgeBehavior(i,  last, warps, warps, cns);
+      let obj: {cns: Array<ContactNeighborhood>, next_j: number} = determineRightEdgeBehavior(i,  last, warps-1, warps, cns);
       cns = obj.cns;
 
 
@@ -678,6 +829,7 @@ import utilInstance from "./util";
       let dd = d.drawdown;
     
       for(let i = 0; i < wefts(dd); i++){
+          console.log("PARSING DRAWDOWN ROW ", i)
 
           let material = d.rowShuttleMapping[i];
           let system = d.rowSystemMapping[i];
@@ -687,16 +839,36 @@ import utilInstance from "./util";
           //assign each node a value based on it's relationship with its neighbor
           cns = parseRow(i, dd, cns);
 
-          if(sim.wefts_as_written) cns = pullRow (i, warps(dd), path.pics, cns);
+          if(sim.wefts_as_written) cns = pullRow(i, warps(dd), path.pics, cns);
           
           cns = packRow(i, warps(dd), cns);
-      
+           console.log("ACTIVE NODES ", cns.filter(el => el.node_type == "ACN" && el.ndx.i == i && (el.ndx.id == 0 || el.ndx.id == 1) ))   
          path.pics.push(i);
       }
-    
+
+    //quickly print the y values 
+
+    printYvalues(warps(dd), wefts(dd), cns);
+
+
+
     return Promise.resolve(cns);
   }
 
+
+  export const printYvalues = (warps, wefts, cns) => {
+    
+    for(let i = 0; i < wefts; i++){
+      for(let j = 0; j < warps; j++){
+        let left = getMvY({i,j,id:0},warps, cns);
+        let right = getMvY({i,j,id:1},warps, cns);
+        let left_t = getNodeType({i,j,id:0},warps, cns);
+        let right_t = getNodeType({i,j,id:1},warps, cns);
+        
+        console.log(i, j, left_t, left, right_t, right)
+      }
+    }
+  }
 
   /**
    * update this to contact neighborhood 
@@ -791,16 +963,16 @@ import utilInstance from "./util";
     if(reference_i >= 0){
 
       let reference_y =  getReferenceY(ndx, reference_i, vtxs);
-      if(stack) y = reference_y + weft_diameter/2;
-      else y = reference_y + weft_diameter;
+      if(stack) y = reference_y + (weft_diameter/2) + weft_diameter*(1-sim.pack/100);
+      else y = reference_y + weft_diameter+ weft_diameter*(1-sim.pack/100);
     }
 
     
     //let the layer first
     let z = getMvZ(ndx, width, cns) * sim.layer_spacing;
     //then adjust for which side of the warp it is sitting upon. 
-    if(getFace(ndx, width, cns)) z += warp_diameter;
-    else z -= warp_diameter;
+    if(getFace(ndx, width, cns)) z -= warp_diameter;
+    else z += warp_diameter;
 
 
     let x = sim.warp_spacing * ndx.j;
@@ -862,7 +1034,6 @@ import utilInstance from "./util";
 
     //get a list of the unique system-material combinations of this weft. 
     let paths:Array<WeftPath> = initWeftPaths(draft);
-    console.log("PATHS ", paths)
     
     //parse row by row, then assign to the specific path to which this belongs
     for(let i = 0; i < wefts(draft.drawdown); i++){
@@ -878,31 +1049,49 @@ import utilInstance from "./util";
 
           if(direction){
             //left to right - 
-            let row_started = false;
             for(let j = 0; j < warpnum; j++){
 
                 
               if(getNodeType({i, j, id:0}, warpnum, cns) == 'ACN'){
                 let vtx = createVertex({i, j, id:0}, draft, flat_vtx_list, cns, sim);
                 path.vtxs.push(vtx);
-                row_started = true;
+              }
+        
+              if(!sim.wefts_as_written && getNodeType({i, j, id:0}, warpnum, cns) == 'VCN'){
+                 let vtx = createVertex({i, j, id:0}, draft, flat_vtx_list, cns, sim);
+                path.vtxs.push(vtx);
               }
 
               if(getNodeType({i, j, id:1}, warpnum, cns) == 'ACN'){
                 let vtx = createVertex({i, j, id:1}, draft,  flat_vtx_list, cns, sim);
+                path.vtxs.push(vtx);
+              }
+
+              if(!sim.wefts_as_written && getNodeType({i, j, id:1}, warpnum, cns) == 'VCN'){
+                 let vtx = createVertex({i, j, id:1}, draft, flat_vtx_list, cns, sim);
                 path.vtxs.push(vtx);
               }
             }
 
           }else{
 
-            let row_started = false;
             for(let j = warpnum-1; j >= 0; j--){
               if(getNodeType({i, j, id:1}, warpnum, cns) == 'ACN'){
                 let vtx = createVertex({i, j, id:1}, draft,  flat_vtx_list, cns, sim);
                 path.vtxs.push(vtx);
               }
+
+            if(!sim.wefts_as_written && getNodeType({i, j, id:1}, warpnum, cns) == 'VCN'){
+                let vtx = createVertex({i, j, id:1}, draft,  flat_vtx_list, cns, sim);
+                path.vtxs.push(vtx);
+              }
+
               if(getNodeType({i, j, id:0}, warpnum, cns) == 'ACN'){
+                let vtx = createVertex({i, j, id:0}, draft,  flat_vtx_list, cns, sim);
+                path.vtxs.push(vtx);
+              }
+
+              if(!sim.wefts_as_written && getNodeType({i, j, id:0}, warpnum, cns) == 'VCN'){
                 let vtx = createVertex({i, j, id:0}, draft,  flat_vtx_list, cns, sim);
                 path.vtxs.push(vtx);
               }

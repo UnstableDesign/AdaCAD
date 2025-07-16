@@ -41,7 +41,8 @@ export const defaults = {
       largest_lcm_factor: 500,
       //SIM DEFAULTS
       wefts_as_written: false,
-      layer_spacing: 10
+      layer_spacing: 10, 
+      pack: 100
 
 
 }
