@@ -156,7 +156,6 @@ import utilInstance from "./util";
     let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN" && el.ndx.id == 1);
     if(active_acns.length == 0) console.error("no ACNS indexes found on right side nodes");
     let first_acn = active_acns.shift();
-    console.log("ACTIVE / FIRST ACN ", active_acns, first_acn)
     return {i: first_acn.ndx.i, j: warps+first_acn.ndx.j, id: first_acn.ndx.id}
   }
 
@@ -418,12 +417,12 @@ import utilInstance from "./util";
         }
       }  
 
-      else if(float.left.j < el.left.j && float.right.i > el.right.i){
+      else if(float.left.j < el.left.j && float.right.j > el.right.j){
         if(float.face == false) acc.push("SLIDE-OVER");  
         else acc.push("SLIDE-UNDER");  
       }
 
-      else if(float.left.j > el.left.j && float.right.i < el.right.i){
+      else if(float.left.j > el.left.j && float.right.j < el.right.j){
         if(float.face == false) acc.push("SLIDE-UNDER");  
         else acc.push("SLIDE-OVER");  
       }else{
@@ -462,7 +461,7 @@ import utilInstance from "./util";
           let attached: Array<CNFloat> = getAttachedFloats(i-1, warps, float, cns);
           //determine what kind of relationship the 
           let reltn = getWarpwiseRelationship(float, attached);
-          console.log("FOUND RELATIONS ", reltn)
+          //console.log("FOUND RELATIONS ", reltn)
             //adjust the right side of the float to clamp the value in: 
             float.right.j = utilInstance.mod(float.right.j, warps);
         
@@ -691,7 +690,7 @@ import utilInstance from "./util";
     }else if(top_f == null){
       if(bottom_f == true){
 
-        for(let search = j-1; j <= 0; search--){
+        for(let search = j-1; search <= 0; search--){
           if(getFace({i:top, j:search, id:0}, warps, cns) !== null){
              cns = setNodeType({i:bottom, j:search, id:1}, warps, cns, 'ACN');
             return {cns, next_j: -1};
@@ -711,6 +710,18 @@ import utilInstance from "./util";
       else {
         return {cns, next_j: j-1};
       }
+    }else if(bottom_f == null){
+      if(top_f){
+         cns = setNodeType({i:top, j, id:1}, warps, cns, 'ACN');
+        return {cns, next_j: -1};
+      }else{
+        cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
+        cns = setNodeType({i:top, j, id:1}, warps, cns, 'ECN');
+        return {cns, next_j: j-1};
+      }
+    }else{
+      console.error("UNHANDLED RIGHT EDGE BEHAVIOR", top, bottom, j, top_f, bottom_f)
+
     }
 
   }
@@ -740,32 +751,48 @@ import utilInstance from "./util";
       return {cns, next_j: -1};
 
     }else if(top_f == null){
-      if(bottom_f == true){
-        console.log("UNSET (top) and RAISED (bottom)")
 
-        for(let search = j+1; j < warps; search++){
-          if(getFace({i:top, j:search, id:0}, warps, cns) !== null){
-             cns = setNodeType({i:bottom, j:search, id:0}, warps, cns, 'ACN');
-            return {cns, next_j: -1};
-          }
+        if(bottom_f == true){
+            console.log("UNSET (top) and RAISED (bottom)")
+
+            for(let search = j+1; search < warps; search++){
+              if(getFace({i:top, j:search, id:0}, warps, cns) !== null){
+                cns = setNodeType({i:bottom, j:search, id:0}, warps, cns, 'ACN');
+                return {cns, next_j: -1};
+              }
+            }
+            //I got to the end and it never found anything, just stop
+            return {cns, next_j:-1}
         }
-        //I got to the end and it never found anything, just stop
-        return {cns, next_j:-1}
-      }
-      else if(bottom_f == false){
-                console.log("UNSET (top) and Lowered (bottom)")
+        else if(bottom_f == false){
+                    console.log("UNSET (top) and Lowered (bottom)")
 
-        cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
-        cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
-        cns = setNodeType({i:top, j, id:1}, warps, cns, 'ECN');
-        cns = setNodeType({i:bottom, j, id:1}, warps, cns, 'ECN');
-        return {cns, next_j: j+1};
+            cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
+            cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
+            cns = setNodeType({i:top, j, id:1}, warps, cns, 'ECN');
+            cns = setNodeType({i:bottom, j, id:1}, warps, cns, 'ECN');
+            return {cns, next_j: j+1};
+        }
+        else {
+            console.log("UNSET BOTH")
+            return {cns, next_j: j+1};
+          } 
+    }else if(bottom_f == null){
+    
+      //handle if top is black or top is while
+      if(top_f){
+          cns = setNodeType({i:top, j, id:0}, warps, cns, 'ACN');
+          return {cns, next_j: -1};
+      }else{
+         cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
+         cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
+         cns = setNodeType({i:top, j, id:1}, warps, cns, 'ECN');
+         return {cns, next_j: j+1};
       }
-      else {
-        console.log("UNSET BOTH")
 
-        return {cns, next_j: j+1};
-      }
+      
+    }else{
+      console.error("UNHANDLED LEFT EDGE BEHAVIOR", top, bottom, j, top_f, bottom_f)
     }
 
   }
@@ -773,8 +800,6 @@ import utilInstance from "./util";
   /** checks this row against the last row of the same material and system type and sees if the edge will interlace. If not, it removes any ACNs that would be pulled out in this pic */
   export const pullRow = (i:number, warps: number, prev_i_list: Array<number>, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
    
-    console.log("PULLING ", i, warps, prev_i_list);
-
     if(prev_i_list.length == 0) return cns;
 
     const last = prev_i_list[prev_i_list.length-1];
@@ -842,33 +867,15 @@ import utilInstance from "./util";
           if(sim.wefts_as_written) cns = pullRow(i, warps(dd), path.pics, cns);
           
           cns = packRow(i, warps(dd), cns);
-           console.log("ACTIVE NODES ", cns.filter(el => el.node_type == "ACN" && el.ndx.i == i && (el.ndx.id == 0 || el.ndx.id == 1) ))   
          path.pics.push(i);
       }
-
-    //quickly print the y values 
-
-    printYvalues(warps(dd), wefts(dd), cns);
 
 
 
     return Promise.resolve(cns);
   }
 
-
-  export const printYvalues = (warps, wefts, cns) => {
-    
-    for(let i = 0; i < wefts; i++){
-      for(let j = 0; j < warps; j++){
-        let left = getMvY({i,j,id:0},warps, cns);
-        let right = getMvY({i,j,id:1},warps, cns);
-        let left_t = getNodeType({i,j,id:0},warps, cns);
-        let right_t = getNodeType({i,j,id:1},warps, cns);
-        
-        console.log(i, j, left_t, left, right_t, right)
-      }
-    }
-  }
+  
 
   /**
    * update this to contact neighborhood 
@@ -1029,7 +1036,6 @@ import utilInstance from "./util";
    * @returns 
    */
   export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, sim: SimulationVars) : Promise<Array<WeftPath>>=> {
-    console.log("CNS ", cns)
     let warpnum =  warps(draft.drawdown);
 
     //get a list of the unique system-material combinations of this weft. 
@@ -1115,6 +1121,18 @@ import utilInstance from "./util";
    * @param cns 
    */
   export const cleanACNs = (d: Drawdown, cns: Array<ContactNeighborhood>) : Promise<Array<ContactNeighborhood>> => {
+
+    for(let i = 0; i < warps(d); i++){
+      let row_acns = cns.filter(el => el.ndx.i == i && el.node_type == "ACN" && (el.ndx.id == 0 || el.ndx.id == 1))
+      let as_string = row_acns.reduce((acc, el) => {
+        let s =  '('+el.ndx.j+','+el.mv.y+','+el.mv.z+')'
+        acc = acc + s;
+        return acc;
+      }, "");
+      console.log("ROW ", i, " - ", as_string)
+    }
+
+
     return Promise.resolve(cns);
   }
 

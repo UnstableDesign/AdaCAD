@@ -7,7 +7,6 @@ import { Lut } from 'three/examples/jsm/math/Lut';
 import { Bounds, Draft, Interlacement, Loom, LoomSettings, SimulationData, SimulationVars, WeftPath, YarnVertex } from '../model/datatypes';
 import { initDraftFromDrawdown, warps, wefts } from '../model/drafts';
 import { defaults } from '../model/defaults';
-import { convertEPItoMM } from '../model/looms';
 
 
 @Injectable({
