@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { cleanACNs, followTheWefts, getDraftTopology, getFlatVtxList } from '../model/yarnsimulation';
+import { applyForce, cleanACNs, createParticle, createSpring, followTheWefts, getDraftTopology, getFlatVtxList, satisfyConstraint, updateParticleMesh, updateSpringMesh, verlet } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Lut } from 'three/examples/jsm/math/Lut';
 import { Bounds, Draft, Interlacement, Loom, LoomSettings, SimulationData, SimulationVars, WeftPath, YarnVertex } from '../model/datatypes';
 import { initDraftFromDrawdown, warps, wefts } from '../model/drafts';
 import { defaults } from '../model/defaults';
-
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +19,12 @@ export class SimulationService {
    */
 
 
-
+  renderer; 
+  scene; camera;
+  controls;
+  gui; 
+  particles; 
+  springs;
   warp_layer_map_scene: any;
   weft_layer_map_scene: any;
   warp_scene: any;
@@ -31,7 +35,8 @@ export class SimulationService {
 
   
   constructor() { 
-
+  this.particles = [];
+  this.springs = [];
   }
 
 
@@ -82,7 +87,7 @@ export class SimulationService {
   
 
     return getDraftTopology(simData.draft, simVars).then(topo => {
-      return cleanACNs(simData.draft.drawdown, topo)
+      return cleanACNs(simData.draft.drawdown, topo, simVars)
     }).then(topo => {
       simData.topo = topo;
       return followTheWefts(simData.draft,  simData.topo, simVars);
@@ -112,7 +117,7 @@ export class SimulationService {
   
 
     return getDraftTopology(simData.draft, simVars).then(topo => {
-      return cleanACNs(simData.draft.drawdown, topo)
+      return cleanACNs(simData.draft.drawdown, topo, simVars)
     }).then(topo => {
       simData.topo = topo;
       return followTheWefts(simData.draft,  simData.topo, simVars);
@@ -137,7 +142,7 @@ export class SimulationService {
   
 
     return getDraftTopology(simData.draft, simVars).then(topo => {
-      return cleanACNs(simData.draft.drawdown, topo)
+      return cleanACNs(simData.draft.drawdown, topo, simVars)
     }).then(topo => {
       simData.topo = topo;
       return followTheWefts(simData.draft,  simData.topo, simVars);
@@ -159,19 +164,65 @@ export class SimulationService {
   }
 
 
-  public setupSimulation(renderer, scene, camera, controls, gui) {
-    
-    
-    const animate = function(){
-      requestAnimationFrame( animate );
-      renderer.render( scene, camera );
-      controls.update();
 
-    };
+ public animate(){
+    const gravity = new THREE.Vector3(0, -9.81, 0);
+    const timeStep = 1 / 60;
+    const damping = 0.98;
 
+    requestAnimationFrame(() => this.animate()); // Bind 'this'
+    this.controls.update();
+
+    for (let p of this.particles) {
+      p = applyForce(p, gravity.clone());
+    }
+
+    // Verlet integration
+    for (let p of this.particles) {
+      p = verlet(p, damping,timeStep);
+    }
+
+  // Satisfy spring constraints multiple times (for stiffness)
+    for (let i = 0; i < 5; i++) {
+      for (let s of this.springs) {
+        s = satisfyConstraint(s);
+      }
+    }
+
+  // Update visuals
+    for (const p of this.particles) {
+      updateParticleMesh(p);
+    }
+
+    for (const s of this.springs) {
+      updateSpringMesh(s);
+    }
+
+    this.renderer.render( this.scene, this.camera );
+
+
+
+ }
+
+
+
+  public setupSimulation(renderer, scene, camera, controls, gui, particles, springs) {
+    this.renderer = renderer;
+    this.scene = scene;
+    this.camera = camera;
+    this.controls = controls;
+    this.gui = gui;
+    this.particles = particles;
+    this.springs = springs;
+
+    // const light = new THREE.DirectionalLight(0xffffff, 1);
+    // light.position.set(5, 10, 7.5);
+    // this.scene.add(light);
+
+    
     controls.update();
     
-    animate();
+    this.animate();
    
   }
 
@@ -195,13 +246,13 @@ export class SimulationService {
   /**
    * called when a rendering value changes that does not require a full recalculation of the simulation data
    */
-  public redrawSimColors(scene, draft: Draft, simVars: SimulationVars){
+  public redrawSimColors(draft: Draft, simVars: SimulationVars){
     
     //update warp material colors
     draft.colShuttleMapping.forEach((material_id, j)=> {
       let color = simVars.ms.getColorForSim(material_id);
       const render_color = new THREE.Color(color);
-        let warp_render = scene.getObjectByName('warp-'+j);
+        let warp_render = this.scene.getObjectByName('warp-'+j);
         warp_render.material.color.set(render_color);
 
     })
@@ -209,7 +260,7 @@ export class SimulationService {
     draft.rowShuttleMapping.forEach((material_id, j)=> {
       let color = simVars.ms.getColorForSim(material_id);
       const render_color = new THREE.Color(color);
-        let weft_render = scene.getObjectByName('weft-'+j);
+        let weft_render = this.scene.getObjectByName('weft-'+j);
         weft_render.material.color.set(render_color);
 
     })
@@ -222,28 +273,34 @@ export class SimulationService {
 
 
   //** renders the current for simData in this class */
-  public redraw(scene, selection: Bounds, simData: SimulationData, simVars: SimulationVars) : Promise<any>{
-
-    scene.clear();
+  public redraw(selection: Bounds, simData: SimulationData, simVars: SimulationVars) : Promise<any>{
+    this.scene.clear();
 
     const light = new THREE.DirectionalLight( 0xffffff, 1.0);
     const back_light = new THREE.DirectionalLight( 0xffffff, 1.0);
-    scene.add( light );
-    scene.add( back_light );
+    this.scene.add( light );
+    this.scene.add( back_light );
 
     light.position.set( 20, 0, 50 );
     back_light.position.set( 20, 0, -50 );
 
 
-    const boundary_vtx = this.getBoundaryVtxs(simData.wefts, selection);
+    //update the particle positions here: 
+
    
-    this.drawAxis(scene, boundary_vtx);
-    this.drawYarns(scene, simData, simVars, selection, boundary_vtx);
-   // this.drawEndCaps(scene, simdata, boundary_vtx);
-    // this.drawWarpLayerMap(scene, boundary_vtx);
-    // this.drawWeftLayerMap(scene, boundary_vtx);
-    // this.drawTopology(scene, boundary_vtx);
-    // this.drawDraft(scene, this.currentSim.draft, this.currentSim.sim, boundary_vtx);
+
+    if(!simVars.simulate){
+    const boundary_vtx = this.getBoundaryVtxs(simData.wefts, selection);
+    this.drawAxis( boundary_vtx);
+    this.drawYarns( simData, simVars, selection, boundary_vtx);
+    }else{
+    if(simVars.simulate) this.drawSimulation (simData, simVars);
+    }
+  //  this.drawEndCaps(scene, simdata, boundary_vtx);
+  //   this.drawWarpLayerMap(scene, boundary_vtx);
+  //   this.drawWeftLayerMap(scene, boundary_vtx);
+  //   this.drawTopology(scene, boundary_vtx);
+  //   this.drawDraft(scene, this.currentSim.draft, this.currentSim.sim, boundary_vtx);
 
 
     return Promise.resolve()
@@ -251,9 +308,39 @@ export class SimulationService {
   }
 
 
+  drawSimulation(simData: SimulationData, simVars:SimulationVars){
+        for(const yarn of simData.wefts){
+      let count = 0;
+
+      let diameter = simVars.ms.getDiameter(yarn.material);
+      let color = simVars.ms.getColorForSim(yarn.material);
 
 
-  drawAxis(scene, boundary_vtx: any){
+      for(const vtx of yarn.vtxs){
+
+        const p = createParticle(vtx.x, vtx.y, vtx.z,false);
+
+        if (vtx.ndx.j === 0 || vtx.ndx.j === warps(simData.draft.drawdown) - 1) p.pinned = true;
+        this.particles.push(p);
+        this.scene.add(p.mesh);
+        
+        if(count >= 1){
+        const distance = this.particles[count - 1].position.distanceTo(this.particles[count].position);
+        let s = createSpring(this.particles[count - 1], this.particles[count], distance, color, diameter )
+        this.springs.push(s);
+        this.scene.add(s.mesh);
+
+        }
+        count++;
+      }
+    }
+
+    return Promise.resolve(simData);
+     
+  }
+
+
+  drawAxis(boundary_vtx: any){
 
     this.axis_scene =  new THREE.Group();
     let axis_offset = 5.
@@ -292,7 +379,7 @@ export class SimulationService {
     
     
     this.axis_scene = this.applyOrientationConversion(this.axis_scene, boundary_vtx);
-    scene.add(this.axis_scene);
+    this.scene.add(this.axis_scene);
    
 
   }
@@ -351,7 +438,7 @@ export class SimulationService {
    * @param scene 
    * @param simdata 
    */
-  drawYarns(scene, simdata: SimulationData, simVars: SimulationVars,  selection: Bounds, boundary_vtx:any){
+  drawYarns(simdata: SimulationData, simVars: SimulationVars,  selection: Bounds, boundary_vtx:any){
 
     this.warp_scene =  new THREE.Group();
     this.warp_scene.name = 'warp-scene'
@@ -401,7 +488,7 @@ export class SimulationService {
     };
 
     this.warp_scene = this.applyOrientationConversion(this.warp_scene, boundary_vtx);
-    scene.add(this.warp_scene);
+    this.scene.add(this.warp_scene);
 
     //WEFT SIM
     console.log("PATHS ", simdata.wefts)
@@ -439,7 +526,7 @@ export class SimulationService {
         
     })
     this.weft_scene = this.applyOrientationConversion(this.weft_scene, boundary_vtx);
-    scene.add(this.weft_scene);
+    this.scene.add(this.weft_scene);
   }
 
   // drawDraft(scene, draft: Draft, sim: SimulationVars, boundary_vtx){

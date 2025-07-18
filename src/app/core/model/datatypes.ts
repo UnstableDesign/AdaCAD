@@ -4,6 +4,7 @@ import { ConnectionComponent } from "../../mixer/palette/connection/connection.c
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialsService } from "../provider/materials.service";
+import * as THREE from 'three';
 
 /**
  * This file contains all definitions of custom types and objects
@@ -828,6 +829,11 @@ export type ContactNeighborhood = {
   ndx: CNIndex
 }
 
+export type Vec3 = {
+  x: number, 
+  y: number,
+  z: number
+}
 
 
 export type YarnVertex = {
@@ -844,22 +850,6 @@ export type WeftPath = {
   pics: Array<number> // the id's of the pics that fit this description
 }
 
-
-
-
-
-
-
-export type YarnSimSettings = {
-
-  warp_sett: number, //the distance between warp center points on the loom
-  warp_tension: number, //the tension value of the warp (higher tension, tighter packing)
-  fpack: number, //the force exerted by the packing 
-
-}
-
-
-
 export type SimulationData = {
   draft: Draft,
   topo: Array<ContactNeighborhood>,
@@ -871,9 +861,30 @@ export type SimulationVars = {
   warp_spacing: number, 
   layer_spacing: number,
   wefts_as_written: boolean,
+  simulate: boolean,
   radius: number,
   ms: MaterialsService
 }
+
+export type Particle = {
+  position: THREE.Vector3,
+  previousPosition: THREE.Vector3, 
+  acceleration: THREE.Vector3, 
+  pinned: boolean, 
+  mesh: THREE.Mesh
+}
+
+export type Spring = {
+  pts: Array<THREE.Vector3>,
+  mesh: THREE.Mesh,
+  p1: Particle, 
+  p2: Particle,
+  restLength: number, 
+  color: number,
+  diameter: number
+}
+
+
 
 
 /**** SETTINGS FOR OTHER FEATURES */

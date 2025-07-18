@@ -1,9 +1,10 @@
 
 import { MaterialsService } from "../provider/materials.service";
 import { getCellValue, setAndOpposite, setAndSame } from "./cell";
-import { Draft, Drawdown, CNFloat, CNIndex, CNType, Cell, ContactNeighborhood, SimulationVars, YarnVertex, WeftPath } from "./datatypes";
+import { Draft, Drawdown, CNFloat, CNIndex, CNType, Cell, ContactNeighborhood, SimulationVars, YarnVertex, WeftPath, Particle, Spring } from "./datatypes";
 import { warps, wefts } from "./drafts";
 import utilInstance from "./util";
+import * as THREE from 'three';
 
 
   export const areInterlacement = (a: Cell, b: Cell) : boolean => {
@@ -174,6 +175,7 @@ import utilInstance from "./util";
     let rights = cns.filter(el => el.node_type == 'ACN' && el.ndx.i == i && el.ndx.id == 1);
     if(lefts.length !== rights.length) console.error("THIS ROW HAS AN UNEVEN NUMBER OF ACNS")
 
+
     lefts.forEach(left => {
       let found = false;
      
@@ -322,18 +324,17 @@ import utilInstance from "./util";
    * @param cns 
    * @returns 
    */
-  const getAttachedFloats = (i: number, warps: number, float: CNFloat, cns: Array<ContactNeighborhood>) : Array<CNFloat> => {
+  const getAttachedFloats = (i: number, wefts:number, warps: number, float: CNFloat, cns: Array<ContactNeighborhood>) : Array<CNFloat> => {
     let attached = [];
     let segments = [];
 
-    //console.log("GET FLOATS ATTACHED TO ", float)
 
 
-    if(i < 0) return [];
+    if(i < 0) i = utilInstance.mod(i, wefts);
 
 
     //walk along the input float and push any lower neighbors that match face
-    for(let j = float.left.j; j <= float.right.j ; j++){
+    for(let j = float.left.j; j <= float.right.j; j++){
       let adj_j = utilInstance.mod(j,warps); //protect when float ends are out of range
       let face = getFace({i, j:adj_j, id:0}, warps, cns);
       if(float.face !== null && float.face == face){
@@ -447,125 +448,126 @@ import utilInstance from "./util";
    * @param i the row number
    * @param cns the list of current contact neighborhoods
    */
-  export const packRow = (i: number, warps: number,  cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
-
+  export const packRow = (i: number, wefts: number, warps: number,  cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
 
       let floats: Array<CNFloat> = getRowAsFloats(i, warps, cns);
-     // let float:CNFloat = getNextWeftFloat({i:i,j:0, id:0}, warps, cns)
-     // console.log("ANALYZING FLOAT ", float)
+      console.log("ANALYSING ", i)
 
      floats.forEach(float => {
         if(float.face != null){
+          // console.log("CHECKING FLOAT ", float.left.j, float.right.j)
+          let obj = calcMVValue(i-1, 0,  float, wefts, warps, cns);
+          // console.log("*RETURNED ", obj)
+          while(obj.next_i !== -1){
+            obj = calcMVValue(obj.next_i, obj.mvy, float, wefts, warps, cns);
+            // console.log("RETURNED ", obj)
 
-          //get all of the attached floats on the next row down 
-          let attached: Array<CNFloat> = getAttachedFloats(i-1, warps, float, cns);
-          //determine what kind of relationship the 
-          let reltn = getWarpwiseRelationship(float, attached);
-          //console.log("FOUND RELATIONS ", reltn)
-            //adjust the right side of the float to clamp the value in: 
-            float.right.j = utilInstance.mod(float.right.j, warps);
-        
-            if(reltn.find(el => el == "BUILD") !== undefined){
-              cns = setMvY(float.left, warps, cns, 0);
-              cns = setMvY(float.right, warps, cns, 0);
-
-            }else if(reltn.find(el => el == "STACK") !== undefined){
-              cns = setMvY(float.left, warps, cns, -.5);
-              cns = setMvY(float.right, warps, cns, -.5);
-            }else{
-              //SLIDE OVER OR UNDER
-            
-              let current_left_mv = getMvY(float.left, warps, cns)
-              let current_left_mz = getMvZ(float.left, warps, cns)
-              let current_right_mv = getMvY(float.right, warps, cns)
-              let current_right_mz = getMvZ(float.right, warps, cns)
-              cns = setMvY(float.left, warps, cns, current_left_mv-1);
-              cns = setMvY(float.right, warps, cns, current_right_mv-1);
-            
-              if(reltn.find(el => el == "SLIDE-OVER") !== undefined){
-                cns = setMvZ(float.left, warps, cns, current_left_mz+1);
-                cns = setMvZ(float.right, warps, cns, current_right_mz+1);
-              }
-              if(reltn.find(el => el == "SLIDE-UNDER") !== undefined){
-                cns = setMvZ(float.left, warps, cns, current_left_mz-1);
-                cns = setMvZ(float.right, warps, cns, current_right_mz-1);
-              } 
           }
+          cns = setMvY(float.left, warps, cns, obj.mvy);
+          let adj_right: CNIndex = {
+            i: float.right.i, 
+            j: utilInstance.mod(float.right.j, warps), 
+            id: float.right.id};
+          
+          cns = setMvY(adj_right, warps, cns, obj.mvy);
         }
       });
       return cns;
     }
 
 
-      // while(float !== null){
-
-      //   if(float.face != null){
-
-
   
+   /**
+    * this needs to recursively search the previous rows (and loop if needed) to determine how far this float can slide in the y direction. As it does so, it should make a note of it's pairwise relationships in z with each subsequent float. 
+    * @param i the row to which we are comparing
+    * @param mvy the number of rows this has already moved
+    * @param float the float we are comparing to
+    * @param warps the width of the cloth
+    * @param cns the list of contact neighborhoods
+    */ 
+  const calcMVValue = (i: number, mvy: number, float: CNFloat, wefts: number, warps: number, cns: Array<ContactNeighborhood>) : {mvy: number, next_i: number} => {
 
-      //     //get all of the attached floats on the next row down 
-      //     let attached: Array<CNFloat> = getAttachedFloats(i-1, warps, float, cns);
-      //     //determine what kind of relationship the 
-      //     let reltn = getWarpwiseRelationship(float, attached);
+      //wrap to continue search but eventually stop if we've covered the whole cloth
+      let adj_i = i;
+      if(i < 0) adj_i = utilInstance.mod(i, wefts);
+      if(mvy >= wefts-1) return {mvy, next_i:-1}
+      //get all of the attached floats on i
+      let attached: Array<CNFloat> = getAttachedFloats(adj_i, wefts, warps, float, cns);
+      //console.log("GOT ATTACHED ", attached)
 
-      //     console.log("ATTACHED/RELTN ", attached, reltn)
+      //determine what kind of relationship the 
+      let reltn = getWarpwiseRelationship(float, attached);
+      //console.log("FOUND RELATIONS ", float, reltn.map(el => String(el)))
+        //adjust the right side of the float to clamp the value in: 
+    
+        if(reltn.find(el => el == "BUILD") !== undefined){
+          return {mvy, next_i: -1}
+
+        }else if(reltn.find(el => el == "STACK") !== undefined){
+          return {mvy: mvy+.5, next_i: -1}
+        }else{
+          //SLIDE OVER OR UNDER
+          return {mvy: mvy+1, next_i: i-1};
         
-          
+          //SLIDING OVER IS ONLY RELATIVE TO THE WEFT BELOW, not the side of the cloth
+          // if(reltn.find(el => el == "SLIDE-OVER") !== undefined){
+          //   let factor = (float.face) ? -1 : 1;
 
-      //   //recreate this while ensuring that all j values will wrap
-      //     let clamped_float = {
-      //       left: {
-      //         i: float.left.i, 
-      //         j: utilInstance.mod(float.left.j, warps), 
-      //         id: 0}, 
-      //       right: {
-      //         i: float.right.i, 
-      //         j: utilInstance.mod(float.right.j, warps), 
-      //         id: 0}, 
-      //       edge: float.edge, 
-      //       face: float.face
-      //     }
-     
+          //   //get the largest layer offset from the previous row's attached warps
+          //   let prev_z = attached.reduce((acc, el) => {
+          //     if(el.left.j >= 0 && el.left.j < warps){
+          //       let left_z = getMvZ(el.left, warps, cns);
+          //       if(Math.abs(left_z) > acc) acc = Math.abs(left_z);
+          //     }
+
+          //     if(el.right.j >= 0 && el.right.j < warps){
+          //       let right_z = getMvZ(el.right, warps, cns);
+          //       if(Math.abs(right_z) > acc) acc = Math.abs(right_z);
+          //     }
+
+          //     return acc;
+          //   }, 0)
+
+          //     cns = setMvZ(float.left, warps, cns, prev_z*factor+factor);
+          //     cns = setMvZ(float.right, warps, cns, prev_z*factor+factor);
+
+          // }
 
 
-      //     if(reltn.find(el => el == "BUILD") !== undefined){
-      //       cns = setMvY(float.left, warps, cns, 0);
-      //       cns = setMvY(float.right, warps, cns, 0);
-      //     }else if(reltn.find(el => el == "STACK") !== undefined){
-      //        if(weftInBounds(float.left.j, warps)) cns = setMvY(float.left, warps, cns, -.5);
-      //       if(weftInBounds(float.right.j, warps))cns = setMvY(float.right, warps, cns, -.5);
-      //     }else{
-      //       //SLIDE OVER OR UNDER
-           
-      //       let current_left_mv = getMvY(float.left, warps, cns)
-      //       let current_left_mz = getMvZ(float.left, warps, cns)
-      //       let current_right_mv = getMvY(float.right, warps, cns)
-      //       let current_right_mz = getMvZ(float.right, warps, cns)
-      //       cns = setMvY(float.left, warps, cns, current_left_mv-1);
-      //       cns = setMvY(float.left, warps, cns, current_right_mv-1);
-          
-      //       if(reltn.find(el => el == "STACK-OVER") !== undefined){
-      //         cns = setMvZ(float.left, warps, cns, current_left_mz+1);
-      //         cns = setMvZ(float.right, warps, cns, current_right_mz+1);
-      //       }
-      //       if(reltn.find(el => el == "STACK-UNDER") !== undefined){
-      //         cns = setMvZ(float.left, warps, cns, current_left_mz-1);
-      //         cns = setMvZ(float.right, warps, cns, current_right_mz-1);
-      //       } 
-      //     }
-      //   }
+          // if(reltn.find(el => el == "SLIDE-UNDER") !== undefined){
+          //   //this float is going to slide under the float before it. 
 
-      //   //  console.log("CURRENT FLOAT ", float)
-      //   //the ending float should always end on a right and start on a left but there are times where it starts on the left and does not end
+          //   //this now needs to do an ordering sequence with the wefts before it. 
 
-      //   float = getNextWeftFloat({i:i,j:float.right.j+1, id:0}, warps, cns)  
-        
-      // } 
+          //   //the mvy factor should represent how many attached wefts this weft can float under
 
+          //   //for each of those attached wefts, we need to figure out what their current z level is and then set them to be above this one.
+
+
+
+
+          //   //if I am warp faced float, I'm going to be on the back (-) side of the cloth
+          //   let factor = (float.face) ? -1 : 1;
+
+          //     attached.forEach(attached_float => {
+          //       if(attached_float.left.j >= 0){
+          //          let prev_attached_left_z = getMvZ(attached_float.left, warps, cns);
+          //          cns = setMvZ(attached_float.left, warps, cns, prev_attached_left_z+factor);
+          //       }
+
+          //       if(attached_float.right.j < warps){
+          //         let prev_attached_right_z = getMvZ(attached_float.right, warps, cns);
+          //          cns = setMvZ(attached_float.right, warps, cns, prev_attached_right_z+factor);
+
+          //       }
+
+          //     });
+          //   } 
+            
+      }        
+  }
     
   
-
   /**
    * Walks through the values in a given draft row and adds active nodes on both sides of any interlacement (shift from face a to b or b to a). It is also going to add active nodes on edges but looking at it's relationship to the start or end of the row. 
    * @param i the row id
@@ -731,11 +733,9 @@ import utilInstance from "./util";
     let top_f = getFace({i:top, j, id: 0}, warps, cns);
     let bottom_f = getFace({i:bottom, j, id: 0}, warps, cns);
 
-    console.log('LEFT EDGE', top_f, bottom_f)
-
 
     if(setAndSameFaces(top_f, bottom_f)){
-      console.log("SET AND SAME")
+      // console.log("SET AND SAME")
 
       cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
       cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
@@ -744,7 +744,7 @@ import utilInstance from "./util";
       return {cns, next_j: j+1};
 
     }else if(setAndOppositeFaces(top_f, bottom_f)){
-      console.log("SET AND OP")
+      // console.log("SET AND OP")
 
       cns = setNodeType({i:top, j, id:0}, warps, cns, 'ACN');
       cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ACN');
@@ -753,7 +753,7 @@ import utilInstance from "./util";
     }else if(top_f == null){
 
         if(bottom_f == true){
-            console.log("UNSET (top) and RAISED (bottom)")
+            // console.log("UNSET (top) and RAISED (bottom)")
 
             for(let search = j+1; search < warps; search++){
               if(getFace({i:top, j:search, id:0}, warps, cns) !== null){
@@ -765,7 +765,7 @@ import utilInstance from "./util";
             return {cns, next_j:-1}
         }
         else if(bottom_f == false){
-                    console.log("UNSET (top) and Lowered (bottom)")
+              // console.log("UNSET (top) and Lowered (bottom)")
 
             cns = setNodeType({i:top, j, id:0}, warps, cns, 'ECN');
             cns = setNodeType({i:bottom, j, id:0}, warps, cns, 'ECN');
@@ -774,7 +774,7 @@ import utilInstance from "./util";
             return {cns, next_j: j+1};
         }
         else {
-            console.log("UNSET BOTH")
+            //console.log("UNSET BOTH")
             return {cns, next_j: j+1};
           } 
     }else if(bottom_f == null){
@@ -852,9 +852,15 @@ import utilInstance from "./util";
       //create a temp list
       let paths:Array<WeftPath> = initWeftPaths(d);
       let dd = d.drawdown;
+
+      //start by parsing the entire drawdown
+      for(let i = 0; i < wefts(dd); i++){
+        cns = parseRow(i, dd, cns);
+      }
+
     
       for(let i = 0; i < wefts(dd); i++){
-          console.log("PARSING DRAWDOWN ROW ", i)
+          //console.log("PARSING DRAWDOWN ROW ", i)
 
           let material = d.rowShuttleMapping[i];
           let system = d.rowSystemMapping[i];
@@ -862,11 +868,11 @@ import utilInstance from "./util";
           if(path == undefined) Promise.reject('no path found for material and system ')
 
           //assign each node a value based on it's relationship with its neighbor
-          cns = parseRow(i, dd, cns);
+         // cns = parseRow(i, dd, cns);
 
           if(sim.wefts_as_written) cns = pullRow(i, warps(dd), path.pics, cns);
           
-          cns = packRow(i, warps(dd), cns);
+          cns = packRow(i, wefts(dd), warps(dd), cns);
          path.pics.push(i);
       }
 
@@ -893,19 +899,6 @@ import utilInstance from "./util";
   }
 
 
-
-
-  
-
-
-  
-
-
-
-
-  
-   
-
     /**
      * given the distance of this interlacement in mm, this function figures out the strength factor. Which will determine how much to push up this warp as  function of distance. Smaller widths get pushed up harder than farther widths. Max is 1 - min is very close to zero.
      * @param dist 
@@ -924,29 +917,81 @@ import utilInstance from "./util";
   //     return max_warp_thickness / sett_width;
   //   }
 
-    const getReferenceY = (ndx: CNIndex, i: number, vtxs:Array<YarnVertex>) : number => {
+    /**
+     * if every row is packed at the same packing force, then the fell line created by a straight beater would be represented by the maximum y value;  Y values represent the center of teh material. 
+     * @param vtxs 
+     * @returns the y value represented by the top edge of the last weft inserted and packed. 
+     */
+    const getFellY = (vtxs:Array<YarnVertex>, diameter: number) : number => {
+      let max_y = vtxs.reduce((acc, el ) => {
+        if(el.y > acc) return el.y;
+        return acc;
+      }, 0);
+      return max_y + diameter/2;
 
+    }
 
+    /**
+     * looks at the move number of the current node and determines, based on the nodes this is connected to, how far is should actually move from it's relationship to neighboring interlacements. This could be more sophisticated (but right now it returns the max over a window of a given size). 
+     * @param ndx 
+     * @param cns 
+     */
+    const calcYOffset = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>, simVars: SimulationVars) : number => {
 
-      let opts = vtxs.filter(el => el.ndx.i == i);
-      if(opts.length > 0){
-        //get the vertex on the reference i that is closest to this j. 
-        let closest:{el: YarnVertex, dist:number} = opts.reduce((acc, el) => {
-          let dist = Math.abs(el.ndx.j - ndx.j);
-          if(dist < acc.dist) return {el, dist}
-          return acc;
-        }, {el: null, dist:10000});
+      let max_dist = 10; //the distance at which one weft would NOT affect another
+      let mvy = getMvY(ndx, warps, cns);
 
-        return closest.el.y;
+      let j_dist = simVars.warp_spacing;  //the distance traveled for each j
+      let j_check = Math.floor((max_dist/j_dist)/2);
+      let left = (simVars.wefts_as_written) ? ndx.j-j_check : utilInstance.mod(ndx.j-j_check, warps);
+      let right = (simVars.wefts_as_written) ? ndx.j+j_check : utilInstance.mod(ndx.j+j_check, warps);
+      let j_left = Math.min(left, right);
+      let j_right = Math.max(left, right); 
 
-      }
-      return 0;
+      // console.log("J, J LEFT, J RIGHT ", ndx.j, j_left, j_right)
+      let row = cns.filter(
+        el => el.ndx.i == ndx.i 
+        && el.node_type == "ACN"
+        && el.ndx.j >= j_left
+        && el.ndx.j <= j_right 
+      );
 
+      //row should have at least i
+      // console.log("ROW ", row);
+      
+      // let sum:number = row.reduce((acc, el) => {
+      //   acc += el.mv.y;
+      //   return acc;
+      // }, 0);
+
+      // return sum / row.length;
+
+      let min:number = row.reduce((acc, el) => {
+        if(acc < el.mv.y) acc = el.mv.y;
+        return acc;
+      }, mvy);
+
+      return min;
+
+      
 
     }
 
 
-   const createVertex = (ndx: CNIndex, d:Draft, vtxs: Array<YarnVertex>, cns:Array<ContactNeighborhood>, sim: SimulationVars) : YarnVertex =>{
+    /**
+     * converts the information for the CN into a vertex using the information from the CNs as well as the simulation variables. It assumes that for any pick, how far this y can travel from it's insertion point is a function of the pack force, position of fell line, and the mobility of the individual float. 
+     * 
+     *  
+     * @param ndx 
+     * @param d 
+     * @param vtxs 
+     * @param cns 
+     * @param sim 
+     * @returns 
+     */
+   const createVertex = (ndx: CNIndex, fell: number, d:Draft, cns:Array<ContactNeighborhood>, sim: SimulationVars) : YarnVertex =>{
+
+
 
     let width = warps(d.drawdown);
     let weft_material_id = d.rowShuttleMapping[ndx.i];
@@ -954,32 +999,44 @@ import utilInstance from "./util";
     let warp_material_id = d.colShuttleMapping[ndx.j];
     let warp_diameter = sim.ms.getDiameter(warp_material_id);
 
+    //this is a function of EPI, warp diameter and weft diameter, but for now, we'll be sloppy
+    const interlacement_space = weft_diameter;
 
+    let pack_factor = (1-sim.pack/100);
+ 
+    let mvy = getMvY(ndx, width, cns);
+    let max_row_mat_diameter = weft_diameter;
 
-    let stack = false;
-    let y = ndx.i * weft_diameter; //set a baseline based on the row and material width
-    let mvy = Math.abs(getMvY(ndx, width, cns));
-
-    //handle any .5 values created to indicate a stack
-    if(Math.floor(mvy) != mvy){
-      stack = true;
-      mvy = Math.floor(mvy);
-    } 
-
-    let reference_i = ndx.i - mvy -1; //slide values are always negative
-    if(reference_i >= 0){
-
-      let reference_y =  getReferenceY(ndx, reference_i, vtxs);
-      if(stack) y = reference_y + (weft_diameter/2) + weft_diameter*(1-sim.pack/100);
-      else y = reference_y + weft_diameter+ weft_diameter*(1-sim.pack/100);
+    for(let i = 0; i < mvy; i++){
+      //get each material that this could theoretically slide over or under
+      let row_mat_diameter = 0;
+      if(ndx.i - i >= 0) row_mat_diameter = d.rowShuttleMapping[ndx.i - i];
+      if(row_mat_diameter > max_row_mat_diameter) max_row_mat_diameter = row_mat_diameter;
     }
 
+
+    //Each ACN has a MY number, which represents how far this weft *can* slide but not neccessarily how it does slide. This calculates how far it can slide based on it's relationships to it's neighbors and their sliding 
+
+    let y_offset = calcYOffset(ndx, width, cns, sim);
+    let mobility = (y_offset > 1 ) ? -1 : -y_offset; //clamp this value to -1
+
+    //if pack_factor is 0 (no packing) this weft should sit at fell-line + diameter/2
+    //if pack factor is 1 (max packing) this weft can sit  fell-line - max_y_displacement. Max y displacement is a function of the yarns that are stacking at this specific location. 
+
+
+    let max_min = {
+      max: fell + weft_diameter + interlacement_space, 
+      min: fell + (max_row_mat_diameter/2)*mobility + weft_diameter/2};
+      let y = utilInstance.interpolate(pack_factor, max_min);
+    
     
     //let the layer first
     let z = getMvZ(ndx, width, cns) * sim.layer_spacing;
     //then adjust for which side of the warp it is sitting upon. 
     if(getFace(ndx, width, cns)) z -= warp_diameter;
     else z += warp_diameter;
+
+
 
 
     let x = sim.warp_spacing * ndx.j;
@@ -1040,12 +1097,16 @@ import utilInstance from "./util";
 
     //get a list of the unique system-material combinations of this weft. 
     let paths:Array<WeftPath> = initWeftPaths(draft);
+    let fell_y = 0;
     
     //parse row by row, then assign to the specific path to which this belongs
     for(let i = 0; i < wefts(draft.drawdown); i++){
+
+
       let system = draft.rowSystemMapping[i];
       let material = draft.rowShuttleMapping[i];
       let path = getWeftPath(paths, system, material);
+      
       if(path === undefined) Promise.reject("weft path with system and material not found")
       
       let flat_vtx_list = getFlatVtxList(paths);
@@ -1057,24 +1118,23 @@ import utilInstance from "./util";
             //left to right - 
             for(let j = 0; j < warpnum; j++){
 
-                
               if(getNodeType({i, j, id:0}, warpnum, cns) == 'ACN'){
-                let vtx = createVertex({i, j, id:0}, draft, flat_vtx_list, cns, sim);
+                let vtx = createVertex({i, j, id:0}, fell_y, draft, cns, sim);
                 path.vtxs.push(vtx);
               }
         
               if(!sim.wefts_as_written && getNodeType({i, j, id:0}, warpnum, cns) == 'VCN'){
-                 let vtx = createVertex({i, j, id:0}, draft, flat_vtx_list, cns, sim);
+                 let vtx = createVertex({i, j, id:0}, fell_y, draft, cns, sim);
                 path.vtxs.push(vtx);
               }
 
               if(getNodeType({i, j, id:1}, warpnum, cns) == 'ACN'){
-                let vtx = createVertex({i, j, id:1}, draft,  flat_vtx_list, cns, sim);
+                let vtx = createVertex({i, j, id:1}, fell_y, draft, cns, sim);
                 path.vtxs.push(vtx);
               }
 
               if(!sim.wefts_as_written && getNodeType({i, j, id:1}, warpnum, cns) == 'VCN'){
-                 let vtx = createVertex({i, j, id:1}, draft, flat_vtx_list, cns, sim);
+                 let vtx = createVertex({i, j, id:1}, fell_y, draft, cns, sim);
                 path.vtxs.push(vtx);
               }
             }
@@ -1083,30 +1143,34 @@ import utilInstance from "./util";
 
             for(let j = warpnum-1; j >= 0; j--){
               if(getNodeType({i, j, id:1}, warpnum, cns) == 'ACN'){
-                let vtx = createVertex({i, j, id:1}, draft,  flat_vtx_list, cns, sim);
+                let vtx = createVertex({i, j, id:1}, fell_y, draft, cns, sim);
                 path.vtxs.push(vtx);
               }
 
             if(!sim.wefts_as_written && getNodeType({i, j, id:1}, warpnum, cns) == 'VCN'){
-                let vtx = createVertex({i, j, id:1}, draft,  flat_vtx_list, cns, sim);
+                let vtx = createVertex({i, j, id:1}, fell_y, draft, cns, sim);
                 path.vtxs.push(vtx);
               }
 
               if(getNodeType({i, j, id:0}, warpnum, cns) == 'ACN'){
-                let vtx = createVertex({i, j, id:0}, draft,  flat_vtx_list, cns, sim);
+                let vtx = createVertex({i, j, id:0}, fell_y, draft, cns, sim);
                 path.vtxs.push(vtx);
               }
 
               if(!sim.wefts_as_written && getNodeType({i, j, id:0}, warpnum, cns) == 'VCN'){
-                let vtx = createVertex({i, j, id:0}, draft,  flat_vtx_list, cns, sim);
+                let vtx = createVertex({i, j, id:0}, fell_y, draft, cns, sim);
                 path.vtxs.push(vtx);
               }
             }
           }
 
+          //update the position of the fell line now that we have added all these vertexes
+
+          fell_y = getFellY(flat_vtx_list.concat(path.vtxs), sim.ms.getDiameter(material));
           path.pics.push(i);
-        
-    }
+
+    
+        }
 
 
 
@@ -1115,17 +1179,20 @@ import utilInstance from "./util";
     return Promise.resolve(paths);
   }
 
+
+
   /**
    * it is possible that some ACS, particularly those assocated with edges or segments that cross between two faces, will not get assigned move numbers. This function has these ACNS inherit their move factors 
    * @param d 
    * @param cns 
    */
-  export const cleanACNs = (d: Drawdown, cns: Array<ContactNeighborhood>) : Promise<Array<ContactNeighborhood>> => {
+  export const cleanACNs = (d: Drawdown, cns: Array<ContactNeighborhood>, simVars: SimulationVars) : Promise<Array<ContactNeighborhood>> => {
 
     for(let i = 0; i < warps(d); i++){
       let row_acns = cns.filter(el => el.ndx.i == i && el.node_type == "ACN" && (el.ndx.id == 0 || el.ndx.id == 1))
       let as_string = row_acns.reduce((acc, el) => {
-        let s =  '('+el.ndx.j+','+el.mv.y+','+el.mv.z+')'
+        //let s =  '('+el.ndx.j+','+el.mv.y+','+el.mv.z+')'
+        let s =  '('+el.ndx.j+','+el.mv.y+')'
         acc = acc + s;
         return acc;
       }, "");
@@ -1139,6 +1206,123 @@ import utilInstance from "./util";
   export const calcClothHeightOffsetFactor = (diam: number, radius: number, offset: number) : number => {
     return  diam * (radius-offset)/radius; 
   }
+
+  /** CODE DEVOTED TO MASS-SPRING-CALC */
  
+  export const createParticle = (x: number, y:number, z: number, pinned: boolean) : Particle => {
+    let position = new THREE.Vector3(x, y, z);
+    let geometry =  new THREE.SphereGeometry(0.1, 16, 16);
+    let material = new THREE.MeshBasicMaterial({color: 0xff0000})
+
+    let acceleration: THREE.Vector3 = new THREE.Vector3();
+
+
+    let p = {
+      position,
+      previousPosition: position.clone(),
+      geometry,
+      material,
+      mesh: new THREE.Mesh(geometry, material),
+      acceleration, 
+      pinned
+    }
+
+    p.mesh.position.copy(position)
+    return p;
+  }
+
+  export const applyForce = (p: Particle, force: THREE.Vector3) : Particle => {
+    p.acceleration.add(force);
+    return p;
+  } 
+
+  export const verlet = (p: Particle, damping: number, timeStep: number) : Particle => {
+    if (p.pinned) return p;
+
+    const velocity = p.position.clone().sub(p.previousPosition).multiplyScalar(damping)
+
+    const newPos = p.position.clone().add(velocity).add(p.acceleration.clone().multiplyScalar(timeStep ** 2));
+
+    p.previousPosition.copy(p.position);
+    p.position.copy(newPos);
+    p.acceleration.set(0, 0, 0);
+
+    return p;
+
+  } 
+
+  export const updateParticleMesh = (p: Particle) : Particle =>  {
+    p.mesh.position.copy(p.position);
+    return p;
+  }
+
+  export const createSpring = (p1: Particle, p2: Particle, restLength: number, color: number, diameter: number
+  ) : Spring => {
+
+    let spring = {
+      pts: [],
+      mesh: null,
+      p1, p2, restLength, color, diameter
+    }
+
+    spring.pts.push(new THREE.Vector3(p1.position.x, p1.position.y, p1.position.z));
+    
+    spring.pts.push(new THREE.Vector3(p2.position.x,p2.position.y, p2.position.z));
+
+    //const curve = new THREE.CatmullRomCurve3(spring.pts, false, 'catmullrom', .1);
+
+    //const geometry = new THREE.TubeGeometry( curve, 2, 1, 8, false );
+    const geometry = new THREE.BufferGeometry().setFromPoints(spring.pts);
+    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 }); // Green line
+
+    // const material = new THREE.MeshPhysicalMaterial( {
+    //       color: color,
+    //       depthTest: true,
+    //       emissive: 0x000000,
+    //       metalness: 0,
+    //       roughness: 0.5,
+    //       clearcoat: 1.0,
+    //       clearcoatRoughness: 1.0,
+    //       reflectivity: 0.0
+    //   } ); 
+      
+    spring.mesh = new THREE.Line(geometry, material)
+      //spring.mesh = new THREE.Mesh(geometry, material);
+
+      return spring;
+
+
+  }
+
+  export const satisfyConstraint = (s:Spring) : Spring => {
+    const delta = s.p2.position.clone().sub(s.p1.position);
+    const dist = delta.length();
+    const diff = (dist - s.restLength) / dist;
+    const correction = delta.multiplyScalar(0.5 * diff);
+
+    if (!s.p1.pinned) s.p1.position.add(correction);
+    if (!s.p2.pinned) s.p2.position.sub(correction);
+
+    return s;
+  }
+
+  export const updateSpringMesh = (s: Spring) : Spring =>  {
+    s.mesh.position.copy(s.p1.position);
+
+    const vertices = s.mesh.geometry.attributes.position.array;
+    vertices[0] = s.p1.position.x;
+    vertices[1] = s.p1.position.y;
+    vertices[2] = s.p1.position.z;
+
+    vertices[3] = s.p2.position.x;
+    vertices[4] = s.p2.position.y;
+    vertices[5] = s.p2.position.z;
+
+    s.mesh.geometry.attributes.position.needsUpdate = true; 
+
+    return s;
+  }
+
+
 
  

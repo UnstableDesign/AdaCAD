@@ -49,7 +49,8 @@ export class SimulationComponent implements OnInit {
       wefts_as_written: defaults.wefts_as_written,
       layer_spacing: defaults.layer_spacing, 
       radius: 40, 
-      ms: this.ms
+      ms: this.ms,
+      simulate: false
     }
 
 
@@ -84,24 +85,30 @@ export class SimulationComponent implements OnInit {
     this.gui = new GUI({autoPlace: false});
     div.appendChild(this.gui.domElement)
 
-    const pack = this.gui.add(this.simVars, 'pack', 0, 100);
-    pack.onChange((value) => {
-          this.handlePackChange(value); // `this` refers to the App instance
+
+   const simulate = this.gui.add(this.simVars, 'simulate').name('Relax');
+    simulate.onChange((value) => {
+          this.handleSimulateChange(value); 
         });
     
-    const weft_change = this.gui.add(this.simVars, 'wefts_as_written');
+    const weft_change = this.gui.add(this.simVars, 'wefts_as_written').name('Full Width');
     weft_change.onChange((value) => {
-          this.handleWeftAsWrittenChange(value); // `this` refers to the App instance
+          this.handleWeftAsWrittenChange(value); 
         });
-    
-    const warp_spacing_change = this.gui.add(this.simVars, 'warp_spacing', 1, 50, 1);
-    warp_spacing_change.onChange((value) => {
-          this.handleWarpSpacingChange(value); // `this` refers to the App instance
+    const pack = this.gui.add(this.simVars, 'pack', 0, 100).name('Pack');
+    pack.onChange((value) => {
+          this.handlePackChange(value); 
         });
 
-    const layer_spacing_change = this.gui.add(this.simVars, 'layer_spacing', 0, 50, 1);
+
+    const warp_spacing_change = this.gui.add(this.simVars, 'warp_spacing', .25, 25, .25).name("Warp-Density");
+    warp_spacing_change.onChange((value) => {
+          this.handleWarpSpacingChange(value); 
+        });
+
+    const layer_spacing_change = this.gui.add(this.simVars, 'layer_spacing', 0, 50, 1).name("Layer-Size");
     layer_spacing_change.onChange((value) => {
-          this.handleLayerSpacingChange(value); // `this` refers to the App instance
+          this.handleLayerSpacingChange(value); 
         });
 
 
@@ -130,6 +137,13 @@ export class SimulationComponent implements OnInit {
 
 
   }
+
+
+    handleSimulateChange(value) {
+      this.redrawCurrentSim();
+      
+   }
+
 
   handlePackChange(value) {
     this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
@@ -191,7 +205,7 @@ export class SimulationComponent implements OnInit {
     this.resetSimVars(draft, loom_settings);
 
    //this.layer_spacing = this.calcDefaultLayerSpacing(draft);
-    this.sim.setupSimulation(this.renderer, this.scene, this.camera, this.controls, this.gui);
+    this.sim.setupSimulation(this.renderer, this.scene, this.camera, this.controls, this.gui, [], []);
     this.resetSelectionBounds(draft);
     this.recalcAndRenderSimData(draft, this.selection_bounds);
     return Promise.resolve('done')
@@ -237,7 +251,7 @@ export class SimulationComponent implements OnInit {
       }
   
       console.log("RENDERING UPDATED DATA ", this.selection_bounds)
-      this.sim.redraw(this.scene, this.selection_bounds, this.simData, this.simVars);
+      this.sim.redraw(this.selection_bounds, this.simData, this.simVars);
 
     }
 
@@ -259,7 +273,7 @@ export class SimulationComponent implements OnInit {
   unsetSelection(){
 
     this.resetSelectionBounds(null);
-    this.sim.redraw(this.scene, this.selection_bounds, this.simData, this.simVars);
+    this.sim.redraw(this.selection_bounds, this.simData, this.simVars);
   }
 
   /**
@@ -325,13 +339,13 @@ export class SimulationComponent implements OnInit {
 
   //redraws whatever is stored at this.simData. 
   redrawCurrentSim(){
-    this.sim.redraw(this.scene, this.selection_bounds, this.simData, this.simVars)
+    this.sim.redraw(this.selection_bounds, this.simData, this.simVars)
 
   }
 
   redrawSimColors(){
     let draft = this.tree.getDraft(this.id);
-    this.sim.redrawSimColors(this.scene, draft, this.simVars)
+    this.sim.redrawSimColors(draft, this.simVars)
 
   }
 
@@ -351,7 +365,7 @@ export class SimulationComponent implements OnInit {
       document.getElementById('sizeerror').style.display = "none"
       document.getElementById('simulation_container').style.display = "flex";
       this.render_size_error = false;
-      this.sim.redraw(this.scene, selection, this.simData, this.simVars);
+      this.sim.redraw(selection, this.simData, this.simVars);
     
     }).catch(err => {
 
