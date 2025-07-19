@@ -1,8 +1,9 @@
 
+import { P } from "@angular/cdk/keycodes";
 import { MaterialsService } from "../provider/materials.service";
-import { getCellValue, setAndOpposite, setAndSame } from "./cell";
+import { createCell, getCellValue, setAndOpposite, setAndSame } from "./cell";
 import { Draft, Drawdown, CNFloat, CNIndex, CNType, Cell, ContactNeighborhood, SimulationVars, YarnVertex, WeftPath, Particle, Spring } from "./datatypes";
-import { warps, wefts } from "./drafts";
+import { drawDraftViewCell, warps, wefts } from "./drafts";
 import utilInstance from "./util";
 import * as THREE from 'three';
 
@@ -398,8 +399,6 @@ import * as THREE from 'three';
    * @returns 
    */
   const getWarpwiseRelationship = (float: CNFloat, attached: Array<CNFloat>) : Array<string> => {
-
-    if(attached.length == 0) return ["BUILD"] //require different handlings
     
     let res:Array<string> = attached.reduce((acc, el) => {
       let top_length = float.right.j - float.left.j;
@@ -451,16 +450,16 @@ import * as THREE from 'three';
   export const packRow = (i: number, wefts: number, warps: number,  cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
 
       let floats: Array<CNFloat> = getRowAsFloats(i, warps, cns);
-      console.log("ANALYSING ", i)
+      //console.log("ANALYSING ", i)
 
      floats.forEach(float => {
         if(float.face != null){
           // console.log("CHECKING FLOAT ", float.left.j, float.right.j)
-          let obj = calcMVValue(i-1, 0,  float, wefts, warps, cns);
-          // console.log("*RETURNED ", obj)
-          while(obj.next_i !== -1){
-            obj = calcMVValue(obj.next_i, obj.mvy, float, wefts, warps, cns);
-            // console.log("RETURNED ", obj)
+          let obj = calcMVYValue(i-1, i, 0,[], float, wefts, warps, cns);
+          //console.log("*RETURNED ", obj)
+          while(obj.next_i !== null){
+            obj = calcMVYValue(obj.next_i,i,  obj.mvy, obj.z_map, float, wefts, warps, cns);
+            //console.log("RETURNED ", obj)
 
           }
           cns = setMvY(float.left, warps, cns, obj.mvy);
@@ -470,47 +469,226 @@ import * as THREE from 'three';
             id: float.right.id};
           
           cns = setMvY(adj_right, warps, cns, obj.mvy);
+
+
         }
       });
       return cns;
     }
 
+    // const calcLayerInStack = (float: CNFloat, z_map:Array<{i:number, reltn: string}>) : number => {
+
+    //   //create a layer map that is all zero
+    //   let layer_map: Array<number> = z_map.map(el => 0);
+    //   let layer = 0;
+    //   z_map.forEach((el, ndx) => {
+    //     if(el.reltn == 'BUILD') return layer;
+    //     else if(el.reltn == 'STACK') return layer;
+    //     else{
+    //       if(el.reltn == 'SLIDE-OVER'){
+    //         if(float.face){
+
+    //         }else{
+    //           layer_map[ndx] = layer;
+    //           layer++;
+    //         }
+    //       }
+    //     }
+    //   });
+
+    //   return layer;
+
+    // }
+
+
+  //this needs to take place globally and recursively. It searches the longest floats in the draft, by group, to find floats that 
+  
+  
+  const parseDrawdownForLayers = (dd: Drawdown) : {is: Array<number>, js: Array<number>} => {
+      let layer_is = [];
+      let layer_js = [];
+
+      console.log("IN PARSE DRAWDOWN FOR LAYERS", dd)
+      
+      for(let i = 0; i < wefts(dd); i++){
+        for(let j = 0; j < warps(dd); j++){
+          let face = getCellValue(dd[i][j]);
+          if(face == null) face = false; //just change unset to down for now. 
+          let left = getCellValue(dd[i][utilInstance.mod(j-1, warps(dd))]);
+          let right = getCellValue(dd[i][utilInstance.mod(j+1, warps(dd))]);
+          let top = getCellValue(dd[utilInstance.mod(i-1, wefts(dd))][j]);
+          let bottom = getCellValue(dd[utilInstance.mod(i+1, wefts(dd))][j]);
+
+          if(!left && !right && top && bottom){
+            layer_is.push(i);
+            layer_js.push(j);
+          }
+        }
+      }
+
+       // layer_is = utilInstance.filterToUniqueValues(layer_is)
+        //layer_js = utilInstance.filterToUniqueValues(layer_js)
+        return {is: layer_is, js: layer_js};
+  }
+
+  /**
+   * removes the rows/cols associated with i's and j's and returns the modified drawdown along with the list of how the current rows and columns of the drawdown map to their original indicies.
+   * @param dd 
+   * @param layer_ijs 
+   */
+  const filterDrawdown = (dd: Drawdown, weft_map: Array<number>, warp_map: Array<number>, layer_ijs: {is: Array<number>, js: Array<number>}) : {dd: Drawdown, weft_map: Array<number>, warp_map: Array<number>} => {
+    let mod:Drawdown = [];
+    let first = true;
+    let updated_weft_map = [];
+    let updated_warp_map = [];
+
+    for(let i = 0; i < wefts(dd); i++){
+      if(layer_ijs.is.find(el => el == i) == undefined){
+        mod.push([]);
+        updated_weft_map.push(weft_map[i]); //push the original index
+
+        for(let j = 0; j < warps(dd); j++){
+          if(layer_ijs.js.find(el => el == j) == undefined){
+            mod[mod.length-1].push(createCell(getCellValue(dd[i][j])))
+            if(first) updated_warp_map.push(warp_map[j]); //push the original index
+          }
+        }
+        first = false;
+
+      }
+    }
+    return {dd: mod, weft_map: updated_weft_map, warp_map:updated_warp_map};
+  }
+  
+  
+  /**
+   * this function assigns a z value to the cns that would split into layers. It does this by finding matches to a specific sequence seen in the drawdown, marking the rows and cols upon which that sequence occurs (so that in any overlaps of any i and any j) we will activate the layer. Then, we need to remake the drawdown with those rows missing, to find the next layer that would form. 
+   * @param dd 
+   * @param cns 
+   * @returns 
+   */
+  const setMVZValues = (dd: Drawdown, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
+
+
+    console.log("SET MVZ Values")
+
+    let no_further_matches = false;
+    let round = 1;
+    let width = warps(dd);
+    let height = wefts(dd);
+    let warp_map = [];
+    let weft_map = [];
+    let dd_instance = dd.slice();
+
+
+    for(let i = 0; i < height; i++) weft_map.push(i);
+    for(let j = 0; j < width; j++) warp_map.push(j);
+
+    console.log("DD, MAPS", dd_instance, weft_map, warp_map )
+
+    //MATCH THE TYPES
+    while(!no_further_matches){
+ 
+
+      let layer_ijs = parseDrawdownForLayers(dd_instance);
+      console.log("IJ s ", layer_ijs, round);
+
+      if(layer_ijs.is.length == 0 || layer_ijs.js.length == 0){
+         no_further_matches = true;
+      }else{
+
+      for(let x = 0; x < layer_ijs.is.length; x++){
+       // for(let j of layer_ijs.js){
+          let i = layer_ijs.is[x];
+          let j = layer_ijs.js[x];
+          
+
+        
+
+          cns = setMvZ({i: weft_map[i], j:warp_map[j], id: 0}, width, cns, round);
+          cns = setMvZ({i: weft_map[i], j:warp_map[j], id: 1}, width, cns, round);
+          cns = setMvZ({i: weft_map[i], j:warp_map[j], id: 2}, width, cns, round);
+          cns = setMvZ({i: weft_map[i], j:warp_map[j], id: 3}, width, cns, round);
+          // cns = setMvZ({i: weft_map[i], j:warp_map[utilInstance.mod(j-1, warp_map.length)], id:1}, width, cns, round);
+          // cns = setMvZ({i: weft_map[i],  j:warp_map[utilInstance.mod(j+1, warp_map.length)], id:0}, width, cns, round);
+          // cns = setMvZ({i:utilInstance.mod(i-1, height),j, id:3}, width, cns, round);
+          // cns = setMvZ({i:utilInstance.mod(i+1, height),j, id:2}, width, cns, round);
+       // }
+      }
+
+      let obj = filterDrawdown(dd_instance, weft_map, warp_map, layer_ijs)//filter the drawdown. 
+      round++;
+      dd_instance = obj.dd;
+      weft_map = obj.weft_map;
+      warp_map = obj.warp_map;
+      }
+    }
+
+    return cns;
+  }
+
 
   
    /**
-    * this needs to recursively search the previous rows (and loop if needed) to determine how far this float can slide in the y direction. As it does so, it should make a note of it's pairwise relationships in z with each subsequent float. 
+    * this needs to recursively search the previous rows (and loop if needed) to determine how far this float can slide in the y direction. 
     * @param i the row to which we are comparing
     * @param mvy the number of rows this has already moved
     * @param float the float we are comparing to
     * @param warps the width of the cloth
     * @param cns the list of contact neighborhoods
     */ 
-  const calcMVValue = (i: number, mvy: number, float: CNFloat, wefts: number, warps: number, cns: Array<ContactNeighborhood>) : {mvy: number, next_i: number} => {
+  const calcMVYValue = (i: number, i_start: number, mvy: number, z_map:Array<{i:number, reltn: string}>, float: CNFloat, wefts: number, warps: number, cns: Array<ContactNeighborhood>) : {mvy: number, z_map:Array<{i:number, reltn: string}>, next_i: number} => {
 
       //wrap to continue search but eventually stop if we've covered the whole cloth
       let adj_i = i;
       if(i < 0) adj_i = utilInstance.mod(i, wefts);
-      if(mvy >= wefts-1) return {mvy, next_i:-1}
+      if(utilInstance.mod(i, wefts) == i_start) return {mvy, z_map, next_i:null}
       //get all of the attached floats on i
       let attached: Array<CNFloat> = getAttachedFloats(adj_i, wefts, warps, float, cns);
-      //console.log("GOT ATTACHED ", attached)
 
-      //determine what kind of relationship the 
-      let reltn = getWarpwiseRelationship(float, attached);
+      //we need a bit more information in this case
+      let reltn = [];
+
+      if(attached.length == 0){
+        //peak right and left; 
+        let right_edge_ndx = {i: adj_i, j: float.right.j, id: 1};
+        let right_edge_type = getNodeType(right_edge_ndx, warps, cns); 
+        let left_edge_ndx = {i: adj_i, j: float.left.j, id: 0};
+        let left_edge_type = getNodeType(left_edge_ndx, warps, cns); 
+
+        if(left_edge_type == "ACN" || right_edge_type == 'ACN'){
+          reltn.push("BUILD");
+        }else{
+          reltn.push(["SLIDE-OPP"]); //sliding on the opposite side of the warp
+        }
+
+      }else{
+        //determine what kind of relationship the 
+        reltn = getWarpwiseRelationship(float, attached);
+      }
+
+
       //console.log("FOUND RELATIONS ", float, reltn.map(el => String(el)))
         //adjust the right side of the float to clamp the value in: 
-    
         if(reltn.find(el => el == "BUILD") !== undefined){
-          return {mvy, next_i: -1}
+          z_map.push({i:i, reltn:'BUILD'});
+          return {mvy, z_map, next_i: null}
+
+        }else if(reltn.find(el => el == "SLIDE-OPP") !== undefined){
+            z_map.push({i:i, reltn:'SLIDE_OPP'});
+            return {mvy:mvy+1, z_map, next_i: i-1}
+
 
         }else if(reltn.find(el => el == "STACK") !== undefined){
-          return {mvy: mvy+.5, next_i: -1}
+          z_map.push({i:i, reltn:'STACK'});
+          return {mvy: mvy+.5, z_map, next_i: i-1}
         }else{
           //SLIDE OVER OR UNDER
-          return {mvy: mvy+1, next_i: i-1};
         
-          //SLIDING OVER IS ONLY RELATIVE TO THE WEFT BELOW, not the side of the cloth
-          // if(reltn.find(el => el == "SLIDE-OVER") !== undefined){
+           if(reltn.find(el => el == "SLIDE-OVER") !== undefined){
+              z_map.push({i:i, reltn:'SLIDE-OVER'});
+              return {mvy: mvy+1, z_map, next_i: i-1};
+
           //   let factor = (float.face) ? -1 : 1;
 
           //   //get the largest layer offset from the previous row's attached warps
@@ -531,10 +709,12 @@ import * as THREE from 'three';
           //     cns = setMvZ(float.left, warps, cns, prev_z*factor+factor);
           //     cns = setMvZ(float.right, warps, cns, prev_z*factor+factor);
 
-          // }
+           }
 
 
-          // if(reltn.find(el => el == "SLIDE-UNDER") !== undefined){
+           if(reltn.find(el => el == "SLIDE-UNDER") !== undefined){
+              z_map.push({i:i, reltn:'SLIDE-UNDER'});
+              return {mvy: mvy+1, z_map, next_i: i-1};
           //   //this float is going to slide under the float before it. 
 
           //   //this now needs to do an ordering sequence with the wefts before it. 
@@ -562,7 +742,7 @@ import * as THREE from 'three';
           //       }
 
           //     });
-          //   } 
+             } 
             
       }        
   }
@@ -875,6 +1055,8 @@ import * as THREE from 'three';
           cns = packRow(i, wefts(dd), warps(dd), cns);
          path.pics.push(i);
       }
+
+      cns = setMVZValues(dd, cns);
 
 
 
