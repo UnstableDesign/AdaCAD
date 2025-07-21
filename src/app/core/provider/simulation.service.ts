@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { applyForce, cleanACNs, createParticle, createSpring, followTheWefts, getDraftTopology, getFlatVtxList, satisfyConstraint, updateParticleMesh, updateSpringMesh, verlet } from '../model/yarnsimulation';
+import { applyForce, cleanACNs, createParticle, createSpring, followTheWefts, getDraftTopology, getFlatVtxList, renderWarps, satisfyConstraint, updateParticleMesh, updateSpringMesh, verlet } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Lut } from 'three/examples/jsm/math/Lut';
@@ -82,7 +82,8 @@ export class SimulationService {
     const simData: SimulationData = {
       draft: draft, 
       topo: null,
-      wefts: null
+      wefts: null,
+      warps: null
     };
   
 
@@ -93,7 +94,11 @@ export class SimulationService {
       return followTheWefts(simData.draft,  simData.topo, simVars);
     }).then(paths => {
       simData.wefts = paths;
+      return renderWarps(simData.draft, simData.topo,simData.wefts, simVars)
+    }).then(paths => {
+      simData.warps = paths;
       return simData;
+
     })
 
   }
@@ -112,7 +117,8 @@ export class SimulationService {
     const simData: SimulationData = {
       draft: draft, 
       topo: null,
-      wefts: null
+      wefts: null,
+      warps: null
     };
   
 
@@ -123,7 +129,11 @@ export class SimulationService {
       return followTheWefts(simData.draft,  simData.topo, simVars);
     }).then(paths => {
       simData.wefts = paths;
+      return renderWarps(simData.draft, simData.topo, simData.wefts, simVars)
+    }).then(paths => {
+      simData.warps = paths;
       return simData;
+
     })
 
   }
@@ -148,8 +158,13 @@ export class SimulationService {
       return followTheWefts(simData.draft,  simData.topo, simVars);
     }).then(paths => {
       simData.wefts = paths;
+      return renderWarps(simData.draft, simData.topo, simData.wefts, simVars)
+    }).then(paths => {
+      simData.warps = paths;
       return simData;
+
     })
+  
 
   }
 
@@ -159,8 +174,12 @@ export class SimulationService {
     return followTheWefts(simData.draft,  simData.topo, simVars)
     .then(paths => {
       simData.wefts = paths;
+      return renderWarps(simData.draft, simData.topo, simData.wefts, simVars);
+    }).then(paths => {
+      simData.warps = paths;
       return simData;
-    })
+
+    });
   }
 
 
@@ -445,48 +464,42 @@ export class SimulationService {
     this.weft_scene =  new THREE.Group();
     this.weft_scene.name = 'weft-scene'
 
-    const draft = simdata.draft;
+    //DRAW THE WAPRS
 
-    
-    //DRAW THE WARPS
-    for(let j = selection.topleft.x; j < selection.width + selection.topleft.x; j++){
+      console.log("WARPS ", simdata.warps)
+      simdata.warps.forEach(path => {
       const pts = [];
+      path.vtxs.forEach(vtx => {
+        if(vtx.x !== undefined){
+          pts.push(new THREE.Vector3(vtx.x, vtx.y, -vtx.z));
+        } 
+      });
 
+      if(pts.length !== 0){
 
-      const material_id = draft.colShuttleMapping[j];
+      const material_id = path.material;
       let diameter = simVars.ms.getDiameter(material_id);
-      let color = simVars.ms.getColorForSim(material_id);
+      let color = simVars.ms.getColorForSim(material_id)
 
-
-      
-      pts.push(new THREE.Vector3(simVars.warp_spacing*j, boundary_vtx.min_y-10, 0));
-      pts.push(new THREE.Vector3(simVars.warp_spacing*j, boundary_vtx.max_y+10, 0));
-      
-
-
-       if(pts.length !== 0){
-
-        const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-        const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 8, false );
-        const material = new THREE.MeshPhysicalMaterial( {
-          color: color,
-          depthTest: true,
-          emissive: 0x000000,
-          metalness: 0,
-          roughness: 0.5,
-          clearcoat: 1.0,
-          clearcoatRoughness: 1.0,
-          reflectivity: 0.0
-          } );     
-        
+      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .01);
+      const geometry = new THREE.TubeGeometry( curve, path.vtxs.length*10, diameter/2, 8, false );
+      const material = new THREE.MeshPhysicalMaterial( {
+        color: color,
+        emissive: 0x000000,
+        depthTest: true,
+        metalness: 0,
+        roughness: 0.5,
+        clearcoat: 1.0,
+        clearcoatRoughness: 1.0,
+        reflectivity: 0.0
+        } );        
         let curveObject = new THREE.Mesh( geometry, material );
-        curveObject.name = 'warp-'+(j-selection.topleft.x);
+        curveObject.name = 'warp-'+path.system+"-"+path.material;
 
-        this.warp_scene.add(curveObject);
-         
-        }
-    };
-
+        this.weft_scene.add(curveObject);
+      }
+        
+    })
     this.warp_scene = this.applyOrientationConversion(this.warp_scene, boundary_vtx);
     this.scene.add(this.warp_scene);
 

@@ -2,7 +2,7 @@
 import { P } from "@angular/cdk/keycodes";
 import { MaterialsService } from "../provider/materials.service";
 import { createCell, getCellValue, setAndOpposite, setAndSame } from "./cell";
-import { Draft, Drawdown, CNFloat, CNIndex, CNType, Cell, ContactNeighborhood, SimulationVars, YarnVertex, WeftPath, Particle, Spring } from "./datatypes";
+import { Draft, Drawdown, CNFloat, CNIndex, CNType, Cell, ContactNeighborhood, SimulationVars, YarnVertex, WeftPath, Particle, Spring, WarpPath } from "./datatypes";
 import { drawDraftViewCell, warps, wefts } from "./drafts";
 import utilInstance from "./util";
 import * as THREE from 'three';
@@ -57,18 +57,42 @@ import * as THREE from 'three';
 
 
 
-  export const initContactNeighborhoods = (size: number) : Promise<Array<ContactNeighborhood>> => {
-       let cns:Array<ContactNeighborhood> = new Array<ContactNeighborhood>(size);
-       for(let x = 0; x < cns.length; x++){
+  /**
+   * creates an empty set of CN's for the given drawdown and then walks through and populates their face and id values. 
+   * @param dd 
+   * @returns 
+   */
+  export const initContactNeighborhoods = (dd: Drawdown) : Promise<Array<ContactNeighborhood>> => {
+    let width = warps(dd);
+    let height = wefts(dd);
+    let size = width * height * 4;   
+    let cns:Array<ContactNeighborhood> = new Array<ContactNeighborhood>(size);
+   
+    for(let x = 0; x < cns.length; x++){
           cns[x] = {
             ndx: {i:0, j:0, id:0},
             node_type: 'ECN',
             mv:{y:0, z:0},
             face:null, 
           }
-       }
-      
+    }
 
+    for(let i = 0; i < height; i++){
+      for(let j = 0; j < width; j++){
+
+        cns = setIndex({i, j, id:0}, width, cns);
+        cns = setIndex({i, j, id:1}, width, cns);
+        cns = setIndex({i, j, id:2}, width, cns);
+        cns = setIndex({i, j, id:3}, width, cns);
+
+        let face = getCellValue(dd[i][j]);
+        cns = setFace({i, j, id:0}, width, cns, face)
+        cns = setFace({i, j, id:1}, width, cns, face)
+        cns = setFace({i, j, id:2}, width, cns, face)
+        cns = setFace({i, j, id:3},  width, cns, face)
+
+      }
+    }
        return Promise.resolve(cns);
   }
 
@@ -138,28 +162,28 @@ import * as THREE from 'three';
   /**
    * in cases where we want to render this as though it were repeating, we do need to consider the edges and, if neccessary, set the beginning and ending indexes beyond the bounds of the cloth such that we can determine the behavior of the float. Essentially, this calculates "if this was a repeating structure, where would this weft have started"
    */
-  const inferLeftIndex = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNIndex => {
-    if(ndx.id == 0) console.error("inferring left index from left ACN node");
+  // const inferLeftIndex = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNIndex => {
+  //   if(ndx.id == 0) console.error("inferring left index from left ACN node");
 
-    //get all the active ACNs associated with this row. There should always be at least 2
-    let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN" && el.ndx.id == 0);
-    if(active_acns.length == 0) console.error("no ACNS indexes found on left side nodes");
-    let closing_acn = active_acns.pop();
-    let dist_to_end = warps - closing_acn.ndx.j;
-    return {i: closing_acn.ndx.i, j: -dist_to_end, id: closing_acn.ndx.id}
-  }
+  //   //get all the active ACNs associated with this row. There should always be at least 2
+  //   let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN" && el.ndx.id == 0);
+  //   if(active_acns.length == 0) console.error("no ACNS indexes found on left side nodes");
+  //   let closing_acn = active_acns.pop();
+  //   let dist_to_end = warps - closing_acn.ndx.j;
+  //   return {i: closing_acn.ndx.i, j: -dist_to_end, id: closing_acn.ndx.id}
+  // }
 
-  const inferRightIndex = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNIndex => {
+  // const inferRightIndex = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNIndex => {
 
-    //should always start at a left (id: 0)
-    if(ndx.id == 1) console.error("inferring right index from right-sided ACN node", ndx);
+  //   //should always start at a left (id: 0)
+  //   if(ndx.id == 1) console.error("inferring right index from right-sided ACN node", ndx);
 
-    //get all the active ACNs associated with this row. There should always be at least 2
-    let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN" && el.ndx.id == 1);
-    if(active_acns.length == 0) console.error("no ACNS indexes found on right side nodes");
-    let first_acn = active_acns.shift();
-    return {i: first_acn.ndx.i, j: warps+first_acn.ndx.j, id: first_acn.ndx.id}
-  }
+  //   //get all the active ACNs associated with this row. There should always be at least 2
+  //   let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN" && el.ndx.id == 1);
+  //   if(active_acns.length == 0) console.error("no ACNS indexes found on right side nodes");
+  //   let first_acn = active_acns.shift();
+  //   return {i: first_acn.ndx.i, j: warps+first_acn.ndx.j, id: first_acn.ndx.id}
+  // }
 
 
   /**
@@ -501,130 +525,378 @@ import * as THREE from 'three';
     // }
 
 
-  //this needs to take place globally and recursively. It searches the longest floats in the draft, by group, to find floats that 
+  // //this needs to take place globally and recursively. It searches the longest floats in the draft, by group, to find floats that 
   
   
-  const parseDrawdownForLayers = (dd: Drawdown) : {is: Array<number>, js: Array<number>} => {
-      let layer_is = [];
-      let layer_js = [];
+  // const parseDrawdownForLayers = (dd: Drawdown) : {is: Array<number>, js: Array<number>} => {
+  //     let layer_is = [];
+  //     let layer_js = [];
 
-      console.log("IN PARSE DRAWDOWN FOR LAYERS", dd)
+  //     console.log("IN PARSE DRAWDOWN FOR LAYERS", dd)
       
-      for(let i = 0; i < wefts(dd); i++){
-        for(let j = 0; j < warps(dd); j++){
-          let face = getCellValue(dd[i][j]);
-          if(face == null) face = false; //just change unset to down for now. 
-          let left = getCellValue(dd[i][utilInstance.mod(j-1, warps(dd))]);
-          let right = getCellValue(dd[i][utilInstance.mod(j+1, warps(dd))]);
-          let top = getCellValue(dd[utilInstance.mod(i-1, wefts(dd))][j]);
-          let bottom = getCellValue(dd[utilInstance.mod(i+1, wefts(dd))][j]);
+  //     for(let i = 0; i < wefts(dd); i++){
+  //       for(let j = 0; j < warps(dd); j++){
+  //         let face = getCellValue(dd[i][j]);
+  //         if(face == null) face = false; //just change unset to down for now. 
+  //         let left = getCellValue(dd[i][utilInstance.mod(j-1, warps(dd))]);
+  //         let right = getCellValue(dd[i][utilInstance.mod(j+1, warps(dd))]);
+  //         let top = getCellValue(dd[utilInstance.mod(i-1, wefts(dd))][j]);
+  //         let bottom = getCellValue(dd[utilInstance.mod(i+1, wefts(dd))][j]);
 
-          if(!left && !right && top && bottom){
-            layer_is.push(i);
-            layer_js.push(j);
+  //         if(!left && !right && top && bottom){
+  //           layer_is.push(i);
+  //           layer_js.push(j);
+  //         }
+  //       }
+  //     }
+
+  //      // layer_is = utilInstance.filterToUniqueValues(layer_is)
+  //       //layer_js = utilInstance.filterToUniqueValues(layer_js)
+  //       return {is: layer_is, js: layer_js};
+  // }
+
+  
+
+
+  const getLayerMatches =  (cns: Array<ContactNeighborhood>, wefts: number, warps: number) : Array<{i:number, j: number}> => {
+
+    let matches = [];
+
+    for(let i = 0; i < wefts; i++){
+      for(let j = 0; j < warps; j++){
+
+        let face = getFace({i,j,id:0}, warps, cns);
+        let layer = getMvZ({i, j, id: 0}, warps, cns)
+        let left = getNodeType({i,j,id:0}, warps, cns);
+        let right = getNodeType({i,j,id:1}, warps, cns);
+        let top = getNodeType({i,j,id:2}, warps, cns);
+        let bottom = getNodeType({i,j,id:3}, warps, cns);
+
+        if(layer == 0){
+
+          if(face && left == "ACN" && right == 'ACN' && (top == 'PCN' || top == 'VCN') && (bottom == 'PCN' || bottom == 'VCN')){
+            matches.push({i,j});
           }
-        }
-      }
 
-       // layer_is = utilInstance.filterToUniqueValues(layer_is)
-        //layer_js = utilInstance.filterToUniqueValues(layer_js)
-        return {is: layer_is, js: layer_js};
-  }
+          if(!face && (left == "PCN" || left == "VCN") && (right == 'PCN' || right == 'VCN') && top == 'ACN' && bottom == 'ACN'){
+            matches.push({i,j});
+          } 
+        } 
 
-  /**
-   * removes the rows/cols associated with i's and j's and returns the modified drawdown along with the list of how the current rows and columns of the drawdown map to their original indicies.
-   * @param dd 
-   * @param layer_ijs 
-   */
-  const filterDrawdown = (dd: Drawdown, weft_map: Array<number>, warp_map: Array<number>, layer_ijs: {is: Array<number>, js: Array<number>}) : {dd: Drawdown, weft_map: Array<number>, warp_map: Array<number>} => {
-    let mod:Drawdown = [];
-    let first = true;
-    let updated_weft_map = [];
-    let updated_warp_map = [];
-
-    for(let i = 0; i < wefts(dd); i++){
-      if(layer_ijs.is.find(el => el == i) == undefined){
-        mod.push([]);
-        updated_weft_map.push(weft_map[i]); //push the original index
-
-        for(let j = 0; j < warps(dd); j++){
-          if(layer_ijs.js.find(el => el == j) == undefined){
-            mod[mod.length-1].push(createCell(getCellValue(dd[i][j])))
-            if(first) updated_warp_map.push(warp_map[j]); //push the original index
-          }
-        }
-        first = false;
 
       }
     }
-    return {dd: mod, weft_map: updated_weft_map, warp_map:updated_warp_map};
+
+    return matches;
+
+  }
+
+  /**
+   * given a point, this function returns the float upon which this point sits
+   * @param i 
+   * @param j 
+   */
+  const getWarpFloat = (i: number, j:number, wefts: number, warps: number,  cns: Array<ContactNeighborhood>) : CNFloat => {
+    let left = null;
+    let count = 0;
+
+    //confirm this is a weft float and not an unset 
+    let face = getFace({i, j, id: 0}, warps, cns);
+    if(face == null) return null;
+
+
+    //walk up
+    while(left == null && count < wefts){
+      let type = getNodeType({i, j, id:2}, warps, cns);
+      if(type == 'ACN'){
+        left = {i, j, id: 2};
+      }else{
+        i = utilInstance.mod(i-1, wefts);
+      }
+      count++;
+    }
+
+    //walk down
+    let right = null;
+    count = 0;
+    while(right == null && count < warps){
+      let type = getNodeType({i, j, id:3}, warps, cns);
+      if(type == 'ACN'){
+        right = {i, j, id: 3};
+      }else{
+        i = utilInstance.mod(i+1, wefts);
+      }
+      count++;
+    }
+
+    if(left == null || right == null) return null;
+
+    return {
+      left, right, edge: false, face:true
+    }
+
   }
   
-  
+
   /**
-   * this function assigns a z value to the cns that would split into layers. It does this by finding matches to a specific sequence seen in the drawdown, marking the rows and cols upon which that sequence occurs (so that in any overlaps of any i and any j) we will activate the layer. Then, we need to remake the drawdown with those rows missing, to find the next layer that would form. 
-   * @param dd 
+   * given a point, this function returns the float upon which this point sits
+   * @param i 
+   * @param j 
+   */
+  const getWeftFloat = (i: number, j:number, warps: number, cns: Array<ContactNeighborhood>) : CNFloat => {
+    let left = null;
+    let count = 0;
+    let j_adj = j;
+
+    //confirm this is a weft float and not an unset 
+    let face = getFace({i, j, id: 0}, warps, cns);
+    if(face == null) return null;
+
+    //walk left
+    while(left == null && count < warps){
+      let type = getNodeType({i, j:j_adj, id:0}, warps, cns);
+      if(type == 'ACN'){
+        left = {i, j:j_adj, id: 0};
+      }else{
+        j_adj = utilInstance.mod(j_adj-1, warps);
+      }
+      count++;
+    }
+
+    //walk right
+    let right = null;
+    count = 0;
+    j_adj = j;
+    while(right == null && count < warps){
+      let type = getNodeType({i, j:j_adj, id:1}, warps, cns);
+      if(type == 'ACN'){
+        right = {i, j:j_adj, id: 1};
+      }else{
+        j_adj = utilInstance.mod(j_adj+1, warps);
+      }
+      count++;
+    }
+
+    return {
+      left, right, edge: false, face:false
+    }
+
+  }
+
+  const getWeftFloatLength = (f: CNFloat, warps: number) : number => {
+    if(f.right.j >= f.left.j) return f.right.j - f.left.j;
+    else return warps - f.left.j + f.right.j;
+  }
+
+  const getWarpFloatLength = (f: CNFloat, wefts: number) : number => {
+    if(f.right.i >= f.left.i) return f.right.i - f.left.i;
+    else return wefts - f.left.i + f.right.i;
+  }
+
+  /**
+   * updates the contact neighborhood list assuming that this float is now lifting off of the base plan. This means that we need to lift both 
+   * @param float 
+   * @param warps 
+   * @param layer 
    * @param cns 
    * @returns 
    */
-  const setMVZValues = (dd: Drawdown, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
+  const liftOff = (floats: Array<CNFloat>, wefts: number, warps: number, layer: number, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
+
+    //filter out any null values. 
+    floats = floats.filter(el => el !== null);
+    //erase any duplicates. 
 
 
-    console.log("SET MVZ Values")
+        for(let float of floats){
 
-    let no_further_matches = false;
-    let round = 1;
-    let width = warps(dd);
-    let height = wefts(dd);
-    let warp_map = [];
-    let weft_map = [];
-    let dd_instance = dd.slice();
+            console.log("LIFTING OFF", float)
+            //raise the "layer" value for all types 
+            cns = setMvZ({i: float.left.i, j: float.left.j, id: 0}, warps, cns, layer);
+            cns = setMvZ({i: float.left.i, j: float.left.j, id: 1}, warps, cns, layer);
+            cns = setMvZ({i: float.left.i, j: float.left.j, id: 2}, warps, cns, layer);
+            cns = setMvZ({i: float.left.i, j: float.left.j, id: 3}, warps, cns, layer);
 
 
-    for(let i = 0; i < height; i++) weft_map.push(i);
-    for(let j = 0; j < width; j++) warp_map.push(j);
+            cns = setMvZ({i: float.right.i, j: float.right.j, id: 0}, warps, cns, layer);
+            cns = setMvZ({i: float.right.i, j: float.right.j, id: 1}, warps, cns, layer);
+            cns = setMvZ({i: float.right.i, j: float.right.j, id: 2}, warps, cns, layer);
+            cns = setMvZ({i: float.right.i, j: float.right.j, id: 3}, warps, cns, layer);
 
-    console.log("DD, MAPS", dd_instance, weft_map, warp_map )
+            //walk along the float and update the ACN/PCN of it and it's neighbors. 
+            if(float.face){
+              //this is a warp floats
+              //this is a weft float, walk along and update the values
+              console.log("Walking warp for ", getWarpFloatLength(float, wefts))
+              for(let i_offset = 0; i_offset <= getWarpFloatLength(float, wefts); i_offset++){
+                let i_adj = utilInstance.mod(float.left.i + i_offset, wefts);
+                cns = setMvZ({i: i_adj, j: float.right.j, id: 0}, warps, cns, layer)
+                cns = setMvZ({i: i_adj, j: float.right.j, id: 1}, warps, cns, layer)
+                cns = setMvZ({i: i_adj, j: float.right.j, id: 2}, warps, cns, layer)
+                cns = setMvZ({i: i_adj, j: float.right.j, id: 3}, warps, cns, layer)
+              }
 
-    //MATCH THE TYPES
-    while(!no_further_matches){
- 
+            }else{
+              //this is a weft float, walk along and update the values
+              console.log("Walking weft for ", getWeftFloatLength(float, warps))
 
-      let layer_ijs = parseDrawdownForLayers(dd_instance);
-      console.log("IJ s ", layer_ijs, round);
+              for(let j_offset = 0; j_offset <= getWeftFloatLength(float, warps); j_offset++){
+                let j_adj = utilInstance.mod(float.left.j + j_offset, warps);
+                cns = setMvZ({i: float.right.i, j: j_adj, id: 0}, warps, cns, layer)
+                cns = setMvZ({i: float.right.i, j: j_adj, id: 1}, warps, cns, layer)
+                cns = setMvZ({i: float.right.i, j: j_adj, id: 2}, warps, cns, layer)
+                cns = setMvZ({i: float.right.i, j: j_adj, id: 3}, warps, cns, layer)
+              }
+            }
+        }
+        return cns;
+  }
 
-      if(layer_ijs.is.length == 0 || layer_ijs.js.length == 0){
-         no_further_matches = true;
-      }else{
+  const floatsAreSame = (a: CNFloat, b: CNFloat) : boolean => {
 
-      for(let x = 0; x < layer_ijs.is.length; x++){
-       // for(let j of layer_ijs.js){
-          let i = layer_ijs.is[x];
-          let j = layer_ijs.js[x];
-          
+    if(a.left == b.left && a.right == b.right) return true;
+    if(a.left == b.right && a.right == b.left) return true;
+    return false;
 
-        
+  }
 
-          cns = setMvZ({i: weft_map[i], j:warp_map[j], id: 0}, width, cns, round);
-          cns = setMvZ({i: weft_map[i], j:warp_map[j], id: 1}, width, cns, round);
-          cns = setMvZ({i: weft_map[i], j:warp_map[j], id: 2}, width, cns, round);
-          cns = setMvZ({i: weft_map[i], j:warp_map[j], id: 3}, width, cns, round);
-          // cns = setMvZ({i: weft_map[i], j:warp_map[utilInstance.mod(j-1, warp_map.length)], id:1}, width, cns, round);
-          // cns = setMvZ({i: weft_map[i],  j:warp_map[utilInstance.mod(j+1, warp_map.length)], id:0}, width, cns, round);
-          // cns = setMvZ({i:utilInstance.mod(i-1, height),j, id:3}, width, cns, round);
-          // cns = setMvZ({i:utilInstance.mod(i+1, height),j, id:2}, width, cns, round);
-       // }
-      }
 
-      let obj = filterDrawdown(dd_instance, weft_map, warp_map, layer_ijs)//filter the drawdown. 
-      round++;
-      dd_instance = obj.dd;
-      weft_map = obj.weft_map;
-      warp_map = obj.warp_map;
-      }
+  const getNextCellOnLayer = (i: number, j: number, wefts: number, warps: number, layer: number, direction: string, cns: Array<ContactNeighborhood>) : {i: number, j: number} => {
+    let i_base = i;
+    let j_base = j;
+
+    switch(direction){
+      case "above":
+        for(let i_offset = 0; i_offset < wefts; i_offset++){
+          let i_adj = utilInstance.mod(i_base-i_offset, wefts);
+          if(getMvZ({i:i_adj, j, id: 0}, warps, cns) ==  layer){
+            return {i:i_adj, j}
+          }
+        }
+        return null;
+
+      case "below":
+        for(let i_offset = 0; i_offset < wefts; i_offset++){
+          let i_adj = utilInstance.mod(i_base+i_offset, wefts);
+          if(getMvZ({i:i_adj, j, id: 0}, warps, cns) ==  layer){
+            return {i:i_adj, j}
+          }
+        }
+        return null;
+
+
+        case "left":
+        for(let j_offset = 0; j_offset < warps; j_offset++){
+          let j_adj = utilInstance.mod(j_base-j_offset, warps);
+          if(getMvZ({i, j:j_adj, id: 0}, warps, cns) ==  layer){
+            return {i, j:j_adj}
+          }
+        }
+        return null;
+
+
+       case "right":
+        for(let j_offset = 0; j_offset < warps; j_offset++){
+          let j_adj = utilInstance.mod(j_base+j_offset, warps);
+          if(getMvZ({i, j:j_adj, id: 0}, warps, cns) ==  layer){
+            return {i, j:j_adj}
+          }
+        }
+        return null;
     }
 
+    console.error("DIRECTION ", direction, "NOT FOUND")
+
+  }
+
+
+  const classifyNodeTypeBasedOnFaces = (f1: boolean, f2: boolean, ndx: CNIndex, warps:number, cns:Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
+          if(setAndOppositeFaces(f1, f2)){
+            cns = setNodeType(ndx, warps, cns, 'ACN');
+          }else if(setAndSameFaces(f1, f2)){
+            cns = setNodeType(ndx, warps, cns, 'PCN')
+          }else if(f1 !== null && f2 == null) {
+            cns = setNodeType(ndx, warps, cns, 'ACN')
+          }else{
+            cns = setNodeType(ndx, warps, cns, 'ECN')
+          }
+          return cns;
+  }
+
+
+
+  
+
+
+  
+/**
+ * this function recursively identifies where layers emerge within the CNs, assigns the specific layer value to MVZ and the update the contact node list to acknowledge how CNs node types will change if one part of the cloth is separated (e.g. where the ACNs are no longer valid if we consider if/how the cloth is sliding at that point). It works by identifying specific matches in the contact node list. At each {i, j} it updates any weft floats and warp floats that neighbor that i,j with the new layer information. it then calls a global update operation to consider the new layer mappings. 
+ * @param dd 
+ * @param cns 
+ * @returns 
+ */
+  const setMVZValues = (dd: Drawdown, cns: Array<ContactNeighborhood>, sim: SimulationVars) : Array<ContactNeighborhood> => {
+    let width = warps(dd);
+    let height = wefts(dd);
+    let layer = 1;
+
+    console.log("SET MVZ VALUES")
+
+    //WHILE STILL FINDING (i, j) that fit criteria and don't already have a layer assigned
+    let matches = getLayerMatches(cns,height, width);
+    console.log("LAYER MATCHES ", matches)
+    while(matches.length > 0){
+      //  if  {i, j}  WEFT facing, search for the left/right ACNS of this float. UPDATE all warp-wise acns along this float (but keep them on i,j) as though this particular float did not exist in the draft. 
+
+      for(let match of matches){
+        let face = getFace({i:match.i, j:match.j, id: 0}, width, cns);
+        let float = null
+        let right_float = null;
+        let left_float = null;
+        if(face){
+
+          float = getWarpFloat(match.i, match.j, height, width, cns);
+          right_float = getWeftFloat(match.i, utilInstance.mod(match.j+1, width), width, cns)
+          left_float = getWeftFloat(match.i, utilInstance.mod(match.j-1, width), width, cns);
+
+        }else{
+          float = getWeftFloat(match.i, match.j, width, cns);
+          right_float = getWarpFloat(utilInstance.mod(match.i+1, height), match.j, height, width, cns) //bottom flow
+          left_float = getWarpFloat(utilInstance.mod(match.i-1, height), match.j, height, width, cns) //top float
+
+        }
+
+        console.log("GOT FLOATS ", float, right_float, left_float)
+        if(floatsAreSame(right_float, left_float)) left_float = null
+       
+       
+        cns = liftOff([float, right_float, left_float], height, width, layer, cns);
+
+
+      }
+
+      printLayerMap(cns, height, width);
+      cns = updateCNs(cns, height, width, sim);
+      layer++;
+      matches = getLayerMatches(cns, height,width);
+      console.log("NEW MATCHES ", matches)
+    }
     return cns;
+  }
+
+  const printLayerMap = (cns: Array<ContactNeighborhood>, wefts: number, warps: number) => {
+
+    const layer_map = [];
+    for(let i = 0; i < wefts; i++){
+      let row = [];
+      for(let j = 0; j < warps; j++){
+        row.push(getMvZ({i, j, id:0}, warps, cns));
+      }
+      layer_map.push(row);
+    }
+
+    console.log("LAYER MAP ", layer_map)
+
   }
 
 
@@ -746,99 +1018,64 @@ import * as THREE from 'three';
             
       }        
   }
-    
-  
-  /**
-   * Walks through the values in a given draft row and adds active nodes on both sides of any interlacement (shift from face a to b or b to a). It is also going to add active nodes on edges but looking at it's relationship to the start or end of the row. 
-   * @param i the row id
-   * @param dd the drawdown
-   * @param cns the list of contact neighborhoods
-   * @returns 
-   */
-  export const parseRow = (i:number, dd: Drawdown, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
-    let width = warps(dd);
-    let height = wefts(dd);
-
-    for(let j = 0; j < width; j++){
-    let cell = dd[i][j];
 
 
-      cns = setIndex({i, j, id:0}, width, cns);
-      cns = setIndex({i, j, id:1}, width, cns);
-      cns = setIndex({i, j, id:2}, width, cns);
-      cns = setIndex({i, j, id:3}, width, cns);
 
-      let face = getCellValue(dd[i][j]);
-      cns = setFace({i, j, id:0}, width, cns, face)
-      cns = setFace({i, j, id:1}, width, cns, face)
-      cns = setFace({i, j, id:2}, width, cns, face)
-      cns = setFace({i, j, id:3},  width, cns, face)
-     
+  const updateCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number, sim:SimulationVars ) : Array<ContactNeighborhood> => {
+    console.log("UPDATE CNS ", )
 
-      //check left 
-      if(j > 0){
-        let left = dd[i][j-1];
-        if(setAndOpposite(cell, left)){
-          cns = setNodeType({i, j, id:0}, width, cns, 'ACN')
-        }else if(setAndSame(cell, left)){
-          cns = setNodeType({i, j, id:0}, width, cns, 'PCN')
-        }else if(cell.is_set && !left.is_set) {
-          cns = setNodeType({i, j, id:0}, width, cns, 'ACN')
-        }
-      }else{
+    let regions = [
+      {name: "above", id: 2, start_i: -1, start_j: 0},
+      {name: "below", id: 3, start_i: 1, start_j: 0},
+      {name: "left", id: 0 , start_i: 0, start_j: -1},
+      {name: "right", id: 1, start_i: 0, start_j: 1},
+    ]
+    for(let i = 0; i < wefts; i++){
+      for(let j = 0; j < warps; j++){
+        let face = getFace({i, j, id: 0}, warps, cns); 
+        let layer = getMvZ({i, j, id: 0}, warps, cns); 
+        
+        for (let region of regions){
+            //find the next next acn above that shares the layer
+            let ij = getNextCellOnLayer(i+region.start_i, j+region.start_j, wefts, warps, layer, region.name, cns);
+            if(ij == null){
+              cns = setNodeType({i, j, id:region.id}, warps, cns, 'ECN')
+            }else{
+            let last_face = getFace({i: ij.i, j:ij.j, id: 0}, warps, cns)
+            cns = classifyNodeTypeBasedOnFaces(face, last_face,{i, j, id:region.id}, warps, cns);
+              // if(getNodeType({i, j, id:region.id}, warps, cns) == 'ACN'){
+              //   console.log("SET ACN AT ", i, j, region.name)
+              // }
+            }
 
-        if(cell.is_set){
-           cns = setNodeType({i, j, id:0}, width, cns, 'VCN')//just in case rendering full width
-          
-           //peek around to the end of the to what the next value would be if this repeated and then add a point there if it's opposite
-           if(setAndOpposite(cell, dd[i][width-1])){
-              cns = setNodeType({i, j, id:0}, width, cns, 'ACN')
-           }
-        }
-      }
+            //ADD ANY REQUIRED VIRTUAL NODES for FULL WIDTH RENDERING
+            let ndx = {i,j,id:region.id};
+            if(!sim.wefts_as_written){  
+              switch(region.name){
+                case "above":
+                  if(i == 0 && getNodeType(ndx, warps, cns) !== 'ACN') setNodeType(ndx, warps, cns, 'VCN')
+                  break;
+                
+                case "below":
+                  if(i == wefts-1 && getNodeType(ndx, warps, cns) !== 'ACN') setNodeType(ndx, warps, cns, 'VCN')
+                  break;
 
-      if(j < width-1){
-        let right = dd[i][j+1];
-        if(setAndOpposite(cell, right)){
-        cns = setNodeType({i, j, id:1}, width, cns, 'ACN')
-        }else if(setAndSame(cell, right)){
-          cns = setNodeType({i, j, id:1}, width, cns, 'PCN')
-        }else if(cell.is_set && !right.is_set) {
-          cns = setNodeType({i, j, id:1}, width, cns, 'ACN')
-        }
-      }else{
-          if(cell.is_set){
-           cns = setNodeType({i, j, id:1}, width, cns, 'VCN')//just in case rendering full width
-                      //peek around to the end of the to what the next value would be if this repeated and then add a point there if it's opposite
-           if(setAndOpposite(cell, dd[i][0])){
-              cns = setNodeType({i, j, id:1}, width, cns, 'ACN')
-           }
+                case "left":
+                  if(j == 0 && getNodeType(ndx, warps, cns) !== 'ACN') setNodeType(ndx, warps, cns, 'VCN')
+                  break;
+
+                case "right":
+                  if(j == warps-1 && getNodeType(ndx, warps, cns) !== 'ACN') setNodeType(ndx, warps, cns, 'VCN')
+                  break;
+              }
+
+
+            }
         }
       }
-   
-      //MOSTLY IGNORING BELOW FOR NOW
-
-      //check TOP 
-      if(i == 0 && getCellValue(dd[i][j]) != getCellValue(dd[height-1][j])){
-        cns = setNodeType({i, j, id:2}, width, cns, 'ACN')
-      }else if(i > 0 && getCellValue(dd[i][j]) != getCellValue(dd[i-1][j])){
-        cns = setNodeType({i, j, id:2}, width, cns, 'ACN')
-      }else{
-        cns = setNodeType({i, j, id:2}, width, cns, 'PCN')
-      }
-
-      //check BOTTOM
-      if(i == height-1 && getCellValue(dd[i][j]) != getCellValue(dd[0][j])){
-        cns = setNodeType({i, j, id:3}, width, cns, 'ACN')
-      }else if(i < height-1 && getCellValue(dd[i][j]) != getCellValue(dd[i+1][j])){
-        cns = setNodeType({i, j, id:3}, width, cns, 'ACN')
-      }else{
-        cns = setNodeType({i, j, id:3}, width, cns, 'PCN')
-      }
-
-
     }
     return cns;
+
   }
 
   export const setAndOppositeFaces = (f1: boolean, f2: boolean) : boolean => {
@@ -1017,26 +1254,19 @@ import * as THREE from 'three';
    * this will read through a current drawdown and populate the information needed for the contact neighborhoods, determining if and how different wefts stack or slide, etc. This will change based on the behavior of the wefts so we do need some information here if the simulation should assume the wefts run full width or if we want to simulate as drafted (where, if there isn't a selvedge, some might pull out) 
    * @param dd 
    * @param cns 
-   * @returns 
-   */
-
-  /**
-   * use the a given draft into populate the contact neighborhoods. 
-   * @param dd the drawdown to parse
-   * @param cns the initialized contact neighborhoods
    * @param sim variables to control how the parsing takes place (e.g. specifically if you want to render the draft as it would be woven vs forcing it to go full width)
    * @returns 
    */
   export const parseDrawdown = (d: Draft, cns: Array<ContactNeighborhood>, sim:SimulationVars) : Promise<Array<ContactNeighborhood>> => {
 
+    console.log("**************** NEW DRAFT LOADED **************", d )
+
       //create a temp list
       let paths:Array<WeftPath> = initWeftPaths(d);
       let dd = d.drawdown;
 
-      //start by parsing the entire drawdown
-      for(let i = 0; i < wefts(dd); i++){
-        cns = parseRow(i, dd, cns);
-      }
+      //START BY POPULATING THE CNS MAPS
+      cns = updateCNs(cns, wefts(d.drawdown), warps(d.drawdown), sim);
 
     
       for(let i = 0; i < wefts(dd); i++){
@@ -1047,8 +1277,6 @@ import * as THREE from 'three';
           let path = paths.find(el => el.material == material && el.system == system);
           if(path == undefined) Promise.reject('no path found for material and system ')
 
-          //assign each node a value based on it's relationship with its neighbor
-         // cns = parseRow(i, dd, cns);
 
           if(sim.wefts_as_written) cns = pullRow(i, warps(dd), path.pics, cns);
           
@@ -1056,11 +1284,8 @@ import * as THREE from 'three';
          path.pics.push(i);
       }
 
-      cns = setMVZValues(dd, cns);
-
-
-
-    return Promise.resolve(cns);
+      cns = setMVZValues(dd, cns, sim);
+      return Promise.resolve(cns);
   }
 
   
@@ -1070,11 +1295,7 @@ import * as THREE from 'three';
    */
    export const getDraftTopology = async (draft: Draft, sim: SimulationVars) : Promise<Array<ContactNeighborhood>> => {
 
-       let dd = draft.drawdown;
-       let width = warps(dd);
-       let height = wefts(dd);
-       let node_num = width * height * 4;
-       return initContactNeighborhoods(node_num)
+       return initContactNeighborhoods(draft.drawdown)
        .then(cns => {
           return parseDrawdown(draft, cns, sim);
        });
@@ -1266,6 +1487,91 @@ import * as THREE from 'three';
 
 
 
+
+  const getYFromWeft = (i: number, j: number, cns: Array<ContactNeighborhood>, paths: Array<WeftPath>) => {
+
+    //first, check if this index exists in the path already
+    let active_path = null;
+    for(let path of paths){
+      if(path.pics.find(pic => pic == i) !== undefined) 
+        active_path = path;
+    }
+    console.log("ACTIVE PATH FOR ", i, " IS ", active_path)
+
+    if(active_path !== null){
+      //get all the vertexes associated with this weft. 
+      let vtx_list = active_path.vtxs.filter(vtx => vtx.ndx.i == i);
+      let closest:any = vtx_list.reduce((acc, el) => {
+        let dist = j - el.ndx.j;
+        if(dist == 0){
+            acc.dist_left = dist;
+            acc.dist_right = dist;
+            acc.j_left = el.ndx.j;
+            acc.j_right = el.ndx.j;
+            acc.y_left = el.y;
+            acc.y_right = el.y;
+
+        }  else if(dist > 0){
+          if(dist < acc.dist_left){
+            acc.dist_left = dist;
+            acc.j_left = el.ndx.j;
+            acc.y_left = el.y;
+          }
+        } else{
+          dist = Math.abs(dist);
+          if(dist < acc.dist_right){
+            acc.dist_right = dist;
+            acc.j_right = el.ndx.j;
+            acc.y_right = el.y;
+
+          }
+        }
+       
+        return acc;
+      }, {dist_left: 10000, j_left: -1, y_left:0, dist_right:10000, j_right:-1, y_right: 0});
+
+
+      return closest.y_left + closest.y_right / 2;
+
+    }else{
+      return 0;
+    }
+
+
+  }
+
+  export const renderWarps = (draft: Draft, cns: Array<ContactNeighborhood>, weft_paths: Array<WeftPath>,  sim: SimulationVars) : Promise<Array<WarpPath>> => {
+
+    let warp_paths:Array<WarpPath> = [];
+    let width = warps(draft.drawdown);
+
+
+    for(let j = 0; j < warps(draft.drawdown); j++){
+
+      let x = j * sim.warp_spacing;
+      let vtxs:Array<YarnVertex> = [];
+      let system = draft.colSystemMapping[j];
+      let material = draft.colShuttleMapping[j];
+
+      for(let i = 0; i < wefts(draft.drawdown); i++){
+        let type_top = getNodeType({i, j, id: 2}, width, cns);
+        let type_bottom = getNodeType({i, j, id: 3}, width, cns);
+        if(type_top == 'ACN' || type_top == 'VCN' || type_bottom == 'ACN' || type_bottom == 'VCN'){
+          
+          let z = getMvZ({i, j, id: 0}, width, cns) * sim.layer_spacing;
+          let y = getYFromWeft(i, j, cns, weft_paths);
+          vtxs.push({x, y, z, ndx:{i, j, id:2}});
+
+        }
+      }
+      warp_paths.push({system, material, vtxs})
+    }
+
+    return Promise.resolve(warp_paths);
+
+
+
+  }
   /**
    * converts a topology diagram to a list of weft vertexes to draw. It only draws key interlacements to the list
    * @param draft 

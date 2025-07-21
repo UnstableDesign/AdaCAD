@@ -850,10 +850,17 @@ export type WeftPath = {
   pics: Array<number> // the id's of the pics that fit this description
 }
 
+export type WarpPath = {
+  system: number,
+  material: number,
+  vtxs: Array<YarnVertex>
+}
+
 export type SimulationData = {
   draft: Draft,
   topo: Array<ContactNeighborhood>,
-  wefts: Array<WeftPath>
+  wefts: Array<WeftPath>,
+  warps: Array<WarpPath>
 };
 
 export type SimulationVars = {
