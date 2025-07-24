@@ -1,102 +1,22 @@
 
-import { P } from "@angular/cdk/keycodes";
-import { MaterialsService } from "../provider/materials.service";
-import { createCell, getCellValue, setAndOpposite, setAndSame } from "./cell";
-import { Draft, Drawdown, CNFloat, CNIndex, CNType, Cell, ContactNeighborhood, SimulationVars, YarnVertex, WeftPath, Particle, Spring, WarpPath } from "./datatypes";
-import { drawDraftViewCell, warps, wefts } from "./drafts";
-import utilInstance from "./util";
 import * as THREE from 'three';
-
-
-  export const areInterlacement = (a: Cell, b: Cell) : boolean => {
-
-    if(getCellValue(a) == null || getCellValue(b) == null) return false;
-
-    if( getCellValue(a) != getCellValue(b)) return true;
-
-    return false;
-  }
-
-
-  export const getOrientation = (a: Cell, b: Cell) : boolean => {
-
-    if(getCellValue(a) == true && getCellValue(b) == false) return true;
-    return false;
-  }
-
-
-
-
-  export const positionFloatingWefts = (i_active: number, i_check: number, j_start: number, j_end: number, ms: MaterialsService, draft: Draft, weft_vtxs: Array<Array<YarnVertex>>) :   Array<Array<YarnVertex>> =>{
-    let check_mat = ms.getDiameter(draft.rowShuttleMapping[i_check]);
-    let active_mat = ms.getDiameter(draft.rowShuttleMapping[i_active]);
-    for(let j =j_start; j <= j_end; j++){     
-      weft_vtxs[i_active][j].y = weft_vtxs[i_check][j].y + (check_mat/2 + active_mat/2);  
-    }
-    return weft_vtxs;
-  }
-
-
-
-
-  export const getWeftOffsetFromWarp = (draft: Draft, i: number, j: number, ms: MaterialsService) : number => {
-    let warp_diam = ms.getDiameter(draft.colShuttleMapping[j]);
-    let weft_diam = ms.getDiameter(draft.rowShuttleMapping[i]);
-    return (warp_diam / 2 + weft_diam/2);
-  }
-
-  export const getMidpoint = (a: number, b: number) : number =>{
-    let max = Math.max(a,b);
-    let min = Math.min(a,b);
-    let float = max - min;
-    return min + float/2;
-
-  }
+import { MaterialsService } from "../provider/materials.service";
+import { getCellValue } from "./cell";
+import { CNFloat, CNIndex, CNType, Cell, ContactNeighborhood, Draft, Drawdown, Particle, SimulationVars, Spring, WarpPath, WeftPath, YarnVertex } from "./datatypes";
+import { warps, wefts } from "./drafts";
+import utilInstance from "./util";
+import { warp_profile } from '../operations/warp_profile/warp_profile';
 
 
 
 
 
-  /**
-   * creates an empty set of CN's for the given drawdown and then walks through and populates their face and id values. 
-   * @param dd 
-   * @returns 
-   */
-  export const initContactNeighborhoods = (dd: Drawdown) : Promise<Array<ContactNeighborhood>> => {
-    let width = warps(dd);
-    let height = wefts(dd);
-    let size = width * height * 4;   
-    let cns:Array<ContactNeighborhood> = new Array<ContactNeighborhood>(size);
-   
-    for(let x = 0; x < cns.length; x++){
-          cns[x] = {
-            ndx: {i:0, j:0, id:0},
-            node_type: 'ECN',
-            mv:{y:0, z:0},
-            face:null, 
-          }
-    }
+  // DATA STRUCTURE DEVELOPMENT FUNCTIONS
 
-    for(let i = 0; i < height; i++){
-      for(let j = 0; j < width; j++){
 
-        cns = setIndex({i, j, id:0}, width, cns);
-        cns = setIndex({i, j, id:1}, width, cns);
-        cns = setIndex({i, j, id:2}, width, cns);
-        cns = setIndex({i, j, id:3}, width, cns);
+  // UTILITIES // 
 
-        let face = getCellValue(dd[i][j]);
-        cns = setFace({i, j, id:0}, width, cns, face)
-        cns = setFace({i, j, id:1}, width, cns, face)
-        cns = setFace({i, j, id:2}, width, cns, face)
-        cns = setFace({i, j, id:3},  width, cns, face)
-
-      }
-    }
-       return Promise.resolve(cns);
-  }
-
-  const setIndex = (ndx:CNIndex, warps: number, cns:Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
+ const setIndex = (ndx:CNIndex, warps: number, cns:Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
     let cn = getCN(ndx, warps, cns);
     cn.ndx = ndx;
     return cns;
@@ -159,34 +79,7 @@ import * as THREE from 'three';
     return cns[ndx_flat];
   }
 
-  /**
-   * in cases where we want to render this as though it were repeating, we do need to consider the edges and, if neccessary, set the beginning and ending indexes beyond the bounds of the cloth such that we can determine the behavior of the float. Essentially, this calculates "if this was a repeating structure, where would this weft have started"
-   */
-  // const inferLeftIndex = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNIndex => {
-  //   if(ndx.id == 0) console.error("inferring left index from left ACN node");
-
-  //   //get all the active ACNs associated with this row. There should always be at least 2
-  //   let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN" && el.ndx.id == 0);
-  //   if(active_acns.length == 0) console.error("no ACNS indexes found on left side nodes");
-  //   let closing_acn = active_acns.pop();
-  //   let dist_to_end = warps - closing_acn.ndx.j;
-  //   return {i: closing_acn.ndx.i, j: -dist_to_end, id: closing_acn.ndx.id}
-  // }
-
-  // const inferRightIndex = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNIndex => {
-
-  //   //should always start at a left (id: 0)
-  //   if(ndx.id == 1) console.error("inferring right index from right-sided ACN node", ndx);
-
-  //   //get all the active ACNs associated with this row. There should always be at least 2
-  //   let active_acns = cns.filter(el => el.ndx.i == ndx.i && el.node_type == "ACN" && el.ndx.id == 1);
-  //   if(active_acns.length == 0) console.error("no ACNS indexes found on right side nodes");
-  //   let first_acn = active_acns.shift();
-  //   return {i: first_acn.ndx.i, j: warps+first_acn.ndx.j, id: first_acn.ndx.id}
-  // }
-
-
-  /**
+    /**
    * uses the contact neighborhoods on this row to get a list of floats. Some floats may be out of range (> warps) so that they can readily apply to the warpwise relationships
    * @param i 
    * @param warps 
@@ -235,74 +128,98 @@ import * as THREE from 'three';
 
   }
 
-  /**
-   * searches starting at the index for begin for two nodes of type ACN, which correspond to a float
-   * this can return j values that are out of range since it measure how long the float would be if it repeated, not just from start to finish. 
-   * @param begin 
-   * @param left 
-   * @param right 
-   */
-  // export const getNextWeftFloat = (begin: CNIndex, warps: number, cns: Array<ContactNeighborhood>) : CNFloat => {
-
-  //   let float_started = false;
-  //   let face = false;
-  //   let l_ndx = {i: -1, j: -1, id: 0};
-  //   let r_ndx = {i: -1, j: -1, id: 0};
-  //   let edge = false;
-
-
-  //     //walk the row from ACN to ACN
-  //     for(let j = begin.j; j < warps; j++){
-
-  //     //is the left hand side of this node contain an ACN?
-  //     if(getNodeType({i:begin.i, j, id:0}, warps, cns) == 'ACN'){
-  //       //valid floats much start on the left and end on the right
-        
-  //       if(!float_started){
-  //         float_started = true
-  //         face = getFace({i:begin.i, j, id: 0}, warps, cns);
-  //         l_ndx = {i:begin.i, j, id: 0}
-  //       }
-  //     }
-    
-  //      //check the right side of this node
-  //       if(getNodeType({i:begin.i, j, id:1}, warps, cns) == 'ACN'){
-  //         if(float_started){
-  //           console.log("end found AT ", j, " right ")
-
-  //           r_ndx = {i:begin.i, j, id: 1};
-  //           return {left:l_ndx, right:r_ndx, face, edge}
-  //         }else{
-  //            console.log("this float is starting on the left")
-
-  //           //we've reached the end of a float that began at the start of this row
-  //           edge = true;
-  //           face = getFace({i:begin.i, j, id: 1}, warps, cns);
-  //           r_ndx = {i:begin.i, j, id: 1};
-  //           l_ndx = inferLeftIndex({i:begin.i, j, id: 1}, warps, cns);
-  //           return {left:l_ndx, right:r_ndx, face, edge}
-  //         }
-  //       }
-  //     }
 
  
-  //     //if we got to the end and there was a float started that isn't finished, we need to wrap around to find the finish
-  //     if(float_started){
-  //        console.log("this never ended")
+    /**
+   * uses the contact neighborhoods on this row to get a list of floats. Some floats may be out of range (> warps) so that they can readily apply to the warpwise relationships
+   * @param i 
+   * @param warps 
+   * @param cns 
+   * @returns 
+   */
+  export const getColAsFloats = (j: number, wefts: number, warps: number, cns: Array<ContactNeighborhood>) : Array<CNFloat> => {
 
-  //        edge = true;
-  //        face = getFace({i:begin.i, j:begin.j, id: 0}, warps, cns);
-  //        r_ndx = inferRightIndex({i:begin.i, j:begin.j, id: 0 }, warps, cns);
-  //         console.log("this never ended, inferring end of", r_ndx.j)
-
-  //        l_ndx = {i:begin.i, j:begin.j, id: 0};
+    let floats = [];
+    let lefts = cns.filter(el => el.node_type == 'ACN' && el.ndx.j == j && el.ndx.id == 2);
+    let rights = cns.filter(el => el.node_type == 'ACN' && el.ndx.j == j && el.ndx.id == 3);
+    if(lefts.length !== rights.length) console.error("THIS COL HAS AN UNEVEN NUMBER OF ACNS")
 
 
-  //        return {left:l_ndx, right:r_ndx, face, edge}
-  //     }
+    lefts.forEach(left => {
+      let found = false;
+     
+      for(let i = left.ndx.i; i < wefts && !found; i++){
+        let right = rights.find(el => el.ndx.i == i);
+        if(right !== undefined){
+          found = true;
+          floats.push({
+            left:left.ndx, 
+            right: right.ndx,
+            edge: false,
+            face: left.face 
+          })
+        }
+      }
 
-  //   return null; //no complete float found
-  // } 
+      if(!found){
+        let right = rights.shift();
+        floats.push({
+            left:left.ndx, 
+            right: {j: right.ndx.j, i: wefts+right.ndx.i, id:3}, //get the first in the list
+            edge: false,
+            face: left.face 
+          })
+      }
+
+
+    })
+
+    return floats;
+
+
+  }
+ 
+
+
+  /**
+   * creates an empty set of CN's for the given drawdown and then walks through and populates their face and id values. 
+   * @param dd 
+   * @returns an initialized list of contact neighborhoods
+   */
+  export const initContactNeighborhoods = (dd: Drawdown) : Promise<Array<ContactNeighborhood>> => {
+    let width = warps(dd);
+    let height = wefts(dd);
+    let size = width * height * 4;   
+    let cns:Array<ContactNeighborhood> = new Array<ContactNeighborhood>(size);
+   
+    for(let x = 0; x < cns.length; x++){
+          cns[x] = {
+            ndx: {i:0, j:0, id:0},
+            node_type: 'ECN',
+            mv:{y:0, z:0},
+            face:null, 
+          }
+    }
+
+    for(let i = 0; i < height; i++){
+      for(let j = 0; j < width; j++){
+
+        cns = setIndex({i, j, id:0}, width, cns);
+        cns = setIndex({i, j, id:1}, width, cns);
+        cns = setIndex({i, j, id:2}, width, cns);
+        cns = setIndex({i, j, id:3}, width, cns);
+
+        let face = getCellValue(dd[i][j]);
+        cns = setFace({i, j, id:0}, width, cns, face)
+        cns = setFace({i, j, id:1}, width, cns, face)
+        cns = setFace({i, j, id:2}, width, cns, face)
+        cns = setFace({i, j, id:3},  width, cns, face)
+
+      }
+    }
+       return Promise.resolve(cns);
+  }
+
 
 
   //given a list of j's that are attached under a float, this aims to make sense of those and build them into a float
@@ -602,7 +519,7 @@ import * as THREE from 'three';
 
     //confirm this is a weft float and not an unset 
     let face = getFace({i, j, id: 0}, warps, cns);
-    if(face == null) return null;
+    if(face == null || face == false) return null;
 
 
     //walk up
@@ -650,7 +567,7 @@ import * as THREE from 'three';
 
     //confirm this is a weft float and not an unset 
     let face = getFace({i, j, id: 0}, warps, cns);
-    if(face == null) return null;
+    if(face == null || face == true) return null;
 
     //walk left
     while(left == null && count < warps){
@@ -701,64 +618,64 @@ import * as THREE from 'three';
    * @param cns 
    * @returns 
    */
-  const liftOff = (floats: Array<CNFloat>, wefts: number, warps: number, layer: number, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
+  // const liftOff = (floats: Array<CNFloat>, wefts: number, warps: number, layer: number, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
 
-    //filter out any null values. 
-    floats = floats.filter(el => el !== null);
-    //erase any duplicates. 
-
-
-        for(let float of floats){
-
-            console.log("LIFTING OFF", float)
-            //raise the "layer" value for all types 
-            cns = setMvZ({i: float.left.i, j: float.left.j, id: 0}, warps, cns, layer);
-            cns = setMvZ({i: float.left.i, j: float.left.j, id: 1}, warps, cns, layer);
-            cns = setMvZ({i: float.left.i, j: float.left.j, id: 2}, warps, cns, layer);
-            cns = setMvZ({i: float.left.i, j: float.left.j, id: 3}, warps, cns, layer);
+  //   //filter out any null values. 
+  //   floats = floats.filter(el => el !== null);
+  //   //erase any duplicates. 
 
 
-            cns = setMvZ({i: float.right.i, j: float.right.j, id: 0}, warps, cns, layer);
-            cns = setMvZ({i: float.right.i, j: float.right.j, id: 1}, warps, cns, layer);
-            cns = setMvZ({i: float.right.i, j: float.right.j, id: 2}, warps, cns, layer);
-            cns = setMvZ({i: float.right.i, j: float.right.j, id: 3}, warps, cns, layer);
+  //       for(let float of floats){
 
-            //walk along the float and update the ACN/PCN of it and it's neighbors. 
-            if(float.face){
-              //this is a warp floats
-              //this is a weft float, walk along and update the values
-              console.log("Walking warp for ", getWarpFloatLength(float, wefts))
-              for(let i_offset = 0; i_offset <= getWarpFloatLength(float, wefts); i_offset++){
-                let i_adj = utilInstance.mod(float.left.i + i_offset, wefts);
-                cns = setMvZ({i: i_adj, j: float.right.j, id: 0}, warps, cns, layer)
-                cns = setMvZ({i: i_adj, j: float.right.j, id: 1}, warps, cns, layer)
-                cns = setMvZ({i: i_adj, j: float.right.j, id: 2}, warps, cns, layer)
-                cns = setMvZ({i: i_adj, j: float.right.j, id: 3}, warps, cns, layer)
-              }
+  //           console.log("LIFTING OFF", float)
+  //           //raise the "layer" value for all types 
+  //           cns = setMvZ({i: float.left.i, j: float.left.j, id: 0}, warps, cns, layer);
+  //           cns = setMvZ({i: float.left.i, j: float.left.j, id: 1}, warps, cns, layer);
+  //           cns = setMvZ({i: float.left.i, j: float.left.j, id: 2}, warps, cns, layer);
+  //           cns = setMvZ({i: float.left.i, j: float.left.j, id: 3}, warps, cns, layer);
 
-            }else{
-              //this is a weft float, walk along and update the values
-              console.log("Walking weft for ", getWeftFloatLength(float, warps))
 
-              for(let j_offset = 0; j_offset <= getWeftFloatLength(float, warps); j_offset++){
-                let j_adj = utilInstance.mod(float.left.j + j_offset, warps);
-                cns = setMvZ({i: float.right.i, j: j_adj, id: 0}, warps, cns, layer)
-                cns = setMvZ({i: float.right.i, j: j_adj, id: 1}, warps, cns, layer)
-                cns = setMvZ({i: float.right.i, j: j_adj, id: 2}, warps, cns, layer)
-                cns = setMvZ({i: float.right.i, j: j_adj, id: 3}, warps, cns, layer)
-              }
-            }
-        }
-        return cns;
-  }
+  //           cns = setMvZ({i: float.right.i, j: float.right.j, id: 0}, warps, cns, layer);
+  //           cns = setMvZ({i: float.right.i, j: float.right.j, id: 1}, warps, cns, layer);
+  //           cns = setMvZ({i: float.right.i, j: float.right.j, id: 2}, warps, cns, layer);
+  //           cns = setMvZ({i: float.right.i, j: float.right.j, id: 3}, warps, cns, layer);
 
-  const floatsAreSame = (a: CNFloat, b: CNFloat) : boolean => {
+  //           //walk along the float and update the ACN/PCN of it and it's neighbors. 
+  //           if(float.face){
+  //             //this is a warp floats
+  //             //this is a weft float, walk along and update the values
+  //             console.log("Walking warp for ", getWarpFloatLength(float, wefts))
+  //             for(let i_offset = 0; i_offset <= getWarpFloatLength(float, wefts); i_offset++){
+  //               let i_adj = utilInstance.mod(float.left.i + i_offset, wefts);
+  //               cns = setMvZ({i: i_adj, j: float.right.j, id: 0}, warps, cns, layer)
+  //               cns = setMvZ({i: i_adj, j: float.right.j, id: 1}, warps, cns, layer)
+  //               cns = setMvZ({i: i_adj, j: float.right.j, id: 2}, warps, cns, layer)
+  //               cns = setMvZ({i: i_adj, j: float.right.j, id: 3}, warps, cns, layer)
+  //             }
 
-    if(a.left == b.left && a.right == b.right) return true;
-    if(a.left == b.right && a.right == b.left) return true;
-    return false;
+  //           }else{
+  //             //this is a weft float, walk along and update the values
+  //             console.log("Walking weft for ", getWeftFloatLength(float, warps))
 
-  }
+  //             for(let j_offset = 0; j_offset <= getWeftFloatLength(float, warps); j_offset++){
+  //               let j_adj = utilInstance.mod(float.left.j + j_offset, warps);
+  //               cns = setMvZ({i: float.right.i, j: j_adj, id: 0}, warps, cns, layer)
+  //               cns = setMvZ({i: float.right.i, j: j_adj, id: 1}, warps, cns, layer)
+  //               cns = setMvZ({i: float.right.i, j: j_adj, id: 2}, warps, cns, layer)
+  //               cns = setMvZ({i: float.right.i, j: j_adj, id: 3}, warps, cns, layer)
+  //             }
+  //           }
+  //       }
+  //       return cns;
+  // }
+
+  // const floatsAreSame = (a: CNFloat, b: CNFloat) : boolean => {
+
+  //   if(a.left == b.left && a.right == b.right) return true;
+  //   if(a.left == b.right && a.right == b.left) return true;
+  //   return false;
+
+  // }
 
 
   const getNextCellOnLayer = (i: number, j: number, wefts: number, warps: number, layer: number, direction: string, cns: Array<ContactNeighborhood>) : {i: number, j: number} => {
@@ -835,54 +752,54 @@ import * as THREE from 'three';
  * @param cns 
  * @returns 
  */
-  const setMVZValues = (dd: Drawdown, cns: Array<ContactNeighborhood>, sim: SimulationVars) : Array<ContactNeighborhood> => {
-    let width = warps(dd);
-    let height = wefts(dd);
-    let layer = 1;
+  // const setMVZValues = (dd: Drawdown, cns: Array<ContactNeighborhood>, sim: SimulationVars) : Array<ContactNeighborhood> => {
+  //   let width = warps(dd);
+  //   let height = wefts(dd);
+  //   let layer = 1;
 
-    console.log("SET MVZ VALUES")
+  //   console.log("SET MVZ VALUES")
 
-    //WHILE STILL FINDING (i, j) that fit criteria and don't already have a layer assigned
-    let matches = getLayerMatches(cns,height, width);
-    console.log("LAYER MATCHES ", matches)
-    while(matches.length > 0){
-      //  if  {i, j}  WEFT facing, search for the left/right ACNS of this float. UPDATE all warp-wise acns along this float (but keep them on i,j) as though this particular float did not exist in the draft. 
+  //   //WHILE STILL FINDING (i, j) that fit criteria and don't already have a layer assigned
+  //   let matches = getLayerMatches(cns,height, width);
+  //   console.log("LAYER MATCHES ", matches)
+  //   while(matches.length > 0){
+  //     //  if  {i, j}  WEFT facing, search for the left/right ACNS of this float. UPDATE all warp-wise acns along this float (but keep them on i,j) as though this particular float did not exist in the draft. 
 
-      for(let match of matches){
-        let face = getFace({i:match.i, j:match.j, id: 0}, width, cns);
-        let float = null
-        let right_float = null;
-        let left_float = null;
-        if(face){
+  //     for(let match of matches){
+  //       let face = getFace({i:match.i, j:match.j, id: 0}, width, cns);
+  //       let float = null
+  //       let right_float = null;
+  //       let left_float = null;
+  //       if(face){
 
-          float = getWarpFloat(match.i, match.j, height, width, cns);
-          right_float = getWeftFloat(match.i, utilInstance.mod(match.j+1, width), width, cns)
-          left_float = getWeftFloat(match.i, utilInstance.mod(match.j-1, width), width, cns);
+  //         float = getWarpFloat(match.i, match.j, height, width, cns);
+  //         right_float = getWeftFloat(match.i, utilInstance.mod(match.j+1, width), width, cns)
+  //         left_float = getWeftFloat(match.i, utilInstance.mod(match.j-1, width), width, cns);
 
-        }else{
-          float = getWeftFloat(match.i, match.j, width, cns);
-          right_float = getWarpFloat(utilInstance.mod(match.i+1, height), match.j, height, width, cns) //bottom flow
-          left_float = getWarpFloat(utilInstance.mod(match.i-1, height), match.j, height, width, cns) //top float
+  //       }else{
+  //         float = getWeftFloat(match.i, match.j, width, cns);
+  //         right_float = getWarpFloat(utilInstance.mod(match.i+1, height), match.j, height, width, cns) //bottom flow
+  //         left_float = getWarpFloat(utilInstance.mod(match.i-1, height), match.j, height, width, cns) //top float
 
-        }
+  //       }
 
-        console.log("GOT FLOATS ", float, right_float, left_float)
-        if(floatsAreSame(right_float, left_float)) left_float = null
+  //       console.log("GOT FLOATS ", float, right_float, left_float)
+  //       if(floatsAreSame(right_float, left_float)) left_float = null
        
        
-        cns = liftOff([float, right_float, left_float], height, width, layer, cns);
+  //       cns = liftOff([float, right_float, left_float], height, width, layer, cns);
 
 
-      }
+  //     }
 
-      printLayerMap(cns, height, width);
-      cns = updateCNs(cns, height, width, sim);
-      layer++;
-      matches = getLayerMatches(cns, height,width);
-      console.log("NEW MATCHES ", matches)
-    }
-    return cns;
-  }
+  //     printLayerMap(cns, height, width);
+  //     cns = updateCNs(cns, height, width, sim);
+  //     layer++;
+  //     matches = getLayerMatches(cns, height,width);
+  //     console.log("NEW MATCHES ", matches)
+  //   }
+  //   return cns;
+  // }
 
   const printLayerMap = (cns: Array<ContactNeighborhood>, wefts: number, warps: number) => {
 
@@ -897,6 +814,289 @@ import * as THREE from 'three';
 
     console.log("LAYER MAP ", layer_map)
 
+  }
+
+  const setFloatZ = (float: CNFloat, wefts: number, warps:number, layer: number, cns: Array<ContactNeighborhood>) : Array<ContactNeighborhood> => {
+       //lift the entire float: 
+    if(float.face){
+      for(let x = 0; x <= getWarpFloatLength(float, wefts); x++){
+          let adj_i = utilInstance.mod(float.left.i + x, wefts);
+            cns = setMvZ({i:adj_i, j:float.left.j,id: 0}, warps, cns, layer);
+            cns = setMvZ({i:adj_i, j:float.left.j,id: 1}, warps, cns, layer);
+            cns = setMvZ({i:adj_i, j:float.left.j,id: 2}, warps, cns, layer);
+            cns = setMvZ({i:adj_i, j:float.left.j,id: 3}, warps, cns, layer); 
+        }
+    }else if(float.face === false){
+      for(let x = 0; x <= getWeftFloatLength(float, warps); x++){
+        let adj_j = utilInstance.mod(float.left.j + x, warps);
+          cns = setMvZ({i:float.left.i, j:adj_j,id: 0}, warps, cns, layer);
+          cns = setMvZ({i:float.left.i, j:adj_j,id: 1}, warps, cns, layer);
+          cns = setMvZ({i:float.left.i, j:adj_j,id: 2}, warps, cns, layer);
+          cns = setMvZ({i:float.left.i, j:adj_j,id: 3}, warps, cns, layer);
+      }
+
+    }
+
+    return cns;
+  }
+
+  /**
+   * given a range in i and/or j this returns any float that has at least part of it within the boundary formed by i and j. 
+   * @param i  //the l can be less than 0 and r can be greater than wefts
+   * @param j 
+   * @param fs 
+   */
+  const getUntouchedFloatsInRange = (i: {l: number, r:number}, j: {l: number, r:number},  all_floats: Array<{id: number, float:CNFloat; touched: boolean}>, wefts: number, warps: number, cns) : Array<number> => {
+
+    let candidates: Array<CNFloat> = [];
+    let in_range:Array<number> = [];
+    let fs = all_floats.filter(el => !el.touched);
+
+    //unwrap the range
+    if(i.l > i.r){
+      i.r = wefts + i.r;
+    }
+
+    //unwrap the range
+    if(j.l > j.r){
+      j.r = warps + j.r;
+    }
+
+    for(let x = i.l; x <= i.r; x++){
+      for(let y = j.l; y <= j.r; y++){
+        let adj_i = utilInstance.mod(x, wefts);
+        let adj_j = utilInstance.mod(y, warps);
+
+        let weft = getWeftFloat(adj_i, adj_j, warps, cns);
+        if(weft !== null) candidates.push(weft);
+
+        let warp = getWarpFloat(adj_i, adj_j, wefts, warps, cns);
+        if(warp !== null) candidates.push(warp);
+
+      }
+    }
+
+    in_range = candidates.map(el => getFloatIndex(el, all_floats)).filter(el => el !== -1 && !all_floats[el].touched);
+  
+    return in_range;
+
+
+  }
+
+
+
+
+  /**
+   * this function will virtually "lift" the float specified. If this is a warp float, it will find any other warp floats or weft floats that cross over this work in the range of limit (to the top/bottom) and mark them to be lifted. If it is a weft float, it will find any other weft floats or warp floats that cross over this weft and mark them to be lifted.
+   * @param float 
+   * @param wefts 
+   * @param warps 
+   * @param cns 
+   * @returns 
+   */
+  const getFloatsAffectedByLifting = (float: CNFloat, all_floats: Array<{id: number, float:CNFloat; touched: boolean}>, wefts: number, warps: number, limit: number, cns: Array<ContactNeighborhood>) => {
+
+    let attached:Array<number> = [];
+
+        let i_range, j_range = null;
+    
+        if(float.face){
+        //this is warp facing.
+
+          if((getWarpFloatLength(float, wefts) + limit*2) >= wefts){
+            i_range = {l: 0, r: wefts-1};
+
+          }else{
+            i_range = {l: utilInstance.mod(float.left.i - limit, wefts), r: utilInstance.mod(float.right.i + limit, wefts)};
+
+          }
+        
+          j_range = {l: float.left.j, r: float.right.j};
+        }else{
+          //this is weft facing. 
+
+          if(getWeftFloatLength(float, warps) + limit*2 >= warps){
+            j_range = {l: 0, r: warps-1};
+
+          }else{
+            j_range = {l: utilInstance.mod(float.left.j - limit, warps), r: utilInstance.mod(float.right.j + limit, warps)};
+          }
+
+          i_range = {l: float.left.i, r: float.right.i};
+
+        }
+
+        
+        attached = getUntouchedFloatsInRange(i_range, j_range, all_floats, wefts, warps, cns);
+
+        return attached; 
+
+          // let ij_top = getNextCellOnLayer(float.left.i-1, float.left.j, wefts, warps, 0, 'above', cns);
+          // let ij_bottom = getNextCellOnLayer(float.right.i+1, float.right.j, wefts, warps, 0, 'below', cns);
+          // let top  = getWeftFloat(utilInstance.mod(ij_top.i, wefts), float.left.j, warps, cns);
+          // let bottom = getWeftFloat(utilInstance.mod(ij_bottom.i, wefts), float.right.j, warps, cns);
+          // attached = [top, bottom];
+
+          // console.log("NEXT ON LAYER TOP/BOT", ij_top,":", top.left.j,"-",top.right.j,  ij_bottom,":",bottom.left.j, "-", bottom.right.j)
+
+        // }else{
+        //   let ij_left = getNextCellOnLayer(float.left.i, float.left.j-1, wefts, warps, 0, 'left', cns);
+        //   let ij_right = getNextCellOnLayer(float.right.i, float.right.j+1, wefts, warps, 0, 'right', cns);
+         
+        //   let left  = getWarpFloat(float.left.i, utilInstance.mod(ij_left.j, warps), wefts, warps, cns);
+        //   let right = getWarpFloat(float.right.i, utilInstance.mod(ij_right.j, warps), wefts, warps, cns);
+
+        //   console.log("NEXT ON LAYER LEFT/RIGHT", ij_left,":", left.left.i,"-",left.right.i,  ij_right,":",right.left.i, "-", right.right.i)
+
+        //   attached = [left, right];
+        // }
+
+  }
+
+
+  const getFloatIndex = (float: CNFloat, all_float_objs: Array<{id: number, float: CNFloat, touched: boolean}>) : number => {
+
+    let ndx = all_float_objs.findIndex(el => el.float.left.i == float.left.i && el.float.left.j == float.left.j && el.float.left.id == float.left.id);
+
+    if(ndx == -1) console.error("FLOAT OBJS DID NOT CONTAIN OBJECT", float, all_float_objs);
+    return ndx;
+
+  }
+
+  /**
+   * queries if one warp float is between other warp floats. This is used to identify potential warp floats that missed lifting in a layer group by finding all floats that sit between known lifting floats. the candidate floats need to be within some limit of distance between (so we can avoid lifing disconnected float areas. )
+   * @param f 
+   * @param all_warp_floats 
+   * @param limit
+   */
+  // const isFloatBetweenWarpFloats = (f: {id: number, float: CNFloat, touched: boolean}, all_warp_floats: Array<{id: number, float: CNFloat, touched: boolean}>, limit: number) : boolean => {
+
+  //   console.log("IS FLOAT BETWEEN ", f, all_warp_floats, limit)
+
+  //   if(all_warp_floats.length == 0) return false;
+  //   if(f.touched) console.error("CHECKING LIFTING POTENTIAL OF A WARP THAT HAS ALREADY MARKED FOR LIFTING")
+
+  //   let closest = all_warp_floats.reduce((acc, el) => {
+  //     let dist_from_left =  Math.abs(f.float.left.i - el.float.right.i);
+  //     let dist_from_right =  Math.abs(f.float.right.i - el.float.left.i);
+  //     let dist = Math.min(dist_from_left, dist_from_right)
+  //     if(dist < acc.dist) acc = {dist, float: el.float}
+  //     return acc;
+  //   }, {dist: 10000, float: null});
+
+  //   console.log("DISTANCE TO THIS FLOAT IS ", closest.dist)
+  //   if(closest.dist > limit) return false;
+  //   if(closest.float == null) console.error("CLOSEST FLOAT TO F WAS NULL")
+  //   return true;
+  // }
+
+
+    /**
+   * queries if one weft float is between other weft floats. This is used to identify potential weft floats that missed lifting in a layer group by finding all floats that sit between known lifting floats. the candidate floats need to be within some limit of distance between (so we can avoid lifting disconnected float areas. )
+   * @param f 
+   * @param all_warp_floats 
+   * @param limit
+   */
+  // const isFloatBetweenWeftFloats = (f: {id: number, float: CNFloat, touched: boolean}, all_weft_floats: Array<{id: number, float: CNFloat, touched: boolean}>, limit: number) : boolean => {
+
+  //   console.log("IS FLOAT BETWEEN ", f, all_weft_floats, limit)
+
+  //   if(all_weft_floats.length == 0) return false;
+  //   if(f.touched) console.error("CHECKING LIFTING POTENTIAL OF A WARP THAT HAS ALREADY MARKED FOR LIFTING")
+
+  //   let closest = all_weft_floats.reduce((acc, el) => {
+  //     let dist_from_left =  Math.abs(f.float.left.j - el.float.right.j);
+  //     let dist_from_right =  Math.abs(f.float.right.j - el.float.left.j);
+  //     let dist = Math.min(dist_from_left, dist_from_right)
+  //     if(dist < acc.dist) acc = {dist, float: el.float}
+  //     return acc;
+  //   }, {dist: 10000, float: null});
+
+  //   console.log("DISTANCE TO THIS FLOAT IS ", closest.dist)
+  //   if(closest.dist > limit) return false;
+  //   if(closest.float == null) console.error("CLOSEST FLOAT TO F WAS NULL")
+  //   return true;
+  // }
+
+
+
+  
+  const isolateLayers = (wefts: number, warps: number, layer: number, cns: Array<ContactNeighborhood>, sim: SimulationVars) : Array<ContactNeighborhood>=> {
+
+    console.log("ISOLATE LAYER ", layer)
+
+    //get weft floats; 
+    let floats:Array<CNFloat> = [];
+
+    for(let i = 0; i < wefts; i++){
+       floats = floats.concat(getRowAsFloats(i, warps, cns).filter(float => !float.face));
+    }
+    for(let j = 0; j < warps; j++){
+       floats = floats.concat(getColAsFloats(j, wefts, warps, cns).filter(float => float.face));
+    }
+  
+    floats = floats.filter(el => getMvZ(el.left, warps, cns) == 0);
+    console.log("ELIGiBLE FLOATS ", floats);
+
+    const floats_with_id = floats.map((el, ndx) => {return {id: ndx, float: el, touched: false }});
+
+    if(floats_with_id.length == 0) return cns;
+
+    let longest_warp = floats
+    .reduce((acc, el, ndx) => {
+      if(el.face){
+        let len = getWarpFloatLength(el, wefts) +1;
+        if(len >= acc.len){
+          acc.len = len;
+          acc.id = ndx;
+        } 
+      }
+      return acc;
+    }, {len: 0, id: -1})
+
+    console.log("LONGEST WARP IS ", longest_warp, floats[longest_warp.id])
+
+    //internally recursive function that updates the float list
+    function liftFloat(float: CNFloat, float_ndx: number){
+
+
+      let float_obj = floats_with_id[float_ndx];
+      console.log("LIFTING OBJ ", float_obj,float_obj.touched )
+
+      if(float_obj.touched == true) return;
+
+      float_obj.touched = true;
+      
+      let attached:Array<number> = [];
+
+      let limit = 5; //eventually make this adjustable by sim vars
+      attached = getFloatsAffectedByLifting(float, floats_with_id, wefts, warps, limit, cns);
+      console.log("GOT ATTACHED ", attached)
+
+      if(attached.length == 0) return;
+      
+      
+      for(let a = 0; a < attached.length; a++){
+        let float_ndx = attached[a];
+        let a_float:CNFloat = floats_with_id[float_ndx].float;
+        if(float_ndx !== -1) liftFloat(a_float, float_ndx);          
+      }
+    }
+
+
+    //pull up on the longest warp float, see what moves with it. 
+    liftFloat(floats[longest_warp.id], longest_warp.id);
+
+    
+    console.log("**** LIFTING COMPLETE ****")
+    for(let f of floats_with_id){
+      if(f.touched){
+        cns = setFloatZ(f.float, wefts, warps, layer, cns);
+      }    
+    }
+    cns = updateCNs(cns, wefts, warps, sim);
+    printLayerMap(cns, wefts, warps);
+    return isolateLayers(wefts, warps,++layer, cns, sim)
   }
 
 
@@ -1041,11 +1241,9 @@ import * as THREE from 'three';
             if(ij == null){
               cns = setNodeType({i, j, id:region.id}, warps, cns, 'ECN')
             }else{
-            let last_face = getFace({i: ij.i, j:ij.j, id: 0}, warps, cns)
-            cns = classifyNodeTypeBasedOnFaces(face, last_face,{i, j, id:region.id}, warps, cns);
-              // if(getNodeType({i, j, id:region.id}, warps, cns) == 'ACN'){
-              //   console.log("SET ACN AT ", i, j, region.name)
-              // }
+              let last_face = getFace({i: ij.i, j:ij.j, id: 0}, warps, cns)
+              cns = classifyNodeTypeBasedOnFaces(face, last_face,{i, j, id:region.id}, warps, cns);
+              
             }
 
             //ADD ANY REQUIRED VIRTUAL NODES for FULL WIDTH RENDERING
@@ -1271,12 +1469,10 @@ import * as THREE from 'three';
     
       for(let i = 0; i < wefts(dd); i++){
           //console.log("PARSING DRAWDOWN ROW ", i)
-
           let material = d.rowShuttleMapping[i];
           let system = d.rowSystemMapping[i];
           let path = paths.find(el => el.material == material && el.system == system);
           if(path == undefined) Promise.reject('no path found for material and system ')
-
 
           if(sim.wefts_as_written) cns = pullRow(i, warps(dd), path.pics, cns);
           
@@ -1284,7 +1480,7 @@ import * as THREE from 'three';
          path.pics.push(i);
       }
 
-      cns = setMVZValues(dd, cns, sim);
+      cns = isolateLayers(wefts(dd), warps(dd), 1, cns, sim);
       return Promise.resolve(cns);
   }
 
@@ -1302,23 +1498,6 @@ import * as THREE from 'three';
   }
 
 
-    /**
-     * given the distance of this interlacement in mm, this function figures out the strength factor. Which will determine how much to push up this warp as  function of distance. Smaller widths get pushed up harder than farther widths. Max is 1 - min is very close to zero.
-     * @param dist 
-     */
-    export const calcStrength = (dist: number) : number => {
-      return 1/dist;
-    }
-
-    /**
-     * how far can a strong interlacement push a weft upward in the cloth. This depends on the sett of the cloth and density of the yarns. How much distance is between these yarns? Returns the displacement in mm. 
-     * @param sett_width - how many mm between the two yarns in question
-     * @param max_warp_thickness - how thick is the warp at this interlacement.
-     * @returns 
-     */
-  //  const calcMaxDisplacement = (sett_width: number, max_warp_thickness: number) : number => {
-  //     return max_warp_thickness / sett_width;
-  //   }
 
     /**
      * if every row is packed at the same packing force, then the fell line created by a straight beater would be represented by the maximum y value;  Y values represent the center of teh material. 
@@ -1496,8 +1675,6 @@ import * as THREE from 'three';
       if(path.pics.find(pic => pic == i) !== undefined) 
         active_path = path;
     }
-    console.log("ACTIVE PATH FOR ", i, " IS ", active_path)
-
     if(active_path !== null){
       //get all the vertexes associated with this weft. 
       let vtx_list = active_path.vtxs.filter(vtx => vtx.ndx.i == i);
@@ -1675,17 +1852,18 @@ import * as THREE from 'three';
    * @param cns 
    */
   export const cleanACNs = (d: Drawdown, cns: Array<ContactNeighborhood>, simVars: SimulationVars) : Promise<Array<ContactNeighborhood>> => {
+    // console.log('IN CLEAN ACNS ', cns)
 
-    for(let i = 0; i < warps(d); i++){
-      let row_acns = cns.filter(el => el.ndx.i == i && el.node_type == "ACN" && (el.ndx.id == 0 || el.ndx.id == 1))
-      let as_string = row_acns.reduce((acc, el) => {
-        //let s =  '('+el.ndx.j+','+el.mv.y+','+el.mv.z+')'
-        let s =  '('+el.ndx.j+','+el.mv.y+')'
-        acc = acc + s;
-        return acc;
-      }, "");
-      console.log("ROW ", i, " - ", as_string)
-    }
+    // for(let i = 0; i < warps(d); i++){
+    //   let row_acns = cns.filter(el => el.ndx.i == i && el.node_type == "ACN" && (el.ndx.id == 0 || el.ndx.id == 1))
+    //   let as_string = row_acns.reduce((acc, el) => {
+    //     //let s =  '('+el.ndx.j+','+el.mv.y+','+el.mv.z+')'
+    //     let s =  '('+el.ndx.j+','+el.mv.y+')'
+    //     acc = acc + s;
+    //     return acc;
+    //   }, "");
+    //   console.log("ROW ", i, " - ", as_string)
+    // }
 
 
     return Promise.resolve(cns);
