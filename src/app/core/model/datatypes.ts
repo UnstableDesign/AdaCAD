@@ -865,6 +865,8 @@ export type SimulationData = {
 
 export type SimulationVars = {
   pack: number,
+  lift_limit: number,
+  use_layers: boolean,
   warp_spacing: number, 
   layer_spacing: number,
   wefts_as_written: boolean,

@@ -46,9 +46,11 @@ export class SimulationComponent implements OnInit {
     this.simVars = {
       pack: defaults.pack,
       warp_spacing: 10,
+      lift_limit: 4,
       wefts_as_written: defaults.wefts_as_written,
       layer_spacing: defaults.layer_spacing, 
       radius: 40, 
+      use_layers: true,
       ms: this.ms,
       simulate: false
     }
@@ -91,10 +93,22 @@ export class SimulationComponent implements OnInit {
           this.handleSimulateChange(value); 
         });
     
-    const weft_change = this.gui.add(this.simVars, 'wefts_as_written').name('Full Width');
+    const weft_change = this.gui.add(this.simVars, 'wefts_as_written').name('Actual Paths');
     weft_change.onChange((value) => {
           this.handleWeftAsWrittenChange(value); 
         });
+
+    const layers = this.gui.add(this.simVars, 'use_layers').name('Locate Layers');
+    layers.onChange((value) => {
+          this.handleLayersChange(value); 
+        });
+
+    const lift_limit = this.gui.add(this.simVars, 'lift_limit', 0, 50, 1).name('Lift Limit');
+    lift_limit.onChange((value) => {
+          this.handleLiftLimitChange(value); 
+        });
+
+
     const pack = this.gui.add(this.simVars, 'pack', 0, 100).name('Pack');
     pack.onChange((value) => {
           this.handlePackChange(value); 
@@ -143,6 +157,23 @@ export class SimulationComponent implements OnInit {
       this.redrawCurrentSim();
       
    }
+
+ handleLayersChange(value) {
+    this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
+      this.simData = simdata;
+      this.redrawCurrentSim();
+    })  
+  }
+
+
+  handleLiftLimitChange(value) {
+    this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
+      this.simData = simdata;
+      this.redrawCurrentSim();
+    })  
+  }
+
+
 
 
   handlePackChange(value) {

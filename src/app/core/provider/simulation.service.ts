@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
-import { applyForce, cleanACNs, createParticle, createSpring, followTheWefts, getDraftTopology, getFlatVtxList, renderWarps, satisfyConstraint, updateParticleMesh, updateSpringMesh, verlet } from '../model/yarnsimulation';
-import { MaterialsService } from '../provider/materials.service';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { Lut } from 'three/examples/jsm/math/Lut';
-import { Bounds, Draft, Interlacement, Loom, LoomSettings, SimulationData, SimulationVars, WeftPath, YarnVertex } from '../model/datatypes';
-import { initDraftFromDrawdown, warps, wefts } from '../model/drafts';
+import { applyForce, createParticle, createSpring, followTheWefts, getDraftTopology, getFlatVtxList, renderWarps, satisfyConstraint, updateParticleMesh, updateSpringMesh, verlet } from '../model/yarnsimulation';
+import { Bounds, Draft, SimulationData, SimulationVars, WeftPath, YarnVertex } from '../model/datatypes';
+import { warps, wefts } from '../model/drafts';
 import { defaults } from '../model/defaults';
 
 @Injectable({
@@ -88,8 +85,6 @@ export class SimulationService {
   
 
     return getDraftTopology(simData.draft, simVars).then(topo => {
-      return cleanACNs(simData.draft.drawdown, topo, simVars)
-    }).then(topo => {
       simData.topo = topo;
       return followTheWefts(simData.draft,  simData.topo, simVars);
     }).then(paths => {
@@ -123,8 +118,6 @@ export class SimulationService {
   
 
     return getDraftTopology(simData.draft, simVars).then(topo => {
-      return cleanACNs(simData.draft.drawdown, topo, simVars)
-    }).then(topo => {
       simData.topo = topo;
       return followTheWefts(simData.draft,  simData.topo, simVars);
     }).then(paths => {
@@ -152,8 +145,6 @@ export class SimulationService {
   
 
     return getDraftTopology(simData.draft, simVars).then(topo => {
-      return cleanACNs(simData.draft.drawdown, topo, simVars)
-    }).then(topo => {
       simData.topo = topo;
       return followTheWefts(simData.draft,  simData.topo, simVars);
     }).then(paths => {
