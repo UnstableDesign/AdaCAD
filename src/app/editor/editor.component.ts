@@ -115,9 +115,16 @@ export class EditorComponent implements OnInit {
 
 
     updateWeavingInfo(){
+
+
       const loom = this.tree.getLoom(this.id);
       const draft = this.tree.getDraft(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
+
+      if(loom == null || draft == null || loom_settings == null) return;
+
+      console.log("Update Vewing Info", loom, draft, loom_settings)
+
       let utils = getLoomUtilByType(loom_settings.type);
       this.dressing_info = utils.getDressingInfo(draft.drawdown, loom, loom_settings);
 

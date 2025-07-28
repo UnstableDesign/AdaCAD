@@ -42,7 +42,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
    let composite = new Sequence.TwoD().setBlank(2
     );
    let ends = utilInstance.lcm(drafts.map(el => warps(el.drawdown))) * drafts.length;
-   let pics = utilInstance.lcm(drafts.map(el => warps(el.drawdown))) * drafts.length;
+   let pics = utilInstance.lcm(drafts.map(el => wefts(el.drawdown))) * drafts.length;
 
 
   
