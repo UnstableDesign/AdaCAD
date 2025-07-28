@@ -36,6 +36,18 @@ const sidebars = {
       label: 'Research', // sidebar label
     }
   ],
+  contributeSidebar: [{
+    type: 'category',
+    label: 'Contribute',
+    collapsed: false,
+    collapsible: false,
+    link: {type: 'doc', id:'contribute/contribute'},
+        items: [
+          'contribute/contribute',
+          'contribute/donate'
+        ],
+  }
+  ],
   learnSidebar: [
     {
       type: 'html',
@@ -56,7 +68,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Tutorials', 
-      collapsed: false,
+      collapsed: true,
       collapsible: true,
       link: {type: 'doc', id:'learn/tutorials/index'},
         items: [

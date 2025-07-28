@@ -5,6 +5,14 @@ Generate a workflow that produces a threading, treadling and tie-up based on uni
 
 These instructions will walk you through how to make the file from scratch but you can also open the pre-made template via the "Designing For Harness Looms" Example. 
 
+:::tip
+
+Prefer learning by video? Watch a recording of our [Drafting for Harness and Dobby](https://www.youtube.com/watch?v=e9jnwJbUyKY) virtual workshop.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/e9jnwJbUyKY?si=Ja27xPTInwaH9Ucl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+:::
+
 **What You'll Need**
 
 - A Pen and Pencil (optional)

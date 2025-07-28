@@ -3,10 +3,9 @@ hide_table_of_contents: true
 ---
 import Link from '@docusaurus/Link';
 
-
 # Workshops and Events
 <div class="emph">
-Get to know the software, community, and ask your questions at an upcoming event. All of these events will take place online using the Zoom platform. You can receive a zoom link for the event by registering below:
+We've finished our Spring 2025 Workshop Series but you can still view the recordings and resources below
 </div>
 
 :::tip
@@ -14,7 +13,7 @@ Need help sooner? Post your question in the [AdaCAD Discord Community](https://d
 :::
 
 
-## Upcoming Workshops
+## Past Workshops
 Workshops will offer lessons where the project team guides you though an activity for performing a specific task or workflow in AdaCAD. Each workshop will include follow-along instruction and space for questions and answers. 
 
 <div class="tutorial-card card padding__top__lg" >
@@ -45,7 +44,7 @@ Workshops will offer lessons where the project team guides you though an activit
     Weaving Imagery in AdaCAD
      <div class="card-dx"> We'll walk you through the process of creating [dataflows](../reference/glossary/dataflow.md) for assigning shaded structures like [`shaded satin`](../reference/operations/shaded_satin.md) to regions of an image using the [`image map`](../reference/operations/imagemap.md) operation. Additionally, we'll help you format these drafts for weaving on TC2 digital looms.</div>
          <div class="card__footer">
-        <Link class="button button--primary button--block" to="https://www.youtube.com/watch?v=xS_DZB3A7yY" target="_blank">Watch the Workshop Recording</Link>
+        <Link class="button button--primary button--block" to="https://www.youtube.com/watch?v=eVma5l__VRk" target="_blank">Watch the Workshop Recording</Link>
 
         </div>
     </div>
@@ -59,14 +58,17 @@ Workshops will offer lessons where the project team guides you though an activit
     ## Wednesday, May 14 2025, 9am-10am Mountain Time
     Drafting for Harness and Dobby
      <div class="card-dx"> We'll walk you through the process of creating [dataflows](../reference/glossary/dataflow.md) that produce patterned threading sequences using the [`pattern across width`](../reference/operations/warp_profile.md) operation. We'll then use the [`generate drawdown`](../reference/operations/drawdown.md) operation to combine these threadings with treadling and tieup drafts. </div>
-         <div class="card__footer">
-       <Link class="button button--secondary button--block" to="https://www.youtube.com/watch?v=eVma5l__VRk" target="_blank">Register</Link>
-    </div>
+         <!-- <div class="card__footer">
+       <Link class="button button--secondary button--block" to="https://cuboulder.qualtrics.com/jfe/form/SV_5Bf1YcR9iy1gEaq" target="_blank">Register</Link>
+    </div> -->
+        <div class="card__footer">
+        <Link class="button button--primary button--block" to="https://www.youtube.com/watch?v=e9jnwJbUyKY&t=847s" target="_blank">Watch the Workshop Recording</Link>
 
+        </div>
     </div>
 </div>
 
-## Office Hours
+<!-- ## Office Hours
 Office hours offer you a space to come chat with the AdaCAD project team. We can help answer your question or demonstrate new techniques. There is no formal schedule, just drop in the call if/when you have a question to ask.
 
 
@@ -96,4 +98,4 @@ Office hours offer you a space to come chat with the AdaCAD project team. We can
 
 
 
-
+ -->

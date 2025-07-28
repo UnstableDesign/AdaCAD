@@ -6,6 +6,16 @@ Generate a workflow for uploading an image and assigning shaded structures to di
 
 ![file](./img/ada_indexed_color.jpg)
 
+
+:::tip
+
+Prefer learning by video? Watch a recording of our [Weaving Imagery in AdaCAD](https://www.youtube.com/watch?v=eVma5l__VRk) virtual workshop.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/eVma5l__VRk?si=zNxfAr0wCdvbl1I3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+:::
+
+
 ### What You'll Need
 - An indexed color image. If you don't have one handy, you can download one [here](./img/Ada_Indexed.png)
 - A blank workspace at [adacad.org](https://adacad.org). 
@@ -16,6 +26,9 @@ Generate a workflow for uploading an image and assigning shaded structures to di
 :::tip
 You can make the entire file yourself following the instructions below or simply open our [pre-made figure weaving template](https://adacad.org/?ex=weaving_imagery) and play.
 :::
+
+
+
 
 
 1.  Select or Search for the [`image map`](../../reference/operations/imagemap.md) operation from the list of operations on the left sidebar. If it is not showing up, make sure "Show Advanced Operations" is selected. After you select the operation, it will be added into your workspace. 

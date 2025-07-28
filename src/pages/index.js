@@ -20,6 +20,12 @@ function HomepageHeader() {
             to="https://adacad.org/">
             Start Drafting
           </Link>
+
+          <Link
+            className="button adacad button--secondary button--lg"
+            to="docs/learn/getting-started/">
+            Get Started
+          </Link>
         </div>
       </div>
     </header>

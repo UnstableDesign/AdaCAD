@@ -61,14 +61,14 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      announcementBar: {
-        id: 'events',
-        content:
-          '🚀 The Newest Version of AdaCAD has Launched!  <a target="_blank" rel="noopener noreferrer" href="https://docs.adacad.org/docs/learn/workshops-and-events">Learn More at an upcoming Workshop</a>✨',
-        backgroundColor: 'hotpink',
-        textColor: '#000000',
-        isCloseable: true,
-      },
+      // announcementBar: {
+      //   id: 'events',
+      //   content:
+      //     '🚀 The Newest Version of AdaCAD has Launched!  <a target="_blank" rel="noopener noreferrer" href="https://docs.adacad.org/docs/learn/workshops-and-events">Learn More at an upcoming Workshop</a>✨',
+      //   backgroundColor: 'hotpink',
+      //   textColor: '#000000',
+      //   isCloseable: true,
+      // },
       tableOfContents: {
         minHeadingLevel: 2,
         maxHeadingLevel: 6,
@@ -103,13 +103,20 @@ const config = {
             label: 'Develop',
             className: 'develop'
           },
+                    {
+            type: 'docSidebar',
+            sidebarId: 'contributeSidebar',
+            position: 'left',
+            label: 'Contribute',
+            className: 'contribute'
+          },
           {
             href: 'https://discord.gg/Be7ukQcvrC',
             label: 'Discord Community',
             position: 'right',
           },  
           {
-            href: 'https://github.com/UnstableDesign/AdaCAD',
+            href: 'https://github.com/UnstableDesign/AdaCAD_Documentation/',
             label: 'GitHub',
             position: 'right',
           },

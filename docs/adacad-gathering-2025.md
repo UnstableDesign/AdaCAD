@@ -2,6 +2,14 @@
 title: "AdaCAD Gathering 2025"
 ---
 
+
+:::tip
+The [Event Program](./img/AdaCAD_Gathering_Program_2025_Final.pdf) is now available! Please refer to this program for final plans and full event details. We'll also provide you a printed copy when you arrive. 
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_01.jpg)
+
+:::
+
 :::info
 Need to ask question, want to meet the other attendees? Join the discussion on a private Discord channel for this event: [AdaCAD Gathering 2025 on Discord](https://discord.gg/bsMbEPEykd)
 :::
@@ -14,90 +22,53 @@ The tentative schedule for the working group is included below and would take pl
 
 # 2025 Gathering
 
+## What to Prepare
+- [Print and Complete the Weaving and Drafting Force Sensors Booklet (fun in-flight activity)](https://drive.google.com/file/d/1W7ZrAOSZP2u_9rPzGfgMVJf9ui6FCtSJ/view),
+- [Watch and Follow Along with the "Getting Started with AdaCAD" Virtual Workshop](https://www.youtube.com/watch?v=xS_DZB3A7yY)
+- [Add your Introduction to our Introduction Slide Template](https://docs.google.com/presentation/d/1YZRHs_PO2np5WljdVAkw9sL5fqTJ9EcmpvIkJqRL1EY/edit?slide=id.p#slide=id.p)
+- Pack one physical sample or item that you can share with the group. Ideally, we'd love to see physical examples from your work or research that might help others understand what you do.
+
+
 ## Schedule
 
-last updated Monday April 21, 2025
-
-### Monday, June 2
-Participants arrive, optional dinner at [Cafe Aion](https://thehillboulder.com/go/cafe-aion)
-
-### Tuesday, June 3
-Location: ATLAS Institute
-
-9:00-10:00: 
-- Breakfast / Chatting
-
-10:00-11:00: 
--	Begin Event: Welcome, ground the event, state of the project. 
--	Intros by Participants  - what do you do, what’s a question or challenge you are facing?
-
-12:30 – 2:00:
-- Lunch
-
-2:00 – 4:30: 
--	Tour of the ATLAS Institute
--	Playful Design Activity and Share Out
--	Participant ideas for Day 3 Topics or Activities
-
-4:30 – 5:00: 
-- Close for the Day
-
-6:30 – 8:00:
-- Dinner at [Sherpa’s Adventure](https://sherparestaurantboulder.com/)
+last updated Monday May 28, 2025
 
 
-### Wednesday, June 4
-Location: ATLAS Institute
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_10.jpg)
 
-9:00-10:00: 
-- Breakfast and Chatting
-
-10:00 – 12:30: 
-- Governance Discussion
-- Health and “Growth” Metrics
-- Finance
-- Community Agreements and Handling Conflict 
-
-12:30 – 2:00 
-- Lunch
-
-2:00 – 4:30: 
-- Speculating on Weaving/Coding Futures
-
-4:30 – 5:00: 
-- Close for the Day. 
-
-6:30-8:30
-- Dinner at [Barcetta](https://www.barchetta.pizza/)
+Links: 
+- [Cafe Aion](https://thehillboulder.com/go/cafe-aion). 
 
 
-### Thursday, June 5 
-Location: ATLAS Institute
-Note: We're leaving this day flexible to adapt to interests and concerns from our participants. 
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_11.jpg)
 
-9:00-10:00: 
-- Breakfast / Chatting
-
-10:00-12:30: 
-- Emerging Discussion 1 / What Questions Do you Want to Ask this Group
-
-12:00 – 1:00 
-- Lunch
-
-1:00 -3:00:   
--  Concrete Next Steps 
--  Annotating Founding Documents
-
-Afternoon: Group Outing 
+Links:
+- [Participant Introduction Slide Template](https://docs.google.com/presentation/d/1YZRHs_PO2np5WljdVAkw9sL5fqTJ9EcmpvIkJqRL1EY/edit?slide=id.p#slide=id.p)
+- [Sherpa’s Adventure](https://sherparestaurantboulder.com/)
 
 
-6:30  Dinner at the [Chautauqua Dining Hall](https://www.chautauqua.com/dining/dining-hall/)
-
-### Friday, June 6 
-Departures 
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_12.jpg)
 
 
-### Confirmed Attendees 
+Links: 
+- [Media Archaeology Lab](https://www.mediaarchaeologylab.com/)
+- [Barcetta](https://www.barchetta.pizza/)
+
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_13.jpg)
+
+
+Links:
+-  [Schacht Spindle Company](https://schachtspindle.com/)
+-  [Chautauqua Dining Hall](https://www.chautauqua.com/dining/dining-hall/)
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_14.jpg)
+
+
+## Event Map
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_09.jpg)
+
+## Confirmed Attendees 
 
 - [Brett Fiedler](https://www.colorado.edu/per/people/brett-fiedler) - CU Boulder
 - [Bhakti Ziek](https://bhaktiziek.com/) - Independent Author and Educator
@@ -105,29 +76,47 @@ Departures
 - [Chris Coleman](https://digitalcoleman.com/) - The Ohio State University
 - [Emily Winter](https://www.emilyfranceswinter.com/) - Co-Founder of The Weaving Mill.
 - [Jim McCann](https://www.cs.cmu.edu/~jmccann/) - Carnegie Mellon University
-- [Kaori Ueda](https://www.kyoto-saga.ac.jp/about/teachers/2156) - Kyoto Saga University of Arts
+- [Kaori Ueda](https://www.kyoto-saga.ac.jp/about/teachers/2156) - Kobe University
 - [Kathryn Walters](https://www.kmwalters.com/) - Swedish School of Textiles
 - [Marianne Fairbanks](https://www.mariannefairbanks.com/) - University of Wisconsin-Madison
 - [Sienna Bosch](https://siennabosch.com/) - Schacht Spindle Company
+- [Steven Frost](https://www.stevenfrost.com/) - Unstable Design Lab Associate Director
 - [Vibeke Vestby](https://digitalweaving.no/) - Digital Weaving Norway
 
 
-### Location
+## Locations
 
-Unstable Design Lab and ATLAS Institute \
-University of Colorado, Boulder \
-[https://www.colorado.edu/atlas](https://www.colorado.edu/atlas)
+- [Moxy Hotel](https://www.marriott.com/en-us/hotels/denbx-moxy-boulder/overview/) 
+- [Roser ATLAS Center](https://www.colorado.edu/atlas), Room 208
+- Environmental Design, Room 234
 
-### Hosts and Organizing Committee
-Please reach out to our organizing team if you have any questions about the event.
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_06.jpg)
+
+
+## Transportation During the Gathering
+All restaurants are located within 20 minutes walking distance of ATLAS and the Moxy hotel. One or more of the organizers will also have cars available to anyone who desires a ride.  We are able to reimburse the cost of an Uber or Lyft to attend Gathering related events. 
+
+On Thursday June 5, we have already arranged transportation to the Schacht Spindle Company (which is located located 10 minutes away by car) and to the Chautauqua Dining Hall. 
+
+## Dietary Considerations
+All meals we provide and restaurants where we will have dinner offer gluten free (celiac-friendly), and vegetarian options. If you have any questions about the menu or food provided, please ask Deanna Gelosi. 
+
+## Alcohol
+We are not authorized to purchase any alcohol for this event and we cannot reimburse any purchases of alcohol. We have notified each restaurant of this rule and they will offer a separate “cash bar” option for any guests who wish to pay for alcohol out of pocket.
+
+## Code of Conduct
+While we will collectively set an official set of expectations for the gathering on Day 1, we would like to remind all attendees that people will come from many different backgrounds and bring different facets of experience. Please honor these different knowledges and be gracious if someone makes a mistake in, say, terminology. If you feel uncomfortable or in any way upset by an interaction during the Gathering, please do not hesitate to let Laura know. We will discuss with the organizers and determine next steps. 
+
+## Hosts and Organizing Committee
+Please reach out to our organizing team if you have any questions about the event. Our phone numbers are also listed in the [event program](./img/AdaCAD_Gathering_Program_2025_Final.pdf). Please email non urgent questions and feel free to text or call for urgent requests. 
 
 - [Laura Devendorf](http://artfordorks.com/) - laura.devendorf@colorado.edu
-- [Deanna Gelosi](https://deannagelosi.com) - deanna.gelosi@colorado.edu
-- [Etta Sandry](https://ettasandry.com/) - etta.sandry@colorado.edu
+- [Deanna Gelosi](https://deannagelosi.com) - deanna.gelosi@colorado.edu 
+- [Etta Sandry](https://ettasandry.com/) - etta.sandry@colorado.edu 
 
-### Questions or Requests 
+
+## Questions or Requests 
 We'd love to make this event as comfortable as possible for you. Please let us know what you need in order to make this happen by writing to Laura via email or Discord. This might keep us informed of any food allergies (or preferences, things you really want to try) as well as any accessibility concerns.  
-
 
 
 ## Travel
@@ -137,12 +126,25 @@ Travel has been arranged for out of town guests.
 If you have questions or concerns about your travel, or require any changes, please contact Deanna Gelosi via email or through Discord. 
 
 ### Hotel
-Individual rooms will soon be booked in your name at the [Moxy Hotel](https://www.marriott.com/en-us/hotels/denbx-moxy-boulder/overview/) in Boulder with check in on  June 2 and checkout on June 6. This hotel is located directly adjacent to the CU Boulder campus and is directly accessible via the [AB1 bus route](https://maps.app.goo.gl/sES2AdgHym5sceTW7) that runs to and from the Denver International Airport. If you need to change your hotel or dates for any reason, please contact Deanna Gelosi via email or through Discord. 
+Individual rooms have been booked in your name at the [Moxy Hotel](https://www.marriott.com/en-us/hotels/denbx-moxy-boulder/overview/) in Boulder. This hotel is located directly adjacent to the CU Boulder campus and is directly accessible via the [AB1 bus route](https://maps.app.goo.gl/sES2AdgHym5sceTW7) that runs to and from the Denver International Airport. If you need to change your hotel or dates for any reason, please contact Deanna Gelosi via email or through Discord. 
 
 <!-- The best way to get to Boulder is to fly into and out from Denver International Airport (DEN). This is a major hub in the United States, especially for United/Lufthansa.-->
 
 ### Getting From the Airport to Boulder
-Travel from the airport to boulder is simplest using the [AB1 bus](https://app.rtd-denver.com/route/AB1/schedule?serviceType=3&direction=Eastbound&branch=) line, which runs every hour between 5AM and 11PM. Ride share services like Uber and Lyft are also available. The ride from the airport to Boulder is roughly 1 hour. The Moxy hotel is located directly on the AB1 route (as well as many other local routes) via the [Broadway and Euclid Stop](https://maps.app.goo.gl/sES2AdgHym5sceTW7). From there it is a seven minute walk to the hotel or a five minute walk to the main venue at the ATLAS Institute.  
+Travel from the airport to boulder is simplest using the [AB1 bus](https://app.rtd-denver.com/route/AB1/schedule?serviceType=3&direction=Eastbound&branch=) line, which runs every hour between 5AM and 11PM. You can purchase tickets and view schedules using the [RTDMyRide App](https://www.rtd-denver.com/fares-passes/myride). Ride share services like Uber and Lyft are also available. The ride from the airport to Boulder is roughly 1 hour. The Moxy hotel is located directly across from the Broadway and Pleasant Stop on the AB1 route. 
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_07.jpg)
+
+## What to Pack 
+We are having calm/warm weather during the day and wind/rain/thunderstorms/hail in the afternoons. Bring a rain jacket and some light layers. I'm typically wearing a t-shirt and jeans or shorts with a rain jacket to work. I like a light sweater for indoors because sometimes the air conditioning has a mind of its own. Also, bring shoes you don't mind walking in. Feel free to dress casually for the event -- Pretty much everyone in Boulder dresses casually no matter what the event is!  We plan to do most activities using pens and papers but if you like having a laptop for note-taking, bring it. We'll also have a few extra computers here if you need something.
+
+## Reimbursements
+We can reimburse for food and incidental expenses during the event up to an amount specified by our sponsor (the NSF). The amount of reimbursement depends on if you are spending a full day at the event ($69) or if it is a travel day ($51). We are not able to reimburse you for meals if we offered the same meal as part of the gathering (for example, you could not reimburse for breakfast on days when we plan to serve you breakfast). This is complicated, so we are happy to answer any questions. 
+
+In order to receive reimbursement, we'll need you to provide clear photos of itemized receipts via the form below no later than June 30.
+
+- Link to [Reimbursement Form](https://forms.gle/Tfh6D2SWPhXASyoS6)
+
 <!-- 
 ### Booking Travel
 
@@ -175,7 +177,15 @@ Travel from the airport to boulder is simplest using the [AB1 bus](https://app.r
 
 Boulder is a walkable/bikeable city and your hotel will be within walking distance of the university. Thus, you will not need to rent a car. If you'd like to explore Boulder, the bike paths are robust, extensive and off-street. You can rent an hourly bike using Boulder's B-Cycle program. The bus lines run regularly in Boulder as well.
 
+
+
+### General Map of Boulder
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_15.jpg)
+
 ### Local Attractions
+
+
 
 - [ArtParts Creative Reuse Store](https://www.artpartsboulder.org/) - A secondhand store for art supplies
 - [Celestial Seasonings Tea Factory Tour](https://celestialseasonings.com/pages/tea-tour)

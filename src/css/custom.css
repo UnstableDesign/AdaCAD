@@ -140,6 +140,8 @@ img{
   object-fit: scale-down;
 }
 
+
+
 iframe {
   display: block;
   object-fit:scale-down;
@@ -158,6 +160,10 @@ iframe {
 
 .secondary{
   background-color: var(--ifm-color-primary-lighter);
+}
+
+.button{
+  margin: 2px;
 }
 
 .button_open{

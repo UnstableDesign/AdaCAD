@@ -22,6 +22,13 @@ Prefer learning by doing? Pick a project in our [tutorials](../tutorials/index.m
 
 :::
 
+:::tip
+
+Prefer learning by video? Watch a recording of our [Getting Started Virtual Workshop](https://www.youtube.com/watch?v=xS_DZB3A7yY) section to follow and learn.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/xS_DZB3A7yY?si=GE9Hq41VJQLuSLg0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+:::
 
 
 ## More Learning Resources 
@@ -31,6 +38,6 @@ To make AdaCAD accessible to weavers and other weave-curious folks, we do our be
 - [Explore AdaCAD Tutorials](../tutorials/index.md)
 - [Explore Research Projects via AdaCAD](../examples/index.md)
 - [Join and Browse Conversations in the AdaCAD Discord Community](https://discord.com/invite/Be7ukQcvrC) 
-- [Lookup Unknown or Confusion Terms in the Glossary](../../reference/glossary/index.md)
+- [Lookup Unknown or Confusing Terms in the Glossary](../../reference/glossary/index.md)
 - [Explore the Features of the Interface](../../reference/interface/index.md)
 - [Explore All the Current Operations](../../reference/operations/index.md)
