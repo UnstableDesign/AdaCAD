@@ -59,6 +59,8 @@ export class FileService {
 
      ada: async (filename: string, src: string, id: number, desc: string, data: any,  from_share: string) : Promise<LoadResponse> => {
 
+      // console.log("IN LOADER ", data)
+
   
       if(desc === undefined) desc = ""
       if(filename == undefined) filename = 'draft' 
@@ -109,13 +111,20 @@ export class FileService {
       }
 
       if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
+    
         draft_nodes = data.draft_nodes;
-
         if(draft_nodes == undefined) draft_nodes = [];
 
         if(draft_nodes !== undefined){
 
           draft_nodes.forEach(el => {
+
+            if(el.draft_id !== el.node_id){
+              el.draft_id = el.node_id;
+              if(el.draft !== null && el.draft !== undefined) el.draft.id = el.node_id;
+
+              if(el.compressed_draft !== null && el.compressed_draft !== undefined) el.compressed_draft.id = el.node_id;
+            }
 
             if(el.draft == undefined && el.compressed_draft !== undefined && el.compressed_draft !== null){
               draft_fns.push(loadDraftFromFile(el.compressed_draft, version, src));
@@ -131,7 +140,8 @@ export class FileService {
             }
 
          
-        
+
+
           });
        }
         
@@ -522,12 +532,10 @@ export class FileService {
 
 
 
-    console.log("LOOM TYPE IS ",  loom_settings.type)
      if(loom === null){
 
       //force loom type to something with shafts;
       loom_settings.type = 'frame';
-      console.log("LOOM WAS NULL in saver")
       loom = await getLoomUtilByType(loom_settings.type).computeLoomFromDrawdown(draft.drawdown, loom_settings);
 
      }
