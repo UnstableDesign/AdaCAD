@@ -1346,15 +1346,16 @@ async processFileData(data: FileObj) : Promise<string|void>{
   })
   .then(id_map => {
       entry_mapping = id_map;
-    //  console.log(" LOAD TREE Nodes")
+      // console.log(" LOADED TREE Nodes ", this.tree.nodes, id_map)
       return this.loadTreeNodes(id_map, data.treenodes);
     }
   ).then(treenodes => {
-
+    // console.log("TREE NODES is ", data.treenodes)
     const seednodes: Array<{prev_id: number, cur_id: number}> = treenodes
       .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
       .map(tn => tn.entry);
     
+    // console.log("SEED NODES ARE ", seednodes)
     const seeds: Array<{entry, id, draft, loom, loom_settings, render_colors, scale, draft_visible}> = seednodes
     .map(sn =>  {
 

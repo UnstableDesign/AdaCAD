@@ -223,12 +223,16 @@ export const createDraft = (
   export const loadDraftFromFile = (data: any, version: string, src: string) : Promise<{draft: Draft, id: number}> => {
     const draft: Draft = initDraft();
 
-    // console.log("DATA is ", data)
+     console.log("DATA is ", data)
+    
 
     if(data.id !== undefined) draft.id = data.id;
+
     draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
     draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
     
+
+
     if(version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')){
       draft.drawdown = parseSavedDrawdown(data.pattern);
     }else{
