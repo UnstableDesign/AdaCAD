@@ -45,8 +45,6 @@ export class DraftContainerComponent implements AfterViewInit{
 
   exceeds_size: boolean = false;
 
-  ud_name: string = '';
-
   warps: number; 
 
   wefts: number;
@@ -93,7 +91,6 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
     const draft = this.tree.getDraft(this.id);
-    this.ud_name = draft.ud_name;
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
 
@@ -114,9 +111,8 @@ export class DraftContainerComponent implements AfterViewInit{
     });
 
   dialogRef.afterClosed().subscribe(obj => {
-    console.log("UDPATE DRAFT NAME TO ", this.tree.getDraftName(this.id))
     this.draft_name = this.tree.getDraftName(this.id);
-    this.onNameChanged.emit();
+    this.onNameChanged.emit(this.id);
  });
   }
 
@@ -156,11 +152,11 @@ export class DraftContainerComponent implements AfterViewInit{
       this.draft_visible = this.tree.getDraftVisible(this.id);
 
       if(draft == undefined || draft == null){
-        this.ud_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
+        this.draft_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
         this.warps = 0;
         this.wefts = 0;
       }else{
-        this.ud_name = getDraftName(draft);
+        this.draft_name = getDraftName(draft);
         this.warps = warps(draft.drawdown);
         this.wefts = wefts(draft.drawdown);
       }
@@ -170,8 +166,11 @@ export class DraftContainerComponent implements AfterViewInit{
 
       if(!changes['dirty'].firstChange){
         if(this.draft_rendering !== undefined && draft !== undefined && draft !== null){
+          console.log("UPDATING ", getDraftName(draft))
+          this.draft_name = getDraftName(draft);
           this.draft_rendering.onNewDraftLoaded(this.id);
           this.drawDraft(draft);
+          
         } else{
           this.draft_rendering.clear();
         }

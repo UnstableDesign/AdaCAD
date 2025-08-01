@@ -514,7 +514,8 @@ zoomChange(zoom_index:any){
     let dnproxy: DraftNodeProxy = {
       node_id: id,
       draft_id: id,
-      draft_name: getDraftName(draft),
+      ud_name: draft.ud_name,
+      gen_name: draft.gen_name,
       draft: draft,
       compressed_draft: null,
       draft_visible: !defaults.hide_mixer_drafts,

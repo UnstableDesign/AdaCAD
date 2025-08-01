@@ -3,12 +3,16 @@
 
 <mat-dialog-content>
 
-    ud_name = {{ud_name}}
-    gen_name = {{gen_name}}
-  
-  <mat-form-field appearance="fill">
+    <div>ud name: {{ud_name}}</div>
+    <div>gen name: {{gen_name}}</div>
+    
+    <mat-form-field appearance="fill">
     <mat-label>Draft Name</mat-label>
+
+
+
     <input matInput (input)="change($event)" [placeholder]=gen_name [(ngModel)]="ud_name">
+    <mat-hint>changes are automatically saved</mat-hint>
   </mat-form-field>
     </mat-dialog-content>
 

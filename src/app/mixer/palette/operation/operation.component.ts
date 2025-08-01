@@ -459,8 +459,8 @@ export class OperationComponent implements OnInit {
     this.onOperationParamChange.emit({id: this.id, prior_inlet_vals: original_inlets});
   }
 
-  nameChanged(){
-    this.onNameChanged.emit();
+  nameChanged(id){
+    this.onNameChanged.emit(id);
   }
 
   drawImagePreview(){

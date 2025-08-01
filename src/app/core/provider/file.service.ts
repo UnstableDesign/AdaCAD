@@ -113,17 +113,27 @@ export class FileService {
       if(utilInstance.sameOrNewerVersion(version, '3.4.5')){
     
         draft_nodes = data.draft_nodes;
+
         if(draft_nodes == undefined) draft_nodes = [];
 
         if(draft_nodes !== undefined){
 
-          draft_nodes.forEach(el => {
+
+
+          draft_nodes.forEach((el, ndx) => {
 
             if(el.draft_id !== el.node_id){
               el.draft_id = el.node_id;
               if(el.draft !== null && el.draft !== undefined) el.draft.id = el.node_id;
 
               if(el.compressed_draft !== null && el.compressed_draft !== undefined) el.compressed_draft.id = el.node_id;
+
+              if(data.draft_nodes[ndx].draft_name !== undefined){
+                el.ud_name = '';
+                el.gen_name = data.draft_nodes[ndx].draft_name;
+              }
+
+
             }
 
             if(el.draft == undefined && el.compressed_draft !== undefined && el.compressed_draft !== null){
@@ -162,7 +172,8 @@ export class FileService {
           const dn: DraftNodeProxy = {
             node_id: (node === undefined) ? -1 : node.node_id,
             draft_id: node.node_id,
-            draft_name: node.draft_name,
+            ud_name: (node.draft_name) ? node.draft_name : node.ud_name,
+            gen_name: (node.draft_name) ? node.draft_name : node.gen_name,
             draft: null,
             compressed_draft: null,
             draft_visible: (node === undefined) ? true : node.draft_visible,

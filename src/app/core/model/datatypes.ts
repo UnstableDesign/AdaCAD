@@ -329,7 +329,8 @@ export interface NodeComponentProxy{
    export interface DraftNodeProxy{
     node_id: number;
     draft_id: number;
-    draft_name: string;
+    ud_name: string;
+    gen_name:string;
     draft: Draft;
     compressed_draft: CompressedDraft;
     draft_visible: boolean;

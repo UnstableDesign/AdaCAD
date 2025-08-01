@@ -474,7 +474,7 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
-    this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.addTimelineState.bind(this)));
+    this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onNameChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
     this.subdraftSubscriptions.push(sd.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
   }
@@ -670,7 +670,7 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
     this.operationSubscriptions.push(op.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
-    this.operationSubscriptions.push(op.onNameChanged.subscribe(this.addTimelineState.bind(this)));
+    this.operationSubscriptions.push(op.onNameChanged.subscribe(this.onNameChange.bind(this)));
 
   }
 
@@ -1368,19 +1368,19 @@ handlePan(diff: Point){
       /**
     * this is called when an subdraft updates its show/hide value
     */
-    // onSubdraftNameChange(id: number){
+    onNameChange(id: number){
 
-    //   const outs = this.tree.getNonCxnOutputs(id);
-    //   const to_perform = outs.map(el => this.performAndUpdateDownstream(el));
-    //   return Promise.all(to_perform) 
-    //   .then(el => 
-    //     {
-    //       this.addTimelineState(); 
-    //     })
-    //     .catch(console.error);;
+      const outs = this.tree.getNonCxnOutputs(id);
+      const to_perform = outs.map(el => this.performAndUpdateDownstream(el));
+      return Promise.all(to_perform) 
+      .then(el => 
+        {
+          this.addTimelineState(); 
+        })
+        .catch(console.error);;
 
        
-    // }
+    }
     
 
 
