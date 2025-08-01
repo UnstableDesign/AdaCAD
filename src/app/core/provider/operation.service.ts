@@ -73,6 +73,7 @@ import { glitchsatin } from '../operations/glitchsatin/glitchsatin';
 import { apply_warp_mats } from '../operations/applywarpmaterials/applywarpmaterials';
 import { apply_weft_mats } from '../operations/applyweftmaterials/applyweftmaterials';
 import {selector} from '../operations/selector/selector'
+import { analyzesystem } from '../operations/analyzesystem/analyzesystem';
 
 @Injectable({
   providedIn: 'root'
