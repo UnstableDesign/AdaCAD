@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-// import { VaeService} from "../../core/provider/vae.service"
 import { DynamicOperation, Operation, OperationClassification } from '../../core/model/datatypes';
 import { combinatorics } from '../operations/combinatorics/combinatorics';
 import { complextwill } from '../operations/complex_twill/complex_twill';
@@ -154,6 +153,7 @@ export class OperationService {
     this.ops.push(shift);
     this.ops.push(flip);
     this.ops.push(overlay_multi);
+    this.ops.push(analyzesystem);
 
   //   //this.ops.push(germanify);
   //   //this.ops.push(crackleify);
