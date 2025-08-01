@@ -65,6 +65,7 @@ export class OperationComponent implements OnInit {
    @Output() onOpLoaded = new EventEmitter <any> ();
    @Output() onOpenInEditor = new EventEmitter <any> ();
    @Output() onRedrawOutboundConnections= new EventEmitter <any> ();
+   @Output() onNameChanged= new EventEmitter <any> ();
 
    params_visible: boolean = true;
     /**
@@ -456,6 +457,10 @@ export class OperationComponent implements OnInit {
     }
     
     this.onOperationParamChange.emit({id: this.id, prior_inlet_vals: original_inlets});
+  }
+
+  nameChanged(){
+    this.onNameChanged.emit();
   }
 
   drawImagePreview(){

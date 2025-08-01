@@ -1,0 +1,19 @@
+  
+<h2 mat-dialog-title>Rename this Draft</h2>
+
+<mat-dialog-content>
+
+    ud_name = {{ud_name}}
+    gen_name = {{gen_name}}
+  
+  <mat-form-field appearance="fill">
+    <mat-label>Draft Name</mat-label>
+    <input matInput (input)="change($event)" [placeholder]=gen_name [(ngModel)]="ud_name">
+  </mat-form-field>
+    </mat-dialog-content>
+
+
+
+  <mat-dialog-actions>
+    <button mat-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>

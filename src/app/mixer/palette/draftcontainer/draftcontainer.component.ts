@@ -12,6 +12,8 @@ import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
+import { RenameComponent } from '../../../core/modal/rename/rename.component';
 
 @Component({
   selector: 'app-draftcontainer',
@@ -30,6 +32,7 @@ export class DraftContainerComponent implements AfterViewInit{
   @Output() onOpenInEditor = new EventEmitter();
   @Output() onRecomputeChildren = new EventEmitter();
   @Output() onDrawdownSizeChanged = new EventEmitter();
+  @Output() onNameChanged = new EventEmitter();
  
   @ViewChild('bitmapImage') bitmap: any;
   @ViewChild('draft_rendering') draft_rendering: 
@@ -65,6 +68,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
   constructor(
+    private dialog: MatDialog,
     private dm: DesignmodesService,
     private ms: MaterialsService,
     private fs: FileService,
@@ -106,7 +110,14 @@ export class DraftContainerComponent implements AfterViewInit{
   }
 
   rename(event){
+    const dialogRef = this.dialog.open(RenameComponent, {data: {id: this.id}
+    });
 
+  dialogRef.afterClosed().subscribe(obj => {
+    console.log("UDPATE DRAFT NAME TO ", this.tree.getDraftName(this.id))
+    this.draft_name = this.tree.getDraftName(this.id);
+    this.onNameChanged.emit();
+ });
   }
 
   onDoubleClick(){

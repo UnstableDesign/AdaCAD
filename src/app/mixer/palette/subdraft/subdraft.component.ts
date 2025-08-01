@@ -177,7 +177,7 @@ export class SubdraftComponent implements OnInit {
 
  
 
-  nameFocusOut(){
+  nameChange(){
     this.onNameChange.emit(this.id);
   }
 
