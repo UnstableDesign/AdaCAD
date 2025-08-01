@@ -95,7 +95,8 @@
                 "overlay",
                 "mask",
                 "cutout",
-                "diff"
+                "diff",
+                "selector"
             ]
         },
         {

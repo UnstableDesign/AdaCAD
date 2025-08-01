@@ -248,6 +248,13 @@
             "application": "Can be used to generated pointed threadings and treadlings" 
         },
         {
+            "name":"selector",
+            "displayname": "selector",
+            "tags": ["advanced"],
+            "description": "allows the user to switch between the connected inputs by changing the parameter number.",
+            "application": "To control a large number of inputs at once rather than having to add and remove individual connections" 
+        },
+        {
             "name":"fill",
             "displayname": "fill",
             "tags": ["advanced"],
