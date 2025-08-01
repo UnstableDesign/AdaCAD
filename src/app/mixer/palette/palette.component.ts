@@ -1416,17 +1416,18 @@ connectionDragged(mouse: Point){
   this.active_connection.width =  (adj.x - this.active_connection.topleft.x);
   this.active_connection.height =  (adj.y - this.active_connection.topleft.y);
 
+
+  
   const svg = document.getElementById('scratch_svg');
   svg.style.top = (this.active_connection.topleft.y)+"px";
   svg.style.left = (this.active_connection.topleft.x)+"px"
 
- 
   svg.innerHTML = ' <path d="M 0 0 C 0 50,'
   +(this.active_connection.width)+' '
   +(this.active_connection.height-50)+', '
   +(this.active_connection.width)+' '
   +(this.active_connection.height)
-  +'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
+  +'" fill="transparent" stroke="#ff4081"  stroke-dasharray="20 1"  stroke-width="8"/> ' ;
 
  
 

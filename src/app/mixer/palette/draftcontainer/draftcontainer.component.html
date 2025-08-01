@@ -130,7 +130,29 @@ source = "mixer"
 
 
 <div class="output_meta">
-  <div class="draftname">{{draft_name}}</div>
+  <div class="draftname">
+    
+
+  <form class="example-form">
+    <mat-form-field class="example-full-width">
+      <mat-label>Draft Name</mat-label>
+      <input matInput placeholder="Ex. Pizza" value="Sushi">
+    </mat-form-field>
+        <mat-form-field>
+      <mat-label>Ends</mat-label>
+      <input matInput value="{{warps}}">
+    </mat-form-field>
+        <mat-form-field disabled>
+      <mat-label>Pics</mat-label>
+      <input matInput value="{{wefts}}">
+    </mat-form-field>
+    </form>
+    <!-- <button 
+    mat-flat-button
+    (click)="rename($event)">
+      {{draft_name}}    
+  </button> -->
+  </div>
 
   <div class="dims">{{warps}} x {{wefts}}</div>
  

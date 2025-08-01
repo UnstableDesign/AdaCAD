@@ -105,6 +105,10 @@ export class DraftContainerComponent implements AfterViewInit{
 
   }
 
+  rename(event){
+
+  }
+
   onDoubleClick(){
     this.trigger.openMenu();
   }

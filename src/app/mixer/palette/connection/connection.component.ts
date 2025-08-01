@@ -94,6 +94,22 @@ export class ConnectionComponent implements OnInit {
       }
     );
     this.anim.pause();
+    const color = "#000000"
+    const stroke_width = 2;
+     this.path_main.setAttribute("fill", "none");
+    this.path_main.setAttribute("stroke", color);
+    this.path_main.setAttribute("stroke-width", "4"); //2
+    this.path_main.setAttribute("stroke-linecap", "round");
+    this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
+    this.path_main.setAttribute("stroke-dashoffset", "0");
+ 
+    this.line_stub.setAttribute("fill", "none");
+    this.line_stub.setAttribute("stroke", color);
+    this.line_stub.setAttribute("stroke-width", "4"); //2
+    this.line_stub.setAttribute("stroke-linecap", "round");
+    this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
+    this.line_stub.setAttribute("stroke-dashoffset", "0"); 
+
 
 
     let to_withdata = this.tree.getConnectionOutputWithIndex(this.id);
@@ -257,13 +273,14 @@ export class ConnectionComponent implements OnInit {
 
     if(selected){
     // this.anim.play();
-     this.path_main.setAttribute("stroke-width", "16"); //2
-     this.line_stub.setAttribute("stroke-width", "16"); //2
-    this.path_main.setAttribute("stroke-dasharray", "40 40"); //4 2 
-    this.line_stub.setAttribute("stroke-dasharray", "40 40"); //4 2 
+     this.path_main.setAttribute("stroke-width", "8"); //2
+     this.line_stub.setAttribute("stroke-width", "8"); //2
+    this.path_main.setAttribute("stroke-dasharray", "20 1"); //4 2 
+    this.line_stub.setAttribute("stroke-dasharray", "20 1"); //4 2 
 
     }else{
    //  this.anim.pause();
+    this.path_main.style.zIndex = '0'
      this.path_main.setAttribute("stroke-width", "4"); //2
      this.line_stub.setAttribute("stroke-width", "4"); //2
      this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
@@ -289,26 +306,6 @@ export class ConnectionComponent implements OnInit {
     const connector_font_size = 2;
     const button_margin_left = -24;
     const button_margin_top = -8;
-    const color = "#000000"
-    const stroke_width = 2;
-
-    this.path_main.setAttribute("fill", "none");
-    this.path_main.setAttribute("stroke", color);
-    this.path_main.setAttribute("stroke-width", "4"); //2
-    this.path_main.setAttribute("stroke-linecap", "round");
-    this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
-    this.path_main.setAttribute("stroke-dashoffset", "0");
- 
-    this.line_stub.setAttribute("fill", "none");
-    this.line_stub.setAttribute("stroke", color);
-    this.line_stub.setAttribute("stroke-width", "4"); //2
-    this.line_stub.setAttribute("stroke-linecap", "round");
-    this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
-    this.line_stub.setAttribute("stroke-dashoffset", "0"); 
-
-
-     
-
 
     if(this.orientation_x && this.orientation_y){
       
