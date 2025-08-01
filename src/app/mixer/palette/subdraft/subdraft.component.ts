@@ -12,6 +12,7 @@ import { ViewportService } from '../../provider/viewport.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { ConnectionComponent } from '../connection/connection.component';
 
 
 @Component({
@@ -198,11 +199,37 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+  updateConnectionStyling(){
+
+      //remove the selected class for all connections
+      let cxns = this.tree.getConnections();
+      for(let cxn of cxns){
+        if(cxn !== null){
+          cxn.updateConnectionStyling(false);
+        }
+      }
+
+      const outputs = this.tree.getOutputs(this.id);
+
+      //add the class selected to any of the connections going into and out of this node
+      let ios = outputs.concat(this.tree.getInputs(this.id));
+      for(let io of ios){
+        let cxn = <ConnectionComponent> this.tree.getComponent(io);
+        if(cxn !== null) cxn.updateConnectionStyling(true)
+      }
+
+  }
+
+
+
 
   toggleMultiSelection(e: any){
 
     // console.log("TOGGLE MULTI")
     // this.onFocus.emit(this.id);
+    this.updateConnectionStyling();
+        this.vs.setViewer(this.id);
+
 
     if(e.shiftKey){
       this.multiselect.toggleSelection(this.id, this.topleft);

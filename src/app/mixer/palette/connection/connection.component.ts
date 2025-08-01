@@ -31,8 +31,11 @@ export class ConnectionComponent implements OnInit {
   width: number =  0;
   height: number = 0;
 
-  svg: HTMLElement;
+  svg: SVGSVGElement;
+  path_main: SVGPathElement;
+  line_stub: SVGLineElement;
   connector: HTMLElement;
+  anim: any;
 
   no_draw: boolean;
 
@@ -66,8 +69,31 @@ export class ConnectionComponent implements OnInit {
 
   ngAfterViewInit(){
 
-    this.svg = document.getElementById('svg-'+this.id.toString());
+
+    const ns = "http://www.w3.org/2000/svg";
+    this.svg = document.createElementNS(ns, "svg");
+    this.path_main = document.createElementNS(ns, "path");
+    this.line_stub = document.createElementNS(ns, "line");
+    this.svg.appendChild(this.path_main);
+    this.svg.appendChild(this.line_stub);
+    document.getElementById("scale-"+this.id).appendChild(this.svg);
+
+
+    //this.svg = document.getElementById('svg-'+this.id.toString());
     this.connector = document.getElementById('connector-'+this.id.toString());
+
+    this.anim = this.path_main.animate(
+      [
+        { strokeDashoffset: "0" },
+        { strokeDashoffset: "20" }
+      ],
+      {
+        duration: 1000,
+        iterations: Infinity,
+        easing: "linear"
+      }
+    );
+    this.anim.pause();
 
 
     let to_withdata = this.tree.getConnectionOutputWithIndex(this.id);
@@ -77,8 +103,7 @@ export class ConnectionComponent implements OnInit {
 
      this.updateFromPosition();
      this.updateToPosition(to_withdata.inlet, to_withdata.arr);
-
-     this.drawConnection()
+     this.drawConnection();
 
 
   }
@@ -228,98 +253,135 @@ export class ConnectionComponent implements OnInit {
   }
 
 
+  updateConnectionStyling(selected: boolean){
+
+    if(selected){
+    // this.anim.play();
+     this.path_main.setAttribute("stroke-width", "16"); //2
+     this.line_stub.setAttribute("stroke-width", "16"); //2
+    this.path_main.setAttribute("stroke-dasharray", "40 40"); //4 2 
+    this.line_stub.setAttribute("stroke-dasharray", "40 40"); //4 2 
+
+    }else{
+   //  this.anim.pause();
+     this.path_main.setAttribute("stroke-width", "4"); //2
+     this.line_stub.setAttribute("stroke-width", "4"); //2
+     this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
+     this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
+
+
+
+    }  
+  }
+
+  
+
 
   
   drawConnection(){
 
-
-    const stublength = 40;
-    const connector_opening = 20;
-    // const connector_font_size = Math.max((10 - scale) / 10, .75);
-    const connector_font_size = 2;
-    const text_path_font_size =   Math.max((10 - this.zs.getMixerZoom()) / 10, .75);
-    const button_margin_left = -24;
-    const button_margin_top = -16;
-    const color = "#000000"
-    
     if(this.no_draw) return;
     if(this.svg === null || this.svg == undefined) return;
 
+
+    const stublength = 40;
+    const connector_opening = 40;
+    const connector_font_size = 2;
+    const button_margin_left = -24;
+    const button_margin_top = -8;
+    const color = "#000000"
     const stroke_width = 2;
+
+    this.path_main.setAttribute("fill", "none");
+    this.path_main.setAttribute("stroke", color);
+    this.path_main.setAttribute("stroke-width", "4"); //2
+    this.path_main.setAttribute("stroke-linecap", "round");
+    this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
+    this.path_main.setAttribute("stroke-dashoffset", "0");
+ 
+    this.line_stub.setAttribute("fill", "none");
+    this.line_stub.setAttribute("stroke", color);
+    this.line_stub.setAttribute("stroke-width", "4"); //2
+    this.line_stub.setAttribute("stroke-linecap", "round");
+    this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
+    this.line_stub.setAttribute("stroke-dashoffset", "0"); 
+
+
+     
 
 
     if(this.orientation_x && this.orientation_y){
       
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 0 C 0 50, '+this.width+' '+(this.height-70)+', '+this.width+' '+(this.height-(stublength+connector_opening))+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
+      this.path_main.setAttribute("d", "M 0 0 C 0 50, "+this.width+" "+(this.height-70)+","+this.width+" "+(this.height-(stublength+connector_opening)));
 
-      if(this.show_path_text){
-        this.svg.innerHTML += '<text><textPath startOffset="10%" fill="'+color+'" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ';
+      this.line_stub.setAttribute("x1", this.width+"");
+      this.line_stub.setAttribute("y1", (this.height-(stublength))+"");
+      this.line_stub.setAttribute("x2", this.width+"");
+      this.line_stub.setAttribute("y2", this.height+"");
 
-      }
-     
-
-      this.svg.innerHTML += '  <line x1="'+this.width+'" y1="'+(this.height-(stublength))+'" x2='+this.width+' y2="'+this.height+'"  stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
 
       this.connector.style.top = (this.height-(stublength+connector_opening)+button_margin_top)+'px';
       this.connector.style.left = (this.width+button_margin_left)+'px';
       this.connector.style.fontSize = connector_font_size+"em";
-      this.svg.style.fontSize = text_path_font_size+"em";
       
-  
+
 
     }else if(!this.orientation_x && !this.orientation_y){
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+-(stublength+connector_opening)+' c 0 -50, '+this.width+' '+(this.height+100)+', '+this.width+' '+(this.height+(stublength+connector_opening))+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
 
-      if(this.show_path_text){
-        this.svg.innerHTML += ' <text><textPath startOffset="60%" fill="'+color+'" href="#path-'+this.id+'">'+this.path_text+'</textPath></text>';
-      }
+      this.path_main.setAttribute("d", "M 0 "+-(stublength+connector_opening)+"c 0 -50, "+this.width+" "+(this.height+100)+", "+this.width+" "+(this.height+(stublength+connector_opening)));
 
-      this.svg.innerHTML += '  <line x1="0" y1="'+-(stublength )+'" x2="0" y2="0"  stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+
+      this.line_stub.setAttribute("x1","0");
+      this.line_stub.setAttribute("y1", -(stublength)+"");
+      this.line_stub.setAttribute("x2", "0");
+      this.line_stub.setAttribute("y2", "0");
 
       this.connector.style.top = -(stublength+connector_opening)+(button_margin_top)+'px';
       this.connector.style.left = (button_margin_left)+'px';
       this.connector.style.fontSize = connector_font_size+"em";
-      this.svg.style.fontSize = text_path_font_size+"em";
   
 
 
     }else if(!this.orientation_x && this.orientation_y){
 
-      // this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-70)+', 0 '+(this.bounds.height-(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> <text><textPath startOffset="50%" fill="#000000" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ' ;
+
+      this.path_main.setAttribute("d", "M  0 "+(this.height-(stublength+connector_opening))+" C 0 "+(this.height-(stublength+connector_opening)-50)+", "+this.width+" 50, "+this.width+" 0");
+
+      this.line_stub.setAttribute("x1","0");
+      this.line_stub.setAttribute("y1",(this.height-(stublength))+"");
+      this.line_stub.setAttribute("x2", "0");
+      this.line_stub.setAttribute("y2", this.height+"");
 
 
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d=" M  0 '+(this.height-(stublength+connector_opening))+' C 0 '+(this.height-(stublength+connector_opening)-50)+', '+this.width+' 50, '+this.width+' 0" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
-
-      if(this.show_path_text){
-        this.svg.innerHTML += '<text><textPath startOffset="60%" fill="'+color+'" href="#path-'+this.id+'">'+this.path_text+'</textPath></text>';
-      }
-
-      this.svg.innerHTML += '  <line x1="0" y1="'+(this.height-(stublength))+'" x2="0" y2="'+this.height+'"  stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
 
 
       this.connector.style.top = (this.height-(stublength+connector_opening)+button_margin_top)+'px';
       this.connector.style.left =  (button_margin_left)+'px';
       this.connector.style.fontSize = connector_font_size+"em";
-      this.svg.style.fontSize = text_path_font_size+"em";
   
   
 
 
     }else{
 
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+this.height+' C 0 '+(this.height+50)+', '+this.width+' -50, '+this.width+''+-(stublength+connector_opening)+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
+      
 
-      if(this.show_path_text){
-        this.svg.innerHTML = '<text><textPath startOffset="10%" fill="'+color+'" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ';
-      }
+      this.path_main.setAttribute("d", "M 0 "+this.height+"C 0 "+(this.height+50)+", "+this.width+" -50, "+this.width+" "+-(stublength+connector_opening));
 
-      this.svg.innerHTML += '  <line x1="'+this.width+'" y1="'+(-(stublength))+'" x2="'+this.width+'" y2="0"  stroke="'+color+'"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+
+      // this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+this.height+' C 0 '+(this.height+50)+', '+this.width+' -50, '+this.width+''+-(stublength+connector_opening)+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
+
+
+      this.line_stub.setAttribute("x1",this.width+"");
+      this.line_stub.setAttribute("y1",-(stublength)+"");
+      this.line_stub.setAttribute("x2", this.width+"");
+      this.line_stub.setAttribute("y2", "0");
+
 
 
       this.connector.style.top = -(stublength+connector_opening)+(button_margin_top)+'px';
       this.connector.style.left = (this.width+button_margin_left)+'px';
       this.connector.style.fontSize = connector_font_size+"em";
-      this.svg.style.fontSize = text_path_font_size+"em";
   
 
     }

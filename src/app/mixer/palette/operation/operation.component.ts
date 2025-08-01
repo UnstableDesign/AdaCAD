@@ -15,6 +15,7 @@ import { ViewerService } from '../../../core/provider/viewer.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { ConnectionComponent } from '../connection/connection.component';
 
 
 
@@ -239,7 +240,36 @@ export class OperationComponent implements OnInit {
     this.params_visible = !this.params_visible;
   }
 
+
+  updateConnectionStyling(){
+
+      //remove the selected class for all connections
+      let cxns = this.tree.getConnections();
+      for(let cxn of cxns){
+        if(cxn !== null){
+          cxn.updateConnectionStyling(false);
+        }
+      }
+
+      let outputs = [];
+      if(this.children.length > 0){
+        let child = this.children[0];
+        outputs = outputs.concat(this.tree.getOutputs(child))
+      }
+
+      //add the class selected to any of the connections going into and out of this node
+      let ios = outputs.concat(this.tree.getInputs(this.id));
+      for(let io of ios){
+        let cxn = <ConnectionComponent> this.tree.getComponent(io);
+        if(cxn !== null) cxn.updateConnectionStyling(true)
+      }
+
+  }
+
+
   toggleSelection(e: any){
+
+      this.updateConnectionStyling();
 
       if(this.children.length > 0){
         let child = this.children[0];
@@ -519,6 +549,7 @@ export class OperationComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
+    this.updateConnectionStyling();
 
 
     this.offset = null;
@@ -538,6 +569,7 @@ export class OperationComponent implements OnInit {
    */
   dragMove($event: CdkDragMove) {
 
+      this.updateConnectionStyling();
 
     //GET THE LOCATION OF THE POINTER RELATIVE TO THE TOP LEFT OF THE NODE
 
@@ -592,6 +624,7 @@ export class OperationComponent implements OnInit {
 
   dragEnd($event: any) {
 
+      this.updateConnectionStyling();
 
 
     this.multiselect.setRelativePosition(this.topleft);

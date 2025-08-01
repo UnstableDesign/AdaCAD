@@ -17,3 +17,17 @@ button{
     display: none;
 }
 
+.moving-dash {
+stroke: #0077cc;
+stroke-linecap: round;
+stroke-dasharray: 10 10; /* dash length + gap */
+animation: dash-slide 1s linear infinite;
+}
+
+@keyframes dash-slide {
+to {
+    stroke-dashoffset: -20; /* negative makes dashes move forward */
+}
+}
+
+
