@@ -1,5 +1,5 @@
 import { getCellValue } from "../../model/cell";
-import { Draft, Operation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
+import { Draft, Drawdown, Operation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
 import { generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
@@ -23,15 +23,6 @@ const pattern:StringParam =
 
 const params = [pattern];
 
-//INLETS
-const systems: OperationInlet = {
-  name: 'systems draft', 
-  type: 'static',
-  value: null,
-  uses: "warp-and-weft-data",
-  dx: 'the draft that describes the system ordering to use when analyzing the draft',
-  num_drafts: 1
-}
 
   const draft_inlet: OperationInlet = {
     name: 'draft',
@@ -43,7 +34,7 @@ const systems: OperationInlet = {
   }
 
 
-  const inlets = [systems, draft_inlet];
+  const inlets = [draft_inlet];
 
 
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Promise<Array<Draft>> => {
@@ -54,34 +45,29 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
 
   if(op_inputs.length == 0) return Promise.resolve([]);
 
-  const system_map = getAllDraftsAtInlet(op_inputs, 0);
-  if(system_map.length == 0) return Promise.resolve([]); ;
 
-  const draft = getAllDraftsAtInlet(op_inputs, 1);
-  if(draft.length == 0) return Promise.resolve([]); ;
+  const drafts = getAllDraftsAtInlet(op_inputs, 0);
+  if(drafts.length == 0) return Promise.resolve([]); ;
 
+  const draft = drafts[0];
 
-  const draft_with_systems = initDraftWithParams(
-    {drawdown: draft[0].drawdown, 
-    rowSystemMapping: system_map[0].rowSystemMapping, 
-    rowShuttleMapping: system_map[0].rowShuttleMapping,
-    colSystemMapping: system_map[0].colSystemMapping, 
-    colShuttleMapping: system_map[0].colShuttleMapping
-  })
-
-
-  let systems = original_string_split.reduce((acc, val) => {
+  let input_systems = original_string_split.reduce((acc, val) => {
     return {
       wesy: acc.wesy.concat(parseWeftSystem(val)), 
       wasy: acc.wasy.concat(parseWarpSystem(val)),
     }
   }, {wesy: [], wasy: []});
 
-  if(systems.wesy.length == 0){
-    systems.wesy = utilInstance.filterToUniqueValues(system_map[0].colSystemMapping)
+  let draft_systems = {
+    wasy: utilInstance.filterToUniqueValues(draft.colSystemMapping),
+    wesy: utilInstance.filterToUniqueValues(draft.rowSystemMapping)
   }
-  if(systems.wasy.length == 0){
-    systems.wasy = utilInstance.filterToUniqueValues(system_map[0].rowSystemMapping)
+
+
+  let validated_systems = utilInstance.makeValidSystemList(input_systems, draft_systems);
+
+  if(!validated_systems.valid){
+    return Promise.resolve([initDraftWithParams({warps: 1, wefts: 1})]);
   }
 
   let analyzed_draft = new Sequence.TwoD();
@@ -89,53 +75,68 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   let rowShutMap = [];
   let colSysMap = [];
   let colShutMap = [];
-  for(let i = 0; i < wefts(draft_with_systems.drawdown); i++){
-    const weftsys = draft_with_systems.rowSystemMapping[i];
-    if(systems.wesy.find(el => el == weftsys) !== undefined){
+
+  for(let i = 0; i < wefts(draft.drawdown); i++){
+    const weftsys = draft.rowSystemMapping[i];
+
+    if(validated_systems.wesy.find(el => el == weftsys) !== undefined){
+     
       colSysMap = [];
       colShutMap = [];
       let row = new Sequence.OneD();
-      rowSysMap.push(weftsys);
-      rowShutMap.push(draft_with_systems.rowShuttleMapping[i]);
-      for(let j = 0; j < warps(draft_with_systems.drawdown); j++){
-        const warpsys = draft_with_systems.colSystemMapping[j];
-        if(systems.wasy.find(el => el == warpsys) !== undefined){
+     
+      for(let j = 0; j < warps(draft.drawdown); j++){
+        const warpsys = draft.colSystemMapping[j];
+        if(validated_systems.wasy.find(el => el == warpsys) !== undefined){
           colSysMap.push(warpsys);
-          colShutMap.push(draft_with_systems.colShuttleMapping[j]);
-           row.push(getCellValue(draft_with_systems.drawdown[i][j])) 
+          colShutMap.push(draft.colShuttleMapping[j]);
+           row.push(getCellValue(draft.drawdown[i][j])) 
         }
       }
+
+      if(row.length() > 0){
+      rowSysMap.push(weftsys);
+      rowShutMap.push(draft.rowShuttleMapping[i]);
+      }
+    
+
+
       analyzed_draft.pushWeftSequence(row.val());
     }
   }
 
+  //if you put in a combo to the param that does not exist 
 
 
-  let d: Draft = initDraftFromDrawdown(analyzed_draft.export());
-  d.rowShuttleMapping = rowShutMap;
-  d.rowSystemMapping = rowSysMap;
-  d.colShuttleMapping = colShutMap;
-  d.colSystemMapping = colSysMap;
+    let d = initDraftFromDrawdown(analyzed_draft.export());
+    d.rowShuttleMapping = rowShutMap;
+    d.rowSystemMapping = rowSysMap;
+    d.colShuttleMapping = colShutMap;
+    d.colSystemMapping = colSysMap;
 
+ 
   return Promise.resolve([d]);
+
+
+
 };   
 
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
-
+    let param_val = getOpParamValById(0, param_vals);
     let drafts = getAllDraftsAtInlet(op_inputs, 0);
     let name_list = parseDraftNames(drafts);
-  return "analyze systems("+name_list+")";
+  return "analyze system("+param_val+", "+name_list+")";
 }
 
 
 
 
-//pull out all the nubmers from a notation element into warp systems
+//pull out all the numbers from a notation element into warp systems
 const parseWarpSystem = (val: string) : Array<number> => {
   let matches = val.match(/\d+/g);
   if(matches == null || matches.length == 0){
-    console.error("in Layer Notation, no warp system")
+    console.error("in Analyze Systems, no warp system")
     return [];
   }
   return  matches.map(el => parseInt(el)-1);
@@ -146,7 +147,7 @@ const parseWarpSystem = (val: string) : Array<number> => {
 const parseWeftSystem = (val: string) : Array<number> => {
   let matches = val.match(/[a-zA-Z]+/g);
   if(matches == null || matches.length == 0){
-    console.error("in Layer Notation, no weft system")
+    console.error("in Analyze System, no weft system")
     return [];
   }
   return matches.map(match => match.charCodeAt(0) - 97);
@@ -155,4 +156,8 @@ const parseWeftSystem = (val: string) : Array<number> => {
   
 
 export const analyzesystem: Operation = {name, old_names, params, inlets, perform, generateName};
+
+function initDraftFromParams(arg0: { wefts: number; warps: number; }): Draft {
+  throw new Error("Function not implemented.");
+}
 
