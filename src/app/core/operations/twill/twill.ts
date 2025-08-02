@@ -41,8 +41,8 @@ const sz: BoolParam =
 const facing: BoolParam = 
     {name: 'facing',
     type: 'boolean',
-    falsestate: "weft facing",
-    truestate: "warp facing",
+    falsestate: "A",
+    truestate: "B",
     value: 0,
     dx: ''
     }

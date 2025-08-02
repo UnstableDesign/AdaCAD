@@ -228,9 +228,17 @@ export const createDraft = (
 
     if(data.id !== undefined) draft.id = data.id;
 
-    draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
-    draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
+    if(data.draft_name === undefined){
+      draft.gen_name = (data.gen_name === undefined) ? defaults.draft_name : data.gen_name;
+      draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
     
+    }else{
+      draft.gen_name = data.draft_name;
+      draft.ud_name = '';
+    
+      
+    }
+ 
 
 
     if(version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')){

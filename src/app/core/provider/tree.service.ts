@@ -1226,6 +1226,14 @@ clearDraft(dn: DraftNode){
   const update_looms = [];
   const new_draft_fns = [];
 
+
+  const param_vals = op.params.map((param, ndx) => {
+    return {
+      param: param,
+      val: opnode.params[ndx]
+    }
+  })
+
   //first, cycle through the resulting nodes: 
   for(let i = 0; i < res.length; i++){
 
@@ -1235,9 +1243,11 @@ clearDraft(dn: DraftNode){
     if(active_tn_tuple !== undefined){
       let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
       if(cxn_child.length > 0){
+        res[i].gen_name = op.generateName(param_vals, inputs)
         this.setDraftOnly(cxn_child[0], res[i]);
         touched.push(cxn_child[0]);
         update_looms.push({id: cxn_child[0], draft: res[i]});
+        
       }
     }else{
     //this is a new draft
@@ -1253,26 +1263,20 @@ clearDraft(dn: DraftNode){
 
   //now sweep through and see if there are any existing outputs we need to remove
   out.forEach((output, ndx) => {
+
     if(touched.find(el => el == output) === undefined){
       const dn = <DraftNode> this.getNode(output);
       dn.mark_for_deletion = true;
       this.clearDraft(dn);
     }
   });
-  
+
+
 
 
     return Promise.all(new_draft_fns)
     .then(drafts_loaded => {
-
-      //gather the parameters to generate parameter names
-      const param_vals = op.params.map((param, ndx) => {
-        return {
-          param: param,
-          val: opnode.params[ndx]
-        }
-      })
-
+   
      const ids = drafts_loaded.map(el => el.entry.cur_id);
      ids.forEach((id, ndx) => {
       let d = this.getDraft(id);
@@ -1342,14 +1346,12 @@ clearDraft(dn: DraftNode){
    */
   performGenerationOps(op_node_list: Array<number>) : Promise<any> {
 
-
     const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
 
     if(needs_computing.length == 0) return Promise.resolve([]);
 
     const op_fn_list = needs_computing.map(el => this.performOp(el));
    
-    
     return Promise.all(op_fn_list).then( out => {
 
       return this.getNodesWithDependenciesSatisfied();
@@ -1385,18 +1387,14 @@ isValidIOTuple(io: IOTuple) : boolean {
  */
  async performOp(id:number) : Promise<Array<number>> {
 
-
   const opnode = <OpNode> this.getNode(id);
   const op = this.ops.getOp(opnode.name);
   const all_inputs = this.getInputsWithNdx(id);
-
-  // console.log("PERFORMING ", opnode.name)
 
   
   if(op === null || op === undefined) return Promise.reject("Operation is null")
 
   let inputs: Array<OpInput> = [];
-  //if(this.ops.isDynamic(opnode.name)){
     
   const param_vals = op.params.map((param, ndx) => {
     return {
@@ -1407,7 +1405,6 @@ isValidIOTuple(io: IOTuple) : boolean {
 
 
     const draft_id_to_ndx = [];
-    const ops = [];
    
     all_inputs.filter(el => this.isValidIOTuple(el))
     .forEach((el) => {
@@ -1417,23 +1414,16 @@ isValidIOTuple(io: IOTuple) : boolean {
     });
 
 
-
     const paraminputs = draft_id_to_ndx.map(el => {
       return {drafts: [el.draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]]}
     })
     const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
 
-    // inputs = inputs.concat(cleaned_inputs);
-    
-
-
-    
     
     return op.perform(param_vals, cleaned_inputs)
     .then(res => {
-        // console.log("OP RETURNED ", res)
         opnode.dirty = false;
-        return this.updateDraftsFromResults(id, res, inputs);
+        return this.updateDraftsFromResults(id, res, cleaned_inputs);
       })
   }
 
@@ -2130,7 +2120,8 @@ isValidIOTuple(io: IOTuple) : boolean {
           const savable: DraftNodeProxy = {
           node_id: node.id,
           draft_id: (<DraftNode>node).draft.id,
-          draft_name: getDraftName((<DraftNode>node).draft),
+          ud_name: (<DraftNode>node).draft.ud_name,
+          gen_name: (<DraftNode>node).draft.gen_name,
           draft: null,
           compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
           draft_visible:  ((<DraftNode>node).visible == undefined ) ? !this.ws.hide_mixer_drafts :  (<DraftNode>node).visible,
@@ -2216,7 +2207,8 @@ isValidIOTuple(io: IOTuple) : boolean {
     const draft_node: DraftNodeProxy = {
       node_id: id,
       draft_id: draft.id,
-      draft_name: '',
+      ud_name: '',
+      gen_name: '',
       draft: null,
       compressed_draft: null,
       draft_visible: true,

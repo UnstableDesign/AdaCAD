@@ -1274,6 +1274,54 @@ let system = null;
   
 }
 
+/**
+ * used by operations that parse a string input meant to represent a set of warp and weft systems. This checks if the systems input are valid in terms of the systems that draft will be using, 
+ * @param input_systems  {wesy: Array<string>, wasy: Array<string>}
+ * @param original_systems {wesy: Array<string>, wasy: Array<string>}
+ */
+makeValidSystemList(input_systems: any, original_systems: any) : any {
+
+  let formatted_systems = {
+    valid: true,
+    wesy: [],
+    wasy: []
+  }
+
+
+  if(input_systems.wesy.length != 0){
+  //at least one weft systems needs to be valid; 
+    let weft_systems_found:Array<boolean> = input_systems.wesy.map(weft_sys => 
+     original_systems.wesy.find(el => el == weft_sys) !== undefined);
+     if(weft_systems_found.filter(el => el == true).length == 0){
+        formatted_systems.valid = false;
+        return formatted_systems;
+     }else{
+        formatted_systems.wesy = input_systems.wesy;
+     }
+  }else{
+     formatted_systems.wesy = original_systems.wesy.slice();
+  }
+  
+  if(input_systems.wasy.length != 0){
+  //at least one weft systems needs to be valid; 
+    let warp_systems_found:Array<boolean> = input_systems.wasy.map(warp_sys => 
+     original_systems.wasy.find(el => el == warp_sys) !== undefined);
+     if(warp_systems_found.filter(el => el == true).length == 0){
+        formatted_systems.valid = false;
+        return formatted_systems;
+     }else{
+        formatted_systems.wasy = input_systems.wasy;
+     }
+  }else{
+     formatted_systems.wasy = original_systems.wasy.slice();
+  }
+  
+  return formatted_systems;
+  
+
+
+}
+
 async saveAsBmp(el: any, draft: Draft, selected_origin_option:number, ms :MaterialsService, fs: FileService){
     let context = el.getContext('2d');
 
@@ -1315,6 +1363,8 @@ async saveAsBmp(el: any, draft: Draft, selected_origin_option:number, ms :Materi
     });
   
   }
+
+  
 
 }
   

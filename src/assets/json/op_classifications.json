@@ -83,6 +83,7 @@
             "color":"#00A2C7",
             "description": "Describes operations that split apart a single input draft into multiple outputs according to some criteria.",
             "op_names":[
+                "analyzesystem",
                 "deinterlace"
             ]
         },
@@ -95,7 +96,8 @@
                 "overlay",
                 "mask",
                 "cutout",
-                "diff"
+                "diff",
+                "selector"
             ]
         },
         {

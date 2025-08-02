@@ -1488,7 +1488,9 @@ async processFileData(data: FileObj) : Promise<string|void>{
       const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
       const node = this.tree.getNode(new_id.cur_id);
       if(node === undefined) return;
-      (<DraftNode> node).draft.ud_name = np.draft_name;
+    
+      (<DraftNode> node).draft.gen_name = np.gen_name;
+      (<DraftNode> node).draft.ud_name = np.ud_name;
       (<DraftNode> node).loom_settings = np.loom_settings; 
       (<DraftNode> node).loom = copyLoom(np.loom); 
       if(np.render_colors !== undefined) (<DraftNode> node).render_colors = np.render_colors; 
@@ -1516,7 +1518,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
     this.mixer.refreshOperations();
     this.mixer.renderChange();
     this.editor.renderChange();
-
 
 
     return Promise.resolve('alldone')

@@ -12,6 +12,8 @@ import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
+import { RenameComponent } from '../../../core/modal/rename/rename.component';
 
 @Component({
   selector: 'app-draftcontainer',
@@ -30,6 +32,7 @@ export class DraftContainerComponent implements AfterViewInit{
   @Output() onOpenInEditor = new EventEmitter();
   @Output() onRecomputeChildren = new EventEmitter();
   @Output() onDrawdownSizeChanged = new EventEmitter();
+  @Output() onNameChanged = new EventEmitter();
  
   @ViewChild('bitmapImage') bitmap: any;
   @ViewChild('draft_rendering') draft_rendering: 
@@ -41,8 +44,6 @@ export class DraftContainerComponent implements AfterViewInit{
   draft_cell_size: number = 40;
 
   exceeds_size: boolean = false;
-
-  ud_name: string = '';
 
   warps: number; 
 
@@ -65,6 +66,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
   constructor(
+    private dialog: MatDialog,
     private dm: DesignmodesService,
     private ms: MaterialsService,
     private fs: FileService,
@@ -89,7 +91,6 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
     const draft = this.tree.getDraft(this.id);
-    this.ud_name = draft.ud_name;
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
 
@@ -103,6 +104,16 @@ export class DraftContainerComponent implements AfterViewInit{
    
     this.startSizeObserver();
 
+  }
+
+  rename(event){
+    const dialogRef = this.dialog.open(RenameComponent, {data: {id: this.id}
+    });
+
+  dialogRef.afterClosed().subscribe(obj => {
+    this.draft_name = this.tree.getDraftName(this.id);
+    this.onNameChanged.emit(this.id);
+ });
   }
 
   onDoubleClick(){
@@ -141,11 +152,11 @@ export class DraftContainerComponent implements AfterViewInit{
       this.draft_visible = this.tree.getDraftVisible(this.id);
 
       if(draft == undefined || draft == null){
-        this.ud_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
+        this.draft_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
         this.warps = 0;
         this.wefts = 0;
       }else{
-        this.ud_name = getDraftName(draft);
+        this.draft_name = getDraftName(draft);
         this.warps = warps(draft.drawdown);
         this.wefts = wefts(draft.drawdown);
       }
@@ -155,8 +166,11 @@ export class DraftContainerComponent implements AfterViewInit{
 
       if(!changes['dirty'].firstChange){
         if(this.draft_rendering !== undefined && draft !== undefined && draft !== null){
+
+          this.draft_name = getDraftName(draft);
           this.draft_rendering.onNewDraftLoaded(this.id);
           this.drawDraft(draft);
+          
         } else{
           this.draft_rendering.clear();
         }
@@ -263,7 +277,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
     return this.draft_rendering.redraw(draft, loom, loom_settings, flags ).then(el => {
       this.tree.setDraftClean(this.id);
-      this.onDrawdownSizeChanged.emit(true);
+      this.onDrawdownSizeChanged.emit(this.id);
       return Promise.resolve(true);
     })
 
@@ -292,7 +306,6 @@ export class DraftContainerComponent implements AfterViewInit{
   async saveAsPrint() {
     let draft = this.tree.getDraft(this.id);
 
-    console.log("CURRENT VIEW ", this.current_view)
     let floats = (this.current_view == 'draft') ? false : true;
     let color = (this.current_view == 'visual') ? true : false;
 

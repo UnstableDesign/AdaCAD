@@ -24,6 +24,21 @@ button.output{
     width: 100%;
 }
 
+
+
+.name_and_dims{
+	height: 60px;
+	display: flex;
+	flex-direction: row;
+}
+
+.text{
+	margin: 6px 0px;
+
+}
+
+
+
 .show_draft{
 	margin: 0px 16px;
     color: black;

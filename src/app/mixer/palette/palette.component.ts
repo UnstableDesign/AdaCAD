@@ -259,6 +259,7 @@ handlePan(diff: Point){
 
   }
 
+
   /**
    * adds a state to the timeline. This should be called 
    * each time a user performs an action that they should be able to undo/redo
@@ -473,7 +474,7 @@ handlePan(diff: Point){
     this.subdraftSubscriptions.push(sd.onConnectionStarted.subscribe(this.onConnectionStarted.bind(this)));
     this.subdraftSubscriptions.push(sd.onDesignAction.subscribe(this.onSubdraftAction.bind(this)));
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
-    this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onSubdraftNameChange.bind(this)));
+    this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onNameChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
     this.subdraftSubscriptions.push(sd.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
   }
@@ -669,6 +670,7 @@ handlePan(diff: Point){
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
     this.operationSubscriptions.push(op.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
+    this.operationSubscriptions.push(op.onNameChanged.subscribe(this.onNameChange.bind(this)));
 
   }
 
@@ -1366,7 +1368,7 @@ handlePan(diff: Point){
       /**
     * this is called when an subdraft updates its show/hide value
     */
-    onSubdraftNameChange(id: number){
+    onNameChange(id: number){
 
       const outs = this.tree.getNonCxnOutputs(id);
       const to_perform = outs.map(el => this.performAndUpdateDownstream(el));
@@ -1416,17 +1418,18 @@ connectionDragged(mouse: Point){
   this.active_connection.width =  (adj.x - this.active_connection.topleft.x);
   this.active_connection.height =  (adj.y - this.active_connection.topleft.y);
 
+
+  
   const svg = document.getElementById('scratch_svg');
   svg.style.top = (this.active_connection.topleft.y)+"px";
   svg.style.left = (this.active_connection.topleft.x)+"px"
 
- 
   svg.innerHTML = ' <path d="M 0 0 C 0 50,'
   +(this.active_connection.width)+' '
   +(this.active_connection.height-50)+', '
   +(this.active_connection.width)+' '
   +(this.active_connection.height)
-  +'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="2"/> ' ;
+  +'" fill="transparent" stroke="#ff4081"  stroke-dasharray="20 1"  stroke-width="8"/> ' ;
 
  
 

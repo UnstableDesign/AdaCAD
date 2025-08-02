@@ -38,7 +38,6 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
       const size: number = getOpParamValById(0, param_vals);
       let selection: number = getOpParamValById(1, param_vals);
-      const download: number = getOpParamValById(2, param_vals);
 
       //adjust by one to convert user input to the array index of the structure
       selection -= 1;

@@ -130,9 +130,20 @@ source = "mixer"
 
 
 <div class="output_meta">
-  <div class="draftname">{{draft_name}}</div>
+ 
+  <div class="name_and_dims">
+    <div class="text">
+      <div class="name">{{draft_name}} </div>  
+      <div class="dims">{{warps}} x {{wefts}}</div>
+    </div>
+    <div class="edit_button">
+      <button mat-icon-button (click)="rename($event)">
+       <i class="fas fa-edit"></i>
+      </button>
+    </div>
+ 
+  </div>
 
-  <div class="dims">{{warps}} x {{wefts}}</div>
  
 
   <canvas #bitmapImage hidden></canvas>
@@ -149,7 +160,6 @@ source = "mixer"
     matTooltip = "connect this draft to an operation"
     (click)="connectionStarted($event)">
       <i class="fa-sharp fa-solid fa-circle-down"></i>  
-      <!-- {{id}} -->
     </button>
 </div>
 

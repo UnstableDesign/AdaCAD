@@ -30,8 +30,8 @@ const shift: NumParam =
 const facing: BoolParam = 
     {name: 'facing',
     type: 'boolean',
-    falsestate: "weft facing",
-    truestate: "warp facing",
+    falsestate: "A",
+    truestate: "B",
     value: 0,
     dx: ''
     }
@@ -76,9 +76,7 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
     const repeat: number = getOpParamValById(0, param_vals);
     const shift: number = getOpParamValById(1, param_vals);
-    const facing: number = getOpParamValById(2, param_vals);
-    const dir: string = (facing) ? "Warp Faced" : "Weft Faced";
-  return repeat+"/"+shift+dir+' Satin';
+    return repeat+"/"+shift+' Satin';
 }
 
 

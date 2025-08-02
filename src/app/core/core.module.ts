@@ -59,6 +59,7 @@ import { MediaService } from './provider/media.service';
 import { OperationService } from './provider/operation.service';
 import { ShareComponent } from './modal/share/share.component';
 import { WorkspaceComponent } from './modal/workspace/workspace.component';
+import { RenameComponent } from './modal/rename/rename.component';
 
 
 
@@ -107,6 +108,7 @@ import { WorkspaceComponent } from './modal/workspace/workspace.component';
         LoginComponent,
         SignupComponent,
         BlankdraftModal,
+        RenameComponent,
         ExamplesComponent,
         LoadfileComponent,
         FilebrowserComponent,
@@ -173,7 +175,8 @@ import { WorkspaceComponent } from './modal/workspace/workspace.component';
         EventsDirective,
         DraftRenderingComponent,
         SelectionComponent,
-        ViewadjustComponent
+        ViewadjustComponent,
+        RenameComponent
              ]
 })
 export class CoreModule { }
