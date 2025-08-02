@@ -166,7 +166,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
       if(!changes['dirty'].firstChange){
         if(this.draft_rendering !== undefined && draft !== undefined && draft !== null){
-          console.log("UPDATING ", getDraftName(draft))
+
           this.draft_name = getDraftName(draft);
           this.draft_rendering.onNewDraftLoaded(this.id);
           this.drawDraft(draft);
@@ -277,7 +277,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
     return this.draft_rendering.redraw(draft, loom, loom_settings, flags ).then(el => {
       this.tree.setDraftClean(this.id);
-      this.onDrawdownSizeChanged.emit(true);
+      this.onDrawdownSizeChanged.emit(this.id);
       return Promise.resolve(true);
     })
 
@@ -306,7 +306,6 @@ export class DraftContainerComponent implements AfterViewInit{
   async saveAsPrint() {
     let draft = this.tree.getDraft(this.id);
 
-    console.log("CURRENT VIEW ", this.current_view)
     let floats = (this.current_view == 'draft') ? false : true;
     let color = (this.current_view == 'visual') ? true : false;
 

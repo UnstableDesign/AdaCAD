@@ -1346,14 +1346,12 @@ clearDraft(dn: DraftNode){
    */
   performGenerationOps(op_node_list: Array<number>) : Promise<any> {
 
-
     const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
 
     if(needs_computing.length == 0) return Promise.resolve([]);
 
     const op_fn_list = needs_computing.map(el => this.performOp(el));
    
-    
     return Promise.all(op_fn_list).then( out => {
 
       return this.getNodesWithDependenciesSatisfied();
@@ -1388,7 +1386,6 @@ isValidIOTuple(io: IOTuple) : boolean {
  * @param op_id the operation triggering this series of update
  */
  async performOp(id:number) : Promise<Array<number>> {
-
 
   const opnode = <OpNode> this.getNode(id);
   const op = this.ops.getOp(opnode.name);

@@ -1520,7 +1520,6 @@ async processFileData(data: FileObj) : Promise<string|void>{
     this.editor.renderChange();
 
 
-
     return Promise.resolve('alldone')
   })
   .catch(e => {
