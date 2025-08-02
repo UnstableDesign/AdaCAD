@@ -1,5 +1,5 @@
 import { NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { copyDraft, initDraftFromDrawdown, initDraftWithParams } from "../../model/drafts";
+import { copyDraft, getDraftName, initDraftFromDrawdown, initDraftWithParams } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById } from "../../model/operations";
 
 
@@ -53,11 +53,10 @@ const  perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
   const selection: number = getOpParamValById(0, param_vals);
-  const inputs = getAllDraftsAtInlet(op_inputs, 0);
 
-  
-    if((selection-1) < inputs.length){
-      return 'selected:'+inputs[selection-1].ud_name;
+    if((selection-1) < op_inputs.length){
+      let name = getDraftName(op_inputs[selection-1].drafts[0])
+      return 'selected:'+name;
     }else{
       return 'selected: none';
     }

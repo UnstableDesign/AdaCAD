@@ -1226,6 +1226,7 @@ clearDraft(dn: DraftNode){
   const update_looms = [];
   const new_draft_fns = [];
 
+
   const param_vals = op.params.map((param, ndx) => {
     return {
       param: param,
@@ -1425,7 +1426,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     return op.perform(param_vals, cleaned_inputs)
     .then(res => {
         opnode.dirty = false;
-        return this.updateDraftsFromResults(id, res, inputs);
+        return this.updateDraftsFromResults(id, res, cleaned_inputs);
       })
   }
 

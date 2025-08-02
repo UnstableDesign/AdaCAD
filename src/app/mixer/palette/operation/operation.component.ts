@@ -449,8 +449,6 @@ export class OperationComponent implements OnInit {
           opnode.params[1] = image_param.data.width;
           opnode.params[2] = image_param.data.height;
          }
-
-
         }
       }
 
