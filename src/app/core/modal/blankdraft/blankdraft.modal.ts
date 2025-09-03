@@ -7,9 +7,10 @@ import { WorkspaceService } from '../../provider/workspace.service';
 import { getLoomUtilByType } from '../../model/looms';
 
 @Component({
-  selector: 'app-blankdraft',
-  templateUrl: './blankdraft.modal.html',
-  styleUrls: ['./blankdraft.modal.scss']
+    selector: 'app-blankdraft',
+    templateUrl: './blankdraft.modal.html',
+    styleUrls: ['./blankdraft.modal.scss'],
+    standalone: false
 })
 export class BlankdraftModal implements OnInit {
 

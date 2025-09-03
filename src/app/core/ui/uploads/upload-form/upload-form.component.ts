@@ -7,9 +7,10 @@ import { Sequence } from '../../../model/sequence';
 import { initDraftFromDrawdown } from '../../../model/drafts';
 
 @Component({
-  selector: 'upload-form',
-  templateUrl: './upload-form.component.html',
-  styleUrls: ['./upload-form.component.scss']
+    selector: 'upload-form',
+    templateUrl: './upload-form.component.html',
+    styleUrls: ['./upload-form.component.scss'],
+    standalone: false
 })
 export class UploadFormComponent implements OnInit {
  

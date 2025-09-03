@@ -10,11 +10,11 @@ import { defaults } from '../../model/defaults';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-filebrowser',
-  templateUrl: './filebrowser.component.html',
-  styleUrls: ['./filebrowser.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-
+    selector: 'app-filebrowser',
+    templateUrl: './filebrowser.component.html',
+    styleUrls: ['./filebrowser.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class FilebrowserComponent implements OnInit {
   private _snackBar = inject(MatSnackBar);

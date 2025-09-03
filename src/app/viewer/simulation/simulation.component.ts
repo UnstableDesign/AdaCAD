@@ -9,9 +9,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { cropDraft, warps, wefts } from '../../core/model/drafts';
 
 @Component({
-  selector: 'app-simulation',
-  templateUrl: './simulation.component.html',
-  styleUrls: ['./simulation.component.scss']
+    selector: 'app-simulation',
+    templateUrl: './simulation.component.html',
+    styleUrls: ['./simulation.component.scss'],
+    standalone: false
 })
 export class SimulationComponent implements OnInit {
   

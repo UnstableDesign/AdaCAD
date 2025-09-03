@@ -8,9 +8,10 @@ import { MaterialMap, MaterialsService } from '../../provider/materials.service'
 
 
 @Component({
-  selector: 'app-material-modal',
-  templateUrl: './material.modal.html',
-  styleUrls: ['./material.modal.scss']
+    selector: 'app-material-modal',
+    templateUrl: './material.modal.html',
+    styleUrls: ['./material.modal.scss'],
+    standalone: false
 })
 
 

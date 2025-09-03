@@ -16,9 +16,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { RenameComponent } from '../../../core/modal/rename/rename.component';
 
 @Component({
-  selector: 'app-draftcontainer',
-  templateUrl: './draftcontainer.component.html',
-  styleUrls: ['./draftcontainer.component.scss']
+    selector: 'app-draftcontainer',
+    templateUrl: './draftcontainer.component.html',
+    styleUrls: ['./draftcontainer.component.scss'],
+    standalone: false
 })
 export class DraftContainerComponent implements AfterViewInit{
 

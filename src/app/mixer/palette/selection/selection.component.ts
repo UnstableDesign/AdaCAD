@@ -3,7 +3,8 @@ import { initDraftWithParams } from 'src/app/core/model/drafts';
 import { Bounds, Draft, Interlacement } from '../../../core/model/datatypes';
 
 @Directive({
-  selector: 'app-selection'
+    selector: 'app-selection',
+    standalone: false
 })
 
 

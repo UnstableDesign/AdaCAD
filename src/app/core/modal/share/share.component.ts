@@ -12,9 +12,10 @@ import { MediaService } from '../../provider/media.service';
 import { LoginComponent } from '../login/login.component';
 
 @Component({
-  selector: 'app-share',
-  templateUrl: './share.component.html',
-  styleUrl: './share.component.scss'
+    selector: 'app-share',
+    templateUrl: './share.component.html',
+    styleUrl: './share.component.scss',
+    standalone: false
 })
 export class ShareComponent {
   private _snackBar = inject(MatSnackBar);

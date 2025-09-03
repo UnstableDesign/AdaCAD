@@ -20,9 +20,10 @@ import { ConnectionComponent } from '../connection/connection.component';
 
 
 @Component({
-  selector: 'app-operation',
-  templateUrl: './operation.component.html',
-  styleUrls: ['./operation.component.scss']
+    selector: 'app-operation',
+    templateUrl: './operation.component.html',
+    styleUrls: ['./operation.component.scss'],
+    standalone: false
 })
 export class OperationComponent implements OnInit {
 

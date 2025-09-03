@@ -4,9 +4,10 @@ import { Bounds } from '../../../core/model/datatypes';
 
 
 @Component({
-  selector: 'app-snackbar',
-  templateUrl: './snackbar.component.html',
-  styleUrls: ['./snackbar.component.scss']
+    selector: 'app-snackbar',
+    templateUrl: './snackbar.component.html',
+    styleUrls: ['./snackbar.component.scss'],
+    standalone: false
 })
 export class SnackbarComponent implements OnInit {
 

@@ -8,9 +8,10 @@ import { ZoomService } from '../../../core/provider/zoom.service';
 import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 
 @Component({
-  selector: 'app-note',
-  templateUrl: './note.component.html',
-  styleUrls: ['./note.component.scss']
+    selector: 'app-note',
+    templateUrl: './note.component.html',
+    styleUrls: ['./note.component.scss'],
+    standalone: false
 })
 export class NoteComponent implements OnInit {
 

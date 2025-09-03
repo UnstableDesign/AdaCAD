@@ -12,9 +12,10 @@ import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-render
 import { ViewerService } from '../core/provider/viewer.service';
 
 @Component({
-  selector: 'app-viewer',
-  templateUrl: './viewer.component.html',
-  styleUrls: ['./viewer.component.scss']
+    selector: 'app-viewer',
+    templateUrl: './viewer.component.html',
+    styleUrls: ['./viewer.component.scss'],
+    standalone: false
 })
 export class ViewerComponent {
 

@@ -8,9 +8,10 @@ import { TreeService } from '../../../../core/provider/tree.service';
 
 
 @Component({
-  selector: 'app-inlet',
-  templateUrl: './inlet.component.html',
-  styleUrls: ['./inlet.component.scss']
+    selector: 'app-inlet',
+    templateUrl: './inlet.component.html',
+    styleUrls: ['./inlet.component.scss'],
+    standalone: false
 })
 export class InletComponent implements OnInit {
 

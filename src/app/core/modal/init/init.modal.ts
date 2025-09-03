@@ -15,9 +15,10 @@ interface StartOptions {
 
 
 @Component({
-  selector: 'app-init',
-  templateUrl: './init.modal.html',
-  styleUrls: ['./init.modal.scss']
+    selector: 'app-init',
+    templateUrl: './init.modal.html',
+    styleUrls: ['./init.modal.scss'],
+    standalone: false
 })
 
 

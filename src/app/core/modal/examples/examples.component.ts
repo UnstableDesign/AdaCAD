@@ -7,9 +7,10 @@ import { SingleImage } from '../../model/datatypes';
 import { FilebrowserComponent } from '../../ui/filebrowser/filebrowser.component';
 
 @Component({
-  selector: 'app-examples',
-  templateUrl: './examples.component.html',
-  styleUrls: ['./examples.component.scss']
+    selector: 'app-examples',
+    templateUrl: './examples.component.html',
+    styleUrls: ['./examples.component.scss'],
+    standalone: false
 })
 export class ExamplesComponent {
   @Output() onLoadExample = new EventEmitter <any>(); 

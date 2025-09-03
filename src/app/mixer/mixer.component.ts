@@ -42,11 +42,11 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
 
 
 @Component({
-  selector: 'app-mixer',
-  templateUrl: './mixer.component.html',
-  styleUrls: ['./mixer.component.scss'],
-  providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults}]
-
+    selector: 'app-mixer',
+    templateUrl: './mixer.component.html',
+    styleUrls: ['./mixer.component.scss'],
+    providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }],
+    standalone: false
 })
 export class MixerComponent  {
 

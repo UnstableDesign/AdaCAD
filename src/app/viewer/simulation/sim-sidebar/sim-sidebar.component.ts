@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-sim-sidebar',
-  templateUrl: './sim-sidebar.component.html',
-  styleUrls: ['./sim-sidebar.component.scss']
+    selector: 'app-sim-sidebar',
+    templateUrl: './sim-sidebar.component.html',
+    styleUrls: ['./sim-sidebar.component.scss'],
+    standalone: false
 })
 export class SimSidebarComponent {
 

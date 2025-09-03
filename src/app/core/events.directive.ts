@@ -5,7 +5,8 @@ import { StateService } from './provider/state.service';
 import { ViewadjustService } from './provider/viewadjust.service';
 
 @Directive({
-  selector: 'appKeycodes'
+    selector: 'appKeycodes',
+    standalone: false
 })
 export class EventsDirective {
   

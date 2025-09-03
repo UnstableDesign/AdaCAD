@@ -3,9 +3,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileService } from '../../provider/file.service';
 
 @Component({
-  selector: 'app-loadfile',
-  templateUrl: './loadfile.component.html',
-  styleUrls: ['./loadfile.component.scss']
+    selector: 'app-loadfile',
+    templateUrl: './loadfile.component.html',
+    styleUrls: ['./loadfile.component.scss'],
+    standalone: false
 })
 export class LoadfileComponent {
  

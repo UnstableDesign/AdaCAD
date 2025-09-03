@@ -9,9 +9,10 @@ import { convertLiftPlanToTieup, convertLoom, convertTieupToLiftPlan, copyLoomSe
 import { WorkspaceService } from '../../core/provider/workspace.service';
 
 @Component({
-  selector: 'app-loom',
-  templateUrl: './loom.component.html',
-  styleUrls: ['./loom.component.scss']
+    selector: 'app-loom',
+    templateUrl: './loom.component.html',
+    styleUrls: ['./loom.component.scss'],
+    standalone: false
 })
 export class LoomComponent {
 

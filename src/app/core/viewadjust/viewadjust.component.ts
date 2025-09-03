@@ -4,11 +4,10 @@ import { ViewadjustService } from '../provider/viewadjust.service';
 import { MatButton, MatMiniFabButton } from '@angular/material/button';
 
 @Component({
-  selector: 'app-viewadjust',
-  standalone: true,
-  imports: [CdkDrag, MatButton],
-  templateUrl: './viewadjust.component.html',
-  styleUrl: './viewadjust.component.scss'
+    selector: 'app-viewadjust',
+    imports: [CdkDrag, MatButton],
+    templateUrl: './viewadjust.component.html',
+    styleUrl: './viewadjust.component.scss'
 })
 export class ViewadjustComponent {
 

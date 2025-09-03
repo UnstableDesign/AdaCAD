@@ -5,9 +5,10 @@ import { ZoomService } from '../../../core/provider/zoom.service';
 import { OperationService } from '../../../core/provider/operation.service';
 
 @Component({
-  selector: 'app-connection',
-  templateUrl: './connection.component.html',
-  styleUrls: ['./connection.component.scss']
+    selector: 'app-connection',
+    templateUrl: './connection.component.html',
+    styleUrls: ['./connection.component.scss'],
+    standalone: false
 })
 export class ConnectionComponent implements OnInit {
 

@@ -12,9 +12,10 @@ import { System } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 
 @Component({
-  selector: 'app-repeats',
-  templateUrl: './repeats.component.html',
-  styleUrls: ['./repeats.component.scss']
+    selector: 'app-repeats',
+    templateUrl: './repeats.component.html',
+    styleUrls: ['./repeats.component.scss'],
+    standalone: false
 })
 
 

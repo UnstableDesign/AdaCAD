@@ -13,9 +13,10 @@ import { SystemsService } from '../../../provider/systems.service';
 import { OperationService } from '../../../provider/operation.service';
 
 @Component({
-  selector: 'app-selection',
-  templateUrl: './selection.component.html',
-  styleUrls: ['./selection.component.scss']
+    selector: 'app-selection',
+    templateUrl: './selection.component.html',
+    styleUrls: ['./selection.component.scss'],
+    standalone: false
 })
 export class SelectionComponent implements OnInit {
   

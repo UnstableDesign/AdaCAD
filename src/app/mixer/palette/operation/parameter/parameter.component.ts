@@ -27,13 +27,11 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
 
 
 @Component({
-  selector: 'app-parameter',
-  templateUrl: './parameter.component.html',
-  styleUrls: ['./parameter.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  // providers: [
-  //   {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline', subscriptSizing: 'dynamic' }}
-  // ]
+    selector: 'app-parameter',
+    templateUrl: './parameter.component.html',
+    styleUrls: ['./parameter.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class ParameterComponent implements OnInit {
   

@@ -16,9 +16,10 @@ import { ConnectionComponent } from '../connection/connection.component';
 
 
 @Component({
-  selector: 'app-subdraft',
-  templateUrl: './subdraft.component.html',
-  styleUrls: ['./subdraft.component.scss']
+    selector: 'app-subdraft',
+    templateUrl: './subdraft.component.html',
+    styleUrls: ['./subdraft.component.scss'],
+    standalone: false
 })
 
 

@@ -18,9 +18,10 @@ import { SelectionComponent } from './selection/selection.component';
 import { ViewerService } from '../../provider/viewer.service';
 
 @Component({
-  selector: 'app-draft-rendering',
-  templateUrl: './draft-rendering.component.html',
-  styleUrl: './draft-rendering.component.scss'
+    selector: 'app-draft-rendering',
+    templateUrl: './draft-rendering.component.html',
+    styleUrl: './draft-rendering.component.scss',
+    standalone: false
 })
 
 

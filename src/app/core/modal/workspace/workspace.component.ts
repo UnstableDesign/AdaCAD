@@ -5,9 +5,10 @@ import { WorkspaceService } from '../../provider/workspace.service';
 import { density_units, loom_types, origin_option_list } from '../../model/defaults';
 
 @Component({
-  selector: 'app-workspace',
-  templateUrl: './workspace.component.html',
-  styleUrl: './workspace.component.scss'
+    selector: 'app-workspace',
+    templateUrl: './workspace.component.html',
+    styleUrl: './workspace.component.scss',
+    standalone: false
 })
 
 
