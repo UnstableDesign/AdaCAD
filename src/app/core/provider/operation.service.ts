@@ -173,7 +173,6 @@ export class OperationService {
     this.ops.push(sinewave);
     this.ops.push(sawtooth);
     this.ops.push(glitchsatin)
-    // this.ops.push(hydra)
     this.ops.push(selector)
     }
 
