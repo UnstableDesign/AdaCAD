@@ -9,7 +9,7 @@ import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { LoginComponent } from './core/modal/login/login.component';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { createCell } from './core/model/cell';
-import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, IndexedColorMediaProxy, LoadResponse, Loom, LoomSettings, NodeComponentProxy, Point, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Draft, DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, LoadResponse, Loom, LoomSettings, NodeComponentProxy, Point, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes, loom_types, origin_option_list } from './core/model/defaults';
 import { copyDraft, getDraftName, initDraftWithParams } from './core/model/drafts';
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType } from './core/model/looms';
@@ -37,17 +37,14 @@ import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
-import { WelcomeComponent } from './core/modal/welcome/welcome.component';
 import { VersionService } from './core/provider/version.service';
-import { MatSidenav } from '@angular/material/sidenav';
 import { ViewadjustService } from './core/provider/viewadjust.service';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
 import { ShareComponent } from './core/modal/share/share.component';
 import { WorkspaceComponent } from './core/modal/workspace/workspace.component';
 import { catchError, throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
