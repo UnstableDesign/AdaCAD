@@ -1,194 +1,171 @@
 <div class="dialog-header">
-    <h2 mat-dialog-title>Configure Sharing</h2>
-   
-  </div>
-  <mat-dialog-content>
+  <h2 mat-dialog-title>Configure Sharing</h2>
+
+</div>
+<mat-dialog-content>
 
 
-    <ng-container *ngIf="!fs.connected">
-     You cannot share this file because you are offline.
-    </ng-container>
+  @if (!fs.connected) {
+    You cannot share this file because you are offline.
+  }
 
 
-    <div *ngIf="!auth.isLoggedIn && fs.connected">
+  @if (!auth.isLoggedIn && fs.connected) {
+    <div>
       <button mat-flat-button  color="primary" matTooltip="login" (click)="openLoginDialog()"><i class="fa fa-sign-in"></i> Log in</button> to load and save files online
     </div>
-  
-  
+  }
 
 
-    <div class="share_in_history" *ngIf="share_in_history && auth.isLoggedIn">
+
+
+  @if (share_in_history && auth.isLoggedIn) {
+    <div class="share_in_history">
       <p >ATTENTION: This file was originally shared by another user. Before moving forward, please make sure to honor the wishes they had for distribution in their selected license. </p>
-      
       <div class="owner_settings">
         <h3>Owner Settings</h3>
-
         <div class="owner_setting_line">
+          <div class="owner_left">
+            license:
+          </div>
+          <div class="owner_right">
+            <img class='license_history' src="/assets/img/{{share_in_history.license}}.png">
+            <a href="https://creativecommons.org/licenses/{{share_in_history.license}}/4.0/">
+              read about this license
+            </a>
+          </div>
+        </div>
+        @if (share_in_history.owner_creditline !== '') {
+          <div class="owner_setting_line">
             <div class="owner_left">
-              license:
+              original credit line:
             </div>
             <div class="owner_right">
-              <img class='license_history' src="/assets/img/{{share_in_history.license}}.png">
-             
-              <a href="https://creativecommons.org/licenses/{{share_in_history.license}}/4.0/">     
-               read about this license
-             </a>       
+              {{share_in_history.owner_creditline}}
             </div>
-        </div>
-
-        <div class="owner_setting_line" *ngIf="share_in_history.owner_creditline !== ''">
-          <div class="owner_left">
-            original credit line:
           </div>
-          <div class="owner_right">
-             {{share_in_history.owner_creditline}}
+        }
+        @if (share_in_history.owner_url !== '') {
+          <div class="owner_setting_line">
+            <div class="owner_left">
+              url:
+            </div>
+            <div class="owner_right">
+              {{share_in_history.owner_url}}
+            </div>
           </div>
+        }
       </div>
-
-
-        <div class="owner_setting_line" *ngIf="share_in_history.owner_url !== ''">
-          <div class="owner_left">
-            url:
-          </div>
-          <div class="owner_right">
-            {{share_in_history.owner_url}}
-          </div>
-        </div>
-
-      </div>
-        
-  
-
-        <mat-divider></mat-divider>
-
-
-
-        
-      
-    </div>
-
-    <div class="configure" *ngIf="auth.isLoggedIn">
-
-
-    <p><mat-slide-toggle [checked]="shared_id !== ''" (change)="toggleSharing()">
-      <span *ngIf="shared_id !== ''" >
-        Anyone can access this file with the link below
-       </span>
-      <span *ngIf="shared_id == ''" >
-        This file is not shared, click to turn on sharing
-      </span>
-    </mat-slide-toggle>
-
-
-    <div class="shared_file_meta" *ngIf="shared_id !== ''">
-
-      <div class="share_link">
-        <i class="fa-solid fa-link"></i> 
-        {{share_url}} 
-        <button class="share_button" 
-        matTooltip="copy link"
-        mat-raised-button 
-        (click)="copyToClipboard()">
-        <i class="fa-solid fa-copy"></i> 
-      </button>
-      </div>
-
       <mat-divider></mat-divider>
-    
-      <div class="license-row">
-        <div class="license-left">
-          <img class='license' src="/assets/img/{{share_obj.license}}.png">
-        </div>
+    </div>
+  }
 
-        <div class="license-right">
-        <mat-form-field class="fullwidth">
-          <mat-label>License</mat-label>
-          <mat-select [(ngModel)]="share_obj.license" (selectionChange)="updateChange()">
-            @for (license of licenses; track license) {
-              <mat-option [value]="license.value">{{license.viewValue}}  
-              </mat-option>
-            }
-          </mat-select>
-          <mat-hint>Need help picking? Visit <a href="https://creativecommons.org/share-your-work/cclicenses/">Creative Commons</a></mat-hint>
-        </mat-form-field>
-        </div>
-        </div>
-
-        <mat-form-field  class="fullwidth">
-          <mat-label>Shared File Name</mat-label>
-          <input  (change)="updateChange()"
-          [(ngModel)]="share_obj.filename" 
-          matInput>
-        </mat-form-field>
-
-
-        <mat-form-field class="fullwidth">
-          <mat-label>File Description</mat-label>
-          <textarea 
-          [(ngModel)]="share_obj.desc" 
-          (change)="updateChange()" 
-          matInput placeholder="you can tell someone a bit more about this file here"></textarea>
-        </mat-form-field>
-
-        <mat-form-field  class="fullwidth">
-          <mat-label>Credit Line</mat-label>
-          <input 
-          [(ngModel)]="share_obj.owner_creditline" 
-          (change)="updateChange()" matInput>
-        </mat-form-field>
-
-        <mat-form-field  class="fullwidth">
-          <mat-label>URL to Additional Information</mat-label>
-          <input
-          [(ngModel)]="share_obj.owner_url" 
-          (change)="updateChange()" 
-          matInput >
-        </mat-form-field>
-
-        <section class="example-section">
-          <mat-checkbox (change)="updateChange()" class="example-margin" [(ngModel)]="share_obj.public">Include this in the examples section of AdaCAD</mat-checkbox>
-        </section>
-        
+  @if (auth.isLoggedIn) {
+    <div class="configure">
+      <p><mat-slide-toggle [checked]="shared_id !== ''" (change)="toggleSharing()">
+        @if (shared_id !== '') {
+          <span >
+            Anyone can access this file with the link below
+          </span>
+        }
+        @if (shared_id == '') {
+          <span >
+            This file is not shared, click to turn on sharing
+          </span>
+        }
+      </mat-slide-toggle>
+      @if (shared_id !== '') {
+        <div class="shared_file_meta">
+          <div class="share_link">
+            <i class="fa-solid fa-link"></i>
+            {{share_url}}
+            <button class="share_button"
+              matTooltip="copy link"
+              mat-raised-button
+              (click)="copyToClipboard()">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="license-row">
+            <div class="license-left">
+              <img class='license' src="/assets/img/{{share_obj.license}}.png">
+            </div>
+            <div class="license-right">
+              <mat-form-field class="fullwidth">
+                <mat-label>License</mat-label>
+                <mat-select [(ngModel)]="share_obj.license" (selectionChange)="updateChange()">
+                  @for (license of licenses; track license) {
+                    <mat-option [value]="license.value">{{license.viewValue}}
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-hint>Need help picking? Visit <a href="https://creativecommons.org/share-your-work/cclicenses/">Creative Commons</a></mat-hint>
+              </mat-form-field>
+            </div>
+          </div>
+          <mat-form-field  class="fullwidth">
+            <mat-label>Shared File Name</mat-label>
+            <input  (change)="updateChange()"
+              [(ngModel)]="share_obj.filename"
+              matInput>
+          </mat-form-field>
+          <mat-form-field class="fullwidth">
+            <mat-label>File Description</mat-label>
+            <textarea
+              [(ngModel)]="share_obj.desc"
+              (change)="updateChange()"
+            matInput placeholder="you can tell someone a bit more about this file here"></textarea>
+          </mat-form-field>
+          <mat-form-field  class="fullwidth">
+            <mat-label>Credit Line</mat-label>
+            <input
+              [(ngModel)]="share_obj.owner_creditline"
+              (change)="updateChange()" matInput>
+          </mat-form-field>
+          <mat-form-field  class="fullwidth">
+            <mat-label>URL to Additional Information</mat-label>
+            <input
+              [(ngModel)]="share_obj.owner_url"
+              (change)="updateChange()"
+              matInput >
+          </mat-form-field>
+          <section class="example-section">
+            <mat-checkbox (change)="updateChange()" class="example-margin" [(ngModel)]="share_obj.public">Include this in the examples section of AdaCAD</mat-checkbox>
+          </section>
           <canvas [class.hide]="!has_uploaded_image" id="img_preview"></canvas>
-
-          <upload-form 
-          [class.hide]="has_uploaded_image && !replace_img"
-          type="init" 
-          multiple="false"
-          accepts=".jpg,.png,.bmp"
-          type="single_image"
-          (onData)="handleFile($event)"
-          (onError)="handleError($event)"
-          class="upload-form-box">
-        </upload-form>
-
-        <button 
-        class="replace"  
-        [class.hide]="!has_uploaded_image || replace_img"
-        mat-raised-button 
-        (click)="replaceImg()">replace image</button>
-
-        
-        <!-- <div class="filehistory">
-    
-        <h2>File History</h2>
-    
+          <upload-form
+            [class.hide]="has_uploaded_image && !replace_img"
+            type="init"
+            multiple="false"
+            accepts=".jpg,.png,.bmp"
+            type="single_image"
+            (onData)="handleFile($event)"
+            (onError)="handleError($event)"
+            class="upload-form-box">
+          </upload-form>
+          <button
+            class="replace"
+            [class.hide]="!has_uploaded_image || replace_img"
+            mat-raised-button
+          (click)="replaceImg()">replace image</button>
+          <!-- <div class="filehistory">
+          <h2>File History</h2>
           <div class="history_item" *ngFor="let cont of author_list; index as i; first as isFirst">
             <div class="username"> {{cont.username}}</div>
             <div class="action"><span *ngIf="!isFirst">updated and </span>shared this file on</div>
             <div class="timestamp">{{formatDate(cont.timestamp)}}</div>
           </div>
         </div> -->
-
-    </div>
+      </div>
+    }
     <mat-divider></mat-divider>
-
-    <p class="about">About Link Sharing: Sharing a file is equivalent to a "save as" operation on most computers: a copy of this file, in this state, is created and can be opened by another user using a sharing link that AdaCAD will generate. 
+    <p class="about">About Link Sharing: Sharing a file is equivalent to a "save as" operation on most computers: a copy of this file, in this state, is created and can be opened by another user using a sharing link that AdaCAD will generate.
     You will not see any edits they make to the file and other users will not see any future edits you make to this file. If you want to publish edits you have made to this file, you must generate and share a new link.</p>
-
   </div>
+}
 </mat-dialog-content>
-  
-    <mat-dialog-actions>
-      <button mat-button mat-dialog-close>Close</button>
-    </mat-dialog-actions>
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

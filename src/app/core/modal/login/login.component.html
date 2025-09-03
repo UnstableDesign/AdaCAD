@@ -1,13 +1,13 @@
 <div class="dialog-header">
   <h2 mat-dialog-title>Login to Save your File</h2>
- 
+
 </div>
 <mat-dialog-content>
-<p>Creating a user account allows you to save your files online. It also automatically saves the state of your design so that if the system crashes or closes for any reason you can recover your file when you reload AdaCAD.</p>
+  <p>Creating a user account allows you to save your files online. It also automatically saves the state of your design so that if the system crashes or closes for any reason you can recover your file when you reload AdaCAD.</p>
   <div class="form-container">
     <div class="left">
-    <button mat-raised-button color="primary" (click)="loginGoogle()" class="google">Login or Signup With Google</button>
-    <button mat-raised-button mat-dialog-close>Continue Without an Account</button>
+      <button mat-raised-button color="primary" (click)="loginGoogle()" class="google">Login or Signup With Google</button>
+      <button mat-raised-button mat-dialog-close>Continue Without an Account</button>
 
     </div>
     <div class="right">
@@ -15,36 +15,40 @@
 
       <!--<button *ngIf="useemail == false" mat-raised-button (click)="useemail = true" class="google">Login or Signup With Email</button>-->
 
-      <div *ngIf="useemail">
-        <mat-form-field appearance="fill" class="example-full-width">
-          <mat-label>Email</mat-label>
-          <input matInput  [formControl]="emailFormControl" [errorStateMatcher]="matcher" placeholder="email" name="email" class="input-txt" required>
-          <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
-            Please enter a valid email address
-          </mat-error>
-          <mat-error *ngIf="emailFormControl.hasError('required')">
-            Email is <strong>required</strong>
-          </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="example-full-width">
-          <mat-label>Password</mat-label>
-          <input matInput [formControl]="passwordFormControl" placeholder="password" name="password" class="input-txt" required>
-        </mat-form-field>
-
-        <div class="error" *ngIf="error !== ''">{{this.error}}</div>
-
-
-        <div class="email_input">
-          <button mat-raised-button type="submit"  class="auth-btn" (click)="onEmailSignUp()">Sign Up</button>
-          <button mat-raised-button color="primary" type="submit"  class="auth-btn" (click)="onEmailLogin()">Log in</button>
-      </div>
+      @if (useemail) {
+        <div>
+          <mat-form-field appearance="fill" class="example-full-width">
+            <mat-label>Email</mat-label>
+            <input matInput  [formControl]="emailFormControl" [errorStateMatcher]="matcher" placeholder="email" name="email" class="input-txt" required>
+            @if (emailFormControl.hasError('email') && !emailFormControl.hasError('required')) {
+              <mat-error>
+                Please enter a valid email address
+              </mat-error>
+            }
+            @if (emailFormControl.hasError('required')) {
+              <mat-error>
+                Email is <strong>required</strong>
+              </mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="example-full-width">
+            <mat-label>Password</mat-label>
+            <input matInput [formControl]="passwordFormControl" placeholder="password" name="password" class="input-txt" required>
+          </mat-form-field>
+          @if (error !== '') {
+            <div class="error">{{this.error}}</div>
+          }
+          <div class="email_input">
+            <button mat-raised-button type="submit"  class="auth-btn" (click)="onEmailSignUp()">Sign Up</button>
+            <button mat-raised-button color="primary" type="submit"  class="auth-btn" (click)="onEmailLogin()">Log in</button>
+          </div>
+        </div>
+      }
     </div>
-    </div>
-    </div>
+  </div>
 
-  </mat-dialog-content>
+</mat-dialog-content>
 
-  <mat-dialog-actions>
-    <button mat-button mat-dialog-close>Close</button>
-  </mat-dialog-actions>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>
