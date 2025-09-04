@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { FileService } from '../../core/provider/file.service';
 import { ZoomService } from '../../core/provider/zoom.service';
 import { Node, Point, SaveObj, TreeNode } from '../../core/model/datatypes';
@@ -8,15 +8,14 @@ import { TreeService } from '../../core/provider/tree.service';
   providedIn: 'root'
 })
 export class MultiselectService {
+  private tree = inject(TreeService);
+  private fs = inject(FileService);
+  private zs = inject(ZoomService);
+
 
   selected: Array<{id: number, topleft: Point}> = [];
   relative_position: Point = {x: 0, y: 0}; 
   copy: any;
-
-
-  constructor(private tree: TreeService, private fs: FileService, private zs: ZoomService) { 
-
-  }
 
   updateSelectedStyles(comp_id: number){
   

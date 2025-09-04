@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, ViewRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, ViewRef, inject } from '@angular/core';
 import { Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
 import { isUp, warps, wefts } from '../../../core/model/drafts';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
@@ -25,6 +25,15 @@ import { ConnectionComponent } from '../connection/connection.component';
 
 
 export class SubdraftComponent implements OnInit {
+  private dm = inject(DesignmodesService);
+  private layer = inject(LayersService);
+  tree = inject(TreeService);
+  private viewport = inject(ViewportService);
+  ws = inject(WorkspaceService);
+  private multiselect = inject(MultiselectService);
+  private vs = inject(ViewerService);
+  zs = inject(ZoomService);
+
 
   @ViewChild('draftcontainer') draftcontainer: DraftContainerComponent;
 
@@ -98,15 +107,9 @@ export class SubdraftComponent implements OnInit {
 
   offset: Point = null;
 
-  constructor( 
-    private dm: DesignmodesService,
-    private layer: LayersService, 
-    public tree: TreeService,
-    private viewport: ViewportService,
-    public ws: WorkspaceService,
-    private multiselect: MultiselectService,
-    private vs: ViewerService,
-    public zs: ZoomService) { 
+  constructor() {
+      const layer = this.layer;
+ 
 
       this.zndx = layer.createLayer();
 

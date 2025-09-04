@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogClose, MatDialogActions } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthService } from '../../provider/auth.service';
@@ -24,15 +24,17 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatDialogClose, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatError, MatDialogActions]
 })
 export class LoginComponent implements OnInit {
+  private router = inject(Router);
+  private auth = inject(AuthService);
+  private dialogRef = inject<MatDialogRef<LoginComponent>>(MatDialogRef);
+  private data = inject(MAT_DIALOG_DATA);
+
   emailFormControl = new UntypedFormControl('', [Validators.required, Validators.email]);
   passwordFormControl = new UntypedFormControl('', [Validators.required]);
   matcher = new MyErrorStateMatcher();
 
   useemail: boolean = false;
   error: string ="";
-
-  constructor(private router: Router, private auth: AuthService, private dialogRef: MatDialogRef<LoginComponent>,
-    @Inject(MAT_DIALOG_DATA) private data: any) { }
 
   ngOnInit() {
   }

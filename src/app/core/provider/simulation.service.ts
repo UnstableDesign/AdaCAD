@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import * as THREE from 'three';
 import { createLayerMaps, getDraftTopology, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
@@ -14,6 +14,8 @@ import { defaults } from '../model/defaults';
   providedIn: 'root'
 })
 export class SimulationService {
+  private ms = inject(MaterialsService);
+
 
   hasSimulation: boolean = false;
  // currentSim: SimulationData  = null;
@@ -25,13 +27,6 @@ export class SimulationService {
   axis_scene: any;
   topo_scene: any;
   draft_scene: any;
-
-  
-  constructor(private ms: MaterialsService) { 
-
- 
-
-  }
 
 
   /**

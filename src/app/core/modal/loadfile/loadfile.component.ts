@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { FileService } from '../../provider/file.service';
 import { CdkScrollable } from '@angular/cdk/scrolling';
@@ -12,6 +12,10 @@ import { MatButton } from '@angular/material/button';
     imports: [MatDialogTitle, CdkScrollable, MatDialogContent, UploadFormComponent, MatDialogActions, MatButton, MatDialogClose]
 })
 export class LoadfileComponent {
+  private fls = inject(FileService);
+  private dialogRef = inject<MatDialogRef<LoadfileComponent>>(MatDialogRef);
+  private data = inject(MAT_DIALOG_DATA);
+
  
  
   multiple: boolean = false;
@@ -20,10 +24,9 @@ export class LoadfileComponent {
   title: string = 'Select Files'
   errorstring: string = '';
 
-  constructor(
-    private fls: FileService,
-    private dialogRef: MatDialogRef<LoadfileComponent>, 
-    @Inject(MAT_DIALOG_DATA) private data: any) {
+  constructor() {
+      const data = this.data;
+
 
       this.multiple = data.multiple;
       this.accepts = data.accepts;

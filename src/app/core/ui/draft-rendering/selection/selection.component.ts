@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { TreeService } from '../../../provider/tree.service';
 import { Drawdown, Interlacement, OpInput, OpParamVal, Operation, OperationParam } from '../../../model/datatypes';
 import { getLoomUtilByType, numFrames, numTreadles } from '../../../model/looms';
@@ -22,6 +22,14 @@ import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
     imports: [MatFabButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem]
 })
 export class SelectionComponent implements OnInit {
+  dm = inject(DesignmodesService);
+  ms = inject(MaterialsService);
+  ss = inject(SystemsService);
+  ops = inject(OperationService);
+  private tree = inject(TreeService);
+  render = inject(RenderService);
+  zs = inject(ZoomService);
+
   
   @Input('id') id: number;
   @Input('source') source: string;
@@ -68,15 +76,7 @@ export class SelectionComponent implements OnInit {
   
   
   
-  constructor(
-    public dm: DesignmodesService,
-    public ms: MaterialsService,
-    public ss: SystemsService,
-    public ops: OperationService,
-    private tree: TreeService,
-    public render: RenderService,
-    public zs: ZoomService,
-  ) { 
+  constructor() { 
     
     this.design_actions = paste_options;
     

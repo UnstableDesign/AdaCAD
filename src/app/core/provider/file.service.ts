@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Cell, Draft, DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, Loom, LoomSettings, Material, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
 import { compressDraft, exportDrawdownToArray, initDraftWithParams, loadDraftFromFile, warps, wefts } from '../model/drafts';
 import { getLoomUtilByType, loadLoomFromFile, numFrames, numTreadles } from '../model/looms';
@@ -27,22 +27,23 @@ import { MediaService } from './media.service';
   providedIn: 'root'
 })
 export class FileService {
+  private tree = inject(TreeService);
+  private ns = inject(NotesService);
+  private ms = inject(MaterialsService);
+  private ss = inject(SystemsService);
+  private vs = inject(VersionService);
+  private ws = inject(WorkspaceService);
+  private zs = inject(ZoomService);
+  private files = inject(FilesystemService);
+  private media = inject(MediaService);
+
 
 
   status: Array<StatusMessage> = [];
   loader: Fileloader = null;
   saver: FileSaver = null;
 
-  constructor(
-    private tree: TreeService, 
-    private ns: NotesService,
-    private ms: MaterialsService,
-    private ss: SystemsService,
-    private vs: VersionService,
-    private ws: WorkspaceService,
-    private zs: ZoomService,
-    private files: FilesystemService,
-    private media: MediaService) { 
+  constructor() { 
 
   
   this.status = [

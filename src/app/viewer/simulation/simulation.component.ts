@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, inject } from '@angular/core';
 import { TreeService } from '../../core/provider/tree.service';
 import { SimulationService } from '../../core/provider/simulation.service';
 import { Bounds, Draft, Interlacement, LoomSettings, SimulationData } from '../../core/model/datatypes';
@@ -14,6 +14,10 @@ import { cropDraft, warps, wefts } from '../../core/model/drafts';
     styleUrls: ['./simulation.component.scss']
 })
 export class SimulationComponent implements OnInit {
+  private tree = inject(TreeService);
+  ms = inject(MaterialsService);
+  simulation = inject(SimulationService);
+
   
   @Input('id') id;
   @Input('new_draft_flag$') new_draft_flag$;
@@ -43,16 +47,6 @@ export class SimulationComponent implements OnInit {
   dirty: boolean; //flags the need to recompute 
   selection_bounds: Bounds = null;
   render_size_error: boolean = false;
-
-  constructor(
-    private tree: TreeService, 
-    public ms: MaterialsService,  
-    public simulation: SimulationService) {
-
-
-
-
-  }
 
 
   // @HostListener('window:resize', ['$event'])

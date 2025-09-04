@@ -1,4 +1,4 @@
-import { Injectable, Optional } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EMPTY, Observable, Subscription } from 'rxjs';
 import { getDatabase, ref as fbref, get as fbget } from '@angular/fire/database';
 import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
@@ -9,6 +9,8 @@ import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, si
   providedIn: 'root'
 })
 export class AuthService {
+  private auth = inject(Auth, { optional: true });
+
 
   private readonly userDisposable: Subscription|undefined;
   public readonly user: Observable<User | null> = EMPTY;
@@ -22,7 +24,9 @@ export class AuthService {
   public uid:string;
   public username: string = "";
 
-  constructor(@Optional() private auth: Auth) {
+  constructor() {
+    const auth = this.auth;
+
 
     if (auth) {
 

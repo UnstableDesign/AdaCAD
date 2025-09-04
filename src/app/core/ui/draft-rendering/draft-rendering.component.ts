@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { Subject, Subscription, fromEvent } from 'rxjs';
 import { CanvasList, Cell, Draft, Interlacement, Loom, LoomSettings, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
@@ -26,6 +26,18 @@ import { ViewerService } from '../../provider/viewer.service';
 
 
 export class DraftRenderingComponent implements OnInit {
+  private fs = inject(FileService);
+  dm = inject(DesignmodesService);
+  private ms = inject(MaterialsService);
+  private ss = inject(SystemsService);
+  ws = inject(WorkspaceService);
+  timeline = inject(StateService);
+  private tree = inject(TreeService);
+  private ops = inject(OperationService);
+  render = inject(RenderService);
+  vs = inject(ViewerService);
+  private zs = inject(ZoomService);
+
   
   @ViewChild('bitmapImage') bitmap;
   @ViewChild('selection', {read: SelectionComponent, static: true}) selection: SelectionComponent;
@@ -143,19 +155,7 @@ export class DraftRenderingComponent implements OnInit {
   * @constructor
   */
   
-  constructor(
-    private fs: FileService,
-    public dm: DesignmodesService,
-    private ms: MaterialsService,
-    private ss: SystemsService,
-    public ws: WorkspaceService,
-    public timeline: StateService,
-    private tree:TreeService,
-    private ops: OperationService,
-    public render: RenderService,
-    public vs: ViewerService,
-    private zs: ZoomService
-  ) { 
+  constructor() { 
     
     this.flag_recompute = false;
     this.flag_history = false;

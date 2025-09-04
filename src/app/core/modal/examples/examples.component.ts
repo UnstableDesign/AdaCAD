@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { ExampleserviceService } from '../../provider/exampleservice.service';
 import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { FilesystemService } from '../../provider/filesystem.service';
@@ -18,6 +18,12 @@ import { MatButton } from '@angular/material/button';
     imports: [MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatTabGroup, MatTab, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardActions, MatButton, MatDialogActions, MatDialogClose]
 })
 export class ExamplesComponent {
+  fs = inject(FilesystemService);
+  examples = inject(ExampleserviceService);
+  private ms = inject(MediaService);
+  private dialog = inject(MatDialog);
+  dialogRef = inject<MatDialogRef<ExamplesComponent>>(MatDialogRef);
+
   @Output() onLoadExample = new EventEmitter <any>(); 
   @Output() onLoadSharedFile = new EventEmitter <any>(); 
   @Output() onOpenFileManager = new EventEmitter <any>(); 
@@ -25,12 +31,9 @@ export class ExamplesComponent {
   community_examples: any;
 
 
-  constructor(
-    public fs: FilesystemService,
-    public examples: ExampleserviceService,
-    private ms: MediaService,
-    private dialog: MatDialog,
-    public dialogRef: MatDialogRef<ExamplesComponent>) {
+  constructor() {
+      const examples = this.examples;
+
       
       this.local_examples = examples.getExamples();
       this.community_examples = this.fs.public_files.slice();

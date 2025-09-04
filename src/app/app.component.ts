@@ -1,6 +1,6 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { HttpClient } from '@angular/common/http';
-import { Component, NgZone, OnInit, Optional, ViewChild, inject } from '@angular/core';
+import { Component, NgZone, OnInit, ViewChild, inject } from '@angular/core';
 import { getAnalytics, logEvent } from '@angular/fire/analytics';
 import { Auth, User, authState } from '@angular/fire/auth';
 import { MatDialog } from '@angular/material/dialog';
@@ -64,6 +64,30 @@ import { MatInput } from '@angular/material/input';
 
 
 export class AppComponent implements OnInit{
+  auth = inject(AuthService);
+  private dialog = inject(MatDialog);
+  private dm = inject(DesignmodesService);
+  ss = inject(StateService);
+  private fbauth = inject(Auth, { optional: true });
+  files = inject(FilesystemService);
+  private fs = inject(FileService);
+  private http = inject(HttpClient);
+  private media = inject(MediaService);
+  private ms = inject(MaterialsService);
+  multiselect = inject(MultiselectService);
+  private notes = inject(NotesService);
+  private ops = inject(OperationService);
+  scroll = inject(ScrollDispatcher);
+  sys_serve = inject(SystemsService);
+  private tree = inject(TreeService);
+  vp = inject(ViewportService);
+  ws = inject(WorkspaceService);
+  vas = inject(ViewadjustService);
+  vs = inject(ViewerService);
+  vers = inject(VersionService);
+  zs = inject(ZoomService);
+  private zone = inject(NgZone);
+
   title = 'app';
 
   @ViewChild(MixerComponent) mixer;
@@ -109,32 +133,9 @@ export class AppComponent implements OnInit{
   private snackBar = inject(MatSnackBar);
 
 
-  constructor(
-    public auth: AuthService,
-    private dialog: MatDialog,
-    private dm: DesignmodesService,
-    public ss: StateService,
-    @Optional() private fbauth: Auth,
-    public files: FilesystemService,
-    private fs: FileService,
-    private http: HttpClient,
-    private media: MediaService,
-    private ms: MaterialsService,
-    public multiselect: MultiselectService,
-    private notes: NotesService,
-    private ops: OperationService,
-    public scroll: ScrollDispatcher,
-    public sys_serve: SystemsService,
-    private tree: TreeService,
-    public vp: ViewportService,
-    public ws: WorkspaceService,
-    public vas: ViewadjustService,
-    public vs: ViewerService,
-    public vers: VersionService,
-    public zs: ZoomService,
+  constructor(){
+    const auth = this.auth;
 
-    private zone: NgZone
-  ){
 
 
     this.current_version = this.vers.currentVersion();

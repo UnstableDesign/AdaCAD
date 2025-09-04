@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges, inject } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { defaults, density_units, loom_types } from '../../core/model/defaults';
@@ -19,6 +19,10 @@ import { MatInput } from '@angular/material/input';
     imports: [FormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix]
 })
 export class LoomComponent {
+  private tree = inject(TreeService);
+  dm = inject(DesignmodesService);
+  ws = inject(WorkspaceService);
+
 
   @Input('id') id; 
 
@@ -40,10 +44,7 @@ export class LoomComponent {
   enabled: boolean = false;
 
 
-  constructor(
-    private tree: TreeService, 
-    public dm: DesignmodesService,
-    public ws: WorkspaceService){
+  constructor(){
 
        this.density_units = density_units;
        this.loomtypes = loom_types;

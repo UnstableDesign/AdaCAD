@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { WelcomeComponent } from '../welcome/welcome.component';
 import { MatDialogRef, MatDialogTitle, MatDialogContent } from '@angular/material/dialog';
 import { WorkspaceService } from '../../provider/workspace.service';
@@ -20,6 +20,9 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 
 export class WorkspaceComponent {
+  ws = inject(WorkspaceService);
+  dialogRef = inject<MatDialogRef<WelcomeComponent>>(MatDialogRef);
+
 
   @Output() onLoomTypeOverride = new EventEmitter <any>(); 
   @Output() onDensityUnitOverride = new EventEmitter <any>(); 
@@ -32,9 +35,7 @@ export class WorkspaceComponent {
   originOptions: any;
   loomOptions: any;
 
- constructor(
-  public ws: WorkspaceService,
-  public dialogRef: MatDialogRef<WelcomeComponent>) { 
+ constructor() { 
     
     this.unitOptions = density_units;
     this.loomOptions = loom_types;

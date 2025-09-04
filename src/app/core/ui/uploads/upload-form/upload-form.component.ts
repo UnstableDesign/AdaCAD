@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Output, Input, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Output, Input, EventEmitter, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { UploadService } from '../../../provider/upload.service';
 import { Draft, Drawdown, Upload } from '../../../model/datatypes';
@@ -17,6 +17,10 @@ import { MatButton } from '@angular/material/button';
     imports: [MatFormField, MatInput, MatProgressBar, MatHint, MatButton]
 })
 export class UploadFormComponent implements OnInit {
+  private upSvc = inject(UploadService);
+  private httpClient = inject(HttpClient);
+  private mediaSvc = inject(MediaService);
+
  
   @Input() type: string; //'single_image', 'ada', or 'bitmap_collection'
   @Input() multiple: boolean;
@@ -33,8 +37,6 @@ export class UploadFormComponent implements OnInit {
 
   @Output() onData: any = new EventEmitter();
   @Output() onError: any = new EventEmitter();
-
-  constructor(private upSvc: UploadService, private httpClient: HttpClient, private mediaSvc: MediaService) { }
 
   detectFiles(event) {
       this.selectedFiles = event.target.files;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { Bounds, DraftNode, OpNode, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ZoomService } from '../../../core/provider/zoom.service';
@@ -12,6 +12,10 @@ import { MatIconButton } from '@angular/material/button';
     imports: [MatIconButton]
 })
 export class ConnectionComponent implements OnInit {
+  tree = inject(TreeService);
+  private ops = inject(OperationService);
+  zs = inject(ZoomService);
+
 
 
   @Input() id: number;
@@ -45,13 +49,6 @@ export class ConnectionComponent implements OnInit {
 
   show_path_text: boolean = false;
   show_disconnect: boolean = true;
-
-  constructor(
-    public tree: TreeService,
-    private ops: OperationService, 
-    public zs: ZoomService) { 
-
-  }
 
   ngOnInit() {
     const treenode = this.tree.getTreeNode(this.id);

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent } from "@angular/material/dialog";
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { HttpClient } from '@angular/common/http';
@@ -33,6 +33,13 @@ interface StartOptions {
 
 
 export class InitModal implements OnInit {
+  private fls = inject(FileService);
+  private auth = inject(AuthService);
+  private dm = inject(DesignmodesService);
+  private http = inject(HttpClient);
+  private dialogRef = inject<MatDialogRef<InitModal>>(MatDialogRef);
+  private data = inject(MAT_DIALOG_DATA);
+
 
 
   @ViewChild(BlankdraftModal, {static: true}) blankdraft;
@@ -59,13 +66,9 @@ export class InitModal implements OnInit {
   new_draft: boolean = false;
 
 
-  constructor(
-    private fls: FileService,
-    private auth: AuthService,
-    private dm: DesignmodesService, 
-    private http: HttpClient,
-    private dialogRef: MatDialogRef<InitModal>, 
-    @Inject(MAT_DIALOG_DATA) private data: any) {
+  constructor() {
+      const data = this.data;
+
       this.source = data.source;
       this.import_opts = this.opts.filter(el => !el.mixeronly)
 

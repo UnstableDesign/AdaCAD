@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, ViewChild, SimpleChanges, Output, EventEmitter, inject } from '@angular/core';
 import { CanvasList, Draft, DraftNode, RenderingFlags } from '../core/model/datatypes';
 import { createDraft, getDraftAsImage, getDraftName, initDraft, warps, wefts } from '../core/model/drafts';
 import { FilesystemService } from '../core/provider/filesystem.service';
@@ -25,6 +25,14 @@ import { MatInput } from '@angular/material/input';
     imports: [MatButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, DraftRenderingComponent, SimulationComponent, MatToolbar, MatSlider, MatSliderThumb, FormsModule, MatInput, MatMiniFabButton]
 })
 export class ViewerComponent {
+  auth = inject(AuthService);
+  files = inject(FilesystemService);
+  private ms = inject(MaterialsService);
+  private render = inject(RenderService);
+  private tree = inject(TreeService);
+  vs = inject(ViewerService);
+  zs = inject(ZoomService);
+
 
   @Output() onOpenEditor: any = new EventEmitter();
   @Output() onDraftRename: any = new EventEmitter();
@@ -48,14 +56,7 @@ export class ViewerComponent {
   id: number = -1;
 
 
-  constructor(
-    public auth: AuthService,
-    public files: FilesystemService, 
-    private ms: MaterialsService,
-    private render: RenderService,
-    private tree: TreeService,
-    public vs: ViewerService,
-    public zs: ZoomService){
+  constructor(){
 
       this.vs.showing_id_change$.subscribe(data => {
         this.id = data;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Draft, DynamicOperation, Interlacement, IOTuple, Operation, OpNode, Point } from '../../../core/model/datatypes';
 import { MediaService } from '../../../core/provider/media.service';
@@ -28,6 +28,15 @@ import { MatIconButton } from '@angular/material/button';
     imports: [CdkDrag, CdkDragHandle, InletComponent, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, ParameterComponent, DraftContainerComponent]
 })
 export class OperationComponent implements OnInit {
+  private operations = inject(OperationService);
+  private dialog = inject(MatDialog);
+  tree = inject(TreeService);
+  systems = inject(SystemsService);
+  multiselect = inject(MultiselectService);
+  opdescriptions = inject(OperationDescriptionsService);
+  vs = inject(ViewerService);
+  zs = inject(ZoomService);
+
 
 
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
@@ -129,20 +138,6 @@ export class OperationComponent implements OnInit {
    category_name: string = "";
 
    offset: Point = null;
-
-   
-  constructor(
-    private operations: OperationService, 
-    private dialog: MatDialog,
-    public tree: TreeService,
-    public systems: SystemsService,
-    public multiselect: MultiselectService,
-    public opdescriptions: OperationDescriptionsService,
-    public vs: ViewerService,
-    public zs: ZoomService) { 
-     
-
-  }
 
   // @HostListener('window:resize', ['$event'])
   // onResize(event) {

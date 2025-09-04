@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../provider/auth.service';
 import { FormsModule } from '@angular/forms';
 
@@ -9,11 +9,11 @@ import { FormsModule } from '@angular/forms';
     imports: [FormsModule]
 })
 export class SignupComponent implements OnInit {
+authService = inject(AuthService);
+
 
 password: string = ""
 email: string = ""
-
-  constructor(public authService: AuthService) { }
 
   ngOnInit() {
   }

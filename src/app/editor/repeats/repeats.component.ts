@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit, Inject } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent } from "@angular/material/dialog";
 
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
@@ -27,6 +27,11 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 
 
 export class RepeatsComponent implements OnInit {
+  ms = inject(MaterialsService);
+  ss = inject(SystemsService);
+  private dialogRef = inject<MatDialogRef<RepeatsComponent>>(MatDialogRef);
+  data = inject(MAT_DIALOG_DATA);
+
 
   id:number;
 
@@ -81,11 +86,9 @@ export class RepeatsComponent implements OnInit {
    @Output() onUpdateWeftShuttles: any = new EventEmitter();
 
 
-  constructor(
-    public ms: MaterialsService, 
-    public ss: SystemsService,
-    private dialogRef: MatDialogRef<RepeatsComponent>,
-             @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor() {
+              const data = this.data;
+
 
               this.id = data.id;
 

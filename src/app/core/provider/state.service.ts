@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { getAuth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Draft, SaveObj } from '../model/datatypes';
@@ -16,6 +16,8 @@ import { FilesystemService } from './filesystem.service';
   providedIn: 'root'
 })
 export class StateService {
+  private files = inject(FilesystemService);
+
 
   public readonly testDocValue$: Observable<any>;
 
@@ -31,7 +33,7 @@ export class StateService {
 
 
 
-  constructor(private files: FilesystemService) {
+  constructor() {
 
 
     this.active_id = 0;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { AbstractControl, FormControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel, MatError, MatHint } from '@angular/material/form-field';
 import { AnalyzedImage, BoolParam, CodeParam, FileParam, IndexedColorImageInstance, MediaInstance, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
@@ -40,6 +40,13 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
     imports: [MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatTooltip, MatError, MatMiniFabButton, CdkTextareaAutosize, MatHint, MatButton, UploadFormComponent]
 })
 export class ParameterComponent implements OnInit {
+  tree = inject(TreeService);
+  private dialog = inject(MatDialog);
+  ops = inject(OperationService);
+  op_desc = inject(OperationDescriptionsService);
+  mediaService = inject(MediaService);
+  private _ngZone = inject(NgZone);
+
   
   fc: UntypedFormControl;
   opnode: OpNode;
@@ -66,19 +73,6 @@ export class ParameterComponent implements OnInit {
   filewarning: string = '';
 
   @ViewChild('autosize') autosize: CdkTextareaAutosize;
-
-  constructor(
-    public tree: TreeService, 
-    private dialog: MatDialog,
-    public ops: OperationService,
-    public op_desc: OperationDescriptionsService,
-    public mediaService: MediaService,
-    private _ngZone: NgZone) { 
-
-
-
-
-  }
 
   triggerResize() {
     // Wait for changes to be applied, then trigger textarea resize.

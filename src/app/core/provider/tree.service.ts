@@ -1,4 +1,4 @@
-import { Injectable, ViewRef } from '@angular/core';
+import { Injectable, ViewRef, inject } from '@angular/core';
 import { boolean } from 'mathjs';
 import { BoolParam, Bounds, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, Point, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
 import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
@@ -24,17 +24,15 @@ import { OperationService } from './operation.service';
   providedIn: 'root'
 })
 export class TreeService {
+  private ws = inject(WorkspaceService);
+  private ops = inject(OperationService);
+  private media = inject(MediaService);
+  private systemsservice = inject(SystemsService);
+
 
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
-  private open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
-
-  constructor(
-    private ws: WorkspaceService,
-    private ops: OperationService,
-    private media: MediaService,
-    private systemsservice: SystemsService) { 
-  }
+  private open_connection: number = -1;
 
 
   /**

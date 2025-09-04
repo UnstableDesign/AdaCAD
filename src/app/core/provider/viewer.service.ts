@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TreeService } from './tree.service';
 import { Subject } from 'rxjs';
 
@@ -10,15 +10,14 @@ import { Subject } from 'rxjs';
  * this service manages information about the draft that is currently being shown in the viewer. 
  */
 export class ViewerService {
+  private tree = inject(TreeService);
+
 
 
   pinned_id: number = -1; //must be an ID corresponding to a draft node
   showing_id: number = -1;//must be an ID corresponding to a draft node
   showing_id_change$ = new Subject<any>(); //broadcasts changes to the current draft intended for viewing
-  update_viewer$ = new Subject<any>(); //broadcasts to the viewer that it needs to update it's view due to a change
-
-
-  constructor(private tree: TreeService) { }
+  update_viewer$ = new Subject<any>();
 
 
   /**

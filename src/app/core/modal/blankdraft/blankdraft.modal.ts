@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { Draft, Loom, LoomSettings } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
@@ -18,6 +18,10 @@ import { MatButton } from '@angular/material/button';
     imports: [MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, MatFormField, MatLabel, MatInput, MatDialogActions, MatButton, MatDialogClose]
 })
 export class BlankdraftModal implements OnInit {
+  private ws = inject(WorkspaceService);
+  private dialogRef = inject<MatDialogRef<BlankdraftModal>>(MatDialogRef);
+  private data = inject(MAT_DIALOG_DATA);
+
 
   
   valid:boolean = false; 
@@ -25,17 +29,7 @@ export class BlankdraftModal implements OnInit {
   warps: number;
 
   
-  @Output() onNewDraftCreated = new EventEmitter <any>(); 
-
-
-
-  constructor(
-    private ws: WorkspaceService,
-    private dialogRef: MatDialogRef<BlankdraftModal>, 
-    @Inject(MAT_DIALOG_DATA) private data: any) {
-     
-
-  }
+  @Output() onNewDraftCreated = new EventEmitter <any>();
 
   ngOnInit() {
   }

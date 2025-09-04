@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {CdkDrag, CdkDragMove} from '@angular/cdk/drag-drop';
 import { ViewadjustService } from '../provider/viewadjust.service';
 import { MatButton, MatMiniFabButton } from '@angular/material/button';
@@ -10,10 +10,12 @@ import { MatButton, MatMiniFabButton } from '@angular/material/button';
     styleUrl: './viewadjust.component.scss'
 })
 export class ViewadjustComponent {
+  private vas = inject(ViewadjustService);
+
 
   pos: {x: number, y:number} = {x:200, y:0};
 
-  constructor(private vas: ViewadjustService){
+  constructor(){
 
     this.pos.x = this.vas.left;
 

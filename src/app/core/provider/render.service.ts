@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {defaults} from '../../core/model/defaults'
 import { CanvasList, Draft, Loom, LoomSettings, RenderingFlags } from '../../core/model/datatypes';
 import { getDraftAsImage, isSet, isUp, warps, wefts } from '../../core/model/drafts';
@@ -16,6 +16,10 @@ import { numFrames, numTreadles } from '../model/looms';
  * editor, viewer, and mixer. 
  */
 export class RenderService {
+private ss = inject(SystemsService);
+private ms = inject(MaterialsService);
+private ws = inject(WorkspaceService);
+
 // view_frames: boolean;
 
 current_view: string;
@@ -33,11 +37,7 @@ draft_cell_size: number;
 
 
 
-  constructor(
-    private ss: SystemsService,
-    private ms: MaterialsService,
-    private ws: WorkspaceService
-    ) { 
+  constructor() { 
  //max values
   this.draft_cell_size = defaults.draft_detail_cell_size; 
   this.current_view = 'draft';

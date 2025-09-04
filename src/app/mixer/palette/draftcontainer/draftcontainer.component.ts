@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { Draft, DraftNode } from '../../../core/model/datatypes';
 import { getDraftName, initDraft, warps, wefts } from '../../../core/model/drafts';
 import utilInstance from '../../../core/model/util';
@@ -25,6 +25,16 @@ import { MatTooltip } from '@angular/material/tooltip';
     imports: [MatButton, MatSlider, MatSliderThumb, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, DraftRenderingComponent]
 })
 export class DraftContainerComponent implements AfterViewInit{
+  private dialog = inject(MatDialog);
+  private dm = inject(DesignmodesService);
+  private ms = inject(MaterialsService);
+  private fs = inject(FileService);
+  tree = inject(TreeService);
+  render = inject(RenderService);
+  private ss = inject(SystemsService);
+  private vs = inject(ViewerService);
+  ws = inject(WorkspaceService);
+
 
   @Input() id;
   @Input() dirty;
@@ -69,16 +79,7 @@ export class DraftContainerComponent implements AfterViewInit{
 
 
 
-  constructor(
-    private dialog: MatDialog,
-    private dm: DesignmodesService,
-    private ms: MaterialsService,
-    private fs: FileService,
-    public tree: TreeService,
-    public render: RenderService,
-    private ss: SystemsService,
-    private vs: ViewerService,
-    public ws: WorkspaceService){
+  constructor(){
 
     //subscribe to id changes on the view service to update view if this is current selected
     this.vs.showing_id_change$.subscribe(data => {

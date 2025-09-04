@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { UntypedFormControl, FormsModule } from '@angular/forms';
 import { DynamicOperation, OperationInlet, OpNode } from '../../../../core/model/datatypes';
 import { getDraftName } from '../../../../core/model/drafts';
@@ -18,6 +18,10 @@ import { MatOption } from '@angular/material/autocomplete';
     imports: [MatButton, MatTooltip, MatSelect, FormsModule, MatOption]
 })
 export class InletComponent implements OnInit {
+  tree = inject(TreeService);
+  private systems = inject(SystemsService);
+  private ops = inject(OperationService);
+
 
   @Input() opid:  number;
   @Input() inletid:  number;
@@ -41,13 +45,6 @@ export class InletComponent implements OnInit {
   show_inlet_desc = false;
   inlet_for_drafts = true;
   inlet_name = "";
-  constructor(
-    public tree: TreeService, 
-    private systems: SystemsService, 
-    private ops: OperationService,
-    ) { 
-
-  }
 
   ngOnInit(): void {    
     this.opnode = this.tree.getOpNode(this.opid);

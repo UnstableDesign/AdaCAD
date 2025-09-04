@@ -1,4 +1,4 @@
-import { Component, Inject, SimpleChanges } from '@angular/core';
+import { Component, SimpleChanges, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatFormField, MatLabel, MatHint } from '@angular/material/form-field';
 import { TreeService } from '../../provider/tree.service';
@@ -15,15 +15,18 @@ import { MatButton } from '@angular/material/button';
     imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, FormsModule, MatHint, MatDialogActions, MatButton, MatDialogClose]
 })
 export class RenameComponent {
+  private tree = inject(TreeService);
+  private dialogRef = inject<MatDialogRef<RenameComponent>>(MatDialogRef);
+  private data = inject(MAT_DIALOG_DATA);
+
 
   id: number;
   ud_name: string;
   gen_name: string;
   draft:Draft = null
- constructor(
-    private tree: TreeService, 
-    private dialogRef: MatDialogRef<RenameComponent>, 
-    @Inject(MAT_DIALOG_DATA) private data: any) {
+ constructor() {
+      const data = this.data;
+
       
       this.id = data.id;
       this.draft = this.tree.getDraft(this.id);

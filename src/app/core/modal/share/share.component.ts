@@ -1,4 +1,4 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { AuthService } from '../../provider/auth.service';
@@ -29,6 +29,15 @@ import { UploadFormComponent } from '../../ui/uploads/upload-form/upload-form.co
     imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatTooltip, MatDivider, MatSlideToggle, MatFormField, MatLabel, MatSelect, FormsModule, MatOption, MatHint, MatInput, MatCheckbox, UploadFormComponent, MatDialogActions, MatDialogClose]
 })
 export class ShareComponent {
+  auth = inject(AuthService);
+  fs = inject(FilesystemService);
+  private file_serv = inject(FileService);
+  private mediaService = inject(MediaService);
+  private ws = inject(WorkspaceService);
+  private dialog = inject(MatDialog);
+  private dialogRef = inject<MatDialogRef<ShareComponent>>(MatDialogRef);
+  private data = inject(MAT_DIALOG_DATA);
+
   private _snackBar = inject(MatSnackBar);
 
   public shared_id: string = '';
@@ -44,15 +53,9 @@ export class ShareComponent {
   public share_in_history: ShareObj;
   public replace_img: boolean = false;
 
-  constructor( 
-    public auth: AuthService, 
-    public fs: FilesystemService, 
-    private file_serv: FileService,
-    private mediaService: MediaService,
-    private ws: WorkspaceService,
-    private dialog: MatDialog,
-    private dialogRef: MatDialogRef<ShareComponent>,
-    @Inject(MAT_DIALOG_DATA) private data: any){
+  constructor(){
+      const data = this.data;
+
 
       this.fileid = data.fileid;
       this.licenses = licenses;

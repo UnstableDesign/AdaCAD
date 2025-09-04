@@ -1,4 +1,4 @@
-import { Component, enableProdMode, EventEmitter, HostListener, Input, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, enableProdMode, EventEmitter, HostListener, Input, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { FormControl, NgForm, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -55,6 +55,20 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
     imports: [MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatButton, MatTooltip, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSlideToggle, PaletteComponent, AsyncPipe]
 })
 export class MixerComponent  {
+  dm = inject(DesignmodesService);
+  private tree = inject(TreeService);
+  private fs = inject(FileService);
+  ws = inject(WorkspaceService);
+  vp = inject(ViewportService);
+  private notes = inject(NotesService);
+  private dialog = inject(MatDialog);
+  ops = inject(OperationService);
+  private op_desc = inject(OperationDescriptionsService);
+  private vs = inject(ViewerService);
+  zs = inject(ZoomService);
+  private multiselect = inject(MultiselectService);
+  private fbauth = inject(Auth, { optional: true });
+
 
 
   @ViewChild(PaletteComponent) palette;
@@ -85,22 +99,7 @@ export class MixerComponent  {
    * to get and update stitches.
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
-  constructor(
-    
-    public dm: DesignmodesService, 
-    private tree: TreeService,
-    private fs: FileService,
-    public ws: WorkspaceService,
-    public vp: ViewportService,
-    private notes: NotesService,
-    private dialog: MatDialog,
-    public ops: OperationService, 
-    private op_desc: OperationDescriptionsService,
-    private vs: ViewerService,
-    public zs: ZoomService,
-    private multiselect: MultiselectService,
-    @Optional() private fbauth: Auth
-    ) {
+  constructor() {
 
       this.myControl = new FormControl();
    

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewEncapsulation, inject } from '@angular/core';
 import { AuthService } from '../../provider/auth.service';
 import { FilesystemService } from '../../provider/filesystem.service';
 import { MatDialog, MAT_DIALOG_DATA, MatDialogTitle, MatDialogClose, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
@@ -25,6 +25,13 @@ import { FormsModule } from '@angular/forms';
     imports: [MatDialogTitle, CdkDrag, CdkDragHandle, MatButton, MatDialogClose, CdkScrollable, MatDialogContent, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, MatFormField, MatLabel, MatInput, FormsModule, MatIconButton, MatSuffix, MatDialogActions]
 })
 export class FilebrowserComponent implements OnInit {
+  files = inject(FilesystemService);
+  auth = inject(AuthService);
+  ws = inject(WorkspaceService);
+  fs = inject(FileService);
+  private dialog = inject(MatDialog);
+  data = inject(MAT_DIALOG_DATA);
+
   private _snackBar = inject(MatSnackBar);
 
   @Output() onLoadFromDB: any = new EventEmitter();
@@ -44,14 +51,7 @@ export class FilebrowserComponent implements OnInit {
   rename_file_name ="";
 
 
-  constructor(
-    public files: FilesystemService, 
-    public auth: AuthService,
-    public ws: WorkspaceService,
-    public fs: FileService,
-    private dialog: MatDialog,
-    @Inject(MAT_DIALOG_DATA) public data: any
-    ) { 
+  constructor() { 
     
 
       this.updateFileData(this.files.file_tree)

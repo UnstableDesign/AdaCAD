@@ -1,4 +1,4 @@
-import { Injectable, Optional } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
 import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged, set } from '@angular/fire/database';
 // import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
@@ -13,6 +13,8 @@ import utilInstance from '../model/util';
   providedIn: 'root'
 })
 export class FilesystemService {
+  private auth = inject(Auth, { optional: true });
+
 
   file_tree_change$ = new Subject<any>();
   file_saved_change$ = new Subject<any>();
@@ -32,7 +34,7 @@ export class FilesystemService {
   updateUItree: Observable<Array<any>>;
 
 
- constructor(@Optional() private auth: Auth) {
+ constructor() {
 
       const db = getDatabase();
       const presenceRef = ref(db, "disconnectmessage");

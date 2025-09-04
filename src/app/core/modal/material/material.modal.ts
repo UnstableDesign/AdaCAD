@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { TreeService } from '../../../core/provider/tree.service';
 import { DraftNode, Material } from '../../model/datatypes';
 import { createMaterial, setMaterialID } from '../../model/material';
@@ -25,6 +25,10 @@ import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 
 
 export class MaterialModal{
+  private dm = inject(DesignmodesService);
+  ms = inject(MaterialsService);
+  private tree = inject(TreeService);
+
 
   @Output() onMaterialChange: any = new EventEmitter();
 
@@ -33,10 +37,9 @@ export class MaterialModal{
   newshuttle: Material = createMaterial();
   addmaterial: boolean = false;
 
-  constructor(
-      private dm: DesignmodesService,
-      public ms: MaterialsService,
-      private tree: TreeService) {
+  constructor() {
+      const ms = this.ms;
+
 
       ms.getShuttles().forEach((el, ndx) => {
         this.replacements.push((ndx+1%this.ms.getShuttles().length));

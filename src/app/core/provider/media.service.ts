@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AnalyzedImage, Color, IndexedColorImageInstance, IndexedColorMediaProxy, MediaInstance, SingleImage } from '../model/datatypes';
 import { UploadService } from './upload.service';
 import { HttpClient } from '@angular/common/http';
@@ -13,14 +13,11 @@ import utilInstance from '../model/util';
   providedIn: 'root'
 })
 export class MediaService {
+  private upSvc = inject(UploadService);
+  private httpClient = inject(HttpClient);
+
 
   current: Array<MediaInstance> = [];
-
-
-  constructor(
-    private upSvc: UploadService,
-    private httpClient: HttpClient
-  ) { }
 
 
 

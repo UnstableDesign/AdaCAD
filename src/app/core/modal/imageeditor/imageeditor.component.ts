@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { AnalyzedImage, Color, IndexedColorImageInstance } from '../../model/datatypes';
 import { TreeService } from '../../provider/tree.service';
@@ -18,6 +18,12 @@ import { MatButton } from '@angular/material/button';
     imports: [MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatSelect, MatOption, MatDialogActions, MatButton, MatDialogClose]
 })
 export class ImageeditorComponent {
+  tree = inject(TreeService);
+  mediaService = inject(MediaService);
+  private dialog = inject(MatDialog);
+  dialogRef = inject<MatDialogRef<ImageeditorComponent>>(MatDialogRef);
+  obj = inject(MAT_DIALOG_DATA);
+
 
   media_id: number;
   img: AnalyzedImage;
@@ -25,12 +31,9 @@ export class ImageeditorComponent {
   resulting_color_space: Array<{from: number, from_hex:string, to:number, to_hex: string}>;
   editable: boolean = true;
 
-  constructor(
-    public tree: TreeService,
-    public mediaService: MediaService,
-    private dialog: MatDialog,
-    public dialogRef: MatDialogRef<ImageeditorComponent>,
-    @Inject(MAT_DIALOG_DATA) public obj: any){
+  constructor(){
+      const obj = this.obj;
+
 
 
       if(obj.src == 'bwimagemap'){

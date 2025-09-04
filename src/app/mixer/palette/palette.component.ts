@@ -1,4 +1,4 @@
-import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef } from '@angular/core';
+import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subscription } from 'rxjs';
 import { defaults } from '../../core/model/defaults';
@@ -32,6 +32,21 @@ import { MediaService } from '../../core/provider/media.service';
 
 
 export class PaletteComponent implements OnInit{
+  dm = inject(DesignmodesService);
+  private ops = inject(OperationService);
+  private media = inject(MediaService);
+  private tree = inject(TreeService);
+  private layers = inject(LayersService);
+  private resolver = inject(ComponentFactoryResolver);
+  private fs = inject(FileService);
+  private _snackBar = inject(MatSnackBar);
+  viewport = inject(ViewportService);
+  private notes = inject(NotesService);
+  private vs = inject(ViewerService);
+  private ss = inject(StateService);
+  private zs = inject(ZoomService);
+  private multiselect = inject(MultiselectService);
+
 
 
   // @Output() onDesignModeChange: any = new EventEmitter();  
@@ -97,21 +112,7 @@ export class PaletteComponent implements OnInit{
 
 
   
-  constructor(
-    public dm: DesignmodesService, 
-    private ops: OperationService,
-    private media: MediaService,
-    private tree: TreeService,
-    private layers: LayersService, 
-    private resolver: ComponentFactoryResolver, 
-    private fs: FileService,
-    private _snackBar: MatSnackBar,
-    public viewport: ViewportService,
-    private notes: NotesService,
-    private vs: ViewerService,
-    private ss: StateService,
-    private zs: ZoomService,
-    private multiselect: MultiselectService) { 
+  constructor() { 
     this.pointer_events = true;
   }
 

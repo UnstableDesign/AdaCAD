@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -37,6 +37,19 @@ import { FormsModule } from '@angular/forms';
     imports: [MatAccordion, MatButton, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, LoomComponent, DraftRenderingComponent]
 })
 export class EditorComponent implements OnInit {
+  private dialog = inject(MatDialog);
+  private fs = inject(FileService);
+  dm = inject(DesignmodesService);
+  scroll = inject(ScrollDispatcher);
+  ms = inject(MaterialsService);
+  private ss = inject(SystemsService);
+  private state = inject(StateService);
+  private ws = inject(WorkspaceService);
+  private tree = inject(TreeService);
+  render = inject(RenderService);
+  vs = inject(ViewerService);
+  private zs = inject(ZoomService);
+
   
 
   @ViewChild(DraftRenderingComponent, {static: true}) weaveRef;
@@ -89,19 +102,7 @@ export class EditorComponent implements OnInit {
   
   
   
-  constructor(
-    private dialog: MatDialog, 
-    private fs: FileService,
-    public dm: DesignmodesService,
-    public scroll: ScrollDispatcher,
-    public ms: MaterialsService,
-    private ss: SystemsService,
-    private state: StateService,
-    private ws: WorkspaceService,
-    private tree: TreeService,
-    public render: RenderService,
-    public vs: ViewerService,
-    private zs: ZoomService) {
+  constructor() {
       
       
 

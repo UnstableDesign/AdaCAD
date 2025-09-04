@@ -1,5 +1,5 @@
 import { HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, getMetadata, uploadBytesResumable, UploadMetadata } from "@angular/fire/storage";
 import { Observable } from 'rxjs';
@@ -15,8 +15,8 @@ const httpOptions = {
 
 @Injectable()
 export class UploadService {
+  private auth = inject(AuthService);
 
-  constructor(private auth: AuthService) { }
 
   uploadProgress: Observable<number>;
   progress: number;
