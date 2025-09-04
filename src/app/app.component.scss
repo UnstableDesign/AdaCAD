@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 
 .view-container{
   display: flex;
@@ -127,6 +129,9 @@
 
 .toggle{
   font-size: .5em;
+
+
+
 }
 
 .download{
@@ -140,6 +145,16 @@
   justify-content: space-between;
   color: white;
   background-color: #3f51b5;
+
+   @include mat.button-toggle-overrides((
+    background-color: #3f51b5,
+    disabled-selected-state-background-color:  #3f51b5,
+    selected-state-background-color: white,
+    height: 40px
+
+
+  ));
+
   
 }
 
