@@ -18,9 +18,6 @@ import { provideRemoteConfig, getRemoteConfig } from '@angular/fire/remote-confi
 import { provideStorage, getStorage } from '@angular/fire/storage';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { CoreModule } from './app/core/core.module';
-import { EditorModule } from './app/editor/editor.module';
-import { MixerModule } from './app/mixer/mixer.module';
-import { ViewerModule } from './app/viewer/viewer.module';
 import { AppComponent } from './app/app.component';
 
 if (environment.production) {
@@ -31,7 +28,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule, EditorModule, MixerModule, ViewerModule),
+        importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule),
         provideRouter(routes),
         provideHttpClient(withInterceptorsFromDi()),
         provideFirebaseApp(() => initializeApp(environment.firebase)),
