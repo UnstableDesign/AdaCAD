@@ -19,7 +19,7 @@
         </mat-expansion-panel-header>
         <mat-form-field  class="is-fullwidth">
           <mat-label>color</mat-label>
-          <input matInput
+          <!-- <input matInput
             #colorpicker
             [cpToggle] = 'false'
             [cpSaveClickOutside] = 'true'
@@ -31,7 +31,17 @@
             name="color"
             [(ngModel)]="shuttle.color"
             cpDialogDisplay ='inline'
-            />
+            /> -->
+            <input matInput
+          #colorpicker
+          type = 'color'
+          placeholder="Color"
+          class="colorpicker"
+          [style.background]="shuttle.color"
+          name="color"
+          [(ngModel)]="shuttle.color"
+          />
+
         </mat-form-field>
         <mat-form-field  class="is-fullwidth">
           <mat-label>name</mat-label>
@@ -109,6 +119,16 @@
           cpToggle="true"
 
           /> -->
+
+         <input matInput
+          #colorpicker
+          type = 'color'
+          placeholder="Color"
+          class="colorpicker"
+          [style.background]="newshuttle.color"
+          name="color"
+          [(ngModel)]="newshuttle.color"
+          />
 
       </mat-form-field>
 

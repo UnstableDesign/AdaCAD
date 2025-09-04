@@ -42,7 +42,6 @@
     "core-js": "^3.6.4",
     "firebase": "^9.4.0",
     "mathjs": "^12.3.2",
-    "ngx-color-picker": "^16.0.0",
     "rxfire": "^6.0.3",
     "rxjs": "^7.8.1",
     "tar": ">=5.0.10",
