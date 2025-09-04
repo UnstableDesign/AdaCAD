@@ -79,8 +79,8 @@
                 <div class="editing-mode-toggle">
                   <mat-label>drafting style</mat-label>
                   <mat-button-toggle-group  [(value)]="dm.cur_draft_edit_source"  name="design source" (change)="swapEditingStyleClicked()" aria-label="edit mode">
-                    <mat-button-toggle matTooltip="threading-first" value="loom"><div class="draft-edit-mode-loom"></div></mat-button-toggle>
-                    <mat-button-toggle matTooltip="drawdown-first"  value="drawdown"> <div class="draft-edit-mode-drawdown"></div></mat-button-toggle>
+                    <mat-button-toggle matTooltip="threading-first" class="draft-edit-mode-loom" value="loom"></mat-button-toggle>
+                    <mat-button-toggle matTooltip="drawdown-first" class="draft-edit-mode-drawdown" value="drawdown"> </mat-button-toggle>
                   </mat-button-toggle-group>
                 </div>
               }

@@ -1,44 +1,30 @@
-@use '@angular/material' as mat;
-
-
-.draft_tools{
- @include mat.button-toggle-overrides((
-    background-color: whitesmoke,
-    divider-color: whitesmoke
-  ));
-}
-
-
 .mat-button-toggle-group{
     display: flex;
-     background-color: whitesmoke;
     flex-wrap: wrap;
-    margin-bottom: 16px;
 }
 
+.mat-button-toggle{
+    width: 20%;
+    display: flex;
+    background: whitesmoke;
+}
 
-// .mat-button-toggle{
-//     width: 20%;
-//     display: flex;
-//     background: whitesmoke;
-// }
+.mat-button-toggle-appearance-standard.mat-button-toggle-checked {
+    color: var(--mat-button-toggle-selected-state-text-color);
+    background-color: #ff4081;
+}
 
-// .mat-button-toggle-appearance-standard.mat-button-toggle-checked {
-//     color: var(--mat-button-toggle-selected-state-text-color);
-//     background-color: #ff4081;
-// }
+.mat-button-toggle-group-appearance-standard .mat-button-toggle-appearance-standard+.mat-button-toggle-appearance-standard {
+    border-left: none;
+}
 
-// .mat-button-toggle-group-appearance-standard .mat-button-toggle-appearance-standard+.mat-button-toggle-appearance-standard {
-//     border-left: none;
-// }
+.mat-mdc-icon-button{
+    font-size: 14px;
+}
 
-// .mat-mdc-icon-button{
-//     font-size: 14px;
-// }
-
-// .mat-mdc-form-field-infix{
-//     width: min-content;
-// }
+.mat-mdc-form-field-infix{
+    width: min-content;
+}
 
 .detail-sidebars{
     padding: 16px;
@@ -49,7 +35,7 @@
 }
 
 .draft-edit-mode-drawdown{
-    width: 40px;
+    width: 50%;
     height: 40px;
     background: url(/../../../../assets/svg/draft_edit_drawdown.svg);
     background-repeat: no-repeat;
@@ -60,7 +46,7 @@
 
 .draft-edit-mode-loom{
     display: block;
-    width: 40px;
+    width: 50%;
     height: 40px;
     background: url(/../../../../assets/svg/draft_edit_loom.svg);
     background-size: 28px 28px;
@@ -103,11 +89,11 @@ a.help{
 
 
 
-// .tool-chunk{
-//     display: flex;
-//     flex-direction: column;
-//     width: 42px;
-// }
+.tool-chunk{
+    display: flex;
+    flex-direction: column;
+    width: 42px;
+}
 
 h1{
     transform: rotate(-90deg);
@@ -186,22 +172,22 @@ h1{
 }
 
 
-// .tool-chunk{
-//     width: 100%;
-//     display: flex;
-//     flex-direction: row;
-//     flex-wrap: wrap;
+.tool-chunk{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 
-//     h3{
-//         width: 100%;
-//     }
-// }
+    h3{
+        width: 100%;
+    }
+}
   
 
-// .editing-mode-toggle{
-//     width: 100%;
-//     padding-bottom: 16px;
-// }
+.editing-mode-toggle{
+    width: 100%;
+    padding-bottom: 16px;
+}
 
 
 .slider{
@@ -218,13 +204,13 @@ h1{
       }
 }
 
-// .swatch{
-//     width: 9px;
-//     height: 9px;
-//     margin-right: 4px;
-//     display: inline-block;
-//     border: thin solid grey;
-// }
+.swatch{
+    width: 9px;
+    height: 9px;
+    margin-right: 4px;
+    display: inline-block;
+    border: thin solid grey;
+}
 
 .menu-item{
     font-style: inherit;
