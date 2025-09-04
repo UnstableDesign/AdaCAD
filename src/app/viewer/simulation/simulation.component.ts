@@ -5,7 +5,7 @@ import { Bounds, Draft, Interlacement, LoomSettings, SimulationData } from '../.
 import * as THREE from 'three';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { cropDraft, warps, wefts } from '../../core/model/drafts';
 
 @Component({

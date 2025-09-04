@@ -1,7 +1,7 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClientModule, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -31,7 +31,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
-import { ColorPickerModule } from 'ngx-color-picker';
 import { LoginComponent } from './modal/login/login.component';
 import { InitModal } from './modal/init/init.modal';
 import { MaterialModal } from './modal/material/material.modal';
@@ -86,7 +85,6 @@ import { RenameComponent } from './modal/rename/rename.component';
         CommonModule,
         FormsModule,
         BrowserModule,
-        HttpClientModule,
         ReactiveFormsModule,
         MatAutocompleteModule,
         MatButtonModule,
@@ -110,7 +108,6 @@ import { RenameComponent } from './modal/rename/rename.component';
         MatToolbarModule,
         MatTooltipModule,
         MatTreeModule,
-        ColorPickerModule,
         MatProgressBarModule,
         MatChipsModule,
         MatSnackBarModule,
@@ -153,14 +150,14 @@ import { RenameComponent } from './modal/rename/rename.component';
         MatToolbarModule,
         MatTooltipModule,
         MatTreeModule,
-        ColorPickerModule,
         MatChipsModule,
         MatSnackBarModule,
         ScrollingModule,
         DragDropModule,
         MatProgressBarModule,
         MatBadgeModule,
-        ViewadjustComponent], providers: [
+        ViewadjustComponent], 
+        providers: [
         UploadService,
         FileService,
         VaeService,
@@ -170,7 +167,6 @@ import { RenameComponent } from './modal/rename/rename.component';
         ViewerService,
         ViewadjustService,
         MediaService,
-        OperationService,
-        provideHttpClient(withInterceptorsFromDi())
+        OperationService
     ] })
 export class CoreModule { }

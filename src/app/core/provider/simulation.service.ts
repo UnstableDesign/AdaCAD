@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import * as THREE from 'three';
 import { createLayerMaps, getDraftTopology, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { Lut } from 'three/examples/jsm/math/Lut';
 import { Bounds, Draft, Interlacement, SimulationData, SimulationVars, YarnVertex } from '../model/datatypes';
 import { initDraftFromDrawdown, warps, wefts } from '../model/drafts';
 import { getCellValue } from '../model/cell';

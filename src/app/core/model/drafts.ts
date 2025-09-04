@@ -496,10 +496,10 @@ export const createDraft = (
        }
 
        if(!floats && !use_color){
-        uint8c = drawDraftViewCell(uint8c, i, j, cell_val, pix_per_cell,warp_num, use_color, warp_col, weft_col)
+        uint8c = <Uint8ClampedArray<ArrayBuffer>>drawDraftViewCell(uint8c, i, j, cell_val, pix_per_cell,warp_num, use_color, warp_col, weft_col)
        }
        else {
-        uint8c = drawFloatViewCell(uint8c, i, j, cell_val, pix_per_cell,warp_num, use_color, warp_col, weft_col)
+        uint8c = <Uint8ClampedArray<ArrayBuffer>>drawFloatViewCell(uint8c, i, j, cell_val, pix_per_cell,warp_num, use_color, warp_col, weft_col)
        }
        
         
