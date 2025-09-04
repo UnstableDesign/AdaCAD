@@ -11,15 +11,18 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
 import { ViewerService } from '../../../core/provider/viewer.service';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { RenameComponent } from '../../../core/modal/rename/rename.component';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatSlider, MatSliderThumb } from '@angular/material/slider';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-draftcontainer',
     templateUrl: './draftcontainer.component.html',
     styleUrls: ['./draftcontainer.component.scss'],
-    standalone: false
+    imports: [MatButton, MatSlider, MatSliderThumb, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, DraftRenderingComponent]
 })
 export class DraftContainerComponent implements AfterViewInit{
 

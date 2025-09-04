@@ -13,9 +13,11 @@ import { ParameterComponent } from './parameter/parameter.component';
 import { ZoomService } from '../../../core/provider/zoom.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
-import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { CdkDragMove, CdkDragStart, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { ConnectionComponent } from '../connection/connection.component';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIconButton } from '@angular/material/button';
 
 
 
@@ -23,7 +25,7 @@ import { ConnectionComponent } from '../connection/connection.component';
     selector: 'app-operation',
     templateUrl: './operation.component.html',
     styleUrls: ['./operation.component.scss'],
-    standalone: false
+    imports: [CdkDrag, CdkDragHandle, InletComponent, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, ParameterComponent, DraftContainerComponent]
 })
 export class OperationComponent implements OnInit {
 

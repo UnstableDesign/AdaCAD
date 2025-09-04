@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../provider/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-signup',
     templateUrl: './signup.component.html',
     styleUrls: ['./signup.component.scss'],
-    standalone: false
+    imports: [FormsModule]
 })
 export class SignupComponent implements OnInit {
 

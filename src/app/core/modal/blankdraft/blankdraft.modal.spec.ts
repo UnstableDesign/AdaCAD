@@ -8,8 +8,8 @@ describe('BlankdraftModal', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BlankdraftModal ]
-    })
+    imports: [BlankdraftModal]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(BlankdraftModal);

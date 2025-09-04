@@ -62,25 +62,7 @@ import { RenameComponent } from './modal/rename/rename.component';
 
 
 
-@NgModule({ declarations: [
-        UploadFormComponent,
-        InitModal,
-        MaterialModal,
-        LoginComponent,
-        SignupComponent,
-        BlankdraftModal,
-        RenameComponent,
-        ExamplesComponent,
-        LoadfileComponent,
-        FilebrowserComponent,
-        ImageeditorComponent,
-        EventsDirective,
-        WelcomeComponent,
-        SelectionComponent,
-        DraftRenderingComponent,
-        ShareComponent,
-        WorkspaceComponent
-    ],
+@NgModule({
     exports: [
         CommonModule,
         FormsModule,
@@ -156,8 +138,24 @@ import { RenameComponent } from './modal/rename/rename.component';
         DragDropModule,
         MatProgressBarModule,
         MatBadgeModule,
-        ViewadjustComponent], 
-        providers: [
+        ViewadjustComponent, UploadFormComponent,
+        InitModal,
+        MaterialModal,
+        LoginComponent,
+        SignupComponent,
+        BlankdraftModal,
+        RenameComponent,
+        ExamplesComponent,
+        LoadfileComponent,
+        FilebrowserComponent,
+        ImageeditorComponent,
+        EventsDirective,
+        WelcomeComponent,
+        SelectionComponent,
+        DraftRenderingComponent,
+        ShareComponent,
+        WorkspaceComponent],
+    providers: [
         UploadService,
         FileService,
         VaeService,

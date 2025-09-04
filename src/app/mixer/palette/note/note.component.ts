@@ -5,13 +5,19 @@ import utilInstance from '../../../core/model/util';
 import { NotesService } from '../../../core/provider/notes.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { ZoomService } from '../../../core/provider/zoom.service';
-import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
+import { CdkDragMove, CdkDragStart, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { MatIconButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 
 @Component({
     selector: 'app-note',
     templateUrl: './note.component.html',
     styleUrls: ['./note.component.scss'],
-    standalone: false
+    imports: [CdkDrag, CdkDragHandle, MatIconButton, MatTooltip, MatFormField, MatLabel, MatInput, FormsModule, MatSuffix, CdkTextareaAutosize]
 })
 export class NoteComponent implements OnInit {
 

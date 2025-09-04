@@ -1,12 +1,15 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { FileService } from '../../provider/file.service';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { UploadFormComponent } from '../../ui/uploads/upload-form/upload-form.component';
+import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-loadfile',
     templateUrl: './loadfile.component.html',
     styleUrls: ['./loadfile.component.scss'],
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, UploadFormComponent, MatDialogActions, MatButton, MatDialogClose]
 })
 export class LoadfileComponent {
  

@@ -21,6 +21,12 @@ import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-render
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
 import { ViewerService } from '../core/provider/viewer.service';
+import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatLabel } from '@angular/material/form-field';
+import { MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -28,7 +34,7 @@ import { ViewerService } from '../core/provider/viewer.service';
     selector: 'app-editor',
     templateUrl: './editor.component.html',
     styleUrls: ['./editor.component.scss'],
-    standalone: false
+    imports: [MatAccordion, MatButton, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, LoomComponent, DraftRenderingComponent]
 })
 export class EditorComponent implements OnInit {
   

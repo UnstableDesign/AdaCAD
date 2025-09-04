@@ -1,11 +1,19 @@
 import { Component, OnInit, Input, Inject, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent } from "@angular/material/dialog";
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { HttpClient } from '@angular/common/http';
 import {AuthService} from '../../provider/auth.service'
 import {FileService} from '../../provider/file.service'
 import { getAnalytics, logEvent } from "@angular/fire/analytics";
 import { BlankdraftModal } from '../blankdraft/blankdraft.modal';
+import { MatIconButton } from '@angular/material/button';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { FormsModule } from '@angular/forms';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/autocomplete';
+import { LoadfileComponent } from '../loadfile/loadfile.component';
+import { ExamplesComponent } from '../examples/examples.component';
 
 interface StartOptions {
   value: string;
@@ -18,7 +26,7 @@ interface StartOptions {
     selector: 'app-init',
     templateUrl: './init.modal.html',
     styleUrls: ['./init.modal.scss'],
-    standalone: false
+    imports: [MatIconButton, MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, BlankdraftModal, LoadfileComponent, ExamplesComponent]
 })
 
 

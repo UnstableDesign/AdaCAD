@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-welcome',
     templateUrl: './welcome.component.html',
     styleUrl: './welcome.component.scss',
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatDialogActions, MatDialogClose]
 })
 export class WelcomeComponent {
   constructor(public dialogRef: MatDialogRef<WelcomeComponent>) { 

@@ -1,14 +1,18 @@
 import { Component, Inject, SimpleChanges } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatFormField } from '@angular/material/form-field';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
+import { MatFormField, MatLabel, MatHint } from '@angular/material/form-field';
 import { TreeService } from '../../provider/tree.service';
 import { Draft } from '../../model/datatypes';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
 
 @Component({
-  selector: 'app-rename',
-  standalone: false,
-  templateUrl: './rename.component.html',
-  styleUrl: './rename.component.scss'
+    selector: 'app-rename',
+    templateUrl: './rename.component.html',
+    styleUrl: './rename.component.scss',
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, FormsModule, MatHint, MatDialogActions, MatButton, MatDialogClose]
 })
 export class RenameComponent {
 

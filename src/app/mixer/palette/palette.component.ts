@@ -27,8 +27,7 @@ import { MediaService } from '../../core/provider/media.service';
 @Component({
     selector: 'app-palette',
     templateUrl: './palette.component.html',
-    styleUrls: ['./palette.component.scss'],
-    standalone: false
+    styleUrls: ['./palette.component.scss']
 })
 
 

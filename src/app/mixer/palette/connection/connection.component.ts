@@ -3,12 +3,13 @@ import { Bounds, DraftNode, OpNode, Point } from '../../../core/model/datatypes'
 import { TreeService } from '../../../core/provider/tree.service';
 import { ZoomService } from '../../../core/provider/zoom.service';
 import { OperationService } from '../../../core/provider/operation.service';
+import { MatIconButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-connection',
     templateUrl: './connection.component.html',
     styleUrls: ['./connection.component.scss'],
-    standalone: false
+    imports: [MatIconButton]
 })
 export class ConnectionComponent implements OnInit {
 

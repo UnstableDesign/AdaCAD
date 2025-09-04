@@ -8,8 +8,8 @@ describe('FilebrowserComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilebrowserComponent ]
-    })
+    imports: [FilebrowserComponent]
+})
     .compileComponents();
   });
 

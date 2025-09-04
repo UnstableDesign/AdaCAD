@@ -1,17 +1,21 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { UntypedFormControl, FormsModule } from '@angular/forms';
 import { DynamicOperation, OperationInlet, OpNode } from '../../../../core/model/datatypes';
 import { getDraftName } from '../../../../core/model/drafts';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { SystemsService } from '../../../../core/provider/systems.service';
 import { TreeService } from '../../../../core/provider/tree.service';
+import { MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/autocomplete';
 
 
 @Component({
     selector: 'app-inlet',
     templateUrl: './inlet.component.html',
     styleUrls: ['./inlet.component.scss'],
-    standalone: false
+    imports: [MatButton, MatTooltip, MatSelect, FormsModule, MatOption]
 })
 export class InletComponent implements OnInit {
 

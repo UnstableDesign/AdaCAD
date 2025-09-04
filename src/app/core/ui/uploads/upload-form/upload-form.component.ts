@@ -5,12 +5,16 @@ import { Draft, Drawdown, Upload } from '../../../model/datatypes';
 import { MediaService } from '../../../provider/media.service';
 import { Sequence } from '../../../model/sequence';
 import { initDraftFromDrawdown } from '../../../model/drafts';
+import { MatFormField, MatHint } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'upload-form',
     templateUrl: './upload-form.component.html',
     styleUrls: ['./upload-form.component.scss'],
-    standalone: false
+    imports: [MatFormField, MatInput, MatProgressBar, MatHint, MatButton]
 })
 export class UploadFormComponent implements OnInit {
  

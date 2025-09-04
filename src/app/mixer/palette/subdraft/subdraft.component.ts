@@ -10,7 +10,7 @@ import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
-import { CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
+import { CdkDragMove, CdkDragStart, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { ConnectionComponent } from '../connection/connection.component';
 
@@ -19,7 +19,7 @@ import { ConnectionComponent } from '../connection/connection.component';
     selector: 'app-subdraft',
     templateUrl: './subdraft.component.html',
     styleUrls: ['./subdraft.component.scss'],
-    standalone: false
+    imports: [CdkDrag, CdkDragHandle, DraftContainerComponent]
 })
 
 

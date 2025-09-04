@@ -7,8 +7,8 @@ describe('SubdraftComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SubdraftComponent ]
-    })
+    imports: [SubdraftComponent]
+})
     .compileComponents();
   }));
 

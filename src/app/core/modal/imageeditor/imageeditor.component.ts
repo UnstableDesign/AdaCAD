@@ -1,15 +1,21 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { AnalyzedImage, Color, IndexedColorImageInstance } from '../../model/datatypes';
 import { TreeService } from '../../provider/tree.service';
 import { MediaService } from '../../provider/media.service';
 import utilInstance from '../../model/util';
+import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/autocomplete';
+import { MatButton } from '@angular/material/button';
 
 @Component({
-  selector: 'app-imageeditor',
-  standalone: false,
-  templateUrl: './imageeditor.component.html',
-  styleUrl: './imageeditor.component.scss'
+    selector: 'app-imageeditor',
+    templateUrl: './imageeditor.component.html',
+    styleUrl: './imageeditor.component.scss',
+    imports: [MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatSelect, MatOption, MatDialogActions, MatButton, MatDialogClose]
 })
 export class ImageeditorComponent {
 

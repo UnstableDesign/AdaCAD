@@ -15,9 +15,7 @@ import { DraftContainerComponent } from './palette/draftcontainer/draftcontainer
 
 @NgModule({
     imports: [
-        CoreModule    
-    ],
-    declarations: [
+        CoreModule,
         MixerComponent,
         SubdraftComponent,
         PaletteComponent,
@@ -29,7 +27,7 @@ import { DraftContainerComponent } from './palette/draftcontainer/draftcontainer
         ParameterComponent,
         InletComponent,
         DraftContainerComponent
-        ],
+    ],
     exports: [
         MixerComponent
     ]

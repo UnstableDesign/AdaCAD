@@ -11,12 +11,15 @@ import { createCell, getCellValue, setCellValue } from '../../../model/cell';
 import { MaterialsService } from '../../../provider/materials.service';
 import { SystemsService } from '../../../provider/systems.service';
 import { OperationService } from '../../../provider/operation.service';
+import { MatFabButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 
 @Component({
     selector: 'app-selection',
     templateUrl: './selection.component.html',
     styleUrls: ['./selection.component.scss'],
-    standalone: false
+    imports: [MatFabButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem]
 })
 export class SelectionComponent implements OnInit {
   

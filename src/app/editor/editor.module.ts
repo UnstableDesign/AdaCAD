@@ -5,15 +5,13 @@ import { LoomComponent } from './loom/loom.component';
 import { NgModule } from '@angular/core';
 
 @NgModule({
-    declarations: [
+    imports: [
+        CoreModule,
         EditorComponent,
         RepeatsComponent,
-        LoomComponent
+        LoomComponent,
     ],
-    imports: [
-        CoreModule,  
-    ],
-    exports:[
+    exports: [
         EditorComponent
     ]
 })

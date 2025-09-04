@@ -1,21 +1,27 @@
 import { Component, Output, EventEmitter, OnInit, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent } from "@angular/material/dialog";
 
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {ElementRef, ViewChild} from '@angular/core';
-import {UntypedFormControl} from '@angular/forms';
-import {MatAutocompleteSelectedEvent, MatAutocomplete} from '@angular/material/autocomplete';
-import {MatChipInputEvent} from '@angular/material/chips';
+import { UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteSelectedEvent, MatAutocomplete, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
+import { MatChipInputEvent, MatChipGrid, MatChipRow, MatChipRemove, MatChipInput } from '@angular/material/chips';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SystemsService } from '../../core/provider/systems.service';
 import { System } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
+import { MatIconButton, MatMiniFabButton } from '@angular/material/button';
+import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
 
 @Component({
     selector: 'app-repeats',
     templateUrl: './repeats.component.html',
     styleUrls: ['./repeats.component.scss'],
-    standalone: false
+    imports: [MatIconButton, MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatMiniFabButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatChipGrid, MatChipRow, MatChipRemove, FormsModule, MatAutocompleteTrigger, MatChipInput, ReactiveFormsModule, MatAutocomplete, MatOption]
 })
 
 

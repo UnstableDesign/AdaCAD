@@ -4,10 +4,7 @@ import { FileService } from './provider/file.service';
 import { StateService } from './provider/state.service';
 import { ViewadjustService } from './provider/viewadjust.service';
 
-@Directive({
-    selector: 'appKeycodes',
-    standalone: false
-})
+@Directive({ selector: 'appKeycodes' })
 export class EventsDirective {
   
   mixer_has_focus = true;

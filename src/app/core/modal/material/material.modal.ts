@@ -5,13 +5,21 @@ import { createMaterial, setMaterialID } from '../../model/material';
 import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
+import { MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription } from '@angular/material/expansion';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 
 
 @Component({
     selector: 'app-material-modal',
     templateUrl: './material.modal.html',
     styleUrls: ['./material.modal.scss'],
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatFormField, MatLabel, MatInput, FormsModule, MatSuffix, MatButton, MatMenuTrigger, MatMenu, MatDialogActions, MatDialogClose]
 })
 
 

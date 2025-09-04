@@ -1,16 +1,21 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { ExampleserviceService } from '../../provider/exampleservice.service';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { FilesystemService } from '../../provider/filesystem.service';
 import { MediaService } from '../../provider/media.service';
 import { SingleImage } from '../../model/datatypes';
 import { FilebrowserComponent } from '../../ui/filebrowser/filebrowser.component';
+import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardActions } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-examples',
     templateUrl: './examples.component.html',
     styleUrls: ['./examples.component.scss'],
-    standalone: false
+    imports: [MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatTabGroup, MatTab, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardActions, MatButton, MatDialogActions, MatDialogClose]
 })
 export class ExamplesComponent {
   @Output() onLoadExample = new EventEmitter <any>(); 

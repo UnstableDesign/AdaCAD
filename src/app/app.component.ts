@@ -35,7 +35,7 @@ import { OperationComponent } from './mixer/palette/operation/operation.componen
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
-import { UntypedFormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators, FormsModule } from '@angular/forms';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { VersionService } from './core/provider/version.service';
 import { ViewadjustService } from './core/provider/viewadjust.service';
@@ -45,12 +45,21 @@ import { WorkspaceComponent } from './core/modal/workspace/workspace.component';
 import { catchError, throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { EventsDirective } from './core/events.directive';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
+import { MatTooltip } from '@angular/material/tooltip';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatSlider, MatSliderThumb } from '@angular/material/slider';
+import { MatInput } from '@angular/material/input';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
-    standalone: false
+    imports: [EventsDirective, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent]
 })
 
 

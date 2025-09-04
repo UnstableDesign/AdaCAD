@@ -21,7 +21,7 @@ import { ViewerService } from '../../provider/viewer.service';
     selector: 'app-draft-rendering',
     templateUrl: './draft-rendering.component.html',
     styleUrl: './draft-rendering.component.scss',
-    standalone: false
+    imports: [SelectionComponent]
 })
 
 

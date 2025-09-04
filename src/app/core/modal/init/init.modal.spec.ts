@@ -8,8 +8,8 @@ describe('InitModal', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ InitModal ]
-    })
+    imports: [InitModal]
+})
     .compileComponents();
   }));
 

@@ -8,8 +8,8 @@ describe('UploadFormComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ UploadFormComponent ]
-    })
+    imports: [UploadFormComponent]
+})
     .compileComponents();
   }));
 

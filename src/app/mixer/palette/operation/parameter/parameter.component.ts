@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
-import { AbstractControl, FormControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { AbstractControl, FormControl, UntypedFormControl, ValidationErrors, ValidatorFn, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel, MatError, MatHint } from '@angular/material/form-field';
 import { AnalyzedImage, BoolParam, CodeParam, FileParam, IndexedColorImageInstance, MediaInstance, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
@@ -14,6 +14,12 @@ import { ImageeditorComponent } from '../../../../core/modal/imageeditor/imageed
 import { MatDialog } from '@angular/material/dialog';
 import { Index } from '@angular/fire/firestore';
 import { update } from '@angular/fire/database';
+import { MatInput } from '@angular/material/input';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/autocomplete';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatMiniFabButton, MatButton } from '@angular/material/button';
+import { UploadFormComponent } from '../../../../core/ui/uploads/upload-form/upload-form.component';
 
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -31,7 +37,7 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
     templateUrl: './parameter.component.html',
     styleUrls: ['./parameter.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    imports: [MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatTooltip, MatError, MatMiniFabButton, CdkTextareaAutosize, MatHint, MatButton, UploadFormComponent]
 })
 export class ParameterComponent implements OnInit {
   

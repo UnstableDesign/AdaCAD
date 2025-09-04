@@ -11,8 +11,7 @@ import { cropDraft, warps, wefts } from '../../core/model/drafts';
 @Component({
     selector: 'app-simulation',
     templateUrl: './simulation.component.html',
-    styleUrls: ['./simulation.component.scss'],
-    standalone: false
+    styleUrls: ['./simulation.component.scss']
 })
 export class SimulationComponent implements OnInit {
   

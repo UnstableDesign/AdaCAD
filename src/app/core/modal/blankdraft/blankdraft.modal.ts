@@ -1,16 +1,21 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { Draft, Loom, LoomSettings } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { initDraftWithParams } from '../../model/drafts';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { getLoomUtilByType } from '../../model/looms';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { FormsModule } from '@angular/forms';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-blankdraft',
     templateUrl: './blankdraft.modal.html',
     styleUrls: ['./blankdraft.modal.scss'],
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, FormsModule, MatFormField, MatLabel, MatInput, MatDialogActions, MatButton, MatDialogClose]
 })
 export class BlankdraftModal implements OnInit {
 

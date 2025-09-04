@@ -1,20 +1,28 @@
 import { Component, EventEmitter, Inject, OnInit, Optional, Output,ViewEncapsulation, inject } from '@angular/core';
 import { AuthService } from '../../provider/auth.service';
 import { FilesystemService } from '../../provider/filesystem.service';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogTitle, MatDialogClose, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { FileService } from '../../provider/file.service';
 import { LoginComponent } from '../../modal/login/login.component';
 import { ShareComponent } from '../../modal/share/share.component';
 import { defaults } from '../../model/defaults';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-filebrowser',
     templateUrl: './filebrowser.component.html',
     styleUrls: ['./filebrowser.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    imports: [MatDialogTitle, CdkDrag, CdkDragHandle, MatButton, MatDialogClose, CdkScrollable, MatDialogContent, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, MatFormField, MatLabel, MatInput, FormsModule, MatIconButton, MatSuffix, MatDialogActions]
 })
 export class FilebrowserComponent implements OnInit {
   private _snackBar = inject(MatSnackBar);

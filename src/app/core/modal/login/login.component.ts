@@ -1,9 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogClose, MatDialogActions } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthService } from '../../provider/auth.service';
-import {UntypedFormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
+import { UntypedFormControl, FormGroupDirective, NgForm, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatButton } from '@angular/material/button';
+import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -17,7 +21,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatDialogClose, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatError, MatDialogActions]
 })
 export class LoginComponent implements OnInit {
   emailFormControl = new UntypedFormControl('', [Validators.required, Validators.email]);

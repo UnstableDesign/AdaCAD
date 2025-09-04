@@ -10,12 +10,19 @@ import { ZoomService } from '../core/provider/zoom.service';
 import { RenderService } from '../core/provider/render.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { ViewerService } from '../core/provider/viewer.service';
+import { MatButton, MatMiniFabButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatSlider, MatSliderThumb } from '@angular/material/slider';
+import { FormsModule } from '@angular/forms';
+import { MatInput } from '@angular/material/input';
 
 @Component({
     selector: 'app-viewer',
     templateUrl: './viewer.component.html',
     styleUrls: ['./viewer.component.scss'],
-    standalone: false
+    imports: [MatButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, DraftRenderingComponent, SimulationComponent, MatToolbar, MatSlider, MatSliderThumb, FormsModule, MatInput, MatMiniFabButton]
 })
 export class ViewerComponent {
 

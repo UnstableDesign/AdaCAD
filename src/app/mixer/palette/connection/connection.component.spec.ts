@@ -8,8 +8,8 @@ describe('ConnectionComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ConnectionComponent ]
-    })
+    imports: [ConnectionComponent]
+})
     .compileComponents();
   }));
 

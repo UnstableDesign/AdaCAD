@@ -8,8 +8,8 @@ describe('MixerComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MixerComponent ]
-    })
+    imports: [MixerComponent]
+})
     .compileComponents();
   }));
 

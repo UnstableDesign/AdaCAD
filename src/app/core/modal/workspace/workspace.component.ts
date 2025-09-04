@@ -1,14 +1,20 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { WelcomeComponent } from '../welcome/welcome.component';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MatDialogTitle, MatDialogContent } from '@angular/material/dialog';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { density_units, loom_types, origin_option_list } from '../../model/defaults';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { MatRadioGroup, MatRadioButton } from '@angular/material/radio';
+import { FormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
     selector: 'app-workspace',
     templateUrl: './workspace.component.html',
     styleUrl: './workspace.component.scss',
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatRadioGroup, FormsModule, MatRadioButton, MatButton, MatSlideToggle]
 })
 
 

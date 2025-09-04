@@ -7,16 +7,14 @@ import { CoreModule } from '../core/core.module';
 
 
 @NgModule({
-  declarations: [
-    ViewerComponent,
-    SimulationComponent
-  ],
-  imports: [
-    CoreModule,
-    CommonModule
-  ],
-  exports: [
-    ViewerComponent
-  ]
+    imports: [
+        CoreModule,
+        CommonModule,
+        ViewerComponent,
+        SimulationComponent
+    ],
+    exports: [
+        ViewerComponent
+    ]
 })
 export class ViewerModule { }

@@ -1,8 +1,8 @@
 import { Component, enableProdMode, EventEmitter, HostListener, Input, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { FormControl, NgForm, UntypedFormControl } from '@angular/forms';
+import { FormControl, NgForm, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS } from '@angular/material/tooltip';
+import { MatTooltipDefaultOptions, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip } from '@angular/material/tooltip';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { DesignMode, Draft, DraftNode, DraftNodeProxy, Loom, LoomSettings, NodeComponentProxy, Operation, Point } from '../core/model/datatypes';
 import { defaults, loom_types } from '../core/model/defaults';
@@ -23,6 +23,12 @@ import { OperationService } from '../core/provider/operation.service';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { Observable } from 'rxjs';
 import { ViewerService } from '../core/provider/viewer.service';
+import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { MatButton } from '@angular/material/button';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { AsyncPipe } from '@angular/common';
 
 //disables some angular checking mechanisms
 enableProdMode();
@@ -46,7 +52,7 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
     templateUrl: './mixer.component.html',
     styleUrls: ['./mixer.component.scss'],
     providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }],
-    standalone: false
+    imports: [MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatButton, MatTooltip, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSlideToggle, PaletteComponent, AsyncPipe]
 })
 export class MixerComponent  {
 

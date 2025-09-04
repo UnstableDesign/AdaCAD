@@ -1,6 +1,6 @@
 import { Component, Inject, inject } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { FormControl, FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { AuthService } from '../../provider/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FilesystemService } from '../../provider/filesystem.service';
@@ -10,12 +10,23 @@ import { FileService } from '../../provider/file.service';
 import { defaults, licenses } from '../../model/defaults';
 import { MediaService } from '../../provider/media.service';
 import { LoginComponent } from '../login/login.component';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatButton } from '@angular/material/button';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatDivider } from '@angular/material/divider';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatFormField, MatLabel, MatHint } from '@angular/material/form-field';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/autocomplete';
+import { MatInput } from '@angular/material/input';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { UploadFormComponent } from '../../ui/uploads/upload-form/upload-form.component';
 
 @Component({
     selector: 'app-share',
     templateUrl: './share.component.html',
     styleUrl: './share.component.scss',
-    standalone: false
+    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatTooltip, MatDivider, MatSlideToggle, MatFormField, MatLabel, MatSelect, FormsModule, MatOption, MatHint, MatInput, MatCheckbox, UploadFormComponent, MatDialogActions, MatDialogClose]
 })
 export class ShareComponent {
   private _snackBar = inject(MatSnackBar);
