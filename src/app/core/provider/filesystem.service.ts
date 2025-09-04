@@ -1,11 +1,11 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
 import { get as fbget, getDatabase, onChildAdded, onChildRemoved, onDisconnect, onValue, orderByChild, update, ref as fbref, ref, remove, query, onChildChanged, set } from '@angular/fire/database';
-// import { onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, update } from 'firebase/database';
 import { Observable, Subject } from 'rxjs';
 import { FilebrowserComponent } from '../ui/filebrowser/filebrowser.component';
 import { SaveObj, ShareObj } from '../model/datatypes';
 import utilInstance from '../model/util';
+import { Database } from '@angular/fire/database';
 
 
 
@@ -14,7 +14,8 @@ import utilInstance from '../model/util';
 })
 export class FilesystemService {
   private auth = inject(Auth, { optional: true });
-
+  private db = inject(Database);
+  private zone = inject(NgZone)
 
   file_tree_change$ = new Subject<any>();
   file_saved_change$ = new Subject<any>();
@@ -36,13 +37,12 @@ export class FilesystemService {
 
  constructor() {
 
-      const db = getDatabase();
-      const presenceRef = ref(db, "disconnectmessage");
+      const presenceRef = ref(this.db, "disconnectmessage");
      
       // Write a string when this client loses connection
       onDisconnect(presenceRef).set("I disconnected!");
 
-      const connectedRef = ref(db, ".info/connected");
+      const connectedRef = ref(this.db, ".info/connected");
       onValue(connectedRef, (snap) => {
         if (snap.val() === true) {
           console.log("connected");
@@ -56,7 +56,7 @@ export class FilesystemService {
       this.file_tree = [];
 
       //SETUP COLLECTION OF SHARED FILES (DOES NOT REQUIRE LOGIN)
-      const sharedFiles = query(ref(db, 'shared'));
+      const sharedFiles = query(ref(this.db, 'shared'));
 
       onChildAdded(sharedFiles, (childsnapshot) => {
         //only add values that haven't already been added
@@ -120,7 +120,7 @@ export class FilesystemService {
         } 
        
         
-        const userFiles = query(ref(db, 'users/'+user.uid+'/files'), orderByChild('timestamp'));
+        const userFiles = query(ref(this.db, 'users/'+user.uid+'/files'), orderByChild('timestamp'));
 
         //called once per item, then on subsequent changes
         onChildAdded(userFiles, (childsnapshot) => {
@@ -297,8 +297,7 @@ export class FilesystemService {
     const user = auth.currentUser;
     
     if(user){
-      const db = getDatabase();
-      update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
+      update(fbref(this.db, 'users/'+user.uid+'/files/'+fileid),{
         name: newname});
     }
   }
@@ -314,8 +313,7 @@ export class FilesystemService {
     const auth = getAuth();
     const user = auth.currentUser;
     if(user){
-      const db = getDatabase();
-      update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
+      update(fbref(this.db, 'users/'+user.uid+'/files/'+fileid),{
         desc: desc});
     }
   }
@@ -362,8 +360,7 @@ duplicate(uid: string, name: string, desc: string, ada: any, from_share: string)
 createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
   if(!this.connected) return;
 
-  const db = getDatabase();
-  const ref = fbref(db, 'shared/'+file_id);
+  const ref = fbref(this.db, 'shared/'+file_id);
 
   return set(ref,share_data)
   .then(success => {
@@ -386,9 +383,8 @@ createSharedFile(file_id: string, share_data: ShareObj) : Promise<string> {
 isShared(file_id:string) : Promise<ShareObj> {
   // if(!this.connected) return Promise.reject("no internet connection");
 
-  const db = getDatabase();
 
-  const ref = fbref(db,'shared/' + file_id);
+  const ref = fbref(this.db,'shared/' + file_id);
   return fbget(ref)
   .then((filedata) => {
       if(filedata.exists()){
@@ -424,8 +420,7 @@ isShared(file_id:string) : Promise<ShareObj> {
 updateSharedFile(fileid: string, share: ShareObj) : Promise<any>{
   if(!this.connected) return Promise.reject("not logged in");
 
-  const db = getDatabase();
-  const ref = fbref(db, 'shared/'+fileid);
+  const ref = fbref(this.db, 'shared/'+fileid);
 
     update(ref,share)
     .then(success => {
@@ -448,8 +443,7 @@ updateSharedFile(fileid: string, share: ShareObj) : Promise<any>{
 updateSharedLicense(fileid: string, license: string) : Promise<any>{
   if(!this.connected) return Promise.reject("not logged in");
 
-  const db = getDatabase();
-  const ref = fbref(db, 'shared/'+fileid);
+  const ref = fbref(this.db, 'shared/'+fileid);
 
     update(ref,{license: license})
     .then(success => {
@@ -463,7 +457,7 @@ updateSharedLicense(fileid: string, license: string) : Promise<any>{
 }
 
 /**
-   * The shared entry is not the same as the file. This operation removes the entry to this file in the shared DB but the file that was shared still exists in the files DB. This will automatically rename that file to reflect that it used to be shared. 
+   * The shared entry is not the same as the file. This operation removes the entry to this file in the shared this.db but the file that was shared still exists in the files this.db. This will automatically rename that file to reflect that it used to be shared. 
    * @returns the file data
    */
 removeSharedFile(file_id: string) : Promise<any> {
@@ -471,15 +465,14 @@ removeSharedFile(file_id: string) : Promise<any> {
 
 
   let int_id: number = +file_id;
-  const db = getDatabase();
   const auth = getAuth();
   const user = auth.currentUser;
-  remove(fbref(db, `shared/${file_id}`));
+  remove(fbref(this.db, `shared/${file_id}`));
 
 
   this.getFileMeta(int_id).then(meta => {
     if(user){
-      update(fbref(db, 'users/'+user.uid+'/files/'+file_id),{name: meta.name + "(previously shared)"});
+      update(fbref(this.db, 'users/'+user.uid+'/files/'+file_id),{name: meta.name + "(previously shared)"});
     }
   })
 
@@ -495,10 +488,7 @@ removeSharedFile(file_id: string) : Promise<any> {
   getFile(fileid: number) : Promise<any> {
     if(!this.connected) return Promise.reject("get file is not logged in");
 
-
-    const db = getDatabase();
-
-    return fbget(fbref(db, `filedata/${fileid}`))
+    return fbget(fbref(this.db, `filedata/${fileid}`))
     .then((filedata) => {
 
 
@@ -525,13 +515,12 @@ removeSharedFile(file_id: string) : Promise<any> {
         
     if(!this.connected) return;
 
-    const db = getDatabase();
     const auth = getAuth();
     const user = auth.currentUser;
 
     if(user == null) return;
-    remove(fbref(db, `filedata/${fileid}`));
-    remove(fbref(db, 'users/'+user.uid+'/files/'+fileid));
+    remove(fbref(this.db, `filedata/${fileid}`));
+    remove(fbref(this.db, 'users/'+user.uid+'/files/'+fileid));
 
 
   }
@@ -542,13 +531,12 @@ removeSharedFile(file_id: string) : Promise<any> {
    * @returns the meta data
    */
   getFileMeta(fileid: number) : Promise<any> {
-    const db = getDatabase();
     const auth = getAuth();
     const user = auth.currentUser;
 
     if(user == null) return Promise.reject("user not logged in");
     
-    return fbget(fbref(db, 'users/'+user.uid+'/files/'+fileid)).then((meta) => {
+    return fbget(fbref(this.db, 'users/'+user.uid+'/files/'+fileid)).then((meta) => {
 
         if(meta.exists()){          
           let obj = {
@@ -583,9 +571,8 @@ removeSharedFile(file_id: string) : Promise<any> {
     if(user == null) return;
 
     const stamp = Date.now();
-    const db = getDatabase();
-    update(fbref(db, `users/${user.uid}`),{last_opened: fileid});
-    update(fbref(db, 'users/'+user.uid+'/files/'+fileid),{
+    update(fbref(this.db, `users/${user.uid}`),{last_opened: fileid});
+    update(fbref(this.db, 'users/'+user.uid+'/files/'+fileid),{
       timestamp: stamp,
     });
 
@@ -606,9 +593,7 @@ removeSharedFile(file_id: string) : Promise<any> {
 
     if(!this.connected) return;
 
-    const db = getDatabase();
-    const auth = getAuth();
-    const ref = fbref(db, 'filedata/'+fileid);
+    const ref = fbref(this.db, 'filedata/'+fileid);
 
     update(ref,{ada: cur_state})
     .then(success => {
@@ -627,14 +612,13 @@ removeSharedFile(file_id: string) : Promise<any> {
       if(from_share == undefined || from_share == null) from_share = '';
 
       const stamp = Date.now();
-      const db = getDatabase();
-      update(fbref(db, 'users/'+uid+'/files/'+fileid),{
+      update(fbref(this.db, 'users/'+uid+'/files/'+fileid),{
         name: name,
         desc: desc,
         timestamp: stamp, 
         from_share: from_share
       });
-      update(fbref(db, 'users/'+uid),{last_opened: fileid});
+      update(fbref(this.db, 'users/'+uid),{last_opened: fileid});
 
     }
     
