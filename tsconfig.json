@@ -14,7 +14,7 @@
   },
   "include": [
     "src/**/*" // Include all TypeScript files in the 'src' directory
-],
+  ],
   "exclude": [
     "node_modules", // Exclude node_modules
     "**/*.spec.ts", // Exclude test files
