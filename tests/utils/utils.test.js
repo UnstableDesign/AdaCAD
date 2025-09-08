@@ -28,9 +28,27 @@ const blank_draft_with_mats = initDraftWithParams({wefts: 10, warps: 10, rowShut
 const empty_loom = initLoom(10, 10, 8, 12);
 const loom_with_values = copyLoom(empty_loom);
 loom_with_values.treadling[2] = [2, 3]
+const arr1 = [1, 2, 3, 1, 4, 1, 5];
+const arr2 = ['a', 'b', 'c', 'a', 'b', 'q'];
 
-  const arr1 = [1, 2, 3, 1, 4, 1, 5];
-  const arr2 = ['a', 'b', 'c', 'a', 'b', 'q'];
+
+
+const areEquivalent = require('../../src/utils/utils.ts').areEquivalent;
+test('are equivalent arrays', () => {
+
+  let a = [1, 2, 3];
+  let b = [2, 1]
+  let c = [1, 2]
+  let d = ['a', 'b', 'c']
+
+  expect(areEquivalent(a, b)).toBe(false);
+  expect(areEquivalent(c, b)).toBe(true);
+  expect(areEquivalent(a, d)).toBe(false);
+  expect(areEquivalent([], b)).toBe(false);
+
+});
+
+
 
 const countOccurrences = require('../../src/utils/utils.ts').countOccurrences;
 
@@ -133,20 +151,6 @@ test('has matching heddle', () => {
 });
 
 
-const filterToUniqueValues = require('../../src/utils/utils.ts').filterToUniqueValues;
-
-test('testing filter to unique values', () =>{
-    const arr1 = [1, 2, 3, 1, 4, 1, 5];
-    const arr2 = ['c', 'a', 'b', 'c', 'a', 'b', 'q'];
-    const arr3 = ['a', 'b', 1, 'a', 'b', 2];
-    const arr4 = [1, null, 3, 1, 4, 1, 5];
-
-    expect(filterToUniqueValues(arr1)).toEqual([1, 2, 3, 4, 5])
-    expect(filterToUniqueValues(arr2)).toEqual(['c', 'a', 'b', 'q'])
-    expect(filterToUniqueValues(arr3)).toEqual(['a', 'b', 1, 2])
-    expect(filterToUniqueValues(arr4)).toEqual([1, null, 3, 4, 5])
-    expect(filterToUniqueValues(arr4)).not.toEqual([1, 3, 4, 5])
-});
 
 const getMaxWefts = require('../../src/utils/utils.ts').getMaxWefts;
 
@@ -223,7 +227,7 @@ test('are loom settings the same', () => {
 
 });
 
-const areLoomsTheSame = require('../../src/utils/utils.ts').areLoomSettingsTheSame;
+const areLoomsTheSame = require('../../src/utils/utils.ts').areLoomsTheSame;
 
 test('are looms the same', () => {
 
@@ -251,7 +255,8 @@ test('testing greatest common denominator', () => {
   expect(gcd(12, 6)).toBe(6);
   expect(gcd(6, 12)).toBe(6);
   expect(gcd(12, 144)).toBe(12);
-  //expect(gcd(3998, 387)).toBe(19);
+  expect(gcd(600, 2352)).toBe(24);
+  expect(gcd(601, 2352)).toBe(1);
 
 });
 
@@ -265,7 +270,38 @@ test('testing least common multiple', () => {
   let arr_c = [12, 12, 12, 12];
 
   expect(lcm(arr_c)).toBe(12);
-  // expect(gcd(arr_b).toBe(1764));
-  // expect(gcd(arr_a)).toBe(168);
+  expect(lcm(arr_b)).toBe(1764);
+  expect(lcm(arr_a)).toBe(168);
 
 });
+
+const filterToUniqueValues = require('../../src/utils/utils.ts').filterToUniqueValues;
+
+test('testing filter to unique values', () =>{
+    const arr1 = [1, 2, 3, 1, 4, 1, 5];
+    const arr2 = ['c', 'a', 'b', 'c', 'a', 'b', 'q'];
+    const arr3 = ['a', 'b', 1, 'a', 'b', 2];
+    const arr4 = [1, null, 3, 1, 4, 1, 5];
+
+    expect(filterToUniqueValues(arr1)).toEqual([1, 2, 3, 4, 5])
+    expect(filterToUniqueValues(arr2)).toEqual(['c', 'a', 'b', 'q'])
+    expect(filterToUniqueValues(arr3)).toEqual(['a', 'b', 1, 2])
+    expect(filterToUniqueValues(arr4)).toEqual([1, null, 3, 4, 5])
+    expect(filterToUniqueValues(arr4)).not.toEqual([1, 3, 4, 5])
+});
+
+
+const parseRegex = require('../../src/utils/utils.ts').parseRegex;
+
+test('parse regex', ()=> {
+  let a = 'a1b2'
+  let b = '12--'
+  let c = '\na b'
+  let regex = /[a-zA-Z]+/g;
+
+  expect(parseRegex(a, regex)).toEqual(["a", "b"])
+  expect(parseRegex(b, regex)).toEqual([])
+  expect(parseRegex(c, regex)).toEqual(["a", "b"])
+
+
+})
