@@ -18,7 +18,7 @@ import { TreeService } from '../../core/provider/tree.service';
 export class SimulationComponent implements OnInit {
   private tree = inject(TreeService);
   ms = inject(MaterialsService);
-  simulation = inject(SimulationService);
+  sim = inject(SimulationService);
 
 
   @Input('id') id;
@@ -43,9 +43,7 @@ export class SimulationComponent implements OnInit {
   render_size_error: boolean = false;
 
   constructor(
-    private tree: TreeService,
-    public ms: MaterialsService,
-    public sim: SimulationService) {
+  ) {
 
     this.simVars = {
       pack: defaults.pack,

@@ -1,10 +1,10 @@
 import { ViewRef } from "@angular/core";
-import { NoteComponent } from "../../mixer/palette/note/note.component";
+import * as THREE from 'three';
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
+import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialsService } from "../provider/materials.service";
-import * as THREE from 'three';
 
 /**
  * This file contains all definitions of custom types and objects
@@ -35,7 +35,7 @@ export type Drawdown = Array<Array<Cell>>;
  * @param colShuttleMapping the repeating pattern to use to assign draft columns to shuttles (materials)
  * @param colSystemMapping the repeating pattern to use to assign draft columns to systems (structual units like layers for instance)
  */
-export interface Draft{
+export interface Draft {
   id: number,
   gen_name: string,
   ud_name: string,
@@ -50,13 +50,13 @@ export interface Draft{
 /**
  * a modified version of the draft that stores the drawdown as a Byte Array to save space
  */
-export interface CompressedDraft{
+export interface CompressedDraft {
   id: number,
   gen_name: string,
   ud_name: string,
-  warps: number; 
+  warps: number;
   wefts: number;
-  compressed_drawdown:  Array<number>,
+  compressed_drawdown: Array<number>,
   rowShuttleMapping: Array<number>,
   rowSystemMapping: Array<number>,
   colShuttleMapping: Array<number>,
@@ -64,13 +64,13 @@ export interface CompressedDraft{
 }
 
 
-export interface Cell{
+export interface Cell {
   is_set: boolean,
   is_up: boolean
 }
 
 
-export interface System{
+export interface System {
   id: number;
   name: string;
   notes: string;
@@ -92,7 +92,7 @@ export interface Material {
   startLabel?: string;
   endLabel?: string;
   notes: string;
-  rgb: {r: number, g: number, b: number}
+  rgb: { r: number, g: number, b: number }
 
 }
 
@@ -104,10 +104,10 @@ export interface Material {
  *        this value can be de-indexed to absolute position in the rows using draft.visibleRows array
  * @example const i: number = draft.visibleRows[si];
  */
- export interface Interlacement {
-  i: number;  
-  j: number;  
-  si: number; 
+export interface Interlacement {
+  i: number;
+  j: number;
+  si: number;
 }
 
 /**
@@ -118,10 +118,10 @@ export interface Material {
  * @param val the value to be assigned at the given location
  */
 
- export interface InterlacementVal {
-  i: number;  
-  j: number 
-  val: boolean; 
+export interface InterlacementVal {
+  i: number;
+  j: number
+  val: boolean;
 }
 
 
@@ -131,7 +131,7 @@ export interface Material {
  * this stores a list of drafts created with associated component ids for those drafts, 
  * or -1 if the component for this draft has not been generated yet. 
  */
- export interface DraftMap{
+export interface DraftMap {
   component_id: number;
   draft: any;
 }
@@ -144,7 +144,7 @@ export interface Material {
  * describes a point using x,y coordinates
  * often used for referencing mouse and/or screen drawing positions
  */
- export interface Point {
+export interface Point {
   x: number;
   y: number;
 }
@@ -155,7 +155,7 @@ export interface Material {
  * @param width - the width of the rectangle
  * @param height - the height of this rectanble.
  */
- export interface Bounds {
+export interface Bounds {
   topleft: Point;  //row on draft
   width: number;  //column on draft 
   height: number; //corresponding screen row
@@ -203,24 +203,24 @@ export interface ViewModes {
  * @param children, menu to nest within this
  * @param selected boolean to show if it is selected
  */
- export interface DesignMode{
+export interface DesignMode {
   value: string;
   viewValue: string;
   icon?: string;
 }
 
-export interface Note{
+export interface Note {
   id: number,
   topleft: Point,
   title: string;
   text: string;
   ref: ViewRef;
   color: string;
-  component: NoteComponent; 
+  component: NoteComponent;
   imageurl: string;
   width: number;
   height: number;
- }
+}
 
 
 /**
@@ -231,7 +231,7 @@ export interface Note{
  * @param frames the number of frames the user has specified as the max for their loom
  * @param treadles the number of treadles the user has specified as the max for their loom or -1, if they have no limit
  */
- export type LoomSettings = {
+export type LoomSettings = {
   type: string,
   epi: number,
   units: 'cm' | 'in',
@@ -266,20 +266,20 @@ export type LoomUtil = {
   type: 'jacquard' | 'frame' | 'direct',
   displayname: string,
   dx: string,
-  computeLoomFromDrawdown: (d:Drawdown, loom_settings: LoomSettings) => Promise<Loom>,
-  computeDrawdownFromLoom: (l:Loom) => Promise<Drawdown>,
-  recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown) => Promise<Loom>,
+  computeLoomFromDrawdown: (d: Drawdown, loom_settings: LoomSettings) => Promise<Loom>,
+  computeDrawdownFromLoom: (l: Loom) => Promise<Drawdown>,
+  recomputeLoomFromThreadingAndDrawdown: (l: Loom, loom_settings: LoomSettings, d: Drawdown) => Promise<Loom>,
   updateThreading: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTreadling: (l: Loom, ndx: InterlacementVal) => Loom,
-  updateTieup: (l: Loom, ndx: InterlacementVal)=> Loom,
+  updateTieup: (l: Loom, ndx: InterlacementVal) => Loom,
   insertIntoThreading: (l: Loom, j: number, val: number) => Loom,
   insertIntoTreadling: (l: Loom, i: number, val: Array<number>) => Loom,
   deleteFromThreading: (l: Loom, j: number) => Loom,
   deleteFromTreadling: (l: Loom, i: number) => Loom,
-  pasteThreading: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
-  pasteTreadling: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
-  pasteTieup: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number)=> Loom
-  getDressingInfo: (dd: Drawdown, l: Loom, ls: LoomSettings)=> Array<{label: string, value: string}>;
+  pasteThreading: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) => Loom,
+  pasteTreadling: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) => Loom,
+  pasteTieup: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) => Loom
+  getDressingInfo: (dd: Drawdown, l: Loom, ls: LoomSettings) => Array<{ label: string, value: string }>;
 }
 
 
@@ -295,11 +295,11 @@ export type YarnMap = Array<Array<Cell>>;
  * @param type the type of node
  * @param topleft the screen position and size data for this node
  */
-export interface NodeComponentProxy{
+export interface NodeComponentProxy {
   node_id: number,
   type: string,
   topleft: Point
- }
+}
 
 /**
  * stores a sparce version of a tree node for easy reloading
@@ -308,92 +308,92 @@ export interface NodeComponentProxy{
  * @param inputs an array of treenode ids for all values coming into this node
  * @param outputs an array of treenode ids for all downstream functions 
  */
- export interface TreeNodeProxy{
+export interface TreeNodeProxy {
   node: number,
-  parent: number; 
-  inputs: Array<{tn: number, ndx: number}>;
-  outputs: Array<{tn: number, ndx: number}>; 
- }
+  parent: number;
+  inputs: Array<{ tn: number, ndx: number }>;
+  outputs: Array<{ tn: number, ndx: number }>;
+}
 
-  /**
-  * holds data about each draft component in a compressed form 
-  * @param draft_id the draft id associated with this node (if available)
- * @param draft_visible a boolean to state if this node is visible or not. 
- * @param draft_name a string representing a user defined name
- * @param warps the number of warps in the drawdown
- * @param wefts the number of wefts in the drawdown 
- * @param compressed_draft this will only export if the draft is a seed draft
- * @param loom this will only export if the draft is a seed draft 
- * @param loom_settings the associated loom settings on this node, if present
-  */
+/**
+* holds data about each draft component in a compressed form 
+* @param draft_id the draft id associated with this node (if available)
+* @param draft_visible a boolean to state if this node is visible or not. 
+* @param draft_name a string representing a user defined name
+* @param warps the number of warps in the drawdown
+* @param wefts the number of wefts in the drawdown 
+* @param compressed_draft this will only export if the draft is a seed draft
+* @param loom this will only export if the draft is a seed draft 
+* @param loom_settings the associated loom settings on this node, if present
+*/
 
-   export interface DraftNodeProxy{
-    node_id: number;
-    draft_id: number;
-    ud_name: string;
-    gen_name:string;
-    draft: Draft;
-    compressed_draft: CompressedDraft;
-    draft_visible: boolean;
-    loom: Loom;
-    loom_settings: LoomSettings;
-    render_colors: boolean;
-    scale: number;
-   }
+export interface DraftNodeProxy {
+  node_id: number;
+  draft_id: number;
+  ud_name: string;
+  gen_name: string;
+  draft: Draft;
+  compressed_draft: CompressedDraft;
+  draft_visible: boolean;
+  loom: Loom;
+  loom_settings: LoomSettings;
+  render_colors: boolean;
+  scale: number;
+}
 
- /**
-  * a sparse form of an operation component to use for saving
-  * @param node_id the node id this object refers too
-  * @param name the name of the operation at this node
-  * @param params the list of input parameters to this operation
-  * @param inlets the let of inlets and associated values 
-  */
- export interface OpComponentProxy{
+/**
+ * a sparse form of an operation component to use for saving
+ * @param node_id the node id this object refers too
+ * @param name the name of the operation at this node
+ * @param params the list of input parameters to this operation
+ * @param inlets the let of inlets and associated values 
+ */
+export interface OpComponentProxy {
   node_id: number,
   name: string,
-  params: Array<any>, 
+  params: Array<any>,
   inlets: Array<any>;
- }
+}
 
- /**
-  * a container for zoom values of the editor, mixer.
-  */
- export interface ZoomProxy{
-    editor: number;
-    mixer: number;
- }
+/**
+ * a container for zoom values of the editor, mixer.
+ */
+export interface ZoomProxy {
+  editor: number;
+  mixer: number;
+}
 
- /**
-  * a media object is something a user uploads for manipulation in AdaCAD that is stored on the Firebase server
-  * a media object belongs to a user and eventually can be used across file contexts
-  * @param id a unique id that refers to only this media object instance
-  * @param ref the reference id used to find the media object in storage
-  * @param type a flag to determine which type of media this is
-  */
- export type MediaInstance ={
+/**
+ * a media object is something a user uploads for manipulation in AdaCAD that is stored on the Firebase server
+ * a media object belongs to a user and eventually can be used across file contexts
+ * @param id a unique id that refers to only this media object instance
+ * @param ref the reference id used to find the media object in storage
+ * @param type a flag to determine which type of media this is
+ */
+export type MediaInstance = {
   id: number;
-  ref: string; 
+  ref: string;
   type: 'image' | 'indexed_color_image'; //currently we only support images
   img: IndexedColorImageInstance | SingleImage;
 
- }
+}
 
- export type IndexedColorImageInstance = MediaInstance & {
+export type IndexedColorImageInstance = MediaInstance & {
   img: AnalyzedImage;
- }
+}
 
- export type IndexedColorMediaProxy = {
+export type IndexedColorMediaProxy = {
   id: number,
   ref: string,
   colors: Array<Color>;
-  color_mapping: Array<{from:number, to: number}>;
- }
+  color_mapping: Array<{ from: number, to: number }>;
+}
 
 
- /**
-  * describes the data from the workspace that is saved.
-  */
- export interface SaveObj{
+/**
+ * describes the data from the workspace that is saved.
+ */
+export interface SaveObj {
   version: string,
   workspace: any,
   zoom: ZoomProxy,
@@ -405,46 +405,46 @@ export interface NodeComponentProxy{
   notes: Array<Note>,
   materials: Array<Material>,
   indexed_image_data: Array<IndexedColorMediaProxy>
- }
+}
 
-export interface FileObj{
- version: string,
- workspace: any,
- zoom: ZoomProxy,
- filename: string,
- nodes: Array<NodeComponentProxy>,
- treenodes: Array<TreeNodeProxy>,
- draft_nodes: Array<DraftNodeProxy>,
- notes: Array<any>,
- ops: Array<OpComponentProxy>,
- indexed_image_data: Array<IndexedColorMediaProxy>
+export interface FileObj {
+  version: string,
+  workspace: any,
+  zoom: ZoomProxy,
+  filename: string,
+  nodes: Array<NodeComponentProxy>,
+  treenodes: Array<TreeNodeProxy>,
+  draft_nodes: Array<DraftNodeProxy>,
+  notes: Array<any>,
+  ops: Array<OpComponentProxy>,
+  indexed_image_data: Array<IndexedColorMediaProxy>
 
 }
 
 
-export interface StatusMessage{
+export interface StatusMessage {
   id: number,
   message: string,
   success: boolean
 }
 
-export interface LoadResponse{
+export interface LoadResponse {
   data: FileObj,
   id: number,
-  name: string, 
+  name: string,
   desc: string,
   status: number,
   from_share: string
 }
 
-export interface Fileloader{
+export interface Fileloader {
   ada: (filename: string, src: string, id: number, desc: string, data: any, from_share: string) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
 }
 
-export interface FileSaver{
-  ada: () => Promise<{json: string, file: SaveObj}>,
+export interface FileSaver {
+  ada: () => Promise<{ json: string, file: SaveObj }>,
   copy: (include: Array<number>) => Promise<SaveObj>,
   wif: (draft: Draft, loom: Loom, loom_settings: LoomSettings) => Promise<string>
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
@@ -464,11 +464,11 @@ export interface FileSaver{
  * @param value the assigned value of the parameter. 
  * @param num_drafts the total number of drafts accepted into this inlet (or -1 if unlimited)
  */
- export type OperationInlet = {
+export type OperationInlet = {
   name: string,
   type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
   dx: string,
-  uses: 'draft' | 'weft-data' | 'warp-data' | 'warp-and-weft-data' ,
+  uses: 'draft' | 'weft-data' | 'warp-data' | 'warp-and-weft-data',
   value: number | string | null,
   num_drafts: number
 }
@@ -480,7 +480,7 @@ export interface FileSaver{
  * @param min the minimum allowable value
  * @param max the maximum allowable value
  */
- export type NumInlet = OperationInlet & {
+export type NumInlet = OperationInlet & {
   value: number,
   min: number,
   max: number
@@ -516,7 +516,7 @@ export type NumParam = OperationParam & {
  * @param seleclist an array of names and values from which the user can select
  */
 export type SelectParam = OperationParam & {
-  selectlist: Array<{name: string, value: number}>
+  selectlist: Array<{ name: string, value: number }>
 }
 
 /**
@@ -567,29 +567,29 @@ export type StringParam = OperationParam & {
 }
 
 
- /**
-  * this containers the parameters associated with the operation
-  * @param op_name the name of the operation  input parameter
-  * @param params the parameters associated with this operation OR child input
-  */
- export interface OpParamVal{
+/**
+ * this containers the parameters associated with the operation
+ * @param op_name the name of the operation  input parameter
+ * @param params the parameters associated with this operation OR child input
+ */
+export interface OpParamVal {
   param: OperationParam,
   val: any
- }
+}
 
 
- /**
-  * this is a type that contains and contextualizes a series of inputs to an operation, each inlet on an operation corresponds to one op input
-  * @param drafts the drafts (from zero to multiple) associated with this input
-  * @param params the parameters associated with this input
-  * @param inlet_id the index of the inlet for which the draft is entering upon
-  */
-  export interface OpInput{
-    drafts: Array<Draft>,
-    params: Array<any>,
-    inlet_id: number
-   }
-  
+/**
+ * this is a type that contains and contextualizes a series of inputs to an operation, each inlet on an operation corresponds to one op input
+ * @param drafts the drafts (from zero to multiple) associated with this input
+ * @param params the parameters associated with this input
+ * @param inlet_id the index of the inlet for which the draft is entering upon
+ */
+export interface OpInput {
+  drafts: Array<Draft>,
+  params: Array<any>,
+  inlet_id: number
+}
+
 /**
  * a standard opeartion
  * @param name the internal name of this opearation (CHANGING THESE WILL BREAK LEGACY VERSIONS)
@@ -602,93 +602,93 @@ export type StringParam = OperationParam & {
  * @param generateName a function that computes the system provided name default based on the inputs. a number can be passed in args to handle cases where the operation needs to assign different names to different draft outputs
  */
 export type Operation = {
-    name: string,
-    params: Array<OperationParam>,
-    inlets: Array<OperationInlet>,
-    old_names: Array<string>,
-    perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
-    generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>, ...args) => string
- }
+  name: string,
+  params: Array<OperationParam>,
+  inlets: Array<OperationInlet>,
+  old_names: Array<string>,
+  perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
+  generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>, ...args) => string
+}
 
- /**
- * A container operation that takes drafts with some parameter assigned to them 
- * @param dynamic_param_id which parameter ids should we use to determine the number and value of parameterized input slots
- * @param dynamic_inlet_type dynamic parameters convert parameter inputs to inlets of a given type, this specifies the type of inlet created
- * @param onParamChange a function that executes when a dynamic parameter is changed
- */
-export type DynamicOperation = Operation &  {
+/**
+* A container operation that takes drafts with some parameter assigned to them 
+* @param dynamic_param_id which parameter ids should we use to determine the number and value of parameterized input slots
+* @param dynamic_inlet_type dynamic parameters convert parameter inputs to inlets of a given type, this specifies the type of inlet created
+* @param onParamChange a function that executes when a dynamic parameter is changed
+*/
+export type DynamicOperation = Operation & {
   dynamic_param_id: Array<number>,
   dynamic_param_type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
-  onParamChange: ( param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, dynamic_param_vals: Array<any>) => Array<any>;
+  onParamChange: (param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, dynamic_param_vals: Array<any>) => Array<any>;
   perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
 
 
 
- /**
-  * this type is used to classify operations in the dropdown menu
-  * @param category the name of the category for all associated operations (e.g. block, structure)
-  * @param dx a description of that category to show on screen
-  * @param ops an array of all the operations associated with this category
-  */
- export interface OperationClassification{
+/**
+ * this type is used to classify operations in the dropdown menu
+ * @param category the name of the category for all associated operations (e.g. block, structure)
+ * @param dx a description of that category to show on screen
+ * @param ops an array of all the operations associated with this category
+ */
+export interface OperationClassification {
   category_name: string,
   description: string,
   color: string,
   op_names: Array<string>;
- }
+}
 
 
 
- /**
-  * an object that is stored in memory when an image is loaded
-  * @param name the file name of the uploaded file
-  * @param data the raw data of the image 
-  * @param colors an array of unique hex values found in this image 
-  * @param colors_mapping an array that matches each index in the color array to a color index that it should be grouped with
-  * @param image the HTML image object to write the data into 
-  * @param image_map an 2D array associating every pixel in the image with the id of the associated color in the colors array
-  * @param width 
-  * @param height
-  * @param type
-  * @param warning a text warning is added if the image file violates rules
-  */
- export interface AnalyzedImage{
-    name: string,
-    data: ImageData, 
-    colors: Array<Color>,
-    colors_mapping: Array<{from: number, to: number}>,
-    proximity_map: Array<{a: number, b: number, dist: number}>,
-    image: HTMLImageElement,
-    image_map: Array<Array<number>>,
-    width:number,
-    height: number,
-    type: string,
-    warning: string
- }
+/**
+ * an object that is stored in memory when an image is loaded
+ * @param name the file name of the uploaded file
+ * @param data the raw data of the image 
+ * @param colors an array of unique hex values found in this image 
+ * @param colors_mapping an array that matches each index in the color array to a color index that it should be grouped with
+ * @param image the HTML image object to write the data into 
+ * @param image_map an 2D array associating every pixel in the image with the id of the associated color in the colors array
+ * @param width 
+ * @param height
+ * @param type
+ * @param warning a text warning is added if the image file violates rules
+ */
+export interface AnalyzedImage {
+  name: string,
+  data: ImageData,
+  colors: Array<Color>,
+  colors_mapping: Array<{ from: number, to: number }>,
+  proximity_map: Array<{ a: number, b: number, dist: number }>,
+  image: HTMLImageElement,
+  image_map: Array<Array<number>>,
+  width: number,
+  height: number,
+  type: string,
+  warning: string
+}
 
- export interface Color{
+export interface Color {
   r: number,
   g: number,
   b: number,
   hex: string
- }
+}
 
- export interface Upload {
+export interface Upload {
   $key: string,
-  file:File,
-  name:string,
-  url:string,
-  progress:number,
+  file: File,
+  name: string,
+  url: string,
+  progress: number,
   createdAt: Date,
 
 }
 
-export interface SingleImage{
+export interface SingleImage {
   name: string,
-  data: ImageData, 
+  data: ImageData,
   image: HTMLImageElement,
-  width:number,
+  width: number,
   height: number,
   type: string,
   warning: string
@@ -728,16 +728,16 @@ export type OpNode = BaseNode & {
   name: string,
   params: Array<any>
   inlets: Array<any>
- }
+}
 
 
- /**
- * a DraftNode is an extension of BaseNode that includes additional params
- * @param draft the active draft at this node
- * @param loom the loom associated with the draft at this node
- * @param loom_settings the settings associted with the loom at this node
- */
- export type DraftNode = BaseNode & {
+/**
+* a DraftNode is an extension of BaseNode that includes additional params
+* @param draft the active draft at this node
+* @param loom the loom associated with the draft at this node
+* @param loom_settings the settings associted with the loom at this node
+*/
+export type DraftNode = BaseNode & {
   draft: Draft,
   loom: Loom,
   loom_settings: LoomSettings,
@@ -745,29 +745,29 @@ export type OpNode = BaseNode & {
   scale: number,
   visible: boolean,
   mark_for_deletion: boolean
- }
+}
 
 
 /**
  * Allows one to use Node as shorthand for any of these types of nodes
  */
- export type Node = BaseNode | OpNode | DraftNode;
+export type Node = BaseNode | OpNode | DraftNode;
 
 
- /**
-  * a type to store input and output information for nodes that takes multiple node inputs and outputs into account.
-  * each IOTuple stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
-  * connections will have inlet/outlet indexes of {0, 0} (they cannot connect to multiple things)
-  * drafts will have inlet indexes of {0, 0} (they can only have one parent)
-  * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
-  * @param treenode - the treenode that this input or output goes towards
-  * @param ndx - which ndx on the said treenodes does this connect to specifically
-  * @param val - the value associated with this inlet
-  */
- export interface IOTuple{
-   tn: TreeNode,
-   ndx: number
-   }
+/**
+ * a type to store input and output information for nodes that takes multiple node inputs and outputs into account.
+ * each IOTuple stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
+ * connections will have inlet/outlet indexes of {0, 0} (they cannot connect to multiple things)
+ * drafts will have inlet indexes of {0, 0} (they can only have one parent)
+ * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
+ * @param treenode - the treenode that this input or output goes towards
+ * @param ndx - which ndx on the said treenodes does this connect to specifically
+ * @param val - the value associated with this inlet
+ */
+export interface IOTuple {
+  tn: TreeNode,
+  ndx: number
+}
 
 /**
  * A tree node stores relationships between the components created by operations
@@ -780,7 +780,7 @@ export type OpNode = BaseNode & {
   *   Subdrafts can only have one input and one output (for now)
   *   
 */
-export interface TreeNode{
+export interface TreeNode {
   node: Node,
   parent: TreeNode,
   inputs: Array<IOTuple>,
@@ -804,16 +804,16 @@ export type YarnCell = number;
  * PCN - potential contact point (there is a weft that float over this point)
  * VCN - virtual contact point (used only to draw ends of rows for sim when you want full width no matter what)
  */
-export type CNType = 'ACN' | 'ECN'| 'PCN' | 'VCN'; 
+export type CNType = 'ACN' | 'ECN' | 'PCN' | 'VCN';
 
 export type CNIndex = {
-  i: number, 
+  i: number,
   j: number,
   id: number
 }
 
 export type CNFloat = {
-  left: CNIndex, 
+  left: CNIndex,
   right: CNIndex,
   face: boolean,
   edge: boolean
@@ -826,21 +826,21 @@ export type CNFloat = {
 export type ContactNeighborhood = {
   face: boolean,
   node_type: CNType,
-  mv: {y: number, z: number}
+  mv: { y: number, z: number }
   ndx: CNIndex
 }
 
 export type Vec3 = {
-  x: number, 
+  x: number,
   y: number,
   z: number
 }
 
 
 export type YarnVertex = {
-  x: number, 
-  y: number, 
-  z: number, 
+  x: number,
+  y: number,
+  z: number,
   ndx: CNIndex
 };
 
@@ -868,7 +868,7 @@ export type SimulationVars = {
   pack: number,
   lift_limit: number,
   use_layers: boolean,
-  warp_spacing: number, 
+  warp_spacing: number,
   layer_spacing: number,
   wefts_as_written: boolean,
   simulate: boolean,
@@ -878,18 +878,18 @@ export type SimulationVars = {
 
 export type Particle = {
   position: THREE.Vector3,
-  previousPosition: THREE.Vector3, 
-  acceleration: THREE.Vector3, 
-  pinned: boolean, 
+  previousPosition: THREE.Vector3,
+  acceleration: THREE.Vector3,
+  pinned: boolean,
   mesh: THREE.Mesh
 }
 
 export type Spring = {
   pts: Array<THREE.Vector3>,
   mesh: THREE.Mesh,
-  p1: Particle, 
+  p1: Particle,
   p2: Particle,
-  restLength: number, 
+  restLength: number,
   color: number,
   diameter: number
 }
@@ -918,8 +918,8 @@ export type CanvasList = {
   id: number,
   drawdown: HTMLCanvasElement,
   threading: HTMLCanvasElement,
-  tieup: HTMLCanvasElement, 
-  treadling: HTMLCanvasElement, 
+  tieup: HTMLCanvasElement,
+  treadling: HTMLCanvasElement,
   warp_systems: HTMLCanvasElement,
   warp_mats: HTMLCanvasElement,
   weft_systems: HTMLCanvasElement,
@@ -930,17 +930,17 @@ export type CanvasList = {
  * used to tell the draft renderer what to redraw and what settings to use
  */
 export type RenderingFlags = {
- u_drawdown: boolean, 
- u_threading: boolean, 
- u_treadling: boolean, 
- u_tieups: boolean,
- u_warp_sys: boolean,
- u_warp_mats: boolean,
- u_weft_sys: boolean,
- u_weft_mats: boolean,
- use_colors: boolean,
- use_floats: boolean,
- show_loom: boolean
+  u_drawdown: boolean,
+  u_threading: boolean,
+  u_treadling: boolean,
+  u_tieups: boolean,
+  u_warp_sys: boolean,
+  u_warp_mats: boolean,
+  u_weft_sys: boolean,
+  u_weft_mats: boolean,
+  use_colors: boolean,
+  use_floats: boolean,
+  show_loom: boolean
 }
 
 
@@ -956,11 +956,11 @@ export type ShareObj = {
   owner_url: string,
   filename: string,
   desc: string,
-  public:boolean,
+  public: boolean,
   img: string
 
 }
- 
+
 
 
 
