@@ -1,7 +1,7 @@
 import { Draft } from "../draft/types";
 import { Img } from "../media/types";
 
-  
+
 /**
  * a standard opeartion
  * @param name the internal name of this opearation (CHANGING THESE WILL BREAK LEGACY VERSIONS)
@@ -14,24 +14,24 @@ import { Img } from "../media/types";
  * @param generateName a function that computes the system provided name default based on the inputs. a number can be passed in args to handle cases where the operation needs to assign different names to different draft outputs
  */
 export type Operation = {
-    name: string,
-    params: Array<OperationParam>,
-    inlets: Array<OperationInlet>,
-    old_names: Array<string>,
-    perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
-    generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string
- }
+  name: string,
+  params: Array<OperationParam>,
+  inlets: Array<OperationInlet>,
+  old_names: Array<string>,
+  perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
+  generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string
+}
 
- /**
- * A container operation that takes drafts with some parameter assigned to them 
- * @param dynamic_param_id which parameter ids should we use to determine the number and value of parameterized input slots
- * @param dynamic_inlet_type dynamic parameters convert parameter inputs to inlets of a given type, this specifies the type of inlet created
- * @param onParamChange a function that executes when a dynamic parameter is changed and returns the values for the inlets
- */
-export type DynamicOperation = Operation &  {
+/**
+* A container operation that takes drafts with some parameter assigned to them 
+* @param dynamic_param_id which parameter ids should we use to determine the number and value of parameterized input slots
+* @param dynamic_inlet_type dynamic parameters convert parameter inputs to inlets of a given type, this specifies the type of inlet created
+* @param onParamChange a function that executes when a dynamic parameter is changed and returns the values for the inlets
+*/
+export type DynamicOperation = Operation & {
   dynamic_param_id: Array<number>,
   dynamic_param_type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
-  onParamChange: ( param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>) => Array<OpInletValType>;
+  onParamChange: (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>) => Array<OpInletValType>;
   perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
 
@@ -66,7 +66,7 @@ export type NumParam = OperationParam & {
  * @param seleclist an array of names and values from which the user can select
  */
 export type SelectParam = OperationParam & {
-  selectlist: Array<{name: string, value: number}>
+  selectlist: Array<{ name: string, value: number }>
 }
 
 /**
@@ -120,15 +120,15 @@ export type StringParam = OperationParam & {
 
 
 
- /**
-  * this containers the parameters associated with the operation
-  * @param op_name the name of the operation  input parameter
-  * @param params the parameters associated with this operation OR child input
-  */
- export interface OpParamVal{
+/**
+ * this containers the parameters associated with the operation
+ * @param op_name the name of the operation  input parameter
+ * @param params the parameters associated with this operation OR child input
+ */
+export interface OpParamVal {
   param: OperationParam,
   val: OpParamValType,
- }
+}
 
 
 
@@ -142,11 +142,11 @@ export type StringParam = OperationParam & {
  * @param value the assigned value of the parameter. 
  * @param num_drafts the total number of drafts accepted into this inlet (or -1 if unlimited)
  */
- export type OperationInlet = {
+export type OperationInlet = {
   name: string,
   type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
   dx: string,
-  uses: 'draft' | 'weft-data' | 'warp-data' | 'warp-and-weft-data' ,
+  uses: 'draft' | 'weft-data' | 'warp-data' | 'warp-and-weft-data',
   value: OpInletValType,
   num_drafts: number
 }
@@ -158,7 +158,7 @@ export type StringParam = OperationParam & {
  * @param min the minimum allowable value
  * @param max the maximum allowable value
  */
- export type NumInlet = OperationInlet & {
+export type NumInlet = OperationInlet & {
   value: number,
   min: number,
   max: number
@@ -175,30 +175,30 @@ export type OpInletValType = number | string | null;
 
 
 
- /**
-  * this is a type that contains and contextualizes a series of inputs to an operation, each inlet on an operation corresponds to one op input
-  * @param drafts the drafts (from zero to multiple) associated with this input
-  * @param params the parameters associated with this input
-  * @param inlet_id the index of the inlet for which the draft is entering upon
-  */
-  export interface OpInput{
-    drafts: Array<Draft>,
-    inlet_params: Array<OpInletValType>,
-    inlet_id: number
-   }
+/**
+ * this is a type that contains and contextualizes a series of inputs to an operation, each inlet on an operation corresponds to one op input
+ * @param drafts the drafts (from zero to multiple) associated with this input
+ * @param params the parameters associated with this input
+ * @param inlet_id the index of the inlet for which the draft is entering upon
+ */
+export interface OpInput {
+  drafts: Array<Draft>,
+  inlet_params: Array<OpInletValType>,
+  inlet_id: number
+}
 
 
 
 
- /**
-  * this type is used to classify operations in the dropdown menu
-  * @param category the name of the category for all associated operations (e.g. block, structure)
-  * @param dx a description of that category to show on screen
-  * @param ops an array of all the operations associated with this category
-  */
- export interface OperationClassification{
+/**
+ * this type is used to classify operations in the dropdown menu
+ * @param category the name of the category for all associated operations (e.g. block, structure)
+ * @param dx a description of that category to show on screen
+ * @param ops an array of all the operations associated with this category
+ */
+export interface OperationClassification {
   category_name: string,
   description: string,
   color: string,
   op_names: Array<string>;
- }
+}

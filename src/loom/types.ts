@@ -18,7 +18,7 @@ export type Loom = {
  * @param frames the number of frames the user has specified as the max for their loom
  * @param treadles the number of treadles the user has specified as the max for their loom or -1, if they have no limit
  */
- export type LoomSettings = {
+export type LoomSettings = {
   type: string,
   epi: number,
   units: 'cm' | 'in',
@@ -42,19 +42,19 @@ export type LoomUtil = {
   type: 'jacquard' | 'frame' | 'direct',
   displayname: string,
   dx: string,
-  computeLoomFromDrawdown?: (d:Drawdown, loom_settings: LoomSettings) => Promise<Loom>,
-  computeDrawdownFromLoom?: (l:Loom) => Promise<Drawdown>,
-  recomputeLoomFromThreadingAndDrawdown?:(l:Loom, loom_settings: LoomSettings, d: Drawdown) => Promise<Loom>,
+  computeLoomFromDrawdown?: (d: Drawdown, loom_settings: LoomSettings) => Promise<Loom>,
+  computeDrawdownFromLoom?: (l: Loom) => Promise<Drawdown>,
+  recomputeLoomFromThreadingAndDrawdown?: (l: Loom, loom_settings: LoomSettings, d: Drawdown) => Promise<Loom>,
   updateThreading?: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTreadling?: (l: Loom, ndx: InterlacementVal) => Loom,
-  updateTieup?: (l: Loom, ndx: InterlacementVal)=> Loom,
+  updateTieup?: (l: Loom, ndx: InterlacementVal) => Loom,
   insertIntoThreading?: (l: Loom, j: number, val: number) => Loom,
   insertIntoTreadling?: (l: Loom, i: number, val: Array<number>) => Loom,
   deleteFromThreading?: (l: Loom, j: number) => Loom,
   deleteFromTreadling?: (l: Loom, i: number) => Loom,
-  pasteThreading?: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
-  pasteTreadling?: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
-  pasteTieup?: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number)=> Loom,
-  getDressingInfo: (dd: Drawdown, l: Loom, ls: LoomSettings)=> Array<{label: string, value: string}>;
+  pasteThreading?: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) => Loom,
+  pasteTreadling?: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) => Loom,
+  pasteTieup?: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width: number, height: number) => Loom,
+  getDressingInfo: (dd: Drawdown, l: Loom, ls: LoomSettings) => Array<{ label: string, value: string }>;
 }
 
