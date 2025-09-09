@@ -81,7 +81,37 @@ export const getCellValue = (c: Cell) : boolean => {
    }
    return null;
  }
+
+ /**
+  * compares two cells and determines if they are black and white. returns false if either are unset 
+  * @param c1 
+  * @param c2 
+  */
+ export const setAndOpposite = (c1: Cell, c2: Cell) : boolean => {
+    if(!c1.is_set || !c2.is_set) return false;
+    return c1.is_up != c2.is_up;
+ }
  
+  /**
+  * compares two cells and determines if they are both set and both the same value
+  * @param c1 
+  * @param c2 
+  */
+ export const setAndSame = (c1: Cell, c2: Cell) : boolean => {
+    if(!c1.is_set || !c2.is_set) return false;
+    return c1.is_up == c2.is_up;
+ }
+ 
+ 
+  /**
+  * compares two cells and determines if they they represent an edge between a set and unset cell
+  * @param c1 
+  * @param c2 
+  */
+ export const unsetAndSet = (c1: Cell, c2: Cell) : boolean => {
+    if(c1.is_set !== c2.is_set ) return true;
+    return false;
+ }
  
 
 

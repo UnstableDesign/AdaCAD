@@ -1173,6 +1173,26 @@ async saveAsWif(fs: FileService, draft: Draft, loom:Loom, loom_settings:LoomSett
   
 }
 
+/**
+ * interpolates a 0-1 range to a broader range. 
+ * @param n a value between 0 and 1
+ * @param range the range we are mapping this value to
+ */
+interpolate(n: number, range: {max: number, min: number}) : number {
+  return range.min + (range.max - range.min) * n; 
+}
+
+
+/**
+ * a stricter variant of the mod operator that will never return a - number
+ * @param n 
+ * @param m 
+ * @returns 
+ */
+mod(n: number, m:number){
+  return ((n % m) + m) % m;
+}
+
 async saveAsPrint(el: any, draft: Draft, floats: boolean, use_colors: boolean, selected_origin_option: number, ms: MaterialsService, ss: SystemsService, fs: FileService ) {
 
   let b = el;

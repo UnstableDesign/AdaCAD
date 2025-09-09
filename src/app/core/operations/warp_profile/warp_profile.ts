@@ -62,7 +62,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   
         const profile_draft_map = op_inputs
         .map(el => {
-          console.log("EL is ", el)
           return  {
             id: el.inlet_id, 
             val: (el.params == undefined || el.params[0] == undefined) ?  '' : (el.params[0]).toString(),

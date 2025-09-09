@@ -4,6 +4,7 @@ import { ConnectionComponent } from "../../mixer/palette/connection/connection.c
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialsService } from "../provider/materials.service";
+import * as THREE from 'three';
 
 /**
  * This file contains all definitions of custom types and objects
@@ -797,134 +798,103 @@ export interface TreeNode{
  */
 export type YarnCell = number;
 
+/**
+ * ACN - actual contact point
+ * ECN - empty contact point
+ * PCN - potential contact point (there is a weft that float over this point)
+ * VCN - virtual contact point (used only to draw ends of rows for sim when you want full width no matter what)
+ */
+export type CNType = 'ACN' | 'ECN'| 'PCN' | 'VCN'; 
+
+export type CNIndex = {
+  i: number, 
+  j: number,
+  id: number
+}
+
+export type CNFloat = {
+  left: CNIndex, 
+  right: CNIndex,
+  face: boolean,
+  edge: boolean
+}
 
 /**
  * represts the point of this yarn within the simulation
  */
+
+export type ContactNeighborhood = {
+  face: boolean,
+  node_type: CNType,
+  mv: {y: number, z: number}
+  ndx: CNIndex
+}
+
+export type Vec3 = {
+  x: number, 
+  y: number,
+  z: number
+}
+
+
 export type YarnVertex = {
   x: number, 
   y: number, 
   z: number, 
-  i: number, 
-  j: number
+  ndx: CNIndex
 };
 
-/**
- * used in the relaxing round of the simulation to store teh amount of deflection that should be inflicted on any individual vertex. 
- */
-export type Deflection = {
-  dx: number, 
-  dy: number, 
-  dz: number, 
-  i: number, 
-  j: number
-};
-
-
-
-
-/**
- * used to calculate arching of floats
- */
-export type YarnFloat = {
-  heddle: boolean, 
-  end: number,
-  start: number,
-  layer: number
+export type WeftPath = {
+  system: number,
+  material: number,
+  vtxs: Array<YarnVertex>,
+  pics: Array<number> // the id's of the pics that fit this description
 }
 
-
-
-
-
-export type YarnSimSettings = {
-
-  warp_sett: number, //the distance between warp center points on the loom
-  warp_tension: number, //the tension value of the warp (higher tension, tighter packing)
-  fpack: number, //the force exerted by the packing 
-
-}
-
-export type WarpInterlacementTuple = {
-  j: number, 
-  i_top: number,
-  i_bot: number,
-  orientation: boolean; //true = black cell over white, false white over black. 
-}
-
-export type WeftInterlacementTuple = {
-  i: number, 
-  j_left: number,
-  j_right: number,
-  orientation: boolean //true = black left white right 
-}
-
-export type InterlacementLayerMap = {
-  i: number, 
-  j: number,
-  layer: number
-
-}
-
-//marks a point of interlacement between wefts and warps
-// x -             - x
-// - x === true    x - == false
-export type TopologyVtx ={
-  id: string,
-  i_top: number,
-  i_bot: number,
-  j_left: number,
-  j_right: number,
-  z_pos: number,
-  orientation: boolean;
-
-}
-
-export type WarpRange ={
-  j_left: number, 
-  j_right: number
-
-}
-
-export type WarpWeftLayerCount = {
-  ndx: number, 
-  count: number,
-  layer: number
-}
-
-export type WarpHeight = {
-  over: number,
-  under: number
+export type WarpPath = {
+  system: number,
+  material: number,
+  vtxs: Array<YarnVertex>
 }
 
 export type SimulationData = {
   draft: Draft,
-  sim: SimulationVars,
-  topo: Array<TopologyVtx>,
-  vtxs: VertexMaps,
-  layer_maps: LayerMaps
+  topo: Array<ContactNeighborhood>,
+  wefts: Array<WeftPath>,
+  warps: Array<WarpPath>
 };
 
 export type SimulationVars = {
+  pack: number,
+  lift_limit: number,
+  use_layers: boolean,
   warp_spacing: number, 
   layer_spacing: number,
-  layer_threshold: number,
-  max_interlacement_width: number,
-  max_interlacement_height: number,
-  boundary: number,
+  wefts_as_written: boolean,
+  simulate: boolean,
   radius: number,
   ms: MaterialsService
 }
 
-export type LayerMaps = {
-  warp: Array<Array<number>>,
-  weft: Array<Array<number>>
+export type Particle = {
+  position: THREE.Vector3,
+  previousPosition: THREE.Vector3, 
+  acceleration: THREE.Vector3, 
+  pinned: boolean, 
+  mesh: THREE.Mesh
 }
 
-export type VertexMaps = {
-  warps: Array<Array<YarnVertex>>,
-  wefts: Array<Array<YarnVertex>>
+export type Spring = {
+  pts: Array<THREE.Vector3>,
+  mesh: THREE.Mesh,
+  p1: Particle, 
+  p2: Particle,
+  restLength: number, 
+  color: number,
+  diameter: number
 }
+
+
 
 
 /**** SETTINGS FOR OTHER FEATURES */
