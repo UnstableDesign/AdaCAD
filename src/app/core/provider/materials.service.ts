@@ -30,15 +30,15 @@ export class MaterialsService {
   reset() {
     this.materials = [
       createMaterial({id: 0, name: 'black', insert: true, visible: true, color: "#333333", thickness: 100,diameter: 1, type: 0, notes: ""}), 
-      createMaterial({id: 1, name: 'white', insert: true, visible: true, color: "#ffffff", thickness: 100, diameter: 1,type: 0, notes: ""}), 
-      createMaterial({id: 2, name: 'red', insert: true, visible: true, color: "#ff0000", thickness: 100,diameter: 1, type: 1, notes: ""}),
-      createMaterial({id: 3, name: 'orange', insert: true, visible: true, color: "#ff6600", thickness: 100,diameter: 1, type: 1, notes: ""}),
-      createMaterial({id: 4, name: 'yellow', insert: true, visible: true, color: "#ffff00", thickness: 100,diameter: 1, type: 1, notes: ""}),
-      createMaterial({id: 5, name: 'green', insert: true, visible: true, color: "#00ff00", thickness: 100,diameter: 1, type: 1, notes: ""}),
-      createMaterial({id: 6, name: 'dark green', insert: true, visible: true, color: "#006600", thickness: 100,diameter: 1, type: 1, notes: ""}),
-      createMaterial({id: 7, name: 'dark blue', insert: true, visible: true, color: "#000099", thickness: 100,diameter: 1, type: 1, notes: ""}),
-      createMaterial({id: 8, name: 'blue', insert: true, visible: true, color: "#0066ff", thickness: 100,diameter: 1, type: 1, notes: ""}),
-      createMaterial({id: 9, name: 'violet', insert: true, visible: true, color: "#cc33ff", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 1, name: 'white', insert: true, visible: true, color: "#f9f8f3", thickness: 100, diameter: 1,type: 0, notes: ""}), 
+      createMaterial({id: 2, name: 'red', insert: true, visible: true, color: "#d55e00", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 3, name: 'orange', insert: true, visible: true, color: "#e69f00", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 4, name: 'yellow', insert: true, visible: true, color: "#f0e442", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 5, name: 'green', insert: true, visible: true, color: "#4aff4a", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 6, name: 'dark green', insert: true, visible: true, color: "#009e73", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 7, name: 'dark blue', insert: true, visible: true, color: "#0072b2", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 8, name: 'blue', insert: true, visible: true, color: "#56b4e9", thickness: 100,diameter: 1, type: 1, notes: ""}),
+      createMaterial({id: 9, name: 'violet', insert: true, visible: true, color: "#cc79a7", thickness: 100,diameter: 1, type: 1, notes: ""}),
       createMaterial({id: 10, name: 'grey', insert: true, visible: true, color: "#aaaaaa", thickness: 100,diameter: 1, type: 1, notes: ""})];
   }
 

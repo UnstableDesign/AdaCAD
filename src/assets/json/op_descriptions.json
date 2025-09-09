@@ -325,6 +325,12 @@
             "application": "We don't know of current random draft generators, so this one is just for the fun of applying code-based random number generators to weaving structures" 
         },
         {
+            "name":"tree",
+            "displayname": "tree",
+            "description":"Generates a tree where branches occur randomly.",
+            "application": "Creating a rectangle with width and depth that has a percedurely generated tree."
+        },
+        {
             "name":"glitchsatin",
             "tags": ["advanced"],
             "displayname": "glitch satin",
