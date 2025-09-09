@@ -1,6 +1,5 @@
 import { Injectable, Optional } from '@angular/core';
 import { EMPTY, Observable, Subscription } from 'rxjs';
-import { FilesystemService } from './filesystem.service';
 import { getDatabase, ref as fbref, get as fbget } from '@angular/fire/database';
 import { Auth, authState, createUserWithEmailAndPassword, GoogleAuthProvider, signInAnonymously, signInWithEmailAndPassword, signInWithPopup, signOut, User } from '@angular/fire/auth';
 
@@ -34,26 +33,6 @@ export class AuthService {
         this.uid =(user === null) ? "" : user.uid;
         this.firstLoad = false;
         if(user !== null) this.username = (user.displayName === null) ? user.email : user.displayName;        
-
-
-        //udpate the file system based on the files existing in the database
-        // if(user !== null){
-        //   const db = getDatabase();
-        //   const userFiles = query(ref(db, 'filemeta'), orderByChild('timestamp'));
-
-        //   onValue(userFiles, (snapshot) => {
-        //     snapshot.forEach((childSnapshot) => {
-        //       const childKey = childSnapshot.key;
-        //       const childData = childSnapshot.val();
-        //       if(childData.owner === user.uid) this.filesystem.addToTree(parseInt(childKey), childData)
-              
-        //     });
-        //   }, {
-        //     onlyOnce: true
-        //   });
-        
-        // }
-
 
        });
 
@@ -107,7 +86,6 @@ export class AuthService {
    * @returns true if this is the first time the page is being loaded, false if it has already been active
    */
   isFirstSession() : boolean {
-    console.log("this.firstload", this.firstLoad)
     return this.firstLoad;
   }
 
@@ -131,9 +109,9 @@ export class AuthService {
    * checks to see if this user has an id already saved for their last used file
    * @param user 
    */
-  getMostRecentFileIdFromUser(user: any): Promise<number>{
+  getMostRecentFileIdFromUser(uid: any): Promise<number>{
     
-    return this.getAccount(user.uid).then(data => {
+    return this.getAccount(uid).then(data => {
       if(data.last_opened === undefined) return Promise.resolve(null);
       else return Promise.resolve(data.last_opened)
   

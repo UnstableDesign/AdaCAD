@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import * as THREE from 'three';
 import { createLayerMaps, getDraftTopology, translateTopologyToPoints } from '../model/yarnsimulation';
 import { MaterialsService } from '../provider/materials.service';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { Lut } from 'three/examples/jsm/math/Lut';
-import { Draft, Interlacement, SimulationData, SimulationVars, YarnVertex } from '../model/datatypes';
+import { Bounds, Draft, Interlacement, SimulationData, SimulationVars, YarnVertex } from '../model/datatypes';
 import { initDraftFromDrawdown, warps, wefts } from '../model/drafts';
 import { getCellValue } from '../model/cell';
 import { Sequence } from '../model/sequence';
 import { from } from 'rxjs';
-
+import utilInstance from '../model/util';
+import { defaults } from '../model/defaults';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +16,7 @@ import { from } from 'rxjs';
 export class SimulationService {
 
   hasSimulation: boolean = false;
-  currentSim: SimulationData  = null;
+ // currentSim: SimulationData  = null;
 
   warp_layer_map_scene: any;
   weft_layer_map_scene: any;
@@ -120,6 +119,18 @@ export class SimulationService {
 
 
   /**
+   * if the draft is too big, simulation will hang the interface. Impose a size limit to avoid 
+   * long delays
+   * @param draft 
+   * @returns 
+   */
+  public isAcceptableSize(draft: Draft) : boolean {
+    let area = warps(draft.drawdown) * wefts(draft.drawdown);
+     return (area <= defaults.max_simulation_area)
+  }
+
+
+  /**
    * generates a new simulation with the given draft and simulation parameters
    * @param draft 
    * @param sim 
@@ -127,14 +138,16 @@ export class SimulationService {
    */
   public generateSimulationData(draft: Draft, sim: SimulationVars) : Promise<SimulationData>{
 
+    if(!this.isAcceptableSize(draft)) return Promise.reject("size error");
+    
     const currentSim:SimulationData  = {
       draft: draft, 
-     bounds: {topleft: {x: sim.boundary, y: sim.boundary}, width: warps(draft.drawdown), height: wefts(draft.drawdown)},
       sim: sim,
       topo: null,
       vtxs: null, 
       layer_maps: null
     };
+    
 
     return this.tileDraft(draft, sim.boundary).then(expandeddraft => {
       currentSim.draft = expandeddraft;
@@ -154,14 +167,13 @@ export class SimulationService {
     }).then(vtxs => {
       currentSim.vtxs = vtxs;
       return currentSim;
-    });
+    })
 
   }
 
-  public setupSimulation(draft: Draft, renderer, scene, camera, layer_threshold: number, warp_range: number, warp_spacing: number, layer_spacing: number, max_interlacement_width: number, max_interlacement_height: number, boundary: number, radius:number, ms: MaterialsService) : Promise<SimulationData> {
+  public setupSimulation(renderer, scene, camera, controls) {
 
-    camera = new THREE.PerspectiveCamera( 75, 1, 0.1, 1000 );
-    const controls = new OrbitControls( camera, renderer.domElement );
+    
     
     const animate = function(){
       requestAnimationFrame( animate );
@@ -169,33 +181,18 @@ export class SimulationService {
       controls.update();
 
     };
-    scene.background = new THREE.Color( 0xf0f0f0 );
 
-    camera.position.set( 20, 0, 200 );
-    camera.lookAt( 0, 0, 0 );  
     controls.update();
     animate();
-
-    const sim:SimulationVars= {
-      warp_spacing, 
-      layer_spacing, 
-      ms,
-      layer_threshold,
-      max_interlacement_width,
-      max_interlacement_height,
-      boundary,
-      radius
-    }
-    
-    return this.generateSimulationData(draft, sim)
-    .then(simdata => {
-      this.currentSim = simdata;
-      return simdata;
-    })
-
    
-
   }
+
+  public snapToX(controls){
+    controls.target = new THREE.Vector3(200,0,0);
+    controls.update();
+  }
+
+
 
   public recalcSimData(scene, draft: Draft, warp_spacing:number, layer_spacing:number, layer_threshold:number,max_interlacement_width: number, max_interlacement_height: number, boundary: number, radius: number, ms: MaterialsService) : Promise<SimulationData>{
 
@@ -209,19 +206,48 @@ export class SimulationService {
       radius,
       ms
     };
-    this.currentSim.sim = sim;
     
     return this.generateSimulationData(draft, sim)
     .then(simdata => {
-      this.currentSim = simdata;
-      return simdata
+      return  simdata
     })
   }
 
-  public renderSimdata(scene, simdata: SimulationData, warps: boolean, wefts: boolean, warp_layer: boolean,weft_layers: boolean, topo: boolean, show_draft: boolean){
+  /**
+   * called when a rendering value changes that does not require a full recalculation of the simulation data
+   */
+  public redrawCurrentSim(scene, draft: Draft){
+    
+    //update warp material colors
+    draft.colShuttleMapping.forEach((material_id, j)=> {
+      let color = this.ms.getColorForSim(material_id);
+      const render_color = new THREE.Color(color);
+        let warp_render = scene.getObjectByName('warp-'+j);
+        warp_render.material.color.set(render_color);
+
+    })
+
+    draft.rowShuttleMapping.forEach((material_id, j)=> {
+      let color = this.ms.getColorForSim(material_id);
+      const render_color = new THREE.Color(color);
+        let weft_render = scene.getObjectByName('weft-'+j);
+        weft_render.material.color.set(render_color);
+
+    })
+
+
+
+
+    
+  }
+
+
+  public renderSimdata(scene, selection: Bounds, simdata: SimulationData, warps: boolean, wefts: boolean, warp_layer: boolean,weft_layers: boolean, topo: boolean, show_draft: boolean) : Promise<any>{
     this.hasSimulation = true;
 
-    if(this.currentSim.draft == null) return;
+    if(simdata.draft == null) return;
+
+    //if no explicit selection has been made, use the default full boundary
 
     scene.clear();
 
@@ -234,18 +260,16 @@ export class SimulationService {
     back_light.position.set( 20, 0, -50 );
 
 
-
-
-    const boundary_vtx = this.getBoundaryVtxs(simdata);
+   const boundary_vtx = this.getBoundaryVtxs(simdata, selection);
 
    
     this.drawAxis(scene, simdata, boundary_vtx);
-    this.drawYarns(scene, simdata, boundary_vtx);
-    this.drawEndCaps(scene, simdata, boundary_vtx);
-    this.drawWarpLayerMap(scene, boundary_vtx);
-    this.drawWeftLayerMap(scene, boundary_vtx);
-    this.drawTopology(scene, boundary_vtx);
-    this.drawDraft(scene, this.currentSim.draft, this.currentSim.sim, boundary_vtx);
+    this.drawYarns(scene, simdata, selection, boundary_vtx);
+   // this.drawEndCaps(scene, simdata, boundary_vtx);
+    // this.drawWarpLayerMap(scene, boundary_vtx);
+    // this.drawWeftLayerMap(scene, boundary_vtx);
+    // this.drawTopology(scene, boundary_vtx);
+    // this.drawDraft(scene, this.currentSim.draft, this.currentSim.sim, boundary_vtx);
 
 
     if(!wefts) this.hideWefts();
@@ -254,6 +278,8 @@ export class SimulationService {
     if(!weft_layers) this.hideWeftLayerMap();
     if(!topo) this.hideTopo();
     if(!show_draft) this.hideDraft();
+
+    return Promise.resolve()
 
   }
 
@@ -305,16 +331,17 @@ export class SimulationService {
    * @param simdata 
    * @returns 
    */
-  getBoundaryVtxs(simdata: SimulationData) : {min_x: number, max_x: number, min_y: number, max_y: number}{
+  getBoundaryVtxs(simdata: SimulationData, selection: Bounds) : {min_x: number, max_x: number, min_y: number, max_y: number}{
     const vtxs = simdata.vtxs;
-    const bounds = simdata.bounds;
+
+    if(vtxs == null) return;
 
 
     //get the weft boundary, draw warps from this data
-    let in_bound_wefts = vtxs.wefts.filter((el, ndx)=> (ndx >= bounds.topleft.y && ndx < bounds.topleft.y + bounds.height));
+    let in_bound_wefts = vtxs.wefts.filter((el, ndx)=> (ndx >= selection.topleft.y && ndx < selection.topleft.y + selection.height));
 
     let min_y = in_bound_wefts.reduce((acc, row) => {
-      let min_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
+      let min_in_row = row.filter((vtx) => vtx.j >= selection.topleft.x && vtx.j < selection.topleft.x + selection.width).reduce((subacc, vtx) => {
         if(vtx.y < subacc) return vtx.y;
         return subacc;
       }, 10000);
@@ -324,7 +351,7 @@ export class SimulationService {
     }, 100000);
 
     let max_y = in_bound_wefts.reduce((acc, row) => {
-      let max_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
+      let max_in_row = row.filter((vtx) => vtx.j >= selection.topleft.x && vtx.j < selection.topleft.x + selection.width).reduce((subacc, vtx) => {
         if(vtx.y > subacc) return vtx.y;
         return subacc;
       }, 0);
@@ -334,7 +361,7 @@ export class SimulationService {
     }, 0);
 
     let min_x = in_bound_wefts.reduce((acc, row) => {
-      let min_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
+      let min_in_row = row.filter((vtx) => vtx.j >= selection.topleft.x && vtx.j < selection.topleft.x + selection.width).reduce((subacc, vtx) => {
         if(vtx.x < subacc) return vtx.x;
         return subacc;
       }, 10000);
@@ -344,7 +371,7 @@ export class SimulationService {
     }, 100000);
 
     let max_x = in_bound_wefts.reduce((acc, row) => {
-      let max_in_row = row.filter((vtx) => vtx.j >= bounds.topleft.x && vtx.j < bounds.topleft.x + bounds.width).reduce((subacc, vtx) => {
+      let max_in_row = row.filter((vtx) => vtx.j >= selection.topleft.x && vtx.j < selection.topleft.x + selection.width).reduce((subacc, vtx) => {
         if(vtx.x > subacc) return vtx.x;
         return subacc;
       }, 0);
@@ -360,7 +387,7 @@ export class SimulationService {
 
   }
 
-  getClosestVtx(simdata: SimulationData, warp: boolean, i: number, j: number) : YarnVertex {
+  getClosestVtx(simdata: SimulationData, selection: Bounds, warp: boolean, i: number, j: number) : YarnVertex {
 
     if(warp){
       let vtxs = simdata.vtxs.warps[j];
@@ -375,7 +402,7 @@ export class SimulationService {
       //on wefts 
       let vtxs = simdata.vtxs.wefts[i];
       let closest_ndx = vtxs.reduce((acc, vtx, ndx) => {
-        if(vtx.j >= simdata.bounds.topleft.x && vtx.j < (simdata.bounds.topleft.x + simdata.bounds.width) && Math.abs(vtx.j - j) < acc.dist) return {dist: Math.abs(vtx.j - j), ndx};
+        if(vtx.j >= selection.topleft.x && vtx.j < (selection.topleft.x + selection.width) && Math.abs(vtx.j - j) < acc.dist) return {dist: Math.abs(vtx.j - j), ndx};
         return acc;
       }, {dist: 10000, ndx: -1});
       if(closest_ndx.ndx == -1) return null;
@@ -388,29 +415,32 @@ export class SimulationService {
    * @param scene 
    * @param simdata 
    */
-  drawYarns(scene, simdata: SimulationData, boundary_vtx: any){
+  drawYarns(scene, simdata: SimulationData, selection: Bounds, boundary_vtx: any){
 
     this.warp_scene =  new THREE.Group();
+    this.warp_scene.name = 'warp-scene'
     this.weft_scene =  new THREE.Group();
+    this.weft_scene.name = 'weft-scene'
 
     const vtxs = simdata.vtxs;
     const draft = simdata.draft;
 
     
     //DRAW THE WARPS
-    for(let j = simdata.bounds.topleft.x; j < simdata.bounds.width + simdata.bounds.topleft.x; j++){
+    for(let j = selection.topleft.x; j < selection.width + selection.topleft.x; j++){
       const pts = [];
 
-      if(vtxs.warps[j].length > 0 && vtxs.warps[j] !== undefined){
+
+      if(vtxs.warps[j] !== undefined && vtxs.warps[j].length > 0 && vtxs.warps[j] !== undefined){
       const material_id = draft.colShuttleMapping[j];
       let diameter = this.ms.getDiameter(material_id);
-      let color = this.ms.getColor(material_id);
+      let color = this.ms.getColorForSim(material_id);
 
 
-      let in_bounds_vxts = simdata.vtxs.warps[j].filter(el => el.i >= simdata.bounds.topleft.y && el.i < simdata.bounds.topleft.y + simdata.bounds.height);
+      let in_bounds_vxts = simdata.vtxs.warps[j].filter(el => el.i >= selection.topleft.y && el.i < selection.topleft.y + selection.height);
 
-      let start_vtx = this.getClosestVtx(simdata, true, simdata.bounds.topleft.y, j);
-      let end_vtx = this.getClosestVtx(simdata, true, simdata.bounds.topleft.y + simdata.bounds.height, j);
+      let start_vtx = this.getClosestVtx(simdata, selection, true, selection.topleft.y, j);
+      let end_vtx = this.getClosestVtx(simdata, selection, true, selection.topleft.y + selection.height, j);
 
       
      if(start_vtx !== null) pts.push(new THREE.Vector3(start_vtx.x, boundary_vtx.min_y-10, -start_vtx.z));
@@ -419,23 +449,27 @@ export class SimulationService {
       });
       if(end_vtx !== null) pts.push(new THREE.Vector3(end_vtx.x, boundary_vtx.max_y+10, -end_vtx.z));
 
-      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-      const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
-      const material = new THREE.MeshPhysicalMaterial( {
-        color: color,
-        depthTest: true,
-        emissive: 0x000000,
-        metalness: 0,
-        roughness: 0.5,
-        clearcoat: 1.0,
-        clearcoatRoughness: 1.0,
-        reflectivity: 0.0
-        } );     
-      
-      let curveObject = new THREE.Mesh( geometry, material );
 
+       if(pts.length !== 0){
 
-      this.warp_scene.add(curveObject);
+        const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
+        const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 8, false );
+        const material = new THREE.MeshPhysicalMaterial( {
+          color: color,
+          depthTest: true,
+          emissive: 0x000000,
+          metalness: 0,
+          roughness: 0.5,
+          clearcoat: 1.0,
+          clearcoatRoughness: 1.0,
+          reflectivity: 0.0
+          } );     
+        
+        let curveObject = new THREE.Mesh( geometry, material );
+        curveObject.name = 'warp-'+(j-selection.topleft.x);
+
+        this.warp_scene.add(curveObject);
+        }
       }
     };
 
@@ -446,15 +480,15 @@ export class SimulationService {
 
 
     //draw wefts
-    for(let i = simdata.bounds.topleft.y; i < simdata.bounds.height + simdata.bounds.topleft.y; i++){
+    for(let i = selection.topleft.y; i < selection.height + selection.topleft.y; i++){
       
       let weft_vtx_list = vtxs.wefts[i];
       
-      let in_bound_vtxs = weft_vtx_list.filter(el => el.j >= simdata.bounds.topleft.x && el.j <  simdata.bounds.width + simdata.bounds.topleft.x);
+      let in_bound_vtxs = weft_vtx_list.filter(el => el.j >= selection.topleft.x && el.j <  selection.width + selection.topleft.x);
 
       const pts = [];
-      let start_vtx = this.getClosestVtx(simdata, false, i, simdata.bounds.topleft.x);
-      let end_vtx = this.getClosestVtx(simdata, false, i, simdata.bounds.topleft.x + simdata.bounds.width);
+      let start_vtx = this.getClosestVtx(simdata, selection, false, i, selection.topleft.x);
+      let end_vtx = this.getClosestVtx(simdata, selection, false, i, selection.topleft.x + selection.width);
 
 
       if(start_vtx !== null)  pts.push(new THREE.Vector3(boundary_vtx.min_x-10, start_vtx.y,-start_vtx.z));
@@ -468,472 +502,476 @@ export class SimulationService {
       if(end_vtx !== null) pts.push(new THREE.Vector3(boundary_vtx.max_x+10, end_vtx.y, -end_vtx.z));
 
 
-      const material_id = draft.rowShuttleMapping[i];
-      let diameter = this.ms.getDiameter(material_id);
-      let color = this.ms.getColor(material_id)
+        if(pts.length !== 0){
 
-      const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
-      const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 6, false );
-      const material = new THREE.MeshPhysicalMaterial( {
-        color: color,
-        emissive: 0x000000,
-        depthTest: true,
-        metalness: 0,
-        roughness: 0.5,
-        clearcoat: 1.0,
-        clearcoatRoughness: 1.0,
-        reflectivity: 0.0
-        } );        
-        let curveObject = new THREE.Mesh( geometry, material );
-        this.weft_scene.add(curveObject);
+          const material_id = draft.rowShuttleMapping[i];
+          let diameter = this.ms.getDiameter(material_id);
+          let color = this.ms.getColorForSim(material_id)
 
+          const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .1);
+          const geometry = new THREE.TubeGeometry( curve, 100, diameter/2, 8, false );
+          const material = new THREE.MeshPhysicalMaterial( {
+            color: color,
+            emissive: 0x000000,
+            depthTest: true,
+            metalness: 0,
+            roughness: 0.5,
+            clearcoat: 1.0,
+            clearcoatRoughness: 1.0,
+            reflectivity: 0.0
+            } );        
+            let curveObject = new THREE.Mesh( geometry, material );
+            curveObject.name = 'weft-'+(i-selection.topleft.y);
+
+            this.weft_scene.add(curveObject);
+        }
           
       }
       
     this.weft_scene = this.applyOrientationConversion(this.weft_scene, boundary_vtx);
     scene.add(this.weft_scene);
-
+    
   }
 
-  drawDraft(scene, draft: Draft, sim: SimulationVars, boundary_vtx){
-    this.draft_scene =  new THREE.Group();
-    const geometry = new THREE.BufferGeometry();
-    // const yarn_height = 5;
-    const yarn_height = this.currentSim.sim.warp_spacing;
+  // drawDraft(scene, draft: Draft, sim: SimulationVars, boundary_vtx){
+  //   this.draft_scene =  new THREE.Group();
+  //   const geometry = new THREE.BufferGeometry();
+  //   // const yarn_height = 5;
+  //   const yarn_height = this.currentSim.sim.warp_spacing;
 
-    let alldata = [];
-    let positions = [];
-    let colors = [];
-    let normals = [];
-    let indicies = [];
+  //   let alldata = [];
+  //   let positions = [];
+  //   let colors = [];
+  //   let normals = [];
+  //   let indicies = [];
 
-    for(let i = 0; i < wefts(draft.drawdown); i++){
-      for(let j = 0; j < warps(draft.drawdown); j++){
+  //   for(let i = 0; i < wefts(draft.drawdown); i++){
+  //     for(let j = 0; j < warps(draft.drawdown); j++){
 
-       const col = (getCellValue(draft.drawdown[i][j])==true) ? 0 : 1;
+  //      const col = (getCellValue(draft.drawdown[i][j])==true) ? 0 : 1;
 
 
-       alldata.push({
-          pos: [sim.warp_spacing*j, yarn_height*i, 0],
-          norm: [0, 1, 0],
-          color: [col, col, col]
-        });
+  //      alldata.push({
+  //         pos: [sim.warp_spacing*j, yarn_height*i, 0],
+  //         norm: [0, 1, 0],
+  //         color: [col, col, col]
+  //       });
     
-        alldata.push({
-          pos: [sim.warp_spacing*(j+1), yarn_height*i, 0],
-          norm: [0, 1, 0],
-          color: [col, col, col]
-        })
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*(j+1), yarn_height*i, 0],
+  //         norm: [0, 1, 0],
+  //         color: [col, col, col]
+  //       })
     
-        alldata.push({
-          pos: [sim.warp_spacing*j, yarn_height*(i+1), 0],
-          norm: [0, 1, 0],
-          color: [col, col, col]
-        });
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*j, yarn_height*(i+1), 0],
+  //         norm: [0, 1, 0],
+  //         color: [col, col, col]
+  //       });
     
-        alldata.push({
-          pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), 0],
-          norm: [0, 1, 0],
-          color: [col, col, col]
-        });
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), 0],
+  //         norm: [0, 1, 0],
+  //         color: [col, col, col]
+  //       });
 
-        let starting_index = ((i*warps(draft.drawdown)) + j) *4;
+  //       let starting_index = ((i*warps(draft.drawdown)) + j) *4;
 
-        indicies =  indicies.concat([
-          starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
-        ]);
-      }
-    }
-
-
-    for (const vertex of alldata) {
-      positions.push(...vertex.pos);
-      normals.push(...vertex.norm);
-      colors.push(...vertex.color);
-    }
-
-    geometry.setIndex(indicies);
-    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-		geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
-		geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-    const material = new THREE.MeshBasicMaterial( {
-      side: THREE.DoubleSide,
-      vertexColors: true
-    } );
+  //       indicies =  indicies.concat([
+  //         starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
+  //       ]);
+  //     }
+  //   }
 
 
+  //   for (const vertex of alldata) {
+  //     positions.push(...vertex.pos);
+  //     normals.push(...vertex.norm);
+  //     colors.push(...vertex.color);
+  //   }
 
-    let mesh = new THREE.Mesh( geometry, material );
-    this.draft_scene.add(mesh);
-    this.draft_scene = this.applyOrientationConversion(this.draft_scene, boundary_vtx);
-		scene.add( this.draft_scene );
+  //   geometry.setIndex(indicies);
+  //   geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+	// 	geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+	// 	geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+  //   const material = new THREE.MeshBasicMaterial( {
+  //     side: THREE.DoubleSide,
+  //     vertexColors: true
+  //   } );
 
 
-  }
+
+  //   let mesh = new THREE.Mesh( geometry, material );
+  //   this.draft_scene.add(mesh);
+  //   this.draft_scene = this.applyOrientationConversion(this.draft_scene, boundary_vtx);
+	// 	scene.add( this.draft_scene );
+
+
+  // }
 
   showDraft(){
-    this.draft_scene.visible = true;
+   // this.draft_scene.visible = true;
   }
 
   hideDraft(){
-    this.draft_scene.visible = false;
+    //this.draft_scene.visible = false;
   }
 
 
   showWarps(){
-    this.warp_scene.visible = true;
+    //this.warp_scene.visible = true;
   }
 
   hideWarps(){
-    this.warp_scene.visible = false;
+   // this.warp_scene.visible = false;
   }
 
   showWefts(){
     // console.log("SHOW WEFTS");
-    this.weft_scene.visible = true;
+    //this.weft_scene.visible = true;
   }
 
   hideWefts(){
-    this.weft_scene.visible = false;
+    //this.weft_scene.visible = false;
   }
 
 
   hideWarpLayerMap(){
-    this.warp_layer_map_scene.visible = false;
+    //this.warp_layer_map_scene.visible = false;
   }
 
   showWarpLayerMap(){
-    this.warp_layer_map_scene.visible = true;
+    //this.warp_layer_map_scene.visible = true;
     // console.log("SHOW WARP LAYER MAP", this.warp_layer_map_scene)
   }
 
   hideWeftLayerMap(){
-    this.weft_layer_map_scene.visible = false;
+   // this.weft_layer_map_scene.visible = false;
   }
 
   showWeftLayerMap(){
-    this.weft_layer_map_scene.visible = true;
+   // this.weft_layer_map_scene.visible = true;
     // console.log("SHOW LAYER MAP", this.weft_layer_map_scene)
   }
 
   hideTopo(){
-    this.topo_scene.visible = false;
+   // this.topo_scene.visible = false;
   }
 
   showTopo(){
-    this.topo_scene.visible = true;
+   // this.topo_scene.visible = true;
     // console.log("SHOW LAYER MAP", this.topo_scene)
   }
 
-  drawWeftLayerMap(scene, boundary_vtx){
+  // drawWeftLayerMap(scene, boundary_vtx){
 
-    this.weft_layer_map_scene =  new THREE.Group();
+  //   this.weft_layer_map_scene =  new THREE.Group();
 
-    let z = -20;
+  //   let z = -20;
 
-    const lm = this.currentSim.layer_maps;
-    const sim = this.currentSim.sim;
-    const draft = this.currentSim.draft;
+  //   const lm = this.currentSim.layer_maps;
+  //   const sim = this.currentSim.sim;
+  //   const draft = this.currentSim.draft;
 
-    let range = lm.weft.reduce((acc, val) => {
-      let max = val.reduce((sub_acc, vtx) => {
-        if(vtx > sub_acc) return vtx;
-        return sub_acc;
-      }, 0);
+  //   let range = lm.weft.reduce((acc, val) => {
+  //     let max = val.reduce((sub_acc, vtx) => {
+  //       if(vtx > sub_acc) return vtx;
+  //       return sub_acc;
+  //     }, 0);
 
-      if(max > acc) return max;
-      return acc;
-    }, 0);
+  //     if(max > acc) return max;
+  //     return acc;
+  //   }, 0);
 
-    if(range == 0) range = 1;
+  //   if(range == 0) range = 1;
 
-    const lut = new Lut();
+  //   const lut = new Lut();
 
-    lut.setColorMap( 'rainbow', 512);
+  //   lut.setColorMap( 'rainbow', 512);
 
   
-    const geometry = new THREE.BufferGeometry();
-    // const yarn_height = 5;
-    const yarn_height = this.currentSim.sim.warp_spacing;
+  //   const geometry = new THREE.BufferGeometry();
+  //   // const yarn_height = 5;
+  //   const yarn_height = this.currentSim.sim.warp_spacing;
 
-    let alldata = [];
-    let positions = [];
-    let colors = [];
-    let normals = [];
-    let indicies = [];
+  //   let alldata = [];
+  //   let positions = [];
+  //   let colors = [];
+  //   let normals = [];
+  //   let indicies = [];
 
-    for(let i = 0; i < lm.weft.length; i++){
-      for(let j = 0; j < lm.weft[0].length; j++){
+  //   for(let i = 0; i < lm.weft.length; i++){
+  //     for(let j = 0; j < lm.weft[0].length; j++){
 
-        const r = 0.5 + ( lm.weft[i][j] / range );
-        const col = lut.getColor(r);
+  //       const r = 0.5 + ( lm.weft[i][j] / range );
+  //       const col = lut.getColor(r);
        
-        if(col !== undefined){
+  //       if(col !== undefined){
 
-       alldata.push({
-          pos: [sim.warp_spacing*j, yarn_height*i, z],
-          norm: [0, 1, 0],
-          color: [col.r, col.g, col.b]
-        });
+  //      alldata.push({
+  //         pos: [sim.warp_spacing*j, yarn_height*i, z],
+  //         norm: [0, 1, 0],
+  //         color: [col.r, col.g, col.b]
+  //       });
     
-        alldata.push({
-          pos: [sim.warp_spacing*(j+1), yarn_height*i, z],
-          norm: [0, 1, 0],
-          color: [col.r, col.g, col.b]
-        })
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*(j+1), yarn_height*i, z],
+  //         norm: [0, 1, 0],
+  //         color: [col.r, col.g, col.b]
+  //       })
     
-        alldata.push({
-          pos: [sim.warp_spacing*j, yarn_height*(i+1), z],
-          norm: [0, 1, 0],
-          color: [col.r, col.g, col.b]
-        });
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*j, yarn_height*(i+1), z],
+  //         norm: [0, 1, 0],
+  //         color: [col.r, col.g, col.b]
+  //       });
     
-        alldata.push({
-          pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), z],
-          norm: [0, 1, 0],
-          color: [col.r, col.g, col.b]
-        });
-        }
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), z],
+  //         norm: [0, 1, 0],
+  //         color: [col.r, col.g, col.b]
+  //       });
+  //       }
 
-        let starting_index = ((i*warps(draft.drawdown)) + j) *4;
+  //       let starting_index = ((i*warps(draft.drawdown)) + j) *4;
 
-        indicies =  indicies.concat([
-          starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
-        ]);
-      }
-    }
-
-
-
-    for (const vertex of alldata) {
-      positions.push(...vertex.pos);
-      normals.push(...vertex.norm);
-      colors.push(...vertex.color);
-    }
+  //       indicies =  indicies.concat([
+  //         starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
+  //       ]);
+  //     }
+  //   }
 
 
 
-
-    geometry.setIndex(indicies);
-    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-		geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
-		geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-    const material = new THREE.MeshBasicMaterial( {
-      side: THREE.DoubleSide,
-      transparent: true,
-      vertexColors: true,
-      opacity: .5
-    } );
+  //   for (const vertex of alldata) {
+  //     positions.push(...vertex.pos);
+  //     normals.push(...vertex.norm);
+  //     colors.push(...vertex.color);
+  //   }
 
 
 
-    let mesh = new THREE.Mesh( geometry, material );    
-    this.weft_layer_map_scene.add(mesh);
-    this.weft_layer_map_scene = this.applyOrientationConversion( this.weft_layer_map_scene, boundary_vtx);
-		scene.add(  this.weft_layer_map_scene );
 
-  }
+  //   geometry.setIndex(indicies);
+  //   geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+	// 	geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+	// 	geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+  //   const material = new THREE.MeshBasicMaterial( {
+  //     side: THREE.DoubleSide,
+  //     transparent: true,
+  //     vertexColors: true,
+  //     opacity: .5
+  //   } );
 
 
 
-  drawWarpLayerMap(scene, boundary_vtx){
+  //   let mesh = new THREE.Mesh( geometry, material );    
+  //   this.weft_layer_map_scene.add(mesh);
+  //   this.weft_layer_map_scene = this.applyOrientationConversion( this.weft_layer_map_scene, boundary_vtx);
+	// 	scene.add(  this.weft_layer_map_scene );
 
-    this.warp_layer_map_scene =  new THREE.Group();
+  // }
 
-    let z = -20;
 
-    const lm = this.currentSim.layer_maps;
-    const sim = this.currentSim.sim;
-    const draft = this.currentSim.draft;
 
-    let range = lm.warp.reduce((acc, val) => {
-      let max = val.reduce((sub_acc, vtx) => {
-        if(vtx > sub_acc) return vtx;
-        return sub_acc;
-      }, 0);
+  // drawWarpLayerMap(scene, boundary_vtx){
 
-      if(max > acc) return max;
-      return acc;
-    }, 0);
+  //   this.warp_layer_map_scene =  new THREE.Group();
 
-    if(range == 0) range = 1;
+  //   let z = -20;
 
-    const lut = new Lut();
+  //   const lm = this.currentSim.layer_maps;
+  //   const sim = this.currentSim.sim;
+  //   const draft = this.currentSim.draft;
 
-    lut.setColorMap( 'rainbow', 512);
+  //   let range = lm.warp.reduce((acc, val) => {
+  //     let max = val.reduce((sub_acc, vtx) => {
+  //       if(vtx > sub_acc) return vtx;
+  //       return sub_acc;
+  //     }, 0);
+
+  //     if(max > acc) return max;
+  //     return acc;
+  //   }, 0);
+
+  //   if(range == 0) range = 1;
+
+  //   const lut = new Lut();
+
+  //   lut.setColorMap( 'rainbow', 512);
 
   
-    const geometry = new THREE.BufferGeometry();
-    // const yarn_height = 5;
-    const yarn_height = this.currentSim.sim.warp_spacing;
+  //   const geometry = new THREE.BufferGeometry();
+  //   // const yarn_height = 5;
+  //   const yarn_height = this.currentSim.sim.warp_spacing;
 
-    let alldata = [];
-    let positions = [];
-    let colors = [];
-    let normals = [];
-    let indicies = [];
+  //   let alldata = [];
+  //   let positions = [];
+  //   let colors = [];
+  //   let normals = [];
+  //   let indicies = [];
 
-    for(let i = 0; i < lm.warp.length; i++){
-      for(let j = 0; j < lm.warp[0].length; j++){
+  //   for(let i = 0; i < lm.warp.length; i++){
+  //     for(let j = 0; j < lm.warp[0].length; j++){
 
-        const r = 0.5 + ( lm.warp[i][j] / range );
-        const col = lut.getColor(r);
+  //       const r = 0.5 + ( lm.warp[i][j] / range );
+  //       const col = lut.getColor(r);
        
 
 
 
-       alldata.push({
-          pos: [sim.warp_spacing*j, yarn_height*i, z],
-          norm: [0, 1, 0],
-          color: [col.r, col.g, col.b]
-        });
+  //      alldata.push({
+  //         pos: [sim.warp_spacing*j, yarn_height*i, z],
+  //         norm: [0, 1, 0],
+  //         color: [col.r, col.g, col.b]
+  //       });
     
-        alldata.push({
-          pos: [sim.warp_spacing*(j+1), yarn_height*i, z],
-          norm: [0, 1, 0],
-          color: [col.r, col.g, col.b]
-        })
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*(j+1), yarn_height*i, z],
+  //         norm: [0, 1, 0],
+  //         color: [col.r, col.g, col.b]
+  //       })
     
-        alldata.push({
-          pos: [sim.warp_spacing*j, yarn_height*(i+1), z],
-          norm: [0, 1, 0],
-          color: [col.r, col.g, col.b]
-        });
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*j, yarn_height*(i+1), z],
+  //         norm: [0, 1, 0],
+  //         color: [col.r, col.g, col.b]
+  //       });
     
-        alldata.push({
-          pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), z],
-          norm: [0, 1, 0],
-          color: [col.r, col.g, col.b]
-        });
+  //       alldata.push({
+  //         pos: [sim.warp_spacing*(j+1), yarn_height*(i+1), z],
+  //         norm: [0, 1, 0],
+  //         color: [col.r, col.g, col.b]
+  //       });
 
-        let starting_index = ((i*warps(draft.drawdown)) + j) *4;
+  //       let starting_index = ((i*warps(draft.drawdown)) + j) *4;
 
-        indicies =  indicies.concat([
-          starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
-        ]);
-      }
-    }
-
-
-
-    for (const vertex of alldata) {
-      positions.push(...vertex.pos);
-      normals.push(...vertex.norm);
-      colors.push(...vertex.color);
-    }
+  //       indicies =  indicies.concat([
+  //         starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
+  //       ]);
+  //     }
+  //   }
 
 
 
-
-    geometry.setIndex(indicies);
-    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-		geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
-		geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-    const material = new THREE.MeshBasicMaterial( {
-      side: THREE.DoubleSide,
-      transparent: true,
-      vertexColors: true,
-      opacity: .5
-    } );
+  //   for (const vertex of alldata) {
+  //     positions.push(...vertex.pos);
+  //     normals.push(...vertex.norm);
+  //     colors.push(...vertex.color);
+  //   }
 
 
 
-    let mesh = new THREE.Mesh( geometry, material );    
-    this.warp_layer_map_scene.add(mesh);
-    this.warp_layer_map_scene = this.applyOrientationConversion( this.warp_layer_map_scene, boundary_vtx);
-		scene.add(  this.warp_layer_map_scene );
 
-  }
-
-  drawTopology(scene, boundary_vtx){
-
-
-    // console.log("LAYER MAP DRAWN")
-    this.topo_scene =  new THREE.Group();
-    const geometry = new THREE.BufferGeometry();
-    let alldata = [];
-    let positions = [];
-    let colors = [];
-    let normals = [];
-    let indicies = [];
+  //   geometry.setIndex(indicies);
+  //   geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+	// 	geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+	// 	geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+  //   const material = new THREE.MeshBasicMaterial( {
+  //     side: THREE.DoubleSide,
+  //     transparent: true,
+  //     vertexColors: true,
+  //     opacity: .5
+  //   } );
 
 
-    const topo = this.currentSim.topo;
-    const sim = this.currentSim.sim;
-    const yarn_height = sim.warp_spacing;
 
-    const lut = new Lut();
-    const range = 10;
+  //   let mesh = new THREE.Mesh( geometry, material );    
+  //   this.warp_layer_map_scene.add(mesh);
+  //   this.warp_layer_map_scene = this.applyOrientationConversion( this.warp_layer_map_scene, boundary_vtx);
+	// 	scene.add(  this.warp_layer_map_scene );
 
-    lut.setColorMap( 'rainbow', 10);
+  // }
 
-    topo.forEach((vtx, x) => {
-      const r = 0.5 + ( vtx.z_pos / range );
-      const col = lut.getColor(r);
-      // let z = vtx.z_pos * sim.layer_spacing;
+  // drawTopology(scene, boundary_vtx){
 
-      // let z = -10 + vtx.z_pos;
-      let z = -1;
-      alldata.push({
-        pos: [sim.warp_spacing*vtx.j_left+2, yarn_height*vtx.i_bot+2, z],
-        norm: [0, 1, 0],
-        color: [col.r, col.g, col.b]
-      });
+
+  //   // console.log("LAYER MAP DRAWN")
+  //   this.topo_scene =  new THREE.Group();
+  //   const geometry = new THREE.BufferGeometry();
+  //   let alldata = [];
+  //   let positions = [];
+  //   let colors = [];
+  //   let normals = [];
+  //   let indicies = [];
+
+
+  //   const topo = this.currentSim.topo;
+  //   const sim = this.currentSim.sim;
+  //   const yarn_height = sim.warp_spacing;
+
+  //   const lut = new Lut();
+  //   const range = 10;
+
+  //   lut.setColorMap( 'rainbow', 10);
+
+  //   topo.forEach((vtx, x) => {
+  //     const r = 0.5 + ( vtx.z_pos / range );
+  //     const col = lut.getColor(r);
+  //     // let z = vtx.z_pos * sim.layer_spacing;
+
+  //     // let z = -10 + vtx.z_pos;
+  //     let z = -1;
+  //     alldata.push({
+  //       pos: [sim.warp_spacing*vtx.j_left+2, yarn_height*vtx.i_bot+2, z],
+  //       norm: [0, 1, 0],
+  //       color: [col.r, col.g, col.b]
+  //     });
   
-      alldata.push({
-        pos: [sim.warp_spacing*vtx.j_right+sim.warp_spacing-2, yarn_height*vtx.i_bot+2, z],
-        norm: [0, 1, 0],
-        color: [col.r, col.g, col.b]
-      })
+  //     alldata.push({
+  //       pos: [sim.warp_spacing*vtx.j_right+sim.warp_spacing-2, yarn_height*vtx.i_bot+2, z],
+  //       norm: [0, 1, 0],
+  //       color: [col.r, col.g, col.b]
+  //     })
   
-      alldata.push({
-        pos: [sim.warp_spacing*vtx.j_left+2,yarn_height*vtx.i_top+yarn_height-2, z],
-        norm: [0, 1, 0],
-        color: [col.r, col.g, col.b]
-      });
+  //     alldata.push({
+  //       pos: [sim.warp_spacing*vtx.j_left+2,yarn_height*vtx.i_top+yarn_height-2, z],
+  //       norm: [0, 1, 0],
+  //       color: [col.r, col.g, col.b]
+  //     });
   
-      alldata.push({
-        pos: [sim.warp_spacing*vtx.j_right+sim.warp_spacing-2, yarn_height*vtx.i_top+yarn_height-2, z],
-        norm: [0, 1, 0],
-        color: [col.r, col.g, col.b]
-      });
+  //     alldata.push({
+  //       pos: [sim.warp_spacing*vtx.j_right+sim.warp_spacing-2, yarn_height*vtx.i_top+yarn_height-2, z],
+  //       norm: [0, 1, 0],
+  //       color: [col.r, col.g, col.b]
+  //     });
 
-      let starting_index = x*4;
+  //     let starting_index = x*4;
 
-      indicies =  indicies.concat([
-        starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
-      ]);
+  //     indicies =  indicies.concat([
+  //       starting_index+2,starting_index+0,starting_index+3,starting_index+1,starting_index+3,starting_index+0
+  //     ]);
 
-    })
-
-
-    for (const vertex of alldata) {
-      positions.push(...vertex.pos);
-      normals.push(...vertex.norm);
-      colors.push(...vertex.color);
-    }
+  //   })
 
 
-    geometry.setIndex(indicies);
-    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-		geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
-		geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-    const material = new THREE.MeshBasicMaterial( {
-      side: THREE.DoubleSide,
-      transparent: true,
-      vertexColors: true,
-      opacity: .5,
-      wireframe: true
-    } );
+  //   for (const vertex of alldata) {
+  //     positions.push(...vertex.pos);
+  //     normals.push(...vertex.norm);
+  //     colors.push(...vertex.color);
+  //   }
+
+
+  //   geometry.setIndex(indicies);
+  //   geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+	// 	geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+	// 	geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+  //   const material = new THREE.MeshBasicMaterial( {
+  //     side: THREE.DoubleSide,
+  //     transparent: true,
+  //     vertexColors: true,
+  //     opacity: .5,
+  //     wireframe: true
+  //   } );
 
 
 
-    let mesh = new THREE.Mesh( geometry, material );
-    this.topo_scene.add(mesh);
-    this.topo_scene = this.applyOrientationConversion(  this.topo_scene, boundary_vtx);
-		scene.add(  this.topo_scene );
+  //   let mesh = new THREE.Mesh( geometry, material );
+  //   this.topo_scene.add(mesh);
+  //   this.topo_scene = this.applyOrientationConversion(  this.topo_scene, boundary_vtx);
+	// 	scene.add(  this.topo_scene );
 
-  }
+  // }
 
 
   applyOrientationConversion(object, boundary_vtx) {
@@ -958,11 +996,11 @@ export class SimulationService {
     return object;
   }
 
-  drawEndCaps(scene,simdata: SimulationData,  boundary_vtx: any ){
+  drawEndCaps(scene,simdata: SimulationData, selection: Bounds, boundary_vtx: any ){
 
     const vtxs = simdata.vtxs;
     const draft = simdata.draft;
-    const bounds = simdata.bounds;
+    const bounds = selection;
     const ms = simdata.sim.ms;
 
 
@@ -980,13 +1018,13 @@ export class SimulationService {
  
       if(warp.length > 0){
 
-        let start_vtx = this.getClosestVtx(simdata, true, simdata.bounds.topleft.y, j);
-        let end_vtx = this.getClosestVtx(simdata, true, simdata.bounds.topleft.y + simdata.bounds.height, j);
+        let start_vtx = this.getClosestVtx(simdata, bounds, true, bounds.topleft.y, j);
+        let end_vtx = this.getClosestVtx(simdata, bounds, true, bounds.topleft.y + bounds.height, j);
 
 
       const material_id = draft.colShuttleMapping[j];
       let diameter = ms.getDiameter(material_id);
-      const color = this.ms.getColor(material_id)
+      const color = this.ms.getColorForSim(material_id)
 
 
       const top_geometry = new THREE.CircleGeometry( diameter/2, 32 );
@@ -1022,12 +1060,12 @@ export class SimulationService {
       let i = ndx + bounds.topleft.y;
   
       if(weft.length > 0){
-        let start_vtx = this.getClosestVtx(simdata, false, i, simdata.bounds.topleft.x);
-        let end_vtx = this.getClosestVtx(simdata, false, i, simdata.bounds.topleft.x + simdata.bounds.width);
+        let start_vtx = this.getClosestVtx(simdata, bounds, false, i, bounds.topleft.x);
+        let end_vtx = this.getClosestVtx(simdata, bounds, false, i, bounds.topleft.x + bounds.width);
 
       const material_id = draft.rowShuttleMapping[i];
       let diameter = ms.getDiameter(material_id);
-      const color = this.ms.getColor(material_id)
+      const color = this.ms.getColorForSim(material_id)
 
       const top_geometry = new THREE.CircleGeometry(  diameter/2, 32 );
       top_geometry.rotateY(3*Math.PI/2);

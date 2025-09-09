@@ -1,309 +1,37 @@
 
-
-
-canvas{
-	width: fit-content;
-	height: fit-content;
-  }
-
-.top-half-draft{
-display: flex;
-flex-direction: row;
-}
-
-
-.local_zoom.origin0,
-.local_zoom.origin3
-{
-  flex-direction: column;
-}
-
-.local_zoom.origin1,
-.local_zoom.origin2
-{
-  flex-direction: column-reverse;
-}
-
-.warp-systems-container{
-	display: flex;
-	margin: 10px 0px;
-  }
-  
-  .warp-systems-container.origin0
-  {
-	flex-direction: column;
-	align-items: flex-start;
-	padding-right: 30px;
-
-  }
-  
-  
-  .warp-systems-container.origin3
-  {
-	flex-direction: column;
-	align-items: flex-end;
-
-  }
-  
-  .warp-systems-container.origin1{
-  
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    padding-right: 10px;
-
-  
-  }
-  
-  
-  .warp-systems-container.origin2
-  {
-    flex-direction: column-reverse;
-    align-items: flex-end;
-  
-  }
-
-
-.drawdown-container{
-	display: flex;
-  }
-  
-  .drawdown-container.origin0,
-  .drawdown-container.origin1
-  {
-	flex-direction: row; 
-  }
-  
-  .drawdown-container.origin2,
-  .drawdown-container.origin3
-  {
-	flex-direction: row-reverse; 
-  }
-
-
-
-.weft-systems-container{
-	display: flex;
-	margin: 0px 10px;
-  }
-  
-  .weft-systems-container.origin0,
-  .weft-systems-container.origin1
-  {
-	flex-direction: row; 
-  }
-  
-  .weft-systems-container.origin2,
-  .weft-systems-container.origin3
-  {
-	flex-direction: row-reverse; 
-  }
-  
-  
-
-
-
-.subdraft-container{
-	background: rgba(255, 255, 255, 0.6);
-
+.subdraft-parent-container{
 	position: absolute;
-	top: 0px;
-	left: 0px;
-	display: flex;
-	flex-direction: column;
-	justify-content:flex-start;
+	top:0;
+	left: 0;
 	min-width: 300px;
-	height: fit-content;
-	padding: 0px 10px 0px 0px;
+    width: fit-content;
 
+	
+}
 
+.topbar{
+	width: 100%;
+	height: 40px;
+	background-color: black;
 }
 
 .multiselected{
-	border: thin solid #ff3860;
+
+	.from_subdraft{
+        border: thick dashed black;
+	}	
 }
 
 
-
-.datarow{
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	color: white;
-    font-size: 0.7em;
-	padding: 0px 4px;
-	height: 20px;
-
-}
-
-.bottom-opts{
-	display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 8px 0px;
-    color: #555;
-    height: 40px;
-	
-}
-
-
-.bottom-opts.has_draft_hidden{
-	height: auto;
-	width: 224px;
-}
-
-.scale-container{
-
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	color: grey;
-	display: flex;
-	flex-direction: row;
-	justify-content:flex-end;
-}
-
-
-h3{
-	font-weight: 800;
-}
-
-.cloak button{
-	width: 30px;
-}
-
-
-
-.is_preview{
-	z-index: 10;
-}
-
-
-
-button.output{
-    position: relative;
-    top: 9px;
-    font-size: 24px;
-    color: #333;
-	background-color: transparent;
-	border: none;
-}
-
-button.output.active,
-button.output:active,
-button.output:hover{
-	color: #ff3860;
-}
-
-
-
-.single_line{
-	display: flex;
-	flex-direction: row;
-}
-
-.outlet_row{
-    height: 34px;
-    display: flex;
-    flex-direction: row;
-    padding-top: 9px;
-    color: black;
-}
-
-.outlet{
-	background-color: transparent;
-	color: white;
-	border: none; 
-	width: 20px;
-	
-	i{
-		font-size: 20px;
-		position: relative;
-
-	}
-	
-}
-
-
-.error{
-	color: #ff3860;
-  }
-
-.dropdown{
+.from_subdraft{
 	display: flex;
 	flex-direction: column;
-}
-
-.subdraft-details{
-	position: relative;
-	top: -10px;
-
-}
-
-.local_zoom{
-	transform-origin: top center;
-	display: flex;
-}
-
-.cloak{
-	display: none;
-	flex-direction: column;
-	width: 30px;
-}
-
-.align-top{
-	display: flex;
-	flex-direction: column;
-}
-
-.subdraft-contents{
-	display: flex;
-	flex-direction: column;
-	position: relative;
-	align-items: center;
-	justify-content: center;
-	padding: 4px;
-	border: none;
-	background-color: transparent;
-}
-	
-
-
-.is-active{
-	background: #00d1b2;
-	background: #00000070
+	background-color: white;
+	border-radius: 8px;
+	 padding-top: 20px;
 }
 
 
-svg{
-	display: block;
-	color: black;
-}
-
-#bitmapImage{
-	display: none;
-	pointer-events: none;
-}
-
-.maindraft{
-	display: block;
-	overflow:hidden;
-}
-
-.hidden {
-	display: none;
-}
-
-.no-pointer{
-	pointer-events: none;
-}
 
 
-.hide{
-	display:none;
-}
-
-.connectable{
-	color:  #ff4081;
-	background: black;
-}
-
+  

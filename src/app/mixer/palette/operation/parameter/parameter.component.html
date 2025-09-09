@@ -1,183 +1,152 @@
-    
 
-    <ng-container  *ngIf="param.type === 'number'">
-        
-      <div class="number_input">
-          
-            <input 
-            matInput
-            [ngModel] = "opnode.params[paramid]"
-            [formControl]="fc"
-            [matTooltip]="description"
-            type = "number"
-            [name]=param.name
-            [min]=param.min
-            [max]=param.max
-            step = 1
-            (change)= "onParamChange(fc.value)"
-        >
-
-        <div class="number-label">
-          {{param.name}}
-        </div>
-      </div>
-
-
-      <!-- <div class="param-slider">
-        <mat-slider 
+@if (param.type === 'number') {
+  <div class="number_input">
+    <mat-form-field >
+      <mat-label>{{param.name}}</mat-label>
+      <input
         matInput
         [ngModel] = "opnode.params[paramid]"
-        tickInterval="1"
         [formControl]="fc"
-        [matTooltip]=param.dx
-        [min]=numparam.min
-        [max]=numparam.max
-        step="1" 
-        (change)= "onParamChange(fc.value)">
-    </mat-slider> 
-   </div> -->
-  </ng-container>
+        type = "number"
+        [name]=param.name
+        [min]=param.min
+        [max]=param.max
+        step = 1
+        (change)= "onParamChange(fc.value)"
+        >
+      <!-- <mat-hint>{{param.name}}</mat-hint> -->
+    </mat-form-field>
+  </div>
+}
 
-  <ng-container  *ngIf="param.type == 'select'">
-    <div class="select-input">
-    <!-- <mat-form-field> -->
-
-
-        <mat-select 
-            [ngModel] = "opnode.params[paramid]"
-            [matTooltip]="description"
-            [formControl]="fc"
-            (selectionChange)='onParamChange(fc.value)'>
-          <mat-option *ngFor="let opt of selectparam.selectlist" [value]="opt.value">
+@if (param.type == 'select') {
+  <div class="select-input">
+    <mat-form-field>
+      <mat-label>{{param.name}}</mat-label>
+      <mat-select
+        [ngModel] = "opnode.params[paramid]"
+        [formControl]="fc"
+        (selectionChange)='onParamChange(fc.value)'>
+        @for (opt of selectparam.selectlist; track opt) {
+          <mat-option [value]="opt.value">
             {{opt.name}}
           </mat-option>
-        </mat-select>
-     <!-- </mat-form-field> -->
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+}
 
-     <mat-label class="select-label">{{param.name}}</mat-label>
+@if (param.type == 'boolean' || param.type == 'notation_toggle') {
+  <div class="boolean-input">
+    <mat-form-field>
+      <mat-label>{{param.name}}</mat-label>
+      <mat-select
+        [ngModel] = "opnode.params[paramid]"
+        [formControl]="fc"
+        (selectionChange)='onParamChange(fc.value)'>
+        <mat-option [value]="1">
+          {{boolparam.truestate}}
+        </mat-option>
+        <mat-option [value]="0">
+          {{boolparam.falsestate}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+}
 
-    </div>
- </ng-container>
-
-    <ng-container  *ngIf="param.type == 'boolean' || param.type == 'notation_toggle'">
-      <!-- <mat-form-field> -->
-
-        <div class="boolean-input">
-
-
-        <mat-slide-toggle
-            [ngModel] = "opnode.params[paramid]"
-            [formControl]="fc"
-            [matTooltip]="description"
-            (change)= "onParamChange(fc.value)"
-            > 
-            <!-- <span *ngIf="fc.value==1">{{boolparam.truestate}}</span>
-            <span *ngIf="fc.value==0">{{boolparam.falsestate}}</span>  -->
-          </mat-slide-toggle>
-
-          <div class="boolean-label">
-            <!-- {{param.name}}: -->
-
-            <span *ngIf="fc.value==1">{{boolparam.truestate}}</span>
-            <span *ngIf="fc.value==0">{{boolparam.falsestate}}</span> 
-
-          </div>
-
-        </div>
-        <!-- </mat-form-field> -->
-    </ng-container>
-
-    <ng-container  *ngIf="param.type == 'string'">
-
-      <div class="string-input">
-
-        <div class="string-and-refresh">
-         
-          <textarea matInput
-          class='param-text'
-          [(ngModel)] = "opnode.params[paramid]"
-          [matTooltip]="description"
-          [formControl]="fc"
-          [errorStateMatcher]="regexValidator"
-          cdkTextareaAutosize
-          #autosize="cdkTextareaAutosize"
-          cdkAutosizeMinRows="1"
-          cdkAutosizeMaxRows="5"
-          (change)= "onParamChange(fc.value)">
-        </textarea>
-
-            <!-- <input matInput class='param-text'
-            [(ngModel)] = "opnode.params[paramid]"
-            [formControl]="fc"
-            [errorStateMatcher]="regexValidator"
-            [matTooltip]="description"
-            type = "text"
-            (change)= "onParamChange(fc.value)"
-          > -->
-
-          <button class="refresh" 
-          mat-icon-button
-          (click)= "onParamChange(fc.value)"
-          [disabled]="!fc.dirty || fc.hasError('required') || fc.hasError('forbiddenInput')"
-          matTooltip="update draft with input values">
-          <i class="fas fa-redo"></i></button>
-         </div> 
-
-        <div class="string-label">{{param.name}} 
-          <div class="text-err" *ngIf="fc.hasError('required')">
-            an input is required 
-           </div>
-       
-         <div class="text-err" *ngIf="fc.hasError('forbiddenInput')">
-           the current input is not correctly formatted
-           </div>
-
-        </div>
+@if (param.type == 'string') {
+  <div class="string-input">
+    <mat-form-field>
+      <mat-label>{{param.name}}</mat-label>
+      <!-- <input
+      matInput
+      [formControl]="fc"
+      [matTooltip]="description"
+      [errorStateMatcher]="regexValidator"
+      (change)= "onParamChange(fc.value)" > -->
+      <input
+        matInput
+        [formControl]="fc"
+        [matTooltip]="description"
+        [(ngModel)] = "opnode.params[paramid]"
+        (keyup.enter) =  "_updateString(fc.value)"
+        >
+      @if (fc.hasError('required') ) {
+        <mat-error>An input is required</mat-error>
+      }
+      @if (fc.hasError('pattern')) {
+        <mat-error>the current input is not correctly formatted </mat-error>
+      }
+    </mat-form-field>
+    <button
+      class="refresh"
+      [disabled]="!refresh_dirty"
+      (click)="_updateString(fc.value)"
+      mat-mini-fab
+      aria-label="Example icon button with a menu icon">
+      <i class="fa fa-refresh" aria-hidden="true"></i>
+    </button>
+  </div>
+}
 
 
-    </div>
-      
-  
+@if (param.type == 'code') {
+  <div class="code-input">
+    <mat-form-field>
+      <textarea matInput
+        cdkTextareaAutosize
+        #autosize="cdkTextareaAutosize"
+        cdkAutosizeMinRows="1"
+      cdkAutosizeMaxRows="5">{{opnode.params[paramid]}}</textarea>
+      <!-- <input
+      matInput
+      [formControl]="fc"
+      [matTooltip]="description"
+      [(ngModel)] = "opnode.params[paramid]"
+      > -->
+      <mat-hint>{{param.name}}</mat-hint>
+    </mat-form-field>
+    <button mat-flat-button>run</button>
+  </div>
+  <div class="canvas-container" id="testing123">
+  </div>
+}
 
-    </ng-container>
 
 
-    <ng-container  *ngIf="param.type == 'file'">
-       
-      <div class='file-input-param'>
-        
-        <div class="form-and-image">
-        <upload-form 
-        type="init" 
+@if (param.type == 'file') {
+  <div class='file-input-param'>
+    <div class="form-and-warning">
+      <button mat-raised-button [class.show]="has_image_uploaded"  [class.hide]="!has_image_uploaded"
+      (click)="replaceImage()" >Replace Image</button>
+      <upload-form
+        [class.show]="!has_image_uploaded"
+        [class.hide]="has_image_uploaded"
+        type="init"
         multiple="false"
         accepts=".jpg,.png,.bmp"
-        type="single_image"
+        type="indexed_color_image"
         (onData)="handleFile($event)"
         (onError)="handleError($event)"
-         class="upload-form-box">
+        class="upload-form-box">
       </upload-form>
-
-           
-        <div class='param-image' [class.has_image]="has_image_preview" [class.no_image]="!has_image_preview" id="param-image-{{opid}}" >
-          <div class="image_preview" id="image_preview-{{opid}}">
-            <canvas id="preview_canvas-{{opid}}"></canvas>
-            <div id="param-image-dims-{{opid}}"></div> 
-          </div>
-        </div>
-      </div>
-
-     
-        
       <div class="file-label">
-        <div class="text-err" *ngIf="filewarning !== ''">{{filewarning}}</div>
+        @if (filewarning !== '') {
+          <div class="text-err">{{filewarning}}</div>
+        }
       </div>
-      
     </div>
-
-
-
-   
-  </ng-container>
+    <div class='param-image' [class.show]="has_image_uploaded" [class.hide]="!has_image_uploaded" id="param-image-{{opid}}" >
+      <button
+        color="accent"
+        mat-raised-button
+        (click)="openImageEditor()"
+      >View/Edit Image</button>
+    </div>
+  </div>
+}
 
 
 

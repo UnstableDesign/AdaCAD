@@ -1,61 +1,55 @@
 {
     "examples": [
 
+
         {
-            "id": "material-calculus",
-            "ext": "gif",
-            "title":"Intro to Drafting as Material Calculus",
-            "desc":"Not sure what a weave draft is or how you might think about weave drafting as a series of algorithmic operations, start here."
+            "id": "first_workspace",
+            "ext": "png",
+            "title":"Making your First Workspace",
+            "desc":"This workspace demonstrates a starting point for making workspaces in AdaCAD by chaining together one operation from each operation category and seeing what emerges"
         },
         {
-            "id": "operation_playground",
-            "ext": "gif",
-            "title":"Operations Playground",
-            "desc":"Play with every possible operation that AdaCAD offers"
+            "id": "weaving_imagery",
+            "ext": "png",
+            "title":"Weaving Imagery",
+            "desc":"This template offers a workflow for adding structures to color regions in an image, previewing the coloring of the image, and formatting it for weaving on a jacquard loom."
+        },
+        {
+            "id": "harness_loom",
+            "ext": "png",
+            "title":"Designing for Harness Looms",
+            "desc":"This template offers a dataflow focused on designing a threading, tieup and treadling for a four harness loom."
+        },
+        {
+            "id": "color_blending",
+            "ext": "png",
+            "title":"Color Blending",
+            "desc":"This template shows a process for assigning structures that will blend colors between alternating warp and weft systems and colors. The blended structures are assigned to regions of an image and the user is invited to create their own color blend for the blue region."
+        },
+        {
+            "id": "basic_operations",
+            "ext": "png",
+            "title":"Basic Operations",
+            "desc":"This workspace contains all of the beginner level operations that AdaCAD offers"
+        },
+        {
+            "id": "TC2_lesson1",
+            "ext": "png",
+            "title":"Drafting for Jacquard: Lesson 1",
+            "desc":"This file can be used to make a simple draft for a jacquard loom using the rectangle and selvedge operations."
         },
         {
             "id": "drawdownexperiments",
-            "ext": "gif",
+            "ext": "png",
             "title":"Drawdown Experiments",
-            "desc":"Playing with generating drawdowns by manipulating threading and threadlines with sine waves and zig zags"
+            "desc":"Playing with generating drawdowns by manipulating threading and threading with sine waves and zig zags"
         },
         {
             "id":"sample7b",
             "ext": "png",
             "title": "Lattice Structures",
             "desc":"We recreate one of Elizabeth Meiklejohn's Samples from the 2023 Experimental Weaving Residency in AdaCAD for those who are interesting in making stretchy, multi-layer, lattice structures"
-        },
-        {
-            "id": "shading",
-            "ext": "png",
-            "title":"Shaded Structures",
-            "desc":"A few different examples of how AdaCAD structures can be leveraged to make shaded structures"
-        },
-        {
-            "id": "etextile",
-            "ext": "png",
-            "title":"E-Textiles Sampler",
-            "desc":"Shows partiuclar techniques that can be particularly useful for creating e-textile LED circuits, force sensors, or electrodes"
-        },
-        {
-            "id": "electrode",
-            "ext": "png",
-            "title":"Woven Electrode Sample",
-            "desc":"Presents strategies and patterns for drafting woven electrodes."
-        },        
-        {
-            "id": "twopic",
-            "ext": "png",
-            "title":"Color Effects with Two Pick Structures",
-            "desc":"Two pick structures can create really interesting graphic patterns in the cloth and you can a apply a set of operations to make any weft-facing structure a 2 pic structure "
-        },
-        {
-            "id": "threelayer",
-            "ext": "png",
-            "title":"Designing Multi-Layer Weaves",
-            "desc":" We create three variations of a three layer weave structure, each which has a different layer on top. We then map each of those to an image."
         }
-
 
 
     ]

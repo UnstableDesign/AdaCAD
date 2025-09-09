@@ -62,8 +62,10 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     row.forEach((cell, j) => {
         seq.pushMultiple(getCellValue(cell), warp_rep);
         if(i == 0){
+          for(let r = 0; r < warp_rep; r++){
             warp_mats.push(input_draft.colShuttleMapping[j]);
             warp_sys.push(input_draft.colSystemMapping[j]);
+          }
         }
     
     });
@@ -73,7 +75,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         weft_sys.push(input_draft.rowSystemMapping[i]);
         pattern.pushWeftSequence(seq.val());
     }
-
   })
 
 

@@ -12,7 +12,7 @@ const ends:NumParam =
     {name: 'ends',
     type: 'number',
     min: 0,
-    max: 100,
+    max: 4000,
     value: 6,
     dx: ""
 };
@@ -21,7 +21,7 @@ const pics: NumParam =
     {name: 'pics',
     type: 'number',
     min: 0,
-    max: 100,
+    max: 4000,
     value: 6,
     dx:""
 }

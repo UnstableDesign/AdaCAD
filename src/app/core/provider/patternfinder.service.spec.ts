@@ -6,7 +6,7 @@ describe('PatternfinderService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: PatternfinderService = TestBed.get(PatternfinderService);
+    const service: PatternfinderService = TestBed.inject(PatternfinderService);
     expect(service).toBeTruthy();
   });
 });

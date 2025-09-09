@@ -55,6 +55,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   if(drafts.length == 0) return Promise.resolve([]);
 
   let total_wefts: number = 0;
+
   const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
   if(factor_in_repeats === 1) total_wefts = utilInstance.lcm(all_wefts);
   else  total_wefts = utilInstance.getMaxWefts(drafts);
@@ -64,9 +65,16 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) : Pro
   for(let i = 0; i < total_wefts; i++){
 
     let seq = new Sequence.OneD();
+
+
+
     drafts.forEach(draft => {
         for(let j = 0; j < warps(draft.drawdown); j++){
+          if(!factor_in_repeats && i >= wefts(draft.drawdown)){
+            seq.push(2);
+          }else{
             seq.push(getHeddle(draft.drawdown, i%wefts(draft.drawdown), j))
+          }
         }
     })
     pattern.pushWeftSequence(seq.val());

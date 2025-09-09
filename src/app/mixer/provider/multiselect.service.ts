@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FileService } from '../../core/provider/file.service';
-import { ZoomService } from './zoom.service';
+import { ZoomService } from '../../core/provider/zoom.service';
 import { Node, Point, SaveObj, TreeNode } from '../../core/model/datatypes';
 import { TreeService } from '../../core/provider/tree.service';
 
@@ -44,7 +44,6 @@ export class MultiselectService {
    */
   toggleSelection(id: number, topleft: Point) : boolean{
 
-    console.log("TOGGLING SELECTION ON ", id)
     const type = this.tree.getType(id);
     let container: HTMLElement;
 
@@ -75,16 +74,16 @@ export class MultiselectService {
       container.classList.add('multiselected');
         //remove the children as well 
         if(type == 'op'){
-          const cxn_outs = this.tree.getOutputs(id);
-          cxn_outs.forEach(o => {
-          let tl = this.tree.getComponent(o).topleft;
-          this.selected.push({id: o, topleft: tl });
-          const child = this.tree.getConnectionOutput(o);
-          tl = this.tree.getComponent(child).topleft;
-          this.selected.push({id: child, topleft: tl });
-          container = <HTMLElement> document.getElementById("scale-"+child);
-          if(container !== null)  container.classList.add('multiselected');
-          } );
+          // const cxn_outs = this.tree.getOutputs(id);
+          // cxn_outs.forEach(o => {
+          // let tl = this.tree.getComponent(o).topleft;
+          // this.selected.push({id: o, topleft: tl });
+          // const child = this.tree.getConnectionOutput(o);
+          // tl = this.tree.getComponent(child).topleft;
+          // this.selected.push({id: child, topleft: tl });
+          // container = <HTMLElement> document.getElementById("scale-"+child);
+          // if(container !== null)  container.classList.add('multiselected');
+          // } );
         }else if(type == 'draft'){
           const parent = this.tree.getSubdraftParent(id);
           if(parent !== -1){
@@ -149,8 +148,11 @@ export class MultiselectService {
       node_mirror = node_mirror.filter( el => el.id !== node.id);
 
       node_mirror.forEach(mirror => {
-        let cxn = this.tree.getConnection(node.id, mirror.id);
-        if(cxn !== -1 && relevant_connection_ids.find(el => el == cxn) === undefined) relevant_connection_ids.push(cxn);
+        let cxns = this.tree.getConnectionsBetween(node.id, mirror.id);
+
+        cxns.forEach(cxn => {
+           if(cxn !== -1 && relevant_connection_ids.find(el => el == cxn) === undefined) relevant_connection_ids.push(cxn)
+        })
       });
 
     });
@@ -158,7 +160,7 @@ export class MultiselectService {
     relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el));
     let all_nodes = selected_nodes.concat(relevant_connection_nodes);
 
-    this.copy = this.fs.saver.copy(all_nodes.map(el => el.id), this.zs.zoom);
+    this.copy = this.fs.saver.copy(all_nodes.map(el => el.id));
      
 
 

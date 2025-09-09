@@ -7,15 +7,15 @@ import utilInstance from "../../model/util";
 
 const name = "weft_profile";
 const old_names = ["dynamicjointop"];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'profile';
 
 //PARAMS
 const pattern:StringParam =  
-    {name: 'pattern',
+    {name: 'pattern weft',
     type: 'string',
     value: 'a b c a b c',
-    regex: /\S+/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+    regex: /\S+/, 
     error: 'invalid entry',
     dx: 'all entries must be letters separated by a space'
   }

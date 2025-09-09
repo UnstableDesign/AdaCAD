@@ -8,9 +8,10 @@ import { TreeService } from '../../../../core/provider/tree.service';
 
 
 @Component({
-  selector: 'app-inlet',
-  templateUrl: './inlet.component.html',
-  styleUrls: ['./inlet.component.scss']
+    selector: 'app-inlet',
+    templateUrl: './inlet.component.html',
+    styleUrls: ['./inlet.component.scss'],
+    standalone: false
 })
 export class InletComponent implements OnInit {
 
@@ -56,6 +57,7 @@ export class InletComponent implements OnInit {
     
     // initalize any dyanmic inlets
     if(this.opnode.inlets.length > 0 && this.inletid >= op.inlets.length && this.dynamic){
+      
       const type = (<DynamicOperation> op).dynamic_param_type;
       this.inlet = <OperationInlet>{
         type: type,
@@ -89,9 +91,9 @@ export class InletComponent implements OnInit {
   }
 
   ngAfterViewInit(){
-
-    this.onInletLoaded.emit({ndx: this.inletid});
+    this.onInletLoaded.emit({ndx: this.inletid, val: this.opnode.inlets[this.inletid]});
   }
+
 
   checkIfInletIsOpen(){
     this.inlet_open = this.inlet.num_drafts == -1 || (this.tree.getInputsAtNdx(this.opid, this.inletid).length < this.inlet.num_drafts);
@@ -133,9 +135,9 @@ export class InletComponent implements OnInit {
 
 
   inputSelected(){
+    
 
-
-      this.onInputSelected.emit({inletid: this.inletid});
+      this.onInputSelected.emit({inletid: this.inletid,  val: this.opnode.inlets[this.inletid]});
       this.show_connection_name = -1;
       
   }
@@ -155,28 +157,7 @@ export class InletComponent implements OnInit {
 
   inletChange(){
 
-    const opnode: OpNode = <OpNode> this.tree.getNode(this.opid);
-
-    // switch(this.inlet.type){
-    //   case 'number':
-    //     this.fc.setValue(value);
-    //     opnode.inlets[this.inletid] = value;
-    //     break;
-    //   case 'system':
-    //    // opnode.inlets[this.inletid] = value;
-    //     break;
-    //   case 'color':
-    //     this.fc.setValue(value);
-    //     opnode.inlets[this.inletid] = value;
-    //     break;
-    //   case 'notation':
-    //     this.fc.setValue(value);
-    //     opnode.inlets[this.inletid] = value;
-    //     break;
-
-    // }
-
-    this.onInletChange.emit({id: this.inletid});
+    this.onInletChange.emit({id: this.inletid,  val: this.opnode.inlets[this.inletid]});
 
   }
 

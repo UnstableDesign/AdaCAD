@@ -1,103 +1,59 @@
 
-.input-color{
-    width: 30px;
-    height: 80%;
-    border: thin solid white;
+
+
+.colorgroup{
+    display: inline-flex;
+    border: thin solid grey;
 }
 
 .inlet_connector{
-    display: block;
-}
-
-button{
-    display: block;
-    position: relative;
-
-}
-
-button.input{
-    position: relative;
-	background-color: #333333;
-	color: white;
-	border: 1px solid white;
     display: flex;
     flex-direction: row;
-    border-bottom: none;
+    align-items: center;
 
-    .inlet_arrow{
-       margin-right: 4px;
-    }
 }
 
-.show_connection{
-    /* display: flex; */
-    flex-direction: column;
-    background: white;
-    color: black;
-    z-index: 100;
-    padding: 4px;
-    position: absolute;
-    top: 23px;
-    text-align: center;
-    border: thin solid black;
+.open_inlet{
     font-size: 1.5em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    
 }
 
-button.open_inlet,
-button.toggle_visibility{
-    background-color: transparent;
-    border: none;
-     
-    i{
-        position: relative;
-        top: -9px;
-        font-size: 24px;
-    }
+.button{
+    padding-right: 12px;
 }
 
-button.open_inlet i{
+.has_connection{
+    font-size: 1.5em;
+    background-color: black;
     color: white;
-}
-button.toggle_visibility i{
-    color: #ff3860;
+    margin-right: 12px;
 }
 
-
-
-
-
-button.open_inlet:active,
-button.open_inlet:hover,
-button.toggle_visibility:active,
-button.toggle_visibility:hover{
-    i{
-        color:#ff3860;
-    }
-}
 
 .inlet_block{
     display: flex;
     flex-direction: row;
     padding-right: 12px;
-    font-size: 1.2em;
+    position: relative;
+    top: -24px;
+}
+
+.inlet_block  .mat-mdc-raised-button{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 
-button.input:active,
-button.input:hover{
-	background-color: #ff3860;
+.input-color{
+    width: 30px;
+    height: 15px;
+    border: thin solid white;
 }
 
-
-
-.input-name{
-    margin-left: 8px;
-    line-height: 30px;
-}
-
-.colorgroup{
-    display: inline-flex;
-}
 
 
 .inputs{
@@ -107,16 +63,13 @@ button.input:hover{
 }
 
 
-.mat-select{
+.mat-mdc-select{
     width: 34px;
     padding-left: 4px;
     line-height: 30px;
     background-color: #fff;
 }
 
-.mat-select-value{
-    color: #fff !important;
-}
 
 input{
     width: 35px;
@@ -124,24 +77,18 @@ input{
 
 
 
-.inlet-label,
-.inlet-name{
-    color: #fff;
-    font-size: 1.2em;
-}
+// .draft-inlet-icon {
+//     display: block;
+//     width: 28px;
+//     height: 28px;
+//     background: url(../../../../../assets/svg/draft_inlet.svg);
+//     background-size: 28px 28px;
+//   }
 
-.draft-inlet-icon {
-    display: block;
-    width: 24px;
-    height: 24px;
-    background: url(../../../../../assets/svg/draft_inlet.svg);
-    background-size: 24px 24px;
-  }
-
-  .material-inlet-icon {
-    display: block;
-    width: 24px;
-    height: 24px;
-    background: url(../../../../../assets/svg/material_inlet.svg);
-    background-size: 24px 24px;
-  }
+//   .material-inlet-icon {
+//     display: block;
+//     width: 28px;
+//     height: 28px;
+//     background: url(../../../../../assets/svg/material_inlet.svg);
+//     background-size: 28px 28px;
+//   }

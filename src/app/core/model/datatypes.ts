@@ -4,11 +4,13 @@ import { ConnectionComponent } from "../../mixer/palette/connection/connection.c
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { MaterialsService } from "../provider/materials.service";
-import { Subject } from "rxjs";
 
 /**
  * This file contains all definitions of custom types and objects
  */
+
+
+/*** APPLICATION STATE MANAGEMENT */
 
 
 
@@ -43,6 +45,24 @@ export interface Draft{
   colSystemMapping: Array<number>,
 }
 
+
+/**
+ * a modified version of the draft that stores the drawdown as a Byte Array to save space
+ */
+export interface CompressedDraft{
+  id: number,
+  gen_name: string,
+  ud_name: string,
+  warps: number; 
+  wefts: number;
+  compressed_drawdown:  Array<number>,
+  rowShuttleMapping: Array<number>,
+  rowSystemMapping: Array<number>,
+  colShuttleMapping: Array<number>,
+  colSystemMapping: Array<number>,
+}
+
+
 export interface Cell{
   is_set: boolean,
   is_up: boolean
@@ -71,6 +91,7 @@ export interface Material {
   startLabel?: string;
   endLabel?: string;
   notes: string;
+  rgb: {r: number, g: number, b: number}
 
 }
 
@@ -184,14 +205,12 @@ export interface ViewModes {
  export interface DesignMode{
   value: string;
   viewValue: string;
-  icon: string;
-  children: Array<DesignMode>;
-  selected: boolean;
+  icon?: string;
 }
 
 export interface Note{
   id: number,
-  interlacement: Interlacement; 
+  topleft: Point,
   title: string;
   text: string;
   ref: ViewRef;
@@ -246,9 +265,9 @@ export type LoomUtil = {
   type: 'jacquard' | 'frame' | 'direct',
   displayname: string,
   dx: string,
-  computeLoomFromDrawdown: (d:Drawdown, loom_settings: LoomSettings, origin: number) => Promise<Loom>,
-  computeDrawdownFromLoom: (l:Loom, origin: number) => Promise<Drawdown>,
-  recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown, origin: number) => Promise<Loom>,
+  computeLoomFromDrawdown: (d:Drawdown, loom_settings: LoomSettings) => Promise<Loom>,
+  computeDrawdownFromLoom: (l:Loom) => Promise<Drawdown>,
+  recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown) => Promise<Loom>,
   updateThreading: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTreadling: (l: Loom, ndx: InterlacementVal) => Loom,
   updateTieup: (l: Loom, ndx: InterlacementVal)=> Loom,
@@ -259,6 +278,7 @@ export type LoomUtil = {
   pasteThreading: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
   pasteTreadling: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
   pasteTieup: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number)=> Loom
+  getDressingInfo: (dd: Drawdown, l: Loom, ls: LoomSettings)=> Array<{label: string, value: string}>;
 }
 
 
@@ -272,7 +292,7 @@ export type YarnMap = Array<Array<Cell>>;
  * holds data about each node/component in a form to easily load.
  * @param node_id the id of this node within the tree
  * @param type the type of node
- * @param bounds the screen position and size data for this node
+ * @param topleft the screen position and size data for this node
  */
 export interface NodeComponentProxy{
   node_id: number,
@@ -299,7 +319,9 @@ export interface NodeComponentProxy{
   * @param draft_id the draft id associated with this node (if available)
  * @param draft_visible a boolean to state if this node is visible or not. 
  * @param draft_name a string representing a user defined name
- * @param draft this will only export if the draft is a seed draft
+ * @param warps the number of warps in the drawdown
+ * @param wefts the number of wefts in the drawdown 
+ * @param compressed_draft this will only export if the draft is a seed draft
  * @param loom this will only export if the draft is a seed draft 
  * @param loom_settings the associated loom settings on this node, if present
   */
@@ -307,16 +329,19 @@ export interface NodeComponentProxy{
    export interface DraftNodeProxy{
     node_id: number;
     draft_id: number;
-    draft_name: string;
+    ud_name: string;
+    gen_name:string;
     draft: Draft;
+    compressed_draft: CompressedDraft;
     draft_visible: boolean;
     loom: Loom;
     loom_settings: LoomSettings;
     render_colors: boolean;
+    scale: number;
    }
 
  /**
-  * a sparce form of an operaction component to use for saving
+  * a sparse form of an operation component to use for saving
   * @param node_id the node id this object refers too
   * @param name the name of the operation at this node
   * @param params the list of input parameters to this operation
@@ -329,6 +354,40 @@ export interface NodeComponentProxy{
   inlets: Array<any>;
  }
 
+ /**
+  * a container for zoom values of the editor, mixer.
+  */
+ export interface ZoomProxy{
+    editor: number;
+    mixer: number;
+ }
+
+ /**
+  * a media object is something a user uploads for manipulation in AdaCAD that is stored on the Firebase server
+  * a media object belongs to a user and eventually can be used across file contexts
+  * @param id a unique id that refers to only this media object instance
+  * @param ref the reference id used to find the media object in storage
+  * @param type a flag to determine which type of media this is
+  */
+ export type MediaInstance ={
+  id: number;
+  ref: string; 
+  type: 'image' | 'indexed_color_image'; //currently we only support images
+  img: IndexedColorImageInstance | SingleImage;
+
+ }
+
+ export type IndexedColorImageInstance = MediaInstance & {
+  img: AnalyzedImage;
+ }
+
+ export type IndexedColorMediaProxy = {
+  id: number,
+  ref: string,
+  colors: Array<Color>;
+  color_mapping: Array<{from:number, to: number}>;
+ }
+
 
  /**
   * describes the data from the workspace that is saved.
@@ -336,6 +395,7 @@ export interface NodeComponentProxy{
  export interface SaveObj{
   version: string,
   workspace: any,
+  zoom: ZoomProxy,
   type: string,
   nodes: Array<NodeComponentProxy>,
   tree: Array<TreeNodeProxy>,
@@ -343,20 +403,23 @@ export interface NodeComponentProxy{
   ops: Array<OpComponentProxy>,
   notes: Array<Note>,
   materials: Array<Material>,
-  scale: number
+  indexed_image_data: Array<IndexedColorMediaProxy>
  }
 
 export interface FileObj{
  version: string,
  workspace: any,
+ zoom: ZoomProxy,
  filename: string,
  nodes: Array<NodeComponentProxy>,
  treenodes: Array<TreeNodeProxy>,
  draft_nodes: Array<DraftNodeProxy>,
  notes: Array<any>,
- ops: Array<OpComponentProxy>
- scale: number
+ ops: Array<OpComponentProxy>,
+ indexed_image_data: Array<IndexedColorMediaProxy>
+
 }
+
 
 export interface StatusMessage{
   id: number,
@@ -369,21 +432,20 @@ export interface LoadResponse{
   id: number,
   name: string, 
   desc: string,
-  status: number;
+  status: number,
+  from_share: string
 }
 
 export interface Fileloader{
-  ada: (filename: string, id: number, desc: string, data: any) => Promise<LoadResponse>,
+  ada: (filename: string, src: string, id: number, desc: string, data: any, from_share: string) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
-  //bmp: (filename: string, data: any) => Promise<LoadResponse>,
-  //jpg: (filename: string, data: any) => Promise<LoadResponse>,
-  form: (data: any) => Promise<LoadResponse>}
+}
 
 export interface FileSaver{
-  ada: (type: string, for_timeline:boolean, current_scale: number) => Promise<{json: string, file: SaveObj}>,
-  copy: (include: Array<number>, current_scale: number) => Promise<SaveObj>,
-  //wif: (draft: Draft, loom: Loom) => Promise<string>,
+  ada: () => Promise<{json: string, file: SaveObj}>,
+  copy: (include: Array<number>) => Promise<SaveObj>,
+  wif: (draft: Draft, loom: Loom, loom_settings: LoomSettings) => Promise<string>
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>
 }
@@ -432,7 +494,7 @@ export interface FileSaver{
  */
 export type OperationParam = {
   name: string,
-  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle';
+  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle' | 'code';
   value: any,
   dx: string
 }
@@ -471,6 +533,14 @@ export type BoolParam = OperationParam & {
 */
 export type FileParam = OperationParam & {
 }
+
+/**
+* An extension of Param that handles extra requirements for blocks that interpret code
+*/
+export type CodeParam = OperationParam & {
+  docs: string;
+}
+
 
 
 /**
@@ -541,14 +611,14 @@ export type Operation = {
 
  /**
  * A container operation that takes drafts with some parameter assigned to them 
- * @param dynamic_param_id which parameter id should we use to dynamically create paramaterized input slots
- * @param dynamic_param_type the type of parameter that we look to generate
- * @param onParamChange a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
+ * @param dynamic_param_id which parameter ids should we use to determine the number and value of parameterized input slots
+ * @param dynamic_inlet_type dynamic parameters convert parameter inputs to inlets of a given type, this specifies the type of inlet created
+ * @param onParamChange a function that executes when a dynamic parameter is changed
  */
 export type DynamicOperation = Operation &  {
-  dynamic_param_id: number,
-  dynamic_param_type: string,
-  onParamChange: ( param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, param_val: any) => Array<any>;
+  dynamic_param_id: Array<number>,
+  dynamic_param_type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
+  onParamChange: ( param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, dynamic_param_vals: Array<any>) => Array<any>;
   perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
 }
 
@@ -563,23 +633,44 @@ export type DynamicOperation = Operation &  {
  export interface OperationClassification{
   category_name: string,
   description: string,
+  color: string,
   op_names: Array<string>;
  }
 
 
 
+ /**
+  * an object that is stored in memory when an image is loaded
+  * @param name the file name of the uploaded file
+  * @param data the raw data of the image 
+  * @param colors an array of unique hex values found in this image 
+  * @param colors_mapping an array that matches each index in the color array to a color index that it should be grouped with
+  * @param image the HTML image object to write the data into 
+  * @param image_map an 2D array associating every pixel in the image with the id of the associated color in the colors array
+  * @param width 
+  * @param height
+  * @param type
+  * @param warning a text warning is added if the image file violates rules
+  */
  export interface AnalyzedImage{
-    id: string,
     name: string,
     data: ImageData, 
-    colors: Array<string>,
-    colors_to_bw: Array<any>,
+    colors: Array<Color>,
+    colors_mapping: Array<{from: number, to: number}>,
+    proximity_map: Array<{a: number, b: number, dist: number}>,
     image: HTMLImageElement,
     image_map: Array<Array<number>>,
     width:number,
     height: number,
     type: string,
     warning: string
+ }
+
+ export interface Color{
+  r: number,
+  g: number,
+  b: number,
+  hex: string
  }
 
  export interface Upload {
@@ -591,6 +682,17 @@ export type DynamicOperation = Operation &  {
   createdAt: Date,
 
 }
+
+export interface SingleImage{
+  name: string,
+  data: ImageData, 
+  image: HTMLImageElement,
+  width:number,
+  height: number,
+  type: string,
+  warning: string
+}
+
 
 
 
@@ -618,12 +720,13 @@ type BaseNode = {
  * an OpNode is an extension of BaseNode that includes additional params
  * @param name the name of the operation at this node
  * @param params an array of the current param values at this node
- * @param inlets an array of the inlet values at this node
+ * @param inlets an array of the inlet values at this node (for instance, in the layer notation op, these might be 'a', 'b', etc.)
+ * @param outlets an array of the 
  */
 export type OpNode = BaseNode & {
   name: string,
   params: Array<any>
-  inlets: Array<any>;
+  inlets: Array<any>
  }
 
 
@@ -637,7 +740,10 @@ export type OpNode = BaseNode & {
   draft: Draft,
   loom: Loom,
   loom_settings: LoomSettings,
-  render_colors: boolean
+  render_colors: boolean,
+  scale: number,
+  visible: boolean,
+  mark_for_deletion: boolean
  }
 
 
@@ -649,17 +755,18 @@ export type OpNode = BaseNode & {
 
  /**
   * a type to store input and output information for nodes that takes multiple node inputs and outputs into account.
-  * each node stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
-  * connections will have inlet/outlet indexes of 0, 0 (they cannot connect ot multiple things)
-  * drafts will have inset/outout indexes of 0, 0 (they can only have one parent)
+  * each IOTuple stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
+  * connections will have inlet/outlet indexes of {0, 0} (they cannot connect to multiple things)
+  * drafts will have inlet indexes of {0, 0} (they can only have one parent)
   * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
   * @param treenode - the treenode that this input or output goes towards
   * @param ndx - which ndx on the said treenodes does this connect to specifically
+  * @param val - the value associated with this inlet
   */
  export interface IOTuple{
    tn: TreeNode,
    ndx: number
- }
+   }
 
 /**
  * A tree node stores relationships between the components created by operations
@@ -792,7 +899,6 @@ export type WarpHeight = {
 
 export type SimulationData = {
   draft: Draft,
-  bounds: Bounds,
   sim: SimulationVars,
   topo: Array<TopologyVtx>,
   vtxs: VertexMaps,
@@ -830,6 +936,61 @@ export type Example = {
   desc: string
 }
 
+export type DraftCellColor = {
+  id: string,
+  r: number,
+  g: number,
+  b: number,
+  a: number
+}
+
+export type CanvasList = {
+  id: number,
+  drawdown: HTMLCanvasElement,
+  threading: HTMLCanvasElement,
+  tieup: HTMLCanvasElement, 
+  treadling: HTMLCanvasElement, 
+  warp_systems: HTMLCanvasElement,
+  warp_mats: HTMLCanvasElement,
+  weft_systems: HTMLCanvasElement,
+  weft_mats: HTMLCanvasElement
+}
+
+/**
+ * used to tell the draft renderer what to redraw and what settings to use
+ */
+export type RenderingFlags = {
+ u_drawdown: boolean, 
+ u_threading: boolean, 
+ u_treadling: boolean, 
+ u_tieups: boolean,
+ u_warp_sys: boolean,
+ u_warp_mats: boolean,
+ u_weft_sys: boolean,
+ u_weft_mats: boolean,
+ use_colors: boolean,
+ use_floats: boolean,
+ show_loom: boolean
+}
+
+
+/**
+ * File sharing
+ */
+
+
+export type ShareObj = {
+  license: string,
+  owner_uid: string,
+  owner_creditline: string,
+  owner_url: string,
+  filename: string,
+  desc: string,
+  public:boolean,
+  img: string
+
+}
+ 
 
 
 

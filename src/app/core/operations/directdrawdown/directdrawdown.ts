@@ -3,6 +3,7 @@ import { Cell, Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../
 import { getHeddle, initDraftFromDrawdown, initDraftWithParams, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
 import { getLoomUtilByType } from "../../model/looms";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../model/operations";
+import utilInstance from "../../model/util";
 
 
 const name = "directdrawdown";
@@ -85,6 +86,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   const utils = getLoomUtilByType('direct');
   const loom = {
+    id: utilInstance.generateId(8),
     threading: threading_list,
     tieup: tieup,
     treadling:treadling_list
@@ -92,7 +94,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
 
-  return utils.computeDrawdownFromLoom(loom, 0).then(drawdown => {
+  return utils.computeDrawdownFromLoom(loom).then(drawdown => {
     draft.drawdown = drawdown;
     draft = updateWarpSystemsAndShuttles(draft, threading_draft)
     draft = updateWeftSystemsAndShuttles(draft, lift_draft )

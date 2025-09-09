@@ -19,7 +19,7 @@ const max_float:NumParam =
 };
 
 const bindings: NumParam = 
-    {name: 'number of binding rows',
+    {name: 'binding rows',
     type: 'number',
     min: 1,
     max: 100,

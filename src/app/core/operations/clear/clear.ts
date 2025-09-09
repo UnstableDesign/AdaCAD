@@ -34,8 +34,9 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   let d = initDraftWithParams({
     wefts: wefts(input_draft.drawdown),
     warps: warps(input_draft.drawdown),
-    drawdown: [[createCell(null)]]
+    drawdown: [[createCell(true)]]
   });
+  
   d = updateWeftSystemsAndShuttles(d, input_draft);
   d = updateWarpSystemsAndShuttles(d, input_draft);
 

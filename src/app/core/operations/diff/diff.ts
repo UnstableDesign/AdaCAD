@@ -1,5 +1,5 @@
 import { createCell } from "../../model/cell";
-import { NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
+import { BoolParam, NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
@@ -29,7 +29,17 @@ value: 0,
 dx:''
 };
 
-const params = [shift_ends, shift_pics];
+const repeats:BoolParam =  
+    {name: 'calculate repeats',
+    type: 'boolean',
+    falsestate: 'do not repeat inputs to match size',
+    truestate: 'repeat inputs to match size',
+    value: 1,
+    dx: "controls if the inputs are interlaced in the exact format submitted or repeated to fill evenly"
+    }
+
+
+const params = [shift_ends, shift_pics, repeats];
 
 //INLETS
 const draft_a: OperationInlet = {
@@ -50,6 +60,8 @@ const draft_a: OperationInlet = {
     num_drafts: 1
   }
 
+
+
   const inlets = [draft_a, draft_b];
 
 
@@ -59,43 +71,66 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   let input_draft_b = getAllDraftsAtInlet(op_inputs, 1);
   let shift_ends = getOpParamValById(0, op_params);
   let shift_pics = getOpParamValById(1, op_params);
+  let repeat = getOpParamValById(2, op_params);
 
    if(input_draft_a.length == 0 && input_draft_b.length == 0) return Promise.resolve([]);
 
    let draft_a = (input_draft_a.length == 0) ? initDraftFromDrawdown([[createCell(null)]]) : input_draft_a[0];
    let draft_b = (input_draft_b.length == 0) ? initDraftFromDrawdown([[createCell(null)]]) : input_draft_b[0];
 
+   let width, height = 0;
 
-    let height = Math.max(wefts(draft_b.drawdown) + shift_pics, wefts(draft_a.drawdown));
-    let width = Math.max(warps(draft_b.drawdown) + shift_ends, warps(draft_a.drawdown));
+  if(repeat){
+     height = utilInstance.lcm([wefts(draft_a.drawdown), wefts(draft_b.drawdown)]);
+     width = utilInstance.lcm([warps(draft_a.drawdown), warps(draft_b.drawdown)]);
+  }else{
+    height = Math.max(wefts(draft_b.drawdown) + shift_pics, wefts(draft_a.drawdown));
+    width = Math.max(warps(draft_b.drawdown) + shift_ends, warps(draft_a.drawdown));
+  }
 
 
     //offset draft b:
     let pattern_b = new Sequence.TwoD();
     for(let i = 0; i < height; i++ ){
         let seq = new Sequence.OneD();
-        if(i < shift_pics){
-            seq.pushMultiple(2, width);
-        }else if(i < (shift_pics + wefts(draft_b.drawdown))){
-            seq.pushMultiple(2, shift_ends).pushRow(draft_b.drawdown[i-shift_pics]);
-            let remaining = width - (warps(draft_b.drawdown) + shift_ends);
-            if(remaining > 0) seq.pushMultiple(2, remaining);
+        if(!repeat){
+          if(i < shift_pics){
+              seq.pushMultiple(2, width);
+          }else if(i < (shift_pics + wefts(draft_b.drawdown))){
+              seq.pushMultiple(2, shift_ends).pushRow(draft_b.drawdown[i-shift_pics]);
+              let remaining = width - (warps(draft_b.drawdown) + shift_ends);
+              if(remaining > 0) seq.pushMultiple(2, remaining);
+          }else{
+              seq.pushMultiple(2, width);
+          }
         }else{
-            seq.pushMultiple(2, width);
+          let ndx = (i+shift_pics)%wefts(draft_b.drawdown);
+          seq.pushRow(draft_b.drawdown[ndx]).resize(width);
         }
         pattern_b.pushWeftSequence(seq.val());
     }
+
+    
 
     //make sure pattern a is the same size
     let pattern_a = new Sequence.TwoD();
     for(let i = 0; i < height; i++ ){
         let seq = new Sequence.OneD();
-        if(i < wefts(draft_a.drawdown)){
-            seq.pushRow(draft_a.drawdown[i]);
-            let remaining = width - draft_a.drawdown[i].length;
-            if(remaining > 0) seq.pushMultiple(2, remaining);
+       
+        if(!repeat){
+          if(i < wefts(draft_a.drawdown)){
+              seq.pushRow(draft_a.drawdown[i]);
+              let remaining = width - draft_a.drawdown[i].length;
+              if(remaining > 0) seq.pushMultiple(2, remaining);
+          }else{
+              seq.pushMultiple(2, width);
+          }
         }else{
-            seq.pushMultiple(2, width);
+          if(i < wefts(draft_a.drawdown)){
+           seq.pushRow(draft_a.drawdown[i]).resize(width).shift(shift_ends);
+          }else{
+           seq.pushMultiple(2, width)
+          }
         }
         pattern_a.pushWeftSequence(seq.val());
     }

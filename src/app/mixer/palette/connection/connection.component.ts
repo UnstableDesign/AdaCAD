@@ -1,27 +1,25 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Bounds, DraftNode, OpNode, Point } from '../../../core/model/datatypes';
 import { TreeService } from '../../../core/provider/tree.service';
-import { ZoomService } from '../../provider/zoom.service';
-import { OperationComponent } from '../operation/operation.component';
-import { SubdraftComponent } from '../subdraft/subdraft.component';
+import { ZoomService } from '../../../core/provider/zoom.service';
 import { OperationService } from '../../../core/provider/operation.service';
-import { defaults } from '../../../core/model/defaults';
 
 @Component({
-  selector: 'app-connection',
-  templateUrl: './connection.component.html',
-  styleUrls: ['./connection.component.scss']
+    selector: 'app-connection',
+    templateUrl: './connection.component.html',
+    styleUrls: ['./connection.component.scss'],
+    standalone: false
 })
 export class ConnectionComponent implements OnInit {
 
 
   @Input() id: number;
   @Input() scale: number;
-  @Input() default_cell_size: number;
   @Output() onConnectionRemoved = new EventEmitter <any>();
 
 
-
+  from: number;
+  to: number;
   b_from: Point;
   b_to: Point;
 
@@ -34,8 +32,11 @@ export class ConnectionComponent implements OnInit {
   width: number =  0;
   height: number = 0;
 
-  svg: HTMLElement;
+  svg: SVGSVGElement;
+  path_main: SVGPathElement;
+  line_stub: SVGLineElement;
   connector: HTMLElement;
+  anim: any;
 
   no_draw: boolean;
 
@@ -56,13 +57,11 @@ export class ConnectionComponent implements OnInit {
     const from_io = treenode.inputs[0];
     const to_io = treenode.outputs[0];
 
-    const from = from_io.tn.node.id;
-    const to = to_io.tn.node.id;
+    this.from = from_io.tn.node.id;
+    this.to = to_io.tn.node.id;
 
-    this.no_draw = this.tree.getType(from) === 'op' && this.tree.hasSingleChild(from);
-    this.show_disconnect = !(this.tree.getType(from) === 'op' && !(this.tree.hasSingleChild(from)));
-    // this.path_text = this.id+'';
-    // this.show_path_text = true;
+    this.no_draw = this.tree.getType(this.from) === 'op' && this.tree.hasSingleChild(this.from);
+    this.show_disconnect = !(this.tree.getType(this.from) === 'op' && !(this.tree.hasSingleChild(this.from)));
 
     this.updatePathText()
 
@@ -71,18 +70,57 @@ export class ConnectionComponent implements OnInit {
 
   ngAfterViewInit(){
 
-    this.svg = document.getElementById('svg-'+this.id.toString());
+
+    const ns = "http://www.w3.org/2000/svg";
+    this.svg = document.createElementNS(ns, "svg");
+    this.path_main = document.createElementNS(ns, "path");
+    this.line_stub = document.createElementNS(ns, "line");
+    this.svg.appendChild(this.path_main);
+    this.svg.appendChild(this.line_stub);
+    document.getElementById("scale-"+this.id).appendChild(this.svg);
+
+
+    //this.svg = document.getElementById('svg-'+this.id.toString());
     this.connector = document.getElementById('connector-'+this.id.toString());
 
-    const to = this.tree.getConnectionOutput(this.id);
-    const from = this.tree.getConnectionInput(this.id);
+    this.anim = this.path_main.animate(
+      [
+        { strokeDashoffset: "0" },
+        { strokeDashoffset: "20" }
+      ],
+      {
+        duration: 1000,
+        iterations: Infinity,
+        easing: "linear"
+      }
+    );
+    this.anim.pause();
+    const color = "#000000"
+    const stroke_width = 2;
+     this.path_main.setAttribute("fill", "none");
+    this.path_main.setAttribute("stroke", color);
+    this.path_main.setAttribute("stroke-width", "4"); //2
+    this.path_main.setAttribute("stroke-linecap", "round");
+    this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
+    this.path_main.setAttribute("stroke-dashoffset", "0");
+ 
+    this.line_stub.setAttribute("fill", "none");
+    this.line_stub.setAttribute("stroke", color);
+    this.line_stub.setAttribute("stroke-width", "4"); //2
+    this.line_stub.setAttribute("stroke-linecap", "round");
+    this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
+    this.line_stub.setAttribute("stroke-dashoffset", "0"); 
 
 
 
+    let to_withdata = this.tree.getConnectionOutputWithIndex(this.id);
+    this.to = to_withdata.id;
+    this.from = this.tree.getConnectionInput(this.id);
 
-     this.updateFromPosition(from, this.zs.zoom);
-     this.updateToPosition(to, this.zs.zoom);
-     this.drawConnection(this.zs.zoom)
+
+     this.updateFromPosition();
+     this.updateToPosition(to_withdata.inlet, to_withdata.arr);
+     this.drawConnection();
 
 
   }
@@ -127,131 +165,78 @@ export class ConnectionComponent implements OnInit {
    * unless the to node is a dynamic operation, in which case we must move to an inlet. 
    * @param to the id of the component this connection goes to
    */
-  updateToPosition(to: number, scale: number){
-   
-    const to_comp = <SubdraftComponent | OperationComponent> this.tree.getComponent(to);
+  updateToPosition(inlet_id: number, arr_id: number){
+
+    let parent = document.getElementById('scrollable-container');
+
+    let parent_rect = parent.getBoundingClientRect();
+
+
+    let to_container = document.getElementById("inlet"+this.to+"-"+inlet_id+"-"+arr_id);
+
+    if(to_container == null || to_container == undefined) return;
+    
+    let to_rect = to_container.getBoundingClientRect();
+
+    const zoom_factor =  1/this.zs.getMixerZoom();
+
+    //on screen position relative to palette
+    let screenX = to_rect.x - parent_rect.x + parent.scrollLeft;
+    let scaledX = screenX * zoom_factor;
+
+    //on screen position relative to palette
+    let screenY = to_rect.y - parent_rect.y + parent.scrollTop;
+    let scaledY = screenY * zoom_factor;
+
+    
 
     this.b_to = {
-      x:  to_comp.topleft.x + 3*this.scale/this.default_cell_size +  15* this.scale/this.default_cell_size,
-      y: to_comp.topleft.y
-    };
-
-
-    if(this.tree.getType(to_comp.id) === 'op'){
-      // get the inlet value 
-      const ndx = this.tree.getInletOfCxn(to_comp.id, this.id);
-      if(ndx !== -1){
-
-        
-        
-        const ndx_in_list = this.tree.getInputsAtNdx(to_comp.id, ndx).findIndex(el => el.tn.node.id === this.id);
-
-
-        const element: HTMLElement = document.getElementById('inlet'+to_comp.id+"-"+ndx+"-"+ndx_in_list);
-
-        //to get a current position, you need the inlets parent to have a defined position. 
-        if( element !== undefined && element !== null && element.offsetParent !== null){
-          const left_offset = element.offsetLeft;
-            this.b_to = {x: to_comp.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to_comp.topleft.y}
-        }else{
-            const left_offset = (ndx + ndx_in_list)*defaults.inlet_button_width;
-            this.b_to = {x: to_comp.topleft.x + left_offset*this.scale/this.default_cell_size + 15* this.scale/this.default_cell_size, y: to_comp.topleft.y}
-
-        }
-        
-      }
+      x: scaledX + to_rect.width/2,
+      y: scaledY + to_rect.height/2
     }
 
+
     this.calculateBounds();
-    this.drawConnection(scale);
+    this.drawConnection();
   }
-
-   /**
-   * if every connection goes from one node to another, the to node is always the topleft corner
-   * unless the to node is a dynamic operation, in which case we must move to an inlet. 
-   * @param to the id of the component this connection goes to
-   */
-  //  updateInitalToPosition(to: number, inlet_id: number, within_inlet_id: number,  scale: number){
-  //   console.log("***UPDATE INITIAL POSITION***", to, scale)
-   
-  //   const to_comp = <OperationComponent> this.tree.getComponent(to);
-
-  //   this.b_to = {
-  //     x:  to_comp.topleft.x + 3*this.scale/this.default_cell_size +  15* this.scale/this.default_cell_size,
-  //     y: to_comp.topleft.y
-  //   };
-
-
-
-  //   this.b_to = {x: to_comp.topleft.x + (inlet_id*100+15)*this.scale/this.default_cell_size, y: to_comp.topleft.y}
-  //   console.log("THIS B TO ", this.b_to)
-  
-
-  //   this.calculateBounds();
-  //   this.drawConnection(scale);
-  // }
 
 
   /**
-   * if every connection goes from one node to another, the from node depends on the kind of object
+   * connections can come from a subdraft or an operation component 
    * @param from the id of the component this connection goes to
    */
-  updateFromPosition(from: number, scale: number){
-    const from_comp =  <SubdraftComponent | OperationComponent> this.tree.getComponent(from);
-  
-    if(from_comp === null){
-      console.error("no from component assigned yet on ", this.id);
-    }
-    
-    if(this.tree.getType(from) === 'op') this.fromOpUpdate(<OperationComponent> from_comp);
-    else this.fromDraftUpdate(<SubdraftComponent> from_comp);
+  updateFromPosition(){
+    let parent = document.getElementById('scrollable-container');
+    let parent_rect = parent.getBoundingClientRect();
+    let sd_element = document.getElementById(this.from+'-out');
 
+
+    if(sd_element === null ) return;
+
+    let sd_container =sd_element.getBoundingClientRect();
+
+    const zoom_factor =  1/this.zs.getMixerZoom();
+   //on screen position relative to palette
+   let screenX = sd_container.x - parent_rect.x + parent.scrollLeft;
+   let scaledX = screenX * zoom_factor;
+
+   //on screen position relative to palette
+   let screenY = sd_container.y - parent_rect.y + parent.scrollTop;
+   let scaledY = screenY * zoom_factor;
+
+    
+    
+    //draw from the center of the icon
+   this.b_from = {
+    x: scaledX + sd_container.width/2,
+    y: scaledY+ sd_container.height/2
+  }
 
     this.calculateBounds();
-    this.drawConnection(scale);
+    this.drawConnection();
     
    }
 
-   //TODO, add positing here
-  fromOpUpdate(op_comp: OperationComponent){
-      const scale = document.getElementById("scale-"+op_comp.id);
-      if(scale === null){
-        // console.log("draft not found on update")
-        // this.b_from = 
-        // {x: draft_comp.topleft.x+5, 
-        //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
-      }else{
-        this.b_from = 
-        {x: op_comp.topleft.x+5, 
-         y: (op_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
-      }
-      
-     
-   
-  }
-
-  fromDraftUpdate(draft_comp: SubdraftComponent){
-
-    if(draft_comp.draft_visible){
-      const scale = document.getElementById("scale-"+draft_comp.id);
-      if(scale === null){
-        // console.log("draft not found on update")
-        // this.b_from = 
-        // {x: draft_comp.topleft.x+5, 
-        //  y: draft_comp.topleft.y + draft_comp.bounds.height*(this.zs.zoom/this.default_cell_size)};
-      }else{
-        this.b_from = 
-        {x: draft_comp.topleft.x+5, 
-         y: (draft_comp.topleft.y) + scale.offsetHeight*(this.zs.zoom/this.default_cell_size)};
-      }
-      
-     
-    }else{
-      this.b_from = 
-      {x: draft_comp.topleft.x + 3*this.zs.zoom, 
-       y: draft_comp.topleft.y + 30};
-    }
-  }
 
 
   calculateBounds(){
@@ -272,102 +257,129 @@ export class ConnectionComponent implements OnInit {
     bottomright.x = Math.max(p1.x, p2.x);
     bottomright.y = Math.max(p1.y, p2.y);
 
+
     this.topleft = {x: Math.min(p1.x, p2.x), y: Math.min(p1.y, p2.y)};
+
+    let cxn_container = document.getElementById('scale-'+this.id);
+    cxn_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    cxn_container.style.top =  this.topleft.y+"px";
+    cxn_container.style.left =  this.topleft.x+"px";
+
     this.width = bottomright.x - this.topleft.x + 2; //add two so a line is drawn when horiz or vert
     this.height = bottomright.y - this.topleft.y + 2;
   }
 
 
+  updateConnectionStyling(selected: boolean){
+
+    if(selected){
+    // this.anim.play();
+     this.path_main.setAttribute("stroke-width", "8"); //2
+     this.line_stub.setAttribute("stroke-width", "8"); //2
+    this.path_main.setAttribute("stroke-dasharray", "20 1"); //4 2 
+    this.line_stub.setAttribute("stroke-dasharray", "20 1"); //4 2 
+
+    }else{
+   //  this.anim.pause();
+    this.path_main.style.zIndex = '0'
+     this.path_main.setAttribute("stroke-width", "4"); //2
+     this.line_stub.setAttribute("stroke-width", "4"); //2
+     this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
+     this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
+
+
+
+    }  
+  }
 
   
-  drawConnection(scale: number){
 
 
-    const stublength = 15;
-    const connector_opening = 10;
-    const connector_font_size = Math.max((10 - scale) / 10, .75);
-    const text_path_font_size =   Math.max((10 - scale) / 10, .75);
-    const button_margin_left = -20;
-    const button_margin_top = -16;
-    
+  
+  drawConnection(){
+
     if(this.no_draw) return;
     if(this.svg === null || this.svg == undefined) return;
 
-    const stroke_width = 4 * this.zs.zoom / this.zs.getZoomMax();
 
+    const stublength = 40;
+    const connector_opening = 40;
+    const connector_font_size = 2;
+    const button_margin_left = -24;
+    const button_margin_top = -8;
 
     if(this.orientation_x && this.orientation_y){
       
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 0 C 0 50, '+this.width+' '+(this.height-70)+', '+this.width+' '+(this.height-(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
+      this.path_main.setAttribute("d", "M 0 0 C 0 50, "+this.width+" "+(this.height-70)+","+this.width+" "+(this.height-(stublength+connector_opening)));
 
-      if(this.show_path_text){
-        this.svg.innerHTML += '<text><textPath startOffset="10%" fill="#ff4081" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ';
+      this.line_stub.setAttribute("x1", this.width+"");
+      this.line_stub.setAttribute("y1", (this.height-(stublength))+"");
+      this.line_stub.setAttribute("x2", this.width+"");
+      this.line_stub.setAttribute("y2", this.height+"");
 
-      }
-     
-
-      this.svg.innerHTML += '  <line x1="'+this.width+'" y1="'+(this.height-(stublength))+'" x2='+this.width+' y2="'+this.height+'"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
 
       this.connector.style.top = (this.height-(stublength+connector_opening)+button_margin_top)+'px';
       this.connector.style.left = (this.width+button_margin_left)+'px';
       this.connector.style.fontSize = connector_font_size+"em";
-      this.svg.style.fontSize = text_path_font_size+"em";
       
-  
+
 
     }else if(!this.orientation_x && !this.orientation_y){
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+-(stublength+connector_opening)+' c 0 -50, '+this.width+' '+(this.height+100)+', '+this.width+' '+(this.height+(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
 
-      if(this.show_path_text){
-        this.svg.innerHTML += ' <text><textPath startOffset="60%" fill="#ff4081" href="#path-'+this.id+'">'+this.path_text+'</textPath></text>';
-      }
+      this.path_main.setAttribute("d", "M 0 "+-(stublength+connector_opening)+"c 0 -50, "+this.width+" "+(this.height+100)+", "+this.width+" "+(this.height+(stublength+connector_opening)));
 
-      this.svg.innerHTML += '  <line x1="0" y1="'+-(stublength )+'" x2="0" y2="0"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+
+      this.line_stub.setAttribute("x1","0");
+      this.line_stub.setAttribute("y1", -(stublength)+"");
+      this.line_stub.setAttribute("x2", "0");
+      this.line_stub.setAttribute("y2", "0");
 
       this.connector.style.top = -(stublength+connector_opening)+(button_margin_top)+'px';
       this.connector.style.left = (button_margin_left)+'px';
       this.connector.style.fontSize = connector_font_size+"em";
-      this.svg.style.fontSize = text_path_font_size+"em";
   
 
 
     }else if(!this.orientation_x && this.orientation_y){
 
-      // this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M '+this.bounds.width+' 0 C '+(this.bounds.width)+' 50, 0 '+(this.bounds.height-70)+', 0 '+(this.bounds.height-(stublength+connector_opening))+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> <text><textPath startOffset="50%" fill="#000000" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ' ;
+
+      this.path_main.setAttribute("d", "M  0 "+(this.height-(stublength+connector_opening))+" C 0 "+(this.height-(stublength+connector_opening)-50)+", "+this.width+" 50, "+this.width+" 0");
+
+      this.line_stub.setAttribute("x1","0");
+      this.line_stub.setAttribute("y1",(this.height-(stublength))+"");
+      this.line_stub.setAttribute("x2", "0");
+      this.line_stub.setAttribute("y2", this.height+"");
 
 
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d=" M  0 '+(this.height-(stublength+connector_opening))+' C 0 '+(this.height-(stublength+connector_opening)-50)+', '+this.width+' 50, '+this.width+' 0" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'"/> ' ;
-
-      if(this.show_path_text){
-        this.svg.innerHTML += '<text><textPath startOffset="60%" fill="#ff4081" href="#path-'+this.id+'">'+this.path_text+'</textPath></text>';
-      }
-
-      this.svg.innerHTML += '  <line x1="0" y1="'+(this.height-(stublength))+'" x2="0" y2="'+this.height+'"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
 
 
       this.connector.style.top = (this.height-(stublength+connector_opening)+button_margin_top)+'px';
       this.connector.style.left =  (button_margin_left)+'px';
       this.connector.style.fontSize = connector_font_size+"em";
-      this.svg.style.fontSize = text_path_font_size+"em";
   
   
 
 
     }else{
 
-      this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+this.height+' C 0 '+(this.height+50)+', '+this.width+' -50, '+this.width+''+-(stublength+connector_opening)+'" fill="transparent" stroke="#ff4081"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
+      
 
-      if(this.show_path_text){
-        this.svg.innerHTML = '<text><textPath startOffset="10%" fill="#000000" href="#path-'+this.id+'">'+this.path_text+'</textPath></text> ';
-      }
+      this.path_main.setAttribute("d", "M 0 "+this.height+"C 0 "+(this.height+50)+", "+this.width+" -50, "+this.width+" "+-(stublength+connector_opening));
 
-      this.svg.innerHTML += '  <line x1="'+this.width+'" y1="'+(-(stublength))+'" x2="'+this.width+'" y2="0"  stroke="#ff4081"  stroke-dasharray="4 2"   stroke-width="'+stroke_width+'" />';
+
+      // this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+this.height+' C 0 '+(this.height+50)+', '+this.width+' -50, '+this.width+''+-(stublength+connector_opening)+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
+
+
+      this.line_stub.setAttribute("x1",this.width+"");
+      this.line_stub.setAttribute("y1",-(stublength)+"");
+      this.line_stub.setAttribute("x2", this.width+"");
+      this.line_stub.setAttribute("y2", "0");
+
 
 
       this.connector.style.top = -(stublength+connector_opening)+(button_margin_top)+'px';
       this.connector.style.left = (this.width+button_margin_left)+'px';
       this.connector.style.fontSize = connector_font_size+"em";
-      this.svg.style.fontSize = text_path_font_size+"em";
   
 
     }
@@ -397,24 +409,7 @@ export class ConnectionComponent implements OnInit {
    * Call after the operation and subdraft connections have been updated. 
    * @param scale 
    */
-  rescale(scale:number){
-
-    const to = this.tree.getConnectionOutput(this.id);
-    const from = this.tree.getConnectionInput(this.id);
-
-    this.updateFromPosition(from, scale);
-    this.updateToPosition(to,scale);
-   
-    // this.b_from = {x: from_comp.bounds.topleft.x, y: from_comp.bounds.topleft.y + from_comp.bounds.height};
-    // this.b_to = {x: to_comp.bounds.topleft.x, y: to_comp.bounds.topleft.y};
-     
-    this.scale = scale;
-    this.calculateBounds();
-    this.drawConnection(scale);
-
-    // const container: HTMLElement = document.getElementById('cxn-'+this.id);
-    // container.style.transformOrigin = 'top left';
-    // container.style.transform = 'scale(' + this.scale/5 + ')';
+  rescale(){
 
   }
 

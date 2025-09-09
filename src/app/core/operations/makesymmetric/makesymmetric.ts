@@ -1,8 +1,5 @@
-import { create } from "domain";
-import { row } from "mathjs";
-import { createCell } from "../../model/cell";
 import { BoolParam, Operation, OperationInlet, OpInput, OpParamVal, SelectParam } from "../../model/datatypes";
-import { initDraftFromDrawdown, initDraftWithParams, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
+import { initDraftFromDrawdown } from "../../model/drafts";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 
@@ -45,7 +42,7 @@ const params = [corner, remove_center];
 
 //INLETS
 const draft_inlet: OperationInlet = {
-    name: 'input draft', 
+    name: 'draft', 
     type: 'static',
     value: null,
     dx: 'the draft you would like to modify',
@@ -57,6 +54,8 @@ const draft_inlet: OperationInlet = {
 
 /**TODO - make this support systems as well */
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
+
+
 
   let input_draft = getInputDraft(op_inputs);
   let sym_mode = getOpParamValById(0, op_params);
@@ -134,16 +133,20 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
                     let seq = new Sequence.OneD().import(row);
                     if(i == 0){
-                        warp_mats.import(input_draft.colShuttleMapping).pushRow(rev_warp_mats.val());
-                        warp_systems.import(input_draft.colSystemMapping).pushRow(rev_warp_sys.val());
+                        warp_mats.import(input_draft.colShuttleMapping);
+                        warp_systems.import(input_draft.colSystemMapping)
+                        if(sym_mode != 4){
+                            warp_mats.pushRow(rev_warp_mats.val());
+                            warp_systems.pushRow(rev_warp_sys.val());
+                        }
                     }   
 
 
                     if(sym_mode !== 4){
                     
                         seq.pushRow(rev.val());
-                        warp_mats.pushRow(rev_warp_mats.val());
-                        warp_systems.pushRow(rev_warp_sys.val());
+                        // warp_mats.pushRow(rev_warp_mats.val());
+                        // warp_systems.pushRow(rev_warp_sys.val());
                     
                     }
 
@@ -172,6 +175,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
             
                 for(let i = input_draft.drawdown.length-1; i >=0; i--){
+                   
                     let row = input_draft.drawdown[i];
                     let rev = new Sequence.OneD().import(row).reverse();
                     let rev_warp_sys = new Sequence.OneD().import(input_draft.colSystemMapping).reverse();
@@ -186,13 +190,21 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                         rev_warp_sys.slice(1, row.length);
                     }
 
-
                     if(sym_mode == 2){
-                     warp_mats.import(input_draft.colShuttleMapping).pushRow(rev_warp_mats.val());
-                     warp_systems.import(input_draft.colSystemMapping).pushRow(rev_warp_sys.val());
-                    }else if(i==0){
-                        warp_mats.import(input_draft.colShuttleMapping)
-                        warp_systems.import(input_draft.colSystemMapping)
+                        seq.pushRow(rev.val())
+                    }
+                  
+
+
+                   
+                    if(i==0){
+                        if(sym_mode == 2){
+                            warp_mats.pushRow(input_draft.colShuttleMapping).pushRow(rev_warp_mats.val());
+                            warp_systems.pushRow(input_draft.colSystemMapping).pushRow(rev_warp_sys.val());
+                        }else{
+                            warp_mats.pushRow(input_draft.colShuttleMapping)
+                            warp_systems.pushRow(input_draft.colSystemMapping)
+                        }
                     }
 
                     if(remove_center == 1 && i == input_draft.drawdown.length-1){
@@ -203,9 +215,12 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                         pattern.pushWeftSequence(seq.val())
                         weft_materials.push(input_draft.rowShuttleMapping[i]);
                         weft_systems.push(input_draft.rowSystemMapping[i]);
-                        pattern.unshiftWeftSequence(seq.val())
-                        weft_materials.unshift(input_draft.rowShuttleMapping[i]);
-                        weft_systems.unshift(input_draft.rowSystemMapping[i]);
+              
+                            pattern.unshiftWeftSequence(seq.val())
+                            weft_materials.unshift(input_draft.rowShuttleMapping[i]);
+                            weft_systems.unshift(input_draft.rowSystemMapping[i]);
+                        
+
                     }
                 }
           
@@ -215,6 +230,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             case 3:
                 for(let i = input_draft.drawdown.length-1; i >=0; i--){
                     let row = input_draft.drawdown[i];
+                    
                     let rev = new Sequence.OneD().import(row).reverse();
                     let rev_warp_sys = new Sequence.OneD().import(input_draft.colSystemMapping).reverse();
                     let rev_warp_mats = new Sequence.OneD().import(input_draft.colShuttleMapping).reverse();
@@ -225,11 +241,12 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                         rev_warp_sys.slice(0, rev.length()-1);
                     }
 
-                    console.log("IN MS", row);
                     rev.pushRow(row);
+
+
                     if(i == 0){
-                      rev_warp_mats.pushRow(input_draft.colShuttleMapping)
-                      rev_warp_sys.pushRow(input_draft.colSystemMapping)
+                      warp_mats.pushRow(rev_warp_mats.val()).pushRow(input_draft.colShuttleMapping)
+                      warp_systems.pushRow(rev_warp_sys.val()).pushRow(input_draft.colSystemMapping)
                     }
 
                     if(remove_center == 1 && i == input_draft.drawdown.length-1){
@@ -252,9 +269,6 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
             
             break;              
           }
-
-    
-
 
   let d = initDraftFromDrawdown(pattern.export())
     d.colShuttleMapping = warp_mats.val();

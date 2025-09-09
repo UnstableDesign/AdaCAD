@@ -1,15 +1,13 @@
-import { createCell, getCellValue } from "../../model/cell";
-import { Draft, OperationInlet, OpInput, OpParamVal, StringParam, NotationTypeParam, DynamicOperation, OperationParam } from "../../model/datatypes";
-import {  generateMappingFromPattern, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "../../model/drafts";
-import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames, reduceToStaticInputs } from "../../model/operations";
+import { Draft, OperationInlet, OpInput, OpParamVal, StringParam, DynamicOperation } from "../../model/datatypes";
+import { generateMappingFromPattern, initDraftFromDrawdown, warps, wefts } from "../../model/drafts";
+import { getAllDraftsAtInlet, getAllDraftsAtInletByLabel, getOpParamValById, reduceToStaticInputs } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
-import { getSystemCharFromId } from "../../model/system";
 import utilInstance from "../../model/util";
 
 
 const name = "notation";
 const old_names = ["assignlayers"];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'notation';
 
 //PARAMS
@@ -17,10 +15,11 @@ const pattern:StringParam =
     {name: 'pattern',
     type: 'string',
     value: '(a1)(b2)',
-    regex: /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i, //this is the layer parsing regex
+    regex: /\(.*?\)|[\S]/i, //this is the layer parsing regex
     error: 'invalid entry',
-    dx: 'all system pairs must be listed as letters followed by numbers, layers are created by enclosing those system lists in pararenthesis. For example, the following are valid: (a1b2)(c3) or (c1)(a2). The following are invalid: (1a)(2b) or (2b'
+    dx: 'the string describes which warps and wefts will be associated with a given layer. Layers are marked with (), so (a1)(b1) places warp system 1 and weft system a on the top layer, and b1 on the bottom. You an then assign drafts to these layers independently. A letter or number between the layers, such as (a1)c(b2) will be interpreted a float between the layers.'
   }
+
 
 
 
@@ -43,10 +42,9 @@ const systems: OperationInlet = {
 const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
       const original_string = getOpParamValById(0, op_params);
-      const original_string_split = utilInstance.parseRegex(original_string,  /.*?\((.*?[a-xA-Z]*[\d]*.*?)\).*?/i);
       
-
-
+      const original_string_split = utilInstance.parseRegex(original_string,pattern.regex);
+    
       if(original_string_split == null || original_string_split.length == 0) return Promise.resolve([]);
 
       const system_map = getAllDraftsAtInlet(op_inputs, 0);
@@ -62,48 +60,55 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       let warp_shuttle_map = new Sequence.OneD(system_map[0].colShuttleMapping);
 
       //make sure the system draft map has a representation for every layer, even if the draft at that layer is null.
-      const layer_draft_map = original_string_split.map((unit, layer) => {
+      const layer_draft_map = original_string_split.map((unit, ndx) => {
   
-        
-        let drafts = getAllDraftsAtInlet(op_inputs, layer+1);
-    
+        let drafts = getAllDraftsAtInletByLabel(op_inputs, unit);
+
         return {
           wesy: parseWeftSystem(unit), 
           wasy: parseWarpSystem(unit),
-          layer: layer, //map layer order to the inlet id, all inlets must be ordered the same as the input
-          draft: (drafts.length == 0) ? initDraftWithParams({wefts: 1, warps: 1, drawdown:[[createCell(false)]]}) : drafts[0]
+          is_layer: unit.includes("("),
+          draft: (drafts == null || drafts.length == 0) ? null : drafts[0]
         }
-      })
+      });
 
-
+      //setup the environment for the output draft
       let composite = new Sequence.TwoD().setBlank(2);
+    
+      let ends = utilInstance.lcm(
+        layer_draft_map.filter(el => el.draft !== null)
+        .map(ldm => warps(ldm.draft.drawdown))) * warps(system_map[0].drawdown);
+      
+      let pics = utilInstance.lcm(
+        layer_draft_map.filter(el => el.draft !== null)
+        .map(ldm => wefts(ldm.draft.drawdown))) * wefts(system_map[0].drawdown);
+  
+      //assign drafts to their specified systems. 
+      let weft_sys_above = [];
+      let warp_sys_above = [];
 
       layer_draft_map.forEach((sdm, ndx) => {
-        let seq = new Sequence.TwoD().import(sdm.draft.drawdown);
-        seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map);
-        composite.overlay(seq, false);
-        
+        let seq = null;
+
+        if(sdm.is_layer && sdm.draft !== null){
+          seq = new Sequence.TwoD().import(sdm.draft.drawdown);
+          seq.mapToSystems(sdm.wesy, sdm.wasy, weft_system_map, warp_system_map, ends, pics);
+          composite.overlay(seq, false);
+        }
+
+        composite.placeInLayerStack(sdm.wasy, warp_sys_above, sdm.wesy, weft_sys_above, weft_system_map, warp_system_map)
+        weft_sys_above = weft_sys_above.concat(sdm.wesy);
+        warp_sys_above = warp_sys_above.concat(sdm.wasy);
 
        });
 
 
 
-        let system_layer_map = [];
-        layer_draft_map.forEach(el => {
-          el.wasy.forEach(wasy => {
-            system_layer_map.push({ws: wasy, layer:el.layer})
-          })
-        });
-        composite.layerSystems(system_layer_map, warp_system_map);
-    
-    
-
-
        let d: Draft = initDraftFromDrawdown(composite.export());
-       d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col', 3);
-       d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row', 3);
-       d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, warp_shuttle_map.val(),'col', 3);
-       d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, weft_shuttle_map.val(),'row', 3);
+       d.colSystemMapping =  generateMappingFromPattern(d.drawdown, warp_system_map.val(),'col');
+       d.rowSystemMapping =  generateMappingFromPattern(d.drawdown, weft_system_map.val(),'row');
+       d.colShuttleMapping =  generateMappingFromPattern(d.drawdown, warp_shuttle_map.val(),'col');
+       d.rowShuttleMapping =  generateMappingFromPattern(d.drawdown, weft_shuttle_map.val(),'row');
 
       
       
@@ -121,15 +126,15 @@ const onParamChange = (param_vals: Array<OpParamVal>, inlets: Array<OperationInl
 
     inlet_vals = reduceToStaticInputs(inlets, inlet_vals);
 
-    const param_regex = (<StringParam> param_vals[0].param).regex;
+    const param_regex = pattern.regex;
     
     let matches = [];
 
     matches = utilInstance.parseRegex(param_val,param_regex);
-    matches = matches.map(el => el.slice(1, -1))
 
+    //only create inlets for layer groups (not floating warps, wefts)
     matches.forEach(el => {
-      inlet_vals.push(el);
+      if(el.includes('(')) inlet_vals.push(el);
     })
 
     return inlet_vals;

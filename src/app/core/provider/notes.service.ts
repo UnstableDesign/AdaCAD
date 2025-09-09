@@ -1,6 +1,6 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
-import { Interlacement, Note } from '../model/datatypes';
+import { Bounds, Interlacement, Note, Point } from '../model/datatypes';
 import utilInstance from '../model/util';
 
 
@@ -24,12 +24,16 @@ export class NotesService {
     this.notes = [];
   }
 
-  createNote(i: Interlacement, component: NoteComponent, ref: ViewRef, note: Note) : number{
+  createNote(tl: Point, component: NoteComponent, ref: ViewRef, note: any) : number{
+
     let gennote: Note = null;
     if(note == null){
      gennote = {
         id: utilInstance.generateId(8),
-        interlacement: i,
+        topleft: {
+          x: tl.x,
+          y: tl.y
+        },
         title: "",
         text: "",
         ref: ref,
@@ -40,9 +44,18 @@ export class NotesService {
         height: 200
       }
     }else{
+
+      if(note.interlacement !== undefined){
+        tl.x = note.interlacement.j;
+        tl.y = note.interlacement.i;
+      }
+
       gennote = {
         id: utilInstance.generateId(8),
-        interlacement: i,
+        topleft: {
+          x: tl.x,
+          y: tl.y
+        },        
         title: (note.title !== undefined) ? note.title : "",
         text: note.text,
         ref: ref,
@@ -62,7 +75,10 @@ export class NotesService {
   createBlankNode(i: Interlacement) : Note{
     const note: Note = {
       id: utilInstance.generateId(8),
-      interlacement: i,
+      topleft: {
+        x: 0, 
+        y: 0
+      },
       title: "",
       text: "",
       color: "#FFFF00",
@@ -93,12 +109,55 @@ export class NotesService {
       title: note.title,
       text: note.text,
       color: note.color,
-      interlacement: note.interlacement,
+      topleft: note.topleft,
       imageurl: note.imageurl,
       width: note.width,
       height: note.height
     }
     });
+  }
+
+  /**
+   * this function returns the smallest bounding box that can contain all of the notes. This function does not consider the scrolling (all measures are relative to the current view window). getClientRect factors in scale, so the x, y and width/height will have the current scaling factored in. To adjust for this, this function needs to take in the current zoom
+   * @returns The Bounds or null (if there are no nodes with which to measure)
+   */
+  getNoteBoundingBox(id_list: Array<number>):Bounds|null{
+    
+    if(this.notes.length == 0 || id_list.length == 0) return null;
+
+    const raw_rects =  id_list
+    .map(id => document.getElementById('note-'+id))
+    .filter(div => div !== null)
+    .map(div => { return {x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight}});
+
+    
+    const min: Point = raw_rects.reduce((acc, el) => {
+      let adj_x =  el.x;
+      let adj_y =  el.y;
+      if(adj_x < acc.x) acc.x = adj_x;
+      if(adj_y < acc.y) acc.y = adj_y;
+      return acc;
+    }, {x: 1000000, y:100000});
+
+    const max: Point = raw_rects.reduce((acc, el) => {
+      let adj_right = el.x + el.width;
+      let adj_bottom = el.y + el.height;
+      if(adj_right > acc.x) acc.x = adj_right;
+      if(adj_bottom  > acc.y) acc.y = adj_bottom;
+      return acc;
+    }, {x: 0, y:0});
+
+
+    let bounds:Bounds = {
+      topleft: {x: min.x, y: min.y},
+      width: max.x - min.x,
+      height: max.y - min.y
+    }
+
+    //console.log('BOUNDS FOR NOTES', min, max, bounds)
+    return bounds;
+   
+
   }
 
   // /** called on load new file as well as undo, redo  */
@@ -145,6 +204,10 @@ export class NotesService {
     let note = this.get(id);
     note.color = color;
   } 
+
+  getNoteIdList(){
+    return this.notes.map(note => note.id);
+  }
 
 
 }

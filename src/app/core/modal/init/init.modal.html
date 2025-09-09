@@ -1,9 +1,13 @@
 
 <div class="toprow">
   <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button>
-  
-  <h2 *ngIf="!new_draft" mat-dialog-title>Open a Workspace</h2>
-  <h2 *ngIf="new_draft" mat-dialog-title>Create a Blank Draft</h2>
+
+  @if (!new_draft) {
+    <h2 mat-dialog-title>Open a Workspace</h2>
+  }
+  @if (new_draft) {
+    <h2 mat-dialog-title>Create a Blank Draft</h2>
+  }
 
 </div>
 
@@ -17,41 +21,40 @@
 
 
 
-      <ng-container *ngIf="!new_draft">
-        <mat-form-field appearance="fill">
-          <mat-label>Where would you like to begin?</mat-label>
+    @if (!new_draft) {
+      <mat-form-field appearance="fill">
+        <mat-label>Where would you like to begin?</mat-label>
         <mat-select [(value)]="selected" (selectionChange)="selectionMade(selected)">
-    
-        
-          <mat-option *ngFor="let opt of opts" [value]="opt.value">
-            {{opt.viewValue}}
-          </mat-option>
+          @for (opt of opts; track opt) {
+            <mat-option [value]="opt.value">
+              {{opt.viewValue}}
+            </mat-option>
+          }
         </mat-select>
-        </mat-form-field>
-      </ng-container>
+      </mat-form-field>
+    }
 
-      <ng-container *ngIf="(selected == 'new') || new_draft">
-        <app-blankdraft
+    @if ((selected == 'new') || new_draft) {
+      <app-blankdraft
         (onNewDraftCreated)='newDraftCreated($event)'
-        ></app-blankdraft>
-       </ng-container>
-    
-    
-      
-    
-    <ng-container *ngIf="(selected == 'ada' || selected == 'bmp' || selected == 'wif' || selected == 'jpg')">
-      <app-loadfile></app-loadfile>  
-
-    </ng-container>
-
-  <ng-container *ngIf="(selected == 'example')">
-          <app-examples></app-examples>  
-  </ng-container>
+      ></app-blankdraft>
+    }
 
 
 
 
-</form>
+    @if ((selected == 'ada' || selected == 'bmp' || selected == 'wif' || selected == 'jpg')) {
+      <app-loadfile></app-loadfile>
+    }
+
+    @if ((selected == 'example')) {
+      <app-examples></app-examples>
+    }
+
+
+
+
+  </form>
 
 
 </mat-dialog-content>

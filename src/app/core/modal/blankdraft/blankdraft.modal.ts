@@ -1,42 +1,34 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { compositionDependencies } from 'mathjs';
-import { DesignMode, Draft, Loom, LoomSettings } from '../../model/datatypes';
-import { initDraft, initDraftWithParams } from '../../model/drafts';
-import { DesignmodesService } from '../../provider/designmodes.service';
-import { FileService } from '../../provider/file.service';
+import { Draft, Loom, LoomSettings } from '../../model/datatypes';
+import { defaults } from '../../model/defaults';
+import { initDraftWithParams } from '../../model/drafts';
+import { WorkspaceService } from '../../provider/workspace.service';
+import { getLoomUtilByType } from '../../model/looms';
 
 @Component({
-  selector: 'app-blankdraft',
-  templateUrl: './blankdraft.modal.html',
-  styleUrls: ['./blankdraft.modal.scss']
+    selector: 'app-blankdraft',
+    templateUrl: './blankdraft.modal.html',
+    styleUrls: ['./blankdraft.modal.scss'],
+    standalone: false
 })
 export class BlankdraftModal implements OnInit {
 
-  loom_types: Array<DesignMode>  = [];
-  units: Array<DesignMode>  = [];
-  selected_unit:"in" | "cm" = "in";
-  loomtype: string = 'jacquard';
-  epi: number = 30;
+  
   valid:boolean = false; 
   wefts: number;
   warps: number;
-  frame_num: number = 8;
-  treadle_num: number = 10;
-  
+
   
   @Output() onNewDraftCreated = new EventEmitter <any>(); 
 
 
 
   constructor(
-    private fls: FileService,
-    private dm: DesignmodesService, 
+    private ws: WorkspaceService,
     private dialogRef: MatDialogRef<BlankdraftModal>, 
     @Inject(MAT_DIALOG_DATA) private data: any) {
      
-      this.loom_types = this.dm.getOptionSet('loom_types');
-      this.units = this.dm.getOptionSet('density_units');
 
   }
 
@@ -44,42 +36,38 @@ export class BlankdraftModal implements OnInit {
   }
 
   close(): void {
-    console.log("CLOSE")
 
      this.createDraftAndClose();
   }
 
  
   onNoClick(): void {
-    console.log("NO CLICK")
      this.createDraftAndClose();
 
   }
 
   createDraftAndClose(){
     const draft: Draft = initDraftWithParams({wefts: this.wefts, warps: this.warps});
-    let loom: Loom = null;
-
-    if(this.loomtype !== 'jacquard'){
-      loom = {
-        threading: [],
-        treadling: [],
-        tieup: []
-      }
-    }
  
-
     const loom_settings: LoomSettings = {
-      treadles: this.treadle_num,
-      frames: this.frame_num,
-      type: this.loomtype,
-      epi: this.epi,
-      units: this.selected_unit
+      treadles: this.ws.min_treadles,
+      frames: this.ws.min_frames,
+      type: this.ws.type,
+      epi: this.ws.epi,
+      units:<"in"|"cm"> this.ws.units
+    };
 
-    } 
 
-    console.log("CREATED", draft, loom, loom_settings)
-    this.dialogRef.close({draft, loom, loom_settings});
+    const loom_utils = getLoomUtilByType(this.ws.type);
+    loom_utils.computeLoomFromDrawdown(draft.drawdown, loom_settings)
+    .then((loom) => {
+      this.dialogRef.close({draft, loom, loom_settings});
+
+    })
+
+
+
+
 
   }
 

@@ -1,111 +1,120 @@
-
-
-.param-row{
-    display: flex;
-    vertical-align:middle;
-    flex-direction: row;
-    text-align: left;
-    width: 100%;
-    padding:.25em 0em 0em 0.5em;
-    font-size: 1.5em;
-}
-
 .number_input{
+    color: white;
+}
+
+
+
+.show{
     display: flex;
-    flex-direction: column;
-    color: white;
-    height: fit-content;
-
-    input{
-        height: 100%;
-        align-content: baseline;
-        font-size: 1.2em;
-        flex-basis: 0;
-        font-weight: bolder;
-        font-size: 1.5em;
-
-    }
 }
 
-.number-label,
-.select-label,
-.boolean-label,
-.string-label{
-    color: white;
-    height: fit-content;
-    font-size: .8em;
-    font-size: 1em;
+.hide{
+    display: none;
 }
 
+// .param-row{
+//     display: flex;
+//     vertical-align:middle;
+//     flex-direction: row;
+//     text-align: left;
+//     width: 100%;
+//     padding:.25em 0em 0em 0.5em;
+//     gap: 10px;
+// }
+
+
+// .mat-mdc-form-field-hint-wrapper{
+//     color: white;
+//     font-size: 18px;
+//     padding-top: 2px;
+// }
+
+// .mat-mdc-form-field-error{
+//     color: black;
+//     font-size: 18px;
+// }
+
+// .mat-mdc-option .mdc-list-item__primary-text {
+//     margin-bottom: 10px;
+//     margin-top: 10px;
+// }
+
+// .mat-mdc-select-value {
+//     width: 100%;
+//     overflow: hidden;
+//     text-overflow: ellipsis;
+//     white-space: nowrap;
+//     color: black;
+//     font-size: 18px;
+// }
+
+// .mat-mdc-select-trigger {
+//     font-weight: bold;
+// }
+
+.number_input .mat-mdc-form-field-infix
+ {
+    font-size: 24px;
+    font-weight: bold;
+    width: 90px;
+}
+
+.refresh{
+    display: flex;
+    margin: 8px;
+}
+
+.string-input{
+    display: flex;
+    flex: 1 0 100%;    
+}
+
+.string-input .mat-mdc-form-field{
+    width: 100%;
+}
+
+.string-input .mat-mdc-form-field-infix
+ {
+    font-size: 24px;
+    font-weight: bold;
+    width: max-content;
+}
+
+
+
+// .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label{
+//     font-size: 24px;
+// }
+
+
+.select-input,
 .boolean-input{
-    display: flex;
-    flex-direction: column;
-
-    .mat-slide-toggle-bar{
-        position: relative;
-        width: 30px !important;
-        height: 15px !important;
-        flex-shrink: 0;
-        border-radius: 6px;
-    }
-    
-    .mat-slide-toggle-content {
-        font-size: .8em;
-    }
-    
-    .mat-slide-toggle-thumb {
-        height: 18px !important;
-        width: 18px !important;
-    }
-    
 
 
-}
-
-
-.select-input{
-    margin-right: 20px;
-    flex-grow: 2;
-    display: flex;
-    flex-direction: column;
-    color: white;
-    height: fit-content;
-    width: fit-content;
-
-   .mat-select {
+   .mat-mdc-select {
         height: 100%;
         align-content: baseline;
         flex-basis: 0;
-    }
-
-    .mat-select-value{
-        color: white;
-        font-weight: bolder;
-        font-size: 1.5em;
-
-    }
-
-    .mat-select-arrow{
-        color: white;
-    }
-
-    .mat-option-text{
-
+        font-size: 24px;
+        font-weight: bold;
+        width: 200px;
     }
 }
 
 
 .file-input-param{
-    width: fit-content;
-    flex-grow: 4;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
 
-    .form-and-image{
+
+    .form-and-warning{
         display: flex;
         flex-direction: column;
     }
 
     .upload-form-box{
-        flex-grow: 4;
         width: fit-content;
         height: fit-content;
     }
@@ -114,156 +123,16 @@
         height:0px;
     }
 
+    .mdc-button{
+        height: 60px;
+    }
+
     .has_image{
         height: max-content;
+        padding: 12px;
     }
 }
 
 
 
-.string-input{
-    margin-right: 20px;
-    flex-grow: 2;
-    display: flex;
-    flex-direction: column;
-    color: white;
-    height: fit-content;
-    width: 100%;
-
-    .string-and-refresh{
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-    }
-
-    .param-text{
-        font-size: 1.2em;
-        font-weight: bolder;
-        font-size: 1.5em;
-        color: white;
-    }
-
-    .mat-input-element{
-        caret-color: white !important;
-        border-bottom: thin solid white;
-        width: 90%;
-    }
-
-    .refresh,
-    .mat-icon-button{
-        color: white;
-        top: -1px;
-        font-size: 1.2em;
-        width: fit-content;
-    }
-    
-    .dirty{
-        color: rgb(255, 64, 129) !important; 
-    }
-  
-}
-
-
-
-
-
-
-
-
-
-
-
-.param-slider{
-    width: 50%;
-}
-
-.param-select{
-    width: 70%;
-    text-align: left;
-    position: relative;
-    left: 10px;
-
-}
-
-
-
-// .param-label{
-//     width: 60px;
-// }
-
-// .param-row input{
-//     width: 60px;
-// }
-
-// .param-row .param-text input{
-//     width: 100%;
-// }
-
-.input-color{
-    width: 30px;
-    height: 30px;
-    border: thin solid white;
-}
-
-
-.param-toggle{
-    width: 70%;
-    text-align: left;
-    position: relative;
-    left: 10px;
-    overflow: hidden;
-}
-
-.param-inputs{
-    min-width: 75%;
-    overflow: visible;
-    text-align: left;
-    margin-left: 6px;
-}
-
-.mat-slider{
-    height: 40px;
-    padding: 0px;
-}
-
-.mat-icon-button{
-    position: relative;
-    top: -9px;
-}
-
-button.is-primary.is-active{
-    background-color: rgb(255, 64, 129);
-}
-
-
-
-.text-err,
-.error{
-    color:  rgb(255, 64, 129);
-}
-
-.inputs{
-    display: flex;
-    justify-content: flex-start;
-    text-align: center;
-}
-
-
-
-
-
-
-
-.slider-label,
-.param-name{
-    font-size: 11pt;
-    font-weight: bold;
-    color: #ddd;
-    text-overflow: ellipsis;
-}
-
-.stringandrefresh{
-    display: flex;
-    flex-direction: row;
-}
 

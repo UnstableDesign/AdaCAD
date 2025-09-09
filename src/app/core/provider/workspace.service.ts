@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
+import { defaults } from '../model/defaults';
 import { LoomSettings } from '../model/datatypes';
-import utilInstance from '../model/util';
 
 @Injectable({
   providedIn: 'root'
@@ -14,53 +14,58 @@ export class WorkspaceService {
 
 
   file_favorites: Array<number> = [];
-  min_frames: number = 8; 
-  min_treadles: number = 10;
-  type: string = 'jacquard'; //'rigid', 'direct', 'frame', 'jacquard'
-  show_errors: boolean = true;
-  epi: number = 10;
-  units: 'in' | 'cm' = 'in';
+  min_frames: number = defaults.loom_settings.frames; 
+  min_treadles: number = defaults.loom_settings.treadles;
+  type: string = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
+  epi: number = defaults.loom_settings.epi;
+  units: 'in' | 'cm' = <'in' | 'cm'>defaults.loom_settings.units;
 
-  show_materials: boolean = true;
-  black_cell_up: boolean = true;
-  number_threading: boolean = false;
-
-
+  show_materials: boolean = defaults.show_materials;
+  black_cell_up: boolean = defaults.black_cell_up;
+  number_threading: boolean = defaults.number_threading;
+  
+  hide_mixer_drafts: boolean = defaults.hide_mixer_drafts;
+  show_advanced_operations: boolean = defaults.show_advanced_operations;
   /**
    * when looking at the draft viewer, where should the (0, 0) point of the drawdown sit. 
    * 0 top right, 1 bottom right, 2 bottom left, 3 top left
    */
-  selected_origin_option: number = 3;
+  selected_origin_option: number = defaults.selected_origin_option;
 
-  private origin_option_list: Array<{value: number, view: string}> = 
-  [
-    {value: 0, view: 'top right'},
-    {value: 1, view: 'bottom right'},
-    {value: 2, view: 'bottom left'},
-    {value: 3, view: 'top left'},
-  ];
+  /*
+  these thresholds help control for slowdowns
+  */
+  force_jacquard_threshold: number = defaults.force_jacquard_threshold;
+  largest_lcm_factor: number = defaults.largest_lcm_factor;
 
-  /**
-   * show materials in mixer previews. If false, will default entirely to black and white
-   */
-  use_colors_on_mixer: boolean = true;
-
-  
 
   constructor() { }
 
+
+  getWorkspaceLoomSettings() : LoomSettings{
+    const ls:LoomSettings = {
+      type: this.type,
+      epi: this.epi, 
+      frames: this.min_frames,
+      treadles: this.min_treadles,
+      units: this.units
+    }
+    return ls;
+  }
+
+
   initDefaultWorkspace(){
-    this.min_frames = 8; 
-    this.min_treadles = 10;
-    this.type = 'jacquard'; //'rigid', 'direct', 'frame', 'jacquard'
-    this.show_errors = true;
-    this.epi = 10;
-    this.units = 'in';
-    this.show_materials = true;
-    this.black_cell_up = true;
-    this.number_threading = false;
-    this.use_colors_on_mixer = true;
-    this.selected_origin_option = 3;
+    this.min_frames = defaults.loom_settings.frames; 
+    this.min_treadles = defaults.loom_settings.treadles;
+    this.type = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
+    this.epi = defaults.loom_settings.epi;
+    this.units = <'in'|'cm'>defaults.loom_settings.units;
+    this.show_materials = defaults.show_materials;
+    this.black_cell_up = defaults.black_cell_up;
+    this.number_threading = defaults.number_threading;
+    this.selected_origin_option = defaults.selected_origin_option;
+    this.hide_mixer_drafts = defaults.hide_mixer_drafts;
+    this.show_advanced_operations = defaults.show_advanced_operations;
 
   }
 
@@ -68,25 +73,26 @@ export class WorkspaceService {
     this.min_frames = data.min_frames; 
     this.min_treadles = data.min_treadles;
     this.type = data.type;
-    this.show_errors = data.show_errors;
     this.epi = data.epi;
     this.units = data.units;
     this.show_materials = data.show_materials;
     this.black_cell_up = data.black_cell_up;
     this.number_threading = data.number_threading;
-    this.use_colors_on_mixer = data.use_colors_on_mixer;
     this.selected_origin_option = data.selected_origin_option;
     this.file_favorites = (data.file_favorites === undefined) ? [] : data.file_favorites;
+    this.hide_mixer_drafts = (data.hide_mixer_drafts === undefined) ? true : data.hide_mixer_drafts;
+    this.show_advanced_operations = (data.show_advanced_operations === undefined) ? false : data.show_advanced_operations;
   }
 
-  getOriginOptions(){
-    return this.origin_option_list;
-  }
 
   isFrame() : boolean{
     if(this.type === 'frame') return true;
     return false;
   }
+
+  // addAuthor(author_id: string){
+  //     this.authors.push(author_id);
+  // }
 
 
   /**
@@ -94,46 +100,47 @@ export class WorkspaceService {
    * this assumes that most exports will have common loom data
    * @param looms 
    */
-  async inferData(loom_settings: Array<LoomSettings>) : Promise<any> {
-    if(loom_settings.length === 0) return Promise.resolve("no looms");
+  // async inferData(loom_settings: Array<LoomSettings>) : Promise<any> {
+  //   if(loom_settings.length === 0) return Promise.resolve("no looms");
 
-    //filter out null or undefined looms
-    loom_settings = loom_settings.filter(el => !(el === undefined || el === null)); 
+  //   //filter out null or undefined looms
+  //   loom_settings = loom_settings.filter(el => !(el === undefined || el === null)); 
 
 
-    this.min_frames = utilInstance.getMostCommon(
-      loom_settings.map(el => el.frames)
-    );
-    this.min_treadles = utilInstance.getMostCommon(
-      loom_settings.map(el => el.treadles)
-    );
-    this.type = utilInstance.getMostCommon(
-      loom_settings.map(el => el.type)
-    );
-    this.units = utilInstance.getMostCommon(
-      loom_settings.map(el => el.units)
-    );
+  //   this.min_frames = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.frames)
+  //   );
+  //   this.min_treadles = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.treadles)
+  //   );
+  //   this.type = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.type)
+  //   );
+  //   this.units = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.units)
+  //   );
 
-    this.epi = utilInstance.getMostCommon(
-      loom_settings.map(el => el.epi)
-    );
+  //   this.epi = utilInstance.getMostCommon(
+  //     loom_settings.map(el => el.epi)
+  //   );
 
-    return "done";
-  }
+  //   return "done";
+  // }
 
   exportWorkspace() : any{
     return {
       min_frames: this.min_frames, 
       min_treadles: this.min_treadles,
       type: this.type,
-      show_errors: this.show_errors,
       epi: this.epi,
       units: this.units,
       show_materials: this.show_materials,
       black_cell_up: this.black_cell_up,
       number_threading: this.number_threading,
       selected_origin_option: this.selected_origin_option,
-      file_favorites: this.file_favorites.slice()
+      file_favorites: this.file_favorites.slice(),
+      hide_mixer_drafts: this.hide_mixer_drafts,
+      show_advanced_operations: this.show_advanced_operations,
     }
   }
 

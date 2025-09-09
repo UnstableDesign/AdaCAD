@@ -1,17 +1,39 @@
 /* You can add global styles to this file, and also import other style files */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
-@import 'bulma/bulma';
 @import '@fortawesome/fontawesome-free/css/all.css';
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800');
 
 
 body {
+  height: 100%;
   margin: 0;
   overscroll-behavior-x: none;
+  font-family:  "Open Sans", sans-serif;
+  font-size: 14px;
 }
+
+
+
+.logo{
+ // background-image: url('./assets/svg/logo.svg');
+ background-color: white;
+  display: block;
+  width: 30px;
+  height: 40px;
+  margin-right: 8px;
+  -webkit-mask-image: url('./assets/svg/logo.svg');
+  mask-image: url('./assets/svg/logo.svg');
+}
+
+
 
 svg {
   overflow: visible;
 }
+
+// .mat-mdc-icon-button.mat-mdc-button-base{
+//   font-size: 1.4em;
+// }
 
 
 
@@ -42,11 +64,7 @@ svg {
 
 
 
-.mat-focused .mat-form-field-label {
-  color: rgba(255,255,255,.7);
-}
-
-.mat-radio-button {
+.mat-mdc-radio-button {
   padding-right: 10px;
 }
 
@@ -75,14 +93,6 @@ svg {
   width: 100%;
 }
 
-.mat-form-field-infix.mat-form-field-infix {
-  display: flex;
-}
 
-.mat-tab-label{
-  height: 48px !important;
-  padding: 0 7px !important;
-  min-width: 80px !important;
-}
 
 

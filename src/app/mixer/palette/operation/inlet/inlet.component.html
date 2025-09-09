@@ -1,111 +1,116 @@
-<ng-container *ngIf="inlet.type !== 'null'">
-
-
-
-<div class="inlet_block">
-
-
-
-    <ng-container *ngIf="inlet.type === 'number' || inlet.type === 'draft'">
-        <span class="inlet-label">{{opnode.inlets[inletid]}}</span> 
-
-            <mat-select matNativeControl
-            matTooltip="this will assign this draft to the number you select" 
-            [(ngModel)]="opnode.inlets[inletid]"
-            (selectionChange)="inletChange()">
-            <mat-option *ngFor="let num of number_opts" [value]="num">
-                {{num}}
-            </mat-option>
-         </mat-select>
-
-    </ng-container>
-
-
-
-
-    <ng-container *ngIf="inlet.type === 'notation' || inlet.type === 'profile' ">
-
-
-        <span class="dynamic_" *ngIf="inlet.type === 'notation'" class="inlet-label"> ({{opnode.inlets[inletid]}})</span>
-        <span  *ngIf="inlet.type === 'profile'" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
-
-    </ng-container>
-
-
-
-    <ng-container *ngIf="inlet.type === 'system'">
-     
-        <span class="inlet-label">layer {{inletid+1}}, system: </span>
-            <mat-select matNativeControl
-            matTooltip="select the system to associate with this layer" 
-            [(ngModel)]="opnode.inlets[inletid]"
-            (selectionChange)="inletChange()">
-            <mat-option *ngFor="let sys of all_system_codes" [value]="sys.id">
-                {{sys.code}}
-            </mat-option>
-        </mat-select>
-
-
-    </ng-container>
-
-    <ng-container *ngIf="inlet.type === 'color'">
-        <div class="colorgroup">
-            
-            <div
-            [matTooltip]="fc.value"
-            [style.background-color] = fc.value
-            class="input-color"></div>
-
-            </div>
-
-    </ng-container>
- 
-
-
-
-
-    <!-- draw the first set of inlets that have inputs first. -->
-    <div *ngFor="let input of tree.getOpComponentInputs(opid, inletid); let i = index">
-    
-    
+@if (inlet.type !== 'null') {
+  <div class="inlet_block">
+    @for (input of tree.getOpComponentInputs(opid, inletid); track input; let i = $index) {
+      <div>
+        <!-- {{input}} -->
         <div id = "inlet{{opid}}-{{inletid}}-{{i}}" class="inlet_connector">
-
-            <button 
-            class="toggle_visibility"
-            [matTooltip]='inlet.dx'
-            (click)="toggleVisibility(i)">
-            <i *ngIf="show_connection_name !== i" class="fa-solid fa-eye"></i>
-            <i *ngIf="show_connection_name === i" class="fa-solid fa-eye-slash"></i>
-            </button>
-            
-        
-            <!-- list everything attached here-->
-        
-        
-            <div class="show_connection" *ngIf="show_connection_name == i">
-                <div><p><b>{{getInputName(input)}}</b> is {{inlet.dx}}</p></div>
-            </div>   
-  
-
+          <button
+            mat-raised-button
+            [disabled]="true"
+            class="has_connection"
+            [matTooltip]='inlet.dx'>
+            <!-- <i class="fa-sharp fa-solid fa-circle-down"></i>  -->
+            {{inlet_name}}
+            @if (inlet.type === 'number' || inlet.type === 'draft') {
+              <span class="inlet-label">{{opnode.inlets[inletid]}}</span>
+              <mat-select matNativeControl
+                matTooltip="this will assign this draft to the number you select"
+                [(ngModel)]="opnode.inlets[inletid]"
+                (selectionChange)="inletChange()">
+                @for (num of number_opts; track num) {
+                  <mat-option [value]="num">
+                    {{num}}
+                  </mat-option>
+                }
+              </mat-select>
+            }
+            @if (inlet.type === 'notation' || inlet.type === 'profile' ) {
+              @if (inlet.type === 'notation') {
+                <span class="dynamic_" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
+              }
+              @if (inlet.type === 'profile') {
+                <span  class="inlet-label"> {{opnode.inlets[inletid]}}</span>
+              }
+            }
+            @if (inlet.type === 'system') {
+              <span class="inlet-label">layer {{inletid+1}}, system: </span>
+              <mat-select matNativeControl
+                matTooltip="select the system to associate with this layer"
+                [(ngModel)]="opnode.inlets[inletid]"
+                (selectionChange)="inletChange()">
+                @for (sys of all_system_codes; track sys) {
+                  <mat-option [value]="sys.id">
+                    {{sys.code}}
+                  </mat-option>
+                }
+              </mat-select>
+            }
+            @if (inlet.type === 'color') {
+              <div class="colorgroup">
+                <div
+                  [matTooltip]="fc.value"
+                  [style.background-color] = fc.value
+                class="input-color"></div>
+              </div>
+            }
+          </button>
         </div>
-
-    </div>
-
-    <button *ngIf="inlet.num_drafts == -1 || (tree.getInputsAtNdx(opid, inletid).length < inlet.num_drafts)"
-    class="open_inlet"
-    [matTooltip]='inlet.dx'
-    (click)="inputSelected()">
-    <i *ngIf="inlet_for_drafts" class="draft-inlet-icon"></i>
-    <i *ngIf="!inlet_for_drafts" class="material-inlet-icon"></i>
+      </div>
+    }
+    @if (inlet.num_drafts == -1 || (tree.getInputsAtNdx(opid, inletid).length < inlet.num_drafts)) {
+      <button
+        class="open_inlet"
+        id = "inlet{{opid}}-{{inletid}}-{{tree.getInputsAtNdx(opid, inletid).length}}"
+        mat-raised-button
+        [matTooltip]='inlet.dx'
+        (click)="inputSelected()">
+        <i class="fa-sharp fa-solid fa-circle-down"></i>
+        {{inlet_name}}
+        @if (inlet.type === 'number' || inlet.type === 'draft') {
+          <span class="inlet-label">{{opnode.inlets[inletid]}}</span>
+          <mat-select matNativeControl
+            matTooltip="this will assign this draft to the number you select"
+            [(ngModel)]="opnode.inlets[inletid]"
+            (selectionChange)="inletChange()">
+            @for (num of number_opts; track num) {
+              <mat-option [value]="num">
+                {{num}}
+              </mat-option>
+            }
+          </mat-select>
+        }
+        @if (inlet.type === 'notation' || inlet.type === 'profile' ) {
+          @if (inlet.type === 'notation') {
+            <span class="dynamic_" class="inlet-label"> {{opnode.inlets[inletid]}}</span>
+          }
+          @if (inlet.type === 'profile') {
+            <span  class="inlet-label"> {{opnode.inlets[inletid]}}</span>
+          }
+        }
+        @if (inlet.type === 'color') {
+          <div class="colorgroup">
+            <div
+              [matTooltip]="fc.value"
+              [style.background-color] = fc.value
+            class="input-color"></div>
+          </div>
+        }
+      </button>
+    }
+    @if (inlet.type === 'system') {
+      <span class="inlet-label">layer {{inletid+1}}, system: </span>
+      <mat-select matNativeControl
+        matTooltip="select the system to associate with this layer"
+        [(ngModel)]="opnode.inlets[inletid]"
+        (selectionChange)="inletChange()">
+        @for (sys of all_system_codes; track sys) {
+          <mat-option [value]="sys.id">
+            {{sys.code}}
+          </mat-option>
+        }
+      </mat-select>
+    }
     <!-- <i class="fa-sharp fa-solid fa-circle-down"></i> -->
-    </button>
-
-    {{inlet_name}}
-
-    <div class="show_connection" *ngIf="show_inlet_desc">
-        <div>inlet description to: <b>{{inlet.dx}}</b></div>
-    </div> 
-        
-</div>
-
-</ng-container>
+    <!-- <span class="inlet_type">{{inlet_name}}</span> -->
+  </div>
+}

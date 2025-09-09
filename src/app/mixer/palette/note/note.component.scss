@@ -1,24 +1,31 @@
 .textfield{
 	width: 100%;
+	font-size: 20px;
+    line-height: 28px;
 }
 
 .note-container{
 	position: absolute;
-	top: 0px;
-	left: 0px;
 	display: flex;
 	flex-direction: column;
-	min-width: 200px;
+	gap: 16px;
+	min-width: 400px;
+	padding: 24px;
 }
 
-.scale-conatiner{
-	display: flex;
-    flex-direction: column;
+.mat-mdc-icon-button{
+	font-size: 14px;
 }
+
+
 
 .notetitle{
 	font-weight: bold;
 	width: 100%;
+	background-color: transparent;
+	width: 100%;
+	font-size: 20px;
+    line-height: 28px;
 }
 
 .expand{
@@ -44,10 +51,6 @@ img{
 }
 
 
-.mat-icon-button{
-	opacity: .6;
-}
-
 
 .handle{
 	padding: 0;
@@ -62,13 +65,6 @@ img{
 
 
 
-.text-entry{
-	display: flex;
-	flex-direction: column;
-	flex-grow: 3;
-}
-
-
 .note-opts{
 	width: 100%;
 	display: flex;
@@ -76,11 +72,6 @@ img{
 	justify-content: space-between;
 }
 
-.url{
-	width: 100%;
-	padding: 8px;
-	border: thin solid black;
-}
 
 
 

@@ -1,5 +1,5 @@
 import { Draft, DynamicOperation, OperationInlet, OpInput, OpParamVal, StringParam } from "../../model/datatypes";
-import { getCol, initDraftFromDrawdown, warps } from "../../model/drafts";
+import { getCol, initDraftFromDrawdown, warps, wefts } from "../../model/drafts";
 import { getAllDraftsAtInlet, getOpParamValById, reduceToStaticInputs } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 import utilInstance from "../../model/util";
@@ -7,7 +7,7 @@ import utilInstance from "../../model/util";
 
 const name = "sample_width";
 const old_names = [""];
-const dynamic_param_id = 0;
+const dynamic_param_id = [0];
 const dynamic_param_type = 'profile';
 
 //PARAMS
@@ -57,7 +57,7 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         }, []);
 
         let total_wefts: number = 0;
-        const all_wefts = all_drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+        const all_wefts = all_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
         total_wefts = utilInstance.lcm(all_wefts);
   
         const profile_draft_map = op_inputs

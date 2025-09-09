@@ -15,7 +15,7 @@ const old_names = [];
 const amt_x:NumParam =
       {name: 'warps',
       type: 'number',
-      min: 1,
+      min: -100,
       max: 100,
       value: 1,
       dx: 'the amount of warps to shift by'
@@ -24,7 +24,7 @@ const amt_x:NumParam =
     const amt_y:NumParam =
     {name: 'wefts',
     type: 'number',
-    min: 1,
+    min: -100,
     max: 100,
     value: 1,
     dx: 'the amount of wefts to shift by'

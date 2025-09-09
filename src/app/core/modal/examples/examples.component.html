@@ -1,20 +1,110 @@
-    <div class="preloaded_files">
+<p mat-dialog-title
+  cdkDrag
+  cdkDragRootElement=".cdk-overlay-pane"
+  cdkDragHandle>
+  Examples
+</p>
 
-      <mat-card *ngFor="let example of local_examples">
-        <mat-card-title>{{example.title}}
+<mat-dialog-content >
 
-        </mat-card-title>
-       <img mat-card-image src="/assets/example_img/{{example.id}}.{{example.ext}}" alt="Screenshot of the File Contents">
-          <mat-card-content >
-            <p>
-              {{example.desc}}
-            </p>
-          </mat-card-content>
-        <mat-card-actions>
-          <button (click)="loadExample(example.id)" mat-raised-button color="primary"> Open </button>
-        </mat-card-actions>
-      </mat-card>
+  <mat-tab-group>
+
+    <mat-tab label="AdaCAD Templates">
+
+
+
+      <div class="preloaded_files">
+
+        @for (example of local_examples; track example) {
+          <mat-card appearance="outlined">
+            <div class="card-content">
+              <div class="img">
+                <img src="/assets/example_img/{{example.id}}.{{example.ext}}" alt="Screenshot of the File Contents">
+              </div>
+              <div class="info">
+                <mat-card-content>
+                  <mat-card-header>
+                    <mat-card-title>{{example.title}}</mat-card-title>
+                    <mat-card-subtitle>by AdaCAD project team</mat-card-subtitle>
+                  </mat-card-header>
+                  <p>{{example.desc}}</p>
+                </mat-card-content>
+              </div>
+              <mat-card-actions>
+                <button mat-raised-button color="primary" (click)="loadExample(example.id)">OPEN</button>
+              </mat-card-actions>
+            </div>
+          </mat-card>
+        }
+
+
+
 
       </div>
-     
 
+
+
+
+    </mat-tab>
+    <mat-tab label="Community Projects">
+
+      <div class="community_files">
+
+        <div class="header">
+          <p>AdaCAD community members can share their workspaces if they have an AdaCAD account by selected "share" on any file in their file list and clicking the box to share the file publicly. Want to try?</p>
+          <button mat-raised-button (click)="openFileManager()">Manage and Share your Files</button>
+        </div>
+
+        @for (example of community_examples; track example) {
+          <mat-card appearance="outlined">
+            <div class="card-content">
+              <div class="img">
+                <canvas id="img_preview{{example.id}}"></canvas>
+              </div>
+              <div class="info">
+                <mat-card-content>
+                  <mat-card-header>
+                    <mat-card-title>{{example.val.filename}}</mat-card-title>
+                    <mat-card-subtitle>{{example.val.owner_creditline}}
+                      @if (example.val.owner_url !='') {
+                        <span>, learn more at: {{example.val.owner_url}}</span>
+                      }
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                  <p>{{example.val.desc}}</p>
+                  <div class="license">
+                    <img class='license' src="/assets/img/{{example.val.license}}.png">
+                  </div>
+                </mat-card-content>
+              </div>
+              <mat-card-actions>
+                <button mat-raised-button color="primary" (click)="loadSharedFile(example.id)">OPEN</button>
+              </mat-card-actions>
+            </div>
+          </mat-card>
+        }
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+
+    </mat-tab>
+  </mat-tab-group>
+
+
+
+
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

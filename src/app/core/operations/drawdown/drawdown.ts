@@ -4,6 +4,7 @@ import { getHeddle, initDraftFromDrawdown, initDraftWithParams, updateWarpSystem
 import { getLoomUtilByType } from "../../model/looms";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
+import utilInstance from "../../model/util";
 
 
 const name = "drawdown";
@@ -80,12 +81,13 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   let draft: Draft = initDraftWithParams({warps:warps(threading_draft.drawdown), wefts:wefts(treadling_draft.drawdown)});
   const utils = getLoomUtilByType('frame');
   const loom = {
+    id: utilInstance.generateId(8),
     threading: threading_list,
     tieup: tieup_list,
     treadling:treadling_list
   }
 
-  return utils.computeDrawdownFromLoom(loom, 0).then(drawdown => {
+  return utils.computeDrawdownFromLoom(loom).then(drawdown => {
     draft.drawdown = drawdown;
     draft = updateWarpSystemsAndShuttles(draft, threading_draft)
     draft = updateWeftSystemsAndShuttles(draft, treadling_draft )

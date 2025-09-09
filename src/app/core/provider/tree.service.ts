@@ -1,7 +1,7 @@
 import { Injectable, ViewRef } from '@angular/core';
 import { boolean } from 'mathjs';
-import { BoolParam, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
-import { copyDraft, createDraft, flipDraft, getDraftName, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
+import { BoolParam, Bounds, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, NotationTypeParam, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, Point, StringParam, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { compressDraft, copyDraft, createDraft, exportDrawdownToArray, getDraftName, initDraft, initDraftWithParams, warps, wefts } from '../../core/model/drafts';
 import { copyLoom, flipLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -10,7 +10,8 @@ import { ConnectionComponent } from '../../mixer/palette/connection/connection.c
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
 import { createCell } from '../model/cell';
-import { ImageService } from './image.service';
+import { defaults } from '../model/defaults';
+import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
 
@@ -27,12 +28,11 @@ export class TreeService {
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
   private open_connection: number = -1; //represents a node that is currently seeking a conneciton, used for checking which nodes it is able to connect to
-  preview: DraftNode; //references the specially identified component that is a preview (but does not exist in tree)
 
   constructor(
     private ws: WorkspaceService,
     private ops: OperationService,
-    private imageservice: ImageService,
+    private media: MediaService,
     private systemsservice: SystemsService) { 
   }
 
@@ -108,15 +108,13 @@ export class TreeService {
    */
    onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
 
-    console.log("ON DYNAMIC PARAM CHANGE ", opid, param_id, param_val)
-
       const op = <DynamicOperation> this.ops.getOp(name);
       const param_type = op.params[param_id].type
       const opnode = this.getOpNode(opid);
 
       if(!this.ops.isDynamic(name)) return;
 
-      if(op.dynamic_param_id != param_id && param_type !== 'notation_toggle') return;
+      if(op.dynamic_param_id.find(el => el === param_id) === undefined &&  param_type !== 'notation_toggle') return;
 
 
       let param_vals:Array<OpParamVal> = opnode.params.map((el, ndx) =>  {
@@ -130,133 +128,6 @@ export class TreeService {
       return inlets;
   }
 
-//   onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any) : Array<any>{
-
-
-
-//     const op = this.ops.getOp(name);
-//     const opnode = this.getOpNode(opid);
-
-//     let param_type = op.params[param_id].type;
-
-
-//     if(param_id === (<DynamicOperation>op).dynamic_param_id || param_type == 'notation_toggle'){
-//       const type = (<DynamicOperation>op).dynamic_param_type;
-      
-//       let static_inputs = op.inlets.filter(el => el.type === 'static');
-//       let num_dynamic_inlets = inlets.length - static_inputs.length;
-//       let matches = [];
-
-//       switch(type){
-
-
-
-//         case 'notation':
-
-//           const system_parsing_regex = /.*?(.*?[a-xA-Z]+[\d]+).*?/i;
-
-//           if(param_id == 1 && param_val == 0){
-//             const string_to_parse = op.params[0].value;
-//             matches = utilInstance.parseRegex(opnode.params[0], (<StringParam> op.params[0]).regex);
-//             matches = matches.map(el => el.slice(1, -1))
-//             matches = matches.reduce((acc, val) => {
-//               const sub_match = utilInstance.parseRegex(val, system_parsing_regex);
-//               return acc.concat(sub_match);
-//             }, []);
-
-//             inlets = inlets.slice(0,static_inputs.length);
-//             matches.forEach(el => {
-//               inlets.push(el);
-//             })
-//           }else if(param_id == 1 && param_val == 1){
-//             matches = utilInstance.parseRegex(opnode.params[0],(<StringParam> op.params[0]).regex);
-//             matches = matches.map(el => el.slice(1, -1))
-//             inlets = inlets.slice(0,static_inputs.length);
-//             matches.forEach(el => {
-//               inlets.push(el);
-//             })
-//           }else{
-  
-
-//             matches = utilInstance.parseRegex(param_val, (<StringParam> op.params[0]).regex);
-//             matches = matches.map(el => el.slice(1, -1))
-//             if(opnode.params[1] == 0){
-//               matches = matches.reduce((acc, val) => {
-//                 const sub_match = utilInstance.parseRegex(val, system_parsing_regex);
-//                 return acc.concat(sub_match);
-//               }, []);
-//             }  
-
-//             inlets = inlets.slice(0,static_inputs.length);
-//             matches.forEach(el => {
-//               inlets.push(el);
-//             })
-//           }
-          
-//         break;
-
-//         case 'profile':
-//           matches = utilInstance.parseRegex(param_val, (<StringParam>op.params[0]).regex);
-//           inlets = inlets.slice(0,static_inputs.length);
-//           matches.forEach(el => {
-//             if(inlets.find(inletval => inletval == el.charAt(0)) === undefined) inlets.push(el.charAt(0));
-//           })
-//         break;
-
-//         case 'draft':
-//           if(param_val !== -1){
-//             const draftNode = <DraftNode> this.getNode(param_val);
-//             const uniqueVals = utilInstance.filterToUniqueValues(draftNode.loom.threading);
-//             const inlet_nums = uniqueVals.length;
-//             inlets = inlets.slice(0,static_inputs.length);
-//             for(let i = 0; i < inlet_nums; i++){
-//               inlets.push(i+1);
-//             }
-//           }
-//         break;
-
-        
-//         case 'number':
-
-//         if(param_type === 'number'){
-//           if(param_val > num_dynamic_inlets){
-//             for(let i = num_dynamic_inlets; i < param_val; i++){
-//                 inlets.push(i+1);
-//             }
-//           }else if(param_val < num_dynamic_inlets){
-//             const delete_num = num_dynamic_inlets - param_val;
-//             inlets = inlets.slice(0, -delete_num);
-//           }
-//         }else if(param_type == 'string'){
-//           const all_inputs = param_val.split(' ');
-//           const unique_values = utilInstance.filterToUniqueValues(all_inputs);
-//           inlets = inlets.slice(0,static_inputs.length);
-//           unique_values.forEach(el => {
-//             inlets.push(el);
-//           })
-//         }
-
-//         break;
-//         case 'system':
-//            static_inputs = op.inlets.filter(el => el.type === 'static');
-//            num_dynamic_inlets = inlets.length - static_inputs.length;
-
-//           if(param_val > num_dynamic_inlets){
-//             for(let i = num_dynamic_inlets; i < param_val; i++){
-//                 this.systemsservice.weft_systems[i].in_use = true;
-//                 inlets.push(i);  
-//             }
-//           }else if(param_val < num_dynamic_inlets){
-//             inlets = inlets.slice(0, param_val+static_inputs);
-//           }
-//         break;
-
-          
-
-//       }
-//     }
-//   return inlets;
-// }
 
 
 
@@ -305,9 +176,9 @@ export class TreeService {
             return (params[ndx]) ? 1 : 0;
           
             case "file":
-              const id_and_data = this.imageservice.getImageData(params[ndx]);
-              if(id_and_data === undefined  || id_and_data.data === undefined) return {id: params[ndx], data: null}
-              else return {id: params[ndx], data: id_and_data.data};
+              const id_and_data = <IndexedColorImageInstance> this.media.getMedia(params[ndx]);
+              if(id_and_data === null  || id_and_data.img === null) return {id: params[ndx], data: null}
+              else return {id: params[ndx], data: id_and_data.img};
         
             default:
               return params[ndx];
@@ -330,7 +201,8 @@ export class TreeService {
         if(this.ops.isDynamic(name)){
           const op = <DynamicOperation> this.ops.getOp(name);
           (<OpNode> node).params = params_out.slice()
-          let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
+          //this just forces the inlets to generate by simulating a parameter change
+          let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id[0], op.params[op.dynamic_param_id[0]].value);
           
           inlets = dynamic_inlets.slice();
         }
@@ -355,11 +227,10 @@ export class TreeService {
    * recomputes the value of every loom. 
    */
   updateLooms(){
-
     this.getDraftNodes().forEach(dn => {
     
       const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings, this.ws.selected_origin_option).then(loom => {
+      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings).then(loom => {
         dn.loom = loom;
       });
     });
@@ -367,59 +238,7 @@ export class TreeService {
   }
 
 
-  /**
-   * a preview is a temporary object that is created when two drafts overlap in drawing mode
-   * it just needs to contain a draft (and no loom as it will be deleted when the active operation ends)
-   * @param sd 
-   * @param draft 
-   * @returns 
-   */
-  setPreview(sd: any, draft: Draft) : Promise<DraftNode>{
-    this.preview = {
-      id: -1,
-      type: "draft",
-      ref: sd.hostView,
-      component: <SubdraftComponent> sd.instance,
-      dirty: true, 
-      draft: copyDraft(draft),
-      loom: null,
-      loom_settings: null,
-      render_colors: false
-    }
 
-    sd.dirty = true;
-
-    return Promise.resolve(this.preview);
-  
-  }
-
-  setPreviewDraft(draft: Draft) : Promise<DraftNode>{
-    if(this.preview === undefined) return Promise.reject("preview undefined");
-      this.preview.draft = copyDraft(draft);
-      this.preview.dirty = true;
-      (<SubdraftComponent> this.preview.component).draft = draft;
-      return Promise.resolve(this.preview);
-  }
-
-
-
-  unsetPreview(){
-    this.preview = undefined;
-  }
-
-  hasPreview():boolean{
-      if(this.preview === undefined) return false;
-      return true;
-  }
-
-
-  getPreview() : DraftNode{
-    return this.preview;
-  }
-
-  getPreviewComponent() : SubdraftComponent{
-    return <SubdraftComponent> this.preview.component;
-  }
 
   /**
    * returns a list of all the node ids of drafts that are dirty (including preview)
@@ -427,7 +246,6 @@ export class TreeService {
   getDirtyDrafts() : Array<number> {
 
     return this.nodes.filter(el => el.type === "draft")
-      .concat(this.preview)
       .filter(el => el.dirty)
       .map(el => el.id);
   }
@@ -441,7 +259,7 @@ export class TreeService {
   * @param loom the loom to associate with this node
   * @returns the created draft node and the entry associated with this
   */
-  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
+  loadDraftData(entry: {prev_id: number, cur_id: number}, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean) : Promise<{dn: DraftNode, entry:{prev_id: number, cur_id: number}}>{
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -467,19 +285,27 @@ export class TreeService {
     (<DraftNode> nodes[0]).loom_settings = loom_settings;
    }
 
-   if(loom === null){
-    const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
-   loom_utils.computeLoomFromDrawdown(draft.drawdown,(<DraftNode> nodes[0]).loom_settings,  this.ws.selected_origin_option).then(loom => {
-      (<DraftNode> nodes[0]).loom = loom;
-    });
+  
+   if(loom === null || loom == undefined){
+    (<DraftNode> nodes[0]).loom = null;
+  //   const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
+  //  loom_utils.computeLoomFromDrawdown(draft.drawdown,(<DraftNode> nodes[0]).loom_settings,  this.ws.selected_origin_option).then(loom => {
+  //     (<DraftNode> nodes[0]).loom = loom;
+  //   });
    }else{
     (<DraftNode> nodes[0]).loom = copyLoom(loom);
-
    }
 
    if(render_colors === undefined || render_colors === null)  (<DraftNode> nodes[0]).render_colors = false;
    else (<DraftNode> nodes[0]).render_colors = render_colors;
-   //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode> nodes[0]))
+
+   if(scale === undefined || scale === null)  (<DraftNode> nodes[0]).scale = 1;
+   else (<DraftNode> nodes[0]).scale = scale;
+
+   if(draft_visible == undefined || draft_visible == null) (<DraftNode> nodes[0]).visible = true;
+   else (<DraftNode> nodes[0]).visible = draft_visible;
+
+   //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode>nodes[0]))
    return Promise.resolve({dn: <DraftNode> nodes[0], entry});
 
   }
@@ -593,30 +419,74 @@ export class TreeService {
   /**
    * before performing a dynamic op, make sure that their are no connections that are pointing to an inlet that nolonger exists
    * @param id - the object id we are checking
+   * @param prior_inlet_vals the prior value of the inlets, used for reorienting connections
    * @returns an array of viewRefs for Connections to remove.
    */
-  sweepInlets(id: number) : Promise<Array<ViewRef>>{
+  sweepInlets(id: number, prior_inlet_vals: Array<any>) : Promise<Array<ViewRef>>{
 
      const opnode: OpNode = this.getOpNode(id);
-     const op: Operation = this.ops.getOp(opnode.name);
+    if(!this.ops.isDynamic(opnode.name)) return Promise.resolve([]);
+
+
+
      const inputs_to_op:Array<IOTuple> = this.getInputsWithNdx(id);
-
-    const num_constant_inlets = op.inlets.length;
-
-    //filter out inputs that are matched to an index highter than what we offer
-    const missing_inlets: Array<IOTuple> = inputs_to_op
-      .filter((el) => el.ndx >= opnode.inlets.length)
-
-    const viewRefs = missing_inlets.map(el => el.tn.node.ref);
-
     
-    missing_inlets.forEach(el => {
-        this.removeConnectionNode(el.tn.inputs[0].tn.node.id, el.tn.outputs[0].tn.node.id, el.ndx);
-    });
+     console.log("INPUTS ", inputs_to_op.slice(), prior_inlet_vals);
+
+
+
+     const viewRefs:Array<ViewRef> = [];
+
+     inputs_to_op.forEach((iotuple) => {
+
+        //what was the value of the inlet
+        if(prior_inlet_vals.length !== 0){
+          let prior_val = prior_inlet_vals[iotuple.ndx];
+
+          let new_ndx = opnode.inlets.findIndex(el => {
+            let new_string = el.toString();
+            return new_string.includes(prior_val.toString());
+          });
+
+
+          if(new_ndx == -1){
+            this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
+            viewRefs.push(iotuple.tn.node.ref)
+          }else{
+            iotuple.ndx = new_ndx;
+          }
+        }
+     })
 
     return Promise.resolve(viewRefs);
 
   }
+
+ 
+    /**
+     * when an operation has a variable amount of outputs, there may be cases where we need to delete one of the outputs 
+     * if it is no longer needed
+     * @param id the operation id, 
+    * @returns 
+     */
+    sweepOutlets(id: number) : Promise<Array<ViewRef>>{
+
+      const drafts: Array<number> =  this.getNonCxnOutputs(id);
+      const viewRefs: Array<ViewRef> = [];
+      
+      drafts.forEach(did => {
+        let draft = <DraftNode> this.getNode(did);
+        if(draft.mark_for_deletion){
+           viewRefs.push(draft.ref);
+           this.removeConnectionNode(id, did, 0);
+           this.removeSubdraftNode(did);
+        }
+      })
+ 
+    
+     return Promise.resolve(viewRefs);
+ 
+   }
     
 
   /**
@@ -638,6 +508,11 @@ export class TreeService {
   getOpenConnection(): SubdraftComponent{
     return <SubdraftComponent> this.getComponent(this.open_connection);
   }
+
+  getOpenConnectionId(): number{
+    return this.open_connection;
+  }
+
 
   /**
    * TEMP DISABLE DUE TO CAUSING PROBLEMS 
@@ -678,6 +553,7 @@ export class TreeService {
    * @param outputs the current treenode ids for all outputs
    * @returns an object that holds the tree node as well as its associated map entry
    */
+
   async loadTreeNodeData(id_map: any, node_id: number, parent_id: number, inputs:Array<{tn: number, ndx: number}>,  outputs:Array<{tn: number, ndx: number}>): Promise<{tn: TreeNode, entry: {prev_id: number, cur_id: number}}>{
 
     const entry = id_map.find(el => el.cur_id === node_id);
@@ -775,6 +651,52 @@ export class TreeService {
     return this.nodes[ndx]; 
   }
 
+
+
+  /**
+   * this function returns the smallest bounding box that can contain all of the input nodes. This function does not consider the scrolling (all measures are relative to the node parent (palette-scale-container). This means that the values will be the same no matter the scroll or the zoom. 
+   * @returns The Bounds or null (if there are no nodes with which to measure)
+   */
+  getNodeBoundingBox(node_ids: Array<number>):Bounds|null{
+
+    if(this.nodes.length == 0) return null;
+
+
+    const raw_rects= node_ids
+    .map(node => document.getElementById('scale-'+node))
+    .filter(div => div != null)
+    .map(div => { return {x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight}});
+
+    const min: Point = raw_rects.reduce((acc, el) => {
+      let adj_x =  el.x;
+      let adj_y =  el.y;
+      if(adj_x < acc.x) acc.x = adj_x;
+      if(adj_y < acc.y) acc.y = adj_y;
+      return acc;
+    }, {x: 1000000, y:100000});
+
+    const max: Point = raw_rects.reduce((acc, el) => {
+      let adj_right = el.x + el.width;
+      let adj_bottom = el.y + el.height;
+      if(adj_right > acc.x) acc.x = adj_right;
+      if(adj_bottom  > acc.y) acc.y = adj_bottom;
+      return acc;
+    }, {x: 0, y:0});
+
+
+    let bounds:Bounds = {
+      topleft: {x: min.x, y: min.y},
+      width: max.x - min.x,
+      height: max.y - min.y
+    }
+
+    // console.log('BOUNDS FOR COMPONENTS', min, max, bounds)
+    return bounds;
+  
+  }
+
+
+
   getNodeIdList() : Array<number> {
     return this.nodes.map(node => node.id);
   }
@@ -784,7 +706,9 @@ export class TreeService {
   }
 
   getType(id:number):string{
+
     const node: Node = this.getNode(id);
+    if(node == null) return 'null'
     return node.type;
   }
 
@@ -801,7 +725,7 @@ export class TreeService {
    */
   getSubdraftParent(sd_id: number):number{
     const tn: TreeNode = this.getTreeNode(sd_id);
-    if(tn.parent === null || tn.parent === undefined) return -1;
+    if(tn == null || tn == undefined || tn.parent === null || tn.parent === undefined) return -1;
     else return tn.parent.node.id;
   }
 
@@ -923,21 +847,21 @@ export class TreeService {
     }
 
 
-    /**
-     * test if this node has just one child and that child subdraft is currently hidden 
-     * @param id 
-     * @returns a boolean 
-     */
-      opHasHiddenChild(id: number):boolean{
-          const tn: TreeNode = this.getTreeNode(id);
-          const outs = this.getNonCxnOutputs(id);
+  /**
+   * test if this node has just one child and that child subdraft is currently hidden 
+   * @param id 
+   * @returns a boolean 
+   */
+    opHasHiddenChild(id: number):boolean{
+        const tn: TreeNode = this.getTreeNode(id);
+        const outs = this.getNonCxnOutputs(id);
 
-          if(outs.length === 0) return false;
+        if(outs.length === 0) return false;
 
-          const child_id = outs.shift();
-          const sd = <SubdraftComponent> this.getComponent(child_id);
-          return !sd.draft_visible;
-      }
+        const child_id = outs.shift();
+        let child_visible = this.getDraftVisible(child_id);
+        return !child_visible;
+    }
   
     
 
@@ -1002,6 +926,25 @@ export class TreeService {
     return ops;
   }
 
+   /**
+   * given a node, recusively walks the tree and returns a list of all the nodes that branch from this parent
+   * @param id 
+   * @returns an array of node ids
+   */
+   getAllDownstreamNodes(id: number):Array<number>{
+
+    let nodes: Array<number> = [];
+    const tn: TreeNode = this.getTreeNode(id);
+    if(tn.outputs.length > 0){
+
+      tn.outputs.forEach(el => {
+        nodes.push(el.tn.node.id);  
+        nodes = nodes.concat(this.getAllDownstreamNodes(el.tn.node.id));
+      });
+    }
+    return nodes;
+  }
+
     /**
    * given a node, recusively walks the tree and returns a list of all the operations that are linked up the chain to this component
    * @param id 
@@ -1023,6 +966,8 @@ export class TreeService {
       return ops;
     }
 
+
+    
 
     /**
    * given a node, recusively walks the tree and returns a list of all the drafts that are linked up the chain to this component
@@ -1161,12 +1106,14 @@ removeOperationNode(id:number) : Array<Node>{
     
 }
 
+
 /**
- * deletes a connection
- * @param id - the connection to remove
- * @returns a list of all nodes removed as a result of this action
+ * deletes a connection between two nodes (an op and a draft)
+ * @param from the id of the node this connection is coming from
+ * @param to the id of the node this connection is going to
+ * @param inletid the id of the inlet into which this connection is traveling. 
+ * @returns 
  */
- //removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
   removeConnectionNode(from:number, to:number, inletid: number) : Array<Node>{
 
 
@@ -1251,72 +1198,85 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
   }
 
 
+//if an operation results in an empty draft, then it is reset here
+clearDraft(dn: DraftNode){
+
+
+  dn.draft = initDraft();
+  dn.draft.ud_name = "This operation needs more inputs to create a draft";
+
+
+}
+
 /**
    * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
    * since this function cannot delete nodes, it makes nodes that no longer need to exist as null for later collection
+   * basically it has to associate drafts with the existing or new nodes
    * @param res the list of results from perform op
    * @returns a list of the draft nodes touched. 
    */
  async updateDraftsFromResults(parent: number, res: Array<Draft>, inputs: Array<OpInput>) : Promise<Array<number>>{
+
+
   const out = this.getNonCxnOutputs(parent);
+  const op_outlets = this.getOutputsWithNdx(parent);
   const touched: Array<number> = [];
   const opnode:OpNode = this.getOpNode(parent);
   const op: Operation = this.ops.getOp(opnode.name);
+  const update_looms = [];
+  const new_draft_fns = [];
 
-  //console.log("updating drafts, there are currently: ", out.length, "existing ouputs and ", res.length, "new outputs");
 
-  if(out.length === res.length){
-
-    out.forEach((output, ndx) => {
-      this.setDraftOnly(output, res[ndx]);
-      touched.push(output);
-    });
-    return Promise.resolve(touched);
-
-  }else if(out.length > res.length){
-    //create a new draft node for each outcome;
-    for(let i = res.length; i < out.length; i++){
-      const dn = <DraftNode> this.getNode(out[i]);
-      if(dn.render_colors === undefined) dn.render_colors = false;
-      dn.draft = initDraftWithParams({wefts: 1, warps: 1});
-      dn.loom_settings = {
-        type: this.ws.type,
-        units: this.ws.units,
-        epi: this.ws.epi,
-        frames: this.ws.min_frames,
-        treadles: this.ws.min_treadles
-      }
-
-      const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings, this.ws.selected_origin_option)
-      .then(loom => {
-        dn.loom = loom;
-        dn.dirty = true;
-        touched.push(out[i]);
-        return Promise.resolve(touched);
-      })
-
+  const param_vals = op.params.map((param, ndx) => {
+    return {
+      param: param,
+      val: opnode.params[ndx]
     }
-   
-  }else{
-    const fns:Array<any> = [];
-    for(let i = out.length; i < res.length; i++){
+  })
+
+  //first, cycle through the resulting nodes: 
+  for(let i = 0; i < res.length; i++){
+
+    //get the output associated with the ndx "i"
+    let active_tn_tuple =  op_outlets.find(el => el.ndx == i);
+
+    if(active_tn_tuple !== undefined){
+      let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
+      if(cxn_child.length > 0){
+        res[i].gen_name = op.generateName(param_vals, inputs)
+        this.setDraftOnly(cxn_child[0], res[i]);
+        touched.push(cxn_child[0]);
+        update_looms.push({id: cxn_child[0], draft: res[i]});
+        
+      }
+    }else{
+    //this is a new draft
       const id = this.createNode('draft', null, null);
       const cxn = this.createNode('cxn', null, null);
-      this.addConnection(parent, 0,  id, 0,  cxn);
-      fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true)); //add loom as null for now as it assumes that downstream drafts do not have custom loom settings (e.g. they can be generated from drawdown)
+      this.addConnection(parent, i, id, 0, cxn);
+      new_draft_fns.push(this.loadDraftData({prev_id: -1, cur_id: id}, res[i], null, null, true, 1, !this.ws.hide_mixer_drafts)); 
+      update_looms.push({id: id, draft:  res[i]});
+      touched.push(id);
     }
 
-    return Promise.all(fns)
+  }
+
+  //now sweep through and see if there are any existing outputs we need to remove
+  out.forEach((output, ndx) => {
+
+    if(touched.find(el => el == output) === undefined){
+      const dn = <DraftNode> this.getNode(output);
+      dn.mark_for_deletion = true;
+      this.clearDraft(dn);
+    }
+  });
+
+
+
+
+    return Promise.all(new_draft_fns)
     .then(drafts_loaded => {
-
-    const param_vals = op.params.map((param, ndx) => {
-      return {
-        param: param,
-        val: opnode.params[ndx]
-      }
-    })
-
+   
      const ids = drafts_loaded.map(el => el.entry.cur_id);
      ids.forEach((id, ndx) => {
       let d = this.getDraft(id);
@@ -1324,12 +1284,28 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
      })
 
 
-     return Promise.resolve(ids);
+     let loom_fns = [];
+     update_looms.forEach(el => {
+      const dn = <DraftNode> this.getNode(el.id);
+      dn.loom_settings = (dn.loom_settings !== null) ? dn.loom_settings : this.ws.getWorkspaceLoomSettings();
+
+      //const loom_utils = getLoomUtilByType(loom_settings.type);
+      const loom_utils = getLoomUtilByType(dn.loom_settings.type)
+      loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, dn.loom_settings))
+    });
+     return Promise.all(loom_fns);
+    }).then((returned_looms) => {    
+      update_looms.forEach((el, ndx) => {
+        const dn = <DraftNode> this.getNode(el.id);
+        if(returned_looms[ndx] === null) dn.loom = null; 
+        else dn.loom = copyLoom(returned_looms[ndx]);
+        dn.dirty = true;
+      })
+
+
+      return Promise.resolve(touched);
     });
     
-  
-
-  }
 
 }
 
@@ -1370,18 +1346,13 @@ removeConnectionNodeById(cxn_id: number) : Array<Node>{
    */
   performGenerationOps(op_node_list: Array<number>) : Promise<any> {
 
-
     const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
 
     if(needs_computing.length == 0) return Promise.resolve([]);
 
     const op_fn_list = needs_computing.map(el => this.performOp(el));
    
-    
     return Promise.all(op_fn_list).then( out => {
-      const flat:Array<number> = out.reduce((acc, el, ndx)=>{
-        return acc.concat(el);
-      }, []);
 
       return this.getNodesWithDependenciesSatisfied();
 
@@ -1424,7 +1395,6 @@ isValidIOTuple(io: IOTuple) : boolean {
   if(op === null || op === undefined) return Promise.reject("Operation is null")
 
   let inputs: Array<OpInput> = [];
-  //if(this.ops.isDynamic(opnode.name)){
     
   const param_vals = op.params.map((param, ndx) => {
     return {
@@ -1434,59 +1404,27 @@ isValidIOTuple(io: IOTuple) : boolean {
   })
 
 
-    const flip_fns = [];
     const draft_id_to_ndx = [];
-    const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-
    
     all_inputs.filter(el => this.isValidIOTuple(el))
     .forEach((el) => {
       
       const draft_tn = el.tn.inputs[0].tn;
-      const cxn_tn = el.tn;
-      const type = draft_tn.node.type;
-
-      if(type === 'draft'){
-        draft_id_to_ndx.push({ndx: el.ndx, node_id: draft_tn.node.id, cxn: cxn_tn.node.id})
-        flip_fns.push(flipDraft((<DraftNode>draft_tn.node).draft, flips.horiz, flips.vert));
-      }
+      draft_id_to_ndx.push({ndx: el.ndx, draft: (<DraftNode>draft_tn.node).draft})
     });
 
 
-   
-    return Promise.all(flip_fns)
-    .then(flipped_drafts => {
-       
-      const paraminputs = draft_id_to_ndx.map(el => {
-          const draft = flipped_drafts.find(draft => draft.id === el.node_id);
-          if(draft === undefined){
-            console.error("Draft not found in flipped", flipped_drafts,draft_id_to_ndx, el);
-            return undefined;
-          } 
-          else return {drafts: [draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]]}
-        })
-      
-      const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el != undefined);
-
-      inputs = inputs.concat(cleaned_inputs);
-      return op.perform(param_vals, inputs);
-
+    const paraminputs = draft_id_to_ndx.map(el => {
+      return {drafts: [el.draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]]}
     })
+    const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
+
+    
+    return op.perform(param_vals, cleaned_inputs)
     .then(res => {
-          
-          const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-          return Promise.all(res.map(el => flipDraft(el,  flips.horiz, flips.vert)));
-      })
-    .then(flipped => {
         opnode.dirty = false;
-        
-        return this.updateDraftsFromResults(id, flipped, inputs);
+        return this.updateDraftsFromResults(id, res, cleaned_inputs);
       })
-
-        
-
-  
-
   }
 
 
@@ -1494,6 +1432,12 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   getDraftNodes():Array<DraftNode>{
     return this.nodes.filter(el => el.type === 'draft').map(el => <DraftNode> el);
+  }
+
+  getDraftVisible(id: number){
+    const dn:DraftNode = <DraftNode> this.getNode(id);
+    if(dn == null) return false; 
+    return dn.visible;
   }
 
   getDrafts():Array<SubdraftComponent>{
@@ -1519,7 +1463,7 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(dn !== null && dn !== undefined) dn.loom = copyLoom(loom);
 
     const utils = getLoomUtilByType(loom_settings.type);
-    return utils.computeDrawdownFromLoom(loom, this.ws.selected_origin_option)
+    return utils.computeDrawdownFromLoom(loom)
     .then(drawdown => {
       dn.draft.drawdown = drawdown;
       return Promise.resolve(dn.draft);
@@ -1545,19 +1489,23 @@ isValidIOTuple(io: IOTuple) : boolean {
   }
 
   getDraft(id: number):Draft{
-    if(id === -1) return this.preview.draft;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined) return null;
     return dn.draft;
   }
 
   getDraftName(id: number):string{
-    if(id === -1) return this.preview.draft.ud_name;
     const dn: DraftNode = <DraftNode> this.getNode(id);
     if(dn === null || dn === undefined || dn.draft === null) return "null draft";
     return (dn.draft.ud_name === "") ?  dn.draft.gen_name : dn.draft.ud_name; 
   }
 
+  getDraftScale(id: number): number{
+    if(id === -1) return 1;
+    const dn: DraftNode = <DraftNode> this.getNode(id);
+    if(dn === null || dn === undefined || dn.draft === null || dn.scale === undefined) return 1;
+    return  dn.scale; 
+  }
 
   getConnections():Array<ConnectionComponent>{
     const draft_nodes: Array<Node> = this.nodes.filter(el => el.type === 'cxn');
@@ -1629,16 +1577,17 @@ isValidIOTuple(io: IOTuple) : boolean {
    * @returns an array of the ids of the elements connected to this op
 
    */
-  addConnection(from:number, from_ndx: number, to:number, to_ndx: number, cxn:number): Array<number>{
-
+  addConnection(from:number, from_ndx: number,  to:number, to_ndx: number,  cxn:number): Array<number>{
 
     let from_tn: TreeNode = this.getTreeNode(from);
     let to_tn: TreeNode = this.getTreeNode(to);
     const cxn_tn: TreeNode = this.getTreeNode(cxn);
 
     from_tn.outputs.push({tn:cxn_tn, ndx: from_ndx});
+    
     cxn_tn.inputs = [{tn: from_tn, ndx: 0}];
     cxn_tn.outputs = [{tn: to_tn, ndx: 0}];
+   
     to_tn.inputs.push({tn: cxn_tn, ndx: to_ndx});
 
     if(from_tn.node.type === 'op') to_tn.parent = from_tn;
@@ -1652,8 +1601,16 @@ isValidIOTuple(io: IOTuple) : boolean {
    */
    setSubdraftParent(sd:number, op:number){
     const sd_tn: TreeNode = this.getTreeNode(sd);
-    const op_tn: TreeNode = this.getTreeNode(op);
-    sd_tn.parent = op_tn;
+    if(op == -1){
+      sd_tn.parent = null;
+
+    }else{
+      const op_tn: TreeNode = this.getTreeNode(op);
+      sd_tn.parent = op_tn;
+   
+    }
+
+
 
   }
 
@@ -1726,10 +1683,66 @@ isValidIOTuple(io: IOTuple) : boolean {
    
    }
 
+
+   /**
+    * if you know two nodes are connected, and which one is the parent of the other, this walks from the parent to the child node and returns everything in between 
+    * @param from
+    * @param to
+    */
+   makeTraceBetween(from: number, to: number) : Array<number>{
+
+    if(from === to) return [];
+
+    let trace = [];
+    let from_children = this.getAllDownstreamNodes(from);
+    from_children.forEach(child => {
+      let child_children = this.getAllDownstreamNodes(child);
+      let in_branch = child_children.find(el => el == to);
+      if(in_branch !== undefined){
+        trace.push(child);
+        return trace.concat(this.makeTraceBetween(child, to));
+      } 
+    });
+
+    return trace;
+
+   }
+
+
+   /**
+    * given two nodes returns all the connection ids between these two nodes. 
+    * @param a 
+    * @param b 
+    */
+   getConnectionsBetween(a: number, b: number) : Array<number> {
+
+    let path = [];
+    //get all connections that branch from a. 
+    //get all connections that branch from b.
+    let a_children = this.getAllDownstreamNodes(a);
+    let b_children = this.getAllDownstreamNodes(b);
+
+    let a_is_parent = a_children.find(el => el === b);
+    let b_is_parent = b_children.find(el => el === a);
+
+    if(a_is_parent !== undefined){
+      console.log("A CHILDREN ", a, a_children);
+      return this.makeTraceBetween(a, b);
+    }
+
+    if(b_is_parent !== undefined){
+      console.log("B CHILDREN ", b_children)
+      return this.makeTraceBetween(b, a);
+
+    }
+
+    return [];
+   }
+
   /**
    * given two nodes, returns the id of the connection node connecting them
    * @param a one node
-   * @param b the otehr node node
+   * @param b the other node
    * @returns the node id of the connection, or -1 if that connection is not found
    */
   getConnection(a: number, b:number) : number{
@@ -1853,6 +1866,8 @@ isValidIOTuple(io: IOTuple) : boolean {
     return id_list;
 }
 
+
+
   /**
  * returns the ids of all nodes connected to the output node that are not connection nodes
  * @param op_id 
@@ -1882,6 +1897,17 @@ isValidIOTuple(io: IOTuple) : boolean {
     return tn.inputs;
   }
 
+  /**
+   * returns the IO Tuples associated with this nodes output
+   * @param node_id the node id (not tree id)
+   * @returns an Array of IO Tuples
+   */
+  getOutputsWithNdx(node_id: number):Array<IOTuple>{
+    const tn = this.getTreeNode(node_id);
+    if(tn === undefined) return [];
+    return tn.outputs;
+  }
+
   getInputsAtNdx(node_id: number, inlet_ndx: number):Array<IOTuple>{
     const tn = this.getTreeNode(node_id);
     if(tn === undefined) return [];
@@ -1909,6 +1935,45 @@ isValidIOTuple(io: IOTuple) : boolean {
     if(output_ids.length  > 1) console.log("Error: more than one output");
     return output_ids.pop();
   }
+
+  
+
+  /**
+   * mostly used to identify which of an operation's inlet's this connection should connected to. 
+   * Because inlet information is stored on the operation, it looks at the operation to identify which inlet this connection enters into, and when approriate, which number in the array of inlets this belongs to
+   * @param cxn_id 
+   * @returns an object storing the id, the inlet_ndx, and the array_ndx (where there is multiple values in one inlet)
+   */
+  getConnectionOutputWithIndex(cxn_id: number):{id: number, inlet: number, arr: number}{
+    const tn = this.getTreeNode(cxn_id);
+    let found = null;
+    
+    //a connectino only have one output, so this in 
+    const output_tns: Array<TreeNode> = tn.outputs.map(child => child.tn);
+
+    //how many inputs are connected to this operation 
+    output_tns.forEach(output_tn => {
+
+
+      let has_connection: IOTuple = output_tn.inputs.find( input => input.tn.node.id === cxn_id);
+
+      if(has_connection !== undefined){
+
+        let inlet_with_connection = output_tn.inputs.filter(el => el.ndx == has_connection.ndx);
+        let arr_ndx = inlet_with_connection.findIndex( inlet => inlet.tn.node.id === cxn_id);
+        // console.log("inlet with connection length ", inlet_with_connection, arr_ndx)
+
+       found= {id: output_tn.node.id, inlet: has_connection.ndx, arr: arr_ndx};
+      }
+    })
+    if(found === null) console.error("ERROR Connection output's input does not contain this connection id ")
+    return found;
+  }
+
+
+
+
+
 
 
   /**
@@ -1992,7 +2057,7 @@ isValidIOTuple(io: IOTuple) : boolean {
    * converts all of the nodes in this tree for saving. 
    * @returns an array of objects that describe nodes
    */
-  exportNodesForSaving(current_scale: number) : Array<NodeComponentProxy> {
+  exportNodesForSaving() : Array<NodeComponentProxy> {
 
     const objs: Array<any> = []; 
 
@@ -2033,11 +2098,15 @@ isValidIOTuple(io: IOTuple) : boolean {
    * @returns an array of objects that describe nodes
    */
     exportDraftNodeProxiesForSaving() : Promise<Array<DraftNodeProxy>> {
+      
+   
       const objs: Array<any> = []; 
   
       this.getDraftNodes().forEach(node => {
+      
 
-        let loom_export = null;
+        let loom_export:Loom = null;
+
         if((<DraftNode>node).loom !== null && (<DraftNode>node).loom !== undefined){
           loom_export = {
             threading:  (<DraftNode>node).loom.threading.slice(),
@@ -2046,62 +2115,79 @@ isValidIOTuple(io: IOTuple) : boolean {
           }
         }
         if((<DraftNode>node).draft !== null && (<DraftNode>node).draft !== undefined){
-        const savable: DraftNodeProxy = {
+
+
+          const savable: DraftNodeProxy = {
           node_id: node.id,
           draft_id: (<DraftNode>node).draft.id,
-          draft_name: getDraftName((<DraftNode>node).draft),
-          draft: (this.hasParent(node.id)) ? null : (<DraftNode>node).draft,
-          draft_visible: (node.component !== null) ? (<SubdraftComponent>node.component).draft_visible : true,
-          loom:  (this.hasParent(node.id)) ? null :loom_export,
+          ud_name: (<DraftNode>node).draft.ud_name,
+          gen_name: (<DraftNode>node).draft.gen_name,
+          draft: null,
+          compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
+          draft_visible:  ((<DraftNode>node).visible == undefined ) ? !this.ws.hide_mixer_drafts :  (<DraftNode>node).visible,
+          loom: (loom_export === null || this.hasParent(node.id)) ? null :loom_export,
           loom_settings: node.loom_settings,
-          render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors
+          render_colors: ((<DraftNode>node).render_colors == undefined ) ? true :  (<DraftNode>node).render_colors,
+          scale: ((<DraftNode>node).scale == undefined ) ? 1 :  (<DraftNode>node).scale
         }
         objs.push(savable);
       }
   
       })
 
+      return Promise.resolve(objs);
 
-      //MAKE SURE ALL DRAFTS ARE ORIENTED TO TOP LEFT ON SAVE
-      let flip_fs = [];
-      let ids = [];
-      const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
-      objs.forEach((obj, i) => {
-        if(obj.draft !== null){
-          flip_fs.push(flipDraft(obj.draft, flips.horiz, flips.vert));
-          ids.push(i);
-        }
-      });
 
-     return  Promise.all(flip_fs)
-      .then(drafts => {
-        drafts.forEach((draft, i) => {
-          objs[i].draft = draft;
-        })
-        let ids = [];
-        let flip_fs = [];
-        objs.forEach((obj, i) => {
-          if(obj.loom !== null){
-            flip_fs.push(flipLoom(obj.loom, flips.horiz, flips.vert));
-            ids.push(i);
-          }
-        });
 
-        return Promise.all(flip_fs);
+    //   //MAKE SURE ALL DRAFTS ARE ORIENTED TO TOP LEFT ON SAVE
+    //   let drafts_to_flip = [];
+    //   let looms_to_flip = [];
+    //   const flips = utilInstance.getFlips(this.ws.selected_origin_option, 3);
+      
+    //   objs.forEach((obj) => {
+    //     if(obj.draft !== null){
+    //       drafts_to_flip.push(flipDraft(obj.draft, flips.horiz, flips.vert));
+    //     }
+    //   });
 
-      })
-      .then(looms => {
-        looms.forEach((loom, i) => {
-          objs[i].loom = loom;
-        })
+    //  return  Promise.all(drafts_to_flip)
+    //   .then(drafts => {
 
-        return objs;
+    //     //reassign the output draft to the correct spot in the obj array
+    //     drafts.forEach((draft) => {
 
-      })
+    //       let ndx = objs.findIndex(el => el.draft_id == draft.id);
+    //       if(ndx == -1 ) console.error("Couldn't find draft after flip");
+    //       else objs[ndx].draft = draft;        
+
+    //     })
+
+    //     objs.forEach((obj) => {
+    //       if(obj.loom !== null){
+    //         looms_to_flip.push({id: obj.draft_id, fn: flipLoom(obj.loom, flips.horiz, flips.vert)});
+    //       }
+    //     });
+      
+
+    //     return Promise.all(looms_to_flip.map(el => el.fn));
+
+    //   })
+    //   .then(looms => {
+    //     looms.forEach((loom, ndx) => {
+    //       let index = objs.filter(el => el.loom !== null).findIndex(el => el.draft_id == looms_to_flip[ndx].id);
+    //       if(index == -1 ) console.error("Couldn't find draft after flip");
+    //       else objs[index].loom = loom;
+    //     })
+
+
+    //     return objs;
+
+    //   })
      
 
   
     }
+    
 
   /**
    * this function is used when the file loader needs to create a template for an object that doesn't yet exist in the tree
@@ -2121,12 +2207,15 @@ isValidIOTuple(io: IOTuple) : boolean {
     const draft_node: DraftNodeProxy = {
       node_id: id,
       draft_id: draft.id,
-      draft_name: '',
+      ud_name: '',
+      gen_name: '',
       draft: null,
+      compressed_draft: null,
       draft_visible: true,
       loom: null, 
       loom_settings:null,
-      render_colors: true
+      render_colors: true,
+      scale: 1
     };
 
     const treenode: TreeNodeProxy = {
@@ -2150,7 +2239,6 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   setDraftClean(id: number){
     if(id === -1){
-      this.preview.dirty = false;
       return;
     } 
 
@@ -2172,6 +2260,11 @@ isValidIOTuple(io: IOTuple) : boolean {
 
   }
 
+  setDraftVisiblity(id: number, visibile: boolean ){
+    const dn = <DraftNode> this.getNode(id);
+    dn.visible = visibile;
+  }
+
 /**
  * sets a new draft and loom at node specified by id. This occures when an operation that generated a draft has been recomputed
  * @param id the node to update
@@ -2191,26 +2284,23 @@ isValidIOTuple(io: IOTuple) : boolean {
       dn.draft = createDraft(temp.drawdown, temp.gen_name, ud_name, temp.rowShuttleMapping, temp.rowSystemMapping, temp.colShuttleMapping, temp.colSystemMapping);
     } 
 
-    dn.draft.id = id;
+     dn.draft.id = id;
 
     if(loom_settings === null || loom_settings === undefined){
-      dn.loom_settings = {
-        type: this.ws.type,
-        epi: this.ws.epi,
-        units: this.ws.units,
-        frames: this.ws.min_frames,
-        treadles: this.ws.min_treadles
-      }
+
+      dn.loom_settings = this.ws.getWorkspaceLoomSettings();
+        
     } 
     else dn.loom_settings = loom_settings;
 
     dn.dirty = true;
-    if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
+
+      
+   if(dn.component !== null) (<SubdraftComponent> dn.component).draft = temp;
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings, this.ws.selected_origin_option)
+    return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings)
     .then(loom =>{
-
       dn.loom = loom;
       return Promise.resolve(loom);
     });
@@ -2244,15 +2334,17 @@ isValidIOTuple(io: IOTuple) : boolean {
     const objs: Array<any> = []; 
 
     this.getOpNodes().forEach(op_node => {
-      const op = this.ops.getOp(op_node.name);
-
-      let cleaned_params = op.params.map((param_template, ndx) => {
-        if(param_template.type == 'file'){
-          return op_node.params[ndx].id;
-        }else{
-          return op_node.params[ndx];
-        }
-      })
+      if(op_node.name !== ""){
+        const op = this.ops.getOp(op_node.name);
+        let cleaned_params = op.params.map((param_template, ndx) => {
+          if(param_template.type == 'file'){
+            return op_node.params[ndx].id;
+          }else{
+            return op_node.params[ndx];
+          }
+        })
+      
+    
       
 
       const savable:OpComponentProxy = {
@@ -2264,6 +2356,7 @@ isValidIOTuple(io: IOTuple) : boolean {
 
       
       objs.push(savable);
+      }
     })
 
     return objs;
@@ -2281,8 +2374,15 @@ isValidIOTuple(io: IOTuple) : boolean {
       const savable:TreeNodeProxy = {
         node: treenode.node.id,
         parent: (treenode.parent !== null && treenode.parent !== undefined) ?  treenode.parent.node.id : -1,
-        inputs: treenode.inputs.map(el => {return {tn:el.tn.node.id, ndx: el.ndx}}),
-        outputs: treenode.outputs.map(el => {return {tn:el.tn.node.id, ndx: el.ndx}})
+        inputs: treenode.inputs.map(el => 
+          {return {
+            tn:el.tn.node.id, 
+            ndx: el.ndx}}
+        ),
+        outputs: treenode.outputs.map(el => 
+          {return {
+            tn:el.tn.node.id, 
+            ndx: el.ndx}})
       }
       objs.push(savable);
     })

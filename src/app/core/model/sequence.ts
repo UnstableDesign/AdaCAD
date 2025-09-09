@@ -1,4 +1,5 @@
 
+import { electronMassDependencies } from "mathjs";
 import { first } from "rxjs/operators";
 import { createCellFromSequenceVal, getCellValue } from "./cell";
 import { Cell, Drawdown } from "./datatypes";
@@ -13,7 +14,7 @@ export module Sequence{
 
     constructor(initSequence:Array<number> = []){
       if(initSequence){
-        this.state = initSequence;
+        this.state = initSequence.slice();
       }
       return this;
     }
@@ -86,8 +87,7 @@ export module Sequence{
 
     }
     
-    
-
+  
 
     /**
      * repeats or cuts the current sequence so that it is of length n.
@@ -366,30 +366,32 @@ export module Sequence{
    * @param warpsys - the warp system upon which to map this draft
    * @param weft_system_map - the pattern of weft systems along the wefts
    * @param warp_system_draft - the pattern of warp systems along the warps
+   * @param ends - the number of ends required in the output structure (based on the lcm of input warps)
+   * @param pics - the number of picks required in the output structure (based on the lcm of input wefts)
    */
-  mapToSystems(weftsys: Array<number>, warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD){
-    // console.log("MAPPING ", this.state, " to ", weftsys, warpsys)
-    let total_wefts: number = 0;
-    total_wefts = utilInstance.lcm([this.wefts(), weft_system_map.length()])*weft_system_map.length();
-
-    let total_warps: number = 0;
-    total_warps = utilInstance.lcm([this.warps(), warp_system_map.length()])*warp_system_map.length();
+  mapToSystems(weftsys: Array<number>, warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD, ends: number, pics: number){
 
     //create a blank draft of the size needed that we'll copy into 
-    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(total_warps, total_wefts);
+    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(ends, pics);
 
     //now map the new values within that space
     let within_sequence_i = 0; 
     let within_sequence_j = 0;
 
-    for(let i = 0; i < total_wefts; i++){
+    for(let i = 0; i < pics; i++){
+     
       let active_weft_system = weft_system_map.get(i%weft_system_map.length());
-      if(weftsys.find(el => el == active_weft_system) !== undefined){
-        within_sequence_j = 0;
-        for(let j = 0; j < total_warps; j++){
-          let active_warp_system = warp_system_map.get(j%warp_system_map.length());
 
-          if(warpsys.find(el => el == active_warp_system) !== undefined){
+      if(weftsys.find(el => el == active_weft_system) !== undefined){
+       
+        within_sequence_j = 0;
+       
+        for(let j = 0; j < ends; j++){
+          let active_warp_system = warp_system_map.get(j%warp_system_map.length());
+          if(warpsys.length == 0){
+            // mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
+            // within_sequence_j = (within_sequence_j + 1) % this.warps();
+          }else if(warpsys.find(el => el == active_warp_system) !== undefined){
             mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
             within_sequence_j = (within_sequence_j + 1) % this.warps();
           }
@@ -402,6 +404,84 @@ export module Sequence{
     return this;
 
   }
+
+
+
+  /**
+   * used to assign a structure to every weft system associated with a given warp system
+   * @param warpsys 
+   * @param weft_system_map 
+   * @param warp_system_map 
+   * @returns 
+   */
+  mapToWarpSystems(warpsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD, ends: number, pics:number){
+
+    //create a blank draft of the size needed that we'll copy into 
+    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(ends, pics);
+
+    //now map the new values within that space
+    let within_sequence_i = 0; 
+    let within_sequence_j = 0;
+
+    for(let j = 0; j < ends; j++){
+      let active_warp_system = warp_system_map.get(j%warp_system_map.length());
+  
+      if(warpsys.find(el => el == active_warp_system) !== undefined){
+       
+        within_sequence_i = 0;
+        
+        for(let i = 0; i < pics; i++){
+
+            mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
+            within_sequence_i = (within_sequence_i + 1) % this.wefts();
+  
+        }
+        within_sequence_j = (within_sequence_j + 1) % this.warps();
+      }
+    }
+
+    this.state = mapped_seq.state.slice();
+    return this;
+
+  }
+
+
+  /**
+   * used to handle layers that are composed only of floats, this function writes this stored sequence accross all warp systems 
+   * @param weftsys 
+   * @param weft_system_map 
+   * @param warp_system_map 
+   * @returns 
+   */
+  mapToWeftSystems(weftsys: Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD, ends: number, pics: number){
+
+    //create a blank draft of the size needed that we'll copy into 
+    let mapped_seq = new Sequence.TwoD().setBlank(2).fill(ends, pics);
+
+    //now map the new values within that space
+    let within_sequence_i = 0; 
+    let within_sequence_j = 0;
+
+    for(let i = 0; i < pics; i++){
+      let active_weft_system = weft_system_map.get(i%weft_system_map.length());
+      if(weftsys.find(el => el == active_weft_system) !== undefined){
+        within_sequence_j = 0;
+        for(let j = 0; j < ends; j++){
+
+            mapped_seq.set(i, j, this.get(within_sequence_i, within_sequence_j), false)
+            within_sequence_j = (within_sequence_j + 1) % this.warps();
+          
+        }
+        within_sequence_i = (within_sequence_i + 1) % this.wefts();
+      }
+    }
+
+    this.state = mapped_seq.state.slice();
+    return this;
+
+  }
+
+
 
 
   /**
@@ -470,63 +550,126 @@ export module Sequence{
 
       let warp:Array<number> = this.getWarp(j);
       warp.forEach((el, i) => {
-        if(el == 2) this.set(i, j, val, false);
+        if(el == 2){
+          this.set(i, j, val, false);
+        }
       });
 
       return this;
     }
   
 
+  /**
+   * given a current warp and weft system, as well as a list of the weft and warp systems that have been assigned to layers "above" the current warp and weft system, this function will ensure that structures are assigned such that they fall just under the previous layers in the layer stack
+   * @param cur_warp_sys  the current warp systems we are considering
+   * @param warp_sys_above the warp systems that have been used in previous layers above this layer
+   * @param cur_weft_sys  the current weft systems we are considering
+   * @param weft_sys_above the weft systems that have been used in previous layers above this layer
+   * @param weft_system_map a map of the weft systems used in this draft
+   * @param warp_system_map a map of the warp systems used in this draft
+   * @returns 
+   */
+  placeInLayerStack(cur_warp_sys: Array<number>, warp_sys_above: Array<number>, cur_weft_sys: Array<number>,weft_sys_above:Array<number>, weft_system_map: Sequence.OneD, warp_system_map: Sequence.OneD ){
 
-  layerSystems(warp_system_to_layers: Array<{ws: number, layer: number}>, warp_system_map: Sequence.OneD){
 
-    let before_layering: Sequence.TwoD = this.copy();
+    //associate the warp system with the layer by moving all other weft systems on the current warp systems out of the way (raise)
+    warp_sys_above.forEach(warp_above => {
+      cur_weft_sys.forEach(cur_weft => {
+          for(let i = 0; i < this.state.length; i++){
+            for(let j = 0; j < this.state[0].length; j++){
 
-    //get the actual layers we are dealing with
-    let layers = utilInstance.filterToUniqueValues(warp_system_to_layers.map(el => el.layer));
-    //might have to make these numbers consequtive?
+              let weft_sys = weft_system_map.get(i % weft_system_map.length());
+              let warp_sys = warp_system_map.get(j % warp_system_map.length());
 
-    for(let l = 0; l < layers.length; l++){
-
-      //get the warp systems associated with this layer
-      let warp_systems: Array<number> = warp_system_to_layers.filter(el => el.layer == l).map(el => el.ws);
-
-      //now go through the wefts, do they interlace on this warp? If yes, 
-      //set all the unset values on this weft to down
-      before_layering.state.forEach((row, i) => {
-        
-        //get the first set value
-        let first_set = row.findIndex(el => el !== 2);
-
-        if(first_set !== -1){
-          //is it on this warp system? 
-          let interlacing_ws = warp_system_map.get(first_set);
-          // console.log("First set value on  ", i, " is ", first_set, "interlacing on ", interlacing_ws, " current warp system is ", warp_systems);
-
-          if(warp_systems.find(el => el == interlacing_ws) !== undefined){
-            //this warp system is interlacing on this layer!
-            this.setUnsetOnWeft(i, 0);
+              if(weft_sys == cur_weft && warp_sys == warp_above){
+                this.set(i, j, 1, true);
+              }
+            }
           }
-        }
+      })
+    })
 
-      });
+     //associate the warp system with the layer by moving all other weft systems on the current warp systems out of the way (raise)
+     weft_sys_above.forEach(weft_above => {
+      cur_warp_sys.forEach(cur_warp => {
 
-      //how, set all the unset values on the warps associated with this 
-      for(let j = 0; j < this.warps(); j++){
-        let warp_syst = warp_system_map.get(j % warp_system_map.length());
-        if(warp_systems.find(el => el == warp_syst) !== undefined){
-          this.setUnsetOnWarp(j, 1);
-        }
-      }
-
-
-    } // end for each layer
-    
+          for(let i = 0; i < this.state.length; i++){
+            for(let j = 0; j < this.state[0].length; j++){
+              let weft_sys = weft_system_map.get(i % weft_system_map.length());
+              let warp_sys = warp_system_map.get(j % warp_system_map.length());
+              if(warp_sys == cur_warp && weft_sys == weft_above){
+                this.set(i, j, 0, true);
+              }
+            }
+          }
+      })
+    })
 
     return this;
-
-
   }
+
+
+
+  /**
+   * this function uses a mapping of warp systems to layers to calculate teh relationships between lifted and lowered weft systems based on layer order. 
+   * it assumes that the draft has already been mapped to systems and then, starting from the top layer, assigns the remaining weft systems to down and reamining warp system to lift. It progresses down the layer stack in this order. 
+   * @param warp_system_to_layers 
+   * @param warp_system_map 
+   * @returns 
+   */
+  // layerSystems(warp_system_to_layers: Array<{ws: number, layer: number}>, warp_system_map: Sequence.OneD){
+
+
+  //   console.log("warp system layer map ", warp_system_to_layers)
+  //   console.log("warp system map ", warp_system_map)
+
+
+  //   let before_layering: Sequence.TwoD = this.copy();
+
+  //   //get the actual layers we are dealing with
+  //   let layers = utilInstance.filterToUniqueValues(warp_system_to_layers.map(el => el.layer));
+
+  //   for(let l = 0; l < layers.length; l++){
+
+  //     //get the warp systems associated with this layer
+  //     let warp_systems: Array<number> = warp_system_to_layers.filter(el => el.layer == l+1).map(el => el.ws);
+
+  //     //now go through the wefts, do they interlace on this warp? If yes, 
+  //     //set all the unset values on this weft to down
+  //     before_layering.state.forEach((row, i) => {
+        
+  //       //get the first set value
+  //       let first_set = row.findIndex(el => el !== 2);
+
+  //       if(first_set !== -1){
+  //         //is it on this warp system? 
+  //         let interlacing_ws = warp_system_map.get(first_set);
+  //         // console.log("First set value on  ", i, " is ", first_set, "interlacing on ", interlacing_ws, " current warp system is ", warp_systems);
+
+  //         if(warp_systems.find(el => el == interlacing_ws) !== undefined){
+  //           //this warp system is interlacing on this layer!
+  //           this.setUnsetOnWeft(i, 0);
+  //         }
+  //       }
+
+  //     });
+
+  //     //now, set all the unset values on the warps associated with this 
+  //     for(let j = 0; j < this.warps(); j++){
+  //       let warp_syst = warp_system_map.get(j % warp_system_map.length());
+  //       if(warp_systems.find(el => el == warp_syst) !== undefined){
+  //         this.setUnsetOnWarp(j, 1); //TODO needs to verify system here, 
+  //       }
+  //     }
+
+
+  //   } // end for each layer
+    
+
+  //   return this;
+
+
+  // }
 
 /**
  * this sets the value at a given location specified by i and j
@@ -557,6 +700,7 @@ export module Sequence{
   }
 
   get(i: number, j: number) : number {
+
 
     if(i < 0 || i >= this.wefts()){
       console.error("Sequence2D - attempting to get an out of range weft value");
@@ -743,19 +887,21 @@ export module Sequence{
       if(w < 0 || h < 0) return this;
       if(this.state.length == 0) return;
 
-      let len = this.state.length;
+      let len_h = this.state.length;
 
       for(let i = 0; i < h; i++){
         let row;
-        if(w >= len)
-        row = new OneD(this.state[i%len]).resize(w).val();
-        else{
-        row = new OneD(this.state[i%len].slice(0, w)).val()
+        let len_w = this.state[i%len_h].length;
+
+        if(w >= len_w){ 
+          row = new OneD(this.state[i%len_h]).resize(w).val();
+        }else{
+          row = new OneD(this.state[i%len_h].slice(0, w)).val()
         }
         this.state[i] = row;
       }
 
-      if(h < len){
+      if(h < len_h){
         this.state = this.state.slice(0, h);
       }
 

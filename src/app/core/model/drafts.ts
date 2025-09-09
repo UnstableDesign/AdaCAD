@@ -1,6 +1,6 @@
 import { createCell, getCellValue, setCellValue } from "./cell";
-import { Draft, Drawdown, YarnFloat, Cell } from "./datatypes";
-import { defaults } from "./defaults";
+import { Draft, Drawdown, Cell, CompressedDraft, Material, DraftCellColor } from "./datatypes";
+import { defaults, rendering_color_defaults } from "./defaults";
 import utilInstance from "./util";
 
 /**
@@ -43,6 +43,8 @@ import utilInstance from "./util";
   });
   return copy_draft;
 }
+
+
 
 /**
  * creates a draft based on the params provided.
@@ -214,21 +216,52 @@ export const createDraft = (
 
 
   /**
-   * sets up the draft from the information saved in a .ada file
-   * @param data 
+   * creates a draft object from saved data. Handles different forms of saved drafts. 
+   * @param data : a draft node object from the saved file
    */
-  export const loadDraftFromFile = (data: any, flips: any, version: string) : Promise<Draft> => {
-
+  export const loadDraftFromFile = (data: any, version: string, src: string) : Promise<{draft: Draft, id: number}> => {
     const draft: Draft = initDraft();
-    if(data.id !== undefined) draft.id = data.id;
-    draft.gen_name = (data.gen_name === undefined) ? 'draft' : data.gen_name;
-    draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
+
+     console.log("DATA is ", data)
     
+
+    if(data.id !== undefined) draft.id = data.id;
+
+    if(data.draft_name === undefined){
+      draft.gen_name = (data.gen_name === undefined) ? defaults.draft_name : data.gen_name;
+      draft.ud_name = (data.ud_name === undefined) ? '' : data.ud_name;
+    
+    }else{
+      draft.gen_name = data.draft_name;
+      draft.ud_name = '';
+    
+      
+    }
+ 
+
+
     if(version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')){
       draft.drawdown = parseSavedDrawdown(data.pattern);
     }else{
+      // console.log("VERSION NEWER THAN 3.4.5")
+      if(data.compressed_drawdown === undefined){
       draft.drawdown = parseSavedDrawdown(data.drawdown);
+      }else{
+        // console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
 
+
+        let compressed: Uint8ClampedArray;
+        if(src == 'upload'){
+          compressed = new Uint8ClampedArray(data.compressed_drawdown);
+          
+
+        }else{
+          compressed = data.compressed_drawdown;
+        }
+
+        draft.drawdown = unpackDrawdownFromArray(data.compressed_drawdown, data.warps, data.wefts)
+
+      }
     }
 
     draft.rowShuttleMapping = (data.rowShuttleMapping === undefined) ? [] : data.rowShuttleMapping;
@@ -236,33 +269,12 @@ export const createDraft = (
     draft.colShuttleMapping = (data.colShuttleMapping === undefined) ? [] : data.colShuttleMapping;;
     draft.colSystemMapping= (data.colSystemMapping === undefined) ? [] : data.colSystemMapping;;
 
-
-    return flipDraft(draft, flips.horiz, flips.vert)
-    .then(flipped => {
-      return flipped;
-    })
+    return Promise.resolve({draft: draft, id: draft.id}); 
     
   }
 
 
-  /**
-   * converts the saved structure of a pattern into the format used in memory
-   * @param pattern the saved pattern
-   * @returns the pattern in the form of a drawdown.
-   */
-  const parseSavedPattern = (pattern: Array<Array<boolean>>) : Drawdown => {
-    const drawdown:Drawdown = [];
-    if(pattern === undefined) return [];
 
-    for(var i = 0; i < wefts(pattern); i++) {
-        drawdown.push([]);
-        for (var j = 0; j < warps(pattern); j++){
-          drawdown[i][j]= createCell(pattern[i][j]);
-        }
-    }
-
-    return drawdown;
-  }
 
   const parseSavedDrawdown = (dd: Array<Array<Cell>>) : Drawdown => {
 
@@ -396,6 +408,9 @@ export const createDraft = (
     let rows = wefts(fill_pattern);
     let cols = warps(fill_pattern);
 
+    // console.log("***PASTE INTO DRAWDOWN ", fill_pattern, rows, cols, width, height)
+
+
     //cycle through each visible row/column of the selection
     for (var i = 0; i < height; i++ ) {
       for (var j = 0; j < width; j++ ) {
@@ -413,10 +428,389 @@ export const createDraft = (
   }
 
   /**
+   * when drafts are rendered to the screen they are drawn pixel by pixel to an Image element and rendered on the canvas. This is a much faster process than drawing as lines and shapes on a canvas. 
+   * @param draft the draft we will convert to an image
+   * @param pix_per_cell the maximum cell size for each interlacement, calculated based on draft size and maximum canvas dimensions
+   * @param floats boolean to render cells of the same value as floats (rather than bounded cells)
+   * @param use_color boolean to render the color of the yarn
+   * @param mats an array of the materials currently in use in the workspace
+   * @returns 
+   */
+  export const getDraftAsImage = (draft: Draft, pix_per_cell: number, floats: boolean, use_color: boolean, mats: Array<Material>) : ImageData => {
+
+    pix_per_cell = Math.floor(pix_per_cell);
+
+    const warp_num = warps(draft.drawdown)
+    const length = wefts(draft.drawdown) * warps(draft.drawdown) * Math.pow(pix_per_cell, 2) * 4;
+    let uint8c = new Uint8ClampedArray(length);
+
+    for(let i = 0; i < wefts(draft.drawdown); i++){
+      for(let j = 0; j < warps(draft.drawdown); j++){
+
+        let cell_val = getCellValue(draft.drawdown[i][j]);
+       
+        let warp_float = false;
+        if(i > 0 && cell_val === getCellValue(draft.drawdown[i-1][j])){
+          warp_float = true;
+        }
+
+        let weft_float = false;
+        if(j > 0 && cell_val === getCellValue(draft.drawdown[i][j-1])){
+          weft_float = true;
+        }
+
+
+        // let is_weftwise_edge = 
+        // (i % pix_per_cell == 0) || 
+        // (i ==  wefts(draft.drawdown) * pix_per_cell -1);
+
+        // let is_warpwise_edge = 
+        // (j % pix_per_cell == 0) ||
+        // (j ==  warps(draft.drawdown) * pix_per_cell -1);
+        
+       let weft_mat: Material = mats.find(el => el.id == draft.rowShuttleMapping[i]);
+       let warp_mat: Material = mats.find(el => el.id == draft.colShuttleMapping[j]);
+       let warp_col: DraftCellColor;
+       let weft_col: DraftCellColor;
+       if(warp_mat !== undefined){
+        warp_col= {
+          id: 'warp', 
+          r: warp_mat.rgb.r, 
+          g: warp_mat.rgb.g,
+          b: warp_mat.rgb.b,
+          a: 255};
+       }else{
+        warp_col = rendering_color_defaults[0];
+       }
+
+       if(weft_mat !== undefined){
+        weft_col= {
+          id: 'weft', 
+          r: weft_mat.rgb.r, 
+          g: weft_mat.rgb.g,
+          b: weft_mat.rgb.b,
+          a: 255};
+       }else{
+        weft_col = rendering_color_defaults[0];
+       }
+
+       if(!floats && !use_color){
+        uint8c = <Uint8ClampedArray<ArrayBuffer>>drawDraftViewCell(uint8c, i, j, cell_val, pix_per_cell,warp_num, use_color, warp_col, weft_col)
+       }
+       else {
+        uint8c = <Uint8ClampedArray<ArrayBuffer>>drawFloatViewCell(uint8c, i, j, cell_val, pix_per_cell,warp_num, use_color, warp_col, weft_col)
+       }
+       
+        
+      }
+    }
+
+    let image = new ImageData(uint8c, warps(draft.drawdown)*pix_per_cell);
+    return image;
+
+
+  }
+
+  export const drawDraftViewCell = (arr: Uint8ClampedArray, i: number, j: number, val: boolean, dim: number, warp_num: number, use_color: boolean, warp: DraftCellColor, weft: DraftCellColor) : Uint8ClampedArray => {
+    let color_id = 0; 
+
+    let cols = rendering_color_defaults.concat([warp, weft])
+
+    for(let y = 0; y < dim; y++){
+      for(let x = 0; x < dim; x++){
+
+        let row_factor =  (i * Math.pow(dim, 2) * 4 * warp_num)+(y*dim * 4 * warp_num);
+        let col_factor =  (j * 4 * dim)+(x*4);
+
+        let ndx = row_factor + col_factor;
+
+        //make anything on an edge grey
+        if(dim >= 4 && (y == 0 || y == dim -1 || x == 0 || x == dim -1)){
+          color_id = 3; 
+        }else{
+          switch(val){
+            case true: 
+             if(use_color) color_id = 4;
+             else color_id = 1;
+            break;
+
+            case false: 
+            if(use_color) color_id = 5;
+            else color_id = 0;
+            break
+
+            case null:
+              if(Math.abs(y-x) < 2 ) color_id = 3;
+              else  color_id = 0;
+            break;
+          }
+        }
+        arr[ndx] = cols[color_id].r;
+        arr[ndx+1] = cols[color_id].g;
+        arr[ndx+2] = cols[color_id].b;
+        arr[ndx+3] = cols[color_id].a;
+      }
+    }
+    return arr;
+  }
+
+
+  const drawFloatViewCell = (arr: Uint8ClampedArray, i: number, j: number, val: boolean, dim: number, warp_num: number, use_color: boolean, warp: DraftCellColor, weft: DraftCellColor) : Uint8ClampedArray => {
+    let color_id = 0; 
+
+    let bg: DraftCellColor = {
+      id: 'background',
+      r: 245,
+      g: 245,
+      b: 245,
+      a: 255
+    }
+
+    let cols = rendering_color_defaults.concat([warp, weft, bg])
+
+
+    //split the space into 3x3 and do nothing in the corners. 
+       
+    let margin_tl = Math.floor(dim/8);
+    let margin_bl = Math.floor(7*dim/8);
+
+    let use_margins = (dim >= 5);
+
+    for(let y = 0; y < dim; y++){
+      for(let x = 0; x < dim; x++){
+
+
+        let row_factor =  (i * Math.pow(dim, 2) * 4 * warp_num)+(y*dim * 4 * warp_num);
+        let col_factor =  (j * 4 * dim)+(x*4);
+
+        let ndx = row_factor + col_factor;
+
+        if(!use_margins){
+          if(val || null){
+            if(use_color) color_id = 4;
+            else color_id = 0;
+          }else{
+            if(use_color) color_id = 5;
+            else color_id = 1;
+          }
+        }else{
+
+          //top left (bg)
+          if(y < margin_tl && x >= 0 && x < margin_tl){
+            color_id = 6;
+          }
+
+          //top center (warp)
+          else if(y < margin_tl && x >= margin_tl && x < margin_bl){
+            if(x == margin_tl) color_id = 3;
+            else if(use_color) color_id = 4;
+            else color_id = 0
+          }
+
+          //top right (bg)
+          else if(y < margin_tl && x >= margin_bl && x < dim){
+            if( x == margin_bl) color_id = 3;
+            else color_id = 6;
+          }
+
+          /*******/
+
+          //center left (weft or bg)
+          else if(y >= margin_tl && y < margin_bl && x >= 0 && x < margin_tl){
+            if (val == null) color_id = 6; 
+            else if(y == margin_tl) color_id = 3;
+            else if(use_color){
+             color_id = 5;
+            } 
+            else color_id = 0
+          }
+
+          //center center (shift based on val)
+          else if(y >= margin_tl && y < margin_bl && x >=margin_tl && x < margin_bl){
+
+      
+            if(val == true || val == null){
+              if(x == margin_tl) color_id = 3;
+              else if(use_color) color_id = 4;
+              else color_id = 0
+            
+            }else{
+              if(y == margin_tl) color_id = 3;
+              else if(use_color) color_id = 5;
+              else color_id = 0
+            }
+
+        
+          }
+
+          //center right (weft or bg)
+          else if(y >= margin_tl && y < margin_bl && x >= margin_bl && x < dim){
+            if(y == margin_tl && val != null) color_id = 3;
+            else if((val == true || val == null) && x == margin_bl) color_id = 3;
+            else if(val == null) color_id = 6;
+            else if(use_color) color_id = 5;
+            else color_id = 0
+          }
+
+
+
+          // /*******/
+
+          //bottom left
+          else if(y >= margin_bl && x >= 0 && x < margin_tl){
+            if(y == margin_bl && val != null) color_id = 3;
+            else color_id = 6;
+          }
+
+          //bottom center
+          else if(y >= margin_bl && x >= margin_tl && x < margin_bl){
+            if((val == false) && y == margin_bl) color_id = 3;
+            else if(x == margin_tl) color_id = 3;
+            else if(use_color) color_id = 4;
+            else color_id = 0 
+          }
+
+          //bottom right
+          else if(y >= margin_bl && x >=  margin_bl && x <dim){
+            if(x == margin_bl) color_id = 3;
+            else if(y == margin_bl &&val != null) color_id = 3;
+            else color_id = 6;
+          }
+          else{
+            if(y == margin_bl) color_id = 3;
+            else color_id = 6;
+          }
+        }
+            
+        
+     
+        arr[ndx] = cols[color_id].r;
+        arr[ndx+1] = cols[color_id].g;
+        arr[ndx+2] = cols[color_id].b;
+        arr[ndx+3] = cols[color_id].a;
+
+
+      }
+    }
+
+    //draw the separating lines
+    for(let x = 0; x < dim; x++){
+      
+    }
+
+    return arr;
+  }
+
+
+  /**
+   * given a draft and a region, this function returns a new draft that only represents a segment of the original
+   * @param draft 
+   * @param top 
+   * @param left 
+   * @param width 
+   * @param height 
+   * @returns 
+   */
+  export const cropDraft = (draft: Draft, top: number, left: number, width: number, height: number) : Draft => {
+
+    const cropped = copyDraft(draft);
+    cropped.drawdown = createBlankDrawdown(height, width);
+    for(let i = top; i < top + height && i < wefts(draft.drawdown); i++){
+      cropped.rowShuttleMapping[i-top] = draft.rowShuttleMapping[i]; 
+      cropped.rowSystemMapping[i-top] = draft.rowSystemMapping[i]; 
+      for(let j = left; j < left + width && j < warps(draft.drawdown); j++){
+        cropped.drawdown[i - top][j - left] = createCell(getCellValue(draft.drawdown[i][j]));
+      }     
+    }
+
+    for(let j = left; j < left + width && j < warps(draft.drawdown); j++){
+      cropped.rowShuttleMapping[j-left] = draft.rowShuttleMapping[j]; 
+      cropped.rowSystemMapping[j-left] = draft.rowSystemMapping[j]; 
+    }    
+
+    return cropped;
+  }
+
+  export const compressDraft = (draft: Draft) : CompressedDraft => {
+
+    let comp: CompressedDraft = {
+      id: draft.id, 
+      ud_name: draft.ud_name, 
+      gen_name: draft.gen_name,
+      warps: warps(draft.drawdown),
+      wefts: wefts(draft.drawdown),
+      compressed_drawdown: exportDrawdownToArray(draft.drawdown),
+      rowSystemMapping: draft.rowSystemMapping.slice(),
+      rowShuttleMapping: draft.rowShuttleMapping.slice(),
+      colSystemMapping: draft.colSystemMapping.slice(),
+      colShuttleMapping: draft.colShuttleMapping.slice(),
+    }
+    return comp;
+
+  }
+
+  /**
+   * used ot create compressed draft format for saving. Switched back to explore as flat array of numbers 
+   * because exporting as unclamped array was not loading correctly when saved to file
+   * @param drawdown 
+   * @returns 
+   */
+  export const exportDrawdownToArray = (drawdown: Drawdown) : Array<number> => {
+    let arr = [];
+    for(let i = 0; i < wefts(drawdown); i++){
+      for(let j = 0; j < warps(drawdown); j++){
+         let val = getCellValue(drawdown[i][j]);
+         switch (val){
+          case null:
+            arr.push(2);
+            break;
+          case true: 
+            arr.push(1);
+            break;
+          case false:
+            arr.push(0);
+            break;
+         }
+      }
+    }
+    return arr;
+
+    //return new Uint8ClampedArray(arr);
+
+  }
+
+  export const unpackDrawdownFromArray = (compressed: Array<number>, warps: number, wefts: number) : Drawdown => {
+    let dd:Drawdown = createBlankDrawdown(wefts, warps);
+
+    for(let n = 0; n < compressed.length; n++){
+      let i = Math.floor(n / warps);
+      let j = n % warps;
+      let cell;
+      switch(compressed[n]){
+        case 0:
+          cell = createCell(false);
+          break;
+
+        case 1:
+          cell = createCell(true);
+          break;
+
+        case 2:
+          cell = createCell(null);
+          break;
+      }
+    
+      dd[i][j] = cell;
+    }
+    return dd;
+  }
+
+
+  /**
    * creates an empty drawdown of a given size
    * @param wefts 
    * @param warps 
-   * @returns 
+   * @returns a Drawdown object
    */
   export const createBlankDrawdown = (wefts: number, warps: number) : Drawdown => {
     const drawdown: Drawdown = [];
@@ -522,20 +916,17 @@ export const createDraft = (
    * @param type specify if this is a 'row'/weft or 'col'/warp mapping
    * @returns the mapping to use
    */
-  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<number>, type: string, origin: number) : Array<any> => {
+  export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<number>, type: string) : Array<any> => {
 
     const mapping: Array<number> = [];
     if(type == 'row'){
 
-        if(origin == 1 || origin == 2) pattern = pattern.slice().reverse();
 
         for(let i = 0; i < wefts(drawdown); i++){
           mapping.push(pattern[i%pattern.length]);
         }
 
     }else{
-
-        if(origin == 0 || origin == 1) pattern = pattern.slice().reverse();
 
         for(let j = 0; j < warps(drawdown); j++){
           mapping.push(pattern[j%pattern.length]);
@@ -556,9 +947,9 @@ export const createDraft = (
 
     if(from == null || from == undefined) from = initDraftWithParams({wefts: 1, warps: 1, drawdown: [[createCell(false)]]});
 
-    to.rowShuttleMapping =  generateMappingFromPattern(to.drawdown, from.rowShuttleMapping,'row', 3);
+    to.rowShuttleMapping =  generateMappingFromPattern(to.drawdown, from.rowShuttleMapping,'row');
 
-    to.rowSystemMapping =  generateMappingFromPattern(to.drawdown, from.rowSystemMapping,'row', 3);
+    to.rowSystemMapping =  generateMappingFromPattern(to.drawdown, from.rowSystemMapping,'row');
 
     return to;
   }
@@ -568,9 +959,9 @@ export const createDraft = (
 
     if(from == null || from == undefined) from = initDraftWithParams({wefts: 1, warps: 1, drawdown: [[createCell(false)]]});
 
-    to.colShuttleMapping =  generateMappingFromPattern(to.drawdown, from.colShuttleMapping,'col', 3);
+    to.colShuttleMapping =  generateMappingFromPattern(to.drawdown, from.colShuttleMapping,'col');
 
-    to.colSystemMapping =  generateMappingFromPattern(to.drawdown, from.colSystemMapping,'col', 3);
+    to.colSystemMapping =  generateMappingFromPattern(to.drawdown, from.colSystemMapping,'col');
 
     return to;
   }
@@ -632,7 +1023,6 @@ export const createDraft = (
    */
   export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell>) : Drawdown => {
     i = i+1;
-
     if(row === null){
       row = [];
       for (var j = 0; j < warps(d); j++) {
@@ -804,13 +1194,11 @@ export const createDraft = (
 
 
 
-/**
-* takes a draft as input, and flips the order of the rows
-* used to ensure mixer calculations are oriented from bottom left
-* @param draft 
-*/ 
+// /**
+// * takes a draft as input, and flips the order of the rows
+// * @param draft 
+// */ 
 export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Draft> => {
-
   const draft = initDraftWithParams(
     {id: d.id, 
     wefts: wefts(d.drawdown),
@@ -842,7 +1230,6 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean) : Promise<Dra
       draft.colSystemMapping[j] = d.colSystemMapping[flipped_j];
     }
   }
-
 
   return Promise.resolve(draft);
 }

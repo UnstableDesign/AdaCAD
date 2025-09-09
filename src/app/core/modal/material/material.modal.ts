@@ -1,16 +1,17 @@
-import { Component, OnInit, Inject, EventEmitter, Output, ViewChild, Input } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { TreeService } from '../../../core/provider/tree.service';
+import { DraftNode, Material } from '../../model/datatypes';
+import { createMaterial, setMaterialID } from '../../model/material';
+import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
-import { TreeService } from '../../../core/provider/tree.service';
-import utilInstance from '../../model/util';
-import { Draft,DraftNode, Material } from '../../model/datatypes';
-import { createMaterial, setMaterialID } from '../../model/material';
 
 
 @Component({
-  selector: 'app-material-modal',
-  templateUrl: './material.modal.html',
-  styleUrls: ['./material.modal.scss']
+    selector: 'app-material-modal',
+    templateUrl: './material.modal.html',
+    styleUrls: ['./material.modal.scss'],
+    standalone: false
 })
 
 
@@ -32,7 +33,6 @@ export class MaterialModal{
       ms.getShuttles().forEach((el, ndx) => {
         this.replacements.push((ndx+1%this.ms.getShuttles().length));
       });
-  	  this.types = dm.material_types;
 
   }
 
@@ -42,9 +42,14 @@ export class MaterialModal{
   }
 
 
-  /**emitted on any action that would change the current rendering */
-  change(){
-    this.onMaterialChange.emit();
+  diameterChange(){
+
+  }
+  
+
+  materialColorChange(id: number, e: any){
+    const material = this.ms.getShuttle(id);
+    material.rgb = utilInstance.hexToRgb(e);
   }
 
   addMaterial(){
@@ -58,10 +63,13 @@ export class MaterialModal{
    * handles user input of delete event and reads the "replace" value to reassign draft
    * @param index  - the shuttle to delete
    */
-  delete(index:number){
+  delete(index:number, replacement_id: number){
 
-    //never delete all of the shuttles
     if(this.ms.getShuttles().length == 1) return;
+
+    if(confirm("Are you sure you want to delete this material")) {
+    this.replacements[index] = replacement_id;
+
 
     const map: Array<MaterialMap> = this.ms.deleteShuttle(index);
     const dn: Array<DraftNode> = this.tree.getDraftNodes();
@@ -79,20 +87,25 @@ export class MaterialModal{
     this.replacements = this.replacements.map(el => (el%this.ms.getShuttles().length));
 
     this.onMaterialChange.emit();
+    }
   }
 
   addNewShuttle(){
     console.log(this.newshuttle);
     setMaterialID(this.newshuttle,this.ms.getShuttles().length);
+    this.newshuttle.rgb = utilInstance.hexToRgb(this.newshuttle.color.trim());
     this.ms.addShuttle(this.newshuttle);
     this.newshuttle = createMaterial();
   }
 
-  // close() {
-  //   this.dialogRef.close(null);
-  // }
-
   save() {
+    this.onMaterialChange.emit();
+
   }
+
+    ngOnDestroy(){
+      this.save();
+    }
+    
 
 }

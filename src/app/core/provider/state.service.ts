@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { getAuth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 import { Draft, SaveObj } from '../model/datatypes';
-import { copyDraft } from '../model/drafts';
 import { FilesystemService } from './filesystem.service';
 /**
  * stores a state within the undo/redo timeline
@@ -20,22 +19,29 @@ export class StateService {
 
   public readonly testDocValue$: Observable<any>;
 
+
+
   active_id = 0;
   max_size = 10;
   last_saved_time: string = "";
   undo_disabled: boolean;
   redo_disabled: boolean;
   timeline: Array<HistoryState>; //new states are always pushed to front of draft
-  // private itemDoc: AngularFirestoreDocument<Item>;
-  
+  currently_opened_file_id: number;
+
+
+
   constructor(private files: FilesystemService) {
 
 
     this.active_id = 0;
     this.timeline = [];
-
+    this.undo_disabled = true;
+    this.redo_disabled = true;
 
   }
+
+
 
   clearTimeline(){
     this.active_id = 0;
@@ -44,6 +50,7 @@ export class StateService {
     this.timeline = [];
 
   }
+
 
   printValue(value: any){
     console.log("printing", value);
@@ -54,52 +61,84 @@ export class StateService {
     return cur_state;
   }
 
- 
 
-/**
- * used in weaver - adds a draft to the history state
- * @param draft 
- */
-  public addHistoryState(draft:Draft):void{
-
-
-    var state = {
-      draft: copyDraft(draft),
-      ada: null
-    }
-
-    //we are looking at the most recent state
-    if(this.active_id > 0){
-
-
-      //erase all states until you get to the active row
-      this.timeline.splice(0, this.active_id);
-      this.active_id = 0;
-      this.redo_disabled = true;
-
-    }
-
-    //add the new element to position 0
-    var len = this.timeline.unshift(state);
-    if(len > this.max_size) this.timeline.pop();
-
-    if(this.timeline.length > 1) this.undo_disabled = false;
-
+  public getFileSize(name: string, obj: any) : number {
+    const str = JSON.stringify(obj);
+    const size = new Blob([str]).size;
+    console.log(name+" is ", size);
+    return size;
 
   }
 
+  public hasTimeline(){
+    if(this.timeline.length > 0) return true;
+    return false;
+  }
+
+
+
 /**
- * used in mixer - adds an ada file to the history state
- * @param ada 
+ * this is called every-time there is an action that needs saving on the stack. 
+ * this includes the creation of a new file
  */
-  public addMixerHistoryState(ada:{json: string, file: SaveObj}):void{
+  public addMixerHistoryState(ada:{json: string, file: SaveObj}){
+    let err = 0;
+
+  
+    // this.getFileSize("version", ada.file.version);
+    // this.getFileSize("workspace", ada.file.workspace);
+    // this.getFileSize("type", ada.file.type);
+    // this.getFileSize("nodes", ada.file.nodes);
+    // this.getFileSize("tree", ada.file.tree);
+    // this.getFileSize("draft nodes", ada.file.draft_nodes);
+    // this.getFileSize("ops", ada.file.ops);
+    // this.getFileSize("notes", ada.file.notes);
+    // this.getFileSize("materials", ada.file.materials);
+    // this.getFileSize("indexed_image_data", ada.file.indexed_image_data);
+
+    // console.log('DRAFT NODES # ', ada.file.draft_nodes.length);
+    // console.log('DRAFT NODES Values', ada.file.draft_nodes);
 
 
+
+    if(this.files.connected){
+  
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if(user !== null){
+      //do a quick correction for any undefined loom settings
+      ada.file.draft_nodes.forEach(dn => {
+        if(dn.loom_settings == undefined){
+          dn.loom_settings = null;
+        }
+      })
+
+
+      
+      if(this.getFileSize("file", ada.file) < 16000000){
+        this.files.writeFileData(this.files.getCurrentFileId(), ada.file);
+        this.files.writeFileMetaData(user.uid, this.files.getCurrentFileId(), this.files.getCurrentFileName(), this.files.getCurrentFileDesc(), this.files.getCurrentFileFromShare());
+      }
+      else{
+        console.error("WRITE TOO LARGE");
+        err = 1;
+
+      } 
+    } 
+  }
+  return err;
+}
+
+
+public writeStateToTimeline(ada:{json: string, file: SaveObj}){
     var state = {
       draft: null,
       ada: {
         version: ada.file.version,
         workspace: ada.file.workspace,
+        zoom: ada.file.zoom,
         type: ada.file.type,
         nodes: ada.file.nodes.slice(),
         tree: ada.file.tree.slice(),
@@ -107,58 +146,24 @@ export class StateService {
         ops: ada.file.ops.slice(),
         notes: ada.file.notes.slice(),
         materials: ada.file.materials.slice(),
-        scale: ada.file.scale
+        indexed_image_data: ada.file.indexed_image_data.slice() 
       }
     }
+  if(this.active_id > 0){
 
-    //write this to database, overwritting what was previously there
-    //this.files.writeUserData(ada.file);
-
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if(user !== null){
-      this.files.writeFileData(user.uid, this.files.current_file_id, ada.file)
-    } 
-
-    //we are looking at the most recent state
-    if(this.active_id > 0){
-
-
-      //erase all states until you get to the active row
       this.timeline.splice(0, this.active_id);
       this.active_id = 0;
       this.redo_disabled = true;
 
     }
 
-    //add the new element to position 0
-    var len = this.timeline.unshift(state);
-    if(len > this.max_size) this.timeline.pop();
-
-    if(this.timeline.length > 1) this.undo_disabled = false;
-
-    //this.logState(ada);
-
-  }
-
+  //add the new element to position 0
+  var len = this.timeline.unshift(state);
+  if(len > this.max_size) this.timeline.pop();
+  if(this.timeline.length > 1) this.undo_disabled = false;
   
-/**
- * called on redo in weaver
- * @returns returns the draft to reload
- */
-  public restoreNextHistoryState(): Draft{
+}
 
-    if(this.active_id == 0) return; 
-
-  	this.active_id--;
-
-    if(this.active_id == 0) this.redo_disabled = true;
-
-    return this.timeline[this.active_id].draft;
-    
-
-  }
 
 /**
  * called on redo in mixer
@@ -177,25 +182,6 @@ public restoreNextMixerHistoryState(): SaveObj{
 
   }
 
-  /**
-   * called on undo in weaver
-   * @returns returns the draft to load
-   */
-   public restorePreviousHistoryState():Draft{
-
-     this.active_id++;
-
-      //you've hit the end of available states to restore
-     if(this.active_id >= this.timeline.length){
-        this.active_id--;
-        this.undo_disabled = true;
-        return null; 
-     } 
-
-     this.redo_disabled = false;
-     return this.timeline[this.active_id].draft;
-      
-  }
 
     /**
    * called on undo in mixer

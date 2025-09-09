@@ -1,273 +1,135 @@
+<div class="mixer-sidebars" id="mixer-sidebar" [class.hide]="is_fullscreen">
 
-<appKeycodes
-  (onUndo)="undo()"
-  (onRedo)="redo()"
-  (updateMixerView)="renderChange($event)"
-  (updateDetailView)="detailViewChange()"
-  (onCopySelections)="onCopySelections()"
-  (onPasteSelections)="onPasteSelections()"
+  <mat-accordion multi>
+    <!-- <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <i class="fas fa-eye"></i>
+        View
+      </mat-panel-title>
 
->
-</appKeycodes>
+    </mat-expansion-panel-header>
 
-<mat-drawer-container [hasBackdrop]="false" #container class="mat-drawer-container" cdkScrollable>
-
-
-
-
-  <div class="floating_ops">
-    <app-quickop 
-    (onOperationAdded)="addOp($event)"  >
-    </app-quickop>
-  </div>
-
-
-  <!-- THIS IS THE COLLAPSED SIDEBAR -->
-  <mat-drawer *ngIf="collapsed"  [disableClose]="true"  class="sidenav_small" mode="over" position="start"  opened >  
-
-    <div class="button_col">
-      <div class="design_opts">
-
-        <button mat-icon-button
-        (click)=" collapsed = !collapsed"
-        class="collapse" 
-        [class.nav-opened] = "!collapsed"
-        value="collapsed">
-        <i class="fa"
-          [class.fa-angle-double-right]="collapsed" 
-          [class.fa-angle-double-left]="!collapsed"
-        aria-hidden="true"></i>
-        </button>
-
-    <button #undoEvent 
-    mat-icon-button 
-    color="primary"
-    (click)="undo();"
-    [disabled]="ss.undo_disabled"
-    matTooltip ="undo">
-    <i class="fas fa-undo"></i>
+    <button
+      mat-icon-button
+      matTooltip="pan" >
+      <i class="fa-solid fa-hand"></i>
     </button>
 
-    <button #redoEvent 
-    mat-icon-button 
-    color="primary"
-    (click)="redo();"
-    [disabled]="ss.redo_disabled "
-    matTooltip ="redo">
-    <i class="fas fa-redo"></i>
+    <button
+      mat-icon-button
+      matTooltip="select">
+      <i class="fa-solid fa-hand-pointer"></i>
     </button>
 
-    <button 
-    mat-icon-button 
-    color="primary"
-    matTooltip= "Note"
-    color="primary"
-    (click)="createNote()">
-    <i class="fas fa-comment"></i>
-    </button>
-
-    <button 
-    mat-icon-button 
-    color="primary"
-    matTooltip= "Blank Draft"
-    (click)="createNewDraft()">
-    <i class="fas fa-chess-board"></i>
-    </button>
-
-    <button 
-    mat-icon-button 
-    [color]="(dm.isSelected('marquee','design_modes' ))? 'accent' : 'primary'" 
-    matTooltip= "Select"
-    (click)="toggleSelectMode()">
-    <i class="fas fa-expand"></i>
-    </button>
 
 
     <button
-    mat-icon-button color="primary"  
-    (click)="onSave({type: 'ada'})"
-    ><i class="fa-solid fa-download"></i>
+      mat-icon-button >
+      <i class="fa-solid fa-expand"></i>
     </button>
-  </div>
 
-    <div class="adacad">
-    <h1>AdaCAD</h1>
-  </div>
 
-  <div class="slider-row">
-    <button  mat-icon-button (click)="zoomIn()" color="primary" class="fas fa-search-plus"></button>
-  
 
-      <mat-slider 
-      class="slider"
-      [vertical]="true"
+  </mat-expansion-panel>
+  -->
+
+  <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <i class="fas fa-edit"></i>
+        Edit Workspace
+      </mat-panel-title>
+
+    </mat-expansion-panel-header>
+    <button
+      mat-stroked-button
       color="primary"
-      tickInterval="1" 
-      [step]="1" 
-      [min]= "0"
-      [max]= "zs.num_steps"
-      value="{{zs.zoom_table_ndx}}" 
-      (change)="zoomChange($event, 'slider')"></mat-slider>
-      
-      <button  mat-icon-button (click)="zoomOut()" color="primary" class="fas fa-search-minus"></button> 
-      <button
-      mat-icon-button 
-      [color]="(dm.isSelected('pan','design_modes' ))? 'accent' : 'primary'" 
-      (click)="togglePanMode()"
-      ><i class="fa-solid fa-hand"></i>
-      </button>
-        </div>
-  </div>
+      matTooltip= "Blank Draft"
+      (click)="createNewDraft()">
+      + <i class="fas fa-chess-board"></i> add draft
+    </button>
+
+    <button
+      mat-stroked-button
+      color="primary"
+      matTooltip= "Note"
+      color="primary"
+      (click)="createNewNote()">
+      + <i class="fas fa-comment"></i> add note
+    </button>
+
+  </mat-expansion-panel>
+
+
+
+  <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <i class="fa-solid fa-code"></i>
+        Operators
+      </mat-panel-title>
+
+    </mat-expansion-panel-header>
+
+
+
+    <mat-form-field matNativeControl class="quickop_form is-fullwidth" appearance="fill" width='100%'  color="primary">
+      <mat-label><i class="fas fa-search"></i> search operations</mat-label>
+
+      <input type="text"
+        placeholder=""
+        (keyup.enter)="enter()"
+        matInput
+        [formControl]="myControl"
+        >
+    </mat-form-field>
+
+    <div>{{search_error}}</div>
+
+
+    <mat-slide-toggle
+      [checked]="ws.show_advanced_operations"
+      (change)="operationLevelToggleChange($event)">
+    Show Advanced Operations</mat-slide-toggle>
+
+
+    @for (classification of filteredOptions | async; track classification) {
+      <h3>{{classification.class_name}} </h3>
+      <!-- // <ng-container *ngFor="let op_name of class.op_names"> -->
+      @for (op_names of classification.ops; track op_names) {
+        <!-- {{class.description}} -->
+        <button
+          mat-stroked-button class="operation"
+          [style.background-color]="op_desc.getCatColor(classification.class_name)"
+          (click)="addOperation(op_names.name)"
+          [matTooltip]="op_desc.getOpDescription(op_names.name)">
+          @if (op_names.advanced) {
+            <span><i class="fa-regular fa-star"></i></span>
+          }
+          {{op_names.display_name}}
+        </button>
+      }
+      <!-- <p> {{class.description}}</p> -->
+    }
+
+
+
+  </mat-expansion-panel>
 
 
 
 
+</mat-accordion>
 
 
-  </mat-drawer>
-
-  <mat-drawer *ngIf="!collapsed"  [disableClose]="true" class="sidenav_opened" mode="over" position="start" opened>  
-
-  <app-topbar #view_tool
-  [collapsed]="collapsed"
-  [drawer] = "drawer"
-  (onCollapseSidebar)="collapsed = !collapsed"
-  source="mixer"
-  >
-  </app-topbar>
+</div>
 
 
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" color="primary" backgroundColor="primary">
-      <mat-tab class="mat-tab-label-custom" label="Files">     
-        <app-filebrowser 
-        (onLoadNewFile)="loadNewFile($event);"
-        (onLoadFromDB)="loadFromDB($event);"
-        (onClearScreen)="loadBlankFile();"
-        (onCurrentFileDeleted)="deleteCurrentFile();"
-        (onSave)="onSave($event);">
-      </app-filebrowser>
-      </mat-tab>
-      <mat-tab class="mat-tab-label-custom" label="Design"> 
-        <app-design #view_tool   
-        (onUndo)="undo();" 
-        (onRedo)="redo();"
-        (onOperationAdded) = "operationAdded($event)"
-        (onImport) = "importNewFile($event)"
-        (onLoadDrafts)="loadDrafts($event);"
-        (onNoteCreate) ="createNote();"     
-        (onNewDraftCreated)="newDraftCreated($event)"
-        ></app-design>
-
-
-      </mat-tab>
-      <mat-tab class="mat-tab-label-custom" label="Settings">
-
-        <form class="workspace_settings" #envt="ngForm" novalidate>
-
-          <mat-form-field>
-            <mat-label>When viewing Draft Details, Place the (0,0) point at: </mat-label>
-            <mat-select (selectionChange) ="originChange($event)" [value]="selected_origin">
-              <mat-option *ngFor="let option of origin_options" [value]="option.value">
-                {{option.view}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-  
-          <mat-form-field>
-            <mat-label>Loom Type</mat-label>
-            <mat-select (selectionChange) ="loomChange(envt)" [(value)]="loomtype" [(ngModel)]="loomtype" name="loomtype">
-              <mat-option *ngFor="let loomtype of loomtypes" [value]="loomtype.value">
-                {{loomtype.viewValue}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-  
-          <mat-form-field>
-            <mat-label>Default Density Units</mat-label>
-            <mat-select [(value)]="units" [(ngModel)]="units" name="units" (selectionChange) ="unitChange(envt)">
-              <mat-option *ngFor="let unit of density_units" [value]="unit.value">
-                {{unit.viewValue}}
-              </mat-option>
-            </mat-select>
-            </mat-form-field>
-    
-          <mat-form-field>
-            <mat-label>Default Density</mat-label>
-            <input matInput  
-            name="epi" 
-            [(ngModel)]="epi" 
-            type="number" 
-            min= "0" 
-            (change)="epiChange(envt)"
-            (blur)="epiChange(envt)">  
-    
-          </mat-form-field>
-  
-    
-  
-          </form>
-
-
-
-      </mat-tab>
-
-      <mat-tab class="mat-tab-label-custom" label="Materials">
-        <app-material-modal
-        (onMaterialChange)="materialChange($event)"
-        ></app-material-modal>
-      </mat-tab>
-
-      <mat-tab class="mat-tab-label-custom" label="Examples">
-        <app-examples
-        (onLoadExample)="loadNewFile($event)">
-       </app-examples>  
-        <app-loadfile></app-loadfile>  
-
-      </mat-tab>
-
-
-    </mat-tab-group>
-
-
-
-
-  </mat-drawer>
-
-  <mat-drawer  #detail_drawer class="detail_view" mode="over" position="end" [opened]="show_details" [@.disabled]="true">  
-
-    <app-draftdetail #details (closeDrawer)="closeDetailViewer($event)"></app-draftdetail>
-    
-     </mat-drawer>
-
-  <!-- <mat-drawer #files class="example-sidenav" mode="side" position="start" opened>  
-
-
-
-</mat-drawer> -->
-
-  <app-palette  
-  class="palette mode-{{dm.getSelectedDesignMode('design_modes').value}}"
-  [style.width.px]='vp.getAbsoluteWidth()' 
-  [style.height.px]='vp.getAbsoluteHeight()' 
-  #palette  id="scrollable-container"
-  (onRevealDraftDetails)="showDraftDetails($event)" >
-  </app-palette>
-
-
-  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-  <canvas id="saver"></canvas>
-
-  <div  id="mixerview" class="mixerview">
-  <app-mixerview
-  [style.display]="dm.isSelected('pan','design_modes' ) ? 'block' : 'none'"
-  (onZoomChange) ="zoomChangeExternal($event);"
-  (onViewPortMove) ="setScroll($event);"
-  ></app-mixerview>
-  </div>
-
-
-  
-
-
-</mat-drawer-container>
-
+<app-palette
+  id="scrollable-container"
+  class="palette mode-{{dm.cur_mixer_mode}}"
+  [class.no-pointer]="!palette.pointer_events"
+  #palette
+  (onOpenInEditor)="openDraftInEditor($event)" >
+</app-palette>

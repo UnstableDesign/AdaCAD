@@ -1,23 +1,64 @@
-p{
-	font: 100;
-	font-style: italic;
-	width: 80%;
-	padding-bottom: 8px;
-	padding-left:8px;
-}
-
 
 .preloaded_files{
 	display: flex;
-	flex-direction:column;
+	flex-direction:row;
+	flex-wrap: wrap;
+
 }
 
-.preloaded_files .mat-card{
-	width: 90%;
-	margin: 10px 5%;
+.card-content{
+	display: flex;
+	flex-direction: row;
+	height: min-content;
 }
 
-.mat-card-title{
+.license{
+	height: 30px;
+	margin-left: 8px;
+}
+
+.img{
+	display: flex;
+	flex: 0 1 20%;
+	overflow: hidden;
+
+	img{
+		min-width: 150px;
+	}
+
+	canvas{
+		min-width: 150px;
+	}
+
+
+}
+
+p{
+	margin: 0px 16px;
+	font-size: smaller;
+}
+
+.info{
+	display: flex;
+	flex: 1 1 60%;
+}
+
+.header{
+	width: 800px;
+	font-size: smaller;
+	padding: 16px 0px;
+}
+
+
+
+.mat-card-title,
+.community_files,
+.preloaded_files .mat-mdc-card{
+	margin: 8px;
+	width: 100%;
+}
+
+.mat-mdc-card-title{
 	display: flex;
 	justify-content: space-between;
 }

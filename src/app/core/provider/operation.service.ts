@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
-// import { VaeService} from "../../core/provider/vae.service"
 import { DynamicOperation, Operation, OperationClassification } from '../../core/model/datatypes';
-import { MaterialsService } from '../../core/provider/materials.service';
-import { SystemsService } from '../../core/provider/systems.service';
 import { combinatorics } from '../operations/combinatorics/combinatorics';
 import { complextwill } from '../operations/complex_twill/complex_twill';
 import { deinterlace } from '../operations/deinterlace/deinterlace';
@@ -45,7 +42,6 @@ import { slope } from '../operations/slope/slope';
 import { spliceinwarps } from '../operations/spliceinwarps/spliceinwarps';
 import { splicein } from '../operations/spliceinwefts/spliceinwefts';
 import { stretch } from '../operations/stretch/stretch';
-import { notation_system } from '../operations/system_notation/system_notation';
 import { tile } from '../operations/tile/tile';
 import { undulatewarps } from '../operations/undulatewarps/undulatewarps';
 import { undulatewefts } from '../operations/undulatewefts/undulatewefts';
@@ -74,6 +70,12 @@ import { sawtooth } from '../operations/sawtooth/sawtooth';
 import { erase_blank } from '../operations/erase_blank/erase_blank';
 import { shift } from '../operations/shift/shift';
 import {flip} from '../operations/flip/flip'
+import { glitchsatin } from '../operations/glitchsatin/glitchsatin';
+import { apply_warp_mats } from '../operations/applywarpmaterials/applywarpmaterials';
+import { apply_weft_mats } from '../operations/applyweftmaterials/applyweftmaterials';
+import {selector} from '../operations/selector/selector'
+import { analyzesystem } from '../operations/analyzesystem/analyzesystem';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -93,7 +95,6 @@ export class OperationService {
     this.dynamic_ops.push(imagemap);
     this.dynamic_ops.push(bwimagemap);
     this.dynamic_ops.push(notation);
-    this.dynamic_ops.push(notation_system);
     this.dynamic_ops.push(weft_profile);
     this.dynamic_ops.push(warp_profile);
     this.dynamic_ops.push(sample_width);
@@ -155,6 +156,7 @@ export class OperationService {
     this.ops.push(shift);
     this.ops.push(flip);
     this.ops.push(overlay_multi);
+    this.ops.push(analyzesystem);
 
   //   //this.ops.push(germanify);
   //   //this.ops.push(crackleify);
@@ -167,9 +169,13 @@ export class OperationService {
     this.ops.push(directdrawdown);
     this.ops.push(erase_blank);
     this.ops.push(apply_mats);
+    this.ops.push(apply_warp_mats)
+    this.ops.push(apply_weft_mats)
     this.ops.push(combinatorics);
     this.ops.push(sinewave);
     this.ops.push(sawtooth);
+    this.ops.push(glitchsatin)
+    this.ops.push(selector)
     }
 
 

@@ -1,36 +1,79 @@
-canvas{
-    position: absolute;
-  }
 
-.palette{
-  position: absolute;
-  top: 0px;
-  left: 0px;
+
+.mat-mdc-icon-button{
+  font-size: 14px;
 }
 
-
+.mat-mdc-outlined-button{
+  width: 100%;
+  text-wrap: pretty;
+  padding: 8px;
+  margin: 2px;
+  height: fit-content;
+}
 
 #saver{
   z-index: -1;
 }
 
-.sidenav_small{
-  width: 42px;
+.right {
   display: flex;
+  flex-direction: row;
+  text-align: right;
+}
+
+.mixer-sidebars{
+
+
+  padding: 16px;
+  flex: 0 0 275px;
+  display: flex;
+  overflow: scroll;
   flex-direction: column;
 
-
 }
 
-.adacad{
-position: relative;}
+.palette{
+  height: 100%;
+  overflow: scroll;
+}
 
-h1{
-  transform: rotate(-90deg);
-  color: #3f51b5;
-  font-weight: bold;
+
+
+.no-pointer{
+  pointer-events: none;
+}
+
+h3{
+  text-align: left;
+  font-weight: lighter;
+  padding-bottom: 0px;
+  color: #999;
+  margin-top: 24px;
+}
+
+
+.mat-expansion-panel-header{
+  i{
+      padding-right: 8px;
+  }
+}
+
+.sidenav{
+  display: flex;
+  padding: 16px;
+  background-color: #f0f0f0;
+  flex-direction: column;
+  height: 100%;
+  width: min-content;
+  overflow: scroll;
+
+  &.hide{
+    display: none;;
+  }
   
 }
+
 
 .mode-pan{
   cursor:grab;
@@ -44,36 +87,28 @@ h1{
   cursor:default;
 }
 
-.mat-slider-vertical{
-  height: 33%!important;
-  min-height: 50px !important;
-}
-
-.slider-row{
-  height: 33%;
-}
+/* TODO(mdc-migration): The following rule targets internal classes of slider that may no longer apply for the MDC version. */
 
 
-.slider-row i{
-  display: block;
-  height: 48px;
-  line-height: 32px;
-  padding-top: 8px;
-  width: 100%;
-}
 
-.slider-row button{
+.mat-stroked-button{
+  margin: 2px;
+  max-width: 160px;
+  
+  &.operation{
+    color: white;
+    white-space: normal;
+    line-height: 20px;
+    padding: 10px;
+  }
 
 }
 
 .button_col{
   display: flex;
   flex-direction: column;
-  height: 95%;
   justify-content: space-between;
   overflow: hidden;
-  width: 42px;
-  padding-top: 5%;
 }
 
 .sidenav_opened{
@@ -81,15 +116,11 @@ h1{
 }
 
 
-.floating_ops{
-  width: 200px;
-  position: fixed;
-  top: 1vw;
-  left: 80vw;
-  z-index: 100;
+.view_slider{
+  display: flex;
+  flex-direction: row;
+  line-height: 40px;
 }
-
-
 
 .topbar_sub{
   display: flex;
@@ -103,13 +134,7 @@ h1{
   padding: 0px 0px 8px 8px;
 }
 
-.mixerview{
-  position: fixed;
-  width:200px;
-  height: 200px;
-  top: calc(92vh - 200px);
-  left: 82vw;
-}
+
 
 .collapse{
   color: #3f51b5;
@@ -125,13 +150,11 @@ h1{
   left: 33%;
 }
 
-.mat-form-field {
+
+.mat-mdc-form-field {
 width: 95%;
 }
 
-.detail_view{
-  width:66%;
-}
 
 .workspace_settings{
 width:100%;

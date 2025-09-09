@@ -1,6 +1,7 @@
 import { HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, getMetadata, uploadBytesResumable, UploadMetadata } from "firebase/storage";
+
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes, getMetadata, uploadBytesResumable, UploadMetadata } from "@angular/fire/storage";
 import { Observable } from 'rxjs';
 import { AuthService } from '../provider/auth.service';
 import { Upload } from '../model/datatypes';
@@ -50,7 +51,6 @@ export class UploadService {
                 new Uint8Array(data)
                   .reduce((data, byte) => data + String.fromCharCode(byte), '')
               );
-              console.log("RESOLVING WITH ", base64)
               resolve(base64);
             }
           );
@@ -68,7 +68,6 @@ export class UploadService {
   uploadData(id: string, upload: Upload, metadata: UploadMetadata){
       const storage = getStorage();
       const storageRef = ref(storage, 'uploads/'+id);
-      
       const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
 
       uploadTask
@@ -145,11 +144,16 @@ export class UploadService {
  
 
 
+  /**
+   * retreives an item from firebase storage
+   * @param id the reference for the item
+   * @returns 
+   */
   getDownloadData(id: string) : Promise<any> {
     const storage = getStorage();
     if(id === 'noinput') return Promise.resolve('');
 
-
+   // console.log("GET DATA AT ", id)
     this.getDownloadMetaData(id);
 
     return getDownloadURL(ref(storage, 'uploads/'+id))
