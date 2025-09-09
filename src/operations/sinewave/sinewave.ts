@@ -1,0 +1,82 @@
+import { initDraftFromDrawdown } from "../../draft";
+import { Sequence } from "../../sequence";
+import { getOpParamValById, flattenParamVals } from "../../utils";
+import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
+
+const name = "sine";
+const old_names: Array<string> = [];
+
+
+//PARAMS
+const width: NumParam =
+{
+  name: 'ends',
+  type: 'number',
+  min: 1,
+  max: 10000,
+  value: 100,
+  dx: "the total ends of the draft"
+};
+
+
+const amplitude: NumParam =
+{
+  name: 'amplitude',
+  type: 'number',
+  min: 1,
+  max: 10000,
+  value: 20,
+  dx: "the total number of pics for the sin wave to move through"
+}
+
+const freq: NumParam =
+{
+  name: 'frequency',
+  type: 'number',
+  min: 1,
+  max: 10000,
+  value: 50,
+  dx: "controls number of waves to include "
+}
+
+
+
+
+
+const params = [width, amplitude, freq];
+
+//INLETS
+
+const inlets: Array<OperationInlet> = [];
+
+
+
+const perform = (param_vals: Array<OpParamVal>,) => {
+
+  const width: number = <number>getOpParamValById(0, param_vals);
+  const amp: number = <number>getOpParamValById(1, param_vals);
+  const freq: number = <number>getOpParamValById(2, param_vals);
+
+
+  const pattern = new Sequence.TwoD();
+  for (let j = 0; j < width; j++) {
+    const seq = new Sequence.OneD().pushMultiple(0, amp);
+    const i = Math.floor((amp / 2) * Math.sin(j * freq) + (amp / 2));
+    seq.set(i, 1);
+    pattern.pushWarpSequence(seq.val())
+  }
+
+  return Promise.resolve([initDraftFromDrawdown(pattern.export())]);
+
+}
+
+
+const generateName = (param_vals: Array<OpParamVal>,): string => {
+  return 'sinewave(' + flattenParamVals(param_vals) + ")";
+}
+
+
+export const sinewave: Operation = { name, old_names, params, inlets, perform, generateName };
+
+
+
