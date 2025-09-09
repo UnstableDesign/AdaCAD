@@ -821,10 +821,7 @@ export module Sequence{
    * @param seq the 1D sequence value to add 
    * @returns 
    */
-    pushWeftSequence(seq: Array<number>){
-
-
-    
+  pushWeftSequence(seq: Array<number>){
     if(this.state.length > 0 && this.state[0].length !== seq.length){
         let width = this.state[0].length;     
 
