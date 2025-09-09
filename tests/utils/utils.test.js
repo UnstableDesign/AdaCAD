@@ -1,6 +1,6 @@
-import { createCell } from '../../src/objects/cell.ts';
+import { createCell } from '../../src/draft/cell.ts';
 import { initDraftWithParams } from '../../src/objects/draft.ts';
-import { initLoom, copyLoom } from '../../src/objects/looms.ts';
+import { initLoom, copyLoom } from '../../src/loom/loom.ts';
 import { printDrawdown } from '../../src/utils/utils.ts';
 
 /** init sample drawdowns */

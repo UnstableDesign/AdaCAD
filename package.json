@@ -10,7 +10,7 @@
     "build": "tsc",
     "test": "jest --verbose",
     "lint": "eslint src/ --ext .ts",
-    "docs": "npx typedoc --entryPointStrategy Expand src",
+    "docs": "npx typedoc",
     "publish": "npm publish"
   },
   "exports": {
