@@ -82,5 +82,14 @@ export const getDiameter = (id: number, ms: MaterialsList) => {
 }
 
 
+export const getColorForSim = (id: number, ms: MaterialsList) => {
+  const s: Material | undefined = ms.find(el => el.id == id);
+  if (s == undefined) return "0x000000"
+  return parseInt(s.color.replace("#", "0x"), 16);
+};
+
+
+
+
 
 
