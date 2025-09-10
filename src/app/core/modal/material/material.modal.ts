@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
@@ -7,11 +7,10 @@ import { MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpan
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
-import { Material } from 'adacad-drafting-lib';
+import { hexToRgb, Material, updateMaterialIds } from 'adacad-drafting-lib';
 import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
 import { TreeService } from '../../../core/provider/tree.service';
 import { DraftNode } from '../../model/datatypes';
-import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
 
@@ -61,7 +60,7 @@ export class MaterialModal {
 
   materialColorChange(id: number, e: any) {
     const material = this.ms.getShuttle(id);
-    material.rgb = utilInstance.hexToRgb(e);
+    material.rgb = hexToRgb(e);
   }
 
   addMaterial() {
@@ -88,8 +87,8 @@ export class MaterialModal {
 
 
       dn.forEach(dn => {
-        dn.draft.rowShuttleMapping = utilInstance.updateMaterialIds(dn.draft.rowShuttleMapping, map, this.replacements[index]);
-        dn.draft.colShuttleMapping = utilInstance.updateMaterialIds(dn.draft.colShuttleMapping, map, this.replacements[index]);
+        dn.draft.rowShuttleMapping = updateMaterialIds(dn.draft.rowShuttleMapping, map, this.replacements[index]);
+        dn.draft.colShuttleMapping = updateMaterialIds(dn.draft.colShuttleMapping, map, this.replacements[index]);
 
       });
 
@@ -105,7 +104,7 @@ export class MaterialModal {
   addNewShuttle() {
     console.log(this.newshuttle);
     setMaterialID(this.newshuttle, this.ms.getShuttles().length);
-    this.newshuttle.rgb = utilInstance.hexToRgb(this.newshuttle.color.trim());
+    this.newshuttle.rgb = hexToRgb(this.newshuttle.color.trim());
     this.ms.addShuttle(this.newshuttle);
     this.newshuttle = createMaterial({});
   }

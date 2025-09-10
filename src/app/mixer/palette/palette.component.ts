@@ -1,11 +1,10 @@
 import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
+import { Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings, getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
 import { Bounds, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
-import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { MediaService } from '../../core/provider/media.service';
 import { NotesService } from '../../core/provider/notes.service';
@@ -836,7 +835,7 @@ export class PaletteComponent implements OnInit {
     let d = copyDraft(draftnode.draft);
     let l = copyLoom(draftnode.loom);
     let ls = copyLoomSettings(draftnode.loom_settings);
-    d.id = utilInstance.generateId(8);
+    d.id = generateId(8);
 
 
     return this.createSubDraft(d, l, ls).then(sd => {

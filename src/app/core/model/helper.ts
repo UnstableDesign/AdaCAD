@@ -1,7 +1,10 @@
-import { Draft, Loom } from "adacad-drafting-lib";
-import { Cell, Drawdown, initDraft, unpackDrawdownFromArray, warps, wefts } from "adacad-drafting-lib/draft";
+import { Draft, Loom, LoomSettings, sameOrNewerVersion } from "adacad-drafting-lib";
+import { Cell, Drawdown, flipDraft, getDraftAsImage, getDraftName, initDraft, unpackDrawdownFromArray, warps, wefts } from "adacad-drafting-lib/draft";
+import { FileService } from "../provider/file.service";
+import { MaterialsService } from "../provider/materials.service";
+import { SystemsService } from "../provider/systems.service";
+import { Bounds } from "./datatypes";
 import { defaults } from "./defaults";
-import utilInstance from "./util";
 
 
 
@@ -46,7 +49,7 @@ export const loadDraftFromFile = (data: any, version: string, src: string): Prom
 
 
 
-    if (version === undefined || version === null || !utilInstance.sameOrNewerVersion(version, '3.4.5')) {
+    if (version === undefined || version === null || !sameOrNewerVersion(version, '3.4.5')) {
         draft.drawdown = parseSavedDrawdown(data.pattern);
     } else {
         // console.log("VERSION NEWER THAN 3.4.5")
@@ -88,7 +91,7 @@ export const loadLoomFromFile = (loom: any, version: string, id: number): Promis
 
     if (loom == null) return Promise.resolve(null);
 
-    if (!utilInstance.sameOrNewerVersion(version, '3.4.5')) {
+    if (!sameOrNewerVersion(version, '3.4.5')) {
         //tranfer the old treadling style on looms to the new style updated in 3.4.5
         loom.treadling = loom.treadling.map(treadle_id => {
             if (treadle_id == -1) return [];
@@ -107,3 +110,194 @@ export const loadLoomFromFile = (loom: any, version: string, id: number): Promis
 
 
 }
+
+
+export const saveAsWif = async (fs: FileService, draft: Draft, loom: Loom, loom_settings: LoomSettings) => {
+
+    const a = document.createElement('a')
+    return fs.saver.wif(draft, loom, loom_settings)
+        .then(href => {
+            a.href = href;
+            a.download = getDraftName(draft) + ".wif";
+            a.click();
+        });
+
+}
+
+
+export const saveAsPrint = async (el: any, draft: Draft, floats: boolean, use_colors: boolean, selected_origin_option: number, ms: MaterialsService, ss: SystemsService, fs: FileService) => {
+
+    let b = el;
+    let context = b.getContext('2d');
+    b.width = (warps(draft.drawdown) + 3) * 10;
+    b.height = (wefts(draft.drawdown) + 7) * 10;
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, b.width, b.height);
+
+    switch (selected_origin_option) {
+        case 0:
+            draft = await flipDraft(draft, true, false);
+            break;
+
+        case 1:
+            draft = await flipDraft(draft, true, true);
+            break;
+
+        case 2:
+            draft = await flipDraft(draft, false, true);
+
+            break;
+
+    }
+
+
+    let system = null;
+
+    for (let j = 0; j < draft.colShuttleMapping.length; j++) {
+        let color = ms.getColor(draft.colShuttleMapping[j]);
+        switch (selected_origin_option) {
+            case 0:
+            case 1:
+                system = ss.getWarpSystemCode(draft.colSystemMapping[draft.colSystemMapping.length - 1 - j]);
+
+                break;
+            case 2:
+            case 3:
+                system = ss.getWarpSystemCode(draft.colSystemMapping[j]);
+
+                break;
+        }
+
+        context.fillStyle = color;
+        context.strokeStyle = "#666666";
+        context.fillRect(30 + (j * 10), 16, 8, 8);
+        context.strokeRect(30 + (j * 10), 16, 8, 8);
+
+        context.font = "10px Arial";
+        context.fillStyle = "#666666";
+        context.fillText(system, j * 10 + 32, 10)
+
+
+    }
+
+
+    for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+
+        switch (selected_origin_option) {
+            case 1:
+            case 2:
+                system = ss.getWeftSystemCode(draft.rowSystemMapping[draft.rowSystemMapping.length - 1 - j]);
+
+                break;
+            case 0:
+            case 3:
+                system = ss.getWeftSystemCode(draft.rowSystemMapping[j]);
+
+                break;
+        }
+
+        let color = ms.getColor(draft.rowShuttleMapping[j]);
+        context.fillStyle = color;
+        context.strokeStyle = "#666666";
+        context.fillRect(16, j * 10 + 31, 8, 8);
+        context.strokeRect(16, j * 10 + 31, 8, 8);
+
+        context.font = "10px Arial";
+        context.fillStyle = "#666666";
+        context.fillText(system, 0, 28 + (j + 1) * 10)
+
+
+    }
+    let img = getDraftAsImage(draft, 10, floats, use_colors, ms.getShuttles());
+    context.putImageData(img, 30, 30);
+
+    context.font = "12px Arial";
+    context.fillStyle = "#000000";
+    let textstring = getDraftName(draft) + " // " + warps(draft.drawdown) + " x " + wefts(draft.drawdown);
+    context.fillText(textstring, 30, 50 + wefts(draft.drawdown) * 10)
+
+    const a = document.createElement('a')
+    return fs.saver.jpg(b)
+        .then(href => {
+            a.href = href;
+            a.download = getDraftName(draft) + ".png";
+            a.click();
+        });
+
+}
+
+export const saveAsBmp = async (el: any, draft: Draft, selected_origin_option: number, ms: MaterialsService, fs: FileService) => {
+    let context = el.getContext('2d');
+
+    switch (selected_origin_option) {
+        case 0:
+            draft = await flipDraft(draft, true, false);
+            break;
+
+        case 1:
+            draft = await flipDraft(draft, true, true);
+            break;
+
+        case 2:
+            draft = await flipDraft(draft, false, true);
+
+            break;
+
+    }
+
+    el.width = warps(draft.drawdown);
+    el.height = wefts(draft.drawdown);
+    let img = getDraftAsImage(draft, 1, false, false, ms.getShuttles());
+
+    // console.log("IMAGE ", img.colorSpace)
+    // for(let i = 0; i < img.data.length; i+=4){
+    //   console.log(img.data[i], img.data[i+1],img.data[i+2],img.data[i+3])
+    // }
+
+
+
+    context.putImageData(img, 0, 0);
+
+    const a = document.createElement('a')
+    return fs.saver.bmp(el)
+        .then(href => {
+            a.href = href;
+            a.download = getDraftName(draft) + "_bitmap.jpg";
+            a.click();
+        });
+
+}
+
+/**
+ * given a list of Bounds objects, this function will merge the bounds such that the top left point represents the top-most and left-most of the values and the width and height contain all values
+ * @param list 
+ * @returns 
+ */
+export const mergeBounds = (list: Array<Bounds>): Bounds | null => {
+
+    list = list.filter(el => el !== null && el !== undefined);
+    if (list.length == 0) return null;
+
+    const first = list.pop();
+
+    const tlbr = list.reduce((acc, val) => {
+
+        if (val.topleft.x < acc.topleft.x) acc.topleft.x = val.topleft.x;
+        if (val.topleft.y < acc.topleft.y) acc.topleft.y = val.topleft.y;
+        if (val.topleft.x + val.width > acc.botright.x) acc.botright.x = val.topleft.x + val.width;
+        if (val.topleft.y + val.height > acc.botright.y) acc.botright.y = val.topleft.y + val.height;
+        return acc;
+    }, { topleft: first.topleft, botright: { x: first.topleft.x + first.width, y: first.topleft.y + first.height } })
+
+
+    return {
+        topleft: { x: tlbr.topleft.x, y: tlbr.topleft.y },
+        width: (tlbr.botright.x - tlbr.topleft.x),
+        height: (tlbr.botright.y - tlbr.topleft.y),
+    }
+
+}
+
+
+
+

@@ -1,10 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { Loom, LoomSettings, Material } from 'adacad-drafting-lib';
+import { Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
 import { loadDraftFromFile, loadLoomFromFile } from '../model/helper';
-import utilInstance from '../model/util';
 import { FilesystemService } from './filesystem.service';
 import { MaterialsService } from './materials.service';
 import { MediaService } from './media.service';
@@ -107,13 +106,13 @@ export class FileService {
         const draft_elements = [];
         const draft_fns = [];
 
-        if (!utilInstance.sameOrNewerVersion(version, '3.4.9')) {
+        if (!sameOrNewerVersion(version, '3.4.9')) {
           data.nodes.forEach(node => {
             if (node.bounds !== undefined) node.topleft = node.bounds.topleft;
           })
         }
 
-        if (utilInstance.sameOrNewerVersion(version, '3.4.5')) {
+        if (sameOrNewerVersion(version, '3.4.5')) {
 
           draft_nodes = data.draft_nodes;
 

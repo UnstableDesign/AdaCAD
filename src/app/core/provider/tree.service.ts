@@ -1,8 +1,7 @@
 import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { copyLoom, DynamicOperation, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpParamVal } from 'adacad-drafting-lib';
+import { copyLoom, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
-import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
@@ -38,7 +37,7 @@ export class TreeService {
    */
   getUniqueId(): number {
 
-    return utilInstance.generateId(8);
+    return generateId(8);
 
 
   }
@@ -948,6 +947,8 @@ export class TreeService {
  */
   getUpstreamOperations(id: number): Array<number> {
 
+    console.log("GETTING UPSTREAM OF ", id)
+
     let ops: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
 
@@ -955,6 +956,7 @@ export class TreeService {
       tn.inputs.forEach(el => {
         if (el.tn.node.type === 'op') {
           ops.push(el.tn.node.id);
+          console.log("FOUND ", el.tn.node.id)
         }
         ops = ops.concat(this.getUpstreamOperations(el.tn.node.id));
       });

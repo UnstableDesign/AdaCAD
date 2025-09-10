@@ -8,7 +8,7 @@ import { Draft } from 'adacad-drafting-lib';
 import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { RenameComponent } from '../../../core/modal/rename/rename.component';
 import { DraftNode } from '../../../core/model/datatypes';
-import utilInstance from '../../../core/model/util';
+import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { FileService } from '../../../core/provider/file.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
@@ -305,7 +305,7 @@ export class DraftContainerComponent implements AfterViewInit {
     let draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
     let loom_settings = this.tree.getLoomSettings(this.id);
-    utilInstance.saveAsWif(this.fs, draft, loom, loom_settings)
+    saveAsWif(this.fs, draft, loom, loom_settings)
 
 
   }
@@ -316,7 +316,7 @@ export class DraftContainerComponent implements AfterViewInit {
     let floats = (this.current_view == 'draft') ? false : true;
     let color = (this.current_view == 'visual') ? true : false;
 
-    utilInstance.saveAsPrint(
+    saveAsPrint(
       this.bitmap.nativeElement,
       draft,
       color,
@@ -343,7 +343,7 @@ export class DraftContainerComponent implements AfterViewInit {
     let b = this.bitmap.nativeElement;
     let draft = this.tree.getDraft(this.id);
 
-    utilInstance.saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
+    saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
 
   }
 

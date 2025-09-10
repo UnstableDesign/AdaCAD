@@ -6,9 +6,8 @@ import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatSelect } from '@angular/material/select';
-import { AnalyzedImage, Color } from 'adacad-drafting-lib';
+import { AnalyzedImage, Color, filterToUniqueValues } from 'adacad-drafting-lib';
 import { IndexedColorImageInstance } from '../../model/datatypes';
-import utilInstance from '../../model/util';
 import { MediaService } from '../../provider/media.service';
 import { TreeService } from '../../provider/tree.service';
 
@@ -78,7 +77,7 @@ export class ImageeditorComponent {
    * after any mapping is made, update which options are visible in the mapped region
    */
   updateColormapping(colors: Array<Color>, mapping: Array<{ from: number, to: number }>) {
-    const unique_colors: Array<number> = utilInstance.filterToUniqueValues(mapping.map(el => el.to));
+    const unique_colors: Array<number> = <Array<number>>filterToUniqueValues(mapping.map(el => el.to));
 
     this.resulting_color_space = [];
     unique_colors.forEach(el => {

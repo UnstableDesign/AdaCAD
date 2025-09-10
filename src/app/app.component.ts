@@ -14,7 +14,7 @@ import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Loom, LoomSettings } from 'adacad-drafting-lib';
+import { Loom, LoomSettings, generateId, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams } from 'adacad-drafting-lib/draft';
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { catchError } from 'rxjs';
@@ -27,7 +27,7 @@ import { ShareComponent } from './core/modal/share/share.component';
 import { WorkspaceComponent } from './core/modal/workspace/workspace.component';
 import { DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, LoadResponse, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
-import utilInstance from './core/model/util';
+import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
 import { AuthService } from './core/provider/auth.service';
 import { DesignmodesService } from './core/provider/designmodes.service';
 import { FileService } from './core/provider/file.service';
@@ -683,7 +683,7 @@ export class AppComponent implements OnInit {
       if (node.type == 'draft') {
         let d = this.tree.getDraft(node.id);
         let loom = this.tree.getLoom(node.id);
-        return utilInstance.isBlankDraft(d, loom);
+        return !isDraftDirty(d, loom);
       } else {
         return false;
       }
@@ -764,7 +764,7 @@ export class AppComponent implements OnInit {
    */
   loadFromShareWhileLoggedOut(file_objs: any): Promise<any> {
 
-    return this.prepAndLoadFile(file_objs[1].filename, 'db', utilInstance.generateId(8), file_objs[1].desc, file_objs[0], file_objs[2]);
+    return this.prepAndLoadFile(file_objs[1].filename, 'db', generateId(8), file_objs[1].desc, file_objs[0], file_objs[2]);
 
 
   }
@@ -1318,7 +1318,7 @@ export class AppComponent implements OnInit {
 
     if (data.filename !== 'paste') {
       //only load in new files if this is a true load event, if it is pasting from exisitng files, it doesn't need to re-analyze the images. 
-      if (utilInstance.sameOrNewerVersion(data.version, '4.1.7')) {
+      if (sameOrNewerVersion(data.version, '4.1.7')) {
         //LOAD THE NEW FILE OBJECT
         data.indexed_image_data.forEach(el => {
           images_to_load.push({ id: el.id, ref: el.ref, data: { colors: el.colors, color_mapping: el.color_mapping } });
@@ -1332,7 +1332,7 @@ export class AppComponent implements OnInit {
           param_types.forEach((p, ndx) => {
             //older version stored the media object reference in the parameter
             if (p == 'file') {
-              let new_id = utilInstance.generateId(8);
+              let new_id = generateId(8);
               images_to_load.push({ id: new_id, ref: op.params[ndx], data: null });
               op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
             }
@@ -1769,7 +1769,7 @@ export class AppComponent implements OnInit {
 
       const b_nodes = this.tree.getNodeBoundingBox(node_list);
       const n_nodes = this.notes.getNoteBoundingBox(note_list);
-      const bounds = utilInstance.mergeBounds([b_nodes, n_nodes]);
+      const bounds = mergeBounds([b_nodes, n_nodes]);
 
       if (bounds == null) return;
 
@@ -1860,16 +1860,16 @@ export class AppComponent implements OnInit {
 
     switch (format) {
       case 'bmp':
-        utilInstance.saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
+        saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
         break;
       case 'jpg':
         let visvars = this.viewer.getVisVariables();
-        utilInstance.saveAsPrint(b, draft, visvars.use_floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
+        saveAsPrint(b, draft, visvars.use_floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
         break;
       case 'wif':
         let loom = this.tree.getLoom(this.vs.getViewer());
         let loom_settings = this.tree.getLoomSettings(this.vs.getViewer());
-        utilInstance.saveAsWif(this.fs, draft, loom, loom_settings)
+        saveAsWif(this.fs, draft, loom, loom_settings)
         break;
     }
 
