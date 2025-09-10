@@ -3,8 +3,40 @@
 import { Draft, Drawdown, getCellValue, warps, wefts } from "../draft";
 import { getDiameter } from "../material";
 import { filterToUniqueValues, interpolate, modStrict } from "../utils";
-import { CNIndex, ContactNeighborhood, CNType, CNFloat, SimulationVars, WeftPath, YarnVertex, WarpPath } from "./types";
+import { CNIndex, ContactNeighborhood, CNType, CNFloat, SimulationVars, WeftPath, YarnVertex, WarpPath, SimulationData } from "./types";
 
+
+
+/**
+ * Generates all of the data required to simulate this draft. 
+ * @param draft required - the draft we are going to generate a simulatation from
+ * @param simVars required - the variables that will control the simulation
+ * @param topo - optional - if we need not recompute the topo, you can supply it. 
+ * @param wefts - optional - if we need not recompute the wefts, you can supply it. 
+ * @param warps - optional - if we need not recompute the warps, you can supply it. 
+ * @returns 
+ */
+export const computeSimulationData = async (draft: Draft, simVars: SimulationVars, topo?: Array<ContactNeighborhood>, wefts?: Array<WeftPath>, warps?: Array<WarpPath>): Promise<SimulationData> => {
+
+    const simData: SimulationData = {
+        draft: draft,
+        topo: topo ?? [],
+        wefts: wefts ?? [],
+        warps: warps ?? []
+    };
+
+    if (simData.topo.length == 0)
+        simData.topo = await getDraftTopology(simData.draft, simVars);
+
+    if (simData.wefts.length == 0)
+        simData.wefts = await followTheWefts(simData.draft, simData.topo, simVars);
+
+    if (simData.warps.length == 0)
+        simData.warps = await renderWarps(simData.draft, simData.topo, simData.wefts, simVars);
+
+    return Promise.resolve(simData);
+
+}
 
 
 // CONTACT NEIGHBORHOOD UTILITIES // 
