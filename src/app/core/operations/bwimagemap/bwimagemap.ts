@@ -1,5 +1,4 @@
-import { getHeddle, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "adacad-drafting-lib/draft";
-import { createCell } from "../../model/cell";
+import { createCell, getHeddle, initDraftFromDrawdown, initDraftWithParams, warps, wefts } from "adacad-drafting-lib/draft";
 import { AnalyzedImage, Cell, Draft, DynamicOperation, FileParam, NumParam, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getOpParamValById } from "../../model/operations";
 

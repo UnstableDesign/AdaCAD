@@ -1,5 +1,4 @@
-import { getCol, initDraftFromDrawdown, warps, wefts } from "adacad-drafting-lib/draft";
-import { getCellValue } from "../../model/cell";
+import { getCellValue, getCol, initDraftFromDrawdown, warps, wefts } from "adacad-drafting-lib/draft";
 import { BoolParam, Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";

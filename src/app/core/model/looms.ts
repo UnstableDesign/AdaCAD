@@ -1,6 +1,5 @@
 
-import { createBlankDrawdown, warps, wefts } from "adacad-drafting-lib/draft";
-import { getCellValue, setCellValue } from "./cell";
+import { createBlankDrawdown, getCellValue, setCellValue, warps, wefts } from "adacad-drafting-lib/draft";
 import { Drawdown, Interlacement, InterlacementVal, Loom, LoomSettings, LoomUtil } from "./datatypes";
 import { density_units } from "./defaults";
 import utilInstance from "./util";

@@ -1,5 +1,4 @@
-import { initDraftFromDrawdown } from "adacad-drafting-lib/draft";
-import { getCellValue } from "../../model/cell";
+import { getCellValue, initDraftFromDrawdown } from "adacad-drafting-lib/draft";
 import { NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";

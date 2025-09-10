@@ -1,5 +1,4 @@
-import { getHeddle, warps, wefts } from "adacad-drafting-lib/draft";
-import { toggleHeddle } from "../../model/cell";
+import { getHeddle, toggleHeddle, warps, wefts } from "adacad-drafting-lib/draft";
 import { NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";

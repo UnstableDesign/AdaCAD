@@ -1,5 +1,4 @@
-import { initDraftWithParams, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "adacad-drafting-lib/draft";
-import { getCellValue } from "../../model/cell";
+import { getCellValue, initDraftWithParams, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "adacad-drafting-lib/draft";
 import { Cell, Draft, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getLoomUtilByType } from "../../model/looms";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../model/operations";

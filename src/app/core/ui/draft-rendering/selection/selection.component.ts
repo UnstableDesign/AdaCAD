@@ -2,8 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular
 import { MatFabButton } from '@angular/material/button';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { createBlankDrawdown, generateMappingFromPattern, initDraftWithParams, isUp, pasteIntoDrawdown, warps, wefts } from 'adacad-drafting-lib/draft';
-import { getCellValue, setCellValue } from '../../../model/cell';
+import { createBlankDrawdown, generateMappingFromPattern, getCellValue, initDraftWithParams, isUp, pasteIntoDrawdown, setCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Drawdown, Interlacement, OpInput, OpParamVal, Operation } from '../../../model/datatypes';
 import { defaults, paste_options } from '../../../model/defaults';
 import { getLoomUtilByType, numFrames, numTreadles } from '../../../model/looms';

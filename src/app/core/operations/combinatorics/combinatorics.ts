@@ -1,5 +1,4 @@
-import { initDraftWithParams, isUp, wefts } from "adacad-drafting-lib/draft";
-import { createCell, getCellValue, setCellValue } from "../../model/cell";
+import { createCell, getCellValue, initDraftWithParams, isUp, setCellValue, wefts } from "adacad-drafting-lib/draft";
 import { Draft, NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
 import { getOpParamValById } from "../../model/operations";
 
