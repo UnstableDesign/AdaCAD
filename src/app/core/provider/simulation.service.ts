@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
+import { warps, wefts } from 'adacad-drafting-lib/draft';
 import * as THREE from 'three';
 import { Bounds, Draft, SimulationData, SimulationVars, WeftPath, YarnVertex } from '../model/datatypes';
 import { defaults } from '../model/defaults';
-import { warps, wefts } from '../model/drafts';
 import { applyForce, createParticle, createSpring, followTheWefts, getDraftTopology, getFlatVtxList, renderWarps, satisfyConstraint, updateParticleMesh, updateSpringMesh, verlet } from '../model/yarnsimulation';
 
 @Injectable({

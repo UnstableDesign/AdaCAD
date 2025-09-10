@@ -1,6 +1,5 @@
-import { Draft, Loom, OperationInlet, OpInput, OpParamVal } from "./datatypes";
-import { generateMappingFromPattern, getDraftName, initDraftWithParams, warps, wefts } from "./drafts";
-import utilInstance from "./util";
+import { getDraftName } from "adacad-drafting-lib/draft";
+import { Draft, OperationInlet, OpInput, OpParamVal } from "./datatypes";
 
 export const operationHasInputs = (op_inputs : Array<OpInput>) : boolean => {
     return op_inputs.length > 0; 

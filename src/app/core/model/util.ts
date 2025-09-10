@@ -3,13 +3,13 @@
  * @class
  */
 
+import { flipDraft, getDraftAsImage, getDraftName, warps, wefts } from "adacad-drafting-lib/draft";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { FileService } from "../provider/file.service";
 import { MaterialMap, MaterialsService } from "../provider/materials.service";
 import { SystemsService } from "../provider/systems.service";
 import { getCellValue } from "./cell";
 import { Bounds, Cell, Draft, Interlacement, Loom, LoomSettings, Material, Point } from "./datatypes";
-import { flipDraft, getDraftAsImage, getDraftName, warps, wefts } from "./drafts";
 import { createMaterial, setMaterialID } from "./material";
 
 

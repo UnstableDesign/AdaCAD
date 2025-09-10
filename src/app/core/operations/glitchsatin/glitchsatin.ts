@@ -1,5 +1,5 @@
-import { Cell, NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
-import { initDraftFromDrawdown } from "../../model/drafts";
+import { initDraftFromDrawdown } from "adacad-drafting-lib/draft";
+import { NumParam, Operation, OpInput, OpParamVal } from "../../model/datatypes";
 import { getOpParamValById } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 

@@ -1,6 +1,6 @@
+import { initDraftFromDrawdown } from "adacad-drafting-lib/draft";
 import { getCellValue } from "../../model/cell";
-import { Drawdown, NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
-import { initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles, warps, wefts } from "../../model/drafts";
+import { NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../../model/datatypes";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../model/operations";
 import { Sequence } from "../../model/sequence";
 
@@ -9,21 +9,23 @@ const name = "stretch";
 const old_names = [];
 
 //PARAMS
-const warp_repeats:NumParam =  
-{name: 'warp-repeats',
-type: 'number',
-min: 1,
-max: 100,
-value: 2,
-dx: 'number of times to repeat each warp end'
+const warp_repeats: NumParam =
+{
+  name: 'warp-repeats',
+  type: 'number',
+  min: 1,
+  max: 100,
+  value: 2,
+  dx: 'number of times to repeat each warp end'
 };
 
-const weft_repeats: NumParam = {name: 'weft-repeats',
-type: 'number',
-min: 1,
-max: 100,
-value: 2,
-dx: 'number of times to repeat each weft pic'
+const weft_repeats: NumParam = {
+  name: 'weft-repeats',
+  type: 'number',
+  min: 1,
+  max: 100,
+  value: 2,
+  dx: 'number of times to repeat each weft pic'
 }
 
 
@@ -31,22 +33,22 @@ const params = [warp_repeats, weft_repeats];
 
 //INLETS
 const draft_inlet: OperationInlet = {
-    name: 'draft', 
-    type: 'static',
-    value: null,
-    uses: "draft",
-    dx: 'the draft to stretch',
-    num_drafts: 1
-  }
+  name: 'draft',
+  type: 'static',
+  value: null,
+  uses: "draft",
+  dx: 'the draft to stretch',
+  num_drafts: 1
+}
 
-  const inlets = [draft_inlet];
+const inlets = [draft_inlet];
 
 
-const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
   let input_draft = getInputDraft(op_inputs);
-   if(input_draft == null) return Promise.resolve([]);
+  if (input_draft == null) return Promise.resolve([]);
 
 
   let warp_rep = getOpParamValById(0, op_params);
@@ -60,20 +62,20 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   input_draft.drawdown.forEach((row, i) => {
     let seq = new Sequence.OneD();
     row.forEach((cell, j) => {
-        seq.pushMultiple(getCellValue(cell), warp_rep);
-        if(i == 0){
-          for(let r = 0; r < warp_rep; r++){
-            warp_mats.push(input_draft.colShuttleMapping[j]);
-            warp_sys.push(input_draft.colSystemMapping[j]);
-          }
+      seq.pushMultiple(getCellValue(cell), warp_rep);
+      if (i == 0) {
+        for (let r = 0; r < warp_rep; r++) {
+          warp_mats.push(input_draft.colShuttleMapping[j]);
+          warp_sys.push(input_draft.colSystemMapping[j]);
         }
-    
+      }
+
     });
 
-    for(let r = 0; r < weft_rep; r++){
-        weft_mats.push(input_draft.rowShuttleMapping[i]);
-        weft_sys.push(input_draft.rowSystemMapping[i]);
-        pattern.pushWeftSequence(seq.val());
+    for (let r = 0; r < weft_rep; r++) {
+      weft_mats.push(input_draft.rowShuttleMapping[i]);
+      weft_sys.push(input_draft.rowSystemMapping[i]);
+      pattern.pushWeftSequence(seq.val());
     }
   })
 
@@ -86,13 +88,13 @@ const  perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
   return Promise.resolve([d]);
-}   
+}
 
-const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
+const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>): string => {
 
   let drafts = getAllDraftsAtInlet(op_inputs, 0);
-  return 'stretch('+parseDraftNames(drafts)+")";
+  return 'stretch(' + parseDraftNames(drafts) + ")";
 }
 
 
-export const stretch: Operation = {name, old_names, params, inlets, perform, generateName};
+export const stretch: Operation = { name, old_names, params, inlets, perform, generateName };
