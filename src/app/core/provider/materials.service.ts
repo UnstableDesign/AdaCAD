@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Material } from '../model/datatypes';
+import { Material } from 'adacad-drafting-lib';
 import { createMaterial, setMaterialID } from '../model/material';
 
 

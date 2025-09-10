@@ -1,7 +1,8 @@
 import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { Draft, Interlacement, LoomSettings } from 'adacad-drafting-lib';
 import { isUp, warps, wefts } from 'adacad-drafting-lib/draft';
-import { Draft, DraftNode, Interlacement, LoomSettings, Point } from '../../../core/model/datatypes';
+import { DraftNode, Point } from '../../../core/model/datatypes';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
@@ -82,7 +83,7 @@ export class SubdraftComponent implements OnInit {
 
   counter_limit: number = 50;  //this sets the threshold for move calls, lower number == more calls
 
-  last_ndx: Interlacement = { i: -1, j: -1, si: -1 }; //used to check if we should recalculate a move operation
+  last_ndx: Interlacement = { i: -1, j: -1 }; //used to check if we should recalculate a move operation
 
   moving: boolean = false;
 
@@ -354,7 +355,7 @@ export class SubdraftComponent implements OnInit {
     if (i < 0 || i >= wefts(draft.drawdown)) i = -1;
     if (j < 0 || j >= warps(draft.drawdown)) j = -1;
 
-    return { i: i, j: j, si: i };
+    return { i: i, j: j };
 
   }
 
@@ -451,7 +452,7 @@ export class SubdraftComponent implements OnInit {
 
     this.moving = false;
     this.counter = 0;
-    this.last_ndx = { i: -1, j: -1, si: -1 };
+    this.last_ndx = { i: -1, j: -1 };
     this.multiselect.setRelativePosition(this.topleft);
     this.onSubdraftDrop.emit({ id: this.id });
   }

@@ -8,9 +8,10 @@ import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/for
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { MatTooltip } from '@angular/material/tooltip';
+import { AnalyzedImage, BoolParam, CodeParam, FileParam, NotationTypeParam, NumParam, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { take } from 'rxjs/operators';
 import { ImageeditorComponent } from '../../../../core/modal/imageeditor/imageeditor.component';
-import { AnalyzedImage, BoolParam, CodeParam, FileParam, IndexedColorImageInstance, NotationTypeParam, NumParam, OpNode, SelectParam, StringParam } from '../../../../core/model/datatypes';
+import { IndexedColorImageInstance, OpNode } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
 import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';

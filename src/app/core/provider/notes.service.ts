@@ -1,6 +1,7 @@
 import { Injectable, ViewRef } from '@angular/core';
+import { Interlacement } from 'adacad-drafting-lib';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
-import { Bounds, Interlacement, Note, Point } from '../model/datatypes';
+import { Bounds, Note, Point } from '../model/datatypes';
 import utilInstance from '../model/util';
 
 
@@ -13,22 +14,22 @@ export class NotesService {
 
 
   //id in array should always match note id. 
-  notes: Array<Note>;  
+  notes: Array<Note>;
 
 
-  constructor() { 
+  constructor() {
     this.notes = [];
   }
 
-  clear(){
+  clear() {
     this.notes = [];
   }
 
-  createNote(tl: Point, component: NoteComponent, ref: ViewRef, note: any) : number{
+  createNote(tl: Point, component: NoteComponent, ref: ViewRef, note: any): number {
 
     let gennote: Note = null;
-    if(note == null){
-     gennote = {
+    if (note == null) {
+      gennote = {
         id: utilInstance.generateId(8),
         topleft: {
           x: tl.x,
@@ -40,12 +41,12 @@ export class NotesService {
         color: "#FFFF00",
         component: component,
         imageurl: null,
-        width: 200, 
+        width: 200,
         height: 200
       }
-    }else{
+    } else {
 
-      if(note.interlacement !== undefined){
+      if (note.interlacement !== undefined) {
         tl.x = note.interlacement.j;
         tl.y = note.interlacement.i;
       }
@@ -55,7 +56,7 @@ export class NotesService {
         topleft: {
           x: tl.x,
           y: tl.y
-        },        
+        },
         title: (note.title !== undefined) ? note.title : "",
         text: note.text,
         ref: ref,
@@ -69,14 +70,14 @@ export class NotesService {
 
     this.notes.push(gennote);
     return gennote.id;
-  
+
   }
 
-  createBlankNode(i: Interlacement) : Note{
+  createBlankNode(i: Interlacement): Note {
     const note: Note = {
       id: utilInstance.generateId(8),
       topleft: {
-        x: 0, 
+        x: 0,
         y: 0
       },
       title: "",
@@ -91,29 +92,29 @@ export class NotesService {
 
     this.notes.push(note);
     return note;
-  
+
   }
 
-  getComponents() : Array<NoteComponent> {
+  getComponents(): Array<NoteComponent> {
     return this.notes.map(el => el.component);
   }
 
-  getRefs() : Array<ViewRef> {
+  getRefs(): Array<ViewRef> {
     return this.notes.map(el => el.ref);
   }
 
-  exportForSaving(): Array<any>{
+  exportForSaving(): Array<any> {
     return this.notes.map(note => {
       return {
-      id: note.id, 
-      title: note.title,
-      text: note.text,
-      color: note.color,
-      topleft: note.topleft,
-      imageurl: note.imageurl,
-      width: note.width,
-      height: note.height
-    }
+        id: note.id,
+        title: note.title,
+        text: note.text,
+        color: note.color,
+        topleft: note.topleft,
+        imageurl: note.imageurl,
+        width: note.width,
+        height: note.height
+      }
     });
   }
 
@@ -121,42 +122,42 @@ export class NotesService {
    * this function returns the smallest bounding box that can contain all of the notes. This function does not consider the scrolling (all measures are relative to the current view window). getClientRect factors in scale, so the x, y and width/height will have the current scaling factored in. To adjust for this, this function needs to take in the current zoom
    * @returns The Bounds or null (if there are no nodes with which to measure)
    */
-  getNoteBoundingBox(id_list: Array<number>):Bounds|null{
-    
-    if(this.notes.length == 0 || id_list.length == 0) return null;
+  getNoteBoundingBox(id_list: Array<number>): Bounds | null {
 
-    const raw_rects =  id_list
-    .map(id => document.getElementById('note-'+id))
-    .filter(div => div !== null)
-    .map(div => { return {x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight}});
+    if (this.notes.length == 0 || id_list.length == 0) return null;
 
-    
+    const raw_rects = id_list
+      .map(id => document.getElementById('note-' + id))
+      .filter(div => div !== null)
+      .map(div => { return { x: div.offsetLeft, y: div.offsetTop, width: div.offsetWidth, height: div.offsetHeight } });
+
+
     const min: Point = raw_rects.reduce((acc, el) => {
-      let adj_x =  el.x;
-      let adj_y =  el.y;
-      if(adj_x < acc.x) acc.x = adj_x;
-      if(adj_y < acc.y) acc.y = adj_y;
+      let adj_x = el.x;
+      let adj_y = el.y;
+      if (adj_x < acc.x) acc.x = adj_x;
+      if (adj_y < acc.y) acc.y = adj_y;
       return acc;
-    }, {x: 1000000, y:100000});
+    }, { x: 1000000, y: 100000 });
 
     const max: Point = raw_rects.reduce((acc, el) => {
       let adj_right = el.x + el.width;
       let adj_bottom = el.y + el.height;
-      if(adj_right > acc.x) acc.x = adj_right;
-      if(adj_bottom  > acc.y) acc.y = adj_bottom;
+      if (adj_right > acc.x) acc.x = adj_right;
+      if (adj_bottom > acc.y) acc.y = adj_bottom;
       return acc;
-    }, {x: 0, y:0});
+    }, { x: 0, y: 0 });
 
 
-    let bounds:Bounds = {
-      topleft: {x: min.x, y: min.y},
+    let bounds: Bounds = {
+      topleft: { x: min.x, y: min.y },
       width: max.x - min.x,
       height: max.y - min.y
     }
 
     //console.log('BOUNDS FOR NOTES', min, max, bounds)
     return bounds;
-   
+
 
   }
 
@@ -192,20 +193,20 @@ export class NotesService {
    * @param id 
    * @returns the note object or undefined if not found
    */
-  get(id: number) : Note {
+  get(id: number): Note {
     return this.notes.find(el => el.id == id);
   }
 
-  delete(id: number){
+  delete(id: number) {
     this.notes = this.notes.filter(el => el.id != id);
   }
 
-  setColor(id: number, color: string){
+  setColor(id: number, color: string) {
     let note = this.get(id);
     note.color = color;
-  } 
+  }
 
-  getNoteIdList(){
+  getNoteIdList() {
     return this.notes.map(note => note.id);
   }
 

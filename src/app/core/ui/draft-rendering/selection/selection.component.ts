@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular
 import { MatFabButton } from '@angular/material/button';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
+import { Drawdown, Interlacement, OpInput, OpParamVal, Operation } from 'adacad-drafting-lib';
 import { createBlankDrawdown, generateMappingFromPattern, getCellValue, initDraftWithParams, isUp, pasteIntoDrawdown, setCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
-import { Drawdown, Interlacement, OpInput, OpParamVal, Operation } from '../../../model/datatypes';
 import { defaults, paste_options } from '../../../model/defaults';
 import { getLoomUtilByType, numFrames, numTreadles } from '../../../model/looms';
 import { DesignmodesService } from '../../../provider/designmodes.service';
@@ -82,8 +82,8 @@ export class SelectionComponent implements OnInit {
     this.hide_parent = true;
     this.hide_actions = true;
 
-    this.start = { i: 0, si: 0, j: 0 };
-    this.end = { i: 0, si: 0, j: 0 };
+    this.start = { i: 0, j: 0 };
+    this.end = { i: 0, j: 0 };
 
     this.screen_height = 0;
     this.screen_width = 0;
@@ -107,8 +107,8 @@ export class SelectionComponent implements OnInit {
   }
 
   clearSelection() {
-    this.start = { i: 0, si: 0, j: 0 };
-    this.end = { i: 0, si: 0, j: 0 };
+    this.start = { i: 0, j: 0 };
+    this.end = { i: 0, j: 0 };
 
 
   }
@@ -181,7 +181,7 @@ export class SelectionComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
 
-    const screen_i = this.getStartingRowScreenIndex();
+    const screen_i = this.getStartingRowIndex();
     const draft_j = this.getStartingColIndex();
 
     var w = this.getWidth();
@@ -307,7 +307,7 @@ export class SelectionComponent implements OnInit {
         drafts = [{
           drafts: [copy_draft],
           inlet_id: 0,
-          params: []
+          inlet_params: []
         }];
         break;
       case 'invert':
@@ -316,7 +316,7 @@ export class SelectionComponent implements OnInit {
         drafts = [{
           drafts: [copy_draft],
           inlet_id: 0,
-          params: []
+          inlet_params: []
         }]
 
         break;
@@ -333,7 +333,7 @@ export class SelectionComponent implements OnInit {
         drafts = [{
           drafts: [copy_draft],
           inlet_id: 0,
-          params: []
+          inlet_params: []
         }]
         break;
       case 'flip_y':
@@ -349,7 +349,7 @@ export class SelectionComponent implements OnInit {
         drafts = [{
           drafts: [copy_draft],
           inlet_id: 0,
-          params: []
+          inlet_params: []
         }]
         break;
 
@@ -366,7 +366,7 @@ export class SelectionComponent implements OnInit {
         drafts = [{
           drafts: [copy_draft],
           inlet_id: 0,
-          params: []
+          inlet_params: []
         }]
         break;
       case 'shift_up':
@@ -382,7 +382,7 @@ export class SelectionComponent implements OnInit {
         drafts = [{
           drafts: [copy_draft],
           inlet_id: 0,
-          params: []
+          inlet_params: []
         }]
         break;
     }
@@ -426,7 +426,7 @@ export class SelectionComponent implements OnInit {
             draft.drawdown = pasteIntoDrawdown(
               draft.drawdown,
               this.copy,
-              this.getStartingRowScreenIndex(),
+              this.getStartingRowIndex(),
               this.getStartingColIndex(),
               this.getWidth(),
               this.getHeight());
@@ -442,7 +442,7 @@ export class SelectionComponent implements OnInit {
             break;
 
           case 'threading-' + this.source + "-" + this.id:
-            loom_util.pasteThreading(loom, this.copy, { i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            loom_util.pasteThreading(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.tree.setDraftOnly(this.id, draft);
@@ -452,7 +452,7 @@ export class SelectionComponent implements OnInit {
             break;
           case 'tieups-' + this.source + "-" + this.id:
 
-            loom_util.pasteTieup(loom, this.copy, { i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            loom_util.pasteTieup(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.tree.setLoom(this.id, loom);
@@ -463,7 +463,7 @@ export class SelectionComponent implements OnInit {
           case 'treadling-' + this.source + "-" + this.id:
             console.log("LOOM AND COPY ", loom, this.copy)
 
-            loom_util.pasteTreadling(loom, this.copy, { i: this.getStartingRowScreenIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            loom_util.pasteTreadling(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
 
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
@@ -531,7 +531,7 @@ export class SelectionComponent implements OnInit {
             mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
 
             draft.rowSystemMapping = mapping.map((el, ndx) => {
-              if (ndx >= this.getStartingRowScreenIndex() && ndx < this.getStartingRowScreenIndex() + this.getHeight()) {
+              if (ndx >= this.getStartingRowIndex() && ndx < this.getStartingRowIndex() + this.getHeight()) {
                 return el;
               } else {
                 return draft.rowSystemMapping[ndx];
@@ -555,7 +555,7 @@ export class SelectionComponent implements OnInit {
             mapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
 
             draft.rowShuttleMapping = mapping.map((el, ndx) => {
-              if (ndx >= this.getStartingRowScreenIndex() && ndx < this.getStartingRowScreenIndex() + this.getHeight()) {
+              if (ndx >= this.getStartingRowIndex() && ndx < this.getStartingRowIndex() + this.getHeight()) {
                 return el;
               } else {
                 return draft.rowShuttleMapping[ndx];
@@ -773,14 +773,6 @@ export class SelectionComponent implements OnInit {
     if (this.target !== null && !this.isTargetEnabled(this.target.id)) return;
 
 
-
-
-    if (pos.si < 0) {
-      pos.si = 0;
-      return false;
-    }
-
-
     // if(pos.si > this.render.visibleRows.length){
     //   pos.si = this.render.visibleRows.length;
     //   return false
@@ -793,7 +785,6 @@ export class SelectionComponent implements OnInit {
 
       case 'treadling-' + this.source + "-" + this.id:
         this.end.i = pos.i;
-        this.end.si = pos.si;
         break;
 
       case 'threading-' + this.source + "-" + this.id:
@@ -829,9 +820,7 @@ export class SelectionComponent implements OnInit {
     this.unsetParameters();
   }
 
-  getStartingRowScreenIndex(): number {
-    return Math.min(this.start.si, this.end.si);
-  }
+
 
   getStartingRowIndex(): number {
     return Math.min(this.start.i, this.end.i);
@@ -841,13 +830,14 @@ export class SelectionComponent implements OnInit {
     return Math.min(this.start.j, this.end.j);
   }
 
+  getEndingRowIndex(): number {
+    return Math.max(this.start.i, this.end.i);
+  }
+
   getEndingColIndex(): number {
     return Math.max(this.start.j, this.end.j);
   }
 
-  getEndingRowScreenIndex(): number {
-    return Math.max(this.start.si, this.end.si);
-  }
 
   // getEndingIndex(): number{
   //   return Math.min(this.start.j, this.end.j);
@@ -909,7 +899,7 @@ export class SelectionComponent implements OnInit {
   }
 
   getTop() {
-    return Math.min(this.start.si, this.end.si);
+    return Math.min(this.start.i, this.end.i);
   }
 
   getLeft() {
@@ -938,7 +928,7 @@ export class SelectionComponent implements OnInit {
       this.hide_parent = false;
 
 
-      let top_ndx = Math.min(this.start.si, this.end.si);
+      let top_ndx = Math.min(this.start.i, this.end.i);
       let left_ndx = Math.min(this.start.j, this.end.j);
 
       //this needs to take the transform of the current element into account

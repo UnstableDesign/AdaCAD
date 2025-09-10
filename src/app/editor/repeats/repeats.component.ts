@@ -1,27 +1,27 @@
-import { Component, Output, EventEmitter, OnInit, inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent } from "@angular/material/dialog";
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef, MatDialogTitle } from "@angular/material/dialog";
 
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
-import {ElementRef, ViewChild} from '@angular/core';
-import { UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatAutocompleteSelectedEvent, MatAutocomplete, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
-import { MatChipInputEvent, MatChipGrid, MatChipRow, MatChipRemove, MatChipInput } from '@angular/material/chips';
+import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { ElementRef, ViewChild } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
+import { MatAutocomplete, MatAutocompleteSelectedEvent, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
+import { MatIconButton, MatMiniFabButton } from '@angular/material/button';
+import { MatChipGrid, MatChipInput, MatChipInputEvent, MatChipRemove, MatChipRow } from '@angular/material/chips';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+import { System } from 'adacad-drafting-lib';
+import { defaults } from '../../core/model/defaults';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SystemsService } from '../../core/provider/systems.service';
-import { System } from '../../core/model/datatypes';
-import { defaults } from '../../core/model/defaults';
-import { MatIconButton, MatMiniFabButton } from '@angular/material/button';
-import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { CdkScrollable } from '@angular/cdk/scrolling';
-import { MatTooltip } from '@angular/material/tooltip';
-import { MatIcon } from '@angular/material/icon';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
 
 @Component({
-    selector: 'app-repeats',
-    templateUrl: './repeats.component.html',
-    styleUrls: ['./repeats.component.scss'],
-    imports: [MatIconButton, MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatMiniFabButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatChipGrid, MatChipRow, MatChipRemove, FormsModule, MatAutocompleteTrigger, MatChipInput, ReactiveFormsModule, MatAutocomplete, MatOption]
+  selector: 'app-repeats',
+  templateUrl: './repeats.component.html',
+  styleUrls: ['./repeats.component.scss'],
+  imports: [MatIconButton, MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatMiniFabButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatChipGrid, MatChipRow, MatChipRemove, FormsModule, MatAutocompleteTrigger, MatChipInput, ReactiveFormsModule, MatAutocomplete, MatOption]
 })
 
 
@@ -33,7 +33,7 @@ export class RepeatsComponent implements OnInit {
   data = inject(MAT_DIALOG_DATA);
 
 
-  id:number;
+  id: number;
 
   rowSystemMapping: Array<number>;
   colSystemMapping: Array<number>;
@@ -73,24 +73,24 @@ export class RepeatsComponent implements OnInit {
   @ViewChild('weftSystemInput') weftSystemInput: ElementRef<HTMLInputElement>;
   @ViewChild('warpShuttleInput') warpShuttleInput: ElementRef<HTMLInputElement>;
   @ViewChild('weftShuttleInput') weftShuttleInput: ElementRef<HTMLInputElement>;
-  
+
   @ViewChild('auto_wasy') matAutocompleteWasy: MatAutocomplete;
   @ViewChild('auto_wesy') matAutocompleteWesy: MatAutocomplete;
   @ViewChild('auto_wash') matAutocompleteWash: MatAutocomplete;
   @ViewChild('auto_wesh') matAutocompleteWesh: MatAutocomplete;
 
 
-   @Output() onUpdateWarpSystems: any = new EventEmitter();
-   @Output() onUpdateWeftSystems: any = new EventEmitter();
-   @Output() onUpdateWarpShuttles: any = new EventEmitter();
-   @Output() onUpdateWeftShuttles: any = new EventEmitter();
+  @Output() onUpdateWarpSystems: any = new EventEmitter();
+  @Output() onUpdateWeftSystems: any = new EventEmitter();
+  @Output() onUpdateWarpShuttles: any = new EventEmitter();
+  @Output() onUpdateWeftShuttles: any = new EventEmitter();
 
 
   constructor() {
-              const data = this.data;
+    const data = this.data;
 
 
-              this.id = data.id;
+    this.id = data.id;
 
 
   }
@@ -104,29 +104,29 @@ export class RepeatsComponent implements OnInit {
     this.rowSystemMapping = this.ss.weft_systems
       .filter(el => el.in_use)
       .map(el => el.id);
-    
-      this.colSystemMapping = this.ss.warp_systems
+
+    this.colSystemMapping = this.ss.warp_systems
       .filter(el => el.in_use)
       .map(el => el.id);
 
-    
+
   }
 
-  getWarpSystems() : Array<System> {
+  getWarpSystems(): Array<System> {
     return this.ss.warp_systems;
   }
-  
-  idFromString(s: string){
+
+  idFromString(s: string) {
     console.log(s);
-    return s.charCodeAt(0)-97;
+    return s.charCodeAt(0) - 97;
   }
 
-  shuttleIdFromName(s: string):number{
+  shuttleIdFromName(s: string): number {
 
 
-    for(var i = 0; i < this.ms.getShuttles().length; i++){
+    for (var i = 0; i < this.ms.getShuttles().length; i++) {
       let s_name = this.ms.getShuttle(i).name.toLowerCase();
-      if(s_name.localeCompare(s.toLowerCase()) === 0) return i;
+      if (s_name.localeCompare(s.toLowerCase()) === 0) return i;
     }
     return -1;
   }
@@ -142,20 +142,20 @@ export class RepeatsComponent implements OnInit {
     let shuttle_id = this.shuttleIdFromName((value || '').trim());
 
 
-    switch(name){
+    switch (name) {
       case 'wasy':
 
-        let warp_sys_id = parseInt(value) -1;
+        let warp_sys_id = parseInt(value) - 1;
         console.log("value is ", warp_sys_id);
         if (warp_sys_id >= 0 && warp_sys_id < this.ss.warp_systems.length) {
           console.log("adding ", warp_sys_id, "to", this.colSystemMapping)
           this.colSystemMapping.push(warp_sys_id);
-          console.log("now ",  this.colSystemMapping)
+          console.log("now ", this.colSystemMapping)
 
         }
         this.warpSystemCtrl.setValue(null);
-      
-      break;
+
+        break;
 
       case 'wash':
         console.log("value is ", this.shuttleIdFromName(value.trim()));
@@ -170,7 +170,7 @@ export class RepeatsComponent implements OnInit {
         }
         this.warpShuttleCtrl.setValue(null);
 
-      break;
+        break;
 
       case 'wesy':
 
@@ -179,7 +179,7 @@ export class RepeatsComponent implements OnInit {
           this.rowSystemMapping.push(weft_sys_id);
         }
         this.weftSystemCtrl.setValue(null);
-      break;
+        break;
 
       case 'wesh':
         console.log("value is ", this.shuttleIdFromName(value.trim()));
@@ -190,15 +190,15 @@ export class RepeatsComponent implements OnInit {
           //   color: this.shuttles[shuttle_id].getColor(),
           //   name: this.shuttles[shuttle_id].getName()
           // }
-         this.rowShuttleMapping.push(shuttle_id);
+          this.rowShuttleMapping.push(shuttle_id);
         }
         this.weftShuttleCtrl.setValue(null);
 
 
-      break;
+        break;
     }
 
-    
+
 
     // Reset the input value
     if (input) {
@@ -212,123 +212,123 @@ export class RepeatsComponent implements OnInit {
 
   remove(caller: string, index: number): void {
 
-    switch(caller){
+    switch (caller) {
       case 'wasy':
 
         if (index >= 0 && this.colSystemMapping.length > 1) {
           this.colSystemMapping.splice(index, 1);
         }
-          
-      
-      break;
+
+
+        break;
 
       case 'wash':
 
         if (index >= 0 && this.colShuttleMapping.length > 1) {
           this.colShuttleMapping.splice(index, 1);
         }
-      
 
-      break;
+
+        break;
 
       case 'wesy':
-        
+
 
         if (index >= 0 && this.rowSystemMapping.length > 1) {
           this.rowSystemMapping.splice(index, 1);
         }
-     
-      break;
+
+        break;
 
       case 'wesh':
 
         if (index >= 0 && this.rowShuttleMapping.length > 1) {
           this.rowShuttleMapping.splice(index, 1);
         }
-      break;
+        break;
     }
 
   }
 
-  sendUpdates(source: string){
+  sendUpdates(source: string) {
     console.log("send updates", source);
-    switch(source){
+    switch (source) {
       case 'wasy':
-      this.onUpdateWarpSystems.emit(this.colSystemMapping);
-      break;
+        this.onUpdateWarpSystems.emit(this.colSystemMapping);
+        break;
 
       case 'wash':
-      this.onUpdateWarpShuttles.emit(this.colShuttleMapping);
-      break;
+        this.onUpdateWarpShuttles.emit(this.colShuttleMapping);
+        break;
 
       case 'wesy':
-      this.onUpdateWeftSystems.emit(this.rowSystemMapping);
-      break;
+        this.onUpdateWeftSystems.emit(this.rowSystemMapping);
+        break;
 
       case 'wesh':
         this.onUpdateWeftShuttles.emit(this.rowShuttleMapping);
-      break;
+        break;
     }
 
   }
 
   selected(source: string, event: MatAutocompleteSelectedEvent): void {
     console.log("selected", source);
-     switch(source){
+    switch (source) {
       case 'wasy':
-      let warp_sys_id = parseInt(event.option.viewValue) -1;
+        let warp_sys_id = parseInt(event.option.viewValue) - 1;
 
-      this.colSystemMapping.push(warp_sys_id);
-      this.warpSystemCtrl.setValue(null);
-      break;
+        this.colSystemMapping.push(warp_sys_id);
+        this.warpSystemCtrl.setValue(null);
+        break;
 
       case 'wash':
 
-      let warp_id =  this.shuttleIdFromName(event.option.viewValue);
+        let warp_id = this.shuttleIdFromName(event.option.viewValue);
 
-      // let warp_obj = {
-      //   id: warp_id, 
-      //   name: this.shuttles[warp_id].getName(), 
-      //   color: this.shuttles[warp_id].getColor()
-      // };
+        // let warp_obj = {
+        //   id: warp_id, 
+        //   name: this.shuttles[warp_id].getName(), 
+        //   color: this.shuttles[warp_id].getColor()
+        // };
 
-      this.colShuttleMapping.push(warp_id);
-      this.warpShuttleCtrl.setValue(null);
-      
-      break;
+        this.colShuttleMapping.push(warp_id);
+        this.warpShuttleCtrl.setValue(null);
+
+        break;
 
       case 'wesy':
-      let weft_sys_id = this.idFromString(event.option.viewValue);
-      this.rowSystemMapping.push(weft_sys_id);
-      this.weftSystemCtrl.setValue(null);
-      break;
+        let weft_sys_id = this.idFromString(event.option.viewValue);
+        this.rowSystemMapping.push(weft_sys_id);
+        this.weftSystemCtrl.setValue(null);
+        break;
 
       case 'wesh':
 
 
-      let weft_id =  this.shuttleIdFromName(event.option.viewValue);
+        let weft_id = this.shuttleIdFromName(event.option.viewValue);
 
-      // let weft_obj = {
-      //   id: weft_id, 
-      //   name: this.shuttles[weft_id].getName(), 
-      //   color: this.shuttles[weft_id].getColor()
-      // };
+        // let weft_obj = {
+        //   id: weft_id, 
+        //   name: this.shuttles[weft_id].getName(), 
+        //   color: this.shuttles[weft_id].getColor()
+        // };
 
-      this.rowShuttleMapping.push(weft_id);
-      this.weftShuttleCtrl.setValue(null);
-      break;
+        this.rowShuttleMapping.push(weft_id);
+        this.weftShuttleCtrl.setValue(null);
+        break;
     }
 
 
-    
-  
+
+
   }
 
   close() {
     this.dialogRef.close(null);
   }
 
-  
+
 
 
 

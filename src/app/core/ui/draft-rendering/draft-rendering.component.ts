@@ -1,7 +1,8 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subject, Subscription, fromEvent } from 'rxjs';
-import { CanvasList, Cell, Draft, Interlacement, Loom, LoomSettings, RenderingFlags } from '../../model/datatypes';
+import { CanvasList, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from '../../model/looms';
 import { DesignmodesService } from '../../provider/designmodes.service';
@@ -400,7 +401,6 @@ export class DraftRenderingComponent implements OnInit {
     var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
 
     const currentPos: Interlacement = {
-      si: screen_row,
       i: screen_row, //row
       j: screen_col, //col
     };
@@ -465,7 +465,6 @@ export class DraftRenderingComponent implements OnInit {
       }
 
       this.lastPos = {
-        si: currentPos.si,
         i: currentPos.i, //row
         j: currentPos.j //col
       };
@@ -500,7 +499,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
     const currentPos: Interlacement = {
-      si: screen_row,
       i: screen_row,
       j: screen_col
     };
@@ -545,7 +543,6 @@ export class DraftRenderingComponent implements OnInit {
     }
 
     this.lastPos = {
-      si: currentPos.si,
       i: currentPos.i, //row
       j: currentPos.j //col
     };
@@ -565,7 +562,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
     this.lastPos = {
-      si: -1,
       i: -1,
       j: -1
     }
@@ -602,8 +598,8 @@ export class DraftRenderingComponent implements OnInit {
     this.onNewSelection.emit(
       {
         id: this.id,
-        start: { i: this.selection.getStartingRowScreenIndex(), j: this.selection.getStartingColIndex() },
-        end: { i: this.selection.getEndingRowScreenIndex(), j: this.selection.getEndingColIndex() }
+        start: { i: this.selection.getStartingRowIndex(), j: this.selection.getStartingColIndex() },
+        end: { i: this.selection.getEndingRowIndex(), j: this.selection.getEndingColIndex() }
       })
   }
 

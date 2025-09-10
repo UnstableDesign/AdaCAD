@@ -1,8 +1,9 @@
 import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Draft, Interlacement, Loom, LoomSettings, Operation } from 'adacad-drafting-lib';
 import { copyDraft, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription, fromEvent } from 'rxjs';
-import { Bounds, Draft, DraftNode, DraftNodeProxy, Interlacement, Loom, LoomSettings, NodeComponentProxy, Note, OpNode, Operation, Point } from '../../core/model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { copyLoom, copyLoomSettings, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
@@ -595,7 +596,7 @@ export class PaletteComponent implements OnInit {
 
   createSubDraftFromEditedDetail(id: number): Promise<SubdraftComponent> {
 
-    const node = this.tree.getNode(id);
+    const node: Node = this.tree.getNode(id);
     const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
     const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
     this.setSubdraftSubscriptions(subdraft.instance);

@@ -5,8 +5,7 @@ import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { initDraftWithParams } from 'adacad-drafting-lib/draft';
-import { Draft, LoomSettings } from '../../model/datatypes';
+import { Draft, LoomSettings, initDraftWithParams } from 'adacad-drafting-lib';
 import { getLoomUtilByType } from '../../model/looms';
 import { WorkspaceService } from '../../provider/workspace.service';
 

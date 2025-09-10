@@ -1,6 +1,7 @@
+import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { compressDraft, copyDraft, createDraft, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
-import { Bounds, Draft, DraftNode, DraftNodeProxy, Drawdown, DynamicOperation, IndexedColorImageInstance, IOTuple, Loom, LoomSettings, Node, NodeComponentProxy, OpComponentProxy, Operation, OpInput, OpNode, OpParamVal, Point, TreeNode, TreeNodeProxy } from '../../core/model/datatypes';
+import { DynamicOperation, Loom, LoomSettings, Operation, OpInput, OpParamVal } from 'adacad-drafting-lib';
+import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { copyLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -8,6 +9,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
+import { Bounds, DraftNode, DraftNodeProxy, IndexedColorImageInstance, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
@@ -1275,7 +1277,7 @@ export class TreeService {
         const ids = drafts_loaded.map(el => el.entry.cur_id);
         ids.forEach((id, ndx) => {
           let d = this.getDraft(id);
-          d.gen_name = op.generateName(param_vals, inputs, ndx);
+          d.gen_name = op.generateName(param_vals, inputs);
         })
 
 
@@ -1410,7 +1412,7 @@ export class TreeService {
 
 
     const paraminputs = draft_id_to_ndx.map(el => {
-      return { drafts: [el.draft], inlet_id: el.ndx, params: [opnode.inlets[el.ndx]] }
+      return { drafts: [el.draft], inlet_id: el.ndx, inlet_params: [opnode.inlets[el.ndx]] }
     })
     const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
 

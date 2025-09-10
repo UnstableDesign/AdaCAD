@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { FormsModule } from '@angular/forms';
@@ -8,9 +8,10 @@ import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { MatLabel } from '@angular/material/form-field';
 import { MatTooltip } from '@angular/material/tooltip';
-import { createCell, getDraftName } from 'adacad-drafting-lib/draft';
+import { LoomSettings } from 'adacad-drafting-lib';
+import { createCell, Drawdown, getDraftName } from 'adacad-drafting-lib/draft';
 import { MaterialModal } from '../core/modal/material/material.modal';
-import { Drawdown, LoomSettings, OpNode } from '../core/model/datatypes';
+import { OpNode } from '../core/model/datatypes';
 import { defaults, draft_pencil } from '../core/model/defaults';
 import { getLoomUtilByType, isFrame } from '../core/model/looms';
 import { DesignmodesService } from '../core/provider/designmodes.service';

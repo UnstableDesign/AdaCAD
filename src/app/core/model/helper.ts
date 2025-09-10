@@ -1,5 +1,5 @@
+import { Draft } from "adacad-drafting-lib";
 import { Cell, Drawdown, initDraft, unpackDrawdownFromArray, warps, wefts } from "adacad-drafting-lib/draft";
-import { Draft } from "./datatypes";
 import { defaults } from "./defaults";
 import utilInstance from "./util";
 
