@@ -1,6 +1,7 @@
 import { Draft, warps, wefts, initDraftFromDrawdown, generateMappingFromPattern } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getOpParamValById, parseRegex, getAllDraftsAtInlet, filterToUniqueValues, parseDraftNames } from "../../utils";
+import { parseRegex, filterToUniqueValues } from "../../utils";
+import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "assign systems";

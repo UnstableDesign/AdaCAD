@@ -1,7 +1,8 @@
-import { filterToUniqueValues, lcm, parseRegex, getAllDraftsAtInlet, getOpParamValById, reduceToStaticInputs } from '../../utils/utils';
 import { Sequence } from "../../sequence/sequence";
 import { wefts, warps, getCol, initDraftFromDrawdown, Draft } from "../../draft";
 import { DynamicOperation, OperationInlet, OpInletValType, OpInput, OpParamVal, OpParamValType, StringParam } from "../types";
+import { parseRegex, lcm, filterToUniqueValues } from "../../utils";
+import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs } from "../operations";
 
 
 

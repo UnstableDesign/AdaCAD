@@ -1,6 +1,6 @@
 import { Draft, wefts, initDraftFromDrawdown, updateWarpSystemsAndShuttles, getDraftName } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getInputDraft, getOpParamValById } from "../../utils";
+import { getInputDraft, getOpParamValById } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "deinterlace";

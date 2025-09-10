@@ -1,7 +1,8 @@
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getInputDraft, hasOnlyUnsetOrDown, getAllDraftsAtInlet, parseDraftNames } from "../../utils";
+import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { hasOnlyUnsetOrDown } from "../../utils";
 
 const name = "erase blank rows";
 const old_names: Array<string> = [];

@@ -1,6 +1,7 @@
 import { warps, Cell, getCellValue, Draft, initDraftWithParams, wefts, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../draft";
 import { getLoomUtilByType } from "../../loom";
-import { getAllDraftsAtInlet, generateId, parseDraftNames } from "../../utils";
+import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
+import { generateId } from "../../utils";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "directdrawdown";

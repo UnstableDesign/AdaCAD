@@ -1,6 +1,6 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getOpParamValById, flattenParamVals } from "../../utils";
+import { getOpParamValById, flattenParamVals } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
 
 const name = "sine";

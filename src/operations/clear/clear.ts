@@ -1,5 +1,5 @@
 import { initDraftWithParams, wefts, warps, createCell, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
-import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../utils";
+import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "clear";

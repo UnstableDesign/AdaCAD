@@ -1,7 +1,8 @@
 import { warps, wefts, flipDraft, cellToSequenceVal, initDraftFromDrawdown, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getOpParamValById, lcm, parseDraftNames } from "../../utils";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { lcm } from "../../utils";
 
 
 const name = "chaos";

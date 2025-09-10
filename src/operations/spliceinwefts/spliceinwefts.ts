@@ -1,6 +1,7 @@
 import { Draft, wefts, warps, makeSystemsUnique, getHeddle, initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getOpParamValById, lcm, getMaxWarps, parseDraftNames } from "../../utils";
+import { lcm, getMaxWarps } from "../../utils";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "splice in wefts";

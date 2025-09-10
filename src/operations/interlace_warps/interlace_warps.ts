@@ -1,7 +1,8 @@
 import { Draft, warps, wefts, getCol, initDraftFromDrawdown, updateWeftSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getOpParamValById, lcm, getMaxWefts, parseDraftNames } from "../../utils";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { lcm, getMaxWefts } from "../../utils";
 
 const name = "interlacewarps";
 const old_names = ['interlace_warps'];

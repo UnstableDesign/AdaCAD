@@ -1,7 +1,8 @@
 import { Draft, wefts, warps, initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getOpParamValById, getAllDraftsAtInlet, parseRegex } from "../../utils";
+import { getOpParamValById, getAllDraftsAtInlet } from "../../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { parseRegex } from "../../utils";
 
 const name = "undulatewefts";
 const old_names: Array<string> = [];

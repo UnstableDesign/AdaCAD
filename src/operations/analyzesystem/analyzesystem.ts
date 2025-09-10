@@ -1,7 +1,8 @@
 import { Draft, SystemList, initDraftWithParams, wefts, warps, initDraftFromDrawdown } from "../../draft";
 import { cellToSequenceVal } from "../../draft/cell";
 import { Sequence } from "../../sequence/sequence";
-import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames, parseRegex, filterToUniqueValues, makeValidSystemList } from "../../utils/utils";
+import { parseRegex, filterToUniqueValues, makeValidSystemList } from "../../utils";
+import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "analyzesystem";

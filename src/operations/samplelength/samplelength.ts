@@ -1,6 +1,7 @@
 import { Draft, warps, wefts, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getOpParamValById, getAllDraftsAtInlet, parseRegex, lcm, reduceToStaticInputs, filterToUniqueValues } from "../../utils";
+import { parseRegex, lcm, filterToUniqueValues } from "../../utils";
+import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation } from "../types";
 
 const name = "sample_length";

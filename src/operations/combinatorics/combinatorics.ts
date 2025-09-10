@@ -1,5 +1,5 @@
 import { Draft, initDraftWithParams, setCellValue, getCellValue, createCell } from "../../draft";
-import { getOpParamValById, flattenParamVals } from "../../utils";
+import { getOpParamValById, flattenParamVals } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
 
 const name = "combos";

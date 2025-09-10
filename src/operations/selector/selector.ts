@@ -1,5 +1,5 @@
 import { copyDraft, initDraftWithParams, getDraftName } from "../../draft";
-import { getOpParamValById, getAllDraftsAtInlet } from "../../utils";
+import { getOpParamValById, getAllDraftsAtInlet } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "selector";

@@ -1,7 +1,8 @@
 import { initDraftFromDrawdown, createCell, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getOpParamValById, lcm, parseDraftNames } from "../../utils";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { lcm } from "../../utils";
 
 const name = "diff";
 const old_names = ['knockout'];

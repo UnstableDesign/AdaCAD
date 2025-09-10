@@ -1,6 +1,6 @@
 import { Draft, initDraftWithParams, warps, setHeddle, updateWarpSystemsAndShuttles, wefts, updateWeftSystemsAndShuttles } from "../../draft";
 import { LoomSettings, getLoomUtilByType, numFrames, numTreadles } from "../../loom";
-import { getInputDraft, getOpParamValById } from "../../utils";
+import { getInputDraft, getOpParamValById } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "direct loom";

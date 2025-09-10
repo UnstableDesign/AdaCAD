@@ -1,5 +1,5 @@
 import { Draft, Cell, createCell, getCellValue, setCellValue, initDraftWithParams } from "../../draft";
-import { getOpParamValById } from "../../utils";
+import { getOpParamValById } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
 
 

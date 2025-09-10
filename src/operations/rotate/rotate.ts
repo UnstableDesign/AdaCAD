@@ -1,6 +1,6 @@
 import { initDraftFromDrawdown, wefts, warps } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../utils";
+import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { SelectParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "rotate";

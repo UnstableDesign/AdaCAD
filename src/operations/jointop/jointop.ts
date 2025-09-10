@@ -1,6 +1,7 @@
 import { Draft, warps, wefts, getCol, getCellValue, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getOpParamValById, lcm, getMaxWarps, parseDraftNames } from "../../utils";
+import { lcm, getMaxWarps } from "../../utils";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "join top";

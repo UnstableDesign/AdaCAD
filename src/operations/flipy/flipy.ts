@@ -1,6 +1,6 @@
 import { warps, getCol, initDraftFromDrawdown, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../utils";
+import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 

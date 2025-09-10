@@ -1,6 +1,6 @@
 import { warps, Cell, getCellValue, Draft, initDraftWithParams, wefts, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../draft";
 import { getLoomUtilByType, Loom } from "../../loom";
-import { getAllDraftsAtInlet, parseDraftNames } from "../../utils";
+import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "drawdown";

@@ -1,6 +1,6 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getOpParamValById } from "../../utils";
+import { getOpParamValById } from "../../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, Operation } from "../types";
 
 const name = "twill";

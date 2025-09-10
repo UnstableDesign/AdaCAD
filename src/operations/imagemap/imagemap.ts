@@ -1,6 +1,7 @@
 import { initDraftWithParams, createCell, Cell, wefts, warps, getHeddle, Draft, initDraftFromDrawdown } from "../../draft";
 import { Img, AnalyzedImage } from "../../media";
-import { getOpParamValById, filterToUniqueValues } from "../../utils";
+import { getOpParamValById } from "../../operations";
+import { filterToUniqueValues } from "../../utils";
 import { FileParam, NumParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation } from "../types";
 
 

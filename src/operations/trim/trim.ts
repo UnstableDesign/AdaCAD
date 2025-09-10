@@ -1,6 +1,6 @@
 import { Draft, wefts, warps, getHeddle, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../utils";
+import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "trim";

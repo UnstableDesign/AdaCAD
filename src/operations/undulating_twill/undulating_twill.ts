@@ -1,7 +1,8 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getOpParamValById, parseRegex } from "../../utils";
+import { getOpParamValById } from "../../operations";
 import { StringParam, BoolParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { parseRegex } from "../../utils";
 
 
 const name = "undulatingtwill";

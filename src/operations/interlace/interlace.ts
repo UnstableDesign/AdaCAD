@@ -1,6 +1,7 @@
 import { Draft, wefts, makeSystemsUnique, warps, initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getOpParamValById, lcm, getMaxWarps, parseDraftNames } from "../../utils";
+import { lcm, getMaxWarps } from "../../utils";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "interlace";

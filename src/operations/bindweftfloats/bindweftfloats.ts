@@ -1,5 +1,5 @@
 import { wefts, warps, getHeddle, toggleHeddle } from "../../draft";
-import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../utils";
+import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "bind weft floats";

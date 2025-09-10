@@ -1,6 +1,7 @@
 import { Draft, wefts, warps, getHeddle, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getOpParamValById, lcm, getMaxWefts, parseDraftNames } from "../../utils";
+import { lcm, getMaxWefts } from "../../utils";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "join left";

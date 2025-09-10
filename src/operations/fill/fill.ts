@@ -1,6 +1,6 @@
 import { initDraftFromDrawdown, createCell, getHeddle, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, parseDraftNames } from "../../utils";
+import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "fill";

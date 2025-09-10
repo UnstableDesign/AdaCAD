@@ -1,6 +1,7 @@
 import { warps, wefts, Draft, initDraftFromDrawdown, generateMappingFromPattern } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getOpParamValById, parseRegex, getAllDraftsAtInlet, getAllDraftsAtInletByLabel, lcm, reduceToStaticInputs } from "../../utils";
+import { parseRegex, lcm } from "../../utils";
+import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs, getAllDraftsAtInletByLabel } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation } from "../types";
 
 const name = "notation";

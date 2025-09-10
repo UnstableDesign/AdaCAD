@@ -1,6 +1,6 @@
 import { cellToSequenceVal, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../utils";
+import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../types";
 
 

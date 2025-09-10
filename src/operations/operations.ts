@@ -1,5 +1,5 @@
-import { Draft } from "../draft";
-import { Operation, OpInput, OpParamVal, OpParamValType } from "./types";
+import { Draft, getDraftName } from "../draft";
+import { Operation, OperationInlet, OpInletValType, OpInput, OpParamVal, OpParamValType } from "./types";
 
 
 /**
@@ -20,3 +20,170 @@ export const call = async (op: Operation, params: Array<OpParamValType>, inlets?
     })
     return op.perform(formatted_params, inlets ?? []);
 }
+
+
+export const operationHasInputs = (op_inputs: Array<OpInput>): boolean => {
+    return op_inputs.length > 0;
+}
+
+
+export const getInputDraft = (op_inputs: Array<OpInput>): Draft | null => {
+    if (!operationHasInputs(op_inputs)) return null;
+    else return op_inputs[0].drafts[0];
+}
+
+
+/**
+ * in cases where the inlet id's may not directly correspond to values (e.g. layer notation), we may want to retreive all drafts associated with a given string
+ * @param op_inputs 
+ * @param inlet_value 
+ * @returns 
+ */
+export const getAllDraftsAtInletByLabel = (op_inputs: Array<OpInput>, inlet_value: string): Array<Draft> => {
+
+    if (!operationHasInputs(op_inputs) || inlet_value === '') return [];
+    else {
+
+        let input_id = -1;
+        op_inputs.forEach((input, ndx) => {
+
+            //includes handles the case that occured between version where paranthesis were stripped
+            const found = input.inlet_params.findIndex(p => inlet_value.includes(<string>p));
+            if (found !== -1) input_id = ndx;
+        })
+
+        if (input_id == -1) return [];
+
+
+
+        return op_inputs[input_id].drafts;
+    }
+}
+
+
+
+export const getAllDraftsAtInlet = (op_inputs: Array<OpInput>, inlet_id: number): Array<Draft> => {
+    if (!operationHasInputs(op_inputs) || inlet_id < 0) return [];
+    else {
+
+        const req_inputs: Array<OpInput> = op_inputs.filter(el => el.inlet_id == inlet_id);
+
+        const drafts: Array<Draft> = req_inputs.reduce((acc: Array<Draft>, el) => {
+            return acc.concat(el.drafts);
+        }, []);
+
+
+        return drafts;
+    }
+}
+
+
+
+
+const returnDefaultValue = (p: OpParamVal): OpParamValType | null => {
+    switch (p.param.type) {
+        case 'boolean':
+            return false;
+
+        case 'draft':
+            return null;
+
+        case 'file':
+            return null;
+
+        case 'notation_toggle':
+            return false;
+
+        case 'number':
+            return 0;
+
+        case 'select':
+            return null;
+
+        case 'string':
+            return '';
+
+        default:
+            return null;
+    }
+}
+
+export const reduceToStaticInputs = (inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>): Array<OpInletValType> => {
+
+    const static_inputs = inlets.filter(el => el.type === 'static');
+    inlet_vals = inlet_vals.slice(0, static_inputs.length);
+
+    return inlet_vals;
+
+}
+
+
+// export const getOpParamValByName = (name: string, params: Array<OpParamVal>): OpParamVal | null => {
+//     if (params.length == 0) return null;
+
+//     const item = params.find(el => el.param.name == 'name');
+//     if (item == undefined) {
+//         console.error("CANNOT FIND OPERATION PARAMETER WITH NAME ", name);
+//         return returnDefaultValue(params[0])
+//     }
+
+//     return item;
+
+
+// }
+
+
+
+/**
+ * given the current list of params for an operation, this function concatenates them into a comma separated string of values
+ * @param params 
+ */
+export const flattenParamVals = (params: Array<OpParamVal>): string => {
+    return params.map(p => p.val).join(',');
+}
+
+
+
+//TO DO, these are returning different values (one returns the val, and the other returns the type, see if /where this causes errors)
+export const getOpParamValById = (id: number, params: Array<OpParamVal>): OpParamValType | null => {
+
+    if (params.length == 0) return null;
+
+    if (id < params.length) {
+        return params[id].val;
+    } else {
+        console.error("PARAM ID ", id, " NOT FOUND IN PARAMS ", params)
+        return returnDefaultValue(params[0]);
+    }
+}
+
+export const getOpParamValByName = (name: string, params: Array<OpParamVal>): OpParamValType | null => {
+    if (params.length == 0) return null;
+
+    const item = params.find(el => el.param.name == 'name');
+    if (item == undefined) {
+        console.error("CANNOT FIND OPERATION PARAMETER WITH NAME ", name);
+        return returnDefaultValue(params[0])
+    }
+
+    return item.val;
+
+
+}
+
+
+export const parseDraftNames = (drafts: Array<Draft>): string => {
+
+    if (drafts.length == 0) return '';
+
+
+
+    const flat_names = drafts.reduce((acc, el) => {
+        return acc + "+" + getDraftName(el);
+    }, '');
+
+    return flat_names.substring(1);
+
+}
+
+

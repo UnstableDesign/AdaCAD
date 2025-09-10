@@ -1,6 +1,7 @@
 import { Draft, warps, wefts, initDraftFromDrawdown, generateMappingFromPattern } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, lcm, parseDraftNames } from "../../utils";
+import { lcm } from "../../utils";
+import { getAllDraftsAtInlet, parseDraftNames } from "../operations";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "layer";
