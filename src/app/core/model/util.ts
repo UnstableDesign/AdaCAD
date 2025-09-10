@@ -5,12 +5,12 @@
 
 import { Loom, LoomSettings, Material } from "adacad-drafting-lib";
 import { Cell, Draft, flipDraft, getCellValue, getDraftAsImage, getDraftName, Interlacement, warps, wefts } from "adacad-drafting-lib/draft";
+import { createMaterial, setMaterialID } from "adacad-drafting-lib/material";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
 import { FileService } from "../provider/file.service";
 import { MaterialMap, MaterialsService } from "../provider/materials.service";
 import { SystemsService } from "../provider/systems.service";
 import { Bounds, Point } from "./datatypes";
-import { createMaterial, setMaterialID } from "./material";
 
 
 class Util {
@@ -679,7 +679,7 @@ class Util {
   //can likely simplify this as it is mostlyy like the function above but with different variable names for the respective applications
   getColorTable(e): Array<Material> {
     var color_table = [];
-    var originalShuttle = createMaterial();
+    var originalShuttle = createMaterial({});
     originalShuttle.color = "#3d3d3d";
     setMaterialID(originalShuttle, 0);
     color_table.push(originalShuttle);
@@ -718,7 +718,7 @@ class Util {
         hex += hexb;
       }
 
-      var shuttle = createMaterial();
+      var shuttle = createMaterial({});
       shuttle.color = hex;
       setMaterialID(shuttle, id);
       id++;

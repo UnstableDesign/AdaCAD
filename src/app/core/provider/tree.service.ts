@@ -1,8 +1,7 @@
 import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { DynamicOperation, Loom, LoomSettings, Operation, OpInput, OpParamVal } from 'adacad-drafting-lib';
+import { copyLoom, DynamicOperation, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
-import { copyLoom, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';

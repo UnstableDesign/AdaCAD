@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { Loom, LoomSettings, Material } from 'adacad-drafting-lib';
 import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
+import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
-import { loadDraftFromFile } from '../model/helper';
-import { getLoomUtilByType, loadLoomFromFile, numFrames, numTreadles } from '../model/looms';
+import { loadDraftFromFile, loadLoomFromFile } from '../model/helper';
 import utilInstance from '../model/util';
 import { FilesystemService } from './filesystem.service';
 import { MaterialsService } from './materials.service';

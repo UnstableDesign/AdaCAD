@@ -8,9 +8,9 @@ import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field'
 import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { Material } from 'adacad-drafting-lib';
+import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
 import { TreeService } from '../../../core/provider/tree.service';
 import { DraftNode } from '../../model/datatypes';
-import { createMaterial, setMaterialID } from '../../model/material';
 import utilInstance from '../../model/util';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
@@ -35,7 +35,7 @@ export class MaterialModal {
 
   replacements: Array<number> = [];
   types: any;
-  newshuttle: Material = createMaterial();
+  newshuttle: Material = createMaterial({});
   addmaterial: boolean = false;
 
   constructor() {
@@ -107,7 +107,7 @@ export class MaterialModal {
     setMaterialID(this.newshuttle, this.ms.getShuttles().length);
     this.newshuttle.rgb = utilInstance.hexToRgb(this.newshuttle.color.trim());
     this.ms.addShuttle(this.newshuttle);
-    this.newshuttle = createMaterial();
+    this.newshuttle = createMaterial({});
   }
 
   save() {

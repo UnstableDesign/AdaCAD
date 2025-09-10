@@ -1,11 +1,10 @@
 import { Component, ComponentFactoryResolver, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Draft, Interlacement, Loom, LoomSettings, Operation } from 'adacad-drafting-lib';
-import { copyDraft, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
+import { Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
+import { copyLoom, copyLoomSettings, getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
 import { Bounds, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
-import { copyLoom, copyLoomSettings, getLoomUtilByType } from '../../core/model/looms';
 import utilInstance from '../../core/model/util';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { MediaService } from '../../core/provider/media.service';

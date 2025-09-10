@@ -337,40 +337,6 @@ export interface OperationClassification {
 
 
 
-/**
- * an object that is stored in memory when an image is loaded
- * @param name the file name of the uploaded file
- * @param data the raw data of the image 
- * @param colors an array of unique hex values found in this image 
- * @param colors_mapping an array that matches each index in the color array to a color index that it should be grouped with
- * @param image the HTML image object to write the data into 
- * @param image_map an 2D array associating every pixel in the image with the id of the associated color in the colors array
- * @param width 
- * @param height
- * @param type
- * @param warning a text warning is added if the image file violates rules
- */
-// export interface AnalyzedImage {
-//   name: string,
-//   data: ImageData,
-//   colors: Array<Color>,
-//   colors_mapping: Array<{ from: number, to: number }>,
-//   proximity_map: Array<{ a: number, b: number, dist: number }>,
-//   image: HTMLImageElement,
-//   image_map: Array<Array<number>>,
-//   width: number,
-//   height: number,
-//   type: string,
-//   warning: string
-// }
-
-// export interface Color {
-//   r: number,
-//   g: number,
-//   b: number,
-//   hex: string
-// }
-
 export interface Upload {
   $key: string,
   file: File,
@@ -380,16 +346,6 @@ export interface Upload {
   createdAt: Date,
 
 }
-
-// export interface SingleImage {
-//   name: string,
-//   data: ImageData,
-//   image: HTMLImageElement,
-//   width: number,
-//   height: number,
-//   type: string,
-//   warning: string
-// }
 
 
 
@@ -425,116 +381,6 @@ export interface TreeNode {
   inputs: Array<IOTuple>,
   outputs: Array<IOTuple>
 }
-
-
-/****** OBJECTS/TYPES FOR SIMULATING YARN PATHS *****/
-
-
-// /**
-//  * a yarn cell holds a binary value representing the direction of the weft yarn through the cell. 
-//  * the binary is organized as NESW and has a 0 if no yarn is at that point, or 1 if there is a yarn at that point
-//  * for example. 0101 is a weft yarn that travels through the cell, 1100 is a weft yarn that comes in the east (right) size and curves, existing the bottom edge of teh cell
-//  */
-// export type YarnCell = number;
-
-// /**
-//  * ACN - actual contact point
-//  * ECN - empty contact point
-//  * PCN - potential contact point (there is a weft that float over this point)
-//  * VCN - virtual contact point (used only to draw ends of rows for sim when you want full width no matter what)
-//  */
-// export type CNType = 'ACN' | 'ECN' | 'PCN' | 'VCN';
-
-// export type CNIndex = {
-//   i: number,
-//   j: number,
-//   id: number
-// }
-
-// export type CNFloat = {
-//   left: CNIndex,
-//   right: CNIndex,
-//   face: boolean,
-//   edge: boolean
-// }
-
-// /**
-//  * represts the point of this yarn within the simulation
-//  */
-
-// export type ContactNeighborhood = {
-//   face: boolean,
-//   node_type: CNType,
-//   mv: { y: number, z: number }
-//   ndx: CNIndex
-// }
-
-// export type Vec3 = {
-//   x: number,
-//   y: number,
-//   z: number
-// }
-
-
-// export type YarnVertex = {
-//   x: number,
-//   y: number,
-//   z: number,
-//   ndx: CNIndex
-// };
-
-// export type WeftPath = {
-//   system: number,
-//   material: number,
-//   vtxs: Array<YarnVertex>,
-//   pics: Array<number> // the id's of the pics that fit this description
-// }
-
-// export type WarpPath = {
-//   system: number,
-//   material: number,
-//   vtxs: Array<YarnVertex>
-// }
-
-// export type SimulationData = {
-//   draft: Draft,
-//   topo: Array<ContactNeighborhood>,
-//   wefts: Array<WeftPath>,
-//   warps: Array<WarpPath>
-// };
-
-// export type SimulationVars = {
-//   pack: number,
-//   lift_limit: number,
-//   use_layers: boolean,
-//   warp_spacing: number,
-//   layer_spacing: number,
-//   wefts_as_written: boolean,
-//   simulate: boolean,
-//   radius: number,
-//   ms: MaterialsService
-// }
-
-// export type Particle = {
-//   position: THREE.Vector3,
-//   previousPosition: THREE.Vector3,
-//   acceleration: THREE.Vector3,
-//   pinned: boolean,
-//   mesh: THREE.Mesh
-// }
-
-// export type Spring = {
-//   pts: Array<THREE.Vector3>,
-//   mesh: THREE.Mesh,
-//   p1: Particle,
-//   p2: Particle,
-//   restLength: number,
-//   color: number,
-//   diameter: number
-// }
-
-
-
 
 /**** SETTINGS FOR OTHER FEATURES */
 

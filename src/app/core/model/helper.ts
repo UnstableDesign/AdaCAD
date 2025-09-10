@@ -1,4 +1,4 @@
-import { Draft } from "adacad-drafting-lib";
+import { Draft, Loom } from "adacad-drafting-lib";
 import { Cell, Drawdown, initDraft, unpackDrawdownFromArray, warps, wefts } from "adacad-drafting-lib/draft";
 import { defaults } from "./defaults";
 import utilInstance from "./util";
@@ -76,5 +76,34 @@ export const loadDraftFromFile = (data: any, version: string, src: string): Prom
     draft.colSystemMapping = (data.colSystemMapping === undefined) ? [] : data.colSystemMapping;;
 
     return Promise.resolve({ draft: draft, id: draft.id });
+
+}
+
+/**
+* sets up the draft from the information saved in a .ada file
+* returns the loom as well as the draft_id that this loom is linked with 
+* @param data 
+*/
+export const loadLoomFromFile = (loom: any, version: string, id: number): Promise<{ loom: Loom, id: number }> => {
+
+    if (loom == null) return Promise.resolve(null);
+
+    if (!utilInstance.sameOrNewerVersion(version, '3.4.5')) {
+        //tranfer the old treadling style on looms to the new style updated in 3.4.5
+        loom.treadling = loom.treadling.map(treadle_id => {
+            if (treadle_id == -1) return [];
+            else return [treadle_id];
+        });
+
+    } else {
+        //handle case where firebase does not save empty treadles
+        //console.log("IN LOAD LOOM", loom.treadling);
+        for (let i = 0; i < loom.treadling.length; i++) {
+            if (loom.treadling[i].length == 1 && loom.treadling[i][0] == -1) loom.treadling[i] = [];
+        }
+    }
+
+    return Promise.resolve({ loom, id });
+
 
 }

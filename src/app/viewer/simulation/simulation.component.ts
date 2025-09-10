@@ -1,12 +1,11 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, inject } from '@angular/core';
-import { Draft, Interlacement, LoomSettings, SimulationData, cropDraft, warps, wefts } from 'adacad-drafting-lib';
+import { Draft, Interlacement, LoomSettings, SimulationData, convertEPItoMM, cropDraft, warps, wefts } from 'adacad-drafting-lib';
 import { SimulationVars } from 'adacad-drafting-lib/simulation';
 import { GUI } from 'dat.gui';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Bounds } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
-import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SimulationService } from '../../core/provider/simulation.service';
 import { TreeService } from '../../core/provider/tree.service';

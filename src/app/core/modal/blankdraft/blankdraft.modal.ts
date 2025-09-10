@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, Ma
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { Draft, LoomSettings, initDraftWithParams } from 'adacad-drafting-lib';
-import { getLoomUtilByType } from '../../model/looms';
+import { getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { WorkspaceService } from '../../provider/workspace.service';
 
 @Component({

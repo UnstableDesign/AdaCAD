@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Loom, LoomSettings } from 'adacad-drafting-lib';
 import { Draft, getDraftAsImage, warps, wefts } from 'adacad-drafting-lib/draft';
+import { numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { CanvasList, RenderingFlags } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { SystemsService } from '../../core/provider/systems.service';
-import { numFrames, numTreadles } from '../model/looms';
 import { MaterialsService } from './materials.service';
 import { WorkspaceService } from './workspace.service';
 
