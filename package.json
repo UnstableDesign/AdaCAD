@@ -10,8 +10,7 @@
     "build": "tsc",
     "test": "jest --verbose",
     "lint": "eslint src/ --ext .ts",
-    "docs": "npx typedoc",
-    "publish": "npm publish"
+    "docs": "npx typedoc"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -22,6 +21,7 @@
     "./media": "./dist/media/index.js",
     "./operations": "./dist/operations/index.js",
     "./sequence": "./dist/sequence/index.js",
+    "./simulation": "./dist/simulation/index.js",
     "./utils": "./dist/utils/index.js",
     "./package.json": "./package.json"
   },
