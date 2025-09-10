@@ -3,6 +3,7 @@
  * Export Operations
  */
 export * from './types'
+export * from './operations'
 export * from './analyzesystem/analyzesystem';
 export * from './applymaterialsandsystems/applymaterialsandsystems';
 export * from './applywarpmaterials/applywarpmaterials';

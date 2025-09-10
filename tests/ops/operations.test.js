@@ -1,0 +1,32 @@
+const { initDraftWithParams } = require('../../src/draft');
+const { Sequence, TwoD } = require('../../src/sequence');
+const { satin } = require('../../src/operations/satin/satin.ts');
+const { printDrawdown } = require('../../src/utils');
+
+const call = require('../../src/operations/operations.ts').call;
+
+test('testing call operation', async () => {
+
+
+    const res = await call(satin, [5, 'a', false]);
+    const res_comp = await call(satin, []);
+
+    expect(res.length).toEqual(1);
+    expect(res_comp).toEqual(res);
+
+
+    const a = res[0];
+
+    const seq = new Sequence.TwoD([
+        [0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 1],
+        [0, 1, 0, 0, 0],
+        [0, 0, 0, 1, 0],
+        [1, 0, 0, 0, 0]
+    ]);
+    const b = initDraftWithParams({ drawdown: seq.export() })
+
+
+    expect(a.drawdown).toEqual(b.drawdown);
+
+});
