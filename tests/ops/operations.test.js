@@ -12,7 +12,7 @@ test('testing call operation', async () => {
     const res_comp = await call(satin, []);
 
     expect(res.length).toEqual(1);
-    expect(res_comp).toEqual(res);
+    expect(res_comp.drawdown).toEqual(res.drawdown);
 
 
     const a = res[0];

@@ -580,11 +580,9 @@ export const interpolate = (n: number, range: { max: number, min: number }): num
 
 
 export function generateId(len: number): number {
-  // const arr = new Uint8Array((len || 40) / 2)                                                                  
-  // window.crypto.getRandomValues(arr)            
-  // return parseInt(arr.join(''))      
-  let basis = 0;
-  for (let i = 0; i < len + 1; i++) {
+
+  let basis = 1;
+  for (let i = 0; i < len; i++) {
     basis = basis * 10;
   }
   const min = basis / 10;

@@ -313,3 +313,13 @@ test('testing modStrict', () => {
   expect(modStrict(-41, 20)).toBe(19);
 
 });
+
+
+const generateId = require('../../src/utils/utils.ts').generateId;
+
+test('testing generate id ', () => {
+
+  expect(generateId(8)).toBeGreaterThan(9999999)
+  expect(generateId(8)).toBeLessThan(100000000)
+
+});
