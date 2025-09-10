@@ -559,9 +559,9 @@ export function sameOrNewerVersion(a: string, b: string): boolean {
 }
 
 /**
- * a stricter variant of the mod operator that will never return a - number
- * @param n 
- * @param m 
+ * a stricter variant of the mod operator that will never return a negative number
+ * @param n the mod "numerator" (often an array index)
+ * @param m the mod "denominator" (often array size)
  * @returns 
  */
 export const modStrict = (n: number, m: number): number => {

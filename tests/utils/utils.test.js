@@ -1,30 +1,29 @@
 import { createCell } from '../../src/draft/cell.ts';
-import { initDraftWithParams } from '../../src/objects/draft.ts';
+import { initDraftWithParams } from '../../src/draft/draft.ts';
 import { initLoom, copyLoom } from '../../src/loom/loom.ts';
-import { printDrawdown } from '../../src/utils/utils.ts';
 
 /** init sample drawdowns */
 const d1 = [];
 const d2 = [];
 const d3 = [];
 const tieup_1 = [];
-for(let i = 0; i < 10; i++){
+for (let i = 0; i < 10; i++) {
   d1.push([]);
   d2.push([]);
   d3.push([]);
   tieup_1.push([]);
-  for(let j = 0; j < 10; j++){
-    if(j == 0) d1[i].push(createCell(null));
+  for (let j = 0; j < 10; j++) {
+    if (j == 0) d1[i].push(createCell(null));
     else d1[i].push(createCell(true));
-    d2[i].push(createCell(j%2==0));
-    d3[i].push(((j+i)%3 == 1) ? createCell(false) : createCell(null));
+    d2[i].push(createCell(j % 2 == 0));
+    d3[i].push(((j + i) % 3 == 1) ? createCell(false) : createCell(null));
     tieup_1.push(false);
   }
 }
 
-const blank_draft = initDraftWithParams({wefts: 10, warps: 10})
-const non_blank_draft = initDraftWithParams({wefts: 10, warps: 10, drawdown: d1})
-const blank_draft_with_mats = initDraftWithParams({wefts: 10, warps: 10, rowShuttleMapping: [0, 1], colShuttleMapping: [0,1], rowSystemMapping: [0,1], colSystemMapping:[0,1]})
+const blank_draft = initDraftWithParams({ wefts: 10, warps: 10 })
+const non_blank_draft = initDraftWithParams({ wefts: 10, warps: 10, drawdown: d1 })
+const blank_draft_with_mats = initDraftWithParams({ wefts: 10, warps: 10, rowShuttleMapping: [0, 1], colShuttleMapping: [0, 1], rowSystemMapping: [0, 1], colSystemMapping: [0, 1] })
 const empty_loom = initLoom(10, 10, 8, 12);
 const loom_with_values = copyLoom(empty_loom);
 loom_with_values.treadling[2] = [2, 3]
@@ -64,9 +63,9 @@ test('counts occurrences of a value in an array', () => {
 
 const hasMatchingRow = require('../../src/utils/utils.ts').hasMatchingRow;
 
-test('test has matching column', ()=> {
+test('test has matching column', () => {
 
-  
+
   expect(hasMatchingRow(4, d1)).toBe(0);
   expect(hasMatchingRow(1, d2)).toBe(0);
   expect(hasMatchingRow(5, d3)).toBe(2);
@@ -78,7 +77,7 @@ test('test has matching column', ()=> {
 
 const hasMatchingColumn = require('../../src/utils/utils.ts').hasMatchingColumn;
 
-test('test has matching column', ()=> {
+test('test has matching column', () => {
 
   expect(hasMatchingColumn(0, d1)).toBe(-1);
   expect(hasMatchingColumn(1, d1)).toBe(2);
@@ -89,7 +88,7 @@ test('test has matching column', ()=> {
 
 
 const isDraftDirty = require('../../src/utils/utils.ts').isDraftDirty;
-test('testing is blank draft', ()=>{
+test('testing is blank draft', () => {
 
 
   expect(isDraftDirty(blank_draft, empty_loom)).toBe(false);
@@ -114,7 +113,7 @@ test('testing row is blank', () => {
 
 
 const colIsBlank = require('../../src/utils/utils.ts').colIsBlank;
-test('testing col is blank ', ()=> {
+test('testing col is blank ', () => {
 
   expect(colIsBlank(0, d1)).toBe(true);
   expect(colIsBlank(1, d1)).toBe(false);
@@ -156,13 +155,13 @@ const getMaxWefts = require('../../src/utils/utils.ts').getMaxWefts;
 
 test('testing get max wefts', () => {
 
-  const da = initDraftWithParams({wefts: 10, warps: 10});
-  const db = initDraftWithParams({wefts: 100, warps: 10});
-  const dc = initDraftWithParams({wefts: 100, warps: 100});
-  const dd = initDraftWithParams({wefts: 11, warps: 11});
+  const da = initDraftWithParams({ wefts: 10, warps: 10 });
+  const db = initDraftWithParams({ wefts: 100, warps: 10 });
+  const dc = initDraftWithParams({ wefts: 100, warps: 100 });
+  const dd = initDraftWithParams({ wefts: 11, warps: 11 });
 
   expect(getMaxWefts([da, db, dc, dd])).toBe(100);
-  expect(getMaxWefts([da,dd])).toBe(11);
+  expect(getMaxWefts([da, dd])).toBe(11);
   expect(getMaxWefts([])).toBe(0);
 
 });
@@ -172,13 +171,13 @@ const getMaxWarps = require('../../src/utils/utils.ts').getMaxWarps;
 
 test('testing get max warps', () => {
 
-  const da = initDraftWithParams({wefts: 10, warps: 10});
-  const db = initDraftWithParams({wefts: 100, warps: 10});
-  const dc = initDraftWithParams({wefts: 100, warps: 100});
-  const dd = initDraftWithParams({wefts: 11, warps: 11});
+  const da = initDraftWithParams({ wefts: 10, warps: 10 });
+  const db = initDraftWithParams({ wefts: 100, warps: 10 });
+  const dc = initDraftWithParams({ wefts: 100, warps: 100 });
+  const dd = initDraftWithParams({ wefts: 11, warps: 11 });
 
   expect(getMaxWarps([da, db, dc, dd])).toBe(100);
-  expect(getMaxWarps([da,dd])).toBe(11);
+  expect(getMaxWarps([da, dd])).toBe(11);
   expect(getMaxWarps([])).toBe(0);
 
 });
@@ -195,13 +194,13 @@ test('testing get most common', () => {
 
 const updateMaterialIds = require('../../src/utils/utils.ts').updateMaterialIds;
 
-test('testing update material ids', ()=> {
+test('testing update material ids', () => {
   let material_map = [1, 0, 1, 0, 3, 4, 3, 4, 2];
   let index_map_a = [
-    {old_id: 0, new_id: 0},
-    {old_id: 1, new_id: 1},
-    {old_id: 2, new_id: 2},
-    {old_id: 4, new_id: 3},
+    { old_id: 0, new_id: 0 },
+    { old_id: 1, new_id: 1 },
+    { old_id: 2, new_id: 2 },
+    { old_id: 4, new_id: 3 },
   ];
   let replacement_id = 2;
 
@@ -277,23 +276,23 @@ test('testing least common multiple', () => {
 
 const filterToUniqueValues = require('../../src/utils/utils.ts').filterToUniqueValues;
 
-test('testing filter to unique values', () =>{
-    const arr1 = [1, 2, 3, 1, 4, 1, 5];
-    const arr2 = ['c', 'a', 'b', 'c', 'a', 'b', 'q'];
-    const arr3 = ['a', 'b', 1, 'a', 'b', 2];
-    const arr4 = [1, null, 3, 1, 4, 1, 5];
+test('testing filter to unique values', () => {
+  const arr1 = [1, 2, 3, 1, 4, 1, 5];
+  const arr2 = ['c', 'a', 'b', 'c', 'a', 'b', 'q'];
+  const arr3 = ['a', 'b', 1, 'a', 'b', 2];
+  const arr4 = [1, null, 3, 1, 4, 1, 5];
 
-    expect(filterToUniqueValues(arr1)).toEqual([1, 2, 3, 4, 5])
-    expect(filterToUniqueValues(arr2)).toEqual(['c', 'a', 'b', 'q'])
-    expect(filterToUniqueValues(arr3)).toEqual(['a', 'b', 1, 2])
-    expect(filterToUniqueValues(arr4)).toEqual([1, null, 3, 4, 5])
-    expect(filterToUniqueValues(arr4)).not.toEqual([1, 3, 4, 5])
+  expect(filterToUniqueValues(arr1)).toEqual([1, 2, 3, 4, 5])
+  expect(filterToUniqueValues(arr2)).toEqual(['c', 'a', 'b', 'q'])
+  expect(filterToUniqueValues(arr3)).toEqual(['a', 'b', 1, 2])
+  expect(filterToUniqueValues(arr4)).toEqual([1, null, 3, 4, 5])
+  expect(filterToUniqueValues(arr4)).not.toEqual([1, 3, 4, 5])
 });
 
 
 const parseRegex = require('../../src/utils/utils.ts').parseRegex;
 
-test('parse regex', ()=> {
+test('parse regex', () => {
   let a = 'a1b2'
   let b = '12--'
   let c = '\na b'
@@ -305,3 +304,12 @@ test('parse regex', ()=> {
 
 
 })
+
+const modStrict = require('../../src/utils/utils.ts').modStrict;
+
+test('testing modStrict', () => {
+
+  expect(modStrict(-1, 20)).toBe(19);
+  expect(modStrict(-41, 20)).toBe(19);
+
+});
