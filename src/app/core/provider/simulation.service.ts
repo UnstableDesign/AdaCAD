@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { warps, wefts } from 'adacad-drafting-lib/draft';
+import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
+import { getColorForSim, getDiameter } from 'adacad-drafting-lib/material/material.js';
+import { computeSimulationData, ContactNeighborhood, getFlatVtxList, SimulationData, SimulationVars, WeftPath, YarnVertex } from 'adacad-drafting-lib/simulation';
 import * as THREE from 'three';
-import { Bounds, Draft, SimulationData, SimulationVars, WeftPath, YarnVertex } from '../model/datatypes';
+import { Bounds } from '../model/datatypes';
 import { defaults } from '../model/defaults';
-import { applyForce, createParticle, createSpring, followTheWefts, getDraftTopology, getFlatVtxList, renderWarps, satisfyConstraint, updateParticleMesh, updateSpringMesh, verlet } from '../model/yarnsimulation';
 
 @Injectable({
   providedIn: 'root'
@@ -66,38 +67,6 @@ export class SimulationService {
 
 
 
-  /**
-   * computes an entire simulation from a draft and variables 
-   * @param draft 
-   * @param simVars 
-   * @returns 
-   */
-  public computeSimulationDataFromDraft(draft: Draft, simVars: SimulationVars): Promise<SimulationData> {
-
-    if (!this.isAcceptableSize(draft)) return Promise.reject("size error");
-
-    const simData: SimulationData = {
-      draft: draft,
-      topo: null,
-      wefts: null,
-      warps: null
-    };
-
-
-    return getDraftTopology(simData.draft, simVars).then(topo => {
-      simData.topo = topo;
-      return followTheWefts(simData.draft, simData.topo, simVars);
-    }).then(paths => {
-      simData.wefts = paths;
-      return renderWarps(simData.draft, simData.topo, simData.wefts, simVars)
-    }).then(paths => {
-      simData.warps = paths;
-      return simData;
-
-    })
-
-  }
-
 
   /**
    * computes an entire simulation from a draft and variables 
@@ -105,114 +74,55 @@ export class SimulationService {
    * @param simVars 
    * @returns 
    */
-  public computeSimulationData(draft: Draft, simVars: SimulationVars): Promise<SimulationData> {
+  public computeSimulationData(draft: Draft, simVars: SimulationVars, topo?: Array<ContactNeighborhood>): Promise<SimulationData> {
 
     if (!this.isAcceptableSize(draft)) return Promise.reject("size error");
 
-    const simData: SimulationData = {
-      draft: draft,
-      topo: null,
-      wefts: null,
-      warps: null
-    };
-
-
-    return getDraftTopology(simData.draft, simVars).then(topo => {
-      simData.topo = topo;
-      return followTheWefts(simData.draft, simData.topo, simVars);
-    }).then(paths => {
-      simData.wefts = paths;
-      return renderWarps(simData.draft, simData.topo, simData.wefts, simVars)
-    }).then(paths => {
-      simData.warps = paths;
-      return simData;
-
-    })
+    return computeSimulationData(draft, simVars);
 
   }
 
 
-  /**
-   * computes the topology and verticies for the draft that has already been provided
-   * @param draft 
-   * @param simVars 
-   * @returns 
-   */
-  public recomputeTopoAndVerticies(simData: SimulationData, simVars: SimulationVars): Promise<SimulationData> {
-
-    if (!this.isAcceptableSize(simData.draft)) return Promise.reject("size error");
 
 
+  // public animate() {
+  //   const gravity = new THREE.Vector3(0, -9.81, 0);
+  //   const timeStep = 1 / 60;
+  //   const damping = 0.98;
 
-    return getDraftTopology(simData.draft, simVars).then(topo => {
-      simData.topo = topo;
-      return followTheWefts(simData.draft, simData.topo, simVars);
-    }).then(paths => {
-      simData.wefts = paths;
-      return renderWarps(simData.draft, simData.topo, simData.wefts, simVars)
-    }).then(paths => {
-      simData.warps = paths;
-      return simData;
+  //   requestAnimationFrame(() => this.animate()); // Bind 'this'
+  //   this.controls.update();
 
-    })
+  //   for (let p of this.particles) {
+  //     p = applyForce(p, gravity.clone());
+  //   }
 
+  //   // Verlet integration
+  //   for (let p of this.particles) {
+  //     p = verlet(p, damping, timeStep);
+  //   }
 
-  }
+  //   // Satisfy spring constraints multiple times (for stiffness)
+  //   for (let i = 0; i < 5; i++) {
+  //     for (let s of this.springs) {
+  //       s = satisfyConstraint(s);
+  //     }
+  //   }
 
-  //use the current toplogy but recompute the positions of the verticies based on the simVars
-  public recomputeVerticies(simData: SimulationData, simVars: SimulationVars): Promise<SimulationData> {
+  //   // Update visuals
+  //   for (const p of this.particles) {
+  //     updateParticleMesh(p);
+  //   }
 
-    return followTheWefts(simData.draft, simData.topo, simVars)
-      .then(paths => {
-        simData.wefts = paths;
-        return renderWarps(simData.draft, simData.topo, simData.wefts, simVars);
-      }).then(paths => {
-        simData.warps = paths;
-        return simData;
+  //   for (const s of this.springs) {
+  //     updateSpringMesh(s);
+  //   }
 
-      });
-  }
+  //   this.renderer.render(this.scene, this.camera);
 
 
 
-  public animate() {
-    const gravity = new THREE.Vector3(0, -9.81, 0);
-    const timeStep = 1 / 60;
-    const damping = 0.98;
-
-    requestAnimationFrame(() => this.animate()); // Bind 'this'
-    this.controls.update();
-
-    for (let p of this.particles) {
-      p = applyForce(p, gravity.clone());
-    }
-
-    // Verlet integration
-    for (let p of this.particles) {
-      p = verlet(p, damping, timeStep);
-    }
-
-    // Satisfy spring constraints multiple times (for stiffness)
-    for (let i = 0; i < 5; i++) {
-      for (let s of this.springs) {
-        s = satisfyConstraint(s);
-      }
-    }
-
-    // Update visuals
-    for (const p of this.particles) {
-      updateParticleMesh(p);
-    }
-
-    for (const s of this.springs) {
-      updateSpringMesh(s);
-    }
-
-    this.renderer.render(this.scene, this.camera);
-
-
-
-  }
+  // }
 
 
 
@@ -232,7 +142,7 @@ export class SimulationService {
 
     controls.update();
 
-    this.animate();
+    //this.animate();
 
   }
 
@@ -247,8 +157,9 @@ export class SimulationService {
 
   public recalcSimData(draft: Draft, simVars: SimulationVars): Promise<SimulationData> {
 
-    return this.computeSimulationDataFromDraft(draft, simVars)
+    return this.computeSimulationData(draft, simVars)
       .then(simdata => {
+        console.log("RECALC SIM ", simdata)
         return simdata
       })
   }
@@ -260,7 +171,7 @@ export class SimulationService {
 
     //update warp material colors
     draft.colShuttleMapping.forEach((material_id, j) => {
-      let color = simVars.ms.getColorForSim(material_id);
+      let color = getColorForSim(material_id, simVars.ms);
       const render_color = new THREE.Color(color);
       let warp_render = this.scene.getObjectByName('warp-' + j);
       warp_render.material.color.set(render_color);
@@ -268,7 +179,7 @@ export class SimulationService {
     })
 
     draft.rowShuttleMapping.forEach((material_id, j) => {
-      let color = simVars.ms.getColorForSim(material_id);
+      let color = getColorForSim(material_id, simVars.ms);
       const render_color = new THREE.Color(color);
       let weft_render = this.scene.getObjectByName('weft-' + j);
       weft_render.material.color.set(render_color);
@@ -304,7 +215,7 @@ export class SimulationService {
       this.drawAxis(boundary_vtx);
       this.drawYarns(simData, simVars, selection, boundary_vtx);
     } else {
-      if (simVars.simulate) this.drawSimulation(simData, simVars);
+      //if (simVars.simulate) this.drawSimulation(simData, simVars);
     }
     //  this.drawEndCaps(scene, simdata, boundary_vtx);
     //   this.drawWarpLayerMap(scene, boundary_vtx);
@@ -319,39 +230,41 @@ export class SimulationService {
 
 
 
-  drawSimulation(simData: SimulationData, simVars: SimulationVars) {
-    for (const yarn of simData.wefts) {
-      let count = 0;
+  // drawSimulation(simData: SimulationData, simVars: SimulationVars) {
+  //   for (const yarn of simData.wefts) {
+  //     let count = 0;
 
-      let diameter = simVars.ms.getDiameter(yarn.material);
-      let color = simVars.ms.getColorForSim(yarn.material);
+  //     let diameter = getDiameter(yarn.material, simVars.ms);
+  //     let color = getColorForSim(yarn.material, simVars.ms);
 
 
-      for (const vtx of yarn.vtxs) {
+  //     for (const vtx of yarn.vtxs) {
 
-        const p = createParticle(vtx.x, vtx.y, vtx.z, false);
+  //       const p = createParticle(vtx.x, vtx.y, vtx.z, false);
 
-        if (vtx.ndx.j === 0 || vtx.ndx.j === warps(simData.draft.drawdown) - 1) p.pinned = true;
-        this.particles.push(p);
-        this.scene.add(p.mesh);
+  //       if (vtx.ndx.j === 0 || vtx.ndx.j === warps(simData.draft.drawdown) - 1) p.pinned = true;
+  //       this.particles.push(p);
+  //       this.scene.add(p.mesh);
 
-        if (count >= 1) {
-          const distance = this.particles[count - 1].position.distanceTo(this.particles[count].position);
-          let s = createSpring(this.particles[count - 1], this.particles[count], distance, color, diameter)
-          this.springs.push(s);
-          this.scene.add(s.mesh);
+  //       if (count >= 1) {
+  //         const distance = this.particles[count - 1].position.distanceTo(this.particles[count].position);
+  //         let s = createSpring(this.particles[count - 1], this.particles[count], distance, color, diameter)
+  //         this.springs.push(s);
+  //         this.scene.add(s.mesh);
 
-        }
-        count++;
-      }
-    }
+  //       }
+  //       count++;
+  //     }
+  //   }
 
-    return Promise.resolve(simData);
+  //   return Promise.resolve(simData);
 
-  }
+  // }
 
 
   drawAxis(boundary_vtx: any) {
+
+    console.log("BOUNDARY VTX is ", boundary_vtx)
 
     this.axis_scene = new THREE.Group();
     let axis_offset = 5.
@@ -407,7 +320,7 @@ export class SimulationService {
     console.log("VTXS ", vtxs)
 
 
-    if (vtxs.length == 0) return;
+    if (vtxs.length == 0) return { min_x: 0, min_y: 0, max_x: 0, max_y: 0 };
 
 
     //get the weft boundary, draw warps from this data
@@ -470,8 +383,8 @@ export class SimulationService {
       if (pts.length !== 0) {
 
         const material_id = path.material;
-        let diameter = simVars.ms.getDiameter(material_id);
-        let color = simVars.ms.getColorForSim(material_id)
+        let diameter = getDiameter(material_id, simVars.ms);
+        let color = getColorForSim(material_id, simVars.ms)
 
         const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .01);
         const geometry = new THREE.TubeGeometry(curve, path.vtxs.length * 10, diameter / 2, 8, false);
@@ -508,8 +421,8 @@ export class SimulationService {
       if (pts.length !== 0) {
 
         const material_id = path.material;
-        let diameter = simVars.ms.getDiameter(material_id);
-        let color = simVars.ms.getColorForSim(material_id)
+        let diameter = getDiameter(material_id, simVars.ms);
+        let color = getColorForSim(material_id, simVars.ms)
 
         const curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .01);
         const geometry = new THREE.TubeGeometry(curve, path.vtxs.length * 10, diameter / 2, 8, false);

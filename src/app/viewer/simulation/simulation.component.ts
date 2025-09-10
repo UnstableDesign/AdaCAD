@@ -1,9 +1,10 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, inject } from '@angular/core';
 import { cropDraft, warps, wefts } from 'adacad-drafting-lib/draft';
+import { SimulationVars } from 'adacad-drafting-lib/simulation';
 import { GUI } from 'dat.gui';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Bounds, Draft, Interlacement, LoomSettings, SimulationData, SimulationVars } from '../../core/model/datatypes';
+import { Bounds, Draft, Interlacement, LoomSettings, SimulationData } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { convertEPItoMM } from '../../core/model/looms';
 import { MaterialsService } from '../../core/provider/materials.service';
@@ -53,7 +54,7 @@ export class SimulationComponent implements OnInit {
       layer_spacing: defaults.layer_spacing,
       radius: 40,
       use_layers: true,
-      ms: this.ms,
+      ms: this.ms.getShuttles(),
       simulate: false
     }
 
@@ -161,7 +162,7 @@ export class SimulationComponent implements OnInit {
   }
 
   handleLayersChange(value) {
-    this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
@@ -169,7 +170,7 @@ export class SimulationComponent implements OnInit {
 
 
   handleLiftLimitChange(value) {
-    this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
@@ -179,7 +180,7 @@ export class SimulationComponent implements OnInit {
 
 
   handlePackChange(value) {
-    this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
@@ -187,14 +188,14 @@ export class SimulationComponent implements OnInit {
 
 
   handleWeftAsWrittenChange(value) {
-    this.sim.recomputeTopoAndVerticies(this.simData, this.simVars).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
   }
 
   handleLayerSpacingChange(value) {
-    this.sim.recomputeVerticies(this.simData, this.simVars).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
@@ -202,7 +203,7 @@ export class SimulationComponent implements OnInit {
 
 
   handleWarpSpacingChange(value) {
-    this.sim.recomputeVerticies(this.simData, this.simVars).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
