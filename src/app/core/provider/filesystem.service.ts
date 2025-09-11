@@ -1,4 +1,4 @@
-import { Injectable, NgZone, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Auth, authState, getAuth } from '@angular/fire/auth';
 import { Database, get as fbget, ref as fbref, onChildAdded, onChildChanged, onChildRemoved, onDisconnect, onValue, orderByChild, query, ref, remove, set, update } from '@angular/fire/database';
 import { generateId } from 'adacad-drafting-lib';
@@ -14,7 +14,6 @@ import { FilebrowserComponent } from '../ui/filebrowser/filebrowser.component';
 export class FilesystemService {
   private auth = inject(Auth, { optional: true });
   private db = inject(Database);
-  private zone = inject(NgZone)
 
   file_tree_change$ = new Subject<any>();
   file_saved_change$ = new Subject<any>();
