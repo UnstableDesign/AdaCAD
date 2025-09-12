@@ -10,13 +10,13 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
-import { LoginComponent } from '../../modal/login/login.component';
-import { ShareComponent } from '../../modal/share/share.component';
 import { FileMeta, ShareObj } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { FileService } from '../../provider/file.service';
 import { FirebaseService } from '../../provider/firebase.service';
 import { WorkspaceService } from '../../provider/workspace.service';
+import { LoginComponent } from '../login/login.component';
+import { ShareComponent } from '../share/share.component';
 
 @Component({
   selector: 'app-filebrowser',
@@ -146,6 +146,9 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
 
 
   openFile(id: number) {
+
+    console.log("OPENING FILE ", id, this.fb.file_list)
+
     this.onLoadFromDB.emit(id);
   }
 

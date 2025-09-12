@@ -19,6 +19,7 @@ import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType } from 'adac
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
 import { ExamplesComponent } from './core/modal/examples/examples.component';
+import { FilebrowserComponent } from './core/modal/filebrowser/filebrowser.component';
 import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
 import { LoginComponent } from './core/modal/login/login.component';
 import { MaterialModal } from './core/modal/material/material.modal';
@@ -41,7 +42,6 @@ import { ViewadjustService } from './core/provider/viewadjust.service';
 import { ViewerService } from './core/provider/viewer.service';
 import { WorkspaceService } from './core/provider/workspace.service';
 import { ZoomService } from './core/provider/zoom.service';
-import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.component';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
 import { EditorComponent } from './editor/editor.component';
 import { MixerComponent } from './mixer/mixer.component';
