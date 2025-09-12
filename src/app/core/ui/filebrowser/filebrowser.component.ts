@@ -1,34 +1,34 @@
-import { Component, EventEmitter, OnInit, Output, ViewEncapsulation, inject } from '@angular/core';
-import { AuthService } from '../../provider/auth.service';
-import { FilesystemService } from '../../provider/filesystem.service';
-import { MatDialog, MAT_DIALOG_DATA, MatDialogTitle, MatDialogClose, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
-import { WorkspaceService } from '../../provider/workspace.service';
-import { FileService } from '../../provider/file.service';
-import { LoginComponent } from '../../modal/login/login.component';
-import { ShareComponent } from '../../modal/share/share.component';
-import { defaults } from '../../model/defaults';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
-import { MatButton, MatIconButton } from '@angular/material/button';
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { MatTooltip } from '@angular/material/tooltip';
-import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
+import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewEncapsulation, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { FormsModule } from '@angular/forms';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltip } from '@angular/material/tooltip';
+import { Subscription } from 'rxjs';
+import { LoginComponent } from '../../modal/login/login.component';
+import { ShareComponent } from '../../modal/share/share.component';
+import { FileMeta, ShareObj } from '../../model/datatypes';
+import { defaults } from '../../model/defaults';
+import { FileService } from '../../provider/file.service';
+import { FirebaseService } from '../../provider/firebase.service';
+import { WorkspaceService } from '../../provider/workspace.service';
 
 @Component({
-    selector: 'app-filebrowser',
-    templateUrl: './filebrowser.component.html',
-    styleUrls: ['./filebrowser.component.scss'],
-    encapsulation: ViewEncapsulation.None,
-    imports: [MatDialogTitle, CdkDrag, CdkDragHandle, MatButton, MatDialogClose, CdkScrollable, MatDialogContent, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, MatFormField, MatLabel, MatInput, FormsModule, MatIconButton, MatSuffix, MatDialogActions]
+  selector: 'app-filebrowser',
+  templateUrl: './filebrowser.component.html',
+  styleUrls: ['./filebrowser.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  imports: [MatDialogTitle, CdkDrag, CdkDragHandle, MatButton, MatDialogClose, CdkScrollable, MatDialogContent, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, MatFormField, MatLabel, MatInput, FormsModule, MatIconButton, MatSuffix, MatDialogActions]
 })
-export class FilebrowserComponent implements OnInit {
-  files = inject(FilesystemService);
-  auth = inject(AuthService);
+export class FilebrowserComponent implements OnInit, OnDestroy {
   ws = inject(WorkspaceService);
   fs = inject(FileService);
+  fb = inject(FirebaseService);
   private dialog = inject(MatDialog);
   data = inject(MAT_DIALOG_DATA);
 
@@ -40,44 +40,76 @@ export class FilebrowserComponent implements OnInit {
   @Output() onShareFile: any = new EventEmitter();
   @Output() onLoadMostRecent: any = new EventEmitter();
 
-  
-  unopened_filelist = [];
-  shared_filelist = [];
-  file_list = [];
-
 
 
   rename_mode_id = -1;
-  rename_file_name ="";
+  rename_file_name = "";
 
 
-  constructor() { 
-    
+  has_db_connection = false;
+  dbSubscription: Subscription;
 
-      this.updateFileData(this.files.file_tree)
+  user_logged_in = false;
+  authSubscription: Subscription;
 
-      this.files.file_tree_change$.subscribe(data => {
-        this.updateFileData(data);});
 
-  
-      this.files.shared_file_change$.subscribe(data => {
-        this.updateFileData(data);});
+  shared_files = [];
+  sharedFileSubscription: Subscription;
+
+  user_files = [];
+  userFileSubscription: Subscription;
+
+  currently_open_id: number = -1;
+
+
+  constructor() {
+
+
+    this.dbSubscription = this.fb.connectionChangeEvent$.subscribe(status => {
+      this.has_db_connection = status;
+    })
+
+    this.authSubscription = this.fb.authChangeEvent$.subscribe(user => {
+      this.user_logged_in = (user !== null);
+    })
+
+    this.sharedFileSubscription = this.fb.sharedFilesChangeEvent$.subscribe(curfiles => {
+      this.shared_files = (curfiles) ? curfiles.shared : [];
+    })
+
+    this.userFileSubscription = this.fb.userFilesChangeEvent$.subscribe(curfiles => {
+      this.user_files = (curfiles) ? curfiles.user : [];
+
+    })
+
+
+
 
 
   }
 
   ngOnInit(): void {
-    
-    
-    
+
+
+    this.user_files = this.fb.file_list.user.slice();
+    this.shared_files = this.fb.file_list.shared.slice();
+    this.currently_open_id = this.ws.current_file.id ?? -1;
+
   }
 
-  shareWorkspace(file_id: number){
+  ngOnDestroy(): void {
+    this.dbSubscription.unsubscribe();
+    this.authSubscription.unsubscribe();
+    this.sharedFileSubscription.unsubscribe();
+    this.userFileSubscription.unsubscribe();
+  }
+
+  shareWorkspace(file_id: number) {
 
 
     const dialogRef = this.dialog.open(ShareComponent, {
       width: '600px',
-      data: {fileid: file_id}
+      data: { fileid: file_id }
     });
   }
 
@@ -87,116 +119,108 @@ export class FilebrowserComponent implements OnInit {
     });
   }
 
-  createBlankFile(){
+  createBlankFile() {
     this.onCreateFile.emit();
   }
 
-  openMostRecent(){
+  openMostRecent() {
     this.onLoadMostRecent.emit();
   }
 
-  /**
-   * takes an array of file data and parses it into lists
-   * @param data 
-   */
-  updateFileData(data: Array<any>){
-    this.unopened_filelist = [];
-    this.shared_filelist = [];
 
-    this.file_list = [];
-    data.forEach(file => {
-      this.file_list.push(file);
 
-        if(file.shared == undefined) this.unopened_filelist.push(file);
-        else this.shared_filelist.push(file);
-      })
-
-  }
-
-  editSharedFile(id: number){
+  editSharedFile(id: number) {
 
     const dialogRef = this.dialog.open(ShareComponent, {
       width: '600px',
-      data: {fileid:id}
+      data: { fileid: id }
     });
 
 
   }
 
 
-  unshare(id: number){
-    this.files.removeSharedFile(id.toString());
+  unshare(id: number) {
+    this.fb.removeSharedFile(id.toString());
   }
 
 
-  openFile(id: number){
+  openFile(id: number) {
     this.onLoadFromDB.emit(id);
   }
 
-  duplicate(id: number){
+  duplicate(id: number) {
     this.onDuplicateFile.emit(id);
   }
 
 
 
 
-  rename(id: number){
-    let file_to_rename = this.file_list.find(el => el.id == id);
+  rename(id: number) {
+    let file_to_rename = this.fb.file_list.user.find(el => el.id == id);
 
-      if(file_to_rename !== undefined){
+    if (file_to_rename !== undefined) {
 
-        if(this.rename_mode_id !== -1){
+      if (this.rename_mode_id !== -1) {
 
-        this.files.renameFile(file_to_rename.id, this.rename_file_name);
-        this.rename_mode_id = -1;
-        this.rename_file_name = '';
 
-        }else{
-          this.rename_file_name = file_to_rename.meta.name;
-          this.rename_mode_id = id;
-        }
+
+        const meta = this.fb.getFileMeta(file_to_rename.id)
+          .then(meta => {
+            meta.name = this.rename_file_name;
+            return this.fb.writeFileMetaData(meta);
+
+          })
+          .then(success => {
+            this.rename_mode_id = -1;
+            this.rename_file_name = '';
+          })
+          .catch(err => {
+            console.error(err);
+            this.rename_mode_id = -1;
+            this.rename_file_name = '';
+          })
+
+      } else {
+        this.rename_file_name = file_to_rename.meta.name;
+        this.rename_mode_id = id;
       }
+    }
   }
 
-  remove(fileid: number){
-    this.files.removeFile(fileid);
+  remove(fileid: number) {
+    this.fb.removeFile(fileid);
   }
 
-    /**
-   * this is called when a user pushes save from the topbar
-   * @param event 
-   */
-  public  exportWorkspace(id: number){
+  /**
+ * this is called when a user pushes save from the topbar
+ * @param event 
+ */
+  public exportWorkspace(id: number) {
 
     const link = document.createElement('a')
 
-    let fns = [ this.files.getFile(id), this.files.getFileMeta(id)];
+    let fns = [this.fb.getFile(id), this.fb.getFileMeta(id)];
     Promise.all(fns)
-    .then(res => {
-      var theJSON = JSON.stringify(res[0]);
-      link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
-      link.download =  res[1].name + ".ada";
-      link.click();
-    }).catch(err => {console.error(err)});
+      .then(res => {
+        var theJSON = JSON.stringify(res[0]);
+        link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
+        link.download = (<FileMeta>res[1]).name + ".ada";
+        link.click();
+      }).catch(err => { console.error(err) });
+  }
 
-  
+  openSnackBar(message: string, action: string) {
+    this._snackBar.open(message, action);
+  }
 
 
-  
-  
-    }
-
-    openSnackBar(message: string, action: string) {
-      this._snackBar.open(message, action);
-    }
-
-    
-    copyToClipboard(id: number){
-      const share_url = defaults.share_url_base+id;
-      navigator.clipboard.writeText(share_url)
+  copyToClipboard(id: number) {
+    const share_url = defaults.share_url_base + id;
+    navigator.clipboard.writeText(share_url)
       .then(
-        ()=> {
-           this.openSnackBar('link copied', 'close')//on success
+        () => {
+          this.openSnackBar('link copied', 'close')//on success
         },
         () => {
           //on fail 
@@ -205,32 +229,32 @@ export class FilebrowserComponent implements OnInit {
         }
       )
 
-    }  
-     /**
-   * this is called when a user pushes save from the topbar
-   * @param event 
-   */
-  public  exportSharedWorkspace(id: number){
+  }
+  /**
+* this is called when a user pushes save from the topbar
+* @param event 
+*/
+  public exportSharedWorkspace(id: number) {
 
-    const link = document.createElement('a')      
+    const link = document.createElement('a')
 
-      let fns = [ this.files.getFile(id), this.files.isShared(id.toString())];
-      Promise.all(fns)
+    let fns = [this.fb.getFile(id), this.fb.getShare(id)];
+    Promise.all(fns)
       .then(res => {
         var theJSON = JSON.stringify(res[0]);
         link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(theJSON);
-        link.download =  res[1].filename + ".ada";
+        link.download = (<ShareObj>res[1]).filename + ".ada";
         link.click();
-      }).catch(err => {console.error(err)});
+      }).catch(err => { console.error(err) });
 
 
 
 
-  
-  
-    }
-  
 
-  
+
+  }
+
+
+
 
 }

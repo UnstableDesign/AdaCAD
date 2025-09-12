@@ -18,6 +18,7 @@ import { defaults, licenses } from '../../model/defaults';
 import { AuthService } from '../../provider/auth.service';
 import { FileService } from '../../provider/file.service';
 import { FilesystemService } from '../../provider/filesystem.service';
+import { FirebaseService } from '../../provider/firebase.service';
 import { MediaService } from '../../provider/media.service';
 import { WorkspaceService } from '../../provider/workspace.service';
 import { UploadFormComponent } from '../../ui/uploads/upload-form/upload-form.component';
@@ -32,6 +33,7 @@ import { LoginComponent } from '../login/login.component';
 export class ShareComponent {
   auth = inject(AuthService);
   fs = inject(FilesystemService);
+  fb = inject(FirebaseService);
   private file_serv = inject(FileService);
   private mediaService = inject(MediaService);
   private ws = inject(WorkspaceService);
@@ -63,37 +65,31 @@ export class ShareComponent {
 
 
     //CHECK IF THIS WAS, AT ANY POINT, LOADED FROM A SHARED FILE (which data is held in workspace)
-    this.fs.getFileMeta(+this.fileid).then(meta => {
-      if (meta.from_share == '') return Promise.resolve(null);
-
-      return this.fs.isShared(meta.from_share.toString());
-    }).then(shareobj => {
-      this.share_in_history = shareobj;
-
-    });
-
-
+    this.fb.getFileMeta(+this.fileid).then(meta => {
+      if (meta.from_share == '') return;
+      return this.fb.getShare(+meta.from_share);
+    })
+      .then(shareobj => {
+        this.share_in_history = shareobj;
+      })
+      .catch(err => console.error(err));
 
 
 
 
 
-    // CHECK IF A LINK HAD ALREADY BEEN GENERATED FROM THIS (e.g. Edit Share is Called);
-    this.fs.isShared(this.fileid.toString()).then(share_obj => {
-
-      if (share_obj == null) {
-        //this is not yet shared
-        this.share_obj = null;
-
-      } else {
+    this.fb.getShare(+this.fileid)
+      .then(share_obj => {
         this.share_obj = share_obj;
         this.shared_id = this.fileid.toString();
         this.updateSettings(share_obj);
         this.share_url = defaults.share_url_base + this.fileid;
-      }
-    }).catch(err => {
-      console.log("ENTRY NOT FOUND")
-    });
+      }).catch(no_obj => {
+        this.share_obj = null;
+      });
+
+
+
 
 
   }
@@ -127,7 +123,7 @@ export class ShareComponent {
   }
 
   updateChange() {
-    this.fs.updateSharedFile(this.shared_id.toString(), this.share_obj)
+    this.fb.updateSharedFile(this.shared_id.toString(), this.share_obj)
   }
 
   toggleSharing() {
@@ -147,18 +143,19 @@ export class ShareComponent {
     console.log("GENERATE LINK ", this.fileid)
     let int_id: number = +this.fileid;
 
-    this.fs.getFileMeta(int_id).then(meta => {
+    this.fb.getFileMeta(int_id).then(meta => {
       console.log("FOT FILE META", meta)
       return Promise.all([this.file_serv.saver.ada(), meta])
 
     }).then(so => {
       //add the current time to the author list entry 
-      console.log("IN DUPLICATE ", so)
-      return Promise.all([this.fs.duplicate(this.auth.uid, so[1].name, so[1].desc, so[0].file, ''), so[1]])
+      console.log("IN DUPLICATE ", so);
+      return Promise.all([this.fb.duplicate(so[0].file, so[1]), so[1]])
     }).then(id_and_meta => {
       console.log("ID AND META ", id_and_meta)
       this.shared_id = id_and_meta[0].toString();
       this.share_obj = {
+        id: +this.shared_id,
         license: 'by',
         filename: id_and_meta[1].name,
         desc: id_and_meta[1].desc,
@@ -170,7 +167,7 @@ export class ShareComponent {
 
       }
 
-      return this.fs.createSharedFile(this.shared_id, this.share_obj)
+      return this.fb.createSharedFile(this.shared_id, this.share_obj)
     }).then(share_data => {
       this.share_url = defaults.share_url_base + this.shared_id;
     }).catch(err => {
@@ -180,7 +177,7 @@ export class ShareComponent {
   }
 
   removeLink() {
-    this.fs.removeSharedFile(this.fileid);
+    this.fb.removeSharedFile(this.fileid);
   }
 
   replaceImg() {

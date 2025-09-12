@@ -1,13 +1,15 @@
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { SingleImage } from 'adacad-drafting-lib';
+import { Subscription } from 'rxjs';
+import { ShareObj } from '../../model/datatypes';
 import { ExampleserviceService } from '../../provider/exampleservice.service';
-import { FilesystemService } from '../../provider/filesystem.service';
+import { FirebaseService } from '../../provider/firebase.service';
 import { MediaService } from '../../provider/media.service';
 
 @Component({
@@ -16,8 +18,8 @@ import { MediaService } from '../../provider/media.service';
   styleUrls: ['./examples.component.scss'],
   imports: [MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatTabGroup, MatTab, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardActions, MatButton, MatDialogActions, MatDialogClose]
 })
-export class ExamplesComponent {
-  fs = inject(FilesystemService);
+export class ExamplesComponent implements OnDestroy {
+  fb = inject(FirebaseService);
   examples = inject(ExampleserviceService);
   private ms = inject(MediaService);
   private dialog = inject(MatDialog);
@@ -27,30 +29,31 @@ export class ExamplesComponent {
   @Output() onLoadSharedFile = new EventEmitter<any>();
   @Output() onOpenFileManager = new EventEmitter<any>();
   local_examples: any;
-  community_examples: any;
+
+  sharedFileSubscription: Subscription;
+  community_examples: Array<ShareObj>;
 
 
   constructor() {
     const examples = this.examples;
 
-
     this.local_examples = examples.getExamples();
-    this.community_examples = this.fs.public_files.slice();
 
+    this.sharedFileSubscription = this.fb.sharedFilesChangeEvent$.subscribe(files => {
+      this.community_examples = files.public.slice();
 
-    this.community_examples.filter(res => res.val.img !== 'none').forEach(res => {
-      this.ms.loadImage(-1, res.val.img).then(media => {
-        console.log("GOT MEDIA INSTANCE ", media)
-        if (media.type = 'image') this.drawImage(res.id, <SingleImage>media.img)
-
+      this.community_examples.filter(res => res.img !== 'none').forEach(res => {
+        this.ms.loadImage(-1, res.img).then(media => {
+          if (media.type = 'image') this.drawImage(res.id, <SingleImage>media.img)
+        });
       });
-    });
+    })
 
 
-    this.fs.public_file_change$.subscribe(data => {
-      this.community_examples = data;
-    });
+  }
 
+  ngOnDestroy(): void {
+    this.sharedFileSubscription.unsubscribe();
   }
 
   openFileManager() {

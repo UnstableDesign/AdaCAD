@@ -8,11 +8,10 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { AuthService } from '../core/provider/auth.service';
-import { FilesystemService } from '../core/provider/filesystem.service';
-import { MaterialsService } from '../core/provider/materials.service';
-import { RenderService } from '../core/provider/render.service';
+import { FirebaseService } from '../core/provider/firebase.service';
 import { TreeService } from '../core/provider/tree.service';
 import { ViewerService } from '../core/provider/viewer.service';
+import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { SimulationComponent } from './simulation/simulation.component';
@@ -25,12 +24,11 @@ import { SimulationComponent } from './simulation/simulation.component';
 })
 export class ViewerComponent {
   auth = inject(AuthService);
-  files = inject(FilesystemService);
-  private ms = inject(MaterialsService);
-  private render = inject(RenderService);
   private tree = inject(TreeService);
+  ws = inject(WorkspaceService);
   vs = inject(ViewerService);
   zs = inject(ZoomService);
+  fb = inject(FirebaseService);
 
 
   @Output() onOpenEditor: any = new EventEmitter();
@@ -69,7 +67,7 @@ export class ViewerComponent {
   }
 
   ngOnInit() {
-    this.filename = this.files.getCurrentFileName();
+    this.filename = this.ws.current_file.name;
     this.scale = this.zs.getViewerZoom();
   }
 
@@ -127,8 +125,8 @@ export class ViewerComponent {
   }
 
   filenameChange() {
-    const id = this.files.getCurrentFileId();
-    this.files.renameFile(id, this.filename);
+    this.ws.current_file.name = this.filename;
+    this.fb.writeFileMetaData(this.ws.current_file);
   }
 
 

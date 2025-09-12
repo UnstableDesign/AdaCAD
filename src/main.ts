@@ -1,24 +1,23 @@
 import { enableProdMode, importProvidersFrom } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 
-import { environment } from './environments/environment';
-import { provideRouter } from '@angular/router';
-import { routes, AppRoutingModule } from './app/app-routing.module';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
-import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideDatabase, getDatabase } from '@angular/fire/database';
-import { provideFunctions, getFunctions } from '@angular/fire/functions';
-import { provideMessaging, getMessaging } from '@angular/fire/messaging';
-import { providePerformance, getPerformance } from '@angular/fire/performance';
-import { provideRemoteConfig, getRemoteConfig } from '@angular/fire/remote-config';
-import { provideStorage, getStorage } from '@angular/fire/storage';
+import { getAnalytics, provideAnalytics } from '@angular/fire/analytics';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getAuth, provideAuth } from '@angular/fire/auth';
+import { getDatabase, provideDatabase } from '@angular/fire/database';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { getFunctions, provideFunctions } from '@angular/fire/functions';
+import { getMessaging, provideMessaging } from '@angular/fire/messaging';
+import { getPerformance, providePerformance } from '@angular/fire/performance';
+import { getRemoteConfig, provideRemoteConfig } from '@angular/fire/remote-config';
+import { getStorage, provideStorage } from '@angular/fire/storage';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
-import { CoreModule } from './app/core/core.module';
+import { provideRouter } from '@angular/router';
+import { AppRoutingModule, routes } from './app/app-routing.module';
 import { AppComponent } from './app/app.component';
+import { CoreModule } from './app/core/core.module';
+import { environment } from './environments/environment';
 
 if (environment.production) {
   enableProdMode();
@@ -27,20 +26,20 @@ if (environment.production) {
 
 
 bootstrapApplication(AppComponent, {
-    providers: [
-        importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule),
-        provideRouter(routes),
-        provideHttpClient(withInterceptorsFromDi()),
-        provideFirebaseApp(() => initializeApp(environment.firebase)),
-        provideFirestore(() => getFirestore()),
-        provideAnalytics(() => getAnalytics()),
-        provideAuth(() => getAuth()),
-        provideDatabase(() => getDatabase()),
-        provideFirestore(() => getFirestore()),
-        provideFunctions(() => getFunctions()),
-        provideMessaging(() => getMessaging()),
-        providePerformance(() => getPerformance()),
-        provideRemoteConfig(() => getRemoteConfig()),
-        provideStorage(() => getStorage()),
-    ]
+  providers: [
+    importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule),
+    provideRouter(routes),
+    provideHttpClient(withInterceptorsFromDi()),
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideFirestore(() => getFirestore()),
+    provideAnalytics(() => getAnalytics()),
+    provideAuth(() => getAuth()),
+    provideDatabase(() => getDatabase()),
+    provideFirestore(() => getFirestore()),
+    provideFunctions(() => getFunctions()),
+    provideMessaging(() => getMessaging()),
+    providePerformance(() => getPerformance()),
+    provideRemoteConfig(() => getRemoteConfig()),
+    provideStorage(() => getStorage()),
+  ]
 });

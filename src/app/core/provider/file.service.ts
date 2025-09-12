@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
+import { generateId, Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
-import { DraftNodeProxy, Fileloader, FileObj, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
+import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
 import { loadDraftFromFile, loadLoomFromFile } from '../model/helper';
 import { FilesystemService } from './filesystem.service';
 import { MaterialsService } from './materials.service';
@@ -59,22 +59,16 @@ export class FileService {
      */
     const dloader: Fileloader = {
 
-      ada: async (filename: string, src: string, id: number, desc: string, data: any, from_share: string): Promise<LoadResponse> => {
+      ada: async (data: SaveObj | any, meta: FileMeta, src: string): Promise<LoadResponse> => {
 
-        // console.log("IN LOADER ", data)
-
-
-        if (desc === undefined) desc = ""
-        if (filename == undefined) filename = 'draft'
-        if (from_share == undefined) from_share = ''
-        if (id === -1) id = this.files.generateFileId();
+        if (meta.desc === undefined) meta.desc = ""
+        if (meta.name == undefined) meta.name = 'draft'
+        if (meta.from_share == undefined) meta.from_share = ''
+        if (meta.id === -1) meta.id = generateId(8);
 
         let draft_nodes: Array<DraftNodeProxy> = [];
         let ops: Array<OpComponentProxy> = [];
         let version = "0.0.0";
-
-        if (id === -1) id = this.files.generateFileId();
-
 
         this.clearAll();
 
@@ -258,20 +252,21 @@ export class FileService {
               indexed_images = data.indexed_image_data;
             }
 
-            const envt: FileObj = {
+            const envt: SaveObj = {
               version: data.version,
               workspace: data.workspace,
               zoom: data.zoom,
-              filename: filename,
+              type: 'mixer',
               nodes: (data.nodes === undefined) ? [] : data.nodes,
-              treenodes: (data.tree === undefined) ? [] : data.tree,
+              tree: (data.tree === undefined) ? [] : data.tree,
               draft_nodes: draft_nodes,
               notes: (data.notes === undefined) ? [] : data.notes,
               ops: ops,
+              materials: [],
               indexed_image_data: indexed_images
             }
 
-            return Promise.resolve({ data: envt, name: filename, desc: desc, status: 0, id: id, from_share: from_share });
+            return Promise.resolve({ data: envt, meta, status: 0 });
 
           }
           )
@@ -371,20 +366,29 @@ export class FileService {
 
 
 
-            const envt: FileObj = {
+            const envt: SaveObj = {
               version: '0.0.0',
               workspace: null,
               zoom: null,
-              filename: 'paste',
+              type: 'partial',
               nodes: (data.nodes === undefined) ? [] : data.nodes,
-              treenodes: (data.tree === undefined) ? [] : data.tree,
+              tree: (data.tree === undefined) ? [] : data.tree,
               draft_nodes: draft_nodes,
               notes: [],
               ops: ops,
+              materials: [],
               indexed_image_data: indexed_images
             }
 
-            return Promise.resolve({ data: envt, name: 'paste', desc: 'a file represeting copied information', status: 0, id: -1, from_share: '' });
+            const meta = {
+              id: -1,
+              name: 'paste',
+              desc: 'a file represeting copied information',
+              from_share: ''
+
+            }
+
+            return Promise.resolve({ data: envt, meta, status: 0 });
 
           }
           )
@@ -524,8 +528,8 @@ export class FileService {
           const out: SaveObj = {
             version: this.vs.currentVersion(),
             workspace: this.ws.exportWorkspace(),
-            zoom: this.zs.export(),
             type: 'mixer',
+            zoom: this.zs.export(),
             nodes: this.tree.exportNodesForSaving(),
             tree: this.tree.exportTreeForSaving(),
             draft_nodes: draft_nodes,

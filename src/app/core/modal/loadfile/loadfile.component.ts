@@ -1,23 +1,23 @@
-import { Component, inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
-import { FileService } from '../../provider/file.service';
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { UploadFormComponent } from '../../ui/uploads/upload-form/upload-form.component';
+import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { FileService } from '../../provider/file.service';
+import { UploadFormComponent } from '../../ui/uploads/upload-form/upload-form.component';
 
 @Component({
-    selector: 'app-loadfile',
-    templateUrl: './loadfile.component.html',
-    styleUrls: ['./loadfile.component.scss'],
-    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, UploadFormComponent, MatDialogActions, MatButton, MatDialogClose]
+  selector: 'app-loadfile',
+  templateUrl: './loadfile.component.html',
+  styleUrls: ['./loadfile.component.scss'],
+  imports: [MatDialogTitle, CdkScrollable, MatDialogContent, UploadFormComponent, MatDialogActions, MatButton, MatDialogClose]
 })
 export class LoadfileComponent {
   private fls = inject(FileService);
   private dialogRef = inject<MatDialogRef<LoadfileComponent>>(MatDialogRef);
   private data = inject(MAT_DIALOG_DATA);
 
- 
- 
+
+
   multiple: boolean = false;
   accepts: string = '';
   type: string = ''; //'single_image', 'ada', or 'bitmap_collection'
@@ -25,27 +25,27 @@ export class LoadfileComponent {
   errorstring: string = '';
 
   constructor() {
-      const data = this.data;
+    const data = this.data;
 
 
-      this.multiple = data.multiple;
-      this.accepts = data.accepts;
-      this.type = data.type;
-      if(data.title !== undefined) this.title = data.title;
-      
+    this.multiple = data.multiple;
+    this.accepts = data.accepts;
+    this.type = data.type;
+    if (data.title !== undefined) this.title = data.title;
+
   }
 
-  handleError(e: any){
-      this.errorstring = e;
+  handleError(e: any) {
+    this.errorstring = e;
   }
 
   /**
    * this is called on upload of a file from any location
    * @param e 
    */
-   async handleFile(e: any) : Promise<any>{
+  async handleFile(e: any): Promise<any> {
     this.errorstring = '';
-    switch(e.type){
+    switch (e.type) {
       // case 'image': 
       // return this.fls.loader.bmp(e.name, e.data).then(
       //   res => this.dialogRef.close(res)
@@ -60,18 +60,25 @@ export class LoadfileComponent {
         this.dialogRef.close(e.drafts)
         break;
 
-      
-      case 'ada': 
-      
-        return this.fls.loader.ada(e.name,'upload',-1, '', e.data, '')
-        .then(
-          res => this.dialogRef.close(res)
-        );
 
-        
+      case 'ada':
+
+        let meta = {
+          id: -1,
+          name: e.name,
+          desc: '',
+          from_share: ''
+        }
+
+        return this.fls.loader.ada(e.data, meta, 'upload')
+          .then(
+            res => this.dialogRef.close(res)
+          );
+
+
 
     }
-  
+
   }
 
 

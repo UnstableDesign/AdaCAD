@@ -1,9 +1,8 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { HttpClient } from '@angular/common/http';
-import { Component, NgZone, OnInit, ViewChild, inject } from '@angular/core';
-import { getAnalytics, logEvent } from '@angular/fire/analytics';
-import { Auth, User, authState } from '@angular/fire/auth';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { User } from '@angular/fire/auth';
 import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
@@ -17,7 +16,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { Loom, LoomSettings, generateId, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams } from 'adacad-drafting-lib/draft';
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType } from 'adacad-drafting-lib/loom';
-import { catchError } from 'rxjs';
+import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
 import { ExamplesComponent } from './core/modal/examples/examples.component';
 import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
@@ -25,13 +24,11 @@ import { LoginComponent } from './core/modal/login/login.component';
 import { MaterialModal } from './core/modal/material/material.modal';
 import { ShareComponent } from './core/modal/share/share.component';
 import { WorkspaceComponent } from './core/modal/workspace/workspace.component';
-import { DraftNode, DraftNodeProxy, FileObj, IndexedColorImageInstance, LoadResponse, NodeComponentProxy, SaveObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { DraftNode, DraftNodeProxy, FileMeta, IndexedColorImageInstance, LoadResponse, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
-import { AuthService } from './core/provider/auth.service';
-import { DesignmodesService } from './core/provider/designmodes.service';
 import { FileService } from './core/provider/file.service';
-import { FilesystemService } from './core/provider/filesystem.service';
+import { FirebaseService } from './core/provider/firebase.service';
 import { MaterialsService } from './core/provider/materials.service';
 import { MediaService } from './core/provider/media.service';
 import { NotesService } from './core/provider/notes.service';
@@ -62,13 +59,12 @@ import { ViewerComponent } from './viewer/viewer.component';
 })
 
 
-export class AppComponent implements OnInit {
-  auth = inject(AuthService);
+export class AppComponent implements OnInit, OnDestroy {
+  // auth = inject(AuthService);
   private dialog = inject(MatDialog);
-  private dm = inject(DesignmodesService);
   ss = inject(StateService);
-  private fbauth = inject(Auth, { optional: true });
-  files = inject(FilesystemService);
+  //private fbauth = inject(Auth, { optional: true });
+  private fb = inject(FirebaseService);
   private fs = inject(FileService);
   private http = inject(HttpClient);
   private media = inject(MediaService);
@@ -86,7 +82,7 @@ export class AppComponent implements OnInit {
   vers = inject(VersionService);
   zs = inject(ZoomService);
   private zone = inject(NgZone);
-
+  cdr = inject(ChangeDetectorRef);
   title = 'app';
 
   @ViewChild(MixerComponent) mixer;
@@ -131,26 +127,40 @@ export class AppComponent implements OnInit {
 
   private snackBar = inject(MatSnackBar);
 
+  user_auth_state = false;
+  user_auth_name = '';
+  private userAuthSubscription: Subscription;
+
+
+  connection_state = false;
+  private connectionSubscription: Subscription;
+
+  loaded_from_url = false;
+
+
 
   constructor() {
-    const auth = this.auth;
-
-
 
     this.current_version = this.vers.currentVersion();
-
     this.editorModes = editor_modes;
     this.selected_editor_mode = defaults.editor;
 
     //subscribe to the login event and handle what happens in that case 
+    this.userAuthSubscription = this.fb.authChangeEvent$.subscribe(user => {
+      this.user_auth_state = (user !== null) ? true : false;
+      this.user_auth_name = (this.user_auth_state) ? user.displayName : '';
+      this.initLoginLogoutSequence(user);
+    });
 
-    if (auth) {
-      const success = authState(this.fbauth).subscribe(async user => {
-        this.initLoginLogoutSequence(user)
+    //subscribe to the connection event to see if we have access to the firebase database (and internet) 
+    this.connectionSubscription = this.fb.connectionChangeEvent$.subscribe(data => {
+      this.connection_state = data;
+    });
 
-      })
 
-    }
+
+
+
 
     this.scrollingSubscription = this.scroll
       .scrolled()
@@ -172,31 +182,157 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
 
-    this.filename_form = new UntypedFormControl(this.files.getCurrentFileName(), [Validators.required]);
+    this.filename_form = new UntypedFormControl(this.ws.current_file.name, [Validators.required]);
     this.filename_form.valueChanges.forEach(el => { this.renameWorkspace(el.trim()) })
 
-
-    // const analytics = getAnalytics();
-    // logEvent(analytics, 'onload', {
-    //   items: [{ uid: this.auth.uid }]
-    // });
-
-    // let dialogRef = this.dialog.open(WelcomeComponent, {
-    //   height: '400px',
-    //   width: '600px',
-    // });
-
-
-
-
-
   }
 
-
+  ngOnDestroy() {
+    if (this.userAuthSubscription) {
+      this.userAuthSubscription.unsubscribe();
+    }
+    if (this.connectionSubscription) {
+      this.connectionSubscription.unsubscribe();
+    }
+    if (this.scrollingSubscription) {
+      this.scrollingSubscription.unsubscribe();
+    }
+  }
 
   ngAfterViewInit() {
+    this.startWorkspace();
     this.recenterViews();
   }
+
+
+  /**
+   *called on Application Init. Checks the params and loads any content 
+   * passed in the URL. If this laods, it will push the timeline state. 
+   */
+  startWorkspace() {
+    console.log("STARTING WORKSPACE")
+
+    let searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.has('ex')) {
+      this.loadExampleAtURL(searchParams.get('ex'))
+      history.pushState({ page: 1 }, "AdaCAD.org ", "")
+
+    } else if (searchParams.has('share')) {
+      this.loadFromShare(+searchParams.get('share'))
+        .then(res => {
+          this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
+          this.addTimelineStateOnly();
+        })
+        .catch(err => {
+          this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
+          this.loadBlankFile().then(el => this.addTimelineStateOnly())
+        })
+      history.pushState({ page: 1 }, "AdaCAD.org ", "")
+    } else {
+      this.loadBlankFile();
+    }
+
+  }
+
+  /**
+ * this is called anytime a user event is fired, which will be immediate on load so it may conflict with start workspace
+ * @param user 
+ */
+  initLoginLogoutSequence(user: User) {
+    console.log("IN LOGIN/LOGOUT ", user)
+    const workspace_has_content = this.ss.hasTimeline();
+
+    if (user && workspace_has_content) {
+      // WRITE THE FILE INFORMAITON LOCALLY to this USERs DB
+      this.saveFile();
+
+    } else if (user && !workspace_has_content) {
+      // OPEN THE STARTING DIALOG
+
+    } else if (!user && workspace_has_content) {
+      // DO NOTHING
+
+    } else {
+      //LOAD WELCOME CONTENT
+
+    }
+
+
+
+
+    if (!user) return;
+
+    //CASE 1: USER LOGS IN MID PROJECT. 
+    if (this.ss.hasTimeline()) {
+      this.saveFile();
+    } else {
+
+      let searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.has('ex')) {
+        this.loadExampleAtURL(searchParams.get('ex'))
+        history.pushState({ page: 1 }, "AdaCAD.org ", "")
+
+      } else if (searchParams.has('share')) {
+        this.loadFromShare(+(searchParams.get('share')))
+          .then(res => {
+            this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
+            this.addTimelineStateOnly();
+          })
+          .catch(err => {
+            this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
+            this.loadBlankFile().then(el => this.addTimelineStateOnly())
+          })
+        history.pushState({ page: 1 }, "AdaCAD.org ", "")
+      } else if (user === null) {
+        this.loadStarterFile()
+          .then(res => {
+            this.addTimelineStateOnly();
+          })
+          .catch(err => {
+            this.loadBlankFile().then(res => { this.addTimelineStateOnly(); })
+            console.error(err)
+
+          })
+      } else {
+        this.loadBlankFile()
+          .then(res => {
+            this.addTimelineStateOnly();
+            this.openAdaFiles("welcome");
+          })
+      }
+
+
+    }
+
+    // if(user === null){
+    //   //Called on logout - can you tell a logout
+    //   if(this.auth.isFirstSession) this.loadStarterFile();
+    //   //do nothing
+    // }else{
+    //   this.loadBlankFile();
+
+    // if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
+    //   this.openAdaFiles("welcome"); 
+    // }else{
+    //   console.log("ON LOGOUT?")
+    //   this.saveFile();
+    //   this.files.writeNewFileMetaData(
+    //     user.uid, 
+    //     this.files.getCurrentFileId(), 
+    //     this.files.getCurrentFileName(), 
+    //     this.files.getCurrentFileDesc(),
+    //     this.files.getCurrentFileFromShare())
+
+
+    // }
+
+    //}
+  }
+
+
+
+
+
 
 
   clearAll(): void {
@@ -335,8 +471,6 @@ export class AppComponent implements OnInit {
    */
   generateBlankDraftAndPlaceInMixer(obj: any, origin: 'toggle' | 'editor' | 'starter'): Promise<number> {
 
-    console.log("MAKING BLANK DRAFT")
-
     //if it has a parent and it does not yet have a view ref. 
     //this.tree.setSubdraftParent(id, -1)
     const draft = initDraftWithParams({ warps: obj.warps, wefts: obj.wefts });
@@ -396,7 +530,7 @@ export class AppComponent implements OnInit {
   share() {
     const dialogRef = this.dialog.open(ShareComponent, {
       width: '600px',
-      data: { fileid: this.files.getCurrentFileId() }
+      data: { fileid: this.ws.current_file.id }
     });
   }
 
@@ -424,7 +558,7 @@ export class AppComponent implements OnInit {
       case 'ada':
         this.fs.saver.ada().then(out => {
           link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
-          link.download = this.files.getCurrentFileName() + ".ada";
+          link.download = this.ws.current_file.name + ".ada";
           link.click();
         })
         break;
@@ -460,153 +594,68 @@ export class AppComponent implements OnInit {
 
 
   loadMostRecent(): Promise<any> {
-    const user = this.auth.uid;
 
-
-    return this.auth.getMostRecentFileIdFromUser(user)
+    return this.fb.getMostRecentFileIdFromUser()
       .then(fileid => {
 
         if (fileid !== null) {
 
-          let fns = [this.files.getFile(fileid), this.files.getFileMeta(fileid)];
+          let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
           return Promise.all(fns)
             .then(res => {
-              const ada = res[0];
-              const meta = res[1];
+              const ada = <SaveObj>res[0];
+              const meta = <FileMeta>res[1];
 
               if (ada === undefined) {
                 return Promise.reject("no ada file found at specified file id")
               } else if (meta === undefined) {
-                this.files.setCurrentFileInfo(fileid, 'file name not found', '', '');
-                return this.prepAndLoadFile('file name not found', 'db', fileid, '', ada, '');
+                const meta = {
+                  id: generateId(8),
+                  name: 'filename not found',
+                  desc: '',
+                  from_share: ''
+                }
+                this.ws.setCurrentFile(meta);
+                return this.prepAndLoadFile(ada, meta, 'db');
               } else {
-                this.files.setCurrentFileInfo(fileid, meta.name, meta.desc, meta.from_share);
-                return this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada, meta.from_share);
+                this.ws.setCurrentFile(meta);
+                return this.prepAndLoadFile(ada, meta, 'db');
               }
             })
             .catch(err => {
               return Promise.reject("error on getFile " + err)
 
             })
-        } else {
-          //handle a legacy case where "ada" was stored instead of fileid.
-          this.auth.getMostRecentAdaFromUser(user)
-            .then(adafile => {
-              if (adafile == null) {
-                return Promise.reject("No recent file located")
-              }
-
-              const fns = [
-                this.files.convertAdaToFile(user, adafile),
-                this.files.getFile(fileid),
-                this.files.getFileMeta(fileid)
-              ]
-
-              return Promise.all(fns)
-                .then(res => {
-                  const fileid = res[0];
-                  const ada = res[1];
-                  const meta = res[2];
-
-                  if (ada === undefined) {
-                    return Promise.reject("No Ada File Found")
-                  } else if (meta === undefined) {
-                    this.files.setCurrentFileInfo(fileid, 'file name not found', '', '');
-                    return this.prepAndLoadFile('file name not found', 'db', fileid, '', ada, '');
-                  } else {
-                    this.files.setCurrentFileInfo(fileid, meta.name, meta.desc, meta.from_share);
-                    return this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada, meta.from_share);
-                  }
-                })
-            });
         }
+      }).catch(err => {
+        console.error(err);
+        return Promise.reject("no last file found")
       })
   }
 
-  /**
-   * this is called anytime a user event is fired, 
-   * TODO, if the person was LOGGED IN and now LOGGED OUT
-   * @param user 
-   */
-  initLoginLogoutSequence(user: User) {
-    console.log("IN LOGIN/LOGOUT ", user)
-    /** TODO: check also if the person is online */
 
+  //THIS IS CALLED WHEN THE PAGE IS LOADED 
+  // checkURLOnLoad() {
+  //   let loaded_from_url = true;
+  //   let searchParams = new URLSearchParams(window.location.search);
+  //   if (searchParams.has('ex')) {
+  //     this.loadExampleAtURL(searchParams.get('ex'))
+  //     history.pushState({ page: 1 }, "AdaCAD.org ", "")
 
-    //check history first 
-    console.log("STARTING STATE has timeline", this.ss.hasTimeline())
+  //   } else if (searchParams.has('share')) {
+  //     this.loadFromShare(searchParams.get('share'))
+  //       .then(res => {
+  //         this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
+  //         this.addTimelineStateOnly();
+  //       })
+  //       .catch(err => {
+  //         this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
+  //         this.loadBlankFile().then(el => this.addTimelineStateOnly())
+  //       })
+  //     history.pushState({ page: 1 }, "AdaCAD.org ", "")
+  //   }
+  // }
 
-    if (this.ss.hasTimeline()) {
-
-      //IS LOGGED IN - save current state to DB. 
-      if (user !== null) {
-        this.saveFile();
-      }
-
-
-    } else {
-
-      let searchParams = new URLSearchParams(window.location.search);
-      if (searchParams.has('ex')) {
-        this.loadExampleAtURL(searchParams.get('ex'))
-        history.pushState({ page: 1 }, "AdaCAD.org ", "")
-
-      } else if (searchParams.has('share')) {
-        this.loadFromShare(searchParams.get('share'))
-          .then(res => {
-            this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
-            this.addTimelineStateOnly();
-          })
-          .catch(err => {
-            this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
-            this.loadBlankFile().then(el => this.addTimelineStateOnly())
-          })
-        history.pushState({ page: 1 }, "AdaCAD.org ", "")
-      } else if (user === null) {
-        this.loadStarterFile()
-          .then(res => {
-            this.addTimelineStateOnly();
-          })
-          .catch(err => {
-            this.loadBlankFile().then(res => { this.addTimelineStateOnly(); })
-            console.error(err)
-
-          })
-      } else {
-        this.loadBlankFile()
-          .then(res => {
-            this.addTimelineStateOnly();
-            this.openAdaFiles("welcome");
-          })
-      }
-
-
-    }
-
-    // if(user === null){
-    //   //Called on logout - can you tell a logout
-    //   if(this.auth.isFirstSession) this.loadStarterFile();
-    //   //do nothing
-    // }else{
-    //   this.loadBlankFile();
-
-    // if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
-    //   this.openAdaFiles("welcome"); 
-    // }else{
-    //   console.log("ON LOGOUT?")
-    //   this.saveFile();
-    //   this.files.writeNewFileMetaData(
-    //     user.uid, 
-    //     this.files.getCurrentFileId(), 
-    //     this.files.getCurrentFileName(), 
-    //     this.files.getCurrentFileDesc(),
-    //     this.files.getCurrentFileFromShare())
-
-
-    // }
-
-    //}
-  }
 
   insertPasteFile(result: LoadResponse) {
     this.processFileData(result.data).then(data => {
@@ -694,10 +743,11 @@ export class AppComponent implements OnInit {
   }
 
   async duplicateFileInDB(fileid: number) {
-    const ada = await this.files.getFile(fileid);
-    const meta = await this.files.getFileMeta(fileid);
-    this.files.duplicate(this.auth.uid, meta.name + "-copy", meta.desc, ada, meta.from_share).then(fileid => {
-      this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada, meta.from_share).then(res => {
+    const ada = await this.fb.getFile(fileid);
+    const meta = await this.fb.getFileMeta(fileid);
+    meta.name = meta.name + '-copy'
+    this.fb.duplicate(ada, meta).then(fileid => {
+      this.prepAndLoadFile(ada, meta, 'db').then(res => {
         this.saveFile();
       });
     })
@@ -712,73 +762,42 @@ export class AppComponent implements OnInit {
    * so if it is shared again, that information is retained. 
    * @param shareid 
    */
-  loadFromShare(shareid: string): Promise<any> {
-    let share_id = -1;
-    console.log("LOAD FROM SHARE ", shareid, this.auth.isLoggedIn)
-
+  loadFromShare(shareid: number): Promise<any> {
 
     //GET THE SHARED FILE
-    return this.files.isShared(shareid)
+    return this.fb.getShare(shareid)
       .then(share_obj => {
         if (share_obj == null) {
           return Promise.reject("NO SHARED FILE EXISTS")
         }
 
-        var int_shareid: number = +shareid;
-        share_id = int_shareid;
-        return Promise.all([this.files.getFile(int_shareid), share_obj, shareid]);
+        return Promise.all([this.loadFromDB(shareid), share_obj]);
 
       }).then(file_objs => {
 
-        if (this.auth.isLoggedIn) return this.loadFromShareWhileLoggedIn(file_objs);
-        else return this.loadFromShareWhileLoggedOut(file_objs);
-
+        let meta = {
+          id: generateId(8),
+          name: (<ShareObj>file_objs[1]).filename,
+          desc: (<ShareObj>file_objs[1]).desc,
+          from_share: shareid.toString()
+        }
+        this.ws.setCurrentFile(meta);
       }).catch(err => {
         console.error(err);
         return Promise.reject(err);
       })
   }
 
-  /**
-   * if the user is logged in, this automatically duplicates the shared file into a new file within their 
-   * local directory
-   * @param file_objs 
-   */
-  loadFromShareWhileLoggedIn(file_objs: any): Promise<any> {
-
-    return this.files.duplicate(this.auth.uid, file_objs[1].filename, file_objs[1].desc, file_objs[0], file_objs[2])
-      .then(fileid => {
-        return Promise.all([this.files.getFile(fileid), this.files.getFileMeta(fileid), fileid]);
-      }).then(file_data => {
-        return this.prepAndLoadFile(file_data[1].name, 'db', file_data[2], file_data[1].desc, file_data[0], file_data[1].from_share)
-      }).catch(err => {
-        console.error(err);
-      })
-
-  }
-
-  /**
-   * if the user isn't logged in, they should still be able to load the file locally. It should just get 
-   * a new id in the case they eventually login. 
-   * @param share_id 
-   */
-  loadFromShareWhileLoggedOut(file_objs: any): Promise<any> {
-
-    return this.prepAndLoadFile(file_objs[1].filename, 'db', generateId(8), file_objs[1].desc, file_objs[0], file_objs[2]);
-
-
-  }
-
 
 
   //must be online
   loadFromDB(fileid: number): Promise<any> {
-    let fns = [this.files.getFile(fileid), this.files.getFileMeta(fileid)];
+    let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
     return Promise.all(fns)
       .then(res => {
-        const ada = res[0];
-        const meta = res[1];
-        return this.prepAndLoadFile(meta.name, 'db', fileid, meta.desc, ada, meta.from_share)
+        const ada = <SaveObj>res[0];
+        const meta = <FileMeta>res[1];
+        return this.prepAndLoadFile(ada, meta, 'db')
       })
       .catch(err => {
         return Promise.reject(err);
@@ -793,11 +812,18 @@ export class AppComponent implements OnInit {
    */
   loadBlankFile(): Promise<any> {
     this.clearAll();
-    return this.files.setCurrentFile(this.files.generateFileId(), 'new file', '', '')
-      .then(res => {
-        this.filename_form.setValue(this.files.getCurrentFileName())
-        return Promise.resolve(true);
-      });
+    const meta = {
+      id: generateId(8),
+      name: 'blank workspace',
+      desc: '',
+      from_share: ''
+    }
+
+
+    this.ws.setCurrentFile(meta)
+    this.filename_form.setValue(meta.name)
+    return Promise.resolve(true);
+
   }
 
 
@@ -807,25 +833,27 @@ export class AppComponent implements OnInit {
    */
   loadStarterFile(): Promise<any> {
 
-    return this.files.setCurrentFile(this.files.generateFileId(), 'welcome', '', '')
-      .then(res => {
+    let meta = {
+      id: generateId(8),
+      name: 'welcome',
+      desc: '',
+      from_share: ''
+    }
+    this.ws.setCurrentFile(meta)
 
-        let obj = {
-          warps: defaults.warps,
-          wefts: defaults.wefts,
-          type: defaults.loom_settings.type,
-          epi: defaults.loom_settings.epi,
-          units: defaults.loom_settings.units,
-          frames: defaults.loom_settings.frames,
-          treadles: defaults.loom_settings.treadles
-        }
+    let obj = {
+      warps: defaults.warps,
+      wefts: defaults.wefts,
+      type: defaults.loom_settings.type,
+      epi: defaults.loom_settings.epi,
+      units: defaults.loom_settings.units,
+      frames: defaults.loom_settings.frames,
+      treadles: defaults.loom_settings.treadles
+    }
 
-        this.filename_form.setValue(this.files.getCurrentFileName())
+    this.filename_form.setValue(this.ws.current_file.name)
 
-        return this.generateBlankDraftAndPlaceInMixer(obj, 'starter');
-      });
-
-
+    return this.generateBlankDraftAndPlaceInMixer(obj, 'starter');
 
   }
 
@@ -836,10 +864,10 @@ export class AppComponent implements OnInit {
 
   //Unlike other functions that can return a promise that is rejected with the parent funciton handling the error, the http.get makes it hard to return upon completion, instead, we just handle the failure case internally
   loadExampleAtURL(name: string) {
-    const analytics = getAnalytics();
-    logEvent(analytics, 'onurl', {
-      items: [{ uid: this.auth.uid, name: name }]
-    });
+    // const analytics = getAnalytics();
+    // logEvent(analytics, 'onurl', {
+    //   items: [{ uid: this.auth.uid, name: name }]
+    // });
 
     this.http.get('assets/examples/' + name + ".ada", { observe: 'response' })
       .pipe(
@@ -855,7 +883,13 @@ export class AppComponent implements OnInit {
           console.log('Data received:', data);
           this.openSnackBar('opening example ' + name)
           this.clearAll();
-          return this.fs.loader.ada(name, 'upload', -1, '', data.body, '')
+          const meta = {
+            id: -1,
+            name: name,
+            desc: '',
+            from_share: ''
+          }
+          return this.fs.loader.ada(<SaveObj>data.body, meta, 'upload')
             .then(loadresponse => {
               return this.loadNewFile(loadresponse, 'loadURL')
             })
@@ -888,11 +922,10 @@ export class AppComponent implements OnInit {
    */
   loadNewFile(result: LoadResponse, source: string): Promise<any> {
 
-    return this.files.setCurrentFile(result.id, result.name, result.desc, result.from_share)
-      .then(res => {
-        this.filename_form.setValue(this.files.getCurrentFileName())
-        return this.processFileData(result.data)
-      }).then(data => {
+    this.ws.setCurrentFile(result.meta)
+    this.filename_form.setValue(result.meta.name)
+    return this.processFileData(result.data)
+      .then(data => {
 
         if (source !== 'statechange') {
           if (this.tree.nodes.length > 0) {
@@ -997,7 +1030,7 @@ export class AppComponent implements OnInit {
   }
 
   logout() {
-    this.auth.logout();
+    this.fb.logout();
   }
 
 
@@ -1296,9 +1329,9 @@ export class AppComponent implements OnInit {
 
 
 
-  prepAndLoadFile(name: string, src: string, id: number, desc: string, ada: any, from_share: ''): Promise<any> {
+  prepAndLoadFile(ada: SaveObj, meta: FileMeta, src: string): Promise<any> {
     this.clearAll();
-    return this.fs.loader.ada(name, src, id, desc, ada, from_share).then(lr => {
+    return this.fs.loader.ada(ada, meta, src).then(lr => {
       return this.loadNewFile(lr, 'prepAndLoad');
     });
   }
@@ -1306,7 +1339,7 @@ export class AppComponent implements OnInit {
   /** 
    * Take a fileObj returned from the fileservice and process
    */
-  async processFileData(data: FileObj): Promise<string | void> {
+  async processFileData(data: SaveObj): Promise<string | void> {
 
     this.loading = true;
     let entry_mapping = [];
@@ -1316,7 +1349,7 @@ export class AppComponent implements OnInit {
     //1. filter any operations with a parameter of type file, and load the associated file. 
     const images_to_load = [];
 
-    if (data.filename !== 'paste') {
+    if (data.type !== 'partial') {
       //only load in new files if this is a true load event, if it is pasting from exisitng files, it doesn't need to re-analyze the images. 
       if (sameOrNewerVersion(data.version, '4.1.7')) {
         //LOAD THE NEW FILE OBJECT
@@ -1356,7 +1389,7 @@ export class AppComponent implements OnInit {
       .then(id_map => {
         entry_mapping = id_map;
         // console.log(" LOADED TREE Nodes ", this.tree.nodes, id_map)
-        return this.loadTreeNodes(id_map, data.treenodes);
+        return this.loadTreeNodes(id_map, data.tree);
       }
       ).then(treenodes => {
         // console.log("TREE NODES is ", data.treenodes)
@@ -1587,14 +1620,10 @@ export class AppComponent implements OnInit {
     //if this user is logged in, write it to the
     this.fs.saver.ada()
       .then(so => {
-        const err = this.ss.addMixerHistoryState(so);
         this.ss.writeStateToTimeline(so);
-
-        if (err == 1) {
-          //TO DO - create error message
-
-        }
-      });
+        return this.fb.updateFile(so.file, this.ws.current_file);
+      })
+      .catch(err => console.error(err));
   }
 
 
@@ -1630,12 +1659,9 @@ export class AppComponent implements OnInit {
     this.tree.clear();
 
     this.fs.loader.ada(
-      this.files.getCurrentFileName(),
-      'redo',
-      this.files.getCurrentFileId(),
-      this.files.getCurrentFileDesc(),
       so,
-      this.files.getCurrentFileFromShare()
+      this.ws.current_file,
+      'redo',
     )
       .then(lr => this.loadNewFile(lr, 'statechange'));
 
@@ -1660,12 +1686,9 @@ export class AppComponent implements OnInit {
 
 
     this.fs.loader.ada(
-      this.files.getCurrentFileName(),
-      'undo',
-      this.files.getCurrentFileId(),
-      this.files.getCurrentFileDesc(),
       so,
-      this.files.getCurrentFileFromShare()
+      this.ws.current_file,
+      'undo'
     ).then(lr => {
       this.loadNewFile(lr, 'statechange');
 
@@ -1719,8 +1742,8 @@ export class AppComponent implements OnInit {
   }
 
   renameWorkspace(name: string) {
-    let id = this.files.getCurrentFileId();
-    this.files.renameFile(id, name);
+    this.ws.current_file.name = name;
+    if (this.connection_state && this.user_auth_state) this.fb.writeFileMetaData(this.ws.current_file)
   }
 
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LoomSettings } from 'adacad-drafting-lib';
+import { FileMeta } from '../model/datatypes';
 import { defaults } from '../model/defaults';
 
 @Injectable({
@@ -38,8 +39,26 @@ export class WorkspaceService {
   force_jacquard_threshold: number = defaults.force_jacquard_threshold;
   largest_lcm_factor: number = defaults.largest_lcm_factor;
 
+  /*
+  store information associated with the current file
+  */
+  current_file: FileMeta = {
+    id: -1,
+    name: 'no name',
+    desc: '',
+    from_share: '',
+
+  }
+
+
 
   constructor() { }
+
+
+  public setCurrentFile(meta: FileMeta) {
+    this.current_file = meta;
+  }
+
 
 
   getWorkspaceLoomSettings(): LoomSettings {

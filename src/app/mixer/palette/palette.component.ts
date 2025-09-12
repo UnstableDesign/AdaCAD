@@ -6,12 +6,14 @@ import { Subscription, fromEvent } from 'rxjs';
 import { Bounds, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { FirebaseService } from '../../core/provider/firebase.service';
 import { MediaService } from '../../core/provider/media.service';
 import { NotesService } from '../../core/provider/notes.service';
 import { OperationService } from '../../core/provider/operation.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { ViewerService } from '../../core/provider/viewer.service';
+import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ZoomService } from '../../core/provider/zoom.service';
 import { LayersService } from '../../mixer/provider/layers.service';
 import { MultiselectService } from '../provider/multiselect.service';
@@ -38,10 +40,12 @@ export class PaletteComponent implements OnInit {
   private layers = inject(LayersService);
   private resolver = inject(ComponentFactoryResolver);
   private fs = inject(FileService);
+  private fb = inject(FirebaseService)
   private _snackBar = inject(MatSnackBar);
   viewport = inject(ViewportService);
   private notes = inject(NotesService);
   private vs = inject(ViewerService);
+  private ws = inject(WorkspaceService);
   private ss = inject(StateService);
   private zs = inject(ZoomService);
   private multiselect = inject(MultiselectService);
@@ -268,13 +272,11 @@ export class PaletteComponent implements OnInit {
 
     this.fs.saver.ada()
       .then(so => {
-        const err = this.ss.addMixerHistoryState(so);
         this.ss.writeStateToTimeline(so);
-        if (err == 1) {
-          //TO DO SET AN ERROR STATE HERE IF 
-        }
-
-      });
+        let meta = this.ws.current_file;
+        return this.fb.updateFile(so.file, meta);
+      })
+      .catch(err => console.error(err));
   }
 
   /**

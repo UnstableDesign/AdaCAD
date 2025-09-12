@@ -266,7 +266,7 @@ export interface SaveObj {
   version: string,
   workspace: any,
   zoom: ZoomProxy,
-  type: string,
+  type: 'mixer' | 'partial',
   nodes: Array<NodeComponentProxy>,
   tree: Array<TreeNodeProxy>,
   draft_nodes: Array<DraftNodeProxy>,
@@ -276,19 +276,19 @@ export interface SaveObj {
   indexed_image_data: Array<IndexedColorMediaProxy>
 }
 
-export interface FileObj {
-  version: string,
-  workspace: any,
-  zoom: ZoomProxy,
-  filename: string,
-  nodes: Array<NodeComponentProxy>,
-  treenodes: Array<TreeNodeProxy>,
-  draft_nodes: Array<DraftNodeProxy>,
-  notes: Array<any>,
-  ops: Array<OpComponentProxy>,
-  indexed_image_data: Array<IndexedColorMediaProxy>
+// export interface FileObj {
+//   version: string,
+//   workspace: any,
+//   zoom: ZoomProxy,
+//   filename: string,
+//   nodes: Array<NodeComponentProxy>,
+//   treenodes: Array<TreeNodeProxy>,
+//   draft_nodes: Array<DraftNodeProxy>,
+//   notes: Array<any>,
+//   ops: Array<OpComponentProxy>,
+//   indexed_image_data: Array<IndexedColorMediaProxy>
 
-}
+// }
 
 
 export interface StatusMessage {
@@ -298,16 +298,13 @@ export interface StatusMessage {
 }
 
 export interface LoadResponse {
-  data: FileObj,
-  id: number,
-  name: string,
-  desc: string,
+  data: SaveObj,
+  meta: FileMeta,
   status: number,
-  from_share: string
 }
 
 export interface Fileloader {
-  ada: (filename: string, src: string, id: number, desc: string, data: any, from_share: string) => Promise<LoadResponse>,
+  ada: (data: SaveObj, meta: FileMeta, src: string) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
   //wif: (filename: string, data: any) => Promise<LoadResponse>,
 }
@@ -429,12 +426,35 @@ export type RenderingFlags = {
 }
 
 
+export type FileMeta = {
+  id: number,
+  name: string,
+  desc: string,
+  time?: number,
+  from_share: string
+}
+
+export type UserFile = {
+  id: number,
+  meta: FileMeta
+}
+
+export type FilesState = {
+  user: UserFile[],
+  shared: ShareObj[],
+  public: ShareObj[]
+}
+
+
 /**
  * File sharing
  */
 
 
+
+
 export type ShareObj = {
+  id: number,
   license: string,
   owner_uid: string,
   owner_creditline: string,
