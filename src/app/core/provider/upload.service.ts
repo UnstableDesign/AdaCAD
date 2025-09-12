@@ -1,10 +1,9 @@
 import { HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-
 import { deleteObject, getDownloadURL, getMetadata, getStorage, ref, uploadBytes, uploadBytesResumable, UploadMetadata } from "@angular/fire/storage";
 import { Observable } from 'rxjs';
 import { Upload } from '../model/datatypes';
-import { AuthService } from '../provider/auth.service';
+import { FirebaseService } from './firebase.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -15,8 +14,7 @@ const httpOptions = {
 
 @Injectable()
 export class UploadService {
-  private auth = inject(AuthService);
-
+  private fb = inject(FirebaseService)
 
   uploadProgress: Observable<number>;
   progress: number;
@@ -111,11 +109,12 @@ export class UploadService {
     //const id = Math.random().toString(36).substring(2);
     let id = '';
     let metadata: UploadMetadata = null;
+    let uid = (this.fb.auth.currentUser) ? this.fb.auth.currentUser.uid : -1;
     return this.getHash(upload)
       .then(hash => {
         id = hash;
         metadata = {
-          customMetadata: { user: this.auth.uid, filename: upload.name }
+          customMetadata: { user: uid.toString(), filename: upload.name }
         };
         upload.name = id;
 

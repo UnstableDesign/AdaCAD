@@ -1,5 +1,5 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
-import { Auth, signOut, User, user } from '@angular/fire/auth';
+import { Auth, GoogleAuthProvider, signInWithPopup, signOut, User, user } from '@angular/fire/auth';
 import { Database, get, onChildAdded, onChildChanged, onChildRemoved, onValue, orderByChild, query, ref, remove, set, update } from '@angular/fire/database';
 import { generateId } from 'adacad-drafting-lib';
 import { BehaviorSubject, Subscription } from 'rxjs';
@@ -219,6 +219,10 @@ export class FirebaseService implements OnDestroy {
     }).catch(err => {
       console.error("Could Not Sign Out")
     })
+  }
+
+  login() {
+    return signInWithPopup(this.auth, new GoogleAuthProvider());
   }
 
 

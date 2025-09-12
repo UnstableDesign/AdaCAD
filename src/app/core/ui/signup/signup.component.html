@@ -1,9 +1,0 @@
-<div class="form-container">
-    <a routerLink="/login" id="goback">Login</a>
-    <h2>Sign Up</h2>
-    <form #formData='ngForm' (ngSubmit)="onSubmit(formData)">
-      <input type="text" placeholder="Email address" (ngModel)="email" name="email" class="input-txt" required>
-      <input type="password" placeholder="Password" (ngModel)="password" name="password" class="input-txt" required>
-      <button type="submit" [disabled]="!formData.valid" class="auth-btn">Create Account</button>
-    </form>
-  </div>

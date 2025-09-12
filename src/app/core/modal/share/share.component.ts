@@ -15,9 +15,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { SingleImage } from 'adacad-drafting-lib';
 import { MediaInstance, ShareObj } from '../../model/datatypes';
 import { defaults, licenses } from '../../model/defaults';
-import { AuthService } from '../../provider/auth.service';
 import { FileService } from '../../provider/file.service';
-import { FilesystemService } from '../../provider/filesystem.service';
 import { FirebaseService } from '../../provider/firebase.service';
 import { MediaService } from '../../provider/media.service';
 import { WorkspaceService } from '../../provider/workspace.service';
@@ -31,8 +29,6 @@ import { LoginComponent } from '../login/login.component';
   imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatTooltip, MatDivider, MatSlideToggle, MatFormField, MatLabel, MatSelect, FormsModule, MatOption, MatHint, MatInput, MatCheckbox, UploadFormComponent, MatDialogActions, MatDialogClose]
 })
 export class ShareComponent {
-  auth = inject(AuthService);
-  fs = inject(FilesystemService);
   fb = inject(FirebaseService);
   private file_serv = inject(FileService);
   private mediaService = inject(MediaService);
@@ -159,8 +155,8 @@ export class ShareComponent {
         license: 'by',
         filename: id_and_meta[1].name,
         desc: id_and_meta[1].desc,
-        owner_uid: (this.auth.isLoggedIn) ? this.auth.uid : 'anon',
-        owner_creditline: (this.auth.isLoggedIn) ? 'created by ' + this.auth.username : '',
+        owner_uid: (this.fb.auth.currentUser) ? this.fb.auth.currentUser.uid : 'anon',
+        owner_creditline: (this.fb.auth.currentUser) ? 'created by ' + this.fb.auth.currentUser.displayName : '',
         owner_url: '',
         public: false,
         img: 'none'

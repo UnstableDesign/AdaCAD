@@ -4,7 +4,6 @@ import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
 import { loadDraftFromFile, loadLoomFromFile } from '../model/helper';
-import { FilesystemService } from './filesystem.service';
 import { MaterialsService } from './materials.service';
 import { MediaService } from './media.service';
 import { NotesService } from './notes.service';
@@ -35,7 +34,6 @@ export class FileService {
   private vs = inject(VersionService);
   private ws = inject(WorkspaceService);
   private zs = inject(ZoomService);
-  private files = inject(FilesystemService);
   private media = inject(MediaService);
 
 

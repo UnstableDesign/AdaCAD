@@ -7,7 +7,6 @@ import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
-import { AuthService } from '../core/provider/auth.service';
 import { FirebaseService } from '../core/provider/firebase.service';
 import { TreeService } from '../core/provider/tree.service';
 import { ViewerService } from '../core/provider/viewer.service';
@@ -23,7 +22,6 @@ import { SimulationComponent } from './simulation/simulation.component';
   imports: [MatButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, DraftRenderingComponent, SimulationComponent, MatToolbar, MatSlider, MatSliderThumb, FormsModule, MatInput, MatMiniFabButton]
 })
 export class ViewerComponent {
-  auth = inject(AuthService);
   private tree = inject(TreeService);
   ws = inject(WorkspaceService);
   vs = inject(ViewerService);
