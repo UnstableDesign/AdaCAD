@@ -385,6 +385,7 @@ export type Example = {
   id: string,
   ext: string,
   title: string,
+  docs?: string,
   desc: string
 }
 

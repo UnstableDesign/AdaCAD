@@ -1,65 +1,83 @@
-.preloaded_files {
+@use '@angular/material' as mat;
+
+
+.example_tab {
+
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 
+	@include mat.card-overrides((subtitle-text-color: grey,
+			subtitle-text-size: 12px,
+			title-text-line-height:24px,
+			subtitle-text-line-height: 18px));
 }
 
-.card-content {
+
+.file_list {
+
+	background-color: whitesmoke;
 	display: flex;
-	flex: 0 1 400px;
 	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: flex-start;
+	padding: 8px;
+	width: 920px;
+}
+
+.file_list_container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.example-header {
+	color: black;
+	height: 80px;
+	overflow: hidden;
+}
+
+
+
+.example-card {
+	max-width: 300px;
+}
+
+.img-container {
+	position: relative;
+	height: 200px;
+	overflow: hidden;
+	object-fit: cover;
+}
+
+.example-img {
+	height: 200px;
+	overflow: hidden;
+	object-fit: cover;
+	position: relative;
+}
+
+.example-actions {
+	vertical-align: bottom;
+}
+
+.example-title {
+	margin-bottom: 4px;
+}
+
+
+.example-content {
+	height: 80px;
+	overflow: hidden;
+
+	p {
+		font-size: 12px;
+		line-height: 18px;
+	}
 }
 
 .license {
-	height: 30px;
+	height: 20px;
 	margin-left: 8px;
-}
-
-.img {
-	position: relative;
-	display: flex;
-	width: 400px;
-	height: 400px;
-	flex: 0 1 400px;
-	overflow: hidden;
-
-	img {
-		object-fit: scale-down;
-		object-position: top;
-
-	}
-
-
-
-}
-
-p {
-	margin: 0px 16px;
-	font-size: smaller;
-}
-
-.info {
-	display: flex;
-	flex: 1 1 60%;
-}
-
-.header {
-	width: 800px;
-	font-size: smaller;
-	padding: 16px 0px;
-}
-
-
-
-.mat-card-title,
-.community_files,
-.preloaded_files .mat-mdc-card {
-	margin: 8px;
-	width: 100%;
-}
-
-.mat-mdc-card-title {
-	display: flex;
-	justify-content: space-between;
 }
