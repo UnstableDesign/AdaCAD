@@ -89,6 +89,13 @@ export class ExamplesComponent implements OnDestroy {
   }
 
   openDocs(url: string) {
+    let formatted_url = ""
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      formatted_url = "http://" + url;
+    } else {
+      formatted_url = url;
+    }
+    console.log("OPENING URL ", url)
     window.open(url)
   }
 

@@ -382,7 +382,7 @@ export class FirebaseService implements OnDestroy {
  */
   getShare(fileid: number): Promise<ShareObj> {
     console.log("GET SHARE ", fileid, this.db)
-    return get(ref(this.db, `share/${fileid}`))
+    return get(ref(this.db, `shared/${fileid}`))
       .then((shareobj) => {
         console.log("GET SHARE OBJ", fileid)
 
