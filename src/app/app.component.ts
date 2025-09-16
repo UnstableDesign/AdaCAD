@@ -14,8 +14,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Loom, LoomSettings, generateId, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
-import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams } from 'adacad-drafting-lib/draft';
-import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType } from 'adacad-drafting-lib/loom';
+import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
+import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
 import { ExamplesComponent } from './core/modal/examples/examples.component';
@@ -765,25 +765,28 @@ export class AppComponent implements OnInit, OnDestroy {
    * @param shareid 
    */
   loadFromShare(shareid: number): Promise<any> {
+    let meta: FileMeta = {
+      id: -1,
+      name: '',
+      desc: '',
+      from_share: shareid.toString()
+    };
 
     //GET THE SHARED FILE
     return this.fb.getShare(shareid)
       .then(share_obj => {
-        console.log("GOT SHARE OBJECT ", share_obj)
         if (share_obj == null) {
           return Promise.reject("NO SHARED FILE EXISTS")
         }
+        meta.id = generateId(8);
+        meta.name = (<ShareObj>share_obj).filename;
+        meta.desc = (<ShareObj>share_obj).desc;
 
-        return Promise.all([this.loadFromDB(shareid), share_obj]);
-
+        return this.fb.getFile(shareid)
+      }).then(ada => {
+        console.log("GOT FILE ", shareid, ada)
+        return this.prepAndLoadFile(ada, meta, 'db')
       }).then(file_objs => {
-
-        let meta = {
-          id: generateId(8),
-          name: (<ShareObj>file_objs[1]).filename,
-          desc: (<ShareObj>file_objs[1]).desc,
-          from_share: shareid.toString()
-        }
         this.ws.setCurrentFile(meta);
       }).catch(err => {
         console.error(err);
@@ -795,7 +798,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   //must be online
   loadFromDB(fileid: number): Promise<any> {
-    console.log("Load from DB")
+    console.log("Load from DB", fileid)
     let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
     return Promise.all(fns)
       .then(res => {
@@ -925,7 +928,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string): Promise<any> {
-
+    console.log("LOADING FILE ", result)
     this.ws.setCurrentFile(result.meta)
     this.filename_form.setValue(result.meta.name)
     return this.processFileData(result.data)
@@ -1431,26 +1434,19 @@ export class AppComponent implements OnInit, OnDestroy {
                 console.error("could not find draft with id in draft list");
               }
               else {
-                //console.log("LOCATED DRAFT ", located_draft)
-                d = copyDraft(located_draft.draft)
-                ls = copyLoomSettings(located_draft.loom_settings);
-                loom = copyLoom(located_draft.loom);
-                if (located_draft.render_colors !== undefined) render_colors = located_draft.render_colors;
-                if (located_draft.scale !== undefined) scale = located_draft.scale;
-                if (located_draft.draft_visible !== undefined) draft_visible = located_draft.draft_visible;
+                d = (located_draft.draft) ? copyDraft(located_draft.draft) : initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
+                ls = (located_draft.loom_settings) ? copyLoomSettings(located_draft.loom_settings) : ls;
+                loom = (located_draft.loom) ? copyLoom(located_draft.loom) : initLoom(warps(d.drawdown), wefts(d.drawdown), ls.frames, ls.treadles);
+                render_colors = located_draft.render_colors ?? false;
+                scale = located_draft.scale ?? 1;
+                draft_visible = located_draft.draft_visible ?? true;
               }
 
             } else {
               console.error("draft node could not be found")
             }
 
-
-            if (d !== null && d !== undefined) {
-              d.id = (sn.cur_id); //do this so that all draft ids match the component / node ids
-            } else {
-              d = initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
-              d.id = (sn.cur_id);
-            }
+            d.id = (sn.cur_id);
 
             return {
               entry: sn,
@@ -1535,7 +1531,6 @@ export class AppComponent implements OnInit, OnDestroy {
             const node = this.tree.getNode(new_id.cur_id);
             if (node === undefined) return;
 
-            console.log("LOADED NODE ", node, np);
             (<DraftNode>node).draft.gen_name = np.gen_name;
             (<DraftNode>node).draft.ud_name = np.ud_name;
             (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;

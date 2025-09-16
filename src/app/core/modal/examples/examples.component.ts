@@ -95,7 +95,6 @@ export class ExamplesComponent implements OnDestroy {
     } else {
       formatted_url = url;
     }
-    console.log("OPENING URL ", url)
     window.open(url)
   }
 
