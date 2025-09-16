@@ -142,6 +142,12 @@ export class UploadService {
       });
   }
 
+  getDownloadURL(id: string): Promise<any> {
+    const storage = getStorage();
+    if (id === 'noinput') return Promise.resolve('');
+    return getDownloadURL(ref(storage, 'uploads/' + id));
+  }
+
 
 
   /**

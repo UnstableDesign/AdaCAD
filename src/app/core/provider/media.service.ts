@@ -213,6 +213,10 @@ export class MediaService {
     });
   }
 
+  loadImageViaURL(id: number, ref: string): Promise<any> {
+    return this.upSvc.getDownloadURL(ref)
+  }
+
   /**
    * loads an image  file
    * @param id the unique reference for this file

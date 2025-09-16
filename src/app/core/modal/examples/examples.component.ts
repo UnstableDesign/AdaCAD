@@ -1,5 +1,6 @@
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
+import { NgOptimizedImage } from '@angular/common';
 import { Component, EventEmitter, OnDestroy, Output, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
@@ -12,11 +13,12 @@ import { ExampleserviceService } from '../../provider/exampleservice.service';
 import { FirebaseService } from '../../provider/firebase.service';
 import { MediaService } from '../../provider/media.service';
 
+
 @Component({
   selector: 'app-examples',
   templateUrl: './examples.component.html',
   styleUrls: ['./examples.component.scss'],
-  imports: [MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatTabGroup, MatTab, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardActions, MatButton, MatDialogActions, MatDialogClose]
+  imports: [NgOptimizedImage, MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatTabGroup, MatTab, MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardActions, MatButton, MatDialogActions, MatDialogClose]
 })
 export class ExamplesComponent implements OnDestroy {
   fb = inject(FirebaseService);
@@ -31,24 +33,52 @@ export class ExamplesComponent implements OnDestroy {
   local_examples: any;
 
   sharedFileSubscription: Subscription;
-  community_examples: Array<ShareObj>;
-
+  community_examples: Array<ShareObj> = [];
+  exampleImgs: Array<any> = [];
+  placeholderImg: string = '/assets/example_img/placeholder.png'
 
   constructor() {
     const examples = this.examples;
 
     this.local_examples = examples.getExamples();
+    console.log("LOCAL EXAMPLES ", this.local_examples)
+
+
+
+
+  }
+
+  ngAfterViewInit() {
 
     this.sharedFileSubscription = this.fb.sharedFilesChangeEvent$.subscribe(files => {
       this.community_examples = files.public.slice();
+      this.exampleImgs = [];
+      let img_fns = [];
 
-      this.community_examples.filter(res => res.img !== 'none').forEach(res => {
-        this.ms.loadImage(-1, res.img).then(media => {
-          if (media.type = 'image') this.drawImage(res.id, <SingleImage>media.img)
-        });
-      });
+      console.log("COMMUNITY ", this.community_examples);
+      this.community_examples.forEach(ex => {
+        let img_src = (ex.img !== "none") ? this.ms.loadImageViaURL(-1, ex.img).then(url => { return url }) : '';
+        img_fns.push(img_src);
+      })
+
+      Promise.all(img_fns).then(outs => {
+        console.log("OUTS ", outs)
+        this.exampleImgs = outs;
+        console.log("IMG LIST ", this.exampleImgs)
+      })
+
+
+      // this.community_examples.filter(res => res.img !== 'none').forEach(res => {
+      //   this.ms.loadImageViaURL(-1, res.img).then(url => {
+      //     this.logoUrl = url;
+      //   })
+      //   // this.ms.loadImage(-1, res.img).then(media => {
+      //   //   this.logoUrl = this.media
+      //   //   console.log("MEDIA", media)
+      //   //   if (media.type = 'image') this.drawImage(res.id, <SingleImage>media.img)
+      //   // });
+      // });
     })
-
 
   }
 
@@ -84,7 +114,9 @@ export class ExamplesComponent implements OnDestroy {
 
 
 
-    const canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('img_preview' + id);
+    const canvas = document.createElement('canvas')
+
+    // const canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('img_preview' + id);
     const ctx = canvas.getContext('2d');
 
     const max_dim = (img.width > img.height) ? img.width : img.height;
@@ -97,6 +129,10 @@ export class ExamplesComponent implements OnDestroy {
 
 
     ctx.drawImage(img.image, 0, 0, img.width, img.height, 0, 0, use_width, use_height);
+
+    const img_div = document.getElementById('img_preview' + id);
+    img_div?.appendChild(canvas);
+
 
   }
 

@@ -947,8 +947,6 @@ export class TreeService {
  */
   getUpstreamOperations(id: number): Array<number> {
 
-    console.log("GETTING UPSTREAM OF ", id)
-
     let ops: Array<number> = [];
     const tn: TreeNode = this.getTreeNode(id);
 
@@ -956,7 +954,6 @@ export class TreeService {
       tn.inputs.forEach(el => {
         if (el.tn.node.type === 'op') {
           ops.push(el.tn.node.id);
-          console.log("FOUND ", el.tn.node.id)
         }
         ops = ops.concat(this.getUpstreamOperations(el.tn.node.id));
       });

@@ -200,7 +200,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.startWorkspace();
+    //this.startWorkspace();
     this.recenterViews();
   }
 
@@ -218,6 +218,8 @@ export class AppComponent implements OnInit, OnDestroy {
       history.pushState({ page: 1 }, "AdaCAD.org ", "")
 
     } else if (searchParams.has('share')) {
+      //THIS CANNOT RUN IF THE ACCESS TO THE DATABASE IS NOT YET CONFIGURED? 
+      console.log("LOADING FROM SHARE")
       this.loadFromShare(+searchParams.get('share'))
         .then(res => {
           this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
@@ -767,6 +769,7 @@ export class AppComponent implements OnInit, OnDestroy {
     //GET THE SHARED FILE
     return this.fb.getShare(shareid)
       .then(share_obj => {
+        console.log("GOT SHARE OBJECT ", share_obj)
         if (share_obj == null) {
           return Promise.reject("NO SHARED FILE EXISTS")
         }
@@ -792,6 +795,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   //must be online
   loadFromDB(fileid: number): Promise<any> {
+    console.log("Load from DB")
     let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
     return Promise.all(fns)
       .then(res => {

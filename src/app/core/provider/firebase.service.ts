@@ -122,14 +122,25 @@ export class FirebaseService implements OnDestroy {
     const sharedFiles = query(ref(this.db, 'shared'));
 
     onChildAdded(sharedFiles, (childsnapshot) => {
+      let obj: ShareObj = {
+        id: +childsnapshot.key,
+        license: childsnapshot.val().license,
+        owner_uid: childsnapshot.val().owner_uid,
+        owner_url: childsnapshot.val().owner_url,
+        owner_creditline: childsnapshot.val().owner_creditline,
+        filename: childsnapshot.val().filename,
+        desc: childsnapshot.val().desc,
+        img: childsnapshot.val().img,
+        public: childsnapshot.val().public
+      }
 
       //mark this as shared in the user's list
       if (childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
-        this.file_list.shared.push(childsnapshot.val())
+        this.file_list.shared.push(obj)
         this.emitSharedFilesEvent(this.file_list);
       }
       if (childsnapshot.val().public) {
-        this.file_list.public.push(childsnapshot.val());
+        this.file_list.public.push(obj);
         this.emitSharedFilesEvent(this.file_list);
 
       }
@@ -137,17 +148,27 @@ export class FirebaseService implements OnDestroy {
     });
 
     onChildChanged(sharedFiles, (childsnapshot) => {
-
+      let obj: ShareObj = {
+        id: +childsnapshot.key,
+        license: childsnapshot.val().license,
+        owner_uid: childsnapshot.val().owner_uid,
+        owner_url: childsnapshot.val().owner_url,
+        owner_creditline: childsnapshot.val().owner_creditline,
+        filename: childsnapshot.val().filename,
+        desc: childsnapshot.val().desc,
+        img: childsnapshot.val().img,
+        public: childsnapshot.val().public
+      }
 
       //mark this as shared in the user's list
       if (childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
-        this.file_list.shared.push(childsnapshot.val());
+        this.file_list.shared.push(obj);
         this.emitSharedFilesEvent(this.file_list);
 
 
       }
       if (childsnapshot.val().public) {
-        this.file_list.public.push(childsnapshot.val())
+        this.file_list.public.push(obj)
         this.emitSharedFilesEvent(this.file_list);
 
       }
@@ -360,9 +381,10 @@ export class FirebaseService implements OnDestroy {
  * @returns the file data
  */
   getShare(fileid: number): Promise<ShareObj> {
-
+    console.log("GET SHARE ", fileid, this.db)
     return get(ref(this.db, `share/${fileid}`))
       .then((shareobj) => {
+        console.log("GET SHARE OBJ", fileid)
 
         if (shareobj.exists()) {
           return Promise.resolve(shareobj.val());
