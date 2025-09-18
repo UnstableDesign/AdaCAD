@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkada_cad_docs=self.webpackChunkada_cad_docs||[]).push([[7113],{61596:a=>{a.exports=JSON.parse('{"label":"adacad 4.0","permalink":"/blog/tags/adacad-4-0","allTagsPath":"/blog/tags","count":2,"unlisted":false}')}}]);

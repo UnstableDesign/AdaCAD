@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkada_cad_docs=self.webpackChunkada_cad_docs||[]).push([[2144],{4219:a=>{a.exports=JSON.parse('{"permalink":"/blog/tags/software-updates","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);
