@@ -3,7 +3,9 @@
  * and scoped locally.
  */
 
- @keyframes playful{
+
+
+@keyframes playful {
 
   from {
     background-position-x: 0px;
@@ -13,24 +15,23 @@
     background-position-x: 1500px;
   }
 
- }
+}
+
+
+
+
 
 .heroBanner {
+  background-image: url('/img/bitmap.jpg');
   animation-name: playful;
-  animation-duration: 100s;
+  animation-duration: 1000s;
   animation-iteration-count: infinite;
-  animation-direction:alternate-reverse;
-  background-size: 2500px 324px;
+  background-blend-mode: multiply;
+  background-color: grey;
+  animation-direction: alternate-reverse;
   animation-timing-function: linear;
-  background-image: url('/img/WebBackground.png');
-
-  /* background-image:
-    linear-gradient(to right, grey 1px, transparent 1px),
-    linear-gradient(to bottom, grey 1px, transparent 1px); */
   padding: 4rem 0;
   text-align: left;
-  position: relative;
-  overflow: hidden;
 }
 
 @media screen and (max-width: 996px) {
@@ -46,4 +47,3 @@
   padding: 2px;
   justify-content: left;
 }
-

@@ -13,7 +13,7 @@ compound/complex -->
 
 
 ## Structure 
-
+<div class="structure">
 A weave structure is the order or pattern of interlacement between the warp and weft threads. There are different families of woven structure that share core properties, such as plain weave, twill, and satin. Each of the operations is capable of generating structures that obey the rules of a given family. 
 
  | operation name  | examples |
@@ -25,7 +25,7 @@ A weave structure is the order or pattern of interlacement between the warp and 
 | [satin](./satin) |![file](./img/satin.png) |  
 | [satin-ish](./satinish) | ![file](./img/satinish.png) |  
 | [sawtooth](./sawtooth) | ![file](./img/sawtooth.png) |  
-| [shaded_satin](./shaded_satin) | ![file](./img/shaded_satin.png) |  
+| [shaded satin](./shaded_satin) | ![file](./img/shaded_satin.png) |  
 | [sine wave sampler](./sine) | ![file](./img/sine.png) |  
 | [tabby](./tabbyder) | ![file](./img/tabbyder.png) |  
 | [twill](./twill) | ![file](./img/twill.png) |  
@@ -33,7 +33,7 @@ A weave structure is the order or pattern of interlacement between the warp and 
 | [waffle-ish](./waffleish) | ![file](./img/waffleish.png)|  
 | [undulating twill](./undulatingtwill) | ![file](./img/undulatingtwill.png) |  
 | [upload draft](./bwimagemap) | ![file](./img/bwimagemap.png) |  
-
+</div>
 
 ## Transformation 
 Transformation operations take an input structure or draft and transforms it in some way.
@@ -94,6 +94,7 @@ Describes operations that split apart a single input draft into multiple outputs
  | operation name  | examples |
 | -------- | ------- | 
 | [deinterlace wefts](./deinterlace) | ![file](./img/deinterlace.png) |  
+| [analyze systems](./analyzesystem) | ![file](./img/analyzesystem.png) |  
 
 
 ## Compute
@@ -106,6 +107,7 @@ Computer operations apply different forms of computational, binary, and/or mathe
 | [mask, (a,b) => (a AND b)](./mask) | ![file](./img/mask.png) |  
 | [cut, (a, b) => (a NAND b)](./cutout) | ![file](./img/cutout.png) |  
 | [diff, (a, b) => (a NEQ b)](./diff) | ![file](./img/diff.png) |  
+| [selector](./selector) | ![file](./img/selector.png) |  
 
 ## Helper
 Operations that automate common drafting techniques to ensure good woven and cloth structure.

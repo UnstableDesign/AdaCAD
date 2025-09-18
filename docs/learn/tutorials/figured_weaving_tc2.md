@@ -11,7 +11,6 @@ Generate a workflow for uploading an image and assigning shaded structures to di
 
 Prefer learning by video? Watch a recording of our [Weaving Imagery in AdaCAD](https://www.youtube.com/watch?v=eVma5l__VRk) virtual workshop.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/eVma5l__VRk?si=zNxfAr0wCdvbl1I3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 :::
 

@@ -22,8 +22,6 @@ export const OperationCard = ({children, name, display}) => (
  
 
   </div>
-
-     
   </a>
   </article>    
 

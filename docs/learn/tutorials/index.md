@@ -4,6 +4,21 @@
 Tutorials offer step by step instructions to help you build your own workspace.
 </div>
 
+
+<a href="multi-layer">
+<div class="tutorial-card card">
+    <div class="card-left">
+    ![](./img/colorblending_tutorial.jpeg)
+    </div>
+    <div class="card-right">
+    ## Color Blending via Layers
+    Blend warp and weft colors using layer notation. 
+
+    </div>
+
+</div>
+</a>
+
 <a href="figured_weaving_tc2">
 <div class="tutorial-card card">
     <div class="card-left">

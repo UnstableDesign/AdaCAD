@@ -1,6 +1,7 @@
 ---
 sidebar_position: 3
 tags: [Jacquard, TC2, AdaCAD 3, AdaCAD 4]
+title: Generate Files for a TC2
 
 ---
 
@@ -26,7 +27,7 @@ import TabItem from '@theme/TabItem';
 
         <iframe width="560" height="315" src="https://www.youtube.com/embed/zrmt8_4p7y4?si=Y4TSVZ82WfKvN4GE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
 
-###  Step-By-Step (Create File)
+##  Step-By-Step (Create File)
 
 
 :::tip

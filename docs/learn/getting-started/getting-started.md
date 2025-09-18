@@ -3,6 +3,10 @@ sidebar_position: 1
 ---
 
 # Getting Started
+
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/xS_DZB3A7yY?si=GE9Hq41VJQLuSLg0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 <div class="emph">
 At a high level, using AdaCAD involves the following steps: 
 </div>
@@ -22,13 +26,6 @@ Prefer learning by doing? Pick a project in our [tutorials](../tutorials/index.m
 
 :::
 
-:::tip
-
-Prefer learning by video? Watch a recording of our [Getting Started Virtual Workshop](https://www.youtube.com/watch?v=xS_DZB3A7yY) section to follow and learn.
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/xS_DZB3A7yY?si=GE9Hq41VJQLuSLg0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-:::
 
 
 ## More Learning Resources 
