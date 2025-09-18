@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkada_cad_docs=self.webpackChunkada_cad_docs||[]).push([[9661],{41892:(a,e,s)=>{s.r(e),s.d(e,{default:()=>l});s(67294);var c=s(36905),d=s(8264),r=s(35281),u=s(18790),n=s(46040),t=s(85893);function l(a){return(0,t.jsx)(d.FG,{className:(0,c.Z)(r.k.wrapper.docsPages),children:(0,t.jsx)(n.Z,{children:(0,u.H)(a.route.routes)})})}}}]);
