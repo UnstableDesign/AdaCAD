@@ -2,7 +2,6 @@ import { Draft } from "../draft/types";
 import { Img } from "../media/types";
 
 
-
 /**
  * an object that represents a possible categorization for an operation
  */
@@ -21,16 +20,17 @@ export type OpMeta = {
   displayname: string,
   desc: string,
   categories: Array<OpCategory>,
-  application?: string,
+  img?: string,
   advanced?: boolean,
   draft?: boolean,
+  deprecated?: boolean,
   old_names?: Array<string>,
   authors?: Array<string>,
   urls?: Array<string>
 }
 
 /**
- * a standard opeartion
+ * a standard opearation
  * @param name the internal name of this opearation (CHANGING THESE WILL BREAK LEGACY VERSIONS)
  * @param displayname the name to show upon this operation in the interface
  * @param dx the description of this operation
@@ -44,7 +44,7 @@ export type Operation = {
   name: string,
   params: Array<OperationParam>,
   inlets: Array<OperationInlet>,
-  old_names: Array<string>,
+  meta: OpMeta,
   perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
   generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string
 }

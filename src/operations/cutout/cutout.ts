@@ -1,11 +1,18 @@
 import { initDraftFromDrawdown, createCell, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { computeOp } from "../categories";
 
 const name = "cutout";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: "cut, (a, b) => (a NAND b)",
+  advanced: true,
+  categories: [computeOp],
+  desc: 'Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a and b are both marked as having warped raised, it changes the value to warp lowered, effectively cutting the black cells in b from a.',
+  img: 'cutout.png'
+}
 
 //PARAMS
 
@@ -127,4 +134,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const cutout: Operation = { name, old_names, params, inlets, perform, generateName };
+export const cutout: Operation = { name, meta, params, inlets, perform, generateName };

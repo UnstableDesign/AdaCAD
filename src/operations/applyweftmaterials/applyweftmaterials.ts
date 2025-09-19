@@ -1,19 +1,19 @@
 import { wefts, copyDraft, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { colorEffectsOp } from "../categories";
 
 const name = "apply weft materials";
 
 
-// const meta: OpMeta = {
-//   displayname: "set weft materials",
-//   desc: "Copies the materials used in the materials draft to the picks of the input draft.",
-//   application: "Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface",
-//   categories: [colorEffectsOp]
+const meta: OpMeta = {
+  displayname: "set weft materials",
+  img: 'apply_weft_materials.png',
+  desc: "Copies the materials used in the materials draft to the picks of the input draft.",
+  categories: [colorEffectsOp]
 
-// }
-const old_names: Array<string> = [];
+}
 
 
 //PARAMS
@@ -102,5 +102,5 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const apply_weft_mats: Operation = { name, old_names, params, inlets, perform, generateName };
+export const apply_weft_mats: Operation = { name, meta, params, inlets, perform, generateName };
 

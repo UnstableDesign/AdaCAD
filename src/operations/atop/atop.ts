@@ -1,10 +1,20 @@
 import { initDraftFromDrawdown, createCell, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { computeOp } from "../categories";
 
 const name = "atop";
-const old_names = ['set atop', 'set atop, (a, b) => a'];
+
+const meta: OpMeta = {
+  displayname: "set atop, (a, b) => b",
+  img: 'atop.png',
+  old_names: ['set atop', 'set atop, (a, b) => a'],
+  advanced: true,
+  categories: [computeOp],
+  desc: "Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If a is marked warp raised and b marked warp lowered, or vice versa, it sets the corresponding interlacement in the output draft to warp raised.",
+}
+
 
 //PARAMS
 
@@ -126,4 +136,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const atop: Operation = { name, old_names, params, inlets, perform, generateName };
+export const atop: Operation = { name, meta, params, inlets, perform, generateName };

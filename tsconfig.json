@@ -14,17 +14,16 @@
     "skipLibCheck": true, // Skips type checking of declaration files in node_modules
     "forceConsistentCasingInFileNames": true, // Enforces consistent casing in file names
     "sourceMap": true, // Generates source maps for easier debugging
-    "jsx": "react-jsx",
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.mdx"
+    "src/**/*.md"
   ],
   "exclude": [
     "node_modules", // Exclude node_modules
     "**/*.spec.ts", // Exclude test files
     "**/*.test.ts", // Exclude test files
-    "**/tests/**" // Exclude test directories
+    "**/tests/**", // Exclude test directories
   ]
 }

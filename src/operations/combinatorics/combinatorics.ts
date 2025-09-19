@@ -1,9 +1,17 @@
 import { Draft, initDraftWithParams, setCellValue, getCellValue, createCell } from "../../draft";
 import { getOpParamValById, flattenParamVals } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { structureOp } from "../categories";
+import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 
 const name = "combos";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'all possible structures',
+  advanced: true,
+  categories: [structureOp],
+  img: 'combos.png',
+  desc: "This operation generates a list of every possible valid structure for a draft of a given size and allows the user to iterate through that list. We define valid as having at least one interlacement in every warp end and weft pick. Selecting size 4 creates 22874 valid structures. You can enter any `selection` number between 1-22874 to see the structure associated with that number."
+}
 
 
 //PARAMS
@@ -103,7 +111,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const combinatorics: Operation = { name, old_names, params, inlets, perform, generateName };
+export const combinatorics: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

@@ -1,18 +1,18 @@
 import { warps, copyDraft, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { colorEffectsOp } from "../categories";
 
 const name = "apply warp materials";
 
-// const meta: OpMeta = {
-//   displayname: "set warp materials",
-//   desc: "Copies the materials used in the materials draft to the ends of the input draft.",
-//   application: "Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface",
-//   categories: [colorEffectsOp]
-// }
+const meta: OpMeta = {
+  displayname: "set warp materials",
+  img: "apply warp materials.png",
+  desc: "Copies the materials used in the materials draft to the ends of the input draft.",
+  categories: [colorEffectsOp]
+}
 
-const old_names: Array<string> = [];
 
 //PARAMS
 const shift_warp_mat: NumParam =
@@ -98,5 +98,5 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const apply_warp_mats: Operation = { name, old_names, params, inlets, perform, generateName };
+export const apply_warp_mats: Operation = { name, meta, params, inlets, perform, generateName };
 

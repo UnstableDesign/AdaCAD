@@ -2,20 +2,19 @@ import { SystemList, initDraftWithParams, wefts, warps, initDraftFromDrawdown, D
 import { cellToSequenceVal } from "../../draft/cell";
 import { Sequence } from "../../sequence/sequence";
 import { parseRegex, filterToUniqueValues, makeValidSystemList } from "../../utils";
+import { dissectOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../operations";
-import { StringParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "analyzesystem";
-const old_names: Array<string> = [];
 
-
-// const meta: OpMeta = {
-//   displayname: 'analyze systems',
-//   desc: "Creates a draft from a subset of an input draft. Specifically, allows you to select a specific system or group of systems to isolate into a new draft.",
-//   application: 'When working with complex or multi-layered drafts, this can be useful to isolate certain systems in order to visualize and confirm their correctness.',
-//   categories: [dissectOp],
-//   advanced: true
-// }
+const meta: OpMeta = {
+  displayname: "analyze system",
+  img: "analyzesystem.png",
+  desc: "Creates a draft from a subset of an input draft. Specifically, allows you to select a specific system or group of systems to isolate into a new draft.",
+  categories: [dissectOp],
+  advanced: true
+}
 
 //PARAMS
 const pattern: StringParam =
@@ -170,6 +169,6 @@ const parseWeftSystem = (val: string): Array<number> => {
 /***
  * takes an input draft and a system and returns a draft that only represents that system
  */
-export const analyzesystem: Operation = { name, old_names, params, inlets, perform, generateName };
+export const analyzesystem: Operation = { name, meta, params, inlets, perform, generateName };
 
 

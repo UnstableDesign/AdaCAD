@@ -1,10 +1,18 @@
 import { initDraftWithParams, wefts, warps, createCell, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { transformationsOp } from "../categories";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "clear";
 const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'clear',
+  advanced: true,
+  categories: [transformationsOp],
+  desc: "Converts all the interlacements in the input draft to be raised.",
+  img: 'clear.png'
+}
 
 //PARAMS
 
@@ -48,4 +56,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const clear: Operation = { name, old_names, params, inlets, perform, generateName };
+export const clear: Operation = { name, meta, params, inlets, perform, generateName };

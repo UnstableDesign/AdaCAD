@@ -1,11 +1,18 @@
 import { Draft, wefts, initDraftFromDrawdown, updateWarpSystemsAndShuttles, getDraftName } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { dissectOp } from "../categories";
 
 const name = "deinterlace";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'deinterlace wefts',
+  advanced: true,
+  categories: [dissectOp],
+  img: 'deinterlace.png',
+
+}
 
 //PARAMS
 
@@ -88,4 +95,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const deinterlace: Operation = { name, old_names, params, inlets, perform, generateName };
+export const deinterlace: Operation = { name, meta, params, inlets, perform, generateName };

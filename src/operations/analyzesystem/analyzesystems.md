@@ -1,12 +1,3 @@
----
-title: analyzesystem
-sidebar_label: analyze system
-tags: [advanced]
----
-
-# analyze system
-Creates a draft from a subset of an input draft. Specifically, allows you to select a specific system or group of systems to isolate into a new draft. 
-
 ![file](./img/analyzesystem.png)
 
 

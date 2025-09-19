@@ -1,15 +1,23 @@
 import { initDraftWithParams, createCell, Cell, wefts, warps, getHeddle, Draft, initDraftFromDrawdown } from "../../draft";
 import { Img, AnalyzedImage } from "../../media";
 import { getOpParamValById } from "../../operations";
-import { FileParam, NumParam, OperationInlet, OpParamVal, OpInput, OpInletValType, DynamicOperation } from "../types";
+import { structureOp } from "../categories";
+import { FileParam, NumParam, OperationInlet, OpParamVal, OpInput, OpInletValType, DynamicOperation, OpMeta } from "../types";
 
 
 
 const name = "bwimagemap";
-const old_names: Array<string> = [];
-
 const dynamic_param_id = [0];
 const dynamic_param_type = 'color';
+
+
+const meta: OpMeta = {
+  displayname: "upload draft",
+  img: "bwimagemap.png",
+  categories: [structureOp],
+  advanced: true,
+  desc: "This operation allow you to upload drafts that you may have previously created and saved as black and white images, or bitmap files into the workspace. If you upload a file that is not black and white, it will automatically convert pixels to black and white based on their color value."
+}
 
 //PARAMS
 //the value on this param needs to hold all the image data
@@ -166,4 +174,4 @@ const onParamChange = (): Array<OpInletValType> => {
 }
 
 
-export const bwimagemap: DynamicOperation = { name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+export const bwimagemap: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };

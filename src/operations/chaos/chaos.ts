@@ -1,13 +1,19 @@
 import { warps, wefts, flipDraft, cellToSequenceVal, initDraftFromDrawdown, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { lcm } from "../../utils";
+import { clothOp } from "../categories";
 
 
 const name = "chaos";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: "chaos sequence",
+  categories: [clothOp],
+  desc: "Made in collaboration Jacqueline Wernimont, Molly Morin and Nikki Stevens to explore non-deterministic drafts. Tiles the input drafts, randomly selecting which draft to place at which position. At each position, it randomly rotates the draft by either 90, 180 or 270 degrees. ",
+  img: "chaos.png"
+}
 
 //PARAMS
 const warp_repeats: NumParam =
@@ -116,4 +122,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const chaos: Operation = { name, old_names, params, inlets, perform, generateName };
+export const chaos: Operation = { name, meta, params, inlets, perform, generateName };

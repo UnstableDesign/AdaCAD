@@ -1,21 +1,20 @@
 import { Draft, warps, wefts, initDraftFromDrawdown, generateMappingFromPattern } from "../../draft";
 import { Sequence } from "../../sequence";
 import { parseRegex, filterToUniqueValues } from "../../utils";
+import { compoundOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../operations";
-import { StringParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "assign systems";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  img: "assign_systems.png",
+  displayname: "assign draft to systems",
+  desc: "Given a user specified pattern for the weft (a b c) and warp systems (1 2 3), this function will create a draft that follows those system patterns and then map the input draft to the system specified. ",
+  advanced: true,
+  categories: [compoundOp]
 
-// const meta: OpMeta = {
-//   displayname: "assign draft to systems",
-//   desc: "Given a user specified pattern for the weft (a b c) and warp systems (1 2 3), this function will create a draft that follows those system patterns and then map the input draft to the system specified. ",
-//   application: "While the same function could be achieved with layer notation, this might be a simpler way to assign drafts to systems while having control over the system order across multiple drafts, ensuring alignment. It can also be helpful for making systems without having to edit the system assignments directly on a draft",
-//   advanced: true,
-//   categories: [compoundOp]
-
-// }
+}
 
 //PARAMS
 
@@ -144,4 +143,4 @@ const parseWeftSystem = (val: string): Array<number> => {
 }
 
 
-export const assignsystems: Operation = { name, old_names, params, inlets, perform, generateName };
+export const assignsystems: Operation = { name, meta, params, inlets, perform, generateName };
