@@ -1,0 +1,136 @@
+{
+    "classifications": [
+        {
+            "category_name": "structure",
+            "color": "#ef7a31",
+            "description": "A weave structure is the order or pattern of interlacement between the warp and weft threads. There are different families of woven structure that share core properties, such as plain weave, twill, and satin. Each of the operations is capable of generating structures that obey the rules of a given family",
+            "op_names": [
+                "tabbyder",
+                "twill",
+                "satin",
+                "shaded_satin",
+                "waffle",
+                "waffleish",
+                "complextwill",
+                "undulatingtwill",
+                "random",
+                "tree",
+                "combos",
+                "bwimagemap",
+                "sine",
+                "sawtooth",
+                "satinish",
+                "glitchsatin"
+            ]
+        },
+        {
+            "category_name": "transformations",
+            "description": "Takes an input structure or draft and transforms it in some way.",
+            "color": "#ac9a72",
+            "op_names": [
+                "invert",
+                "flip",
+                "shift",
+                "rotate",
+                "makesymmetric",
+                "slope",
+                "stretch",
+                "clear",
+                "set unset",
+                "set down to unset",
+                "crop",
+                "trim",
+                "margin",
+                "undulatewefts",
+                "undulatewarps"
+            ]
+        },
+        {
+            "category_name": "cloth",
+            "description": "Describes the arrangements of pattern regions in an overall draft or cloth. Regions defined by the cloth design parameters can be filled with input drafts. ",
+            "color": "#5bb433",
+            "op_names": [
+                "rectangle",
+                "tile",
+                "chaos",
+                "warp_profile",
+                "weft_profile",
+                "sample_width",
+                "sample_length",
+                "fill",
+                "imagemap",
+                "join left",
+                "join top"
+            ]
+        },
+        {
+            "category_name": "compound",
+            "description": "Describes operations that support joining different structural elements together compound weave structures characterized by the use of multiple weft and warp systems and/or layers.",
+            "color": "#38c178",
+            "op_names": [
+                "interlace",
+                "interlacewarps",
+                "overlay_multiple",
+                "splice in wefts",
+                "splice in warps",
+                "layer",
+                "notation",
+                "assign systems"
+            ]
+        },
+        {
+            "category_name": "dissect",
+            "color": "#32b1cf",
+            "description": "Describes operations that split apart a single input draft into multiple outputs according to some criteria.",
+            "op_names": [
+                "analyzesystem",
+                "deinterlace"
+            ]
+        },
+        {
+            "category_name": "compute",
+            "description": "Applies different forms of computational, binary, and/or mathematical functions to the production and modification of drafts.",
+            "color": "#9393d6",
+            "op_names": [
+                "atop",
+                "overlay",
+                "mask",
+                "cutout",
+                "diff",
+                "selector"
+            ]
+        },
+        {
+            "category_name": "helper",
+            "description": "Describes common drafting techniques to ensure good woven and cloth structure.",
+            "color": "#ba6bc7",
+            "op_names": [
+                "selvedge",
+                "bind weft floats",
+                "bind warp floats",
+                "erase blank rows"
+            ]
+        },
+        {
+            "category_name": "color effects",
+            "color": "#e56397",
+            "description": "Supports the specification of materials in order to describe different color effects on the woven cloth",
+            "op_names": [
+                "apply materials",
+                "apply weft materials",
+                "apply warp materials"
+            ]
+        },
+        {
+            "category_name": "drafting styles",
+            "description": "Supports the conversion of one style of drafting to another, based on the requirements of specific equipment",
+            "color": "#b88282",
+            "op_names": [
+                "floor loom",
+                "direct loom",
+                "drawdown",
+                "directdrawdown"
+            ]
+        }
+    ]
+}

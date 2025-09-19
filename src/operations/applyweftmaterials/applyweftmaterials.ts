@@ -1,9 +1,18 @@
-import { Draft, wefts, copyDraft } from "../../draft";
+import { wefts, copyDraft, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
 
 const name = "apply weft materials";
+
+
+// const meta: OpMeta = {
+//   displayname: "set weft materials",
+//   desc: "Copies the materials used in the materials draft to the picks of the input draft.",
+//   application: "Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface",
+//   categories: [colorEffectsOp]
+
+// }
 const old_names: Array<string> = [];
 
 

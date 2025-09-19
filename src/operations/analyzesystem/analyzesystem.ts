@@ -1,4 +1,4 @@
-import { Draft, SystemList, initDraftWithParams, wefts, warps, initDraftFromDrawdown } from "../../draft";
+import { SystemList, initDraftWithParams, wefts, warps, initDraftFromDrawdown, Draft } from "../../draft";
 import { cellToSequenceVal } from "../../draft/cell";
 import { Sequence } from "../../sequence/sequence";
 import { parseRegex, filterToUniqueValues, makeValidSystemList } from "../../utils";
@@ -9,8 +9,15 @@ const name = "analyzesystem";
 const old_names: Array<string> = [];
 
 
-//PARAMS
+// const meta: OpMeta = {
+//   displayname: 'analyze systems',
+//   desc: "Creates a draft from a subset of an input draft. Specifically, allows you to select a specific system or group of systems to isolate into a new draft.",
+//   application: 'When working with complex or multi-layered drafts, this can be useful to isolate certain systems in order to visualize and confirm their correctness.',
+//   categories: [dissectOp],
+//   advanced: true
+// }
 
+//PARAMS
 const pattern: StringParam =
 {
   name: 'systems',

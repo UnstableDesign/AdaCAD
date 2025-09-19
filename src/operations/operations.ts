@@ -1,5 +1,29 @@
 import { Draft, getDraftName } from "../draft";
-import { Operation, OperationInlet, OpInletValType, OpInput, OpParamVal, OpParamValType } from "./types";
+import { clothOp, colorEffectsOp, compoundOp, computeOp, dissectOp, draftingStylesOp, helperOp, structureOp, transformationsOp } from "./categories";
+import { OpCategory, Operation, OpParamValType, OpInput, OpParamVal, OperationInlet, OpInletValType } from "./types";
+
+
+
+/**
+ * generates a list of all the current categorization options for operations. 
+ * @returns 
+ */
+export const opCategoryList = (): Array<OpCategory> => {
+
+    return [
+        structureOp,
+        transformationsOp,
+        clothOp,
+        compoundOp,
+        dissectOp,
+        computeOp,
+        helperOp,
+        colorEffectsOp,
+        draftingStylesOp
+    ]
+
+
+}
 
 
 /**

@@ -1,4 +1,4 @@
-import { Draft, warps, wefts, copyDraft } from "../../draft";
+import { warps, wefts, copyDraft, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
@@ -6,6 +6,12 @@ import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../typ
 const name = "apply materials";
 const old_names: Array<string> = [];
 
+// const meta: OpMeta = {
+//   displayname: "set materials and systems",
+//   categories: [colorEffectsOp],
+//   desc: "Adds information to the draft that represents the materials and warp- and weft-systems that will be associated with the draft",
+//   application: "Complex weavers often generate structures that consider each warp and weft as a logical system that will behave differently in different regions of the cloth. Thus, some operations, like layer notation, require systems to be specified in order to compute complex structures that obey the systems of warps and wefts over the cloth. Applying materials allows one to visualize the relationship between the draft and the color effects visible on the cloth's surface"
+// }
 
 //PARAMS
 const shift_warp_mat: NumParam =

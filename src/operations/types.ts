@@ -2,6 +2,33 @@ import { Draft } from "../draft/types";
 import { Img } from "../media/types";
 
 
+
+/**
+ * an object that represents a possible categorization for an operation
+ */
+export type OpCategory = {
+  name: string,
+  color: string,
+  desc: string,
+  url?: string
+};
+
+
+/**
+ * meta data fields for operations
+ */
+export type OpMeta = {
+  displayname: string,
+  desc: string,
+  categories: Array<OpCategory>,
+  application?: string,
+  advanced?: boolean,
+  draft?: boolean,
+  old_names?: Array<string>,
+  authors?: Array<string>,
+  urls?: Array<string>
+}
+
 /**
  * a standard opeartion
  * @param name the internal name of this opearation (CHANGING THESE WILL BREAK LEGACY VERSIONS)
@@ -9,7 +36,7 @@ import { Img } from "../media/types";
  * @param dx the description of this operation
  * @param params the parameters associated with this operation
  * @param inets the inlets associated with this operation
- * @param old_names referes to any prior name of this operation to aid when loading old files
+ * @param old_names refers to any prior name of this operation to aid when loading old files
  * @param perform a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
  * @param generateName a function that computes the system provided name default based on the inputs. a number can be passed in args to handle cases where the operation needs to assign different names to different draft outputs
  */
@@ -186,6 +213,17 @@ export interface OpInput {
   inlet_params: Array<OpInletValType>,
   inlet_id: number
 }
+
+
+/**
+ * operations return an array of OpOutputs which need to include a draft (required), and optionally, can return 
+ * a loom to associate with this draft, and an error message if something occured when generating this draft
+ */
+// export type OpOutput = {
+//   draft: Draft,
+//   loom?: Loom
+//   err?: string
+// }
 
 
 

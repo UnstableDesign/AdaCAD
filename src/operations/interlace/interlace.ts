@@ -1,4 +1,4 @@
-import { Draft, wefts, makeSystemsUnique, warps, initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
+import { wefts, makeSystemsUnique, warps, initDraftFromDrawdown, updateWarpSystemsAndShuttles, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm, getMaxWarps } from "../../utils";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
