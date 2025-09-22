@@ -1,13 +1,3 @@
----
-title: erase blank rows
-sidebar_label: erase blank rows
-tags: [advanced]
-draft: true
----
-# erase blank rows
-Erases any rows that are entirely unset.
-
-<!--![file](./img/erase blank rows.png)-->
 
 ## Parameters
 - tbd

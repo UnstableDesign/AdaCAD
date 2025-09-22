@@ -1,12 +1,4 @@
----
-title: make symmetric
-sidebar_label: make symmetric
-tags: [transformation]
----
-# makesymmetric
-Rotates and 'stamps' the input draft around a corner, creating rotational symmetry around the selected point according to the parameters described below.
 
-![file](./img/makesymmetric.png)
 
 
 ## Parameters

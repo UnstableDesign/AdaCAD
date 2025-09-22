@@ -1,10 +1,19 @@
 import { wefts, warps, getHeddle, initDraftFromDrawdown, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 const name = "trim";
-const old_names: Array<string> = [];
+
+
+const meta: OpMeta = {
+    displayname: 'trim',
+    desc: 'Trims off the edges of an input draft according to the parameters described below.',
+    img: 'trim.png',
+    categories: [transformationOp],
+    advanced: true
+}
 
 
 //PARAMS
@@ -126,5 +135,5 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const trim: Operation = { name, old_names, params, inlets, perform, generateName };
+export const trim: Operation = { name, meta, params, inlets, perform, generateName };
 

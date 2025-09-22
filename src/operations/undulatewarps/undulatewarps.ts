@@ -1,12 +1,21 @@
 import { Draft, wefts, warps, getCol, initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { parseRegex } from "../../utils";
+import { transformationOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet } from "../operations";
-import { StringParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 
 const name = "undulatewarps";
-const old_names: Array<string> = [];
+
+
+const meta: OpMeta = {
+  displayname: 'undulate warps',
+  desc: 'Given a user specified input of a series of number, it shifts every end by the value specified in the corresponding location of the user specified input. For example, if 1 3 1 is entered, it shifts the first end to the down by 1, second to the down by 3, third down by 1',
+  img: 'undulatewarps.png',
+  categories: [transformationOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -91,7 +100,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const undulatewarps: Operation = { name, old_names, params, inlets, perform, generateName };
+export const undulatewarps: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

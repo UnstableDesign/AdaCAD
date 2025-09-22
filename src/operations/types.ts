@@ -12,6 +12,11 @@ export type OpCategory = {
   url?: string
 };
 
+export type OpLink = {
+  url: string,
+  text: string
+}
+
 
 /**
  * meta data fields for operations
@@ -26,7 +31,7 @@ export type OpMeta = {
   deprecated?: boolean,
   old_names?: Array<string>,
   authors?: Array<string>,
-  urls?: Array<string>
+  urls?: Array<OpLink>
 }
 
 /**

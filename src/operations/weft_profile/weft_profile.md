@@ -1,12 +1,3 @@
----
-title: pattern across length
-sidebar_label: pattern across length
-tags: [advanced, cloth]
----
-# pattern across length
-Given a series of letters (a b c), this operation will associate a draft with each letter, and then arrange following the pattern order 
-
-![file](./img/weft_profile.png)
 
 ## Parameters
 - `pattern`: a series of letters, separated by a space, that describe the order in which you'd like the drafts to repeat.

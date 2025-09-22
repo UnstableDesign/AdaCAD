@@ -1,11 +1,18 @@
 import { Draft, initDraftFromDrawdown, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 
 const name = "invert";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'invert',
+  desc: 'Inverts the draft so that raised warp ends become weft picks and weft pics become raised warp ends.',
+  img: 'invert.png',
+  categories: [transformationOp],
+}
 
 
 //PARAMS
@@ -55,7 +62,7 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const invert: Operation = { name, old_names, params, inlets, perform, generateName };
+export const invert: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

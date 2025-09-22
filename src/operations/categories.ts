@@ -11,7 +11,7 @@ export const structureOp: OpCategory = {
     desc: "A weave structure is the order or pattern of interlacement between the warp and weft threads. There are different families of woven structure that share core properties, such as plain weave, twill, and satin. Each of the operations is capable of generating structures that obey the rules of a given family",
 }
 
-export const transformationsOp: OpCategory = {
+export const transformationOp: OpCategory = {
     name: 'transformations',
     color: '#ac9a72',
     desc: "Takes an input structure or draft and transforms it in some way.",

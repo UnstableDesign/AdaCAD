@@ -1,10 +1,21 @@
 import { initDraftFromDrawdown, createCell, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { computeOp } from "../categories";
 
 const name = "mask";
-const old_names = ['mask', 'mask, (a,b) => (a AND b)'];
+
+
+const meta: OpMeta = {
+  displayname: 'mask, (a,b) => (a AND b)',
+  desc: 'Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b  If a is marked warp raised and b marked warp raised, it sets the corresponding interlacement in the output draft to warp raised. Otherwise, the interlacement is marked warp lowered. This effectively masks draft a with draft b',
+  img: 'mask.png',
+  categories: [computeOp],
+  advanced: true,
+  old_names: ['mask', 'mask, (a,b) => (a AND b)']
+}
+
 
 //PARAMS
 
@@ -126,4 +137,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const mask: Operation = { name, old_names, params, inlets, perform, generateName };
+export const mask: Operation = { name, meta, params, inlets, perform, generateName };

@@ -1,10 +1,19 @@
 import { initDraftWithParams, warps, wefts, initDraftFromDrawdown, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 const name = "margin";
-const old_names: Array<string> = [];
+
+
+const meta: OpMeta = {
+  displayname: 'add margins',
+  desc: 'Encases one structure within another by adding the second structure to the top, left, bottom and/or right of the draft.',
+  img: 'margin.png',
+  categories: [transformationOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -175,5 +184,5 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const margin: Operation = { name, old_names, params, inlets, perform, generateName };
+export const margin: Operation = { name, meta, params, inlets, perform, generateName };
 

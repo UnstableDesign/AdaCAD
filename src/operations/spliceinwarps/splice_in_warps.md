@@ -1,12 +1,3 @@
----
-title: splice in ends
-sidebar_label: splice in ends
-tags: [advanced, compound]
----
-# splice in ends
-Splices the ends of the `splicing draft` input draft into the `receiving draft`. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in end by end and the amount of ends between each insertion.
-
-![file](./img/splice_in_warps.png)
 
 ## Parameters
 - `ends between insert`: a number describing how many warp ends of the receiving draft should occur before switching to the splicing draft. 

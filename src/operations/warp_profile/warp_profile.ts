@@ -1,13 +1,26 @@
 import { Sequence } from "../../sequence/sequence";
 import { wefts, warps, getCol, initDraftFromDrawdown, Draft } from "../../draft";
-import { DynamicOperation, OperationInlet, OpInletValType, OpInput, OpParamVal, OpParamValType, StringParam } from "../types";
+import { DynamicOperation, OperationInlet, OpInletValType, OpInput, OpMeta, OpParamVal, OpParamValType, StringParam } from "../types";
 import { parseRegex, lcm, filterToUniqueValues } from "../../utils";
 import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs } from "../operations";
+import { clothOp } from "../categories";
 
 
 
 const name = "warp_profile";
-const old_names = ["dynamicjoinleft"];
+
+
+const meta: OpMeta = {
+  displayname: 'pattern across width',
+  desc: 'Given a series of letters (a b c, etc), this operation will associate a draft with each letter, and then arrange those drafts from left to right following the pattern order',
+  img: 'warp_profile.png',
+  categories: [clothOp],
+  old_names: ["dynamicjoinleft"],
+  advanced: true
+}
+
+
+
 const dynamic_param_id = [0];
 const dynamic_param_type = 'profile';
 
@@ -144,4 +157,4 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 
 
 
-export const warp_profile: DynamicOperation = { name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+export const warp_profile: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };

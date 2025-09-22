@@ -1,14 +1,3 @@
----
-title: fill
-sidebar_label: fill
-tags: [advanced, cloth]
----
-# fill
-Fills black cells of the first input, “pattern,” with the draft specified by the second input, and the white cells with draft specified by the third input.
-
-![file](./img/fill.png)
-
-
 
 ## Parameters
 - none

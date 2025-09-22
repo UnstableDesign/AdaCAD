@@ -1,10 +1,20 @@
 import { Draft, Cell, createCell, getCellValue, setCellValue, initDraftWithParams } from "../../draft";
 import { getOpParamValById } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { structureOp } from "../categories";
+import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 
 
 const name = "waffleish";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'waffle-ish',
+  desc: 'Waffle weave is a twill-based structure in which warp and weft floats of increasing and then decreasing lengths are bound by a border of tabby interlacements to create a grid of cells. Waffle-ish was a first attempt at making waffles that failed, but in the process, made some interesting results. Use waffle if you would like the correct version. This attempts to fit a diamond shape within the ends/pics specified and to knock out values within the central diamond to create binding rows. ',
+  img: 'waffleish.png',
+  categories: [structureOp],
+  advanced: true
+}
+
+
 
 //PARAMS
 const ends: NumParam =
@@ -119,7 +129,7 @@ const generateName = (): string => {
 }
 
 
-export const waffleish: Operation = { name, old_names, params, inlets, perform, generateName };
+export const waffleish: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

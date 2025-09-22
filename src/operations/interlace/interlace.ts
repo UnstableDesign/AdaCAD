@@ -1,12 +1,19 @@
 import { wefts, makeSystemsUnique, warps, initDraftFromDrawdown, updateWarpSystemsAndShuttles, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm, getMaxWarps } from "../../utils";
+import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
-import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "interlace";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'interlace wefts',
+  desc: 'Creates a new draft by taking one pic from each input draft and assigning them to successive pics in the output draft.',
+  img: 'interlace.png',
+  advanced: true,
+  categories: [compoundOp]
+}
 
 //PARAMS
 const repeats: BoolParam =
@@ -122,4 +129,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const interlace: Operation = { name, old_names, params, inlets, perform, generateName };
+export const interlace: Operation = { name, meta, params, inlets, perform, generateName };

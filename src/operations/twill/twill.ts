@@ -1,10 +1,18 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById } from "../../operations";
-import { NumParam, BoolParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { NumParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
+import { structureOp } from "../categories";
 
 const name = "twill";
-const old_names: Array<string> = [];
+
+
+const meta: OpMeta = {
+  displayname: 'twill',
+  desc: 'Twill is a family of weave structures in which weft picks pass over or under one or more warp threads in a repeating pattern. The same interlacement sequence begins on an adjacent warp end, either to the left or right, in the next weft row, creating a diagonal pattern of interlacement.',
+  img: 'twill.png',
+  categories: [structureOp]
+}
 
 
 //PARAMS
@@ -94,7 +102,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const twill: Operation = { name, old_names, params, inlets, perform, generateName };
+export const twill: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

@@ -2,11 +2,20 @@ import { initDraftWithParams, createCell, Cell, wefts, warps, getHeddle, Draft, 
 import { Img, AnalyzedImage } from "../../media";
 import { getOpParamValById } from "../../operations";
 import { filterToUniqueValues } from "../../utils";
-import { FileParam, NumParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation } from "../types";
+import { clothOp } from "../categories";
+import { FileParam, NumParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
 
 
 const name = "imagemap";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'image map',
+  categories: [clothOp],
+  advanced: true,
+  desc: 'Uploads an image and creates an input for each color found in the image. Assigning a draft to the color fills the color region with the selected draft.',
+  img: 'imagemap.png'
+}
+
 
 const dynamic_param_id = [0];
 const dynamic_param_type = 'color';
@@ -145,4 +154,4 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 }
 
 
-export const imagemap: DynamicOperation = { name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+export const imagemap: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };

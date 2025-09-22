@@ -1,10 +1,17 @@
 import { initDraftFromDrawdown, wefts, warps } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { SelectParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { SelectParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 const name = "rotate";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'rotate',
+  desc: 'Generates an output draft that is the same as the input draft, but rotated by the amount specified. ',
+  img: 'rotate.png',
+  categories: [transformationOp],
+}
 
 
 //PARAMS
@@ -151,4 +158,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const rotate: Operation = { name, old_names, params, inlets, perform, generateName };
+export const rotate: Operation = { name, meta, params, inlets, perform, generateName };

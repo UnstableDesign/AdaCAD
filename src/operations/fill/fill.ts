@@ -1,10 +1,18 @@
 import { initDraftFromDrawdown, createCell, getHeddle, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { clothOp } from "../categories";
 
 const name = "fill";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'fill',
+  desc: 'Fills black cells of the first input, “pattern,” with the draft specified by the second input, and the white cells with draft specified by the third input.',
+  img: 'fill.png',
+  categories: [clothOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -103,4 +111,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const fill: Operation = { name, old_names, params, inlets, perform, generateName };
+export const fill: Operation = { name, meta, params, inlets, perform, generateName };

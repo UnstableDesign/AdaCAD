@@ -1,12 +1,3 @@
----
-title: layer notation
-sidebar_label: layer notation
-tags: [advanced, compound]
----
-# layer notation
-Developed in collaboration with Kathryn Walters, this operation parses a string formatted in  [layer notation](../glossary/layer-notation.md) to assign drafts to different warp and weft patterns on different layers of cloth. Layers are represented by () so (1a)(2b) puts warp 1 and weft a on layer 1, warp 2 and weft b on layer 2. You can read in detail about the specific notation used, and how it is interpreted on the  [layer notation](../glossary/layer-notation.md) glossary page. 
-
-![file](./img/notation.png)
 
 ## Parameters
 

@@ -1,13 +1,3 @@
----
-title: overlay multiple
-sidebar_label: overlay multiple
-tags: [advanced, compound]
----
-# overlay multiple
-This function will take the lifted heddles within each draft and combine them to make a composite draft whereby each draft can be understood to be overlaid upon each other. The resulting draft size is recalculated in order to ensure equal repeats
-
-![file](./img/overlay_multiple.png)
-
 
 ## Parameters
 - none 

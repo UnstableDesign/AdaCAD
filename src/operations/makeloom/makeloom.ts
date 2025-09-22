@@ -1,11 +1,20 @@
 import { Draft, initDraftWithParams, warps, setHeddle, updateWarpSystemsAndShuttles, wefts, updateWeftSystemsAndShuttles } from "../../draft";
 import { LoomSettings, getLoomUtilByType, numFrames, numTreadles } from "../../loom";
 import { getInputDraft, getOpParamValById } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { draftingStylesOp } from "../categories";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 
 const name = "floor loom";
-const old_names: Array<string> = [];
+
+
+const meta: OpMeta = {
+  displayname: 'generate floor loom threading and treadling',
+  desc: 'Uses the input draft as drawdown and generates a threading and lift plan pattern',
+  img: 'floor_loom.png',
+  categories: [draftingStylesOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -123,4 +132,4 @@ const generateName = (): string => {
 }
 
 
-export const makeloom: Operation = { name, old_names, params, inlets, perform, generateName };
+export const makeloom: Operation = { name, meta, params, inlets, perform, generateName };

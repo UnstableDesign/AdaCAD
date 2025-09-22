@@ -10,8 +10,8 @@ export * from './applywarpmaterials/applywarpmaterials';
 export * from './applyweftmaterials/applyweftmaterials';
 export * from './assignsystems/assignsystems';
 export * from './atop/atop';
-export * from './bindweftfloats/bindweftfloats';
-export * from './bindwarpfloats/bindwarpfloats';
+export * from './_bindweftfloats/bindweftfloats';
+export * from './_bindwarpfloats/bindwarpfloats';
 export * from './bwimagemap/bwimagemap';
 export * from './chaos/chaos';
 export * from './clear/clear';
@@ -23,11 +23,9 @@ export * from './deinterlace/deinterlace';
 export * from './diff/diff';
 export * from './directdrawdown/directdrawdown';
 export * from './drawdown/drawdown';
-export * from './erase_blank/erase_blank';
+export * from './_erase_blank/erase_blank';
 export * from './fill/fill';
 export * from './flip/flip';
-export * from './flipy/flipy';
-export * from './flipx/flipx';
 export * from './glitchsatin/glitchsatin';
 export * from './imagemap/imagemap';
 export * from './interlace/interlace';
@@ -46,7 +44,6 @@ export * from './overlay/overlay';
 export * from './overlay_multiple/overlay_multiple';
 export * from './random/random'
 export * from './rect/rect'
-export * from './resize/resize';
 export * from './rotate/rotate';
 export * from './samplelength/samplelength';
 export * from './samplewidth/samplewidth';
@@ -58,8 +55,7 @@ export * from './selvedge/selvedge';
 export * from './set/set'
 export * from './shaded_satin/shaded_satin';
 export * from './shift/shift'
-export * from './shiftx/shiftx'
-export * from './shifty/shifty'
+export * from './sierpinski_square/sierpinski_square'
 export * from './sinewave/sinewave';
 export * from './slope/slope'
 export * from './spliceinwarps/spliceinwarps'
@@ -70,7 +66,8 @@ export * from './tabby/tabby'
 export * from './tabby/tabby'
 export * from './tile/tile'
 export * from './trim/trim'
-export * from './tree/tree'
+export * from './rand_tree/rand_tree'
+export * from './rand_tree/rand_tree'
 export * from './twill/twill'
 export * from './undulatewarps/undulatewarps'
 export * from './undulatewefts/undulatewefts'

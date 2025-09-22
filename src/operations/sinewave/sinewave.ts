@@ -1,10 +1,19 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
+import { structureOp } from "../categories";
 
 const name = "sine";
-const old_names: Array<string> = [];
+
+
+const meta: OpMeta = {
+  displayname: 'sine wave sample',
+  desc: 'A sine wave is a mathematical function that produces values that repeats periodically over a given time window. When visualized, it looks like smooth curves traveling over and under a midpoint. In AdaCAD, a sine way is determines the position of a single interlacement along the ends of a structure.',
+  img: 'sine.png',
+  categories: [structureOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -76,7 +85,7 @@ const generateName = (param_vals: Array<OpParamVal>,): string => {
 }
 
 
-export const sinewave: Operation = { name, old_names, params, inlets, perform, generateName };
+export const sinewave: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

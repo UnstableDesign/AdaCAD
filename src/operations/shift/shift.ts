@@ -1,11 +1,18 @@
 import { warps, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 
 const name = "shift";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'shift',
+  desc: 'Generates an output that is shifted to the left and top by the number of warp ends and weft pics specified in the parameters.',
+  img: 'shift.png',
+  categories: [transformationOp]
+}
 
 
 //PARAMS
@@ -97,4 +104,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const shift: Operation = { name, old_names, params, inlets, perform, generateName };
+export const shift: Operation = { name, meta, params, inlets, perform, generateName };

@@ -1,11 +1,3 @@
----
-title: rectangle
-sidebar_label: rectangle
-tags: [cloth]
----
-# rectangle
-Generates an unfilled rectangle of the size defined by the parameters. If given an input, the rectangle fills with the input.
-
 ![file](./img/rectangle.png)
 
 

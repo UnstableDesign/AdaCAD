@@ -1,12 +1,23 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
+import { structureOp } from "../categories";
 import { getOpParamValById } from "../operations";
-import { NumParam, OpParamVal, Operation, OperationInlet } from "../types";
+import { NumParam, OpMeta, OpParamVal, Operation, OperationInlet } from "../types";
 
 
 
-const name = "tree";
-const old_names: Array<string> = [];
+const name = "rand_tree";
+
+const meta: OpMeta = {
+    displayname: 'random tree',
+    desc: 'Created by Trey DuBose at the 2023 Textiles Jam, this operation creates a structure resembling a tree. Each time the operation runs, it will create a slightly different tree. The general shape of the tree is shaped by the parameters',
+    img: 'rand_tree.png',
+    categories: [structureOp],
+    advanced: true,
+    authors: ['Trey DuBose']
+}
+
+
 
 //PARAMS
 const width: NumParam =
@@ -21,7 +32,7 @@ const width: NumParam =
 
 const depth: NumParam =
 {
-    name: 'depth',
+    name: 'picks',
     type: 'number',
     min: 1,
     max: 100,
@@ -152,4 +163,4 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const tree: Operation = { name, params, inlets, old_names, perform, generateName };
+export const tree: Operation = { name, params, inlets, meta, perform, generateName };

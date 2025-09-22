@@ -1,11 +1,4 @@
----
-title: mask, (a,b) => (a AND b)
-sidebar_label: mask, (a,b) => (a AND b)
-tags: [advanced, compute]
 
----
-# mask, (a,b) => (a AND b)
-Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b  If a is marked warp raised and b marked warp raised, it sets the corresponding interlacement in the output draft to warp raised. Otherwise, the interlacement is marked warp lowered. This effectively masks draft a with draft b
 
 ![file](./img/mask.png)
 

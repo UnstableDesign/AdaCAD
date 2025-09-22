@@ -1,11 +1,18 @@
 import { warps, Cell, getCellValue, Draft, initDraftWithParams, wefts, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../draft";
 import { getLoomUtilByType, Loom } from "../../loom";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { draftingStylesOp } from "../categories";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "drawdown";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'make drawdown from threading, tieup, and treadling',
+  desc: 'Create a drawdown from the input drafts (order 1. threading, 2. tieup, 3.treadling)',
+  img: 'drawdown.png',
+  advanced: true,
+  categories: [draftingStylesOp]
+}
 
 //PARAMS
 
@@ -101,4 +108,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const drawdown: Operation = { name, old_names, params, inlets, perform, generateName };
+export const drawdown: Operation = { name, meta, params, inlets, perform, generateName };

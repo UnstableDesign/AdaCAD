@@ -1,14 +1,25 @@
 import { Draft, warps, Cell, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { parseRegex, lcm, filterToUniqueValues } from "../../utils";
+import { clothOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs } from "../operations";
-import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation } from "../types";
+import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
 
 
 const name = "weft_profile";
-const old_names = ["dynamicjointop"];
 const dynamic_param_id = [0];
 const dynamic_param_type = 'profile';
+
+
+const meta: OpMeta = {
+  displayname: 'pattern across length',
+  desc: 'Given a series of letters (a b c), this operation will associate a draft with each letter, and then arrange following the pattern order',
+  img: 'weft_profile.png',
+  categories: [clothOp],
+  advanced: true,
+  old_names: ["dynamicjointop"]
+}
+
 
 //PARAMS
 const pattern: StringParam =
@@ -142,4 +153,4 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 
 
 
-export const weft_profile: DynamicOperation = { name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+export const weft_profile: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };

@@ -1,12 +1,4 @@
----
-title: selector
-sidebar_label: selector
-tags: [advanced, helper]
----
-# selector
-allows the user to switch between the connected inputs by changing the parameter number. 
 
-![file](./img/selector.png)
 
 ## Parameters
 - `selected input` - controls which draft is passed through to the output. 1 connects to the draft attached to the first inlet, 2 connects to the draft attached to the second inlet, and so on. If you select a number that is higher than the number of drafts commented, an empty draft will pass through. 

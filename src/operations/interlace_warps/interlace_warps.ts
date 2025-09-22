@@ -1,11 +1,22 @@
 import { warps, wefts, getCol, initDraftFromDrawdown, updateWeftSystemsAndShuttles, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { lcm, getMaxWefts } from "../../utils";
+import { compoundOp } from "../categories";
 
 const name = "interlacewarps";
-const old_names = ['interlace_warps'];
+
+const meta: OpMeta = {
+  displayname: 'interlace warps',
+  desc: 'Creates a new draft by taking one end from each input and assigning and sequencing between those ends in the output draft.',
+  img: 'interlacewarps.png',
+  categories: [compoundOp],
+  advanced: true,
+  old_names: ['interlace_warps']
+}
+
+
 
 //PARAMS
 const repeats: BoolParam =
@@ -109,4 +120,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const interlacewarps: Operation = { name, old_names, params, inlets, perform, generateName };
+export const interlacewarps: Operation = { name, meta, params, inlets, perform, generateName };

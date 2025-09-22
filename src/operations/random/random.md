@@ -1,13 +1,3 @@
----
-title: random
-sidebar_label: random
-tags: [structure]
----
-# random
-Generates a draft of the size specified where the value of each interlacement is generated randomly.
-
-![file](./img/random.png)
-
 
 ## Parameters
 - `ends`: the number of ends in the structure

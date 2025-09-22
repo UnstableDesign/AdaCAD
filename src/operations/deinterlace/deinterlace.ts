@@ -11,6 +11,7 @@ const meta: OpMeta = {
   advanced: true,
   categories: [dissectOp],
   img: 'deinterlace.png',
+  desc: 'Creates multiple draft by splitting each pic from the input and assigning it to separate drafts. If the factor of two, two drafts are created. The first with all the odd pics and the send with all the even. If 3 is selected, three drafts are created, and so on'
 
 }
 

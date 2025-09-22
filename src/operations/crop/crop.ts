@@ -2,7 +2,7 @@ import { wefts, initDraftFromDrawdown, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
-import { transformationsOp } from "../categories";
+import { transformationOp } from "../categories";
 
 const name = "crop";
 
@@ -10,7 +10,7 @@ const meta: OpMeta = {
     displayname: 'crop',
     desc: 'Crops the structure or pattern to a region of the input draft. The crop size and placement are defined by the parameters. This operation follows a model similar to graphics editing software where one specifies the x,y coordinates of the top left of the crop and then the width and height to "cut out".',
     img: 'crop.png',
-    categories: [transformationsOp]
+    categories: [transformationOp]
 }
 
 //PARAMS

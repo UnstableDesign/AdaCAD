@@ -1,11 +1,20 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
-import { StringParam, NumParam, BoolParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { StringParam, NumParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
+import { structureOp } from "../categories";
 
 
 const name = "satinish";
-const old_names: Array<string> = [];
+
+
+const meta: OpMeta = {
+  displayname: 'satinish',
+  desc: 'Generates a structure by shifting the first row (described by the input string), the number of shifts specified on each row. This operation interprets the  term "satin" loosely as a repeating pic that is shifted 1 or more positions on each successive pic. ',
+  img: 'satinish.png',
+  categories: [structureOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -86,7 +95,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const satinish: Operation = { name, old_names, params, inlets, perform, generateName };
+export const satinish: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

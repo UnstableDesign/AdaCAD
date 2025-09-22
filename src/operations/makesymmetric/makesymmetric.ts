@@ -1,10 +1,18 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { SelectParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { SelectParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 const name = "makesymmetric";
-const old_names = [''];
+
+const meta: OpMeta = {
+    displayname: 'make symmetric',
+    desc: "Rotates and 'stamps' the input draft around a corner, creating rotational symmetry around the selected point according to the parameters described below.",
+    img: 'makesymmetric.png',
+    categories: [transformationOp],
+}
+
 
 //PARAMS
 const corner: SelectParam = {
@@ -283,4 +291,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const makesymmetric: Operation = { name, old_names, params, inlets, perform, generateName };
+export const makesymmetric: Operation = { name, meta, params, inlets, perform, generateName };

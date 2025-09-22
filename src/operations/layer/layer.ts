@@ -1,11 +1,19 @@
 import { Draft, warps, wefts, initDraftFromDrawdown, generateMappingFromPattern } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm } from "../../utils";
+import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, parseDraftNames } from "../operations";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "layer";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'layer',
+  desc: 'Creates a draft in which each input is assigned to a layer in a multilayered structure. Assigns the first input to the top layer and so on.',
+  img: 'layer.png',
+  categories: [compoundOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -96,4 +104,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const layer: Operation = { name, old_names, params, inlets, perform, generateName };
+export const layer: Operation = { name, meta, params, inlets, perform, generateName };

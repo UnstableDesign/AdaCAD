@@ -1,10 +1,18 @@
 import { warps, wefts, getHeddle, initDraftFromDrawdown, updateWeftSystemsAndShuttles, Draft } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { helperOp } from "../categories";
 
 const name = "selvedge";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+    displayname: 'selvedge',
+    desc: "Adds a selvedge of so many ends on both sides of the input draft, 'draft.' The second input, 'selvedge,' determines the selvedge pattern, and if none is given, a selvedge is generated.",
+    img: 'selvedge.png',
+    categories: [helperOp],
+    advanced: true
+}
 
 
 //PARAMS
@@ -124,5 +132,5 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const selvedge: Operation = { name, old_names, params, inlets, perform, generateName };
+export const selvedge: Operation = { name, meta, params, inlets, perform, generateName };
 

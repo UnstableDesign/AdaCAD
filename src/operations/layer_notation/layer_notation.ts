@@ -1,13 +1,26 @@
 import { warps, wefts, Draft, initDraftFromDrawdown, generateMappingFromPattern } from "../../draft";
 import { Sequence } from "../../sequence";
 import { parseRegex, lcm } from "../../utils";
+import { compoundOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs, getAllDraftsAtInletByLabel } from "../operations";
-import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation } from "../types";
+import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
 
 const name = "notation";
-const old_names = ["assignlayers"];
 const dynamic_param_id = [0];
 const dynamic_param_type = 'notation';
+
+const meta: OpMeta = {
+  displayname: 'layer notation',
+  desc: 'Developed in collaboration with Kathryn Walters, this operation parses a string formatted in layer notation to assign drafts to different warp and weft patterns on different layers of cloth. Layers are represented by () so (1a)(2b) puts warp 1 and weft a on layer 1, warp 2 and weft b on layer 2. You can read in detail about the specific notation used, and how it is interpreted on the  layer notation glossary page.',
+  img: 'notation.png',
+  categories: [compoundOp],
+  advanced: true,
+  authors: ['Laura Devendorf', 'Kathryn Walters'],
+  urls: [{ url: 'https://docs.adacad.org/docs/reference/glossary/layer-notation.md', text: 'Learn more about layer notation' }],
+  old_names: ["assignlayers"]
+}
+
+
 
 //PARAMS
 const pattern: StringParam =
@@ -169,4 +182,4 @@ const parseWeftSystem = (val: string): Array<number> => {
 }
 
 
-export const notation: DynamicOperation = { name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+export const notation: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };

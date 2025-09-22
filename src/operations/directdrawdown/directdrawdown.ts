@@ -2,11 +2,19 @@ import { warps, Cell, getCellValue, Draft, initDraftWithParams, wefts, updateWar
 import { getLoomUtilByType } from "../../loom";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { generateId } from "../../utils";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { draftingStylesOp } from "../categories";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "directdrawdown";
-const old_names: Array<string> = [];
 
+
+const meta: OpMeta = {
+  displayname: 'make drawdown from threading and lift plan',
+  desc: 'Create a drawdown from the input drafts (order 1. threading, 2.lift plan)',
+  img: 'directdrawdown.png',
+  advanced: true,
+  categories: [draftingStylesOp]
+}
 
 //PARAMS
 
@@ -110,4 +118,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const directdrawdown: Operation = { name, old_names, params, inlets, perform, generateName };
+export const directdrawdown: Operation = { name, meta, params, inlets, perform, generateName };

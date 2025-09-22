@@ -1,12 +1,3 @@
----
-title: overlay, (a,b) => (a OR b)
-sidebar_label: overlay, (a,b) => (a OR b)
-tags: [advanced, compute]
----
-# overlay, (a,b) => (a OR b)
-Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If either interlacement a or b are marked as warp lifted, the resulting draft will have a warp raised in that location. 
-
-![file](./img/overlay.png)
 
 ## Parameters
 - `shift ends`: shifts the position of the ends in draft a

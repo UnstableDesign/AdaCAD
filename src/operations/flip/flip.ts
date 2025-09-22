@@ -1,11 +1,17 @@
 import { warps, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 const name = "flip";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'flip',
+  categories: [transformationOp],
+  desc: 'Generates an output draft that mirrors the input draft from left to right and/or top to bottom as the parameters indicate.',
+  img: 'flip.png'
+}
 
 //PARAMS
 
@@ -111,4 +117,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const flip: Operation = { name, old_names, params, inlets, perform, generateName };
+export const flip: Operation = { name, meta, params, inlets, perform, generateName };

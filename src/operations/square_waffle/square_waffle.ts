@@ -1,12 +1,18 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
+import { structureOp } from "../categories";
 
 
 const name = "waffle";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'waffle',
+  desc: 'Waffle weave is a twill-based structure in which warp and weft floats of increasing and then decreasing lengths are bound by a border of tabby interlacements to create a grid of cells. There is typically an equal number of pics and ends in a single pattern unit. This operation generates waffle structures based on specifying the longest float and number of binding rows to surround each waffle.',
+  img: 'waffle.png',
+  categories: [structureOp]
+}
 
 //PARAMS
 const max_float: NumParam =
@@ -133,7 +139,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const square_waffle: Operation = { name, old_names, params, inlets, perform, generateName };
+export const square_waffle: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

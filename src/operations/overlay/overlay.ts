@@ -1,11 +1,18 @@
 import { initDraftFromDrawdown, createCell, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { computeOp } from "../categories";
 
 const name = "overlay";
-const old_names = ['overlay', 'overlay, (a,b) => (a OR b)'];
-
+const meta: OpMeta = {
+  displayname: 'overlay, (a,b) => (a OR b)',
+  desc: 'Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b. If either interlacement a or b are marked as warp lifted, the resulting draft will have a warp raised in that location.',
+  img: 'overlay.png',
+  categories: [computeOp],
+  advanced: true,
+  old_names: ['overlay', 'overlay, (a,b) => (a OR b)']
+}
 //PARAMS
 
 const shift_ends: NumParam =
@@ -126,4 +133,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const overlay: Operation = { name, old_names, params, inlets, perform, generateName };
+export const overlay: Operation = { name, meta, params, inlets, perform, generateName };

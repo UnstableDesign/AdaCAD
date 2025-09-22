@@ -1,12 +1,4 @@
----
-title: selvedge
-sidebar_label: selvedge
-tags: [advanced, helper]
----
-# selvedge
-Adds a selvedge of so many ends on both sides of the input draft, 'draft.' The second input, 'selvedge,' determines the selvedge pattern, and if none is given, a selvedge is generated.
 
-![file](./img/selvedge.png)
 
 ## Parameters
 - `ends` - how many ends of selvedge to add to each side of the draft

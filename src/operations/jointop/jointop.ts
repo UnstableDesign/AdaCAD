@@ -1,11 +1,18 @@
 import { Draft, warps, wefts, getCol, getCellValue, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm, getMaxWarps } from "../../utils";
+import { clothOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
-import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "join top";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'join top',
+  desc: 'Joins drafts assigned to the inlets vertically.',
+  img: 'join_top.png',
+  categories: [clothOp],
+}
 
 
 //PARAMS
@@ -127,4 +134,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const jointop: Operation = { name, old_names, params, inlets, perform, generateName };
+export const jointop: Operation = { name, meta, params, inlets, perform, generateName };

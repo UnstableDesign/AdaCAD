@@ -1,12 +1,4 @@
----
-title: slope
-sidebar_label: slope
-tags: [transformation]
----
-# slope
-Shifts every nth pic by the value given in ends. It is an application of the mathematical principle of the slope of a line (e.g. rise/run) to drafting (every x picks, move y ends to the right)
 
-![file](./img/slope.png)
 
 ## Parameters
 - `end shift`: the number of ends to shift the pattern to the right.

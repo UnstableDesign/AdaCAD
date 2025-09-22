@@ -1,14 +1,3 @@
----
-title: image map
-sidebar_label: image map
-tags: [advanced, cloth, dynamic]
----
-# image map
-Uploads an image and creates an input for each color found in the image. Assigning a draft to the color fills the color region with the selected draft.
-
-![file](./img/imagemap.png)
-
-
 ## Parameters
 - `choose file`: click this to locate and upload the file that you'd like to use as a map. Only .jpg and .bmp files will be accepted.
 - `draft width`: the number of warp ends in the output. Defaults to the pixel width of the image but can be adjusted to stretch or compress the image from left to right prior to assigning structures. 

@@ -1,12 +1,4 @@
----
-title: satin-ish
-sidebar_label: satin-ish
-tags: [advanced, structure]
----
-# satinish
-Generates a structure by shifting the first row (described by the input string), the number of shifts specified on each row. This operation interprets the  term "satin" loosely as a repeating pic that is shifted 1 or more positions on each successive pic. 
 
-![file](./img/satinish.png)
 
 
 ## Parameters

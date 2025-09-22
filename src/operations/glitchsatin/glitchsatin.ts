@@ -1,12 +1,20 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
+import { structureOp } from "../categories";
 
 
 
 const name = "glitchsatin";
-const old_names: Array<string> = [];
+const meta: OpMeta = {
+  displayname: 'glitch satin',
+  desc: 'This experimental function was designed to algorithmically generate structures that resemble satins that include non-repeating units.',
+  img: 'glitchsatin.png',
+  advanced: true,
+  authors: ['Deanna Gelosi', 'Kathryn Walters'],
+  categories: [structureOp]
+}
 
 
 //PARAMS
@@ -108,7 +116,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'glitchsatin(' + flattenParamVals(param_vals) + ")";
 }
 
-export const glitchsatin: Operation = { name, old_names, params, inlets, perform, generateName };
+export const glitchsatin: Operation = { name, meta, params, inlets, perform, generateName };
 
 function printDraftForVerticalDirection(grid: Array<Array<boolean>>, odds_denom_min: number, odds_denom_max: number, frequency: number): Array<Array<boolean>> {
   const cols = grid.length;

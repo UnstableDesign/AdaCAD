@@ -1,11 +1,18 @@
 import { Draft, wefts, warps, getHeddle, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm, getMaxWefts } from "../../utils";
+import { clothOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
-import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "join left";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'join left',
+  desc: 'Joins drafts assigned to the drafts input together horizontally.',
+  img: 'join_left.png',
+  categories: [clothOp],
+}
 
 
 //PARAMS
@@ -128,4 +135,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const joinleft: Operation = { name, old_names, params, inlets, perform, generateName };
+export const joinleft: Operation = { name, meta, params, inlets, perform, generateName };

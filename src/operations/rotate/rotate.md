@@ -1,13 +1,3 @@
----
-title: rotate
-sidebar_label: rotate
-tags: [transformation]
----
-# rotate
-Generates an output draft that is the same as the input draft, but rotated by the amount specified. 
-
-![file](./img/rotate.png)
-
 
 ## Parameters
 - `amount`: the number of degrees by which to rotate the input draft (in 90 degree increments). 

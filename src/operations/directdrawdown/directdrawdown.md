@@ -1,13 +1,3 @@
----
-title: make drawdown from threading and lift plan
-sidebar_label: make drawdown from threading and lift plan
-tags: [advanced]
-
----
-# make drawdown from threading and lift plan
-Create a drawdown from the input drafts (order 1. threading, 2.lift plan)
-
-![file](./img/directdrawdown.png)
 
 ## Parameters
 - none

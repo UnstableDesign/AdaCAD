@@ -1,6 +1,6 @@
 import { initDraftWithParams, wefts, warps, createCell, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { transformationsOp } from "../categories";
+import { transformationOp } from "../categories";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "clear";
@@ -9,7 +9,7 @@ const old_names: Array<string> = [];
 const meta: OpMeta = {
   displayname: 'clear',
   advanced: true,
-  categories: [transformationsOp],
+  categories: [transformationOp],
   desc: "Converts all the interlacements in the input draft to be raised.",
   img: 'clear.png'
 }

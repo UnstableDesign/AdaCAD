@@ -1,10 +1,17 @@
 import { Drawdown, initDraftFromDrawdown, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { clothOp } from "../categories";
 
 const name = "rectangle";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'rectangle',
+  desc: 'Generates an unfilled rectangle of the size defined by the parameters. If given an input, the rectangle fills with the input.',
+  img: 'rectangle.png',
+  categories: [clothOp],
+}
 
 
 //PARAMS
@@ -70,4 +77,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const rect: Operation = { name, old_names, params, inlets, perform, generateName };
+export const rect: Operation = { name, meta, params, inlets, perform, generateName };

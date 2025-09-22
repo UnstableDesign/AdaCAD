@@ -1,11 +1,18 @@
 import { warps, wefts, Drawdown, initDraftFromDrawdown, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { clothOp } from "../categories";
 
 const name = "tile";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'tile',
+  desc: 'Repeats the input block along the warp and weft according to the parameters described below.',
+  img: 'tile.png',
+  categories: [clothOp],
+  advanced: true
+}
 
 //PARAMS
 const warp_repeats: NumParam =
@@ -74,4 +81,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const tile: Operation = { name, old_names, params, inlets, perform, generateName };
+export const tile: Operation = { name, meta, params, inlets, perform, generateName };

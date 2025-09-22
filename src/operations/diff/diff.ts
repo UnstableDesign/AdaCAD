@@ -1,11 +1,20 @@
 import { initDraftFromDrawdown, createCell, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { lcm } from "../../utils";
+import { computeOp } from "../categories";
 
 const name = "diff";
-const old_names = ['knockout'];
+
+const meta: OpMeta = {
+  displayname: 'diff, (a, b) => (a NEQ b)',
+  desc: 'Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b and it returns a black cell in any location where the two draft cells were different',
+  img: 'diff.png',
+  advanced: true,
+  old_names: ['knockout'],
+  categories: [computeOp]
+}
 
 //PARAMS
 
@@ -163,4 +172,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const diff: Operation = { name, old_names, params, inlets, perform, generateName };
+export const diff: Operation = { name, meta, params, inlets, perform, generateName };

@@ -1,12 +1,4 @@
----
-title: trim
-sidebar_label: trim
-tags: [advanced, transformation]
----
-# trim
-Trims off the edges of an input draft according to the parameters described below.
 
-![file](./img/trim.png)
 
 ## Parameters
 - `ends from start`: the number of ends to remove from the start of the draft (which differs depending on your origin)

@@ -1,10 +1,17 @@
 import { Draft, initDraftFromDrawdown, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById, getAllDraftsAtInlet } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 const name = "slope";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'slope',
+  desc: 'Shifts every nth pic by the value given in ends. It is an application of the mathematical principle of the slope of a line (e.g. rise/run) to drafting (every x picks, move y ends to the right)',
+  img: 'slope.png',
+  categories: [transformationOp]
+}
 
 
 //PARAMS
@@ -83,7 +90,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const slope: Operation = { name, old_names, params, inlets, perform, generateName };
+export const slope: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

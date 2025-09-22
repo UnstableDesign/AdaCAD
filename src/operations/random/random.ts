@@ -1,11 +1,18 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
+import { structureOp } from "../categories";
 
 
 const name = "random";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'random',
+  desc: 'Generates a draft of the size specified where the value of each interlacement is generated randomly.',
+  img: 'random.png',
+  categories: [structureOp],
+}
 
 
 //PARAMS
@@ -77,7 +84,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const random: Operation = { name, old_names, params, inlets, perform, generateName };
+export const random: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

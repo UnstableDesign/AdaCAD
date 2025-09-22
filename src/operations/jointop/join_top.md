@@ -1,14 +1,3 @@
----
-title: join top
-sidebar_label: join top
-tags: [cloth]
----
-# join top
-Joins drafts assigned to the inlets vertically.
-
-![file](./img/join_top.png)
-
-
 ## Parameters
 - `calculate repeats`: this defines what happens if/when you connect drafts with different numbers of warp ends. If `repeat inputs to match size` is selected, AdaCAD will expand the number of ends in the output draft such that all structures repeat at the even intervals across along width of the cloth. If the `do not repeat inputs to match size` is selected, unset ends will be added to drafts with fewer ends. 
 

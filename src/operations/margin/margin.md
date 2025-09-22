@@ -1,13 +1,3 @@
----
-title: add margins
-sidebar_label: add margins
-tags: [advanced, transformation]
----
-# margin
-Encases one structure within another by adding the second structure to the top, left, bottom and/or right of the draft. 
-
-
-![file](./img/margin.png)
 
 
 ## Parameters

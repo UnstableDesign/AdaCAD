@@ -1,12 +1,19 @@
 import { Draft, wefts, warps, makeSystemsUnique, getHeddle, initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm, getMaxWarps } from "../../utils";
+import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
-import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "splice in wefts";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'splice in pics',
+  desc: 'Splices the pics of the `splicing draft` input draft into the `receiving draft`. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in pic by pic and the amount of pics between each insertion.',
+  img: 'splice_in_wefts.png',
+  categories: [compoundOp],
+  advanced: true
+}
 
 //PARAMS
 const pics_btwn: NumParam =
@@ -174,4 +181,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const splicein: Operation = { name, old_names, params, inlets, perform, generateName };
+export const splicein: Operation = { name, meta, params, inlets, perform, generateName };

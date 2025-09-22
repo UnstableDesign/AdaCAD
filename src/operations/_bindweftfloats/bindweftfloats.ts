@@ -1,9 +1,19 @@
 import { wefts, warps, getHeddle, toggleHeddle } from "../../draft";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { helperOp } from "../categories";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "bind weft floats";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'bind weft floats',
+  desc: 'Adds interlacements to weft floats over the user specified length',
+  img: '',
+  categories: [helperOp],
+  advanced: true,
+  draft: true
+}
+
 
 
 //PARAMS
@@ -88,4 +98,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const bindweftfloats: Operation = { name, old_names, params, inlets, perform, generateName };
+export const bindweftfloats: Operation = { name, meta, params, inlets, perform, generateName };

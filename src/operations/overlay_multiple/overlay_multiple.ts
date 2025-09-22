@@ -1,12 +1,20 @@
 import { warps, wefts, initDraftFromDrawdown, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm } from "../../utils";
+import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, parseDraftNames } from "../operations";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 
 const name = "overlay_multiple";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'overlay multiple',
+  desc: 'This function will take the lifted heddles within each draft and combine them to make a composite draft whereby each draft can be understood to be overlaid upon each other. The resulting draft size is recalculated in order to ensure equal repeats',
+  img: 'overlay_multiple.png',
+  categories: [compoundOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -63,4 +71,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const overlay_multi: Operation = { name, old_names, params, inlets, perform, generateName };
+export const overlay_multi: Operation = { name, meta, params, inlets, perform, generateName };

@@ -1,11 +1,19 @@
 import { cellToSequenceVal, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, Operation, OperationInlet, OpInput, OpParamVal } from "../types";
+import { NumParam, Operation, OperationInlet, OpInput, OpMeta, OpParamVal } from "../types";
+import { transformationOp } from "../categories";
 
 
 const name = "stretch";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'stretch',
+  desc: 'Repeats each warp and/or weft by the values given in the parameters.',
+  img: 'stretch.png',
+  categories: [transformationOp],
+  advanced: true
+}
 
 
 //PARAMS
@@ -97,4 +105,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const stretch: Operation = { name, old_names, params, inlets, perform, generateName };
+export const stretch: Operation = { name, meta, params, inlets, perform, generateName };

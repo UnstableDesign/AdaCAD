@@ -1,12 +1,21 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById } from "../../operations";
-import { StringParam, BoolParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { StringParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { parseRegex } from "../../utils";
+import { structureOp } from "../categories";
 
 
 const name = "undulatingtwill";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'undulating twill',
+  desc: 'Twill is a family of weave structures in which weft picks pass over or under one or more warp threads in a repeating pattern. In this context, and undulating twill means tha the structure can shift by a non-repeating series of values, instead of by the same value on each pic (as is typically the case in twills)',
+  img: 'undulatingtwill.png',
+  categories: [structureOp],
+  advanced: true
+}
+
 
 //PARAMS
 const string_input: StringParam =
@@ -88,7 +97,7 @@ const generateName = (): string => {
 }
 
 
-export const undulatingtwill: Operation = { name, old_names, params, inlets, perform, generateName };
+export const undulatingtwill: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

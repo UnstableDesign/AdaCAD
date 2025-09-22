@@ -1,9 +1,17 @@
 import { copyDraft, initDraftWithParams, getDraftName } from "../../draft";
 import { getOpParamValById, getAllDraftsAtInlet } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { helperOp } from "../categories";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "selector";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'selector',
+  desc: 'allows the user to switch between the connected inputs by changing the parameter number. ',
+  img: 'selector.png',
+  categories: [helperOp],
+  advanced: true
+}
 
 
 
@@ -64,7 +72,7 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const selector: Operation = { name, old_names, params, inlets, perform, generateName };
+export const selector: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

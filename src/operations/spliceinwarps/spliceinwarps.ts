@@ -1,12 +1,19 @@
 import { Draft, warps, wefts, makeSystemsUnique, getHeddle, initDraftFromDrawdown, updateWeftSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm, getMaxWefts } from "../../utils";
+import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
-import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "splice in warps";
-const old_names: Array<string> = [];
 
+const meta: OpMeta = {
+  displayname: 'splice in ends',
+  desc: 'Splices the ends of the `splicing draft` input draft into the `receiving draft`. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in end by end and the amount of ends between each insertion.',
+  img: 'splice_in_warps.png',
+  categories: [compoundOp],
+  advanced: true
+}
 
 //PARAMS
 const ends_btwn: NumParam =
@@ -184,4 +191,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const spliceinwarps: Operation = { name, old_names, params, inlets, perform, generateName };
+export const spliceinwarps: Operation = { name, meta, params, inlets, perform, generateName };

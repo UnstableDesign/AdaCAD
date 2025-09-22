@@ -1,12 +1,4 @@
----
-title: generate floor loom threading and treadling
-sidebar_label: generate floor loom threading and treadling
-tags: [advanced, drafting styles]
----
-# generate floor loom threading and treadling
-Uses the input draft as drawdown and generates a threading and lift plan pattern
 
-![file](./img/floor_loom.png)
 
 ## Parameters
 - `frames` - the number of frames to use

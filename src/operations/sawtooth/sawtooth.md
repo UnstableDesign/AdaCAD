@@ -1,12 +1,3 @@
----
-title: sawtooth
-sidebar_label: sawtooth
-tags: [advanced, structure]
----
-# sawtooth
-Creates a sawtooth pattern (e.g. mountain/valley zigzag) of a user specified width with a user specified number of teeth in the sawtooth as described by the segments parameter
-
-![file](./img/sawtooth.png)
 
 
 ## Parameters

@@ -1,5 +1,5 @@
 import { Draft, getDraftName } from "../draft";
-import { clothOp, colorEffectsOp, compoundOp, computeOp, dissectOp, draftingStylesOp, helperOp, structureOp, transformationsOp } from "./categories";
+import { clothOp, colorEffectsOp, compoundOp, computeOp, dissectOp, draftingStylesOp, helperOp, structureOp, transformationOp } from "./categories";
 import { OpCategory, Operation, OpParamValType, OpInput, OpParamVal, OperationInlet, OpInletValType } from "./types";
 
 
@@ -12,7 +12,7 @@ export const opCategoryList = (): Array<OpCategory> => {
 
     return [
         structureOp,
-        transformationsOp,
+        transformationOp,
         clothOp,
         compoundOp,
         dissectOp,

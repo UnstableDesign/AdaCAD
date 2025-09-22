@@ -1,11 +1,19 @@
 import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
-import { NumParam, BoolParam, OperationInlet, OpParamVal, Operation } from "../types";
+import { NumParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
+import { structureOp } from "../categories";
 
 
 const name = "satin";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'satin',
+  desc: 'Satin is a family of weave structures that create cloth with weft floats on one face of the fabric and warp floats on the other. The succeeding interlacements of warp and weft threads in each row occur on non-adjacent warp threads, creating a smooth surface of floating threads on each face. The number of ends between succeeding warp interlacements is consistent in each row (i.e. a 1/8 satin will have one raised warp end followed by a weft float over 8 warp ends in each row).',
+  img: 'satin.png',
+  categories: [structureOp],
+}
+
 
 
 //PARAMS
@@ -82,7 +90,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const satin: Operation = { name, old_names, params, inlets, perform, generateName };
+export const satin: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

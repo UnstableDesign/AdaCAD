@@ -1,13 +1,23 @@
 import { Draft, wefts, getCol, warps, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { parseRegex, lcm, filterToUniqueValues } from "../../utils";
+import { clothOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs } from "../operations";
-import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation } from "../types";
+import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
 
 const name = "sample_width";
-const old_names = [""];
 const dynamic_param_id = [0];
 const dynamic_param_type = 'profile';
+
+
+const meta: OpMeta = {
+  displayname: 'variable width sampler',
+  desc: 'Given a series of letters and numbers (a100 b200 c300), this operation will associate a draft with each letter, and then arrange those drafts from left to right following the pattern order. The numbers next to each letter describe the number of ends upon which the specified pattern should be repeated',
+  img: 'sample_width.png',
+  categories: [clothOp],
+  advanced: true
+}
+
 
 //PARAMS
 const pattern: StringParam =
@@ -149,4 +159,4 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 
 
 
-export const sample_width: DynamicOperation = { name, old_names, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+export const sample_width: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };

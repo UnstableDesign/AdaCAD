@@ -1,11 +1,21 @@
 import { createCell, initDraftFromDrawdown, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { transformationOp } from "../categories";
 
 
 const name = "set unset";
-const old_names = ['unset'];
+
+const meta: OpMeta = {
+  displayname: 'set unset',
+  desc: 'Sets all unset interlacements/cells in this draft to the value set in the parameter.',
+  img: 'set_unset.png',
+  categories: [transformationOp],
+  advanced: true,
+  old_names: ['unset']
+}
+
 
 //PARAMS
 const liftlower: BoolParam = {
@@ -66,4 +76,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const set: Operation = { name, old_names, params, inlets, perform, generateName };
+export const set: Operation = { name, meta, params, inlets, perform, generateName };

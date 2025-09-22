@@ -1,11 +1,20 @@
 import { initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation } from "../types";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { hasOnlyUnsetOrDown } from "../../utils";
 
 const name = "erase blank rows";
-const old_names: Array<string> = [];
+
+const meta: OpMeta = {
+  displayname: 'erase blank rows',
+  desc: 'helper',
+  img: '',
+  categories: [],
+  advanced: true,
+  draft: true
+}
+
 
 
 //PARAMS
@@ -67,4 +76,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const erase_blank: Operation = { name, old_names, params, inlets, perform, generateName };
+export const erase_blank: Operation = { name, meta, params, inlets, perform, generateName };
