@@ -1,7 +1,7 @@
 import { Draft, getDraftName } from "../draft";
 import { clothOp, colorEffectsOp, compoundOp, computeOp, dissectOp, draftingStylesOp, helperOp, structureOp, transformationOp } from "./categories";
-import { OpCategory, Operation, OpParamValType, OpInput, OpParamVal, OperationInlet, OpInletValType } from "./types";
-
+import { OpCategory, Operation, OpParamValType, OpInput, OpParamVal, OperationInlet, OpInletValType, DynamicOperation } from "./types";
+import * as Operations from '../operations/operation_list';
 
 
 /**
@@ -21,8 +21,25 @@ export const opCategoryList = (): Array<OpCategory> => {
         colorEffectsOp,
         draftingStylesOp
     ]
+}
 
 
+/**
+ * returns a list of all the operations that are currently exported in op-list. 
+ * The operation must not be a draft but it returns it's entire object
+ * @param category 
+ * @returns 
+ */
+
+export const getOpList = (category: string): Array<Operation | DynamicOperation> => {
+
+    const all_objs = Object.values(Operations);
+    const published_ops = all_objs.filter(el => el.meta.draft === undefined);
+    const category_ops: Array<Operation | DynamicOperation> = published_ops.filter(op => {
+        const obj = op.meta.categories.find(cat => cat.name == category);
+        return (obj !== undefined);
+    }, []);
+    return category_ops;
 }
 
 

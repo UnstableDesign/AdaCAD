@@ -30,3 +30,11 @@ test('testing call operation', async () => {
     expect(a.drawdown).toEqual(b.drawdown);
 
 });
+
+const getOpList = require('../../src/operations/operations.ts').getOpList;
+
+test('get op list', () => {
+    const oplist = getOpList('structures');
+    expect(oplist).toEqual([])
+
+})
