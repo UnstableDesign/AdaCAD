@@ -1,6 +1,5 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, enableProdMode, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,7 +8,7 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions } from '@angular/material/tooltip';
-import { Draft, Loom, LoomSettings } from 'adacad-drafting-lib';
+import { Draft, Loom, LoomSettings, OperationClassification } from 'adacad-drafting-lib';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
@@ -18,7 +17,6 @@ import { defaults } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { NotesService } from '../core/provider/notes.service';
-import { OperationDescriptionsService } from '../core/provider/operation-descriptions.service';
 import { OperationService } from '../core/provider/operation.service';
 import { TreeService } from '../core/provider/tree.service';
 import { ViewerService } from '../core/provider/viewer.service';
@@ -62,11 +60,9 @@ export class MixerComponent {
   private notes = inject(NotesService);
   private dialog = inject(MatDialog);
   ops = inject(OperationService);
-  private op_desc = inject(OperationDescriptionsService);
   private vs = inject(ViewerService);
   zs = inject(ZoomService);
   private multiselect = inject(MultiselectService);
-  private fbauth = inject(Auth, { optional: true });
 
 
 
@@ -85,7 +81,7 @@ export class MixerComponent {
 
   /** variables for operation search */
 
-  classifications: any = [];
+  classifications: Array<OperationClassification> = [];
   op_tree: any = [];
   filteredOptions: Observable<any>;
   myControl: FormControl;
@@ -102,7 +98,7 @@ export class MixerComponent {
 
     this.myControl = new FormControl();
 
-    this.classifications = this.op_desc.getOpClassifications();
+    this.classifications = this.ops.getOpClassifications();
 
     this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
 
@@ -149,9 +145,9 @@ export class MixerComponent {
     const op_list = this.classifications.map(classification => {
       return {
         class_name: classification.category_name,
+        color: classification.color,
         ops: classification.op_names
-          .filter(op => this.op_desc.hasDisplayName(op))
-          .map(op => { return { name: op, display_name: this.op_desc.getDisplayName(op), advanced: this.op_desc.hasOpTag(op, "advanced") } })
+          .map(op => { return { name: op, display_name: this.ops.getDisplayName(op), advanced: this.ops.idAdvanced(op) } })
           .filter(op => {
             if (this.ws.show_advanced_operations) {
               return true;
@@ -161,6 +157,7 @@ export class MixerComponent {
           })
       }
     });
+
 
     op_list.forEach(el => {
       el.ops.sort(alphabetical);
@@ -203,6 +200,7 @@ export class MixerComponent {
     let tree = this.op_tree.map(classification => {
       return {
         class_name: classification.class_name,
+        color: classification.color,
         ops: classification.ops
           .filter(option => option.display_name.toLowerCase().includes(filterValue))
       }
@@ -228,12 +226,6 @@ export class MixerComponent {
     //this.view_tool.updateViewPort(data);
   }
 
-  inCat(op_name: string, cat_name: string) {
-    ;
-    let parent = this.op_desc.getOpCategory(op_name);
-    return parent == cat_name;
-
-  }
 
 
   addOperation(name: string) {

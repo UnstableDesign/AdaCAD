@@ -1,153 +1,110 @@
-
 @if (param.type === 'number') {
-  <div class="number_input">
-    <mat-form-field >
-      <mat-label>{{param.name}}</mat-label>
-      <input
-        matInput
-        [ngModel] = "opnode.params[paramid]"
-        [formControl]="fc"
-        type = "number"
-        [name]=param.name
-        [min]=param.min
-        [max]=param.max
-        step = 1
-        (change)= "onParamChange(fc.value)"
-        >
-      <!-- <mat-hint>{{param.name}}</mat-hint> -->
-    </mat-form-field>
-  </div>
+<div class="number_input">
+  <mat-form-field>
+    <mat-label>{{param.name}}</mat-label>
+    <input matInput [ngModel]="opnode.params[paramid]" [formControl]="fc" type="number" [name]=param.name
+      [min]=param.min [max]=param.max step=1 (change)="onParamChange(fc.value)">
+    <!-- <mat-hint>{{param.name}}</mat-hint> -->
+  </mat-form-field>
+</div>
 }
 
 @if (param.type == 'select') {
-  <div class="select-input">
-    <mat-form-field>
-      <mat-label>{{param.name}}</mat-label>
-      <mat-select
-        [ngModel] = "opnode.params[paramid]"
-        [formControl]="fc"
-        (selectionChange)='onParamChange(fc.value)'>
-        @for (opt of selectparam.selectlist; track opt) {
-          <mat-option [value]="opt.value">
-            {{opt.name}}
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  </div>
+<div class="select-input">
+  <mat-form-field>
+    <mat-label>{{param.name}}</mat-label>
+    <mat-select [ngModel]="opnode.params[paramid]" [formControl]="fc" (selectionChange)='onParamChange(fc.value)'>
+      @for (opt of selectparam.selectlist; track opt) {
+      <mat-option [value]="opt.value">
+        {{opt.name}}
+      </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
 }
 
 @if (param.type == 'boolean' || param.type == 'notation_toggle') {
-  <div class="boolean-input">
-    <mat-form-field>
-      <mat-label>{{param.name}}</mat-label>
-      <mat-select
-        [ngModel] = "opnode.params[paramid]"
-        [formControl]="fc"
-        (selectionChange)='onParamChange(fc.value)'>
-        <mat-option [value]="1">
-          {{boolparam.truestate}}
-        </mat-option>
-        <mat-option [value]="0">
-          {{boolparam.falsestate}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
+<div class="boolean-input">
+  <mat-form-field>
+    <mat-label>{{param.name}}</mat-label>
+    <mat-select [ngModel]="opnode.params[paramid]" [formControl]="fc" (selectionChange)='onParamChange(fc.value)'>
+      <mat-option [value]="1">
+        {{boolparam.truestate}}
+      </mat-option>
+      <mat-option [value]="0">
+        {{boolparam.falsestate}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
 }
 
 @if (param.type == 'string') {
-  <div class="string-input">
-    <mat-form-field>
-      <mat-label>{{param.name}}</mat-label>
-      <!-- <input
+<div class="string-input">
+  <mat-form-field>
+    <mat-label>{{param.name}}</mat-label>
+    <!-- <input
       matInput
       [formControl]="fc"
       [matTooltip]="description"
       [errorStateMatcher]="regexValidator"
       (change)= "onParamChange(fc.value)" > -->
-      <input
-        matInput
-        [formControl]="fc"
-        [matTooltip]="description"
-        [(ngModel)] = "opnode.params[paramid]"
-        (keyup.enter) =  "_updateString(fc.value)"
-        >
-      @if (fc.hasError('required') ) {
-        <mat-error>An input is required</mat-error>
-      }
-      @if (fc.hasError('pattern')) {
-        <mat-error>the current input is not correctly formatted </mat-error>
-      }
-    </mat-form-field>
-    <button
-      class="refresh"
-      [disabled]="!refresh_dirty"
-      (click)="_updateString(fc.value)"
-      mat-mini-fab
-      aria-label="Example icon button with a menu icon">
-      <i class="fa fa-refresh" aria-hidden="true"></i>
-    </button>
-  </div>
+    <input matInput [formControl]="fc" [(ngModel)]="opnode.params[paramid]" (keyup.enter)="_updateString(fc.value)">
+    @if (fc.hasError('required') ) {
+    <mat-error>An input is required</mat-error>
+    }
+    @if (fc.hasError('pattern')) {
+    <mat-error>the current input is not correctly formatted </mat-error>
+    }
+  </mat-form-field>
+  <button class="refresh" [disabled]="!refresh_dirty" (click)="_updateString(fc.value)" mat-mini-fab
+    aria-label="Example icon button with a menu icon">
+    <i class="fa fa-refresh" aria-hidden="true"></i>
+  </button>
+</div>
 }
 
 
 @if (param.type == 'code') {
-  <div class="code-input">
-    <mat-form-field>
-      <textarea matInput
-        cdkTextareaAutosize
-        #autosize="cdkTextareaAutosize"
-        cdkAutosizeMinRows="1"
+<div class="code-input">
+  <mat-form-field>
+    <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1"
       cdkAutosizeMaxRows="5">{{opnode.params[paramid]}}</textarea>
-      <!-- <input
+    <!-- <input
       matInput
       [formControl]="fc"
       [matTooltip]="description"
       [(ngModel)] = "opnode.params[paramid]"
       > -->
-      <mat-hint>{{param.name}}</mat-hint>
-    </mat-form-field>
-    <button mat-flat-button>run</button>
-  </div>
-  <div class="canvas-container" id="testing123">
-  </div>
+    <mat-hint>{{param.name}}</mat-hint>
+  </mat-form-field>
+  <button mat-flat-button>run</button>
+</div>
+<div class="canvas-container" id="testing123">
+</div>
 }
 
 
 
 @if (param.type == 'file') {
-  <div class='file-input-param'>
-    <div class="form-and-warning">
-      <button mat-raised-button [class.show]="has_image_uploaded"  [class.hide]="!has_image_uploaded"
-      (click)="replaceImage()" >Replace Image</button>
-      <upload-form
-        [class.show]="!has_image_uploaded"
-        [class.hide]="has_image_uploaded"
-        type="init"
-        multiple="false"
-        accepts=".jpg,.png,.bmp"
-        type="indexed_color_image"
-        (onData)="handleFile($event)"
-        (onError)="handleError($event)"
-        class="upload-form-box">
-      </upload-form>
-      <div class="file-label">
-        @if (filewarning !== '') {
-          <div class="text-err">{{filewarning}}</div>
-        }
-      </div>
-    </div>
-    <div class='param-image' [class.show]="has_image_uploaded" [class.hide]="!has_image_uploaded" id="param-image-{{opid}}" >
-      <button
-        color="accent"
-        mat-raised-button
-        (click)="openImageEditor()"
-      >View/Edit Image</button>
+<div class='file-input-param'>
+  <div class="form-and-warning">
+    <button mat-raised-button [class.show]="has_image_uploaded" [class.hide]="!has_image_uploaded"
+      (click)="replaceImage()">Replace Image</button>
+    <upload-form [class.show]="!has_image_uploaded" [class.hide]="has_image_uploaded" type="init" multiple="false"
+      accepts=".jpg,.png,.bmp" type="indexed_color_image" (onData)="handleFile($event)" (onError)="handleError($event)"
+      class="upload-form-box">
+    </upload-form>
+    <div class="file-label">
+      @if (filewarning !== '') {
+      <div class="text-err">{{filewarning}}</div>
+      }
     </div>
   </div>
+  <div class='param-image' [class.show]="has_image_uploaded" [class.hide]="!has_image_uploaded"
+    id="param-image-{{opid}}">
+    <button color="accent" mat-raised-button (click)="openImageEditor()">View/Edit Image</button>
+  </div>
+</div>
 }
-
-
-
-

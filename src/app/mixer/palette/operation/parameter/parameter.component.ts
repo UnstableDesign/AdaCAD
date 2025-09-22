@@ -7,13 +7,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
-import { MatTooltip } from '@angular/material/tooltip';
 import { AnalyzedImage, BoolParam, CodeParam, FileParam, NotationTypeParam, NumParam, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { take } from 'rxjs/operators';
 import { ImageeditorComponent } from '../../../../core/modal/imageeditor/imageeditor.component';
 import { IndexedColorImageInstance, OpNode } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
-import { OperationDescriptionsService } from '../../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
 import { UploadFormComponent } from '../../../../core/ui/uploads/upload-form/upload-form.component';
@@ -34,13 +32,12 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
   templateUrl: './parameter.component.html',
   styleUrls: ['./parameter.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatTooltip, MatError, MatMiniFabButton, CdkTextareaAutosize, MatHint, MatButton, UploadFormComponent]
+  imports: [MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatError, MatMiniFabButton, CdkTextareaAutosize, MatHint, MatButton, UploadFormComponent]
 })
 export class ParameterComponent implements OnInit {
   tree = inject(TreeService);
   private dialog = inject(MatDialog);
   ops = inject(OperationService);
-  op_desc = inject(OperationDescriptionsService);
   mediaService = inject(MediaService);
   private _ngZone = inject(NgZone);
 
@@ -65,7 +62,6 @@ export class ParameterComponent implements OnInit {
   stringparam: StringParam;
   selectparam: SelectParam;
   fileparam: FileParam;
-  description: string;
   has_image_uploaded: boolean = false;
   filewarning: string = '';
 
@@ -79,9 +75,6 @@ export class ParameterComponent implements OnInit {
   ngOnInit(): void {
 
     this.opnode = this.tree.getOpNode(this.opid);
-    this.description = this.op_desc.getParamDescription(this.param.name);
-    if (this.description == undefined || this.description == null) this.description = this.param.dx;
-    //initalize the form controls for the parameters: 
 
     switch (this.param.type) {
       case 'number':

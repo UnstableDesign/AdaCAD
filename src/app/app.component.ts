@@ -1531,14 +1531,13 @@ export class AppComponent implements OnInit, OnDestroy {
             const node = this.tree.getNode(new_id.cur_id);
             if (node === undefined) return;
 
-            (<DraftNode>node).draft.gen_name = np.gen_name;
-            (<DraftNode>node).draft.ud_name = np.ud_name;
+            (<DraftNode>node).draft.gen_name = np.gen_name ?? 'drafty';
+            (<DraftNode>node).draft.ud_name = np.ud_name ?? '';
             (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;
             (<DraftNode>node).loom = (np.loom) ? copyLoom(np.loom) : null;
-            if (np.render_colors !== undefined) (<DraftNode>node).render_colors = np.render_colors;
-            if (np.draft_visible !== undefined) (<DraftNode>node).visible = np.draft_visible;
-            else (<DraftNode>node).visible = !this.ws.hide_mixer_drafts;
-            if (np.scale !== undefined) (<DraftNode>node).scale = np.scale;
+            (<DraftNode>node).render_colors = np.render_colors ?? true;
+            (<DraftNode>node).visible = np.draft_visible ?? true;
+            (<DraftNode>node).scale = np.scale ?? 1
           })
 
         this.tree.getOpNodes().forEach(op => {

@@ -1204,22 +1204,30 @@ export class TreeService {
   }
 
   /**
+   * This function runs when the operation returns. 
+   * When it returns, it will return an array of drafts and optionally, looms that must be associated with those drafts. 
+   * All operations must have at least 1 output in order to maintain connections in the tree so if a funciton returns an empty array
+   * it needs to generate a "null" 0x0 draft. 
+   * 
+   * 
      * given the results of an operation, updates any associated drafts, creating or adding null drafts to no longer needed drafts
      * since this function cannot delete nodes, it makes nodes that no longer need to exist as null for later collection
      * basically it has to associate drafts with the existing or new nodes
      * @param res the list of results from perform op
      * @returns a list of the draft nodes touched. 
      */
-  async updateDraftsFromResults(parent: number, res: Array<Draft>, inputs: Array<OpInput>): Promise<Array<number>> {
+  async updateDraftsFromResults(parent: number, drafts: Array<Draft>, inputs: Array<OpInput>): Promise<Array<number>> {
 
 
     const out = this.getNonCxnOutputs(parent);
     const op_outlets = this.getOutputsWithNdx(parent);
+
     const touched: Array<number> = [];
     const opnode: OpNode = this.getOpNode(parent);
     const op: Operation = this.ops.getOp(opnode.name);
     const update_looms = [];
     const new_draft_fns = [];
+    console.log("GOT RESULTS ", drafts.slice(), out.slice())
 
 
     const param_vals = op.params.map((param, ndx) => {
@@ -1230,43 +1238,46 @@ export class TreeService {
     })
 
     //first, cycle through the resulting nodes: 
-    for (let i = 0; i < res.length; i++) {
+    for (let i = 0; i < drafts.length; i++) {
 
-      //get the output associated with the ndx "i"
+      //in the case where there are multiple outcomes - get the output associated with the ndx "i"
       let active_tn_tuple = op_outlets.find(el => el.ndx == i);
 
       if (active_tn_tuple !== undefined) {
         let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
         if (cxn_child.length > 0) {
-          res[i].gen_name = op.generateName(param_vals, inputs)
-          this.setDraftOnly(cxn_child[0], res[i]);
+          drafts[i].gen_name = op.generateName(param_vals, inputs)
+          this.setDraftOnly(cxn_child[0], drafts[i]);
           touched.push(cxn_child[0]);
-          update_looms.push({ id: cxn_child[0], draft: res[i] });
+          //update_looms.push({ id: cxn_child[0], draft: res[i] });
 
         }
       } else {
-        //this is a new draft
+        //if there are more drafts than indexes (i > is not found in outlets, we need to create a new outcome node)
         const id = this.createNode('draft', null, null);
         const cxn = this.createNode('cxn', null, null);
         this.addConnection(parent, i, id, 0, cxn);
-        new_draft_fns.push(this.loadDraftData({ prev_id: -1, cur_id: id }, res[i], null, null, true, 1, !this.ws.hide_mixer_drafts));
-        update_looms.push({ id: id, draft: res[i] });
+        new_draft_fns.push(this.loadDraftData({ prev_id: -1, cur_id: id }, drafts[i], null, null, true, 1, !this.ws.hide_mixer_drafts));
+        update_looms.push({ id: id, draft: drafts[i] });
         touched.push(id);
       }
 
     }
 
-    //now sweep through and see if there are any existing outputs we need to remove
-    out.forEach((output, ndx) => {
+    const old_draft_objs = out.filter(el => touched.find(subel => subel == el) == undefined);
+    const to_delete = old_draft_objs.slice(1);
 
-      if (touched.find(el => el == output) === undefined) {
-        const dn = <DraftNode>this.getNode(output);
-        dn.mark_for_deletion = true;
-        this.clearDraft(dn);
-      }
+    //now sweep through and see if there are any existing outputs we need to remove
+    old_draft_objs.forEach((output) => {
+      const dn = <DraftNode>this.getNode(output);
+      this.clearDraft(dn);
+
     });
 
-
+    to_delete.forEach(output => {
+      const dn = <DraftNode>this.getNode(output);
+      dn.mark_for_deletion = true;
+    })
 
 
     return Promise.all(new_draft_fns)
@@ -1276,26 +1287,31 @@ export class TreeService {
         ids.forEach((id, ndx) => {
           let d = this.getDraft(id);
           d.gen_name = op.generateName(param_vals, inputs);
-        })
-
-
-        let loom_fns = [];
-        update_looms.forEach(el => {
-          const dn = <DraftNode>this.getNode(el.id);
-          dn.loom_settings = (dn.loom_settings !== null) ? dn.loom_settings : this.ws.getWorkspaceLoomSettings();
-
-          //const loom_utils = getLoomUtilByType(loom_settings.type);
-          const loom_utils = getLoomUtilByType(dn.loom_settings.type)
-          loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, dn.loom_settings))
-        });
-        return Promise.all(loom_fns);
-      }).then((returned_looms) => {
-        update_looms.forEach((el, ndx) => {
-          const dn = <DraftNode>this.getNode(el.id);
-          if (returned_looms[ndx] === null) dn.loom = null;
-          else dn.loom = copyLoom(returned_looms[ndx]);
+          const dn = <DraftNode>this.getNode(id);
           dn.dirty = true;
         })
+
+
+
+
+
+        // let loom_fns = [];
+        // update_looms.forEach(el => {
+        //   const dn = <DraftNode>this.getNode(el.id);
+        //   dn.loom_settings = (dn.loom_settings !== null) ? dn.loom_settings : this.ws.getWorkspaceLoomSettings();
+
+        //   //const loom_utils = getLoomUtilByType(loom_settings.type);
+        //   const loom_utils = getLoomUtilByType(dn.loom_settings.type);
+        //   if (loom_utils.computeLoomFromDrawdown) loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, dn.loom_settings))
+        // });
+        // return Promise.all(loom_fns);
+        // }).then((returned_looms) => {
+        // update_looms.forEach((el, ndx) => {
+        //   const dn = <DraftNode>this.getNode(el.id);
+        //   //if (returned_looms[ndx] === null || returned_looms[ndx] == undefined) dn.loom = null;
+        //   dn.loom = (returned_looms[ndx]) ? copyLoom(returned_looms[ndx]) : null;
+        //   dn.dirty = true;
+        // })
 
 
         return Promise.resolve(touched);

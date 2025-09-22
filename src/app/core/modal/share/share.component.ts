@@ -40,7 +40,17 @@ export class ShareComponent {
   private _snackBar = inject(MatSnackBar);
 
   public shared_id: string = '';
-  public share_obj: ShareObj;
+  public share_obj: ShareObj = {
+    id: -1,
+    license: 'by',
+    filename: '',
+    desc: '',
+    owner_uid: (this.fb.auth.currentUser) ? this.fb.auth.currentUser.uid : 'anon',
+    owner_creditline: (this.fb.auth.currentUser) ? 'created by ' + this.fb.auth.currentUser.displayName : '',
+    owner_url: '',
+    public: false,
+    img: 'none'
+  }
   public share_url: string;
   public has_uploaded_image: boolean = false;
 
@@ -76,10 +86,14 @@ export class ShareComponent {
 
     this.fb.getShare(+this.fileid)
       .then(share_obj => {
-        this.share_obj = share_obj;
-        this.shared_id = this.fileid.toString();
-        this.updateSettings(share_obj);
-        this.share_url = defaults.share_url_base + this.fileid;
+        if (share_obj !== undefined) {
+          this.share_obj = share_obj;
+          console.log(" FROM GET SHARE", this.share_obj)
+
+          this.shared_id = this.fileid.toString();
+          this.updateSettings(share_obj);
+          this.share_url = defaults.share_url_base + this.fileid;
+        }
       }).catch(no_obj => {
         this.share_obj = null;
       });

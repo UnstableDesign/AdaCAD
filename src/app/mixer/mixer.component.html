@@ -34,102 +34,78 @@
   </mat-expansion-panel>
   -->
 
-  <mat-expansion-panel expanded>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <i class="fas fa-edit"></i>
-        Edit Workspace
-      </mat-panel-title>
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i class="fas fa-edit"></i>
+          Edit Workspace
+        </mat-panel-title>
 
-    </mat-expansion-panel-header>
-    <button
-      mat-stroked-button
-      color="primary"
-      matTooltip= "Blank Draft"
-      (click)="createNewDraft()">
-      + <i class="fas fa-chess-board"></i> add draft
-    </button>
+      </mat-expansion-panel-header>
+      <button mat-stroked-button color="primary" matTooltip="Blank Draft" (click)="createNewDraft()">
+        + <i class="fas fa-chess-board"></i> add draft
+      </button>
 
-    <button
-      mat-stroked-button
-      color="primary"
-      matTooltip= "Note"
-      color="primary"
-      (click)="createNewNote()">
-      + <i class="fas fa-comment"></i> add note
-    </button>
+      <button mat-stroked-button color="primary" matTooltip="Note" color="primary" (click)="createNewNote()">
+        + <i class="fas fa-comment"></i> add note
+      </button>
 
-  </mat-expansion-panel>
+    </mat-expansion-panel>
 
 
 
-  <mat-expansion-panel expanded>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <i class="fa-solid fa-code"></i>
-        Operators
-      </mat-panel-title>
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i class="fa-solid fa-code"></i>
+          Operators
+        </mat-panel-title>
 
-    </mat-expansion-panel-header>
-
-
-
-    <mat-form-field matNativeControl class="quickop_form is-fullwidth" appearance="fill" width='100%'  color="primary">
-      <mat-label><i class="fas fa-search"></i> search operations</mat-label>
-
-      <input type="text"
-        placeholder=""
-        (keyup.enter)="enter()"
-        matInput
-        [formControl]="myControl"
-        >
-    </mat-form-field>
-
-    <div>{{search_error}}</div>
+      </mat-expansion-panel-header>
 
 
-    <mat-slide-toggle
-      [checked]="ws.show_advanced_operations"
-      (change)="operationLevelToggleChange($event)">
-    Show Advanced Operations</mat-slide-toggle>
+
+      <mat-form-field matNativeControl class="quickop_form is-fullwidth" appearance="fill" width='100%' color="primary">
+        <mat-label><i class="fas fa-search"></i> search operations</mat-label>
+
+        <input type="text" placeholder="" (keyup.enter)="enter()" matInput [formControl]="myControl">
+      </mat-form-field>
+
+      <div>{{search_error}}</div>
 
 
-    @for (classification of filteredOptions | async; track classification) {
+      <mat-slide-toggle [checked]="ws.show_advanced_operations" (change)="operationLevelToggleChange($event)">
+        Show Advanced Operations</mat-slide-toggle>
+
+
+      @for (classification of filteredOptions | async; track classification) {
       <h3>{{classification.class_name}} </h3>
       <!-- // <ng-container *ngFor="let op_name of class.op_names"> -->
       @for (op_names of classification.ops; track op_names) {
-        <!-- {{class.description}} -->
-        <button
-          mat-stroked-button class="operation"
-          [style.background-color]="op_desc.getCatColor(classification.class_name)"
-          (click)="addOperation(op_names.name)"
-          [matTooltip]="op_desc.getOpDescription(op_names.name)">
-          @if (op_names.advanced) {
-            <span><i class="fa-regular fa-star"></i></span>
-          }
-          {{op_names.display_name}}
-        </button>
+      <!-- {{class.description}} -->
+      <button mat-stroked-button class="operation" [style.background-color]="classification.color"
+        (click)="addOperation(op_names.name)" [matTooltip]="ops.getOpDescription(op_names.name)">
+        @if (op_names.advanced) {
+        <span><i class="fa-regular fa-star"></i></span>
+        }
+        {{op_names.display_name}}
+      </button>
       }
-      <!-- <p> {{class.description}}</p> -->
-    }
+      }
 
 
 
-  </mat-expansion-panel>
+    </mat-expansion-panel>
 
 
 
 
-</mat-accordion>
+  </mat-accordion>
 
 
 </div>
 
 
-<app-palette
-  id="scrollable-container"
-  class="palette mode-{{dm.cur_mixer_mode}}"
-  [class.no-pointer]="!palette.pointer_events"
-  #palette
-  (onOpenInEditor)="openDraftInEditor($event)" >
+<app-palette id="scrollable-container" class="palette mode-{{dm.cur_mixer_mode}}"
+  [class.no-pointer]="!palette.pointer_events" #palette (onOpenInEditor)="openDraftInEditor($event)">
 </app-palette>

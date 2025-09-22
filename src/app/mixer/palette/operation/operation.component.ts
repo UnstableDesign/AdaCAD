@@ -6,7 +6,6 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Interlacement, Operation } from 'adacad-drafting-lib';
 import { IOTuple, OpNode, Point } from '../../../core/model/datatypes';
-import { OperationDescriptionsService } from '../../../core/provider/operation-descriptions.service';
 import { OperationService } from '../../../core/provider/operation.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
@@ -32,7 +31,6 @@ export class OperationComponent implements OnInit {
   tree = inject(TreeService);
   systems = inject(SystemsService);
   multiselect = inject(MultiselectService);
-  opdescriptions = inject(OperationDescriptionsService);
   vs = inject(ViewerService);
   zs = inject(ZoomService);
 
@@ -96,8 +94,6 @@ export class OperationComponent implements OnInit {
 
   description: string;
 
-  application: string;
-
   displayname: string;
 
   tooltip: string = "select drafts to input to this operation"
@@ -130,11 +126,11 @@ export class OperationComponent implements OnInit {
 
   children: Array<number> = []; //a list of references to any drafts produced by this operation
 
+  color: string = '#000'
+
   redrawchildren: number = 0; //changing this number will flag a redraw from the draft rendering child
 
   selecting_connection: boolean = false;
-
-  category_name: string = "";
 
   offset: Point = null;
 
@@ -148,10 +144,14 @@ export class OperationComponent implements OnInit {
 
     this.op = this.operations.getOp(this.name);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
-    this.description = this.opdescriptions.getOpDescription(this.name);
-    this.displayname = this.opdescriptions.getDisplayName(this.name);
-    this.application = this.opdescriptions.getOpApplication(this.name);
-    this.category_name = this.opdescriptions.getOpCategory(this.name);
+    this.description = this.op.meta.desc ?? '';
+    this.displayname = this.op.meta.displayname ?? this.name;
+
+    if (this.op.meta.categories !== undefined && this.op.meta.categories.length > 0) {
+      const active_cat = this.op.meta.categories[0];
+      this.color = active_cat.color;
+    }
+
 
 
     this.opnode = <OpNode>this.tree.getNode(this.id);

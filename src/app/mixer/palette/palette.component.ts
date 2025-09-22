@@ -346,7 +346,6 @@ export class PaletteComponent implements OnInit {
 
 
     return this.performAndUpdateDownstream(opcomp.id).then(el => {
-
       this.addTimelineState();
       return Promise.resolve(new_node.id);
     });
