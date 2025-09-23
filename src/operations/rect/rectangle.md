@@ -1,6 +1,3 @@
-![file](./img/rectangle.png)
-
-
 ## Parameters
 - `ends`: the number of ends in the structure
 - `pics`: the number of pics in the structure

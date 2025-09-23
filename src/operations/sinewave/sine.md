@@ -1,13 +1,3 @@
----
-title: sine wave sample
-sidebar_label: sine wave sample
-tags: [advanced, structure, synth]
----
-# sine wave sample
-A sine wave is a mathematical function that produces values that repeats periodically over a given time window. When visualized, it looks like smooth curves traveling over and under a midpoint. In AdaCAD, a sine way is determines the position of a single interlacement along the ends of a structure.
-
-![file](./img/sine.png)
-
 ## Parameters
 - `ends`: the number of ends wide to make the resulting structure
 - `amplitude`: the number of picks tall for this structure. We use the term "amplitude" here to align with the conventional naming for sine functions

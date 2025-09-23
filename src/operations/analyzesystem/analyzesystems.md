@@ -1,5 +1,3 @@
-![file](./img/analyzesystem.png)
-
 
 ## Parameters
 - `systems`: a series of letters and numbers, separated by a space, that indicate upon which systems of input draft should be mapped into the output draft. For example:
