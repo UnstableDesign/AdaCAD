@@ -5,14 +5,15 @@ import { compoundOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
-const name = "assign systems";
+const name = "assign_systems";
 
 const meta: OpMeta = {
   img: "assign_systems.png",
   displayname: "assign draft to systems",
   desc: "Given a user specified pattern for the weft (a b c) and warp systems (1 2 3), this function will create a draft that follows those system patterns and then map the input draft to the system specified. ",
   advanced: true,
-  categories: [compoundOp]
+  categories: [compoundOp],
+  old_names: ['assign systems']
 
 }
 

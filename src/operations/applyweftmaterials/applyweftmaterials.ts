@@ -4,14 +4,15 @@ import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../o
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { colorEffectsOp } from "../categories";
 
-const name = "apply weft materials";
+const name = "apply_weft_materials";
 
 
 const meta: OpMeta = {
   displayname: "set weft materials",
   img: 'apply_weft_materials.png',
   desc: "Copies the materials used in the materials draft to the picks of the input draft.",
-  categories: [colorEffectsOp]
+  categories: [colorEffectsOp],
+  old_names: ['apply weft materials']
 
 }
 
@@ -102,5 +103,5 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const apply_weft_mats: Operation = { name, meta, params, inlets, perform, generateName };
+export const apply_weft_materials: Operation = { name, meta, params, inlets, perform, generateName };
 

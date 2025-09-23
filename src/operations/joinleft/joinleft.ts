@@ -5,13 +5,14 @@ import { clothOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
-const name = "join left";
+const name = "join_left";
 
 const meta: OpMeta = {
   displayname: 'join left',
   desc: 'Joins drafts assigned to the drafts input together horizontally.',
   img: 'join_left.png',
   categories: [clothOp],
+  old_names: ['join left']
 }
 
 

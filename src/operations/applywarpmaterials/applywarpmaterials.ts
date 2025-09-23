@@ -4,13 +4,14 @@ import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../o
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { colorEffectsOp } from "../categories";
 
-const name = "apply warp materials";
+const name = "apply_warp_materials";
 
 const meta: OpMeta = {
   displayname: "set warp materials",
   img: "apply warp materials.png",
   desc: "Copies the materials used in the materials draft to the ends of the input draft.",
-  categories: [colorEffectsOp]
+  categories: [colorEffectsOp],
+  old_names: ['apply warp materials']
 }
 
 
@@ -98,5 +99,5 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const apply_warp_mats: Operation = { name, meta, params, inlets, perform, generateName };
+export const apply_warp_materials: Operation = { name, meta, params, inlets, perform, generateName };
 

@@ -4,14 +4,15 @@ import { getInputDraft, getOpParamValById } from "../../operations";
 import { draftingStylesOp } from "../categories";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
-const name = "direct loom";
+const name = "direct_loom";
 
 const meta: OpMeta = {
   displayname: 'generate direct tie loom threading and lift plan',
   desc: 'Uses the input draft as drawdown and generates a threading and lift plan pattern',
   img: 'direct_loom.png',
   categories: [draftingStylesOp],
-  advanced: true
+  advanced: true,
+  old_names: ['direct loom']
 }
 
 

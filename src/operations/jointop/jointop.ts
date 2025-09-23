@@ -5,13 +5,15 @@ import { clothOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
-const name = "join top";
+const name = "join_top";
 
 const meta: OpMeta = {
   displayname: 'join top',
   desc: 'Joins drafts assigned to the inlets vertically.',
   img: 'join_top.png',
   categories: [clothOp],
+  old_names: ['join top']
+
 }
 
 

@@ -4,13 +4,14 @@ import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../o
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { colorEffectsOp } from "../categories";
 
-const name = "apply materials";
+const name = "apply_materials";
 
 const meta: OpMeta = {
   img: "apply_materials.png",
   displayname: "set materials and systems",
   categories: [colorEffectsOp],
-  desc: "Adds information to the draft that represents the materials and warp- and weft-systems that will be associated with the draft"
+  desc: "Adds information to the draft that represents the materials and warp- and weft-systems that will be associated with the draft",
+  old_names: ["apply materials"]
 }
 
 //PARAMS

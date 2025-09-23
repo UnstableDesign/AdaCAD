@@ -5,14 +5,15 @@ import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
-const name = "splice in wefts";
+const name = "splice_in_wefts";
 
 const meta: OpMeta = {
   displayname: 'splice in pics',
   desc: 'Splices the pics of the `splicing draft` input draft into the `receiving draft`. You can use the parameters to describe if you want the entire draft spliced in, or to splice the draft in pic by pic and the amount of pics between each insertion.',
   img: 'splice_in_wefts.png',
   categories: [compoundOp],
-  advanced: true
+  advanced: true,
+  old_names: ['splice in wefts']
 }
 
 //PARAMS

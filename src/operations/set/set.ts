@@ -5,7 +5,7 @@ import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } fro
 import { transformationOp } from "../categories";
 
 
-const name = "set unset";
+const name = "set_unset";
 
 const meta: OpMeta = {
   displayname: 'set unset',
@@ -13,7 +13,7 @@ const meta: OpMeta = {
   img: 'set_unset.png',
   categories: [transformationOp],
   advanced: true,
-  old_names: ['unset']
+  old_names: ['unset', 'set unset']
 }
 
 

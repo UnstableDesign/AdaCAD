@@ -5,7 +5,7 @@ import { draftingStylesOp } from "../categories";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 
-const name = "floor loom";
+const name = "floor_loom";
 
 
 const meta: OpMeta = {
@@ -13,7 +13,8 @@ const meta: OpMeta = {
   desc: 'Uses the input draft as drawdown and generates a threading and lift plan pattern',
   img: 'floor_loom.png',
   categories: [draftingStylesOp],
-  advanced: true
+  advanced: true,
+  old_names: ['floor loom']
 }
 
 
