@@ -105,7 +105,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const tabby_der: Operation = { name, meta, params, inlets, perform, generateName };
+export const tabby: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

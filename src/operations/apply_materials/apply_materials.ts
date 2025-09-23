@@ -141,5 +141,5 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const apply_mats: Operation = { name, meta, params, inlets, perform, generateName };
+export const apply_materials: Operation = { name, meta, params, inlets, perform, generateName };
 

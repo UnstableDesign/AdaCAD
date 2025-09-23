@@ -71,4 +71,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const overlay_multi: Operation = { name, meta, params, inlets, perform, generateName };
+export const overlay_multiple: Operation = { name, meta, params, inlets, perform, generateName };

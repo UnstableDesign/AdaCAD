@@ -148,4 +148,4 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const sierpinski: Operation = { name, meta, params, inlets, perform, generateName };
+export const sierpinski_square: Operation = { name, meta, params, inlets, perform, generateName };

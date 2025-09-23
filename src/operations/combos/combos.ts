@@ -1,5 +1,5 @@
 import { Draft, initDraftWithParams, setCellValue, getCellValue, createCell } from "../../draft";
-import { getOpParamValById, flattenParamVals } from "../../operations";
+import { getOpParamValById, flattenParamVals } from "..";
 import { structureOp } from "../categories";
 import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 
@@ -111,7 +111,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const combinatorics: Operation = { name, meta, params, inlets, perform, generateName };
+export const combos: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 
@@ -134,41 +134,6 @@ let cur_set: { warps: number, wefts: number } = { warps: 0, wefts: 0 };
 let all_possible_drafts: Array<{ draft: Draft, id: number }> = [];
 
 
-// function drawCell(cx, draft, cell_size, i, j, top,  left){
-//   const is_up = isUp(draft.drawdown, i, j);
-//   let color = "#ffffff"
-
-//   if(is_up){
-//     color = '#000000';
-//   }else{
-//     color = '#ffffff';
-//   }
-//   cx.fillStyle = color;
-//   cx.strokeStyle = '#000000';
-
-
-
-//   //hack, draw upside down to account for later flip
-//   i = (wefts(draft.drawdown)-1) - i;
-
-//   cx.strokeRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
-//   cx.fillRect(left+j*cell_size, top+i*cell_size, cell_size, cell_size);
-// }
-
-
-/**
- * returns all the values from the valid set that match the sequence
- * @param seq 
- * @param valid 
- */
-// function filterForSeq(seq: Array<number>, valid: Array<Array<number>>) : Array<Array<number>>{
-//   let filtered = valid.slice();
-//   seq.forEach((val, ndx) => {
-//     filtered = filtered.filter(set => set[ndx] == val);
-//   });
-//   return filtered;
-// }
-
 
 /**
  * prints the tree for verification
@@ -188,20 +153,6 @@ function printNodes(nodes: Array<ComboNode>) {
   });
 }
 
-
-/**
- * given a node, it creates the sequence (e.g. 0110) that it represnts by calling each parent
- * @param node a tree node from which to start
- * @returns the sequence reprsented by this node. 
- */
-// function traceSequenceViaParents(node: ComboNode) : Array<number>{
-//   let seq = [];
-//   while(node.parent !== null){
-//     seq = [node.value].concat(seq);
-//     node = node.parent;
-//   }
-//   return seq;
-// }
 
 
 /**

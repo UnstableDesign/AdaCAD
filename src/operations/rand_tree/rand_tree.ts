@@ -163,4 +163,4 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const tree: Operation = { name, params, inlets, meta, perform, generateName };
+export const rand_tree: Operation = { name, params, inlets, meta, perform, generateName };

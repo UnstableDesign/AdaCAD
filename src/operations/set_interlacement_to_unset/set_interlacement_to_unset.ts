@@ -77,4 +77,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const unset: Operation = { name, meta, params, inlets, perform, generateName };
+export const set_interlacement_to_unset: Operation = { name, meta, params, inlets, perform, generateName };
