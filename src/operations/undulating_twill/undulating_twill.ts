@@ -6,14 +6,15 @@ import { parseRegex } from "../../utils";
 import { structureOp } from "../categories";
 
 
-const name = "undulatingtwill";
+const name = "undulating_twill";
 
 const meta: OpMeta = {
   displayname: 'undulating twill',
   desc: 'Twill is a family of weave structures in which weft picks pass over or under one or more warp threads in a repeating pattern. In this context, and undulating twill means tha the structure can shift by a non-repeating series of values, instead of by the same value on each pic (as is typically the case in twills)',
   img: 'undulatingtwill.png',
   categories: [structureOp],
-  advanced: true
+  advanced: true,
+  old_names: ['undulatingtwill']
 }
 
 
@@ -97,7 +98,7 @@ const generateName = (): string => {
 }
 
 
-export const undulatingtwill: Operation = { name, meta, params, inlets, perform, generateName };
+export const undulating_twill: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

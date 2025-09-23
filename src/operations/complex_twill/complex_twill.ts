@@ -4,14 +4,15 @@ import { getOpParamValById, flattenParamVals } from "../../operations";
 import { StringParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
 
-const name = "complextwill";
+const name = "complex_twill";
 
 const meta: OpMeta = {
   displayname: "complex twill",
   desc: "In this context, a complex twill is a straight twill with multiple ratios of interlacement in a single structure unit so that a 2 2 3 3 pattern describes a structure with two raised warp ends, two lowered ends, three raised ends, and three lowered ends. Each successive pic begins the same pattern of interlacement on an adjacent warp end, creating a diagonal pattern.",
   advanced: true,
   categories: [structureOp],
-  img: 'complextwill.png'
+  img: 'complex_twill.png',
+  old_names: ['complextwill']
 }
 
 //PARAMS
@@ -81,7 +82,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-export const complextwill: Operation = { name, meta, params, inlets, perform, generateName };
+export const complex_twill: Operation = { name, meta, params, inlets, perform, generateName };
 
 
 

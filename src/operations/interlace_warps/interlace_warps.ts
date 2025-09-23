@@ -5,7 +5,7 @@ import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } fro
 import { lcm, getMaxWefts } from "../../utils";
 import { compoundOp } from "../categories";
 
-const name = "interlacewarps";
+const name = "interlace_warps";
 
 const meta: OpMeta = {
   displayname: 'interlace warps',
@@ -13,7 +13,7 @@ const meta: OpMeta = {
   img: 'interlacewarps.png',
   categories: [compoundOp],
   advanced: true,
-  old_names: ['interlace_warps']
+  old_names: ['interlacewarps']
 }
 
 
@@ -120,4 +120,4 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 
-export const interlacewarps: Operation = { name, meta, params, inlets, perform, generateName };
+export const interlace_warps: Operation = { name, meta, params, inlets, perform, generateName };
