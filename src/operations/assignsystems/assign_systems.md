@@ -25,7 +25,7 @@ This provides a way to assign unique drafts to systems without considering layer
  Any layering can be done explicitly by the user by assigning the correct raised and lowered systems to the systems draft. Doing so typically requires assigning drafts to every possible combination of warp and weft systems and then using the [`overlay multiple`](overlay_multiple) operation to compose them into a single draft. See below for making a 2-layer draft with system `a1` on the top layer and `b1` on the bottom layer. Tabby is assigned to both layers and a single heddle lift or heddle lower is applied b1 and a2 respectively to ensure that the layers are separated.  
 
 
-![file](./img/assign_systems_demo.png)
+![file](./assign_systems_demo.png)
 
 Note how unassigned systems will be filled with unset heddles. You can use the [`set unset`](./set_unset.md) to give all of the unset heddles either a heddle left, or lowered, value.
 

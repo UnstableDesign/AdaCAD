@@ -11,7 +11,7 @@ const name = "set_interlacement_to_unset";
 const meta: OpMeta = {
   displayname: 'set interlacement to unset',
   desc: 'This sets all interlacements of a particular type (e.g. raised or lowered) in the input draft to unset',
-  img: 'set_down_to_unset.png',
+  img: 'set_interlacement_to_unset.png',
   categories: [transformationOp],
   advanced: true,
   old_names: ['set', 'set down to unset']

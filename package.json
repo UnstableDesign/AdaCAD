@@ -1,13 +1,13 @@
 {
   "name": "adacad-drafting-lib",
-  "version": "1.2.7",
+  "version": "1.2.11",
   "description": "a library for creating and manipulating weaving drafts",
   "main": "dist/index.js",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "copyfiles -f ./src/**/*.md dist/markdown && copyfiles -f ./src/**/*.png dist/img && tsc",
+    "build": "copyfiles -f ./src/**/*.md ./src/**/*.png ./src/**/*.jpg dist/markdown && tsc",
     "test": "jest --verbose",
     "lint": "eslint src/ --ext .ts",
     "docs": "npx typedoc"

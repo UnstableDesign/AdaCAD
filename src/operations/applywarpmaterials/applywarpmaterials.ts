@@ -8,7 +8,7 @@ const name = "apply_warp_materials";
 
 const meta: OpMeta = {
   displayname: "set warp materials",
-  img: "apply warp materials.png",
+  img: "apply_warp_materials.png",
   desc: "Copies the materials used in the materials draft to the ends of the input draft.",
   categories: [colorEffectsOp],
   old_names: ['apply warp materials']
