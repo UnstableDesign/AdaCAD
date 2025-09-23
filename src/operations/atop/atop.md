@@ -1,6 +1,4 @@
 
-![file](./img/atop.png)
-
 
 ## Parameters
 - `shift ends`: shifts the position of the ends in draft b relative to a

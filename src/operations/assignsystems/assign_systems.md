@@ -15,7 +15,7 @@
 
 - `systems draft` - the draft connected to this inlet serves as a template for your warp and weft systems. For example, if you want your draft to have two weft systems that alternate (say a and b) and two warp systems that alternate (say 1 and 2), you might create, and then connect, the following draft to this 'systems draft' inlet. This inlet does not look at the drawdown, it only looks at the warp and weft system and materials. 
 
-![file](./img/notation_systemsdraft.png)
+![file](./notation_systemsdraft.png)
 
 - `draft` - this draft will be mapped onto the systems specified. 
 

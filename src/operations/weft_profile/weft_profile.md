@@ -12,7 +12,7 @@ A single inlet will be created for each letter in your pattern. For example, if 
 :::note
 When this operation is given input drafts with a different number of warp ends, it automatically expands the output region such that each pattern will repeat evenly along the warp. For example, if the inputs have 5 pics and 6 ends, the output will have 30 ends (the least common multiple of 5 and 6) and the input patterns will be filled within those regions. 
 
-![file](./img/weft_profile_helper.png)
+![file](./weft_profile_helper.png)
 :::
 
 

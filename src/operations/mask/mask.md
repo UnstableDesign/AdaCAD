@@ -1,7 +1,5 @@
 
 
-![file](./img/mask.png)
-
 ## Parameters
 - `shift ends`: shifts the position of the ends in draft b relative to a
 - `shift pics`: shifts the position of the pics in draft b relative to b

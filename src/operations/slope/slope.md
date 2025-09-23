@@ -12,7 +12,7 @@ this application applies the slope progressively. For instance, if the slope:
 
 These relationships are best visualized by the shift operation being applied to a draft is one single column of raised warps. 
 
-![file](./img/slope_helper.png)
+![file](./slope_helper.png)
 
 
 :::

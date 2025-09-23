@@ -8,7 +8,7 @@ AdaCAD can only accept images that have less than 100 colors. Please use another
 :::
 
 - `view/edit image` - after an image is successfully loaded, you are able to view the original image and make modifications to the colors found in the image by clicking this "view/edit image" button. For example, you can group two similar colors, or two colors that you'd like to use the same input draft by modifying the "groups with" fields on the right of the pop up window. 
-![file](./img/imagemap_editor.png)
+![file](./imagemap_editor.png)
 
 
 

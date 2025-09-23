@@ -1,13 +1,3 @@
----
-title: diff, (a, b) => (a NEQ b)
-sidebar_label: diff, (a, b) => (a NEQ b)
-tags: [advanced, compute]
----
-# diff, (a, b) => (a NEQ b)
-Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b and it returns a black cell in any location where the two draft cells were different
-
-![file](./img/diff.png)
-
 
 ## Parameters
 - `shift ends`: shifts the position of the ends in draft a

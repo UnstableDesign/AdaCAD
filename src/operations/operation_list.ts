@@ -28,7 +28,7 @@ export * from './invert/invert';
 export * from './joinleft/joinleft'
 export * from './jointop/jointop'
 export * from './layer/layer'
-export * from './layer_notation/layer_notation'
+export * from './notation/notation'
 export * from './makedirectloom/makedirectloom';
 export * from './makeloom/makeloom';
 export * from './makesymmetric/makesymmetric';
