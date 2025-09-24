@@ -7,6 +7,7 @@ import { Img } from "../media/types";
  */
 export type OpCategory = {
   name: string,
+  displayname: string,
   color: string,
   desc: string,
   url?: string
