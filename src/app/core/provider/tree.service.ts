@@ -1,6 +1,6 @@
 import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { copyLoom, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpParamVal } from 'adacad-drafting-lib';
+import { copyLoom, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
@@ -1216,7 +1216,7 @@ export class TreeService {
      * @param res the list of results from perform op
      * @returns a list of the draft nodes touched. 
      */
-  async updateDraftsFromResults(parent: number, drafts: Array<Draft>, inputs: Array<OpInput>): Promise<Array<number>> {
+  async updateDraftsFromResults(parent: number, outputs: Array<OpOutput>, inputs: Array<OpInput>): Promise<Array<number>> {
 
 
     const out = this.getNonCxnOutputs(parent);
@@ -1225,9 +1225,7 @@ export class TreeService {
     const touched: Array<number> = [];
     const opnode: OpNode = this.getOpNode(parent);
     const op: Operation = this.ops.getOp(opnode.name);
-    const update_looms = [];
     const new_draft_fns = [];
-    console.log("GOT RESULTS ", drafts.slice(), out.slice())
 
 
     const param_vals = op.params.map((param, ndx) => {
@@ -1238,7 +1236,7 @@ export class TreeService {
     })
 
     //first, cycle through the resulting nodes: 
-    for (let i = 0; i < drafts.length; i++) {
+    for (let i = 0; i < outputs.length; i++) {
 
       //in the case where there are multiple outcomes - get the output associated with the ndx "i"
       let active_tn_tuple = op_outlets.find(el => el.ndx == i);
@@ -1246,10 +1244,11 @@ export class TreeService {
       if (active_tn_tuple !== undefined) {
         let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
         if (cxn_child.length > 0) {
-          drafts[i].gen_name = op.generateName(param_vals, inputs)
-          this.setDraftOnly(cxn_child[0], drafts[i]);
+          outputs[i].draft.gen_name = op.generateName(param_vals, inputs)
+          this.setDraftOnly(cxn_child[0], outputs[i].draft);
+          if (outputs[i].loom !== undefined) this.setLoom(cxn_child[0], outputs[i].loom)
+          if (outputs[i].loom_settings !== undefined) this.setLoomSettings(cxn_child[0], outputs[i].loom_settings)
           touched.push(cxn_child[0]);
-          //update_looms.push({ id: cxn_child[0], draft: res[i] });
 
         }
       } else {
@@ -1257,8 +1256,7 @@ export class TreeService {
         const id = this.createNode('draft', null, null);
         const cxn = this.createNode('cxn', null, null);
         this.addConnection(parent, i, id, 0, cxn);
-        new_draft_fns.push(this.loadDraftData({ prev_id: -1, cur_id: id }, drafts[i], null, null, true, 1, !this.ws.hide_mixer_drafts));
-        update_looms.push({ id: id, draft: drafts[i] });
+        new_draft_fns.push(this.loadDraftData({ prev_id: -1, cur_id: id }, outputs[i].draft, (outputs[i].loom ?? null), (outputs[i].loom_settings ?? null), true, 1, !this.ws.hide_mixer_drafts));
         touched.push(id);
       }
 
@@ -1290,29 +1288,6 @@ export class TreeService {
           const dn = <DraftNode>this.getNode(id);
           dn.dirty = true;
         })
-
-
-
-
-
-        // let loom_fns = [];
-        // update_looms.forEach(el => {
-        //   const dn = <DraftNode>this.getNode(el.id);
-        //   dn.loom_settings = (dn.loom_settings !== null) ? dn.loom_settings : this.ws.getWorkspaceLoomSettings();
-
-        //   //const loom_utils = getLoomUtilByType(loom_settings.type);
-        //   const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-        //   if (loom_utils.computeLoomFromDrawdown) loom_fns.push(loom_utils.computeLoomFromDrawdown(el.draft.drawdown, dn.loom_settings))
-        // });
-        // return Promise.all(loom_fns);
-        // }).then((returned_looms) => {
-        // update_looms.forEach((el, ndx) => {
-        //   const dn = <DraftNode>this.getNode(el.id);
-        //   //if (returned_looms[ndx] === null || returned_looms[ndx] == undefined) dn.loom = null;
-        //   dn.loom = (returned_looms[ndx]) ? copyLoom(returned_looms[ndx]) : null;
-        //   dn.dirty = true;
-        // })
-
 
         return Promise.resolve(touched);
       });
@@ -1465,8 +1440,9 @@ export class TreeService {
   }
 
   setLoom(id: number, loom: Loom) {
+    console.log("SETTINGLOOM TO ", loom)
     const dn: DraftNode = <DraftNode>this.getNode(id);
-    if (dn !== null && dn !== undefined) dn.loom = copyLoom(loom);
+    if (dn !== null && dn !== undefined) dn.loom = (loom === null) ? null : copyLoom(loom);
   }
 
   setLoomAndRecomputeDrawdown(id: number, loom: Loom, loom_settings: LoomSettings): Promise<Draft> {

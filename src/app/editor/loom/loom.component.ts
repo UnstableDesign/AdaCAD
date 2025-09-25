@@ -52,6 +52,7 @@ export class LoomComponent {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log("ON CHANGES CALLED IN LOOM ", changes['id'].currentValue)
 
     this.id = changes['id'].currentValue;
     if (this.id !== -1) {
@@ -72,6 +73,7 @@ export class LoomComponent {
       this.updateWidth();
     }
   }
+
 
   updateLoom() {
     const loom_settings = this.tree.getLoomSettings(this.id);

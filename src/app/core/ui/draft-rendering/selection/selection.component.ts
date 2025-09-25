@@ -388,7 +388,11 @@ export class SelectionComponent implements OnInit {
     }
     return op.perform(params, drafts)
       .then(manipulated_draft => {
-        return Promise.resolve(manipulated_draft[0].drawdown)
+
+        if (manipulated_draft.length == 0) return Promise.reject('no draft returned')
+        const dd = manipulated_draft[0].draft.drawdown;
+
+        return Promise.resolve(dd)
       })
 
 

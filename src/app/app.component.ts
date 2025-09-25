@@ -148,7 +148,7 @@ export class AppComponent implements OnInit, OnDestroy {
     //subscribe to the login event and handle what happens in that case 
     this.userAuthSubscription = this.fb.authChangeEvent$.subscribe(user => {
       this.user_auth_state = (user !== null) ? true : false;
-      this.user_auth_name = (this.user_auth_state) ? user.displayName : '';
+      this.user_auth_name = (user !== null && this.user_auth_state) ? user.displayName : '';
       this.initLoginLogoutSequence(user);
     });
 
@@ -200,7 +200,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    //this.startWorkspace();
     this.recenterViews();
   }
 
@@ -209,13 +208,13 @@ export class AppComponent implements OnInit, OnDestroy {
    *called on Application Init. Checks the params and loads any content 
    * passed in the URL. If this laods, it will push the timeline state. 
    */
-  startWorkspace() {
-    console.log("STARTING WORKSPACE")
+  checkForURLLoads(): boolean {
 
     let searchParams = new URLSearchParams(window.location.search);
     if (searchParams.has('ex')) {
       this.loadExampleAtURL(searchParams.get('ex'))
       history.pushState({ page: 1 }, "AdaCAD.org ", "")
+      return true;
 
     } else if (searchParams.has('share')) {
       //THIS CANNOT RUN IF THE ACCESS TO THE DATABASE IS NOT YET CONFIGURED? 
@@ -224,14 +223,14 @@ export class AppComponent implements OnInit, OnDestroy {
         .then(res => {
           this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
           this.addTimelineStateOnly();
+          return true;
         })
         .catch(err => {
           this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
           this.loadBlankFile().then(el => this.addTimelineStateOnly())
+          return false;
         })
       history.pushState({ page: 1 }, "AdaCAD.org ", "")
-    } else {
-      this.loadBlankFile();
     }
 
   }
@@ -250,85 +249,21 @@ export class AppComponent implements OnInit, OnDestroy {
 
     } else if (user && !workspace_has_content) {
       // OPEN THE STARTING DIALOG
-
-    } else if (!user && workspace_has_content) {
-      // DO NOTHING
-
-    } else {
-      //LOAD WELCOME CONTENT
-
-    }
-
-
-
-
-    if (!user) return;
-
-    //CASE 1: USER LOGS IN MID PROJECT. 
-    if (this.ss.hasTimeline()) {
-      this.saveFile();
-    } else {
-
-      let searchParams = new URLSearchParams(window.location.search);
-      if (searchParams.has('ex')) {
-        this.loadExampleAtURL(searchParams.get('ex'))
-        history.pushState({ page: 1 }, "AdaCAD.org ", "")
-
-      } else if (searchParams.has('share')) {
-        this.loadFromShare(+(searchParams.get('share')))
-          .then(res => {
-            this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
-            this.addTimelineStateOnly();
-          })
-          .catch(err => {
-            this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
-            this.loadBlankFile().then(el => this.addTimelineStateOnly())
-          })
-        history.pushState({ page: 1 }, "AdaCAD.org ", "")
-      } else if (user === null) {
-        this.loadStarterFile()
-          .then(res => {
-            this.addTimelineStateOnly();
-          })
-          .catch(err => {
-            this.loadBlankFile().then(res => { this.addTimelineStateOnly(); })
-            console.error(err)
-
-          })
-      } else {
-        this.loadBlankFile()
-          .then(res => {
-            this.addTimelineStateOnly();
-            this.openAdaFiles("welcome");
-          })
+      const hadLoad = this.checkForURLLoads();
+      if (!hadLoad) {
+        this.openAdaFiles("welcome");
       }
 
 
+    } else if (!user && workspace_has_content) {
+      // DO NOTHING - this person must have just logged out
+
+    } else {
+      //LOAD WELCOME CONTENT
+      this.loadStarterFile();
+
     }
 
-    // if(user === null){
-    //   //Called on logout - can you tell a logout
-    //   if(this.auth.isFirstSession) this.loadStarterFile();
-    //   //do nothing
-    // }else{
-    //   this.loadBlankFile();
-
-    // if(this.auth.isFirstSession() || (!this.auth.isFirstSession() && this.isBlankWorkspace())){
-    //   this.openAdaFiles("welcome"); 
-    // }else{
-    //   console.log("ON LOGOUT?")
-    //   this.saveFile();
-    //   this.files.writeNewFileMetaData(
-    //     user.uid, 
-    //     this.files.getCurrentFileId(), 
-    //     this.files.getCurrentFileName(), 
-    //     this.files.getCurrentFileDesc(),
-    //     this.files.getCurrentFileFromShare())
-
-
-    // }
-
-    //}
   }
 
 
@@ -360,7 +295,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * or opening the draft editor with a draft that has a parent (and therefore, a copy is created)
    * @param obj 
    */
-  createNewDraftOnMixer(draft: Draft, loom: Loom, loom_settings: LoomSettings): Promise<number> {
+  createNewDraftOnMixer(draft: Draft, loom: Loom | null, loom_settings: LoomSettings): Promise<number> {
 
     let id = this.mixer.newDraftCreated(draft, loom, loom_settings); //this registers the draft with the tree. 
     this.tree.setDraftOnly(id, draft);
@@ -413,7 +348,6 @@ export class AppComponent implements OnInit, OnDestroy {
       case 'draft':
 
         this.mixer.onClose();
-        this.editor.onFocus();
 
         if (this.vs.getViewer() == -1) {
           let obj = {
@@ -425,14 +359,16 @@ export class AppComponent implements OnInit, OnDestroy {
             frames: defaults.loom_settings.frames,
             treadles: defaults.loom_settings.treadles
           }
-          this.generateBlankDraftAndPlaceInMixer(obj, 'toggle')
-            .then(res => {
+          this.generateBlankDraftAndPlaceInMixer(obj)
+            .then(id => {
+              this.editor.onFocus(id);
+              this.vs.setViewer(id);
               this.saveFile();
             })
 
         } else {
-          this.editor.loadDraft(this.vs.getViewer());
-          this.editor.onFocus();
+          console.log("VIEWER IS ", this.vs.getViewer())
+          this.editor.onFocus(this.vs.getViewer());
         }
 
         break;
@@ -452,11 +388,11 @@ export class AppComponent implements OnInit, OnDestroy {
   cloneDraft(obj: any) {
     let draft = copyDraft(obj.draft);
     draft.gen_name = 'copy of ' + getDraftName(draft);
-    let loom = copyLoom(obj.loom)
+    let loom = (obj.loom == null) ? null : copyLoom(obj.loom)
     let loom_settings = copyLoomSettings(obj.loom_settings);
     this.createNewDraftOnMixer(draft, loom, loom_settings).then(id => {
       this.vs.setViewer(id);
-      this.editor.loadDraft(id);
+      this.editor.onFocus(id);
       this.saveFile();
 
     })
@@ -469,9 +405,9 @@ export class AppComponent implements OnInit, OnDestroy {
    * generates a draft, loom, and loom settings before sending back to the app component to initate it 
    * within both draft detail and the mixer view. Returns a promise to streamline execution
    * 
-   * @returns 
+   * @returns the new draft id
    */
-  generateBlankDraftAndPlaceInMixer(obj: any, origin: 'toggle' | 'editor' | 'starter'): Promise<number> {
+  generateBlankDraftAndPlaceInMixer(obj: any): Promise<number> {
 
     //if it has a parent and it does not yet have a view ref. 
     //this.tree.setSubdraftParent(id, -1)
@@ -491,30 +427,18 @@ export class AppComponent implements OnInit, OnDestroy {
       .then(loom => {
         return this.createNewDraftOnMixer(draft, loom, loom_settings)
       })
-      .then(draftid => {
-        console.log("FROM ORIGIN ", origin)
-        switch (origin) {
-          case 'toggle':
-            this.editor.loadDraft(draftid);
-            this.editor.onFocus();
-            break;
-
-          case 'starter':
-            this.vs.setViewer(draftid);
-            this.editor.loadDraft(draftid);
-            this.editor.onFocus();
-            break;
-
-          case 'editor':
-            this.vs.setViewer(draftid);
-            this.editor.loadDraft(draftid);
-            this.editor.onFocus();
-            break;
-        }
-
-        return Promise.resolve(draftid);
-      })
   }
+
+  createDraft(obj: any) {
+    this.generateBlankDraftAndPlaceInMixer(obj).then(
+      id => {
+        this.editor.onFocus(id);
+        this.vs.setViewer(id);
+        this.saveFile();
+      }
+    )
+  }
+
 
   updateViewAdjustBar() {
     this.viewadjust.updatePosition();
@@ -828,7 +752,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
     this.ws.setCurrentFile(meta)
-    this.filename_form.setValue(meta.name)
+    if (this.filename_form) this.filename_form.setValue(meta.name)
     return Promise.resolve(true);
 
   }
@@ -839,7 +763,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * loading the starter file will not clear the prior workspace as it assumes that the space is empty on first load
    */
   loadStarterFile(): Promise<any> {
-
     let meta = {
       id: generateId(8),
       name: 'welcome',
@@ -858,9 +781,12 @@ export class AppComponent implements OnInit, OnDestroy {
       treadles: defaults.loom_settings.treadles
     }
 
-    this.filename_form.setValue(this.ws.current_file.name)
+    if (this.filename_form) this.filename_form.setValue(this.ws.current_file.name)
 
-    return this.generateBlankDraftAndPlaceInMixer(obj, 'starter');
+    return this.generateBlankDraftAndPlaceInMixer(obj).then(id => {
+      this.vs.setViewer(id);
+      this.addTimelineStateOnly();
+    });
 
   }
 

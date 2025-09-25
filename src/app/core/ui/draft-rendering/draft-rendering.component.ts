@@ -264,6 +264,7 @@ export class DraftRenderingComponent implements OnInit {
 
   //this is called anytime a new draft object is loaded. 
   onNewDraftLoaded(id: number) {
+
     this.id = id;
 
     if (id == -1) return;
@@ -272,15 +273,10 @@ export class DraftRenderingComponent implements OnInit {
 
     if (draft == null) {
       console.error("COUNT NOT LOCATE DRAFT in Draft Rending", id, draft, this.tree.getNode(id));
-
       return;
     }
 
     let loom_settings = this.tree.getLoomSettings(id);
-    if (loom_settings == null) {
-      loom_settings = defaults.loom_settings;
-    }
-
 
     const loom = this.tree.getLoom(id);
     if (loom == null) {
@@ -300,9 +296,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
     this.selected_loom_type = loom_settings.type;
-    if (this.selected_loom_type == 'jacquard') this.dm.selectDraftEditSource('drawdown')
-
-
 
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);

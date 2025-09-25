@@ -131,8 +131,6 @@ export class EditorComponent implements OnInit {
 
     if (loom == null || draft == null || loom_settings == null) return;
 
-    console.log("Update Vewing Info", loom, draft, loom_settings)
-
     let utils = getLoomUtilByType(loom_settings.type);
     this.dressing_info = utils.getDressingInfo(draft.drawdown, loom, loom_settings);
 
@@ -159,6 +157,7 @@ export class EditorComponent implements OnInit {
 
   enableEdits() {
     this.createDraftCopy(this.id);
+    this.loom.redrawPanel();
   }
 
   /**
@@ -205,12 +204,16 @@ export class EditorComponent implements OnInit {
   /**
   * placholder for any code we need to run when we focus on this view
   */
-  onFocus() {
-    console.log("ON FOCUS ", this.id)
-    if (this.id != -1) {
-      this.loadDraft(this.id);
+  onFocus(id: number) {
+    console.log("ON FOCUS ", id)
+    if (id !== -1) {
+      this.loadDraft(id).then(id => {
+        this.id = id;
+        this.renderChange();
+      }
+      ).catch(console.error)
     }
-    this.renderChange();
+
 
   }
 
@@ -248,9 +251,8 @@ export class EditorComponent implements OnInit {
     this.id = -1;
   }
 
-  getParentOp(id: number) {
+  setParentOp(id: number) {
     const hasParent = this.tree.hasParent(id);
-    console.log("HAS PARENT ", hasParent)
     if (!hasParent) this.parentOp = '';
     else {
       let pid = this.tree.getSubdraftParent(id);
@@ -270,26 +272,68 @@ export class EditorComponent implements OnInit {
   * @returns 
   */
   loadDraft(id: number): Promise<any> {
-    this.id = id;
 
-    if (id == -1) return Promise.resolve();
+    if (id == -1) return Promise.reject("attempting to load a non-existant ID");
 
     const draft = this.tree.getDraft(id);
-    this.getParentOp(id);
+    const loom = this.tree.getLoom(id);
+    let ls = this.tree.getLoomSettings(id);
+    const loom_fns = [];
 
-    if (this.parentOp !== '') this.weaveRef.view_only = true;
-    else this.weaveRef.view_only = false;
+    if (ls == null) {
+      ls = {
+        frames: this.ws.min_frames,
+        treadles: this.ws.min_treadles,
+        epi: this.ws.epi,
+        units: this.ws.units,
+        type: this.ws.type
+      }
+      this.tree.setLoomSettings(id, ls);
 
-
-    if (this.loom.type == 'jacquard' && this.dm.cur_draft_edit_source == 'loom') {
-      this.dm.selectDraftEditSource('drawdown');
     }
 
-    this.draftname = getDraftName(draft);
-    this.weaveRef.onNewDraftLoaded(id);
-    this.redraw();
-    this.updateWeavingInfo();
-    return Promise.resolve(null);
+    if (loom == null) {
+      const utils = getLoomUtilByType(ls.type);
+      loom_fns.push((utils.computeLoomFromDrawdown) ? utils.computeLoomFromDrawdown(draft.drawdown, ls) : null);
+    } else {
+      loom_fns.push(loom);
+    }
+
+    return Promise.all(loom_fns).then(looms => {
+
+      this.tree.setLoom(id, looms[0]);
+
+      console.log("LOADING DRAFT in Editor, LoadDraft", draft, looms[0], ls)
+
+      this.setParentOp(id);
+      if (this.parentOp !== '') this.weaveRef.view_only = true;
+      else this.weaveRef.view_only = false;
+
+
+
+
+
+
+      if ((ls.type == 'jacquard' && this.dm.cur_draft_edit_source == 'loom') || loom === null) {
+        this.dm.selectDraftEditSource('drawdown');
+      }
+
+
+
+      this.draftname = getDraftName(draft);
+      this.weaveRef.onNewDraftLoaded(id);
+      this.redraw();
+      this.updateWeavingInfo();
+      return Promise.resolve(id);
+
+
+
+    })
+
+
+
+
+
 
 
   }

@@ -2,7 +2,7 @@ import { inject, Injectable, OnDestroy } from '@angular/core';
 import { Auth, GoogleAuthProvider, signInWithPopup, signOut, User, user } from '@angular/fire/auth';
 import { Database, get, onChildAdded, onChildChanged, onChildRemoved, onValue, orderByChild, query, ref, remove, set, update } from '@angular/fire/database';
 import { generateId } from 'adacad-drafting-lib';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { FileMeta, FilesState, SaveObj, ShareObj, UserFile } from '../model/datatypes';
 
 /**
@@ -25,7 +25,7 @@ export class FirebaseService implements OnDestroy {
   auth: Auth = inject(Auth);
   user$ = user(this.auth);
   userSubscription: Subscription;
-  private authChangeEvent = new BehaviorSubject<User | null>(null);
+  private authChangeEvent = new Subject<User | null>();
   authChangeEvent$ = this.authChangeEvent.asObservable();
 
 
@@ -73,10 +73,9 @@ export class FirebaseService implements OnDestroy {
 
     this.userSubscription = this.user$.subscribe((aUser: User | null) => {
       //handle user state changes here. Note, that user will be null if there is no currently logged in user.
-      console.log("FROM FIREBASE SERVICE ", aUser);
       this.emitAuthEvent(aUser);
 
-      if (user) {
+      if (aUser) {
 
         const userFiles = query(ref(this.database, 'users/' + aUser.uid + '/files'), orderByChild('timestamp'));
 
@@ -135,7 +134,7 @@ export class FirebaseService implements OnDestroy {
       }
 
       //mark this as shared in the user's list
-      if (childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
+      if (this.auth.currentUser && childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
         this.file_list.shared.push(obj)
         this.emitSharedFilesEvent(this.file_list);
       }
@@ -264,6 +263,8 @@ export class FirebaseService implements OnDestroy {
   }
 
   updateLastOpened(fileid: number): Promise<boolean> {
+    if (!this.auth.currentUser) return Promise.resolve(false);
+
     const user_ref = ref(this.db, 'users/' + this.auth.currentUser.uid);
     return update(user_ref, { last_opened: fileid })
       .then(success => { return Promise.resolve(true) })
@@ -274,7 +275,7 @@ export class FirebaseService implements OnDestroy {
   public getFileSize(name: string, obj: any): number {
     const str = JSON.stringify(obj);
     const size = new Blob([str]).size;
-    console.log(name + " is ", size);
+    // console.log(name + " is ", size);
     return size;
 
   }
@@ -368,6 +369,8 @@ export class FirebaseService implements OnDestroy {
  */
   updateSaveTime(fileid: number): Promise<boolean> {
 
+    if (!this.auth.currentUser) return Promise.resolve(false);
+
     let user_path = ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + fileid);
     const stamp = Date.now();
     return update(user_path, { timestamp: stamp, })
@@ -381,10 +384,8 @@ export class FirebaseService implements OnDestroy {
  * @returns the file data
  */
   getShare(fileid: number): Promise<ShareObj> {
-    console.log("GET SHARE ", fileid, this.db)
     return get(ref(this.db, `shared/${fileid}`))
       .then((shareobj) => {
-        console.log("GET SHARE OBJ", fileid)
 
         if (shareobj.exists()) {
           return Promise.resolve(shareobj.val());
