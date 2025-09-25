@@ -1,7 +1,7 @@
 import { warps, Cell, getCellValue, Draft, initDraftWithParams, wefts, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../draft";
-import { getLoomUtilByType } from "../../loom";
+import { getLoomUtilByType, LoomSettings } from "../../loom";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { generateId } from "../../utils";
+import { defaults, generateId } from "../../utils";
 import { draftingStylesOp } from "../categories";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 
@@ -79,9 +79,9 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
     );
 
   const tieup: Array<Array<boolean>> = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < wefts(threading_draft.drawdown); i++) {
     tieup.push([])
-    for (let j = 0; j < 100; j++) {
+    for (let j = 0; j < warps(lift_draft.drawdown); j++) {
       if (i == j) tieup[i].push(true)
       else tieup[i].push(false)
     }
@@ -98,6 +98,14 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
     tieup: tieup,
     treadling: treadling_list
   }
+  const loom_settings: LoomSettings = {
+    type: 'direct',
+    frames: wefts(threading_draft.drawdown),
+    treadles: warps(lift_draft.drawdown),
+    units: 'in',
+    epi: defaults.loom_settings.epi
+  }
+
 
 
   if (utils && typeof utils.computeDrawdownFromLoom === "function") {
@@ -105,7 +113,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
       draft.drawdown = drawdown;
       draft = updateWarpSystemsAndShuttles(draft, threading_draft)
       draft = updateWeftSystemsAndShuttles(draft, lift_draft)
-      return Promise.resolve([{ draft, loom }]);
+      return Promise.resolve([{ draft, loom, loom_settings }]);
     });
   } else {
     return Promise.resolve([]);

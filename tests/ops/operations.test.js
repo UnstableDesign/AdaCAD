@@ -15,7 +15,7 @@ test('testing call operation', async () => {
     expect(res_comp.drawdown).toEqual(res.drawdown);
 
 
-    const a = res[0];
+    const a = res[0].draft;
 
     const seq = new Sequence.TwoD([
         [0, 0, 1, 0, 0],

@@ -1,6 +1,7 @@
 import { warps, Cell, getCellValue, Draft, initDraftWithParams, wefts, updateWarpSystemsAndShuttles, updateWeftSystemsAndShuttles } from "../../draft";
-import { getLoomUtilByType, Loom } from "../../loom";
+import { getLoomUtilByType, Loom, LoomSettings } from "../../loom";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
+import { defaults } from "../../utils";
 import { draftingStylesOp } from "../categories";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 
@@ -90,12 +91,22 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
     treadling: treadling_list
   }
 
+  const loom_settings: LoomSettings = {
+    type: 'direct',
+    frames: wefts(threading_draft.drawdown),
+    treadles: warps(treadling_draft.drawdown),
+    units: 'in',
+    epi: defaults.loom_settings.epi
+  }
+
+
+
   if (utils && typeof utils.computeDrawdownFromLoom === 'function') {
     return utils.computeDrawdownFromLoom(loom).then(drawdown => {
       draft.drawdown = drawdown;
       draft = updateWarpSystemsAndShuttles(draft, threading_draft)
       draft = updateWeftSystemsAndShuttles(draft, treadling_draft)
-      return Promise.resolve([{ draft, loom }]);
+      return Promise.resolve([{ draft, loom, loom_settings }]);
     });
   } else {
     return Promise.resolve([]);

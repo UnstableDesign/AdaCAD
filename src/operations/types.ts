@@ -1,5 +1,5 @@
 import { Draft } from "../draft/types";
-import { Loom } from "../loom";
+import { Loom, LoomSettings } from "../loom";
 import { Img } from "../media/types";
 
 
@@ -229,6 +229,7 @@ export interface OpInput {
 export type OpOutput = {
   draft: Draft,
   loom?: Loom,
+  loom_settings?: LoomSettings,
   err?: string
 }
 

@@ -130,7 +130,7 @@ export const convertLoom = (drawdown: Drawdown, l: Loom, from_ls: LoomSettings, 
   } else if (from_ls.type == 'frame' && to_ls.type == 'direct') {
     // from floor to direct
     //THIS IS BROKEN
-    const converted_loom = convertTieupToLiftPlan(l);
+    const converted_loom = convertTieupToLiftPlan(l, to_ls);
     return Promise.resolve(converted_loom);
   }
 
@@ -570,9 +570,12 @@ export const isFrame = (loom_settings: LoomSettings): boolean => {
 /**
  * assumes the input to the function is a loom of type that uses a tieup and treadling and converts it to a loom that uses a direct tie and lift plan. 
  */
-export const convertTieupToLiftPlan = (loom: Loom): Loom => {
+export const convertTieupToLiftPlan = (loom: Loom, ls: LoomSettings): Loom => {
 
-  const size = Math.max(numFrames(loom), numTreadles(loom));
+  const max_frames = Math.max(numFrames(loom), ls.frames);
+  const max_treadles = Math.max(numTreadles(loom), ls.treadles);
+  const size = Math.max(max_frames, max_treadles);
+  console.log("SIZE IS ", size, ls, loom)
 
   const converted: Loom = {
     threading: loom.threading.slice(),
@@ -603,16 +606,17 @@ export const convertLiftPlanToTieup = (loom: Loom, ls: LoomSettings): Loom => {
 
   let tieup_ndx = 0;
   const shafts = ls.frames;
+  const max_dim = Math.max(shafts, ls.treadles);
   const converted: Loom = {
     threading: loom.threading.slice(),
-    tieup: [],
+    tieup: generateDirectTieup(max_dim),
     treadling: []
   }
 
+  //store the previous tieup
   const tieup_col: Array<boolean> = [];
   for (let i = 0; i < shafts; i++) {
     tieup_col.push(false);
-    converted.tieup.push([]);
   }
 
   const seen: string[] = [];
