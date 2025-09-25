@@ -8,6 +8,3 @@
 
 ## Application
 To create drawdown from from a direct loom plan
-
-## Developer
-adacad id: `directdrawdown`

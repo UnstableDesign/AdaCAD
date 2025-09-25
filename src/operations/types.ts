@@ -1,4 +1,5 @@
 import { Draft } from "../draft/types";
+import { Loom } from "../loom";
 import { Img } from "../media/types";
 
 
@@ -51,7 +52,7 @@ export type Operation = {
   params: Array<OperationParam>,
   inlets: Array<OperationInlet>,
   meta: OpMeta,
-  perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
+  perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft> | Array<OpOutput>>,
   generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string
 }
 
@@ -65,7 +66,7 @@ export type DynamicOperation = Operation & {
   dynamic_param_id: Array<number>,
   dynamic_param_type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
   onParamChange: (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>) => Array<OpInletValType>;
-  perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
+  perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft> | Array<OpOutput>>;
 }
 
 
@@ -225,11 +226,11 @@ export interface OpInput {
  * operations return an array of OpOutputs which need to include a draft (required), and optionally, can return 
  * a loom to associate with this draft, and an error message if something occured when generating this draft
  */
-// export type OpOutput = {
-//   draft: Draft,
-//   loom?: Loom
-//   err?: string
-// }
+export type OpOutput = {
+  draft: Draft,
+  loom: Loom,
+  err?: string
+}
 
 
 

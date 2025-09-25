@@ -123,7 +123,7 @@ export const convertLoom = (drawdown: Drawdown, l: Loom, from_ls: LoomSettings, 
     return Promise.resolve(null);
   } else if (from_ls.type == 'direct' && to_ls.type == 'frame') {
     // from direct-tie to floor
-    const new_l = convertLiftPlanToTieup(l);
+    const new_l = convertLiftPlanToTieup(l, to_ls);
     return Promise.resolve(new_l);
   } else if (from_ls.type === 'frame' && to_ls.type === 'jacquard') {
     return Promise.resolve(null);

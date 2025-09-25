@@ -1,6 +1,6 @@
 import { Draft, getDraftName } from "../draft";
 import { clothOp, colorEffectsOp, compoundOp, computeOp, dissectOp, draftingStylesOp, helperOp, structureOp, transformationOp } from "./categories";
-import { OpCategory, Operation, OpParamValType, OpInput, OpParamVal, OperationInlet, OpInletValType, DynamicOperation } from "./types";
+import { OpCategory, Operation, OpParamValType, OpInput, OpParamVal, OperationInlet, OpInletValType, DynamicOperation, OpOutput } from "./types";
 import * as Operations from '../operations/operation_list';
 
 
@@ -75,7 +75,7 @@ export const getAllOps = (): Array<Operation | DynamicOperation> => {
  * @param inlets the drafts to use in the computation, any values associated with those inputs, as well as the cooresponding id to be associated with the drafts
  * @returns a promise containing an array of drafts
  */
-export const call = async (op: Operation, params: Array<OpParamValType>, inlets?: Array<OpInput>): Promise<Array<Draft>> => {
+export const call = async (op: Operation, params: Array<OpParamValType>, inlets?: Array<OpInput>): Promise<Array<Draft> | Array<OpOutput>> => {
 
     const formatted_params: Array<OpParamVal> = op.params.map((el, ndx) => {
         if (params[ndx] === null || params[ndx] === undefined || typeof el.value != typeof params[ndx]) {

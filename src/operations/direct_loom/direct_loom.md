@@ -5,6 +5,3 @@
 
 ## Application
 To create threading and treadlings plans from drawdowns
-
-## Developer
-adacad id: `direct loom`

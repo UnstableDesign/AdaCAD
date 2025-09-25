@@ -2,7 +2,7 @@ import { warps, Cell, getCellValue, Draft, initDraftWithParams, wefts, updateWar
 import { getLoomUtilByType, Loom } from "../../loom";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { draftingStylesOp } from "../categories";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 
 const name = "drawdown";
 
@@ -51,7 +51,7 @@ const treadling: OperationInlet = {
 const inlets = [threading, tieup, treadling];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<OpOutput>> => {
 
   const threading = getAllDraftsAtInlet(op_inputs, 0);
   const tieup = getAllDraftsAtInlet(op_inputs, 1);
@@ -95,7 +95,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       draft.drawdown = drawdown;
       draft = updateWarpSystemsAndShuttles(draft, threading_draft)
       draft = updateWeftSystemsAndShuttles(draft, treadling_draft)
-      return Promise.resolve([draft]);
+      return Promise.resolve([{ draft, loom }]);
     });
   } else {
     return Promise.resolve([]);

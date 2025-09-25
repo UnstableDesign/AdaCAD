@@ -3,7 +3,7 @@ import { getLoomUtilByType } from "../../loom";
 import { getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { generateId } from "../../utils";
 import { draftingStylesOp } from "../categories";
-import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 
 const name = "directdrawdown";
 
@@ -46,7 +46,7 @@ const liftplan: OperationInlet = {
 const inlets = [threading, liftplan];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<OpOutput>> => {
 
   const threading = getAllDraftsAtInlet(op_inputs, 0);
   const lift_plan = getAllDraftsAtInlet(op_inputs, 1);
@@ -105,7 +105,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       draft.drawdown = drawdown;
       draft = updateWarpSystemsAndShuttles(draft, threading_draft)
       draft = updateWeftSystemsAndShuttles(draft, lift_draft)
-      return Promise.resolve([draft]);
+      return Promise.resolve([{ draft, loom }]);
     });
   } else {
     return Promise.resolve([]);
