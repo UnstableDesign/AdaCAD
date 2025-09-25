@@ -40,7 +40,7 @@ const ending_ends: NumParam =
 {
     name: 'ends from the end',
     type: 'number',
-    min: 1,
+    min: 0,
     max: 10000,
     value: 1,
     dx: 'number of ends from the opposite edge of the origin to remove'
@@ -50,7 +50,7 @@ const ending_pics: NumParam =
 {
     name: 'pics from the end',
     type: 'number',
-    min: 1,
+    min: 0,
     max: 10000,
     value: 1,
     dx: 'number of pics from the opposite edge of the origin to remove'
