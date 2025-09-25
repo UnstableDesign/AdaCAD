@@ -14,12 +14,12 @@ AdaCAD allows you to download .WIF files that can be directly uploaded onto our 
 ## Video
 
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/nhHUUaMHx_Y?si=PJdnXeZRILSegAMb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/nhHUUaMHx_Y?si=PJdnXeZRILSegAMb" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
 
 
 ## Step-By-Step (Create File)
 
-1. This example will use the [Draft Editor](../../reference/interface/draft_editor.md) to make a draft. Start by navigating over to the draft editor by selecting "Draft" on the [topbar's design mode tobble](../../reference/interface/topbar.md#c-design-mode-toggle). 
+1. This example will use the [Draft Editor](../../reference/interface/draft_editor.md) to make a draft. Start by navigating over to the draft editor by selecting "Draft" on the [topbar's design mode toggle](../../reference/interface/topbar.md#c-design-mode-toggle). 
 
 2. Update the draft to match your loom's settings by specifying the number of ends, picks and frames in the [looms settings](../../reference/interface/draft_editor.md#c-adjust-loom-and-draft-settings) panel on the left side of the screen. Make sure your loom type is set to "Direct Tie/Dobby"
 

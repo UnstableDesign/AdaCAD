@@ -35,7 +35,7 @@ Alternatively, you can open this seed draft in the draft editor by clicking on t
 
 ### 2. Assigning Material Information To a Draft in the Dataflow
 
-If you would like to set the material information for a draft that is part of the dataflow, you must use the [`set materials and systems`](../operations/apply_materials.md) as shown below. This operation will apply the materials (and [systems](system)) from one draft to the other, and will repeat the color sequences as required to account for every warp and weft. 
+If you would like to set the material information for a draft that is part of the dataflow, you must use the <OpLink name="apply_materials"/> as shown below. This operation will apply the materials (and [systems](system)) from one draft to the other, and will repeat the color sequences as required to account for every warp and weft. 
 
 ![file](img/system_seed_draft.png)
 

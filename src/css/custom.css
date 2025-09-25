@@ -60,6 +60,82 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+
+.structure a {
+  background-color: #ef7a31;
+}
+
+.transformation a {
+  background-color: #ac9a72;
+}
+
+.cloth a {
+  background-color: #5bb433;
+}
+
+.compound a {
+  background-color: #38c178;
+}
+
+.dissect a {
+  background-color: #9393d6;
+}
+
+.dissect a {
+  background-color: #9393d6;
+}
+
+.helper a {
+  background-color: #ba6bc7;
+}
+
+.compute a {
+  background-color: #9393d6;
+}
+
+.color a {
+  background-color: #e56397;
+}
+
+
+.style a {
+
+  background-color: #b88282;
+}
+
+
+a.opItem,
+.opItem a {
+  display: inline-block;
+  width: max-content;
+  color: white;
+  border: none;
+  border-radius: var(--ifm-code-border-radius);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--ifm-code-font-size);
+  padding: var(--ifm-code-padding-vertical) 8px;
+}
+
+.opItem {
+  .menu__link--active {
+    background-color: #000 !important;
+    color: white;
+  }
+}
+
+a:hover.opItem,
+a:active.opItem,
+.opItem a:hover,
+.opItem a:active {
+  background-color: #000 !important;
+  color: white;
+
+}
+
+
+
+
+
 .tutorial-card {
   display: flex;
   flex-direction: row;
@@ -69,35 +145,20 @@
 }
 
 
-.card-left {
-  max-height: 300px;
-  max-width: 300px;
-  overflow: hidden;
-  object-fit: scale-down;
-  display: flex;
-  align-items: center;
-
-}
-
-.card-right {
-
-  margin: 1em;
-  max-width: 60%;
-}
-
-
 
 
 
 .card p {
-  font-size: 2em;
-  line-height: normal;
+  font-size: 1em;
+  line-height: 1.5em;
 }
 
+.card h3 {
+  font-size: 1em;
+}
 
 .card h2 {
-  font-size: 1em;
-  text-transform: uppercase;
+  font-size: 2em
 }
 
 /* .card h2::first-letter {
@@ -113,6 +174,9 @@
 .card .text--truncate {
   text-wrap: auto;
 }
+
+
+
 
 a code {
   background-color: var(--ifm-color-primary);
@@ -212,6 +276,7 @@ table td a {
 img {
   max-width: 100%;
   object-fit: scale-down;
+  display: block;
 }
 
 

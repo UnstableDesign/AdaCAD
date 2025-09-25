@@ -21,7 +21,7 @@ Numeric parameters provide numeric values and change be changed though typing or
 ### Text
 ![file](./img/param_string.png)
 
-Text input params allow you to type text that is parsed and interpreted by the operation. For example, [`variable length sampler`](../operations/sample_length.md) allows the user to input a series of letter/number pairs. The specific  sequence of letters generates inlets (for draft a and b) and then the operation repeats those structures for the amount of weft picks specified. The pink "refresh" button must be pressed to update the draft based on the text. 
+Text input params allow you to type text that is parsed and interpreted by the operation. For example, <OpLink name="sample_length"/> allows the user to input a series of letter/number pairs. The specific  sequence of letters generates inlets (for draft a and b) and then the operation repeats those structures for the amount of weft picks specified. The pink "refresh" button must be pressed to update the draft based on the text. 
 
 ### Select List
 ![file](./img/param_select.png)
@@ -31,6 +31,6 @@ Select params allow you to select from one of several possible actions.
 ### Upload File
 ![file](./img/param_file.png)
 
-An upload parameter allows the use to upload a file from their computer and then that image is processed and used by the AdaCAD operation. For example [`image map`](../operations/imagemap.md) allows the user to upload an image and then generates [inlets](./inlet.md) based on the colors found in the image. You can assign drafts to different color regions of the image by assigning a draft to the corresponding colored inlet. 
+An upload parameter allows the use to upload a file from their computer and then that image is processed and used by the AdaCAD operation. For example <OpLink name="imagemap"/> allows the user to upload an image and then generates [inlets](./inlet.md) based on the colors found in the image. You can assign drafts to different color regions of the image by assigning a draft to the corresponding colored inlet. 
 
 

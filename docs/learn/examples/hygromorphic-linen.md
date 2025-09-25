@@ -1,6 +1,5 @@
 ---
 sidebar_position: 4
-tags: ['something']
 ---
 
 # Shape Changing Cloth
@@ -13,6 +12,11 @@ As she wrote in a [2024 publication](../../about/research.md#other-research-enga
 
 
 ![file](img/animatedLinen.png)
+
+## Operations Explored
+  <OpLink name="assign_systems" /><OpLink name="sample_width" /><OpLink name="sample_length" /><OpLink name="satin" /><OpLink name="glitchsatin" />
+
+
 
 ## How it works
 Increasing twist angle requires adding extra energy into the yarn through the twisting process. This energy, in excess of what is required to hold the yarn structure together, makes the yarn unstable. It will attempt to reach a lower energy state by untwisting, if one end is free, or by folding and twisting on itself, if there is slack in a length of yarn. When the yarn is woven into a textile, the yarn can no longer move itself to reduce energy, but may have enough energy to curl the corners of the textile, or even cause it to roll.
@@ -74,7 +78,7 @@ While the structure of this cloth is a simple satin, it gets a bit more complica
 
 ![file](img/animatedlinen_assignsystems.png)
 
-To implement this in AdaCAD, you would first add the *satin* operation and set the size and floats to match the specifications for your linen. Here, I use a 10-shaft satin as an example. 
+To implement this in AdaCAD, you would first add the <OpLink name="satin" /> operation and set the size and floats to match the specifications for your linen. Here, I use a 10-shaft satin as an example. 
 
 Next, you would assign the satin to alternating picks, which we accomplish by assigning them to alternating [weft systems](../../reference/glossary/system.md).
 
@@ -82,7 +86,7 @@ Next, you would assign the satin to alternating picks, which we accomplish by as
 
 We start by setting up a system's draft (directly above) that specifies that I'm only using 1 warp system but two weft systems, a and b (In the AdaCAD Editor you click the letter to change it to the next subsequent letter). We assign warp and weft colors as a guide to visualize the arrangement of regions. I use green to correspond to S twist, and blue to correspond with Z.
 
-Next,I go back to the workspace and add two *assign draft to systems* operations. I input my systems draft using in the first inlet, and the draft I want to map to a system in the second. I specify "a1" to the [parameter](../../reference/glossary/parameter) field to tell the operation that I want to map my satin structure to weft system a and warp system 1. I repeat this process for the alternating regions by bringing in the same structure and systems draft, but assigning it to "b1" to indicate that I want the structure placed upon weft system b and warp system 1. 
+Next,I go back to the workspace and add two <OpLink name="assign_systems" />  operations. I input my systems draft using in the first inlet, and the draft I want to map to a system in the second. I specify "a1" to the [parameter](../../reference/glossary/parameter) field to tell the operation that I want to map my satin structure to weft system a and warp system 1. I repeat this process for the alternating regions by bringing in the same structure and systems draft, but assigning it to "b1" to indicate that I want the structure placed upon weft system b and warp system 1. 
 
 :::info
 
@@ -93,12 +97,12 @@ You might notice some draft cells with a slash through them. We call these "unse
 ### Tile S and Z regions across the weft
 Now I have two drafts, one that represents S twisting regions on system a and Z twisting regions on system b. Next, I need to arrange these structures into different regions. One way I could do this would be to generate an indexed colored graphic representing my regions in Photoshop and uploading with the *image map* feature. Instead, I'm going to do this using only AdaCAD operations. 
 
-Specifically, I'm going to use *variable width sampler* and *variable length sampler* to create a checkerboard effect. 
+Specifically, I'm going to use  <OpLink name="sample_width" /> and  <OpLink name="sample_length" /> to create a checkerboard effect. 
 
 ![file](img/animatedlinen_samplewidth_flow.png)
 
 
-I start by using the *variable width sampler*. This operation lets me specify a text based pattern and uses that pattern to create a design. Here, I input:
+I start by using the <OpLink name="sample_width" />. This operation lets me specify a text based pattern and uses that pattern to create a design. Here, I input:
 
  `a20 b20 a20 b20 a20`
  
@@ -120,7 +124,7 @@ creating the alternating combination of S and Z twist regions which AdaCAD visua
 ![file](img/animatedlinen_draftcheckers.png)
 
 
-Now that we have the two alternating rows we are going to use to create our checkerboard, we can alternating them along the length or warp direction by using the *variable length sampler* operation. This operation will take the two pattern rows I have created above and place them across a specified number of picks. Since each row is 20 picks tall, I chose 20 for simplicity. However, you can adjust this number to make sure that your regions structures come out square. In my case, I use the pattern: 
+Now that we have the two alternating rows we are going to use to create our checkerboard, we can alternating them along the length or warp direction by using the   <OpLink name="sample_length" /> operation. This operation will take the two pattern rows I have created above and place them across a specified number of picks. Since each row is 20 picks tall, I chose 20 for simplicity. However, you can adjust this number to make sure that your regions structures come out square. In my case, I use the pattern: 
 
  `a20 b20 a20 b20 a20`
 
@@ -142,7 +146,7 @@ The graphics above show the resulting draft in both a zoomed out and zoomed in s
 
 ![file](img/animatedlinen_glitchsatin.png)
 
-Unstable Design Lab PhD [Deanna Gelosi](https://www.deannagelosi.com/) collaborated with Kathryn to explore if computationally generated drafts might reveal new possibilities of cloth movement. While we didn't discover many new possibilities, we did generate some new satin producing functions to play with in AdaCAD. Specifically, *glitch satin* will randomly generate a satin structure across a user-specified number of ends and pics and contains warp and weft faced floats that range between two float lengths supplied by the user (min-float and max-float). A final [parameter](../../reference/glossary/parameter.md) called frequency controls determines the how likely the floats are to be longer or shorter end of the range you specified. 
+Unstable Design Lab PhD [Deanna Gelosi](https://www.deannagelosi.com/) collaborated with Kathryn to explore if computationally generated drafts might reveal new possibilities of cloth movement. While we didn't discover many new possibilities, we did generate some new satin producing functions to play with in AdaCAD. Specifically,<OpLink name="glitchsatin" />  will randomly generate a satin structure across a user-specified number of ends and pics and contains warp and weft faced floats that range between two float lengths supplied by the user (min-float and max-float). A final [parameter](../../reference/glossary/parameter.md) called frequency controls determines the how likely the floats are to be longer or shorter end of the range you specified. 
 
 
 ![file](img/animatedLinen-satin-glitch.png)

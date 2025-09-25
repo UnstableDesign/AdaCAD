@@ -25,7 +25,7 @@ Alternatively, you can open this seed draft in the draft editor by clicking on t
 
 ### 2. Assigning System Information To a Draft in the Dataflow
 
-If you would like to set the system information for a draft that is part of the dataflow, you must use the [`set materials and systems`](../operations/apply_materials.md) as shown below. This operation will apply the systems from one draft to the other, and will repeat the structures as required to account for every warp and weft. 
+If you would like to set the system information for a draft that is part of the dataflow, you must use the <OpLink name='apply_materials' /> as shown below. This operation will apply the systems from one draft to the other, and will repeat the structures as required to account for every warp and weft. 
 
 ![file](img/system_seed_draft.png)
 
@@ -33,13 +33,14 @@ If you would like to set the system information for a draft that is part of the 
 ## Operations that Use Systems
 Several operations in AdaCAD make use of warp and weft system assignments to arrange interlacements within a draft. These include: 
 
-- [`assign drafts to system`](../operations/assign_systems.md) - takes a single draft and assigns it to the cells associated with user-specified warp and weft systems. 
-- [`layer notation`](../operations/notation.md) - leverages [layer notation](./layer-notation.md) to assign drafts to systems such that different groupings of systems form different layers. 
+-  <OpLink name='assign_systems' /> takes a single draft and assigns it to the cells associated with user-specified warp and weft systems. 
+-  <OpLink name='notation' /> leverages [layer notation](./layer-notation.md) to assign drafts to systems such that different groupings of systems form different layers. 
+-  <OpLink name='analyzesystem' /> allows you to create a new draft using only a subset of systems in a given draft. 
 
 Other operations will automatically assign different warp or weft systems in their resulting drafts. For example:
--  [`interlace wefts`](../operations/interlace.md) will automatically assign each interlaced weft to a different weft system.  
--  [`interlace warps`](../operations/interlacewarps) will automatically assign each interlaced warp to a different warp system.  
--  [`splice in pics`](../operations/splice_in_wefts.md) will automatically assign each spliced weft to a different weft system.  
--  [`splice in ends`](../operations/splice_in_warps.md) will automatically assign each spliced warp to a different warp system.  
+-   <OpLink name='interlace' />  will automatically assign each interlaced weft to a different weft system.  
+-   <OpLink name='interlacewarps' />  will automatically assign each interlaced warp to a different warp system.  
+-   <OpLink name='splice_in_wefts' /> will automatically assign each spliced weft to a different weft system.  
+-   <OpLink name='splice_in_warps' /> will automatically assign each spliced warp to a different warp system.  
   
 

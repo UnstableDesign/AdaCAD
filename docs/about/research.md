@@ -18,7 +18,7 @@ This paper, published at CHI in 2023, details the shift of AdaCAD to a parametri
 
 Full Citation: Laura Devendorf, Kathryn Walters, Marianne Fairbanks, Etta Sandry, and Emma R Goodwill. 2023. AdaCAD: Parametric Design as a New Form of Notation for Complex Weaving. In Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems (CHI '23). Association for Computing Machinery, New York, NY, USA, Article 127, 1–18. https://doi.org/10.1145/3544548.3581571
 
-- [paper](https://dl.acm.org/doi/10.1145/3544548.3581571)
+- [paper](./resources/AdaCAD_2023.pdf)
 - [project](https://unstable.design/parametric-design-as-weaving-notation/)
 
 
@@ -27,7 +27,7 @@ This paper, published at CHI in 2019, describes our first iteration of AdaCAD an
 
 Full Citation: Mikhaila Friske, Shanel Wu, and Laura Devendorf. 2019. AdaCAD: Crafting Software For Smart Textiles Design. In Proceedings of the 2019 CHI Conference on Human Factors in Computing Systems (CHI '19). Association for Computing Machinery, New York, NY, USA, Paper 345, 1–13. https://doi.org/10.1145/3290605.3300575
 
-- [paper](https://doi.org/10.1145/3290605.3300575)
+- [paper](./resources/AdaCAD_2019.pdf)
 
 
 ## Related Work
@@ -37,20 +37,20 @@ This paper describes hardware and software extensions to AdaCAD and the TC2 loom
 
 Full Citation: Shanel Wu, Xavier A Corr, Xi Gao, Sasha De Koninck, Robin Bowers, and Laura Devendorf. 2024. Loom Pedals: Retooling Jacquard Weaving for Improvisational Design Workflows. In Proceedings of the Eighteenth International Conference on Tangible, Embedded, and Embodied Interaction (TEI '24). Association for Computing Machinery, New York, NY, USA, Article 10, 1–16. https://doi.org/10.1145/3623509.3633358
 
-- [paper](https://doi.org/10.1145/3623509.3633358)
+- [paper](./resources/LoomPedals.pdf)
 
 ### Making Design Tools like a Weaver: Four Rules, XRDS 2023
 This article, which is intended for student researchers in the field of HCI, describes what computational design tools would look like if they drew more deeply from the histories and practices of weaving. 
 
 Full Citation: Laura Devendorf, Shanel Wu, and Mikhaila Friske. 2023. Making Design Tools Like a Weaver: Four Rules. XRDS 29, 4 (Summer 2023), 54–58. https://doi.org/10.1145/3596929
 
-- [article](https://doi.org/10.1145/3596929)
+- [article](./resources/MakingDesignTools.pdf)
 
 ### Unfabricate: Designing Smart Textiles for Disassembly, CHI 2020
 A design investigation of if and how woven smart textiles could be disassembled. Includes an extension to AdaCAD for shaped weaving.  
 
 Full Citation: Shanel Wu and Laura Devendorf. 2020. Unfabricate: Designing Smart Textiles for Disassembly. In Proceedings of the 2020 CHI Conference on Human Factors in Computing Systems (CHI '20). Association for Computing Machinery, New York, NY, USA, 1–14. https://doi.org/10.1145/3313831.3376227
-- [paper](https://doi.org/10.1145/3313831.3376227)
+- [paper](./resources/Unfabricate.pdf)
 
 
 

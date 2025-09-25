@@ -12,12 +12,19 @@ In this tutorial, we are taking inspiration from one of Elizabeth Meiklejohn's s
 ![file](./img/lattice_open.jpg)
 ![file](./img/lattice_closed.jpg)
 
+
 :::tip
 
 Follow along with this example in AdaCAD 4: [Lattice Structures](https://adacad.org/?ex=sample7b)
 
 :::
 
+## Operations Explored
+  <OpLink name="notation" /><OpLink name="sample_width" /><OpLink name="splice_in_wefts" /><OpLink name="tabby" /><OpLink name="rectangle" />
+
+
+
+## Concept
 The original design was made with the following materials: 
 
 4-layer lattice with elastic floats
@@ -27,7 +34,7 @@ The original design was made with the following materials:
 - Base: plain weave in w1, 15 epi per layer
 - Floats: w2 running through the center of the layer stack, not interlacing with anything. 
 
- Elizabeth designed the structure in PointCarre, and we explored how we might make the same structure in AdaCAD using the [`layer notation` operation](../../reference/operations/layer.md) and offer it to this audience for reference and play. 
+ Elizabeth designed the structure in PointCarre, and we explored how we might make the same structure in AdaCAD using the  <OpLink name="notation" /> and offer it to this audience for reference and play. 
  
  
  # Understanding the Structure
@@ -39,10 +46,10 @@ The original design was made with the following materials:
 
  If we see the structure as these sine waves, we can start to imagine every wave being created from a [weft system](../../reference/glossary/system.md) of a unique color. As it travels from left to right, the weft travels up and down the layers stack (e.g. a term we use to describe the layers in cloth from top to bottom). For example, if we are looking from top to bottom along the leftmost vertical line in the diagram, we see that the layer stack has weft 'a' on top, 'd' next, then 'c', then 'b'. So the layer stack goes 'a-d-c-b'. If we want to recreate this structure in the woven form, the question then becomes, how many different layer stacks are there in one repeat of the sine wave lattice? If we place these stacked layer structures side-by-side along the width of the cloth, we should be able to recreate this cross section. 
 
-As we look left to right in our diagram, we see that there are exactly 8 different layer stacks before they start to repeat. Now, we can use the layer notation operation to create drafts for each of these 8 layer stacks. 
+As we look left to right in our diagram, we see that there are exactly 8 different layer stacks before they start to repeat. Now, we can use the   <OpLink name="notation" /> operation to create drafts for each of these 8 layer stacks. 
 
 ## Understanding Layer Notation
-Layer notation emerged as an operation in conversation with Kathryn Walters, who needed AdaCAD to help her manage complex structures that could arbitrarily map warp and weft systems to different layers, layer orders, or even different numbers of layers (e.g. a structure that goes from 2 to 4 to 3 layers for instance.) Beyond her immediate needs, we found it to be a useful system for describing the relationship between different cloth layers. You can learn more about it on the [layer notation](../../reference/glossary/layer-notation.md) page in our glossary.
+Layer notation emerged as an operation in conversation with Kathryn Walters, who needed AdaCAD to help her manage complex structures that could arbitrarily map warp and weft systems to different layers, layer orders, or even different numbers of layers (e.g. a structure that goes from 2 to 4 to 3 layers for instance.) Beyond her immediate needs, we found it to be a useful system for describing the relationship between different cloth layers. You can learn more about it on the   <OpLink name="notation" /> page in our glossary.
 
 To use the Layer Notation Operation, you must first tell the operation the relationship between different warp and weft systems in your cloth. 
 
@@ -57,7 +64,7 @@ As a rule of thumb, when I work with multiple layers, I create as many warp syst
 
 
 ### Mapping our Diagram Into Layer Notation
-To describe this structure to AdaCAD, we need to create each of the 8 layer orders that repeat in the lattice structure.  We can now import this data into the [`Layer Notation`](../../reference/operations/notation.md) operation in AdaCAD, using one layer notation operation for each unique layer ordering. This allows us to define the warp and weft system, as well as the structures to place upon each layer (in this case, all tabby). 
+To describe this structure to AdaCAD, we need to create each of the 8 layer orders that repeat in the lattice structure.  We can now import this data into the   <OpLink name="notation" /> operation in AdaCAD, using one layer notation operation for each unique layer ordering. This allows us to define the warp and weft system, as well as the structures to place upon each layer (in this case, all tabby). 
 
 For example, the first, left most, region would be notated as (a1)(d2)(c3)(b4). This means that there are four layers. On the first, top, we will be weaving tabby on weft system a and warp system 1; on the second, we’ll be weaving tabby on weft system d and warp system 2…and so on. AdaCAD uses this information to generate the draft, and we verify it is in the correct order by using the draft detail view in AdaCAD Beta. This view gives us a simple simulation of how the layers will stack and the structures on each layer. 
 
@@ -77,17 +84,17 @@ As we work across the structure, mapping the different layer orders into notatio
 The layer notation generates an inlet for each layer group, upon which we can apply our structure of choice, which was tabby in this case. What was magical and unexpected (but makes sense!) is how the movement of layers creates different color gradations in the drafts...revealing a gradient across the color spectrum. 
 
 ### Placing the Structures Side-by-Side
-After generating structures for each unique layer stack in the lattice, we used the  [`Variable Width Sampler`](../../reference/operations/sample_width.md) operation to repeat each structure across a specified number of ends. In this operation, we describe the arrangement of structures across the width of the cloth in text. We assign each draft we'll input a letter, and follow it by a number representing the number of ends upon which that structure will repeat. For this sample we used: a64 b64 c64 d64 e64 f64 g64 h64
+After generating structures for each unique layer stack in the lattice, we used the   <OpLink name="sample_width" /> operation to repeat each structure across a specified number of ends. In this operation, we describe the arrangement of structures across the width of the cloth in text. We assign each draft we'll input a letter, and follow it by a number representing the number of ends upon which that structure will repeat. For this sample we used: a64 b64 c64 d64 e64 f64 g64 h64
 
 This created 8 inlets for each of our layer stacks and repeated each of them across 64 wefts (roughly 1" in our loom). 
 
 
 ### Splicing in Elastic Between Layers 2 and 3
-We needed to float elastic between layers 2 and 3 in order to make the structure expand and contract. We did this by using the [`Splice in Wefts`](../../reference/operations/splice_in_wefts.md) operation. Specifically, we created a single structure that lifted warps 1 and 2, and left warps 3 and for 4 and inserted it into our structure every 8 picks. Why 8 picks? We though inserting it every 4 would be too much, so we spaced it our. 
+We needed to float elastic between layers 2 and 3 in order to make the structure expand and contract. We did this by using the  <OpLink name="splice_in_wefts" /> operation. Specifically, we created a single structure that lifted warps 1 and 2, and left warps 3 and for 4 and inserted it into our structure every 8 picks. Why 8 picks? We though inserting it every 4 would be too much, so we spaced it our. 
 
 
 ### Making a TC2 Draft
-We created a draft for our loom using the [`Rectangle`](../../reference/operations/rectangle.md) function. We set the ends to the number of ends on our loom (2600) and the number of picks to the same number generated from our input draft (144). We then hit "download" on this draft to produce a bitmap image (though, as a .jpg file), opened it Photoshop, converted it to a bitmap and saved it as a .tiff for production on our loom. 
+We created a draft for our loom using the <OpLink name="rectangle" />  function. We set the ends to the number of ends on our loom (2600) and the number of picks to the same number generated from our input draft (144). We then hit "download" on this draft to produce a bitmap image (though, as a .jpg file), opened it Photoshop, converted it to a bitmap and saved it as a .tiff for production on our loom. 
 
 ## It Worked!
 

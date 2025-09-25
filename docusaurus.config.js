@@ -4,6 +4,9 @@
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
+
+
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'AdaCAD',
@@ -22,10 +25,10 @@ const config = {
   onBrokenLinks: 'throw', //throw
   onBrokenMarkdownLinks: 'throw',
 
-//   onBrokenLinks: 'warn',
-//  onBrokenMarkdownLinks: 'ignore',
+  // onBrokenLinks: 'warn',
+  // onBrokenMarkdownLinks: 'ignore',
 
-  
+
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
@@ -33,33 +36,46 @@ const config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
-
   presets: [
     [
-      'classic',
-      /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      '@docusaurus/preset-classic',
+      {
         docs: {
+          // ... other options for docs plugin
+          async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
+            const sidebarItems = await defaultSidebarItemsGenerator(args);
+
+            // Example: Sort items alphabetically by their label
+            const sortedItems = sidebarItems.sort((a, b) => {
+              const labelA = a.label || a.id; // Use label if available, otherwise id
+              const labelB = b.label || b.id;
+              return labelA.localeCompare(labelB);
+            });
+
+            // You can also implement custom sorting logic here,
+            // for example, to sort categories differently or based on other metadata.
+
+            return sortedItems;
+          },
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
             'https://github.com/UnstableDesign/AdaCAD_Documentation/tree/main',
+
+
         },
-        blog: {
-          showReadingTime: true,
-          editUrl:
-          'https://github.com/UnstableDesign/AdaCAD_Documentation/tree/main',
-        },
+        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
+
         },
-      }),
+      },
     ],
   ],
 
-
-
+  themes: [
+    '@saucelabs/theme-github-codeblock'
+  ],
   themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // announcementBar: {
       //   id: 'events',
@@ -103,7 +119,7 @@ const config = {
             label: 'Develop',
             className: 'develop'
           },
-                    {
+          {
             type: 'docSidebar',
             sidebarId: 'contributeSidebar',
             position: 'left',
@@ -114,7 +130,7 @@ const config = {
             href: 'https://discord.gg/Be7ukQcvrC',
             label: 'Discord Community',
             position: 'right',
-          },  
+          },
           {
             href: 'https://github.com/UnstableDesign/AdaCAD_Documentation/',
             label: 'GitHub',

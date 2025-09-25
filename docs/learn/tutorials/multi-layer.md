@@ -3,6 +3,11 @@
 Generate a workflow that uses layers and structures to support color blending in warp and weft. 
 </div>
 
+### Operations Explored
+<OpLink name='notation' />
+<OpLink name='satin' />
+<OpLink name='stretch' />
+
 ## What You'll Need
 - An indexed color image. If you don't have one handy, you can download the one from this example [here](./img/experiment_wavy_sized.png)
 - A blank workspace at [adacad.org](https://adacad.org). 
@@ -17,12 +22,12 @@ Generate a workflow that uses layers and structures to support color blending in
 
 We have a multicolor warp and we want to create some color-blending experiments and map them into different regions of an image. We're going to use 4 wefts in different colors so that we can mix them with the warp to widen the range of colors in the resulting weave. Our approach to color blending is going to use 2 layers, with front facing colors on the top layer, and colors for the back on the back layer. 
 
-We're going to use the [`layer notation`](../../reference/operations/notation.md) operation to create our layers and to manage which colors are visible on each of the faces. To do this, we need to provide the layer notation operation with information about your warp and weft systems (step 1 below), a text string that represents how the layers will form (step 2 below), and then the structures that will be applied to each layer (step 3 below). 
+We're going to use the <OpLink name='notation' /> operation to create our layers and to manage which colors are visible on each of the faces. To do this, we need to provide the layer notation operation with information about your warp and weft systems (step 1 below), a text string that represents how the layers will form (step 2 below), and then the structures that will be applied to each layer (step 3 below). 
 
 ## Process
 
-### 1. Define Warp and Weft Systems via a Systems Draft###
- One way to work with multiple warp and weft colors and layers in AdaCAD is to think of the warp and weft in terms of [systems](../../reference/glossary/system.md). By assigning individual warp end or weft pick to a system, we can define group of warps or wefts that will work together in the draft. We can then supply this information to certain operations, like [`layer notation`](../../reference/operations/notation.md), which will create drafts based on how you want to organize those systems into layers. We provide this information to the operation in the form of a systems draft: a draft that specifies the sequence in which systems and materials that will be used to generate the outcome. 
+### 1. Define Warp and Weft Systems via a Systems Draft
+ One way to work with multiple warp and weft colors and layers in AdaCAD is to think of the warp and weft in terms of [systems](../../reference/glossary/system.md). By assigning individual warp end or weft pick to a system, we can define group of warps or wefts that will work together in the draft. We can then supply this information to certain operations, like <OpLink name='notation' />, which will create drafts based on how you want to organize those systems into layers. We provide this information to the operation in the form of a systems draft: a draft that specifies the sequence in which systems and materials that will be used to generate the outcome. 
 
 #### Warp Systems Approach
 In our example, we will use warp systems to map to the different colors that we are alternating in our warp and then, subsequently, to control which of those warp systems will form the top layer. 
@@ -58,7 +63,7 @@ Now, toggle back over to the workspace (remember, you can do this by hitting the
 
 
 ### 2. Add the Layer Notation Operation ###
-Select or Search for the [`layer notation`](../../reference/operations/notation.md) operation from the list of operations on the left sidebar. If it is not showing up, make sure "Show Advanced Operations" is selected. After you select the operation, it will be added into your workspace. Connect the [ <FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> outlet](../../reference/glossary/outlet.md) of your systems draft and connect it to the "systems draft" [ <FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> inlet](../../reference/glossary/inlet.md) on the layer notation operation. 
+Select or Search for the <OpLink name='notation' /> operation from the list of operations on the left sidebar. If it is not showing up, make sure "Show Advanced Operations" is selected. After you select the operation, it will be added into your workspace. Connect the [ <FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> outlet](../../reference/glossary/outlet.md) of your systems draft and connect it to the "systems draft" [ <FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> inlet](../../reference/glossary/inlet.md) on the layer notation operation. 
 
 ![file](./img/multi-layer_notation2.jpeg)
 
@@ -89,7 +94,7 @@ When we give the string `(a b 1)(c d 2)` to the layer notation operation, and hi
 Now it's time to assign structures to the different layers in our cloth. In this example I'm going to be making a sample that uses satin on both layers I'm going to map a weft-facing satin to the top layer and a warp facing satin to the back face. 
 
 ![file](./img/multi-layer_assignstructures.gif)
-To do that, we select [`satin`](../../reference/operations/satin.md) from the operations list to add it to the workspace. We then update the satin parameters to match my needs. Connect the [ <FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> outlet](../../reference/glossary/outlet.md) of your satin draft and connect it to the [ <FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> (a b 1) inlet](../../reference/glossary/inlet.md) to assign that satin structure to the systems that comprise the top layer. I repeat the process for the (c d 2) inlet, though, I use a different face on the satin. We can use the [viewer](../../reference/interface/viewer.md) to better understand the structure that has been created. 
+To do that, we select <OpLink name='satin' /> from the operations list to add it to the workspace. We then update the satin parameters to match my needs. Connect the [ <FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> outlet](../../reference/glossary/outlet.md) of your satin draft and connect it to the [ <FAIcon icon="fa-solid fa-circle-arrow-down" size="1x" /> (a b 1) inlet](../../reference/glossary/inlet.md) to assign that satin structure to the systems that comprise the top layer. I repeat the process for the (c d 2) inlet, though, I use a different face on the satin. We can use the [viewer](../../reference/interface/viewer.md) to better understand the structure that has been created. 
 
 
 ### 4. Repeat to Make Different Variations ###
@@ -108,11 +113,11 @@ The images below show all the variations we sampled. Under each image we list th
 
 ### 5. Sample and Adjust ###
 
-In preparation for using the structures in regions of artwork, I create samplers of all the different structures to understand how they weave and pack. It's not uncommon to notice errors here. For instance, I found that my original structure was building too quickly relative to other structures so I decided to [`stretch`](../../reference/operations/stretch.md) the satin so it would pack the wefts more densely. 
+In preparation for using the structures in regions of artwork, I create samplers of all the different structures to understand how they weave and pack. It's not uncommon to notice errors here. For instance, I found that my original structure was building too quickly relative to other structures so I decided to <OpLink name='stretch' /> the satin so it would pack the wefts more densely. 
 
 ![file](./img/multi-layer_stretch.jpeg)
 
-I did that by just popping back into my workspace and adding the [`stretch`](../../reference/operations/stretch.md) operation between the satin and and the (a b 1) inlet on the layer notation. 
+I did that by just popping back into my workspace and adding the <OpLink name='stretch' /> operation between the satin and and the (a b 1) inlet on the layer notation. 
 
 ![file](./img/multi-layer_adjust.gif)
 

@@ -16,7 +16,7 @@ This act of connecting creates a relationship that will be maintained even when 
 ![file](./img/dataflow.png)
 
 
-AdaCAD allows you to chain multiple operations and drafts together. In the example, a draft (which was created in a point-and-click fashion by the user) is connected to the [stretch](../operations/stretch.md) operation which interprets the the parameters (2 and 2) to duplicate each end and pic in the input structure 2 times when creating the output structure. Connecting the outlet of the stretch operation to the inlet of the [make symmetric](../operations/makesymmetric) operation takes the stretched draft and rotates it around whichever corner is chosen from the list on the make symmetric operation. And so on, the output of the make symmetric operation can be connected to the inlet of the tile operation, essentially "stamps" its input draft a user-specified number to the right/bottom of the original. 
+AdaCAD allows you to chain multiple operations and drafts together. In the example, a draft (which was created in a point-and-click fashion by the user) is connected to the <OpLink name="stretch" /> operation which interprets the the parameters (2 and 2) to duplicate each end and pic in the input structure 2 times when creating the output structure. Connecting the outlet of the stretch operation to the inlet of the <OpLink name="makesymmetric" /> operation takes the stretched draft and rotates it around whichever corner is chosen from the list on the make symmetric operation. And so on, the output of the make symmetric operation can be connected to the inlet of the tile operation, essentially "stamps" its input draft a user-specified number to the right/bottom of the original. 
 
 ## Editing Drafts Produced in the Dataflow
 
