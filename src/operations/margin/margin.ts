@@ -1,4 +1,4 @@
-import { initDraftWithParams, warps, wefts, initDraftFromDrawdown, Draft } from "../../draft";
+import { initDraftWithParams, warps, wefts, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
@@ -84,7 +84,7 @@ const selvedge_draft: OperationInlet = {
 const inlets = [draft, selvedge_draft];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   const base_drafts = getAllDraftsAtInlet(op_inputs, 0);
   const margin_drafts = getAllDraftsAtInlet(op_inputs, 1);
@@ -171,7 +171,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
 
 
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 
 };
 

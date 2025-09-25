@@ -75,7 +75,7 @@ export const getAllOps = (): Array<Operation | DynamicOperation> => {
  * @param inlets the drafts to use in the computation, any values associated with those inputs, as well as the cooresponding id to be associated with the drafts
  * @returns a promise containing an array of drafts
  */
-export const call = async (op: Operation, params: Array<OpParamValType>, inlets?: Array<OpInput>): Promise<Array<Draft> | Array<OpOutput>> => {
+export const call = async (op: Operation, params: Array<OpParamValType>, inlets?: Array<OpInput>): Promise<Array<OpOutput>> => {
 
     const formatted_params: Array<OpParamVal> = op.params.map((el, ndx) => {
         if (params[ndx] === null || params[ndx] === undefined || typeof el.value != typeof params[ndx]) {

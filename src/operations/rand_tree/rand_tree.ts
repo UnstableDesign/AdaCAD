@@ -151,7 +151,8 @@ const perform = (param_vals: Array<OpParamVal>) => {
         pattern.pushWeftSequence(pattern.getWeft(depth - 2));
     }
 
-    return Promise.resolve([initDraftFromDrawdown(pattern.export())]);
+    const draft = initDraftFromDrawdown(pattern.export());
+    return Promise.resolve([{ draft }]);
 
 }
 

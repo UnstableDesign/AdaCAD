@@ -3,7 +3,7 @@ import { Sequence } from "../../sequence";
 import { parseRegex, filterToUniqueValues } from "../../utils";
 import { compoundOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../operations";
-import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 
 const name = "assign_systems";
 
@@ -56,7 +56,7 @@ const draft_inlet: OperationInlet = {
 const inlets = [systems, draft_inlet];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<OpOutput>> => {
 
 
   const original_string: string = <string>getOpParamValById(0, op_params);
@@ -107,7 +107,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
   d.colShuttleMapping = generateMappingFromPattern(d.drawdown, warp_shuttle_map.val(), 'col');
   d.rowShuttleMapping = generateMappingFromPattern(d.drawdown, weft_shuttle_map.val(), 'row');
 
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 };
 
 

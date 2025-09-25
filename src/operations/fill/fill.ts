@@ -102,7 +102,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   d = updateWeftSystemsAndShuttles(d, to_fill);
   d = updateWarpSystemsAndShuttles(d, to_fill);
 
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 }
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>): string => {

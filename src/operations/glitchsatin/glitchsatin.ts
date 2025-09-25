@@ -109,7 +109,7 @@ const perform = (param_vals: Array<OpParamVal>) => {
 
   const draft = initDraftFromDrawdown(seq_grid.export());
 
-  return Promise.resolve([draft]);
+  return Promise.resolve([{ draft }]);
 }
 
 const generateName = (param_vals: Array<OpParamVal>): string => {

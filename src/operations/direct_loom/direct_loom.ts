@@ -91,7 +91,9 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
       treadling = updateWeftSystemsAndShuttles(treadling, draft)
 
-      return Promise.resolve([threading, treadling]);
+
+
+      return Promise.resolve([{ draft: threading }, { draft: treadling }]);
 
     });
 

@@ -82,7 +82,8 @@ const perform = (param_vals: Array<OpParamVal>) => {
     pattern.pushWarpSequence(seq.val())
   }
 
-  return Promise.resolve([initDraftFromDrawdown(pattern.export())]);
+  const draft = initDraftFromDrawdown(pattern.export())
+  return Promise.resolve([{ draft }]);
 
 }
 

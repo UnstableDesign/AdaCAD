@@ -126,7 +126,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   d.rowSystemMapping = weft_systems.val();
 
 
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 
 }
 

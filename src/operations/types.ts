@@ -52,7 +52,7 @@ export type Operation = {
   params: Array<OperationParam>,
   inlets: Array<OperationInlet>,
   meta: OpMeta,
-  perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft> | Array<OpOutput>>,
+  perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<OpOutput>>,
   generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string
 }
 
@@ -66,7 +66,7 @@ export type DynamicOperation = Operation & {
   dynamic_param_id: Array<number>,
   dynamic_param_type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
   onParamChange: (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>) => Array<OpInletValType>;
-  perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft> | Array<OpOutput>>;
+  perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<OpOutput>>;
 }
 
 
@@ -228,7 +228,7 @@ export interface OpInput {
  */
 export type OpOutput = {
   draft: Draft,
-  loom: Loom,
+  loom?: Loom,
   err?: string
 }
 

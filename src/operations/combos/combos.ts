@@ -99,7 +99,7 @@ const perform = (param_vals: Array<OpParamVal>) => {
       // }
 
 
-      return Promise.resolve([getDraft(selection).draft]);
+      return Promise.resolve([{ draft: getDraft(selection).draft }]);
 
     })
 

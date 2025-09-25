@@ -88,7 +88,8 @@ const perform = (param_vals: Array<OpParamVal>) => {
     pattern.pushWeftSequence(new Sequence.OneD(first_row.val()).shift(shift_dir).val());
   })
 
-  return Promise.resolve([initDraftFromDrawdown(pattern.export())]);
+  const draft = initDraftFromDrawdown(pattern.export())
+  return Promise.resolve([{ draft }]);
 
 }
 

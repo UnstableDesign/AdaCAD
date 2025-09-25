@@ -88,7 +88,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
 
-  return Promise.resolve([input_draft]);
+  return Promise.resolve([{ draft: input_draft }]);
 }
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>): string => {

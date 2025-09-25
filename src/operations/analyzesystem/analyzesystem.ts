@@ -1,10 +1,10 @@
-import { SystemList, initDraftWithParams, wefts, warps, initDraftFromDrawdown, Draft } from "../../draft";
+import { SystemList, initDraftWithParams, wefts, warps, initDraftFromDrawdown } from "../../draft";
 import { cellToSequenceVal } from "../../draft/cell";
 import { Sequence } from "../../sequence/sequence";
 import { parseRegex, filterToUniqueValues, makeValidSystemList } from "../../utils";
 import { dissectOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../operations";
-import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 
 const name = "analyzesystem";
 
@@ -45,7 +45,7 @@ const draft_inlet: OperationInlet = {
 const inlets = [draft_inlet];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<OpOutput>> => {
 
 
   const original_string = <string>getOpParamValById(0, op_params);
@@ -78,7 +78,8 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
   const validated_systems = makeValidSystemList(input_systems, draft_systems);
 
   if (!validated_systems.valid) {
-    return Promise.resolve([initDraftWithParams({ warps: 1, wefts: 1 })]);
+    const draft = initDraftWithParams({ warps: 1, wefts: 1 });
+    return Promise.resolve([{ draft }]);
   }
 
   const analyzed_draft = new Sequence.TwoD();
@@ -126,7 +127,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
   d.colSystemMapping = colSysMap;
 
 
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 
 
 

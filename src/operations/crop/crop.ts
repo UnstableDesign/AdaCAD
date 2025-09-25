@@ -1,7 +1,7 @@
-import { wefts, initDraftFromDrawdown, Draft } from "../../draft";
+import { wefts, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 import { transformationOp } from "../categories";
 
 const name = "crop";
@@ -75,7 +75,7 @@ const draft: OperationInlet = {
 const inlets = [draft];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<OpOutput>> => {
 
     const draft = getInputDraft(op_inputs);
     const left: number = <number>getOpParamValById(0, op_params);
@@ -123,7 +123,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
     d.rowSystemMapping = weft_systems.val();
 
 
-    return Promise.resolve([d]);
+    return Promise.resolve([{ draft: d }]);
 
 };
 

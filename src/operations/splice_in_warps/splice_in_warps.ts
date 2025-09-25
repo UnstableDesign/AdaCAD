@@ -73,7 +73,7 @@ const splicing: OperationInlet = {
 const inlets = [receiving, splicing];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   const receiving_drafts = getAllDraftsAtInlet(op_inputs, 0);
   const splicing_drafts = getAllDraftsAtInlet(op_inputs, 1);
@@ -178,7 +178,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
   d.colSystemMapping = col_system.slice();
   d = updateWeftSystemsAndShuttles(d, receiving_draft);
   // this.transferSystemsAndShuttles(d,op_input.drafts,op_input.params, 'interlace');
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 
 };
 

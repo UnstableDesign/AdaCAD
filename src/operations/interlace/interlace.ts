@@ -1,4 +1,4 @@
-import { wefts, makeSystemsUnique, warps, initDraftFromDrawdown, updateWarpSystemsAndShuttles, Draft } from "../../draft";
+import { wefts, makeSystemsUnique, warps, initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { lcm, getMaxWarps } from "../../utils";
 import { compoundOp } from "../categories";
@@ -53,7 +53,7 @@ const warp_systems: OperationInlet = {
 const inlets = [draft_inlet, warp_systems];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
   const drafts = getAllDraftsAtInlet(op_inputs, 0);
@@ -117,7 +117,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
 
 
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 };
 
 

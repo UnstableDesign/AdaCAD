@@ -138,7 +138,7 @@ const perform = (op_params: Array<OpParamVal>) => {
 
 
 
-    return Promise.resolve([d]);
+    return Promise.resolve([{ draft: d }]);
 }
 
 const generateName = (param_vals: Array<OpParamVal>): string => {

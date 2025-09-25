@@ -85,7 +85,8 @@ const perform = (param_vals: Array<OpParamVal>) => {
   }
 
 
-  return Promise.resolve([initDraftFromDrawdown(pattern.export())]);
+  const draft = initDraftFromDrawdown(pattern.export())
+  return Promise.resolve([{ draft }]);
 
 }
 

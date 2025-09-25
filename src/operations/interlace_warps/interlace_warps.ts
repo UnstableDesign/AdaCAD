@@ -1,4 +1,4 @@
-import { warps, wefts, getCol, initDraftFromDrawdown, updateWeftSystemsAndShuttles, Draft } from "../../draft";
+import { warps, wefts, getCol, initDraftFromDrawdown, updateWeftSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
@@ -56,7 +56,7 @@ const weft_systems: OperationInlet = {
 const inlets = [draft_inlet, weft_systems];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
   const drafts = getAllDraftsAtInlet(op_inputs, 0);
@@ -108,7 +108,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
 
 
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 };
 
 

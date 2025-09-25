@@ -76,7 +76,7 @@ const splicing: OperationInlet = {
 const inlets = [receiving, splicing];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   const receiving_drafts = getAllDraftsAtInlet(op_inputs, 0);
   const splicing_drafts = getAllDraftsAtInlet(op_inputs, 1);
@@ -168,7 +168,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
   d.rowSystemMapping = row_system.slice();
   if (receiving_draft !== null)
     d = updateWarpSystemsAndShuttles(d, receiving_draft);
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 
 };
 

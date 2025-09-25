@@ -114,12 +114,8 @@ const perform = (param_vals: Array<OpParamVal>) => {
     })
   })
 
-
-
-  const d: Draft = initDraftWithParams({ warps: width, wefts: height, drawdown: pattern });
-  outputs.push(d);
-
-  return Promise.resolve(outputs);
+  const draft = initDraftWithParams({ warps: width, wefts: height, drawdown: pattern })
+  return Promise.resolve([{ draft }]);
 
 }
 

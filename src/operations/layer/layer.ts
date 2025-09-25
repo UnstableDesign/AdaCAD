@@ -34,7 +34,7 @@ const draft_inlet: OperationInlet = {
 const inlets = [draft_inlet];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
   const drafts = getAllDraftsAtInlet(op_inputs, 0);
@@ -92,7 +92,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
   d.rowShuttleMapping = generateMappingFromPattern(d.drawdown, weft_mats, 'row');
   d.colShuttleMapping = generateMappingFromPattern(d.drawdown, warp_mats, 'col');
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 };
 
 

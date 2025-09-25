@@ -282,7 +282,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     d.colSystemMapping = warp_systems.val();
     d.rowShuttleMapping = weft_materials.val();
     d.rowSystemMapping = weft_systems.val();
-    return Promise.resolve([d]);
+    return Promise.resolve([{ draft: d }]);
 }
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>): string => {

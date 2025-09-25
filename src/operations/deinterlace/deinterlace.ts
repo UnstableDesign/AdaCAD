@@ -1,7 +1,7 @@
 import { Draft, wefts, initDraftFromDrawdown, updateWarpSystemsAndShuttles, getDraftName } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 import { dissectOp } from "../categories";
 
 const name = "deinterlace";
@@ -45,7 +45,7 @@ const draft_inlet: OperationInlet = {
 const inlets = [draft_inlet];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<OpOutput>> => {
 
 
   const input_draft = getInputDraft(op_inputs);
@@ -84,8 +84,9 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
   }
 
 
+  const outputs = drafts.map(el => { return { draft: el } })
 
-  return Promise.resolve(drafts);
+  return Promise.resolve(outputs);
 };
 
 

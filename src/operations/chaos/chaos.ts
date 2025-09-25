@@ -107,7 +107,7 @@ const perform = async (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) 
     d = updateWeftSystemsAndShuttles(d, input_drafts[0]);
     d = updateWarpSystemsAndShuttles(d, input_drafts[0]);
 
-    return Promise.resolve([d]);
+    return Promise.resolve([{ draft: d }]);
 
 
   })

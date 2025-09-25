@@ -52,10 +52,10 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   if ((selection - 1) < inputs.length) {
     const copy = copyDraft(inputs[selection - 1]);
-    return Promise.resolve([copy])
+    return Promise.resolve([{ draft: copy }])
   } else {
     const draft = initDraftWithParams({ wefts: 1, warps: 1 })
-    return Promise.resolve([draft]);
+    return Promise.resolve([{ draft }]);
   }
 }
 

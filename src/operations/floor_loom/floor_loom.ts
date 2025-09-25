@@ -107,8 +107,8 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       });
       tieup = updateWeftSystemsAndShuttles(tieup, draft)
       tieup = updateWarpSystemsAndShuttles(tieup, draft)
+      return Promise.resolve([{ draft: threading }, { draft: tieup }, { draft: treadling }]);
 
-      return Promise.resolve([threading, tieup, treadling]);
 
 
 

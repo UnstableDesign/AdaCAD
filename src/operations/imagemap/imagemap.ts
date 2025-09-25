@@ -66,7 +66,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   if (file_param.id == '' || file_param.data == null) {
     const d = initDraftWithParams({ wefts: res_w, warps: res_h, drawdown: [[createCell(false)]] })
-    return Promise.resolve([d]);
+    return Promise.resolve([{ draft: d }]);
   }
 
   const data: AnalyzedImage = file_param.data;
@@ -114,7 +114,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   }
 
   const draft: Draft = initDraftFromDrawdown(pattern);
-  return Promise.resolve([draft]);
+  return Promise.resolve([{ draft }]);
 
 }
 

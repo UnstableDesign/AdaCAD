@@ -1,7 +1,7 @@
-import { warps, wefts, getHeddle, initDraftFromDrawdown, updateWeftSystemsAndShuttles, Draft } from "../../draft";
+import { warps, wefts, getHeddle, initDraftFromDrawdown, updateWeftSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
-import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 import { helperOp } from "../categories";
 
 const name = "selvedge";
@@ -65,7 +65,7 @@ const selvedge_draft: OperationInlet = {
 const inlets = [draft, selvedge_draft];
 
 
-const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<Draft>> => {
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<OpOutput>> => {
 
     const draft = getAllDraftsAtInlet(op_inputs, 0);
     const sel = getAllDraftsAtInlet(op_inputs, 1);
@@ -74,8 +74,8 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
     if (draft.length == 0 && sel.length == 0) return Promise.resolve([]);
 
-    if (draft.length == 0) return Promise.resolve(sel);
-    if (sel.length == 0) return Promise.resolve(draft);
+    if (draft.length == 0) return Promise.resolve([{ draft: sel[0] }]);
+    if (sel.length == 0) return Promise.resolve([{ draft: draft[0] }]);
 
 
     const complete = new Sequence.TwoD();
@@ -119,7 +119,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
 
 
-    return Promise.resolve([d]);
+    return Promise.resolve([{ draft: d }]);
 
 };
 

@@ -49,7 +49,7 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   d = updateWarpSystemsAndShuttles(d, input_draft);
 
 
-  return Promise.resolve([d]);
+  return Promise.resolve([{ draft: d }]);
 
 }
 
