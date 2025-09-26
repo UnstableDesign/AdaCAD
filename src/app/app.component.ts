@@ -1717,6 +1717,14 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * an emergency operation to move the palette in some direction because something rendered out of selectable area
+   */
+  bumpDataflow() {
+    this.mixer.bumpDataflow();
+
+  }
+
 
   zoomToFit() {
 

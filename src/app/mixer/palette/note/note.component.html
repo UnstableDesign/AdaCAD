@@ -1,7 +1,8 @@
 <!--TODO add z index support here
 -->
-<div class="note-container selectable-{{!disable_drag}}" id="note-{{note.id}}" [style.background]="note.color" cdkDrag
-  (cdkDragStarted)="dragStart($event)" (cdkDragMoved)="dragMove($event)" (cdkDragEnded)="dragEnd($event)">
+<div class="note-container selectable-{{!disable_drag}}" cdkDragBoundary=".palette" id="note-{{note.id}}"
+  [style.background]="note.color" cdkDrag (cdkDragStarted)="dragStart($event)" (cdkDragMoved)="dragMove($event)"
+  (cdkDragEnded)="dragEnd($event)">
 
 
 

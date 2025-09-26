@@ -297,6 +297,39 @@ export class MixerComponent {
   }
 
 
+  bumpDataflow() {
+    console.log("BUMP")
+    let offset = 200;
+    let ops = this.tree.getOperations().filter(el => el !== null);
+    let drafts = this.tree.getDrafts().filter(el => el !== null);
+    let notes = this.notes.getComponents().filter(el => el !== null);;
+
+    ops.forEach(op => {
+      op.topleft.x += offset;
+      op.topleft.y += offset;
+      op.setPosition(op.topleft)
+    });
+
+    drafts.forEach(draft => {
+      draft.topleft.x += offset;
+      draft.topleft.y += offset;
+      draft.setPosition(draft.topleft)
+    });
+
+
+    notes.forEach(note => {
+      note.topleft.x += offset;
+      note.topleft.y += offset;
+      note.setPosition(note.topleft);
+    });
+
+    this.palette.redrawConnections();
+
+
+
+  }
+
+
 
   zoomChange(zoom_index: any) {
     this.zs.setZoomIndexOnMixer(zoom_index)

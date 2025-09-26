@@ -22,6 +22,7 @@ export class EventsDirective {
   @Output() onRedo: any = new EventEmitter();
   @Output() zoomOut: any = new EventEmitter();
   @Output() zoomIn: any = new EventEmitter();
+  @Output() onBump: any = new EventEmitter();
   @Output() updateMixerView: any = new EventEmitter();
   @Output() updateDetailView: any = new EventEmitter();
   @Output() onCopySelections: any = new EventEmitter();
@@ -66,6 +67,17 @@ export class EventsDirective {
       return false;
 
     }
+
+    /**
+*  ZOOM OUT 
+*/
+    if (e.key == "b" && e.metaKey) {
+
+      this.onBump.emit();
+      return false;
+
+    }
+
 
 
     /**
