@@ -25,13 +25,6 @@
 
 <mat-dialog-content class="filebrowser">
 
-  @if (!user_logged_in) {
-  <div>
-    <button mat-flat-button color="primary" matTooltip="login" (click)="openLoginDialog()"><i class="fa fa-sign-in"></i>
-      Log in</button> to load and save files online
-  </div>
-  }
-
 
 
   @if (!has_db_connection) {

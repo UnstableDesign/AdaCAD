@@ -31,8 +31,6 @@ const parseSavedDrawdown = (dd: Array<Array<Cell>>): Drawdown => {
 export const loadDraftFromFile = (data: any, version: string, src: string): Promise<{ draft: Draft, id: number }> => {
     const draft: Draft = initDraft();
 
-    console.log("DATA is ", data)
-
 
     if (data.id !== undefined) draft.id = data.id;
 

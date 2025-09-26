@@ -2,7 +2,9 @@ import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
 import { FileService } from '../../provider/file.service';
+import { FirebaseService } from '../../provider/firebase.service';
 import { UploadFormComponent } from '../uploads/upload-form/upload-form.component';
 
 @Component({
@@ -15,6 +17,7 @@ export class LoadfileComponent {
   private fls = inject(FileService);
   private dialogRef = inject<MatDialogRef<LoadfileComponent>>(MatDialogRef);
   private data = inject(MAT_DIALOG_DATA);
+  private fb = inject(FirebaseService);
 
 
 
@@ -23,6 +26,8 @@ export class LoadfileComponent {
   type: string = ''; //'single_image', 'ada', or 'bitmap_collection'
   title: string = 'Select Files'
   errorstring: string = '';
+  connection_state = false;
+  private connectionSubscription: Subscription;
 
   constructor() {
     const data = this.data;
@@ -33,7 +38,23 @@ export class LoadfileComponent {
     this.type = data.type;
     if (data.title !== undefined) this.title = data.title;
 
+
+    //subscribe to the connection event to see if we have access to the firebase database (and internet) 
+    this.connectionSubscription = this.fb.connectionChangeEvent$.subscribe(data => {
+      this.connection_state = data;
+    });
+
+
   }
+
+  ngOnDestroy() {
+
+    if (this.connectionSubscription) {
+      this.connectionSubscription.unsubscribe();
+    }
+
+  }
+
 
   handleError(e: any) {
     this.errorstring = e;
