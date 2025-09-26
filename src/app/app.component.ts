@@ -171,7 +171,6 @@ export class AppComponent implements OnInit, OnDestroy {
         if (this.userAuthSubscription) this.userAuthSubscription.unsubscribe();
         this.user_auth_state = false;
         this.user_auth_name = '';
-
       }
 
     });

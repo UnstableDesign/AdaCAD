@@ -915,18 +915,23 @@ export class DraftRenderingComponent implements OnInit {
 
   // }
 
+
+
+
+
   /**
   * this rescales the canvas and updates the view from scroll events
   * receives offset of the scroll from the CDKScrollable created when the scroll was initiated
   */
   //this does not draw on canvas but just rescales the canvas
   public rescale(scale: number) {
+    this.scale = scale;
     if (this.id == -1) return;
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    this.render.rescale(draft, loom, loom_settings, scale, this.canvases)
+    this.render.rescaleCanvases(draft, loom, loom_settings, scale, this.canvases)
     this.refreshOriginMarker();
 
 
@@ -1007,9 +1012,7 @@ export class DraftRenderingComponent implements OnInit {
     }
 
     return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
-
-      // console.log("REDRAW IN ", this.source, this.scale)
-      this.render.rescale(draft, loom, loom_settings, this.scale, this.canvases)
+      this.render.rescaleCanvases(draft, loom, loom_settings, this.scale, this.canvases)
       this.refreshWarpAndWeftSystemNumbering();
       this.refreshOriginMarker();
       this.selection.redraw();

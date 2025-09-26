@@ -666,12 +666,14 @@ export class RenderService {
 
 
   /**
-   * when the parent div is rescaled on zoom in and out, the container does not change size unless the canvases change size as well. 
+   * when the parent div is rescaled on zoom in and out, the container does not change size unless the canvases change size as well.
+   * this function, then, is a hack that forces the rendering to change size while also changing the size of the container by manually resetting the 
+   * size of the canvases 
    * @param draft 
    * @param factor 
    * @param canvases 
    */
-  rescale(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList) {
+  rescaleCanvases(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList) {
     let cell_size = this.calculateCellSize(draft);
 
 
