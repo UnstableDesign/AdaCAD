@@ -1,4 +1,4 @@
-import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragEnd, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,6 +26,7 @@ export class NoteComponent implements OnInit {
   @Input() id: number;
   @Output() deleteNote: any = new EventEmitter();
   @Output() saveNoteText: any = new EventEmitter();
+  @Output() onNoteMoved: any = new EventEmitter();
 
   note: Note;
 
@@ -123,6 +124,12 @@ export class NoteComponent implements OnInit {
     note_container.style.top = this.topleft.y + "px";
     note_container.style.left = this.topleft.x + "px";
 
+  }
+
+  dragEnd($event: CdkDragEnd) {
+    console.log("DRAG ENDED")
+    this.notes.setPosition(this.id, this.topleft);
+    this.onNoteMoved.emit();
   }
 
 

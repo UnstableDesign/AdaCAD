@@ -553,6 +553,7 @@ export class PaletteComponent implements OnInit {
   setNoteSubscriptions(note: NoteComponent) {
     this.noteSubscriptions.push(note.deleteNote.subscribe(this.deleteNote.bind(this)));
     this.noteSubscriptions.push(note.saveNoteText.subscribe(this.saveNote.bind(this)));
+    this.noteSubscriptions.push(note.onNoteMoved.subscribe(this.saveNote.bind(this)));
   }
 
   deleteNote(id: number) {

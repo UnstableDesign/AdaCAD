@@ -205,6 +205,13 @@ export class NotesService {
     note.color = color;
   }
 
+  setPosition(id: number, topleft: Point) {
+    let note = this.get(id);
+    note.topleft.x = topleft.x;
+    note.topleft.y = topleft.y
+
+  }
+
   getNoteIdList() {
     return this.notes.map(note => note.id);
   }
