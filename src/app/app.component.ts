@@ -145,16 +145,35 @@ export class AppComponent implements OnInit, OnDestroy {
     this.editorModes = editor_modes;
     this.selected_editor_mode = defaults.editor;
 
-    //subscribe to the login event and handle what happens in that case 
-    this.userAuthSubscription = this.fb.authChangeEvent$.subscribe(user => {
-      this.user_auth_state = (user !== null) ? true : false;
-      this.user_auth_name = (user !== null && this.user_auth_state) ? user.displayName : '';
-      this.initLoginLogoutSequence(user);
-    });
+
 
     //subscribe to the connection event to see if we have access to the firebase database (and internet) 
     this.connectionSubscription = this.fb.connectionChangeEvent$.subscribe(data => {
       this.connection_state = data;
+      this.initConnection(data);
+
+      if (this.connection_state) {
+        //when this fires, auth may have already had events, check for those first and then subscribe for future events
+
+        if (this.fb.auth.currentUser) {
+          this.user_auth_state = (this.fb.auth.currentUser !== null) ? true : false;
+          this.user_auth_name = (this.fb.auth.currentUser !== null && this.user_auth_state) ? this.fb.auth.currentUser.displayName : '';
+        }
+        this.initLoginLogoutSequence(this.fb.auth.currentUser);
+
+        //subscribe to the login event and handle what happens in that case 
+        this.userAuthSubscription = this.fb.authChangeEvent$.subscribe(user => {
+          this.user_auth_state = (user !== null) ? true : false;
+          this.user_auth_name = (user !== null && this.user_auth_state) ? user.displayName : '';
+          this.initLoginLogoutSequence(user);
+        });
+      } else {
+        if (this.userAuthSubscription) this.userAuthSubscription.unsubscribe();
+        this.user_auth_state = false;
+        this.user_auth_name = '';
+
+      }
+
     });
 
 
@@ -212,26 +231,41 @@ export class AppComponent implements OnInit, OnDestroy {
 
     let searchParams = new URLSearchParams(window.location.search);
     if (searchParams.has('ex')) {
-      this.loadExampleAtURL(searchParams.get('ex'))
-      history.pushState({ page: 1 }, "AdaCAD.org ", "")
+      if (this.connection_state) {
+        this.loadExampleAtURL(searchParams.get('ex'))
+        history.pushState({ page: 1 }, "AdaCAD.org ", "")
+      } else {
+        this.openSnackBar('You Must be Connected to the Internet to Load this Example')
+      }
       return true;
 
     } else if (searchParams.has('share')) {
       //THIS CANNOT RUN IF THE ACCESS TO THE DATABASE IS NOT YET CONFIGURED? 
-      console.log("LOADING FROM SHARE")
-      this.loadFromShare(+searchParams.get('share'))
-        .then(res => {
-          this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
-          this.addTimelineStateOnly();
-          return true;
-        })
-        .catch(err => {
-          this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
-          this.loadBlankFile().then(el => this.addTimelineStateOnly())
-          return false;
-        })
-      history.pushState({ page: 1 }, "AdaCAD.org ", "")
+
+      if (this.connection_state) {
+        this.loadFromShare(+searchParams.get('share'))
+          .then(res => {
+            this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
+            this.addTimelineStateOnly();
+            return true;
+          })
+          .catch(err => {
+            this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
+            this.loadBlankFile().then(el => this.addTimelineStateOnly())
+            return false;
+          })
+        history.pushState({ page: 1 }, "AdaCAD.org ", "")
+      } else {
+        this.openSnackBar('You Must be Connected to the Internet to Load this Shared File')
+
+      }
     }
+
+  }
+
+
+  initConnection(connection: boolean) {
+    console.log("INIT CONNECTION", connection);
 
   }
 
@@ -240,15 +274,17 @@ export class AppComponent implements OnInit, OnDestroy {
  * @param user 
  */
   initLoginLogoutSequence(user: User) {
-    console.log("IN LOGIN/LOGOUT ", user)
+    console.log("IN LOGIN/LOGOUT ", user);
     const workspace_has_content = this.ss.hasTimeline();
+
+
 
     if (user && workspace_has_content) {
       // WRITE THE FILE INFORMAITON LOCALLY to this USERs DB
       this.saveFile();
 
     } else if (user && !workspace_has_content) {
-      // OPEN THE STARTING DIALOG
+      // CHECK THE URL for LOADS 
       const hadLoad = this.checkForURLLoads();
       if (!hadLoad) {
         this.openAdaFiles("welcome");
@@ -259,10 +295,14 @@ export class AppComponent implements OnInit, OnDestroy {
       // DO NOTHING - this person must have just logged out
 
     } else {
+      // CHECK THE URL for LOADS 
+      const hadLoad = this.checkForURLLoads();
+      if (!hadLoad) {
+        this.loadStarterFile();
+      }
       //LOAD WELCOME CONTENT
-      this.loadStarterFile();
-
     }
+
 
   }
 
@@ -560,27 +600,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  //THIS IS CALLED WHEN THE PAGE IS LOADED 
-  // checkURLOnLoad() {
-  //   let loaded_from_url = true;
-  //   let searchParams = new URLSearchParams(window.location.search);
-  //   if (searchParams.has('ex')) {
-  //     this.loadExampleAtURL(searchParams.get('ex'))
-  //     history.pushState({ page: 1 }, "AdaCAD.org ", "")
-
-  //   } else if (searchParams.has('share')) {
-  //     this.loadFromShare(searchParams.get('share'))
-  //       .then(res => {
-  //         this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
-  //         this.addTimelineStateOnly();
-  //       })
-  //       .catch(err => {
-  //         this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
-  //         this.loadBlankFile().then(el => this.addTimelineStateOnly())
-  //       })
-  //     history.pushState({ page: 1 }, "AdaCAD.org ", "")
-  //   }
-  // }
 
 
   insertPasteFile(result: LoadResponse) {
