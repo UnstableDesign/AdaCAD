@@ -19,8 +19,8 @@ import { FileService } from '../../provider/file.service';
 import { FirebaseService } from '../../provider/firebase.service';
 import { MediaService } from '../../provider/media.service';
 import { WorkspaceService } from '../../provider/workspace.service';
-import { UploadFormComponent } from '../../ui/uploads/upload-form/upload-form.component';
 import { LoginComponent } from '../login/login.component';
+import { UploadFormComponent } from '../uploads/upload-form/upload-form.component';
 
 @Component({
   selector: 'app-share',

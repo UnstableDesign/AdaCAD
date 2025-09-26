@@ -6,7 +6,6 @@ import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft } from 'adacad-drafting-lib';
 import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
-import { RenameComponent } from '../../../core/modal/rename/rename.component';
 import { DraftNode } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
@@ -18,6 +17,7 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
+import { RenameComponent } from '../../../core/ui/rename/rename.component';
 
 @Component({
   selector: 'app-draftcontainer',
@@ -107,6 +107,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
     this.draft_rendering.onNewDraftLoaded(this.id);
     this.drawDraft(draft);
+    this.localZoomChange(this.local_zoom);
 
     this.startSizeObserver();
 
@@ -263,7 +264,6 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
   drawDraft(draft: Draft): Promise<boolean> {
-
 
 
     if (!this.tree.getDraftVisible(this.id)) return Promise.resolve(false);

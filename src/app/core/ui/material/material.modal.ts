@@ -9,10 +9,10 @@ import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { hexToRgb, Material, updateMaterialIds } from 'adacad-drafting-lib';
 import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
-import { TreeService } from '../../../core/provider/tree.service';
 import { DraftNode } from '../../model/datatypes';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
+import { TreeService } from '../../provider/tree.service';
 
 
 @Component({

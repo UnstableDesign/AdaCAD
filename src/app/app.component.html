@@ -83,7 +83,8 @@
 
         <button mat-icon-button [matMenuTriggerFor]="help"><i class="fa-solid fa-question"></i></button>
         <mat-menu #help="matMenu">
-          <button mat-menu-item (click)="openHelp()">Go to the Help Website</button>
+          <button mat-menu-item (click)="openHelp()">View our Documentation</button>
+          <button mat-menu-item (click)="openDiscord()">Ask the Community for Support on Discord</button>
           <button mat-menu-item (click)="openBug()">Report a Bug/Request a Feature via GitHub</button>
         </mat-menu>
 

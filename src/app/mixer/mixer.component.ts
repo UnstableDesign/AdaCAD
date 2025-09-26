@@ -11,7 +11,6 @@ import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions } fro
 import { Draft, Loom, LoomSettings, OperationClassification } from 'adacad-drafting-lib';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { BlankdraftModal } from '../core/modal/blankdraft/blankdraft.modal';
 import { DraftNodeProxy, NodeComponentProxy, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -22,6 +21,7 @@ import { TreeService } from '../core/provider/tree.service';
 import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
+import { BlankdraftModal } from '../core/ui/blankdraft/blankdraft.modal';
 import { PaletteComponent } from './palette/palette.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';

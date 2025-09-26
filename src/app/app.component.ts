@@ -18,13 +18,6 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { ExamplesComponent } from './core/modal/examples/examples.component';
-import { FilebrowserComponent } from './core/modal/filebrowser/filebrowser.component';
-import { LoadfileComponent } from './core/modal/loadfile/loadfile.component';
-import { LoginComponent } from './core/modal/login/login.component';
-import { MaterialModal } from './core/modal/material/material.modal';
-import { ShareComponent } from './core/modal/share/share.component';
-import { WorkspaceComponent } from './core/modal/workspace/workspace.component';
 import { DraftNode, DraftNodeProxy, FileMeta, IndexedColorImageInstance, LoadResponse, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
@@ -42,6 +35,13 @@ import { ViewadjustService } from './core/provider/viewadjust.service';
 import { ViewerService } from './core/provider/viewer.service';
 import { WorkspaceService } from './core/provider/workspace.service';
 import { ZoomService } from './core/provider/zoom.service';
+import { ExamplesComponent } from './core/ui/examples/examples.component';
+import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.component';
+import { LoadfileComponent } from './core/ui/loadfile/loadfile.component';
+import { LoginComponent } from './core/ui/login/login.component';
+import { MaterialModal } from './core/ui/material/material.modal';
+import { ShareComponent } from './core/ui/share/share.component';
+import { WorkspaceComponent } from './core/ui/workspace/workspace.component';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
 import { EditorComponent } from './editor/editor.component';
 import { MixerComponent } from './mixer/mixer.component';
@@ -797,10 +797,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   //Unlike other functions that can return a promise that is rejected with the parent funciton handling the error, the http.get makes it hard to return upon completion, instead, we just handle the failure case internally
   loadExampleAtURL(name: string) {
-    // const analytics = getAnalytics();
-    // logEvent(analytics, 'onurl', {
-    //   items: [{ uid: this.auth.uid, name: name }]
-    // });
 
     this.http.get('assets/examples/' + name + ".ada", { observe: 'response' })
       .pipe(
@@ -1022,6 +1018,11 @@ export class AppComponent implements OnInit, OnDestroy {
   openHelp() {
     window.open('https://docs.adacad.org/', '_blank');
   }
+
+  openDiscord() {
+    window.open('https://discord.gg/Be7ukQcvrC', '_blank');
+  }
+
 
   openBug() {
     window.open('https://github.com/UnstableDesign/AdaCAD/issues/new', '_blank');

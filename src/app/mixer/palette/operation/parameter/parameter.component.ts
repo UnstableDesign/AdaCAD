@@ -9,11 +9,11 @@ import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { AnalyzedImage, BoolParam, CodeParam, FileParam, NotationTypeParam, NumParam, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { take } from 'rxjs/operators';
-import { ImageeditorComponent } from '../../../../core/modal/imageeditor/imageeditor.component';
 import { IndexedColorImageInstance, OpNode } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
+import { ImageeditorComponent } from '../../../../core/ui/imageeditor/imageeditor.component';
 import { UploadFormComponent } from '../../../../core/ui/uploads/upload-form/upload-form.component';
 
 

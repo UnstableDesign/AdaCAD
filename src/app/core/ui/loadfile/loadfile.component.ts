@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { FileService } from '../../provider/file.service';
-import { UploadFormComponent } from '../../ui/uploads/upload-form/upload-form.component';
+import { UploadFormComponent } from '../uploads/upload-form/upload-form.component';
 
 @Component({
   selector: 'app-loadfile',

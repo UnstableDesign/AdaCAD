@@ -11,7 +11,6 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { LoomSettings } from 'adacad-drafting-lib';
 import { createCell, Drawdown, getDraftName } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isFrame } from 'adacad-drafting-lib/loom';
-import { MaterialModal } from '../core/modal/material/material.modal';
 import { OpNode } from '../core/model/datatypes';
 import { defaults, draft_pencil } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -25,6 +24,7 @@ import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
+import { MaterialModal } from '../core/ui/material/material.modal';
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
 
