@@ -127,7 +127,25 @@ export class NoteComponent implements OnInit {
   }
 
   dragEnd($event: CdkDragEnd) {
-    console.log("DRAG ENDED")
+
+    //CATCH THE CASE WHERE THIS IS DROPPED OUTSIDE OF SELECTABLE AREA
+
+    let op_container = document.getElementById('note-' + this.id);
+
+
+    this.topleft = {
+      x: (op_container.offsetLeft < 0) ? 0 : this.topleft.x,
+      y: (op_container.offsetTop < 0) ? 0 : this.topleft.y,
+
+    }
+
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top = this.topleft.y + "px";
+    op_container.style.left = this.topleft.x + "px";
+
+
+
+
     this.notes.setPosition(this.id, this.topleft);
     this.onNoteMoved.emit();
   }

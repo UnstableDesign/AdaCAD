@@ -446,16 +446,6 @@ export class SubdraftComponent implements OnInit {
 
 
 
-  //The drag event has handled the on screen view, but internally, we need to track the top left of the element for saving and loading. 
-  dragEnd($event: any) {
-
-
-    this.moving = false;
-    this.counter = 0;
-    this.last_ndx = { i: -1, j: -1 };
-    this.multiselect.setRelativePosition(this.topleft);
-    this.onSubdraftDrop.emit({ id: this.id });
-  }
 
 
 
@@ -530,6 +520,37 @@ export class SubdraftComponent implements OnInit {
     this.onSubdraftMove.emit({ id: this.id, point: this.topleft });
 
   }
+
+  //The drag event has handled the on screen view, but internally, we need to track the top left of the element for saving and loading. 
+  dragEnd($event: any) {
+
+    //CATCH THE CASE WHERE THIS IS DROPPED OUTSIDE OF SELECTABLE AREA
+
+    let op_container = document.getElementById('scale-' + this.id);
+
+
+    this.topleft = {
+      x: (op_container.offsetLeft < 0) ? 0 : this.topleft.x,
+      y: (op_container.offsetTop < 0) ? 0 : this.topleft.y,
+
+    }
+
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top = this.topleft.y + "px";
+    op_container.style.left = this.topleft.x + "px";
+
+
+
+
+
+
+    this.moving = false;
+    this.counter = 0;
+    this.last_ndx = { i: -1, j: -1 };
+    this.multiselect.setRelativePosition(this.topleft);
+    this.onSubdraftDrop.emit({ id: this.id });
+  }
+
 
   disableDrag() {
     this.disable_drag = true;

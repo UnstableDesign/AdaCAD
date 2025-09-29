@@ -580,12 +580,12 @@ export class OperationComponent implements OnInit {
 
     const zoom_factor = 1 / this.zs.getMixerZoom();
 
-    //this gives the position of
+
+    //this gives the position of top left corner of the div relative to the palette div
     let op_topleft_inscale = {
       x: op_container.offsetLeft,
       y: op_container.offsetTop
     }
-
 
     let scaled_pointer = {
       x: ($event.pointerPosition.x - rect_palette.x + parent.scrollLeft) * zoom_factor,
@@ -595,13 +595,10 @@ export class OperationComponent implements OnInit {
 
 
     if (this.offset == null) {
-
       this.offset = {
         x: scaled_pointer.x - op_topleft_inscale.x,
         y: scaled_pointer.y - op_topleft_inscale.y
       }
-      //console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
-
     }
 
 
@@ -610,11 +607,14 @@ export class OperationComponent implements OnInit {
       y: scaled_pointer.y - this.offset.y
 
     }
+
     op_container.style.transform = 'none'; //negate angulars default positioning mechanism
     op_container.style.top = this.topleft.y + "px";
     op_container.style.left = this.topleft.x + "px";
 
+
     this.onOperationMove.emit({ id: this.id, point: this.topleft });
+
 
   }
 
@@ -623,6 +623,23 @@ export class OperationComponent implements OnInit {
 
 
   dragEnd($event: any) {
+
+    //CATCH THE CASE WHERE THIS IS DROPPED OUTSIDE OF SELECTABLE AREA
+
+    let op_container = document.getElementById('scale-' + this.id);
+
+
+    this.topleft = {
+      x: (op_container.offsetLeft < 0) ? 0 : this.topleft.x,
+      y: (op_container.offsetTop < 0) ? 0 : this.topleft.y,
+
+    }
+
+    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    op_container.style.top = this.topleft.y + "px";
+    op_container.style.left = this.topleft.x + "px";
+
+
 
     this.updateConnectionStyling();
 
