@@ -27,7 +27,7 @@ This provides a way to assign unique drafts to systems without considering layer
 
 ![file](./assign_systems_demo.png)
 
-Note how unassigned systems will be filled with unset heddles. You can use the <OpLink = 'set_unset' /> to give all of the unset heddles either a heddle left, or lowered, value.
+Note how unassigned systems will be filled with unset heddles. You can use the [`set unset`](../transformation/set_unset/) to give all of the unset heddles either a heddle left, or lowered, value.
 
 
 

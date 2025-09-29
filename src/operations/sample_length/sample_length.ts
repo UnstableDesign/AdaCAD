@@ -6,7 +6,7 @@ import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs } from "..
 import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
 
 const name = "sample_length";
-const dynamic_param_id = [0];
+const dynamic_param_id = 0;
 const dynamic_param_type = 'profile';
 
 

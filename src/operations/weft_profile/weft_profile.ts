@@ -7,7 +7,7 @@ import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpPar
 
 
 const name = "weft_profile";
-const dynamic_param_id = [0];
+const dynamic_param_id = 0;
 const dynamic_param_type = 'profile';
 
 
@@ -134,7 +134,13 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>): Array<OpInletValType> => {
 
   const static_inlet_vals = reduceToStaticInputs(inlets, inlet_vals);
+  console.log("STATIC INLETS", static_inlet_vals);
+
   const combined_inlet_vals = static_inlet_vals.slice();
+  return combined_inlet_vals;
+
+  console.log("Looking for regex", param_vals, changed_param_id, <StringParam>param_vals[changed_param_id].param);
+
   const param_regex = (<StringParam>param_vals[changed_param_id].param).regex;
 
   let matches = [];

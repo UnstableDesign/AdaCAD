@@ -17,7 +17,7 @@ const meta: OpMeta = {
 }
 
 
-const dynamic_param_id = [0];
+const dynamic_param_id = 0;
 const dynamic_param_type = 'color';
 
 //PARAMS

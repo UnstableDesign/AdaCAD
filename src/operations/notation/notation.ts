@@ -6,7 +6,7 @@ import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs, getAllDra
 import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
 
 const name = "notation";
-const dynamic_param_id = [0];
+const dynamic_param_id = 0;
 const dynamic_param_type = 'notation';
 
 const meta: OpMeta = {

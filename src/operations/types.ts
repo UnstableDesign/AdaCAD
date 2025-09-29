@@ -63,7 +63,7 @@ export type Operation = {
 * @param onParamChange a function that executes when a dynamic parameter is changed and returns the values for the inlets
 */
 export type DynamicOperation = Operation & {
-  dynamic_param_id: Array<number>,
+  dynamic_param_id: number,
   dynamic_param_type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
   onParamChange: (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>) => Array<OpInletValType>;
   perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<OpOutput>>;
@@ -76,7 +76,7 @@ export type DynamicOperation = Operation & {
  */
 export type OperationParam = {
   name: string,
-  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle' | 'code';
+  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft';
   value: OpParamValType,
   dx: string
 }

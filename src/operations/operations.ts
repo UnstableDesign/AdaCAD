@@ -157,9 +157,6 @@ const returnDefaultValue = (p: OpParamVal): OpParamValType | null => {
         case 'file':
             return null;
 
-        case 'notation_toggle':
-            return false;
-
         case 'number':
             return 0;
 
