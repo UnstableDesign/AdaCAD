@@ -1,10 +1,10 @@
-import { CdkTextareaAutosize } from '@angular/cdk/text-field';
+import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { Component, EventEmitter, Input, NgZone, OnInit, Output, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
-import { MatButton, MatMiniFabButton } from '@angular/material/button';
+import { MatButton, MatFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { AnalyzedImage, BoolParam, CodeParam, FileParam, NotationTypeParam, NumParam, SelectParam, StringParam } from 'adacad-drafting-lib';
@@ -14,6 +14,7 @@ import { MediaService } from '../../../../core/provider/media.service';
 import { OperationService } from '../../../../core/provider/operation.service';
 import { TreeService } from '../../../../core/provider/tree.service';
 import { ImageeditorComponent } from '../../../../core/ui/imageeditor/imageeditor.component';
+import { TextparamComponent } from '../../../../core/ui/textparam/textparam.component';
 import { UploadFormComponent } from '../../../../core/ui/uploads/upload-form/upload-form.component';
 
 
@@ -32,7 +33,10 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
   templateUrl: './parameter.component.html',
   styleUrls: ['./parameter.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatError, MatMiniFabButton, CdkTextareaAutosize, MatHint, MatButton, UploadFormComponent]
+  providers: [
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } }
+  ],
+  imports: [MatFormField, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatError, CdkTextareaAutosize, MatHint, MatButton, UploadFormComponent, TextparamComponent]
 })
 export class ParameterComponent implements OnInit {
   tree = inject(TreeService);
@@ -199,6 +203,16 @@ export class ParameterComponent implements OnInit {
     }
 
 
+  }
+
+  openTextEditor() {
+
+    const opnode = this.tree.getOpNode(this.opid);
+
+    const dialogRef = this.dialog.open(TextparamComponent, { data: { val: opnode.params[this.paramid], param: this.param } });
+    dialogRef.afterClosed().subscribe(text => {
+      this.onParamChange(text);
+    });
   }
 
 

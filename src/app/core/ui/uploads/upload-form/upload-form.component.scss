@@ -1,21 +1,27 @@
-.upload-container{
+@use '@angular/material' as mat;
+
+
+.upload-container {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     gap: 8px;
+
+    @include mat.form-field-overrides((container-text-size: var(--form-field-entry-size),
+            filled-input-text-color: black,
+            filled-label-text-color: black,
+            container-height: var(--input-container-height),
+            filled-label-text-size: var(--floating-label-size),
+            filled-with-label-container-padding-top: calc(var(--floating-label-padding))));
+
+
+
 }
 
-.upload_field,
-.upload_form_field,
-.mat-mdc-form-field{
-    width: 300px;
-}
 
-.upload{
-    height: 60px;
-}
+
 
 // .progress-bar,
 // .upload-button{
 //     width: 100%;
-// }
+// 

@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Update Text</h2>
+
+<mat-dialog-content>
+
+
+
+    <mat-form-field appearance="fill">
+
+        <mat-label>{{stringparam.name}}</mat-label>
+        <textarea matInput [formControl]="fc" [(ngModel)]="value" (keyup.enter)="save()"></textarea>
+        @if (fc.hasError('required') ) {
+        <mat-error>An input is required</mat-error>
+        }
+        @if (fc.hasError('pattern')) {
+        <mat-error>the current input is not correctly formatted </mat-error>
+        }
+
+        <mat-hint>hit enter to save and close</mat-hint>
+    </mat-form-field>
+
+
+
+
+
+</mat-dialog-content>
+
+
+
+<mat-dialog-actions>
+    <button mat-raised-button (click)="save()" color="primary">Save</button><button mat-button (click)="close()">Cancel
+        and
+        Don't Save</button>
+</mat-dialog-actions>

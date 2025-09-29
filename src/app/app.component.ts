@@ -13,7 +13,7 @@ import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Loom, LoomSettings, generateId, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
+import { Loom, LoomSettings, generateId, interpolate, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
@@ -1768,7 +1768,36 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  updateTextSizing() {
+
+    if (this.viewer.view_expanded) {
+    } else if (this.selected_editor_mode == 'mixer') {
+      //mixer ranges from about .01 - 2.
+      let range = this.zs.num_steps;
+      let pcent = 1 - (this.zs.zoom_table_ndx_mixer / range); //get the percent and then invert it
+
+
+      const heading = interpolate(pcent, { min: 1, max: 6 })
+      const form_field_entry_size = interpolate(pcent, { min: 1, max: 5 })
+      const floating_label_size = interpolate(pcent, { min: 1, max: 3 })
+      const floating_label_padding = interpolate(pcent, { min: 3, max: 5 })
+      const container_height = form_field_entry_size * 3;
+      console.log("mixer zoom is ", floating_label_size)
+      document.documentElement.style.setProperty('--scalable-text-heading-size', heading + 'rem');
+      document.documentElement.style.setProperty('--form-field-entry-size', form_field_entry_size + 'rem');
+      document.documentElement.style.setProperty('--floating-label-size', floating_label_size + 'rem');
+      document.documentElement.style.setProperty('--floating-label-padding', floating_label_padding + 'rem');
+      document.documentElement.style.setProperty('--input-container-height', container_height + 'rem');
+    } else {
+    }
+
+  }
+
+
   zoomOut() {
+
+
+    this.updateTextSizing();
 
     if (this.viewer.view_expanded) {
       this.zs.zoomOutViewer();
@@ -1788,6 +1817,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   zoomIn() {
+
+    this.updateTextSizing();
+
     if (this.viewer.view_expanded) {
       this.zs.zoomInViewer();
       this.viewer.renderChange();
@@ -1802,17 +1834,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
   }
 
-  /**
-   * this function looks at all subdrafts and operations on the palette and repositons them such that they do not overlap eachother.
-   * It works by
-   */
+
   onExplode() {
+    this.updateTextSizing();
 
     this.mixer.explode();
 
   }
 
   zoomChange(ndx: number) {
+    this.updateTextSizing();
+
     if (this.viewer.view_expanded) {
       this.zs.setZoomIndexOnViewer(ndx);
       this.viewer.renderChange();

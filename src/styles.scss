@@ -4,19 +4,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800');
 
 
-body {
-  height: 100%;
-  margin: 0;
-  overscroll-behavior-x: none;
-  font-family:  "Open Sans", sans-serif;
+:root {
+  --scalable-text-heading-size: 4rem; //on zoom out, this gets bigger, on zoom in in gets smaller
+  --form-field-entry-size: 3rem;
+  --floating-label-size: 2rem;
+  --floating-label-padding: 4rem;
+  --input-container-height: 100px;
+}
+
+html {
+  font-size: 30px;
+  font-family: "Open Sans", sans-serif;
   font-size: 14px;
 }
 
 
+body {
+  height: 100%;
+  margin: 0;
+  overscroll-behavior-x: none;
 
-.logo{
- // background-image: url('./assets/svg/logo.svg');
- background-color: white;
+}
+
+
+
+.logo {
+  // background-image: url('./assets/svg/logo.svg');
+  background-color: white;
   display: block;
   width: 30px;
   height: 40px;
@@ -38,12 +52,18 @@ svg {
 
 
 .no-text-select {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
@@ -59,7 +79,7 @@ svg {
 
 // .mat-drawer-content{
 //    // background: #dddddd;
-  
+
 // }
 
 
@@ -69,7 +89,7 @@ svg {
 }
 
 .mat-form-radio-label {
-  color: rgba(255,255,255,.7);
+  color: rgba(255, 255, 255, .7);
   padding-right: 10px;
 }
 
@@ -80,19 +100,15 @@ svg {
   color: #fff !important;
 }
 
-.selectable-false{
-	pointer-events: none;
-  }
+.selectable-false {
+  pointer-events: none;
+}
 
-  .selectable-true{
-	pointer-events: all;
-  }
+.selectable-true {
+  pointer-events: all;
+}
 
 
 .is-fullwidth {
   width: 100%;
 }
-
-
-
-

@@ -184,7 +184,6 @@ export class MixerComponent {
         .filter(option => option.display_name.toLowerCase().includes(value)));
     }, []);
 
-    console.log("THIS TREE ", tree)
     if (tree.length > 0) this.addOp(tree[0].name);
 
     this.myControl.setValue('');
@@ -298,7 +297,6 @@ export class MixerComponent {
 
 
   bumpDataflow() {
-    console.log("BUMP")
     let offset = 200;
     let ops = this.tree.getOperations().filter(el => el !== null);
     let drafts = this.tree.getDrafts().filter(el => el !== null);

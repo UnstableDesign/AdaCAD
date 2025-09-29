@@ -1,138 +1,138 @@
-.number_input{
-    color: white;
-}
+@use '@angular/material' as mat;
 
 
-
-.show{
+.show {
     display: flex;
 }
 
-.hide{
+.hide {
     display: none;
 }
 
-// .param-row{
-//     display: flex;
-//     vertical-align:middle;
-//     flex-direction: row;
-//     text-align: left;
-//     width: 100%;
-//     padding:.25em 0em 0em 0.5em;
-//     gap: 10px;
-// }
 
 
-// .mat-mdc-form-field-hint-wrapper{
-//     color: white;
-//     font-size: 18px;
-//     padding-top: 2px;
-// }
 
-// .mat-mdc-form-field-error{
-//     color: black;
-//     font-size: 18px;
-// }
-
-// .mat-mdc-option .mdc-list-item__primary-text {
-//     margin-bottom: 10px;
-//     margin-top: 10px;
-// }
-
-// .mat-mdc-select-value {
-//     width: 100%;
-//     overflow: hidden;
-//     text-overflow: ellipsis;
-//     white-space: nowrap;
-//     color: black;
-//     font-size: 18px;
-// }
-
-// .mat-mdc-select-trigger {
-//     font-weight: bold;
-// }
-
-.number_input .mat-mdc-form-field-infix
- {
-    font-size: 24px;
-    font-weight: bold;
-    width: 90px;
+.string-input {
+    button {
+        background-color: whitesmoke;
+    }
 }
 
-.refresh{
+.param-image {
+    button {
+        font-size: var(--form-field-entry-size);
+    }
+}
+
+.string_button_container {
+    display: flex;
+    flex-direction: column;
+    color: black;
+    height: var(--input-container-height);
+    justify-content: flex-start;
+    align-items: start;
+    overflow: hidden;
+}
+
+.string_param_name {
+    font-size: var(--floating-label-size);
+    height: var(--floating-label-padding);
+    padding-top: 5px;
+    letter-spacing: normal;
+}
+
+.string_param_name:hover {
+    color: grey;
+}
+
+.string_param_val {
+    font-size: var(--form-field-entry-size);
+}
+
+.param-container {
+
+    .mat-mdc-floating-label.mdc-floating-label {
+        transform: translateY(calc(-1.8*var(--floating-label-size)));
+    }
+
+
+    .mat-mdc-form-field-infix {
+        width: max-content;
+        min-width: 200px;
+        height: var(--input-container-height);
+
+    }
+
+    @include mat.form-field-overrides((container-text-size: var(--form-field-entry-size),
+            filled-input-text-color: black,
+            filled-label-text-color: black,
+            container-height: var(--input-container-height),
+            filled-label-text-size: var(--floating-label-size),
+            filled-with-label-container-padding-top: calc(var(--floating-label-padding))));
+
+
+    @include mat.select-overrides((trigger-text-line-height: calc(2*var(--floating-label-size)),
+            trigger-text-size: var(--form-field-entry-size)));
+
+    @include mat.fab-overrides((container-color: white,
+            state-layer-color: white,
+            foreground-color:black,
+            extended-container-shape:2%,
+            extended-label-text-size: var(--form-field-entry-size),
+            extended-container-height:var(--input-container-height)));
+
+
+}
+
+
+
+.param {
+    display: flex;
+    font-size: var(--form-field-entry-size);
+}
+
+
+.refresh {
     display: flex;
     margin: 8px;
 }
 
-.string-input{
+.string-input {
     display: flex;
-    flex: 1 0 100%;    
-}
-
-.string-input .mat-mdc-form-field{
-    width: 100%;
-}
-
-.string-input .mat-mdc-form-field-infix
- {
-    font-size: 24px;
-    font-weight: bold;
-    width: max-content;
+    flex: 1 0 100%;
 }
 
 
-
-// .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label{
-//     font-size: 24px;
-// }
-
-
-.select-input,
-.boolean-input{
-
-
-   .mat-mdc-select {
-        height: 100%;
-        align-content: baseline;
-        flex-basis: 0;
-        font-size: 24px;
-        font-weight: bold;
-        width: 200px;
-    }
-}
-
-
-.file-input-param{
+.file-input-param {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     gap: 8px;
 
+    min-width: 400px;
 
-    .form-and-warning{
+    .form-and-warning {
         display: flex;
         flex-direction: column;
     }
 
-    .upload-form-box{
+    .upload-form-box {
         width: fit-content;
         height: fit-content;
     }
 
-    .no_image{
-        height:0px;
+    .no_image {
+        height: 0px;
     }
 
-    .mdc-button{
-        height: 60px;
+    .mdc-button {
+        height: var(--input-container-height);
+        font-size: var(--form-field-entry-size);
+
     }
 
-    .has_image{
+    .has_image {
         height: max-content;
         padding: 12px;
     }
 }
-
-
-
-

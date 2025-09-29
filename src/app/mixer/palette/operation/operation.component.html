@@ -77,7 +77,7 @@
 
       </mat-menu>
 
-      <button mat-icon-button #trigger [matMenuTriggerFor]="editOptions" class="is-small fa-solid fa-ellipsis"
+      <button mat-icon-button #trigger [matMenuTriggerFor]="editOptions" class="name is-small fa-solid fa-ellipsis"
         matTooltip="View Options">
       </button>
 
@@ -88,18 +88,11 @@
     </div>
 
     <div class="params">
-
-
       @for (param of op.params; track param; let i = $index) {
       <app-parameter class="param" [param]='param' [opid]='id' [paramid]='i'
         (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event) (preventDrag)="disableDrag()">
       </app-parameter>
       }
-
-
-
-
-
     </div>
 
 
