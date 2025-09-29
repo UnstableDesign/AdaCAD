@@ -59,6 +59,7 @@
     .mat-mdc-form-field-infix {
         width: max-content;
         min-width: 200px;
+        font-weight: bold;
         height: var(--input-container-height);
 
     }
@@ -82,6 +83,14 @@
             extended-container-height:var(--input-container-height)));
 
 
+}
+
+.boolean-input,
+.select_input {
+    .mat-mdc-select-value {
+        font-weight: bold;
+
+    }
 }
 
 

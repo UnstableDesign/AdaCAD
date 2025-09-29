@@ -1,9 +1,52 @@
-button.output {
-	font-size: 28px;
-	color: "#33333";
-	background-color: transparent;
-	border: none;
+@use '@angular/material' as mat;
+
+
+
+
+.header-container {
+	opacity: .7;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	width: 100%;
+	font-size: var(--form-field-entry-size);
+	height: var(--inlet-outlet-height);
+	align-items: center;
+	gap: 40px;
+
+	.slider {
+		vertical-align: middle;
+		width: 400px;
+
+	}
+
+	button {
+		font-size: var(--form-field-entry-size);
+		opacity: .7;
+
+	}
+
+	.show_draft {
+		margin: 0px 16px;
+		color: black;
+		font-size: var(--form-field-entry-size);
+
+	}
+
+
+
+	@include mat.slider-overrides((active-track-color: black,
+			active-track-height: calc(var(---form-field-entry-size)/3),
+			handle-width: var(--form-field-entry-size),
+			handle-height: var(--form-field-entry-size),
+			handle-color: black))
 }
+
+
+
+
+
+
 
 .on_view {
 	border: 8px dotted #FFFFFF;
@@ -16,9 +59,7 @@ button.output {
 
 .output_meta {
 	display: flex;
-	font-size: 1.5em;
 	color: black;
-	padding: 0px 8px;
 	flex-direction: column;
 	justify-content: flex-start;
 	width: 100%;
@@ -27,9 +68,16 @@ button.output {
 
 
 .name_and_dims {
-	height: 60px;
 	display: flex;
+	height: min-content;
 	flex-direction: row;
+	opacity: .7;
+	font-size: var(--form-field-entry-size);
+
+	button {
+		font-size: var(--form-field-entry-size);
+
+	}
 }
 
 .text {
@@ -39,27 +87,23 @@ button.output {
 
 
 
-.show_draft {
-	margin: 0px 16px;
-	color: black;
-	font-size: var(--form-field-entry-size);
-
-}
 
 
-
-.outlet {
-	font-size: 1.2em;
-
-}
 
 .outlet_row {
 	position: relative;
-	top: 3px;
-	height: 14px;
+	height: calc(var(--inlet-outlet-height)/2);
 	/* left: 23px; */
 	display: flex;
 	color: white;
+
+	button {
+		height: var(--inlet-outlet-height);
+		width: var(--inlet-outlet-height);
+		font-size: var(--form-field-entry-size);
+		opacity: .7;
+
+	}
 }
 
 
@@ -92,35 +136,6 @@ button.output {
 
 
 
-.datarow {
-	// display: flex;
-	// flex-direction: row;
-	// justify-content: space-between;
-	// color: white;
-	// font-size: 1.5em;
-	// padding: 0px 4px;
-
-}
-
-.options {
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-end;
-	align-items: center;
-}
-
-
-
-h3 {
-	font-weight: 800;
-}
-
-.cloak button {
-	width: 30px;
-}
-
-
-
 .is_preview {
 	z-index: 10;
 }
@@ -131,40 +146,6 @@ h3 {
 
 .error {
 	color: #ff3860;
-}
-
-.dropdown {
-	display: flex;
-	flex-direction: column;
-}
-
-.local_zoom {
-	display: flex;
-}
-
-.cloak {
-	display: none;
-	flex-direction: column;
-	width: 30px;
-}
-
-.align-top {
-	display: flex;
-	flex-direction: column;
-}
-
-.header-container {
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-start;
-	width: 100%;
-	font-size: var(--form-field-entry-size);
-}
-
-.rendering-view-opts {
-	display: flex;
-	flex-direction: row;
-	height: max-content;
 }
 
 

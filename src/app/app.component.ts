@@ -219,6 +219,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngAfterViewInit() {
     this.recenterViews();
+    this.updateTextSizing();
   }
 
 
@@ -868,11 +869,12 @@ export class AppComponent implements OnInit, OnDestroy {
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string): Promise<any> {
-    console.log("LOADING FILE ", result)
     this.ws.setCurrentFile(result.meta)
     this.filename_form.setValue(result.meta.name)
     return this.processFileData(result.data)
       .then(data => {
+        this.updateTextSizing();
+
 
         if (source !== 'statechange') {
           if (this.tree.nodes.length > 0) {
@@ -1777,17 +1779,19 @@ export class AppComponent implements OnInit, OnDestroy {
       let pcent = 1 - (this.zs.zoom_table_ndx_mixer / range); //get the percent and then invert it
 
 
-      const heading = interpolate(pcent, { min: 1, max: 6 })
-      const form_field_entry_size = interpolate(pcent, { min: 1, max: 5 })
-      const floating_label_size = interpolate(pcent, { min: 1, max: 3 })
-      const floating_label_padding = interpolate(pcent, { min: 3, max: 5 })
+      const heading = interpolate(pcent, { min: .1, max: 6 })
+      const form_field_entry_size = interpolate(pcent, { min: .05, max: 4 })
+      const floating_label_size = interpolate(pcent, { min: .1, max: 3 })
+      const floating_label_padding = interpolate(pcent, { min: .6, max: 5 })
       const container_height = form_field_entry_size * 3;
+      const inlet_outlet_height = form_field_entry_size * 2;
       console.log("mixer zoom is ", floating_label_size)
       document.documentElement.style.setProperty('--scalable-text-heading-size', heading + 'rem');
       document.documentElement.style.setProperty('--form-field-entry-size', form_field_entry_size + 'rem');
       document.documentElement.style.setProperty('--floating-label-size', floating_label_size + 'rem');
       document.documentElement.style.setProperty('--floating-label-padding', floating_label_padding + 'rem');
       document.documentElement.style.setProperty('--input-container-height', container_height + 'rem');
+      document.documentElement.style.setProperty('--inlet-outlet-height', inlet_outlet_height + 'rem');
     } else {
     }
 

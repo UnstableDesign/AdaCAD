@@ -2,7 +2,8 @@ import { AfterViewInit, Component, EventEmitter, Input, Output, SimpleChanges, V
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
-import { MatSlider, MatSliderThumb } from '@angular/material/slider';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft } from 'adacad-drafting-lib';
 import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
@@ -19,11 +20,15 @@ import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
 import { RenameComponent } from '../../../core/ui/rename/rename.component';
 
+import { FormsModule } from '@angular/forms';
+import { MatSliderModule } from '@angular/material/slider';
+
+
 @Component({
   selector: 'app-draftcontainer',
   templateUrl: './draftcontainer.component.html',
   styleUrls: ['./draftcontainer.component.scss'],
-  imports: [MatButton, MatSlider, MatSliderThumb, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, DraftRenderingComponent]
+  imports: [MatButton, FormsModule, MatSlideToggle, MatSliderModule, MatSliderThumb, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, DraftRenderingComponent]
 })
 export class DraftContainerComponent implements AfterViewInit {
   private dialog = inject(MatDialog);
