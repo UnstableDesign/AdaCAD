@@ -199,7 +199,7 @@ export class TreeService {
         const op = <DynamicOperation>this.ops.getOp(name);
         (<OpNode>node).params = params_out.slice()
         //this just forces the inlets to generate by simulating a parameter change
-        let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id[0], op.params[op.dynamic_param_id[0]].value);
+        let dynamic_inlets = this.onDynanmicOperationParamChange(node.id, name, inlets, op.dynamic_param_id, op.params[op.dynamic_param_id].value);
 
         inlets = dynamic_inlets.slice();
       }
