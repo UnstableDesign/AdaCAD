@@ -16,9 +16,6 @@
 	min-width: 600px;
 	padding: 24px;
 
-	@include mat.form-field-overrides((container-text-size: var(--scalable-text-heading-size), disabled-input-text-placeholder-color: orange,
-			disabled-leading-icon-color: red,
-		));
 }
 
 

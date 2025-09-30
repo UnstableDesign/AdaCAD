@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { MatFormField, MatHint } from '@angular/material/form-field';
+import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { Upload } from '../../../model/datatypes';
@@ -12,7 +12,7 @@ import { UploadService } from '../../../provider/upload.service';
   selector: 'upload-form',
   templateUrl: './upload-form.component.html',
   styleUrls: ['./upload-form.component.scss'],
-  imports: [MatFormField, MatInput, MatProgressBar, MatHint, MatButton]
+  imports: [MatFormField, MatInput, MatProgressBar, MatButton]
 })
 export class UploadFormComponent implements OnInit {
   private upSvc = inject(UploadService);

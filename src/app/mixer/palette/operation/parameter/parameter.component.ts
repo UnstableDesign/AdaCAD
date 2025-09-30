@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
-import { AnalyzedImage, BoolParam, CodeParam, FileParam, NotationTypeParam, NumParam, SelectParam, StringParam } from 'adacad-drafting-lib';
+import { AnalyzedImage, BoolParam, CodeParam, FileParam, NumParam, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { take } from 'rxjs/operators';
 import { IndexedColorImageInstance, OpNode } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
@@ -113,10 +113,6 @@ export class ParameterComponent implements OnInit {
 
         break;
 
-      case 'notation_toggle':
-        this.boolparam = <NotationTypeParam>this.param;
-        this.fc = new UntypedFormControl(this.param.value);
-        break;
 
       // case 'draft':
       //   this.draftparam = <DraftParam> this.param;
@@ -168,13 +164,6 @@ export class ParameterComponent implements OnInit {
         break;
 
       case 'boolean':
-        if (value == null) value = false;
-        opnode.params[this.paramid] = (value) ? 1 : 0;
-        this.fc.setValue(value);
-        this.onOperationParamChange.emit({ id: this.paramid, value: value, type: this.param.type });
-        break;
-
-      case 'notation_toggle':
         if (value == null) value = false;
         opnode.params[this.paramid] = (value) ? 1 : 0;
         this.fc.setValue(value);
