@@ -281,12 +281,14 @@ test('testing filter to unique values', () => {
   const arr2 = ['c', 'a', 'b', 'c', 'a', 'b', 'q'];
   const arr3 = ['a', 'b', 1, 'a', 'b', 2];
   const arr4 = [1, null, 3, 1, 4, 1, 5];
+  const arr5 = [0, 'a', 'b', 'c', 'a', 'b', 'c'];
 
   expect(filterToUniqueValues(arr1)).toEqual([1, 2, 3, 4, 5])
   expect(filterToUniqueValues(arr2)).toEqual(['c', 'a', 'b', 'q'])
   expect(filterToUniqueValues(arr3)).toEqual(['a', 'b', 1, 2])
   expect(filterToUniqueValues(arr4)).toEqual([1, null, 3, 4, 5])
   expect(filterToUniqueValues(arr4)).not.toEqual([1, 3, 4, 5])
+  expect(filterToUniqueValues(arr5)).toEqual([0, 'a', 'b', 'c'])
 });
 
 
@@ -296,11 +298,14 @@ test('parse regex', () => {
   let a = 'a1b2'
   let b = '12--'
   let c = '\na b'
-  let regex = /[a-zA-Z]+/g;
+  let d = 'a1 b \n\tc'
+  let letters = /[a-zA-Z]+/g;
+  let otherregex = /\S+/g;
 
-  expect(parseRegex(a, regex)).toEqual(["a", "b"])
-  expect(parseRegex(b, regex)).toEqual([])
-  expect(parseRegex(c, regex)).toEqual(["a", "b"])
+  expect(parseRegex(a, letters)).toEqual(["a", "b"])
+  expect(parseRegex(b, letters)).toEqual([])
+  expect(parseRegex(c, letters)).toEqual(["a", "b"])
+  expect(parseRegex(d, letters)).toEqual(["a", "b", "c"])
 
 
 })

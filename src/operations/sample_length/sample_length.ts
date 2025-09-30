@@ -134,10 +134,10 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>): Array<OpInletValType> => {
+const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_val: OpParamValType): Array<OpInletValType> => {
 
 
-  const param_val = <string>dynamic_param_vals[changed_param_id]
+  const param_val = <string>dynamic_param_val;
   inlet_vals = reduceToStaticInputs(inlets, inlet_vals);
   const param_regex = (<StringParam>param_vals[0].param).regex;
 

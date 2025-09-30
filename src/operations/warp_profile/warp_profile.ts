@@ -135,7 +135,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>): Array<OpInletValType> => {
+const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_val: OpParamValType): Array<OpInletValType> => {
 
   const static_inlet_vals = reduceToStaticInputs(inlets, inlet_vals);
   const combined_inlet_vals = static_inlet_vals.slice();
@@ -143,7 +143,7 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 
   let matches = [];
 
-  matches = parseRegex(<string>dynamic_param_vals[changed_param_id], param_regex);
+  matches = parseRegex(<string>dynamic_param_val, param_regex);
   matches = filterToUniqueValues(matches);
 
 

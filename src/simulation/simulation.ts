@@ -1179,7 +1179,7 @@ const packPicks = (wefts: number, warps: number, cns: Array<ContactNeighborhood>
 
 
 const updateCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number, sim: SimulationVars): Array<ContactNeighborhood> => {
-    console.log("UPDATE CNS ",)
+    // console.log("UPDATE CNS ",)
 
     const regions = [
         { name: "above", id: 2, start_i: -1, start_j: 0 },
@@ -1378,7 +1378,7 @@ const isolateLayers = (wefts: number, warps: number, layer: number, cns: Array<C
  */
 const parseDrawdown = (d: Draft, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<ContactNeighborhood>> => {
 
-    console.log("**************** NEW DRAFT LOADED **************", d)
+    // console.log("**************** NEW DRAFT LOADED **************", d)
 
     let paths: Array<WeftPath> = initWeftPaths(d);
     paths = parseWeftPaths(d, paths);
@@ -1964,7 +1964,7 @@ const printLayerMap = (cns: Array<ContactNeighborhood>, wefts: number, warps: nu
 const printYValues = (cns: Array<ContactNeighborhood>, wefts: number, warps: number, mode: boolean) => {
 
 
-    console.log((mode) ? "SHOWING WEFT TYPES" : "SHOWING WARP TYPES")
+    // console.log((mode) ? "SHOWING WEFT TYPES" : "SHOWING WARP TYPES")
     const layer_map = [];
     for (let i = 0; i < wefts; i++) {
         const row = [];
@@ -1981,6 +1981,6 @@ const printYValues = (cns: Array<ContactNeighborhood>, wefts: number, warps: num
         layer_map.push(row);
     }
 
-    console.log("Y Values MAP ", layer_map)
+    // console.log("Y Values MAP ", layer_map)
 
 }

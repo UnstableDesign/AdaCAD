@@ -27,7 +27,7 @@ const pattern: StringParam =
   name: 'pattern weft',
   type: 'string',
   value: 'a b c a b c',
-  regex: /\S+/,
+  regex: /\S+/g,
   error: 'invalid entry',
   dx: 'all entries must be letters separated by a space'
 }
@@ -131,22 +131,22 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>): Array<OpInletValType> => {
+const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: OpParamValType): Array<OpInletValType> => {
 
   const static_inlet_vals = reduceToStaticInputs(inlets, inlet_vals);
-  console.log("STATIC INLETS", static_inlet_vals);
 
   const combined_inlet_vals = static_inlet_vals.slice();
-  return combined_inlet_vals;
 
-  console.log("Looking for regex", param_vals, changed_param_id, <StringParam>param_vals[changed_param_id].param);
 
   const param_regex = (<StringParam>param_vals[changed_param_id].param).regex;
 
   let matches = [];
 
-  matches = parseRegex(<string>dynamic_param_vals[changed_param_id], param_regex);
+  console.log("BEFORE PARSE REGEX ", <string>dynamic_param_vals, param_regex);
+  matches = parseRegex(<string>dynamic_param_vals, param_regex);
+  console.log("AFTER PARSE REGEX ", matches);
   matches = filterToUniqueValues(matches);
+  console.log("AFTER FILTER ", matches);
 
 
   matches.forEach((el: OpInletValType) => {

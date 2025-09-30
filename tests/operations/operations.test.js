@@ -1,7 +1,7 @@
-const { initDraftWithParams } = require('../../src/draft');
-const { Sequence, TwoD } = require('../../src/sequence');
+const { initDraftWithParams } = require('../../src/draft/index.ts');
+const { Sequence, TwoD } = require('../../src/sequence/index.ts');
 const { satin } = require('../../src/operations/satin/satin.ts');
-const { printDrawdown } = require('../../src/utils');
+const { printDrawdown } = require('../../src/utils/index.ts');
 
 const call = require('../../src/operations/operations.ts').call;
 

@@ -130,12 +130,12 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 }
 
 
-const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_vals: Array<OpParamValType>): Array<OpInletValType> => {
+const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<OperationInlet>, inlet_vals: Array<OpInletValType>, changed_param_id: number, dynamic_param_val: OpParamValType): Array<OpInletValType> => {
 
   const new_inlets: Array<OpInletValType> = [];
   //a new file was uploaded
   if (changed_param_id == 0) {
-    const id_and_data: Img = <Img>dynamic_param_vals[changed_param_id] ?? { id: '', data: null };
+    const id_and_data: Img = <Img>dynamic_param_val ?? { id: '', data: null };
     if (id_and_data.id !== '') {
       const color_space = (id_and_data.data) ? id_and_data.data.colors : [];
       const colors_mapping = (id_and_data.data) ? id_and_data.data.colors_mapping : [];
