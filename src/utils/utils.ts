@@ -453,6 +453,9 @@ export function gcd(a: number, b: number): number {
  */
 export function lcm(original: Array<number>): number {
 
+  if (original.length == 0) return 0;
+  if (original.length == 1) return original[0];
+
   const set: Array<number> = original.slice();
   const a: number = set.shift() ?? 0;
   const b: number = set.shift() ?? 0;

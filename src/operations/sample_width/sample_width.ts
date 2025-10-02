@@ -66,9 +66,11 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       return acc;
     }, []);
 
+
   let total_wefts: number = 0;
   const all_wefts = all_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
   total_wefts = lcm(all_wefts);
+
 
   const profile_draft_map = op_inputs
     .map(el => {
@@ -78,6 +80,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         draft: el.drafts[0]
       }
     });
+
 
   const pattern = new Sequence.TwoD();
   const warp_systems = new Sequence.OneD();
@@ -100,13 +103,17 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     const qty = parseInt((<string>string_id).substring(1))
 
     const pdm_item = profile_draft_map.find(el => el.val == label.toString());
+
     if (pdm_item !== undefined) {
       const draft = pdm_item.draft;
 
       for (let j = 0; j < qty; j++) {
         const col = getCol(draft.drawdown, j % warps(draft.drawdown));
+
         const seq = new Sequence.OneD().import(col).resize(total_wefts);
+
         pattern.pushWarpSequence(seq.val());
+
         warp_mats.push(draft.colShuttleMapping[j % draft.colShuttleMapping.length]);
         warp_systems.push(draft.colSystemMapping[j % draft.colSystemMapping.length]);
 
