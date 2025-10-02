@@ -482,7 +482,6 @@ export function lcm(original: Array<number>): number {
  * @returns 
  */
 export function filterToUniqueValues(arr: Array<string | number>): Array<string | number> {
-  console.log("FILTERING ", arr)
   const unique: Array<string | number> = [];
   arr.forEach(el => {
     const ndx = unique.findIndex(uel => uel === el);

@@ -142,11 +142,8 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 
   let matches = [];
 
-  console.log("BEFORE PARSE REGEX ", <string>dynamic_param_vals, param_regex);
   matches = parseRegex(<string>dynamic_param_vals, param_regex);
-  console.log("AFTER PARSE REGEX ", matches);
   matches = filterToUniqueValues(matches);
-  console.log("AFTER FILTER ", matches);
 
 
   matches.forEach((el: OpInletValType) => {

@@ -25,7 +25,7 @@ const pattern: StringParam =
   name: 'pattern',
   type: 'string',
   value: 'a20 b20 a40 b40',
-  regex: /(?:[a-xA-Z][\d]*[ ]*).*?/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
+  regex: /(?:[a-zA-Z][\d]*[ ]*).*?/, //NEVER USE THE GLOBAL FLAG - it will throw errors randomly
   error: 'invalid entry',
   dx: 'all entries must be a single letter followed by a number, which each letter-number unit separated by a space'
 }
