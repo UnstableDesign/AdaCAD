@@ -1,20 +1,21 @@
 @use '@angular/material' as mat;
 
 
-.view-container{
+.view-container {
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
 
 
-.mat-mdc-icon-button{
+
+.mat-mdc-icon-button {
   font-size: 14px;
   position: relative;
   top: 0px;
 }
 
-.mat-button-toggle-appearance-standard{
+.mat-button-toggle-appearance-standard {
   font-size: 14px;
   color: white;
   background-color: #3f51b5;
@@ -24,7 +25,7 @@
   line-height: 10px;
 }
 
-.copypaste{
+.copypaste {
   display: flex;
   flex-direction: row;
   gap: 8px;
@@ -34,7 +35,7 @@
 
 }
 
-.filename{
+.filename {
   height: 30px;
   background: whitesmoke;
   border: thin solid #3f51b5;
@@ -44,7 +45,7 @@
 
 
 
-.header-container{
+.header-container {
   display: flex;
   flex-direction: column;
   flex: 0 1 64px;
@@ -55,13 +56,13 @@
 
 }
 
-.view-adjust-overlay{
+.view-adjust-overlay {
   height: 100%;
   width: 1px;
   position: absolute;
 }
 
-.ui-left{
+.ui-left {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 64px);
@@ -69,14 +70,14 @@
 
 }
 
-.ui-right{
+.ui-right {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 
-.ui-grid{
+.ui-grid {
   position: relative;
   top: 64px;
   display: flex;
@@ -86,7 +87,7 @@
 }
 
 
-.footer-container{
+.footer-container {
   display: flex;
   flex-direction: row;
   flex: 0 1 64px;
@@ -95,7 +96,7 @@
   justify-content: space-between;
 }
 
-.mixer-container{
+.mixer-container {
 
 
   display: flex;
@@ -105,7 +106,7 @@
 
 }
 
-.detail-container{
+.detail-container {
   display: flex;
   flex: 0 1 100%;
   flex-direction: row;
@@ -113,7 +114,7 @@
   overflow: hidden;
 }
 
-.static-container{
+.static-container {
   display: flex;
   align-items: stretch;
   flex-direction: column;
@@ -121,44 +122,40 @@
   overflow: hidden;
   background-color: whitesmoke;
 
-  &.collapsed{
+  &.collapsed {
     flex: 0 1 40px;
   }
 
 }
 
-.toggle{
+.toggle {
   font-size: .5em;
 
 
 
 }
 
-.download{
+.download {
   width: 18vw;
 }
 
 
 
-.topbar{
+.topbar {
   display: flex;
   justify-content: space-between;
   color: white;
   background-color: #3f51b5;
 
-   @include mat.button-toggle-overrides((
-    background-color: #3f51b5,
-    disabled-selected-state-background-color:  #3f51b5,
-    selected-state-background-color: white,
-    height: 40px
+  @include mat.button-toggle-overrides((background-color: #3f51b5,
+      disabled-selected-state-background-color: #3f51b5,
+      selected-state-background-color: white,
+      height: 40px));
 
 
-  ));
-
-  
 }
 
-.footer{
+.footer {
   display: flex;
   justify-content: space-between;
   flex: 0 1 100%;
@@ -166,25 +163,25 @@
   padding: 0px 16px;
 }
 
-.footer-left{
+.footer-left {
   display: flex;
   overflow: hidden;
   flex: 1 1;
 }
 
 .footer-center,
-.footer-right{
+.footer-right {
   font-size: 14px;
   display: flex;
   flex: 0 1;
   gap: 8px;
 }
 
-.design_mode{
+.design_mode {
   margin-right: 12px;
 }
 
-.topbar-button-group{
+.topbar-button-group {
   justify-content: flex-start;
   display: flex;
   flex-direction: row;
@@ -192,28 +189,27 @@
   font-size: 14px;
 }
 
-  .hide{
-    display: none;
-  }
+.hide {
+  display: none;
+}
 
-  .show{
-    display: flex;
-  }
-
-
-
-  .active{
-    color: #ff4081;
-  }
+.show {
+  display: flex;
+}
 
 
-  .offline{
-    font-size: .6em;
-  }
+
+.active {
+  color: #ff4081;
+}
 
 
-  .selected,
-  .active{
-    opacity: .9;
-  }
-  
+.offline {
+  font-size: .6em;
+}
+
+
+.selected,
+.active {
+  opacity: .9;
+}

@@ -38,6 +38,7 @@ import { ZoomService } from './core/provider/zoom.service';
 import { ExamplesComponent } from './core/ui/examples/examples.component';
 import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.component';
 import { LoadfileComponent } from './core/ui/loadfile/loadfile.component';
+import { LoadingComponent } from './core/ui/loading/loading.component';
 import { LoginComponent } from './core/ui/login/login.component';
 import { MaterialModal } from './core/ui/material/material.modal';
 import { ShareComponent } from './core/ui/share/share.component';
@@ -55,7 +56,7 @@ import { ViewerComponent } from './viewer/viewer.component';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [EventsDirective, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent]
+  imports: [EventsDirective, MatToolbar, LoadingComponent, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent]
 })
 
 
@@ -90,6 +91,7 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(ViewerComponent) viewer;
   @ViewChild('bitmapImage') bitmap: any;
   @ViewChild(ViewadjustComponent) viewadjust;
+  @ViewChild(LoadingComponent) loadingComponent;
 
 
   //modals to manage
@@ -99,7 +101,9 @@ export class AppComponent implements OnInit, OnDestroy {
   example_modal: MatDialog | any;
   workspace_modal: MatDialog | any;
   material_modal: MatDialog | any;
-  loading: boolean;
+
+
+  loading: boolean = false;
 
   selected_origin: number;
 
@@ -136,6 +140,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private connectionSubscription: Subscription;
 
   loaded_from_url = false;
+
 
 
 
@@ -548,7 +553,7 @@ export class AppComponent implements OnInit, OnDestroy {
   importNewFile(result: LoadResponse) {
 
 
-    this.processFileData(result.data)
+    this.processFileData(result.data, result.meta.name)
       .then(data => {
         this.mixer.changeDesignmode('move')
         this.clearAll();
@@ -603,7 +608,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   insertPasteFile(result: LoadResponse) {
-    this.processFileData(result.data).then(data => {
+    this.processFileData(result.data, 'paste').then(data => {
 
       //after we have processed the data, we need to now relink any images that were duplicated in the process. 
       let image_id_map = [];
@@ -871,7 +876,8 @@ export class AppComponent implements OnInit, OnDestroy {
   loadNewFile(result: LoadResponse, source: string): Promise<any> {
     this.ws.setCurrentFile(result.meta)
     this.filename_form.setValue(result.meta.name)
-    return this.processFileData(result.data)
+
+    return this.processFileData(result.data, result.meta.name)
       .then(data => {
         this.updateTextSizing();
 
@@ -1122,6 +1128,16 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  openLoadingAnimation(filename: string) {
+    this.loadingComponent = this.dialog.open(LoadingComponent, { data: { name: filename } });
+
+  }
+
+  closeLoadingAnimation() {
+    this.loadingComponent.close();
+
+  }
+
 
   openExamples() {
     if (this.example_modal != undefined && this.example_modal.componentInstance != null) return;
@@ -1293,9 +1309,11 @@ export class AppComponent implements OnInit, OnDestroy {
   /** 
    * Take a fileObj returned from the fileservice and process
    */
-  async processFileData(data: SaveObj): Promise<string | void> {
+  async processFileData(data: SaveObj, name: string): Promise<string | void> {
 
-    this.loading = true;
+    this.openLoadingAnimation(name)
+
+
     let entry_mapping = [];
 
     // console.log("PROCESSING ", data)
@@ -1500,7 +1518,7 @@ export class AppComponent implements OnInit, OnDestroy {
       })
       .then(res => {
 
-        this.loading = false;
+        this.closeLoadingAnimation();
         this.updateOrigin(this.ws.selected_origin_option);
 
         this.mixer.refreshOperations();
@@ -1511,7 +1529,8 @@ export class AppComponent implements OnInit, OnDestroy {
         return Promise.resolve('alldone')
       })
       .catch(e => {
-        this.loading = false;
+        //TO DO ADD ERROR STATEMENT
+        this.closeLoadingAnimation();
         console.log("ERROR THOWN in process", e);
         this.clearAll();
       });
