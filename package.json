@@ -1,6 +1,6 @@
 {
   "name": "adacad-drafting-lib",
-  "version": "1.2.25",
+  "version": "1.2.26",
   "description": "a library for creating and manipulating weaving drafts",
   "main": "dist/index.js",
   "files": [

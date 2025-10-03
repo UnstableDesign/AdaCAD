@@ -23,7 +23,7 @@ const warps_raised: NumParam =
   name: 'warps raised',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: ""
 };
@@ -33,7 +33,7 @@ const warps_lowered: NumParam =
   name: 'warps lowered',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: ""
 }
@@ -43,7 +43,7 @@ const base_pics: NumParam =
   name: 'base pics',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: 'the number of pics upon which the first tabby pic will be repeated'
 };
@@ -53,7 +53,7 @@ const alt_pics: NumParam =
   name: 'alt pics',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: 'the number of pics upon which the repeat the alteranting pattern'
 };
