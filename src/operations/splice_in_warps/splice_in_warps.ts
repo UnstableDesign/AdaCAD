@@ -22,7 +22,7 @@ const ends_btwn: NumParam =
   name: 'ends between insertions',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: "the number of ends to keep between each splice"
 }

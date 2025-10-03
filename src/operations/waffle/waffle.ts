@@ -20,7 +20,7 @@ const max_float: NumParam =
   name: 'float length',
   type: 'number',
   min: 3,
-  max: 100,
+  max: 5000,
   value: 7,
   dx: "the length of the longest float in the waffle structure. This number must be odd. If an even number is entered, the draft will make the longest float one less than the entered value."
 };
@@ -30,7 +30,7 @@ const bindings: NumParam =
   name: 'binding rows',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 2,
   dx: ""
 }
@@ -40,7 +40,7 @@ const packing_factor: NumParam =
   name: 'packing',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 2,
   dx: "controls how much each waffle will overlap. A higher number will lead to a tighter packing of waffles, where a lower number will lead to more spacing between waffles"
 }

@@ -22,7 +22,7 @@ const repeat: NumParam =
   name: 'repeat',
   type: 'number',
   min: 5,
-  max: 100,
+  max: 5000,
   value: 5,
   dx: 'the width and height of the pattern'
 }
@@ -32,7 +32,7 @@ const shift: NumParam =
   name: 'shift',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 2,
   dx: 'the move number on each row'
 }

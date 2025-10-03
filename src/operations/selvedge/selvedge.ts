@@ -21,7 +21,7 @@ const ends: NumParam =
     name: 'ends',
     type: 'number',
     min: 1,
-    max: 100,
+    max: 5000,
     value: 12,
     dx: "the number of ends of selvedge on each side of the cloth"
 }
@@ -31,7 +31,7 @@ const right_shift: NumParam =
     name: 'right shift',
     type: 'number',
     min: 0,
-    max: 100,
+    max: 5000,
     value: 0,
     dx: "the number of pics to shift the right side by to ensure the ends catch"
 }

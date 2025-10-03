@@ -19,8 +19,8 @@ const end_shift: NumParam =
 {
   name: 'end shift',
   type: 'number',
-  min: -100,
-  max: 100,
+  min: -5000,
+  max: 5000,
   value: 1,
   dx: 'the amount to shift rows by'
 };
@@ -28,8 +28,8 @@ const end_shift: NumParam =
 const pic_shift: NumParam = {
   name: 'pic shift (n)',
   type: 'number',
-  min: 0,
-  max: 100,
+  min: -5000,
+  max: 5000,
   value: 1,
   dx: 'describes how many rows we should apply the shift to'
 };

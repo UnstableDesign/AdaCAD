@@ -22,7 +22,7 @@ const pics_btwn: NumParam =
   name: 'pics between insertions',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: "the number of pics to keep between each splice row"
 }

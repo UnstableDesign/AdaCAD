@@ -33,7 +33,7 @@ const shift: NumParam =
   name: 'shift',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 2,
   dx: 'the move number on each row'
 }

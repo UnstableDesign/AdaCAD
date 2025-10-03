@@ -21,7 +21,7 @@ const warps_raised: NumParam =
   name: 'warps raised',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: ""
 };
@@ -32,7 +32,7 @@ const warps_lowered: NumParam =
   name: 'warps lowered',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 3,
   dx: ""
 }

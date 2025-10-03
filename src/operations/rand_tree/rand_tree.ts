@@ -25,7 +25,7 @@ const width: NumParam =
     name: 'width',
     type: 'number',
     min: 1,
-    max: 100,
+    max: 5000,
     value: 20,
     dx: ""
 };
@@ -35,7 +35,7 @@ const depth: NumParam =
     name: 'picks',
     type: 'number',
     min: 1,
-    max: 100,
+    max: 5000,
     value: 20,
     dx: ""
 }

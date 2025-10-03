@@ -63,7 +63,7 @@ const frequency: NumParam =
   name: 'float length frequency',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 50,
   dx: 'float length frequency'
 };

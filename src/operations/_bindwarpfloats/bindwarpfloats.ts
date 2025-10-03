@@ -21,7 +21,7 @@ const max_float: NumParam =
   name: 'length',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 10,
   dx: 'the maximum length of a warp float'
 }

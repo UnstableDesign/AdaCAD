@@ -1,4 +1,4 @@
-import { Draft, Cell, createCell, getCellValue, setCellValue, initDraftWithParams } from "../../draft";
+import { Cell, createCell, getCellValue, setCellValue, initDraftWithParams } from "../../draft";
 import { getOpParamValById } from "../../operations";
 import { structureOp } from "../categories";
 import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
@@ -22,7 +22,7 @@ const ends: NumParam =
   name: 'ends',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 8,
   dx: ""
 }
@@ -32,7 +32,7 @@ const pics: NumParam =
   name: 'pics',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 8,
   dx: ''
 }
@@ -42,7 +42,7 @@ const border: NumParam =
   name: 'interlacement borders',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: 'builds tabby around the edges of the central diamond, creating some strange patterns'
 }
@@ -61,7 +61,6 @@ const perform = (param_vals: Array<OpParamVal>) => {
   const height: number = <number>getOpParamValById(1, param_vals);
   const bindings: number = <number>getOpParamValById(2, param_vals);
 
-  const outputs: Array<Draft> = [];
 
   const pattern: Array<Array<Cell>> = [];
   const mid_warp: number = Math.floor(width / 2);  //for 5 this is 2

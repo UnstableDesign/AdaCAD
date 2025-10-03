@@ -21,7 +21,7 @@ const warps_raised: NumParam = {
   name: 'warps raised',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 2,
   dx: 'the number of warps to raise on the first pic'
 }
@@ -31,7 +31,7 @@ const warps_lowered: NumParam =
   name: 'warps lowered',
   type: 'number',
   min: 0,
-  max: 100,
+  max: 5000,
   value: 5,
   dx: "the number of warps to keep lowered on the first pic"
 }
@@ -40,7 +40,7 @@ const shift: NumParam = {
   name: 'shift',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 2,
   dx: 'amount to offset the interlacements on each row'
 }

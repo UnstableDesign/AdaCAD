@@ -22,7 +22,7 @@ const amt_x: NumParam =
   name: 'warps',
   type: 'number',
   min: -100,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: 'the amount of warps to shift by'
 }
@@ -32,7 +32,7 @@ const amt_y: NumParam =
   name: 'wefts',
   type: 'number',
   min: -100,
-  max: 100,
+  max: 5000,
   value: 1,
   dx: 'the amount of wefts to shift by'
 }

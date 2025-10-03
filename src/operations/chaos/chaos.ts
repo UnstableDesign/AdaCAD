@@ -21,7 +21,7 @@ const warp_repeats: NumParam =
   name: 'warp-repeats',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 2,
   dx: 'the number of times to repeat this time across the width'
 };
@@ -30,7 +30,7 @@ const weft_repeats: NumParam = {
   name: 'weft-repeats',
   type: 'number',
   min: 1,
-  max: 100,
+  max: 5000,
   value: 2,
   dx: 'the number of times to repeat this time across the length'
 }
