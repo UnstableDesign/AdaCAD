@@ -268,16 +268,17 @@ export class PaletteComponent implements OnInit {
    * adds a state to the timeline. This should be called 
    * each time a user performs an action that they should be able to undo/redo
    */
-  addTimelineState() {
+  // addTimelineState(change: StateChangeEvent) {
 
-    this.fs.saver.ada()
-      .then(so => {
-        this.ss.writeStateToTimeline(so);
-        let meta = this.ws.current_file;
-        return this.fb.updateFile(so.file, meta);
-      })
-      .catch(err => console.error(err));
-  }
+  //   this.ss.writeStateToTimeline(change);
+
+  //   this.fs.saver.ada()
+  //     .then(so => {
+  //       let meta = this.ws.current_file;
+  //       return this.fb.updateFile(so.file, meta);
+  //     })
+  //     .catch(err => console.error(err));
+  // }
 
   /**
    * this cycles through all subdrafts and calls the download call on any subdrafts
@@ -323,8 +324,6 @@ export class PaletteComponent implements OnInit {
       let children = this.tree.getNonCxnOutputs(opcomp.id);
 
       if (children.length > 0) this.vs.setViewer(children[0])
-
-      this.addTimelineState();
     });
 
     return opcomp.id;
@@ -346,7 +345,6 @@ export class PaletteComponent implements OnInit {
 
 
     return this.performAndUpdateDownstream(opcomp.id).then(el => {
-      this.addTimelineState();
       return Promise.resolve(new_node.id);
     });
 
@@ -564,7 +562,6 @@ export class PaletteComponent implements OnInit {
   }
 
   saveNote() {
-    this.addTimelineState();
   }
 
 
@@ -703,12 +700,18 @@ export class PaletteComponent implements OnInit {
 
 
 
-
-
     return op.instance;
   }
 
   /**
+    const change: OpStateEvent = {
+      originator: "OP",
+      type: "CREATED",
+      node: <OperationNode>this.tree.getNode(id)
+    }
+
+    this.addTimelineState(change);
+
  * loads an operation with the information supplied. 
  * @param name the name of the operation this component will perform
  * @params params the input data to be used in this operation
@@ -757,6 +760,9 @@ export class PaletteComponent implements OnInit {
     op.loaded_inputs = params.slice();
     op.topleft = { x: topleft.x, y: topleft.y };
     op.duplicated = true;
+
+
+
 
     return op.id;
   }
@@ -821,7 +827,6 @@ export class PaletteComponent implements OnInit {
       }).then(sd => {
         let tr = this.calculateInitialLocation();
         sd.topleft = { x: tr.x, y: tr.y };
-        this.addTimelineState();
       });
 
   }
@@ -843,7 +848,6 @@ export class PaletteComponent implements OnInit {
     return this.createSubDraft(d, l, ls).then(sd => {
       let tr = this.calculateInitialLocation();
       sd.topleft = { x: tr.x, y: tr.y };
-      this.addTimelineState();
       return Promise.resolve(sd.id);
     });
 
@@ -1000,7 +1004,6 @@ export class PaletteComponent implements OnInit {
 
     if (obj === null) return;
     this.removeSubdraft(obj.id);
-    this.addTimelineState();
   }
 
   /**
@@ -1010,7 +1013,6 @@ export class PaletteComponent implements OnInit {
 
     if (obj === null) return;
     this.removeOperation(obj.id);
-    this.addTimelineState();
   }
 
   /**
@@ -1061,8 +1063,10 @@ export class PaletteComponent implements OnInit {
 
 
 
+
     this.operationParamChanged({ id: id, prior_inlet_vals: [] });
-    this.addTimelineState();
+
+
   }
 
   /**
@@ -1141,7 +1145,8 @@ export class PaletteComponent implements OnInit {
         const orig_size = document.getElementById('scale-' + obj.id);
         let tr = this.calculateInitialLocation();
         new_sd.topleft = { x: tr.x, y: tr.y };
-        this.addTimelineState();
+
+
       }).catch(console.error);
 
   }
@@ -1368,18 +1373,14 @@ export class PaletteComponent implements OnInit {
 
   }
 
-  /**
-* this is called when an subdraft updates its show/hide value
-*/
+
   onNameChange(id: number) {
 
     const outs = this.tree.getNonCxnOutputs(id);
     const to_perform = outs.map(el => this.performAndUpdateDownstream(el));
+
     return Promise.all(to_perform)
-      .then(el => {
-        this.addTimelineState();
-      })
-      .catch(console.error);;
+      .catch(console.error);
 
 
   }
@@ -1756,12 +1757,14 @@ export class PaletteComponent implements OnInit {
     const op: OperationComponent = <OperationComponent>this.tree.getComponent(obj.id);
     const sd: number = this.tree.getOpenConnectionId();
 
+
+
+
     this.createConnection(sd, obj.id, obj.ndx);
 
     this.performAndUpdateDownstream(obj.id).then(el => {
       let children = this.tree.getNonCxnOutputs(obj.id);
       if (children.length > 0) this.vs.setViewer(children[0]);
-      this.addTimelineState();
     });
 
     this.processConnectionEnd();
@@ -1772,9 +1775,8 @@ export class PaletteComponent implements OnInit {
 
     this.createConnection(from, to, inlet);
 
-    this.performAndUpdateDownstream(to).then(el => {
-      this.addTimelineState();
-    });
+
+    this.performAndUpdateDownstream(to);
 
   }
 
@@ -1784,11 +1786,14 @@ export class PaletteComponent implements OnInit {
   */
   removeConnection(obj: { id: number }) {
 
-    let to = this.tree.getConnectionOutput(obj.id);
+    let to = this.tree.getConnectionOutputWithIndex(obj.id);
     let from = this.tree.getConnectionInput(obj.id);
+
+
 
     const to_delete = this.tree.removeConnectionNodeById(obj.id);
     to_delete.forEach(node => this.removeFromViewContainer(node.ref));
+
 
 
     // if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
@@ -1796,14 +1801,17 @@ export class PaletteComponent implements OnInit {
     this.processConnectionEnd();
     this.setOutletStylingOnConnection(from, false);
 
-    if (this.tree.getType(to) === "op") {
-      this.performAndUpdateDownstream(to).then(done => {
+    if (this.tree.getType(to.id) === "op") {
+      this.performAndUpdateDownstream(to.id).then(done => {
         this.vs.updateViewer();
+
+
       });
     }
 
 
-    this.addTimelineState();
+
+
 
 
   }
@@ -2142,17 +2150,14 @@ export class PaletteComponent implements OnInit {
    * @param obj with attribute id describing the subdraft that called this
    * @returns 
    */
-  onSubdraftAction(obj: any) {
+  onSubdraftAction(obj: any, flag_for_debugging: boolean) {
 
     if (obj === null) return;
 
     const outputs = this.tree.getNonCxnOutputs(obj.id);
     const fns = outputs.map(out => this.performAndUpdateDownstream(out));
-    Promise.all(fns).then(el => {
-      this.addTimelineState();
-    })
 
-
+    Promise.all(fns).catch(console.error)
 
   }
 
@@ -2168,7 +2173,6 @@ export class PaletteComponent implements OnInit {
 
     if (obj === null) return;
 
-    console.log("SWEEP INLETS")
     return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)
       .then(viewRefs => {
         viewRefs.forEach(el => {
@@ -2193,7 +2197,6 @@ export class PaletteComponent implements OnInit {
           if (comp !== null) (<ConnectionComponent>comp).updateToPosition(tuple.inlet, tuple.arr);
         })
 
-        this.addTimelineState();
         this.vs.updateViewer();
       })
       .catch(console.error);
@@ -2227,9 +2230,6 @@ export class PaletteComponent implements OnInit {
     if (obj === null) return;
 
     this.updateSelectionPositions(obj.id);
-
-    this.addTimelineState();
-
   }
 
   updateSelectionPositions(moving_id: number) {
@@ -2299,7 +2299,7 @@ export class PaletteComponent implements OnInit {
 
 
   /**
-   * checks if this subdraft has been dropped onto of another and merges them accordingly 
+   * checks if this subdraft has been dropped 
    * @param obj 
    * @returns 
    */
@@ -2309,8 +2309,6 @@ export class PaletteComponent implements OnInit {
 
     if (obj === null) return;
     this.updateSelectionPositions(obj.id);
-
-    this.addTimelineState();
 
   }
 

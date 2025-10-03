@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { Draft } from 'adacad-drafting-lib';
-import { Observable } from 'rxjs';
-import { SaveObj } from '../model/datatypes';
-import { FirebaseService } from './firebase.service';
+import { Draft, OpParamValType } from 'adacad-drafting-lib';
+import diff from "microdiff";
+import { Subject } from 'rxjs';
+import { SaveObj, StateChangeEvent } from '../model/datatypes';
+import { TreeService } from './tree.service';
+
 /**
  * stores a state within the undo/redo timeline
  * weaver uses draft, mixer uses ada
@@ -16,10 +18,12 @@ interface HistoryState {
   providedIn: 'root'
 })
 export class StateService {
-  private fb = inject(FirebaseService);
+  private tree = inject(TreeService);
+  // public readonly testDocValue$: Observable<any>;
 
 
-  public readonly testDocValue$: Observable<any>;
+  private operationParamChangeEvent = new Subject<Array<OpParamValType>>();
+  operationParamChangeEvent$ = this.operationParamChangeEvent.asObservable();
 
 
 
@@ -30,6 +34,7 @@ export class StateService {
   redo_disabled: boolean;
   timeline: Array<HistoryState>; //new states are always pushed to front of draft
   currently_opened_file_id: number;
+  history: Array<StateChangeEvent> = [];
 
 
 
@@ -77,11 +82,59 @@ export class StateService {
     return false;
   }
 
+  public addStateChange(change: StateChangeEvent) {
+
+    this.history.push(change);
+    console.log("HISTORY IS ", this.history)
+
+  }
 
 
+  /**
+   * compares the current state with state being reloaded to look for the diff. 
+   * @param a one state
+   * @param b another state
+   * @returns a list of updates to make 
+   */
+  public compareState(a: SaveObj, b: SaveObj) {
+
+    const differences = diff(a, b);
+    console.log("All ", differences);
+
+    differences.forEach(d => {
+
+      if (d.path[0] == 'ops') console.log(d);
+
+      if (d.path[0] == 'ops' && d.type == 'CHANGE') {
 
 
-  public writeStateToTimeline(ada: { json: string, file: SaveObj }) {
+        let id = d.path[1];
+        let op = a.ops[id];
+
+        console.log("OPERATION IS ", op);
+
+        if (d.path[2] == 'params') {
+          console.log("EMIT EVENT")
+          this.emitOperationParamEvent(op.params)
+        }
+      }
+    });
+
+
+  }
+
+  emitOperationParamEvent(params: Array<OpParamValType>) {
+    this.operationParamChangeEvent.next(params);
+  }
+
+
+  /**
+   * change this to store only the diff
+   * @param ada 
+   */
+  public writeStateToTimeline(ada: any) {
+
+
     var state = {
       draft: null,
       ada: {

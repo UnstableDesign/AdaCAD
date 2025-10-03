@@ -5,8 +5,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Interlacement, Operation } from 'adacad-drafting-lib';
-import { IOTuple, OpNode, Point } from '../../../core/model/datatypes';
+import { Subscription } from 'rxjs';
+import { IOTuple, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { OperationService } from '../../../core/provider/operation.service';
+import { StateService } from '../../../core/provider/state.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
@@ -33,6 +35,7 @@ export class OperationComponent implements OnInit {
   multiselect = inject(MultiselectService);
   vs = inject(ViewerService);
   zs = inject(ZoomService);
+  ss = inject(StateService);
 
 
 
@@ -75,6 +78,10 @@ export class OperationComponent implements OnInit {
   @Output() onOpenInEditor = new EventEmitter<any>();
   @Output() onRedrawOutboundConnections = new EventEmitter<any>();
   @Output() onNameChanged = new EventEmitter<any>();
+
+
+  operationParamChangeSubscription: Subscription;
+
 
   params_visible: boolean = true;
   /**
@@ -134,11 +141,29 @@ export class OperationComponent implements OnInit {
 
   offset: Point = null;
 
+  previous_topleft: Point = null;
+
   // @HostListener('window:resize', ['$event'])
   // onResize(event) {
   //   console.log("FORCE TRANSFORM TO ZERO", this.disable_drag);
   //   this.disable_drag = true;
   // }
+
+
+  constructor() {
+
+    //listen for undo/redo events from state
+    this.operationParamChangeSubscription = this.ss.operationParamChangeEvent$.subscribe(params => {
+      this.paramsComps.forEach((comp, ndx) => {
+        comp.fc.setValue(params[ndx]);
+        comp.onParamChange(params[ndx]);
+      })
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.operationParamChangeSubscription.unsubscribe();
+  }
 
   ngOnInit() {
 
@@ -551,6 +576,8 @@ export class OperationComponent implements OnInit {
   dragStart($event: CdkDragStart) {
     this.updateConnectionStyling();
 
+    this.previous_topleft = this.topleft;
+
 
     this.offset = null;
 
@@ -646,6 +673,16 @@ export class OperationComponent implements OnInit {
 
     this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({ id: this.id });
+
+    const change: OpStateMove = {
+      originator: 'OP',
+      type: 'MOVE',
+      before: this.previous_topleft,
+      after: this.topleft //before move
+    }
+
+    this.ss.addStateChange(change);
+
 
   }
 

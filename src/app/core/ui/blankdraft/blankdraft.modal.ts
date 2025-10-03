@@ -5,8 +5,6 @@ import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { Draft, LoomSettings, initDraftWithParams } from 'adacad-drafting-lib';
-import { getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { WorkspaceService } from '../../provider/workspace.service';
 
 @Component({
@@ -34,39 +32,39 @@ export class BlankdraftModal implements OnInit {
 
   close(): void {
 
-    this.createDraftAndClose();
+    //this.createDraftAndClose();
   }
 
 
   onNoClick(): void {
-    this.createDraftAndClose();
+    // this.createDraftAndClose();
 
   }
 
-  createDraftAndClose() {
-    const draft: Draft = initDraftWithParams({ wefts: this.wefts, warps: this.warps });
+  // createDraftAndClose() {
+  //   const draft: Draft = initDraftWithParams({ wefts: this.wefts, warps: this.warps });
 
-    const loom_settings: LoomSettings = {
-      treadles: this.ws.min_treadles,
-      frames: this.ws.min_frames,
-      type: this.ws.type,
-      epi: this.ws.epi,
-      units: <"in" | "cm">this.ws.units
-    };
-
-
-    const loom_utils = getLoomUtilByType(this.ws.type);
-    loom_utils.computeLoomFromDrawdown(draft.drawdown, loom_settings)
-      .then((loom) => {
-        this.dialogRef.close({ draft, loom, loom_settings });
-
-      })
+  //   const loom_settings: LoomSettings = {
+  //     treadles: this.ws.min_treadles,
+  //     frames: this.ws.min_frames,
+  //     type: this.ws.type,
+  //     epi: this.ws.epi,
+  //     units: <"in" | "cm">this.ws.units
+  //   };
 
 
+  //   const loom_utils = getLoomUtilByType(this.ws.type);
+  //   loom_utils.computeLoomFromDrawdown(draft.drawdown, loom_settings)
+  //     .then((loom) => {
+  //       this.dialogRef.close({ draft, loom, loom_settings });
+
+  //     })
 
 
 
-  }
+
+
+  // }
 
   /**
  * called when the init form is complete 
@@ -76,12 +74,7 @@ export class BlankdraftModal implements OnInit {
 
     console.log("SAVE CALLED")
     //if the INIT form parent is listening, it gets the entire form
-    this.onNewDraftCreated.emit(f);
-
-    //Otherwise, the dialog ref will just return the new draft to add to the palette
-    this.createDraftAndClose();
-
-
+    this.onNewDraftCreated.emit({warps: f.war});
   }
 
 

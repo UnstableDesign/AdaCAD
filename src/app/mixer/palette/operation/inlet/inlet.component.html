@@ -38,7 +38,9 @@
         </mat-select>
         }
         @if (inlet.type === 'color') {
-        <div [matTooltip]="fc.value" [style.background-color]=fc.value class="input-color"></div>
+        <div class="colorgroup">
+          <div [matTooltip]="fc.value" [style.background-color]=fc.value class="input-color"></div>
+        </div>
         }
       </button>
     </div>

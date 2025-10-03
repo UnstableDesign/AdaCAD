@@ -35,7 +35,6 @@ export class InletComponent implements OnInit {
 
   fc: UntypedFormControl;
   textValidate: any;
-  all_system_codes: Array<any>;
   number_opts: Array<number>;
   opnode: OpNode;
   inlet: OperationInlet;
@@ -49,7 +48,8 @@ export class InletComponent implements OnInit {
 
   ngOnInit(): void {
     this.opnode = this.tree.getOpNode(this.opid);
-    this.all_system_codes = this.systems.weft_systems.map(el => { return { code: el.name, id: el.id } });
+
+
     const op = this.ops.getOp(this.opnode.name);
 
     this.number_opts = [];

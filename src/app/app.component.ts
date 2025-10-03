@@ -874,6 +874,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string): Promise<any> {
+    console.log("SOURCE ", source)
     this.ws.setCurrentFile(result.meta)
     this.filename_form.setValue(result.meta.name)
 
@@ -1640,26 +1641,31 @@ export class AppComponent implements OnInit, OnDestroy {
   undo() {
 
 
-    let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
-    if (so === null || so === undefined) return;
+    this.fs.saver.ada()
+      .then(current_state => {
 
-    this.mixer.clearView();
-    this.editor.clearAll();
-    this.viewer.clearView();
-    this.tree.clear();
+        let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
+        console.log(this.ss.compareState(so, current_state.file))
+        if (so === null || so === undefined) return;
 
-
-    this.fs.loader.ada(
-      so,
-      this.ws.current_file,
-      'undo'
-    ).then(lr => {
-      this.loadNewFile(lr, 'statechange');
+      });
 
 
-    }
+    // this.mixer.clearView();
+    // this.editor.clearAll();
+    // this.viewer.clearView();
+    // this.tree.clear();
 
-    );
+
+    // this.fs.loader.ada(
+    //   so,
+    //   this.ws.current_file,
+    //   'undo'
+    // ).then(lr => {
+    //   this.loadNewFile(lr, 'statechange');
+    // }
+
+
 
 
   }

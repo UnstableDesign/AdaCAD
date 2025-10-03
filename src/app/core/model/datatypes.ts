@@ -1,5 +1,5 @@
 import { ViewRef } from "@angular/core";
-import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, SingleImage } from "adacad-drafting-lib";
+import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, OpParamValType, SingleImage } from "adacad-drafting-lib";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
 import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
@@ -25,7 +25,6 @@ type BaseNode = {
   component: SubdraftComponent | OperationComponent | ConnectionComponent,
   dirty: boolean
 }
-
 
 /**
  * an OpNode is an extension of BaseNode that includes additional params
@@ -468,7 +467,96 @@ export type ShareObj = {
 }
 
 
+/**
+ * State - UNDO and REDO
+ * classify all the kinds of events that can create a workspace change so that we can undo or redo them.
+ */
 
 
+
+export type StateChangeEvent = {
+  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'WORKSPACE' | 'NOTE' | 'MATERIALS'
+}
+
+type MoveEvent = {
+  before: Point,
+  after: Point
+}
+
+type ParamEvent = {
+  before: OpParamValType,
+  after: OpParamValType
+}
+
+type NumberEvent = {
+  before: number,
+  after: number
+}
+
+type CreationEvent = {
+  node: Node
+}
+
+type ConnectionChangeEvent = {
+  from: number,
+  to: number,
+  inlet: number
+}
+
+
+type DraftChangedEvent = {
+  before: DraftNode,
+  after: DraftNode
+}
+type WorkspaceSettingsChangedEvent = {
+  before: any,
+  after: any
+}
+type FileMetaChangedEvent = {
+  before: FileMeta,
+  after: FileMeta
+}
+
+
+
+type OpStateEvent = StateChangeEvent & {
+  type: 'MOVE' | 'PARAM_CHANGE' | 'LOCAL_ZOOM' | 'CREATED' | 'REMOVED'
+}
+
+export type OpStateMove = OpStateEvent & MoveEvent;
+export type OpStateParamChange = OpStateEvent & ParamEvent;
+export type OpStateLocalZoomChange = OpStateEvent & NumberEvent
+export type OpExistenceChanged = OpStateEvent & CreationEvent;
+export type OpStateConnectionChange = OpStateEvent & ConnectionChangeEvent;
+
+
+type DraftStateEvent = StateChangeEvent & {
+  type: 'MOVE' | 'VALUE_CHANGE' | 'LOOM_CHANGE' | 'LOOM_SETTINGS_CHANGE' | 'NAME_CHANGE' | 'CREATED' | 'REMOVED'
+}
+
+export type DraftStateMove = DraftStateEvent & MoveEvent;
+export type DraftStateChange = DraftStateEvent & DraftChangedEvent;
+export type DraftExistenceChange = DraftStateEvent & CreationEvent;
+
+type WorkspaceStateChange = StateChangeEvent & {
+  type: 'SETTINGS' | 'FILE_META',
+  workspace: any; //whatever is in the workspace
+  meta: FileMeta
+}
+
+export type WorkspaceStateSettingsChange = WorkspaceStateChange & WorkspaceSettingsChangedEvent;
+export type FileMetaChange = WorkspaceStateChange & FileMetaChangedEvent;
+
+export type NoteStateChange = StateChangeEvent & {
+  type: 'CREATED' | 'REMOVED' | 'UPDATED',
+  before: Note,
+  after: Note
+}
+
+export type MaterialsStateChange = StateChangeEvent & {
+  type: 'CREATED' | 'REMOVED' | 'UPDATED',
+  before: Array<Material>,
+  after: Array<Material>
+}
 
 
