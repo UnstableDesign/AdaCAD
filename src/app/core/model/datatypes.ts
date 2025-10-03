@@ -519,7 +519,7 @@ type FileMetaChangedEvent = {
 
 
 
-type OpStateEvent = StateChangeEvent & {
+export type OpStateEvent = StateChangeEvent & {
   type: 'MOVE' | 'PARAM_CHANGE' | 'LOCAL_ZOOM' | 'CREATED' | 'REMOVED'
 }
 
@@ -530,7 +530,7 @@ export type OpExistenceChanged = OpStateEvent & CreationEvent;
 export type OpStateConnectionChange = OpStateEvent & ConnectionChangeEvent;
 
 
-type DraftStateEvent = StateChangeEvent & {
+export type DraftStateEvent = StateChangeEvent & {
   type: 'MOVE' | 'VALUE_CHANGE' | 'LOOM_CHANGE' | 'LOOM_SETTINGS_CHANGE' | 'NAME_CHANGE' | 'CREATED' | 'REMOVED'
 }
 
@@ -538,7 +538,7 @@ export type DraftStateMove = DraftStateEvent & MoveEvent;
 export type DraftStateChange = DraftStateEvent & DraftChangedEvent;
 export type DraftExistenceChange = DraftStateEvent & CreationEvent;
 
-type WorkspaceStateChange = StateChangeEvent & {
+export type WorkspaceStateChange = StateChangeEvent & {
   type: 'SETTINGS' | 'FILE_META',
   workspace: any; //whatever is in the workspace
   meta: FileMeta
@@ -557,6 +557,15 @@ export type MaterialsStateChange = StateChangeEvent & {
   type: 'CREATED' | 'REMOVED' | 'UPDATED',
   before: Array<Material>,
   after: Array<Material>
+}
+
+/**
+ * this is what is communicated from the state service to the component that needs to execute the command
+ */
+export type StateAction = {
+  type: "CREATE" | "REMOVE" | "CHANGE",
+  node?: Node,
+  point?: Point
 }
 
 

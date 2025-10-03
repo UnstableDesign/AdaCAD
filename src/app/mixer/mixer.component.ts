@@ -8,7 +8,7 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions } from '@angular/material/tooltip';
-import { Draft, OperationClassification } from 'adacad-drafting-lib';
+import { Draft, initDraftWithParams, initLoom, OperationClassification } from 'adacad-drafting-lib';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DraftExistenceChange, DraftNodeProxy, NodeComponentProxy, NoteStateChange, OpExistenceChanged, Point } from '../core/model/datatypes';
@@ -69,7 +69,7 @@ export class MixerComponent {
 
 
 
-  @ViewChild(PaletteComponent) palette;
+  @ViewChild(PaletteComponent) palette: PaletteComponent;
 
   @Input() is_fullscreen: boolean;
   @Output() onOpenInEditor: any = new EventEmitter();
@@ -268,66 +268,33 @@ export class MixerComponent {
   /**
    * called when add new draft is clicked form the sidebar. 
    */
-  createNewDraft() {
+  addDraftClicked() {
 
     const dialogRef = this.dialog.open(BlankdraftModal);
 
     dialogRef.componentInstance.onNewDraftCreated.subscribe(obj => {
 
-
-      const id = this.tree.createNode("draft", null, null);
-      const tr: Point = this.palette.calculateInitialLocation();
-      let nodep: NodeComponentProxy = {
-        node_id: id,
-        type: 'draft',
-        topleft: { x: tr.x, y: tr.y }
-      }
-
-      let dnproxy: DraftNodeProxy = {
-        node_id: id,
-        draft_id: id,
-        ud_name: draft.ud_name,
-        gen_name: draft.gen_name,
-        draft: draft,
-        compressed_draft: null,
-        draft_visible: !defaults.hide_mixer_drafts,
-        loom: loom,
-        loom_settings: loom_settings,
-        render_colors: true,
-        scale: 1
-      }
-
-      return this.tree.loadDraftData({ prev_id: null, cur_id: id, }, draft, loom, loom_settings, true, 1, !this.ws.hide_mixer_drafts).then(
-        res => {
-          this.palette.loadSubDraft(id, draft, nodep, dnproxy);
-          return Promise.resolve(id);
-        }
-      )
-
-
-
-
-
       console.log("OBJ", obj)
-      if (obj !== undefined && obj !== null) {
-        this.newDraftCreated(obj.draft, obj.loom, obj.loom_settings).then(
-          id => {
-            const change: DraftExistenceChange = {
-              originator: 'DRAFT',
-              type: 'CREATED',
-              node: this.tree.getNode(id)
-            }
-            this.ss.addStateChange(change);
-          }
-        );
+      if (obj == null || obj == undefined) return;
+
+
+
+      const draft = initDraftWithParams({ warps: obj.warps, wefts: obj.wefts });
+      const loom = initLoom(obj.warps, obj.wefts, this.ws.min_frames, this.ws.min_treadles);
+      const loom_settings = this.ws.getWorkspaceLoomSettings();
+
+      this.palette.createSubDraft(draft, loom, loom_settings).then(instance => {
+        const change: DraftExistenceChange = {
+          originator: 'DRAFT',
+          type: 'CREATED',
+          node: this.tree.getNode(instance.id)
+        }
+        this.ss.addStateChange(change);
       }
+
+      ).catch(console.error)
     });
   }
-
-  /**
-   * called when toggled to mixer
-   *
-   */
 
   /**
    * triggers a series of actions to occur when the view is switched from editor to mixer
@@ -400,7 +367,7 @@ export class MixerComponent {
 
 
   changeDesignMode(mode) {
-    this.palette.changeDesignMode(mode);
+    // this.palette.changeDesignMode(mode);
   }
 
 

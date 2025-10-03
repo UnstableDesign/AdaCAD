@@ -56,7 +56,7 @@ import { ViewerComponent } from './viewer/viewer.component';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [EventsDirective, MatToolbar, LoadingComponent, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent]
+  imports: [EventsDirective, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent]
 })
 
 
@@ -1640,15 +1640,16 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   undo() {
 
+    this.ss.undo();
 
-    this.fs.saver.ada()
-      .then(current_state => {
+    // this.fs.saver.ada()
+    //   .then(current_state => {
 
-        let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
-        console.log(this.ss.compareState(so, current_state.file))
-        if (so === null || so === undefined) return;
+    //     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
+    //     console.log(this.ss.compareState(so, current_state.file))
+    //     if (so === null || so === undefined) return;
 
-      });
+    //   });
 
 
     // this.mixer.clearView();

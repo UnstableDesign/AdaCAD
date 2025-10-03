@@ -21,6 +21,7 @@ import { RenameComponent } from '../../../core/ui/rename/rename.component';
 
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -82,12 +83,14 @@ export class DraftContainerComponent implements AfterViewInit {
 
   size_observer: any;
 
+  showingIdChangeSubscription: Subscription;
+
 
 
   constructor() {
 
     //subscribe to id changes on the view service to update view if this is current selected
-    this.vs.showing_id_change$.subscribe(data => {
+    this.showingIdChangeSubscription = this.vs.showing_id_change$.subscribe(data => {
       this.updateStyle(data);
 
     })
@@ -152,6 +155,9 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
   ngOnDestroy() {
+    if (this.showingIdChangeSubscription) {
+      this.showingIdChangeSubscription.unsubscribe();
+    }
     this.closeSizeObserver();
   }
 

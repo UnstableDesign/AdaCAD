@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-loading',
-  imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose],
+  imports: [MatDialogTitle, MatDialogContent],
   templateUrl: './loading.component.html',
   styleUrl: './loading.component.scss'
 })

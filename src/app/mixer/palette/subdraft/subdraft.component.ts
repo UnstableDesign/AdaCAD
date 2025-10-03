@@ -582,8 +582,17 @@ export class SubdraftComponent implements OnInit {
     this.has_active_connection = false;
   }
 
+  delete(id: number) {
+    if (id !== this.id) console.error("In delete - draft id's don't match");
+    this.onDeleteCalled.emit(id);
+  }
 
 
+
+  /**
+   * this is emitted from the draft container when something from it's options menu is selected
+   * @param e 
+   */
   private designAction(e) {
 
     let event = e.event;
@@ -595,7 +604,7 @@ export class SubdraftComponent implements OnInit {
         break;
 
       case 'delete':
-        this.onDeleteCalled.emit({ id });
+        this.delete(id);
         break;
 
       case 'edit':
@@ -611,3 +620,4 @@ export class SubdraftComponent implements OnInit {
 
 
 }
+

@@ -152,13 +152,6 @@ export class OperationComponent implements OnInit {
 
   constructor() {
 
-    //listen for undo/redo events from state
-    this.operationParamChangeSubscription = this.ss.operationParamChangeEvent$.subscribe(params => {
-      this.paramsComps.forEach((comp, ndx) => {
-        comp.fc.setValue(params[ndx]);
-        comp.onParamChange(params[ndx]);
-      })
-    })
   }
 
   ngOnDestroy(): void {

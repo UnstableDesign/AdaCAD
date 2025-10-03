@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings, getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
-import { Bounds, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
+import { Bounds, DraftExistenceChange, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { FirebaseService } from '../../core/provider/firebase.service';
@@ -64,6 +64,7 @@ export class PaletteComponent implements OnInit {
   operationSubscriptions: Array<Subscription> = [];
   connectionSubscriptions: Array<Subscription> = [];
   noteSubscriptions: Array<Subscription> = [];
+  stateSubscriptions: Array<Subscription> = [];
 
 
   /**
@@ -114,20 +115,39 @@ export class PaletteComponent implements OnInit {
   visible_op_inlet: number = -1;
 
 
-
   constructor() {
     this.pointer_events = true;
+
+
   }
 
   /**
    * Called when palette is initailized
    */
   ngOnInit() {
+
+
+    // subscribe to all the possible undo trigger events
+    const draftCreatedUndoSubscription = this.ss.draftCreatedUndo$.subscribe(action => {
+      const dn = <DraftNode>action.node;
+      this.removeSubdraft(dn.id);
+    })
+
+
+    const draftRemovedUndoSubscription = this.ss.draftRemovedUndo$.subscribe(action => {
+      const dn = <DraftNode>action.node;
+      this.createSubDraft(dn.draft, dn.loom, dn.loom_settings).then(component => {
+        component.setPosition(dn.component.topleft);
+      })
+    })
+
+
+    this.stateSubscriptions.push(draftCreatedUndoSubscription);
+    this.stateSubscriptions.push(draftRemovedUndoSubscription);
+
+
     this.vc.clear();
     this.default_cell_size = defaults.draft_detail_cell_size;
-
-
-
   }
 
   /**
@@ -142,7 +162,8 @@ export class PaletteComponent implements OnInit {
    */
   ngOnDestroy() {
 
-    this.unsubscribeFromAll();
+    this.unsubscribeFromComponents();
+    this.unsubscribeFromState();
     this.vc.clear();
 
   }
@@ -152,7 +173,7 @@ export class PaletteComponent implements OnInit {
    * since we lose access to tree when a new file is uploaded we must unsubscribe 
    * when any upload action is taking place. If no action takes place, then resubscribe
    */
-  unsubscribeFromAll() {
+  unsubscribeFromComponents() {
 
     this.subdraftSubscriptions.forEach(element => element.unsubscribe());
     this.operationSubscriptions.forEach(element => element.unsubscribe());
@@ -160,35 +181,40 @@ export class PaletteComponent implements OnInit {
     this.noteSubscriptions.forEach(element => element.unsubscribe());
   }
 
-  /**
-   * resubscribes to each subscription
-   */
-  resubscribe() {
-
-    this.tree.getDrafts().forEach(element => {
-      this.setSubdraftSubscriptions(element);
-    });
-
-
-    this.tree.getOperations().forEach(element => {
-      this.setOperationSubscriptions(element)
-    });
-
-    this.tree.getConnections().forEach(element => {
-    });
-
-    this.tree.getConnections().forEach(element => {
-    });
-
-
+  unsubscribeFromState() {
+    this.stateSubscriptions.forEach(element => element.unsubscribe());
 
   }
+
+  // /**
+  //  * resubscribes to each subscription
+  //  */
+  // resubscribe() {
+
+  //   this.tree.getDrafts().forEach(element => {
+  //     this.setSubdraftSubscriptions(element);
+  //   });
+
+
+  //   this.tree.getOperations().forEach(element => {
+  //     this.setOperationSubscriptions(element)
+  //   });
+
+  //   this.tree.getConnections().forEach(element => {
+  //   });
+
+  //   this.tree.getConnections().forEach(element => {
+  //   });
+
+
+
+  // }
 
   /**
    * called when a new file is loaded
    */
   clearComponents() {
-    this.unsubscribeFromAll();
+    this.unsubscribeFromComponents();
     this.notes.getRefs().forEach(ref => this.removeFromViewContainer(ref));
     this.vc.clear();
   }
@@ -218,11 +244,11 @@ export class PaletteComponent implements OnInit {
 
 
   /**
- * when someone zooms in or out, we'd like to keep the center point the same. We do this by scaling the entire palette and 
- * elements and then manually scrolling to the new center point.
- * TODO, this may not be the case anymore with new scaling 
- * @param data 
- */
+  * when someone zooms in or out, we'd like to keep the center point the same. We do this by scaling the entire palette and 
+  * elements and then manually scrolling to the new center point.
+  * TODO, this may not be the case anymore with new scaling 
+  * @param data 
+  */
   handleScrollFromZoom(old_zoom: number) {
     // this.viewport.setTopLeft(position);
     // console.log(old_center, this.viewport.getCenterPoint());
@@ -240,9 +266,9 @@ export class PaletteComponent implements OnInit {
 
 
   /**
- * called when user scrolls the winidow
- * @param data 
- */
+  * called when user scrolls the winidow
+  * @param data 
+  */
   handleWindowScroll(data: any) {
 
 
@@ -331,9 +357,9 @@ export class PaletteComponent implements OnInit {
   }
 
   /**
- //  * called anytime an operation is added. Adds the operation to the tree. 
- //  * @param name the name of the operation to add
- //  */
+  //  * called anytime an operation is added. Adds the operation to the tree. 
+  //  * @param name the name of the operation to add
+  //  */
   pasteOperation(opnode: OpNode): Promise<number> {
 
     const opcomp: OperationComponent = this.createOperation(opnode.name);
@@ -545,9 +571,9 @@ export class PaletteComponent implements OnInit {
 
 
   /**
-* called when a new operation is added
-* @param op 
-*/
+  * called when a new operation is added
+  * @param op 
+  */
   setNoteSubscriptions(note: NoteComponent) {
     this.noteSubscriptions.push(note.deleteNote.subscribe(this.deleteNote.bind(this)));
     this.noteSubscriptions.push(note.saveNoteText.subscribe(this.saveNote.bind(this)));
@@ -573,15 +599,15 @@ export class PaletteComponent implements OnInit {
    */
   createSubDraft(d: Draft, loom: Loom, loom_settings: LoomSettings): Promise<SubdraftComponent> {
 
-
-    const factory = this.resolver.resolveComponentFactory(SubdraftComponent);
-    const subdraft = this.vc.createComponent<SubdraftComponent>(factory);
+    const subdraft = this.vc.createComponent(SubdraftComponent);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
     this.setSubdraftSubscriptions(subdraft.instance);
+
 
     subdraft.instance.id = id;
     subdraft.instance.draft = d;
     subdraft.instance.scale = this.zs.getMixerZoom();
+    subdraft.instance.setPosition(this.calculateInitialLocation());
 
 
     return this.tree.loadDraftData({ prev_id: -1, cur_id: id }, d, loom, loom_settings, true, 1, true)
@@ -704,19 +730,12 @@ export class PaletteComponent implements OnInit {
   }
 
   /**
-    const change: OpStateEvent = {
-      originator: "OP",
-      type: "CREATED",
-      node: <OperationNode>this.tree.getNode(id)
-    }
-
-    this.addTimelineState(change);
-
- * loads an operation with the information supplied. 
- * @param name the name of the operation this component will perform
- * @params params the input data to be used in this operation
- * @returns the id of the node this has been assigned to
- */
+  
+  * loads an operation with the information supplied. 
+  * @param name the name of the operation this component will perform
+  * @params params the input data to be used in this operation
+  * @returns the id of the node this has been assigned to
+  */
   loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft: Point) {
 
     const factory = this.resolver.resolveComponentFactory(OperationComponent);
@@ -857,7 +876,7 @@ export class PaletteComponent implements OnInit {
    * removes the subdraft sent to the function
    * updates the tree view_id's in response
    * @param id {number}  
-
+  
    */
   removeSubdraft(id: number) {
 
@@ -865,17 +884,6 @@ export class PaletteComponent implements OnInit {
     if (id === undefined) return;
 
     this.vs.checkOnDelete(id);
-
-    // if(this.has_viewer_focus == id){
-    //   this.has_viewer_focus = -1;
-    //   this.revealDraftDetails(-1);
-
-    // }
-
-    // if(this.selected_draft_id == id){
-    //   this.selected_draft_id = -1;
-    //   this.revealDraftDetails(-1);
-    // }
 
     const outputs = this.tree.getNonCxnOutputs(id);
     const delted_nodes = this.tree.removeSubdraftNode(id);
@@ -998,17 +1006,25 @@ export class PaletteComponent implements OnInit {
 
 
   /**
-   * Deletes the subdraft that called this function.
+   * Emitted from the subject object when it has been called for deletion.
    */
-  onDeleteSubdraftCalled(obj: any) {
+  onDeleteSubdraftCalled(id: number) {
 
-    if (obj === null) return;
-    this.removeSubdraft(obj.id);
+    if (id === null || id == -1) return;
+
+    const change: DraftExistenceChange = {
+      originator: 'DRAFT',
+      type: 'REMOVED',
+      node: this.tree.getNode(id)
+    }
+    this.ss.addStateChange(change);
+
+    this.removeSubdraft(id);
   }
 
   /**
-* Deletes the subdraft that called this function.
-*/
+  * Deletes the subdraft that called this function.
+  */
   onDeleteOperationCalled(obj: any) {
 
     if (obj === null) return;
@@ -1316,8 +1332,8 @@ export class PaletteComponent implements OnInit {
   //  }
 
   /**
-* disables selection and pointer events on all
-*/
+  * disables selection and pointer events on all
+  */
   // unsetDraftsConnectable(){
   //   const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
   //   nodes.forEach(el => {
@@ -2222,10 +2238,10 @@ export class PaletteComponent implements OnInit {
   }
 
   /**
- * called from an operation component when it is done moving 
- * this allows us to not write postioin continuously, but just once on end
- * @param obj (id, point of toplleft)
- */
+  * called from an operation component when it is done moving 
+  * this allows us to not write postioin continuously, but just once on end
+  * @param obj (id, point of toplleft)
+  */
   operationMoveEnded(obj: any) {
     if (obj === null) return;
 

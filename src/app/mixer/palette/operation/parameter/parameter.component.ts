@@ -1,17 +1,17 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { Component, EventEmitter, Input, NgZone, OnInit, Output, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatButton, MatFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { AnalyzedImage, BoolParam, CodeParam, FileParam, NumParam, SelectParam, StringParam } from 'adacad-drafting-lib';
-import { take } from 'rxjs/operators';
-import { IndexedColorImageInstance, OpNode } from '../../../../core/model/datatypes';
+import { IndexedColorImageInstance, OpNode, OpStateParamChange } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
 import { OperationService } from '../../../../core/provider/operation.service';
+import { StateService } from '../../../../core/provider/state.service';
 import { TreeService } from '../../../../core/provider/tree.service';
 import { ImageeditorComponent } from '../../../../core/ui/imageeditor/imageeditor.component';
 import { TextparamComponent } from '../../../../core/ui/textparam/textparam.component';
@@ -32,24 +32,22 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
   selector: 'app-parameter',
   templateUrl: './parameter.component.html',
   styleUrls: ['./parameter.component.scss'],
-  encapsulation: ViewEncapsulation.None,
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } }
   ],
-  imports: [MatFormField, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatError, CdkTextareaAutosize, MatHint, MatButton, UploadFormComponent, TextparamComponent]
+  imports: [MatFormField, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatButton, UploadFormComponent]
 })
 export class ParameterComponent implements OnInit {
   tree = inject(TreeService);
-  private dialog = inject(MatDialog);
+  ss = inject(StateService);
+  dialog = inject(MatDialog);
   ops = inject(OperationService);
   mediaService = inject(MediaService);
-  private _ngZone = inject(NgZone);
 
 
   fc: UntypedFormControl;
   opnode: OpNode;
   name: any;
-  refresh_dirty: boolean = false;
 
   @Input() param: NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam;
   @Input() opid: number;
@@ -61,56 +59,61 @@ export class ParameterComponent implements OnInit {
 
 
   //you need these to access values unique to each type.
-  numparam: NumParam;
-  boolparam: BoolParam;
-  stringparam: StringParam;
-  selectparam: SelectParam;
-  fileparam: FileParam;
+
+
   has_image_uploaded: boolean = false;
   filewarning: string = '';
 
   @ViewChild('autosize') autosize: CdkTextareaAutosize;
 
-  triggerResize() {
-    // Wait for changes to be applied, then trigger textarea resize.
-    this._ngZone.onStable.pipe(take(1)).subscribe(() => this.autosize.resizeToFitContent(true));
-  }
 
   ngOnInit(): void {
 
     this.opnode = this.tree.getOpNode(this.opid);
 
+
     switch (this.param.type) {
       case 'number':
-        this.numparam = <NumParam>this.param;
-        this.fc = new UntypedFormControl(this.param.value);
+        console.log("PARAMS ", this.param, this.opnode.params[this.paramid]);
+        this.fc = new UntypedFormControl(
+          this.opnode.params[this.paramid] ?? this.param.value,
+          [
+            Validators.required,
+            Validators.min((<NumParam>this.param).min),
+            Validators.max((<NumParam>this.param).max),
+          ]);
+        this.fc.valueChanges.subscribe(val => {
+          if (this.fc.valid) this.onParamChange(val);
+        });
         break;
 
       case 'boolean':
-        this.boolparam = <BoolParam>this.param;
-        this.fc = new UntypedFormControl(this.param.value);
+        this.fc = new UntypedFormControl(this.opnode.params[this.paramid] ?? this.param.value);
+        this.fc.valueChanges.subscribe(val => {
+          this.onParamChange(val);
+        });
         break;
 
       case 'select':
 
-        this.selectparam = <SelectParam>this.param;
-        this.fc = new UntypedFormControl(this.param.value);
+        this.fc = new UntypedFormControl(this.opnode.params[this.paramid] ?? this.param.value);
+        this.fc.valueChanges.subscribe(val => {
+          this.onParamChange(val);
+        });
         break;
 
       case 'file':
-        this.fileparam = <FileParam>this.param;
-        this.fc = new UntypedFormControl(this.param.value);
+        this.fc = new UntypedFormControl(this.opnode.params[this.paramid] ?? this.param.value);
         break;
 
       case 'string':
-        this.stringparam = <StringParam>this.param;
-        // this.fc = new UntypedFormControl(this.stringparam.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
-        this.fc = new UntypedFormControl(this.stringparam.value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
-
-        this.fc.valueChanges.forEach(el => { this._refreshDirty() })
-        //  this.fc.valueChanges.forEach(el => {this._refreshDirty(el.trim())})
-
-
+        const value = this.opnode.params[this.paramid] ?? this.param.value;
+        this.fc = new UntypedFormControl(value, [Validators.required, Validators.pattern((<StringParam>this.param).regex)]);
+        this.fc.valueChanges.subscribe(val => {
+          if (!this.fc.hasError('pattern')) {
+            this.onParamChange(val);
+          }
+        });
         break;
 
 
@@ -129,21 +132,20 @@ export class ParameterComponent implements OnInit {
 
   }
 
-  _refreshDirty() {
-    this.refresh_dirty = true;
-  }
 
-  _updateString(val: string) {
-    this.refresh_dirty = false;
-    this.onParamChange(val);
-    return val;
-  }
+  // _updateString(val: string) {
+  //   this.refresh_dirty = false;
+  //   this.onParamChange(val);
+  //   return val;
+  // }
 
   /**
    * changes the view and updates the tree with the new value
    * @param value 
    */
   onParamChange(value: any) {
+
+    console.log("VALUE ON CHANGE ", value)
 
     const opnode: OpNode = <OpNode>this.tree.getNode(this.opid);
 
@@ -157,10 +159,19 @@ export class ParameterComponent implements OnInit {
         break;
 
       case 'number':
-        if (value == undefined) value = null;
+
+        const change: OpStateParamChange = {
+          originator: 'OP',
+          type: 'PARAM_CHANGE',
+          before: opnode.params[this.paramid],
+          after: value
+        }
+
+        this.ss.addStateChange(change);
+
         opnode.params[this.paramid] = value;
-        this.fc.setValue(value);
         this.onOperationParamChange.emit({ id: this.paramid, value: value, type: this.param.type });
+
         break;
 
       case 'boolean':

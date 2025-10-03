@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Draft, OpParamValType } from 'adacad-drafting-lib';
-import diff from "microdiff";
+import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { SaveObj, StateChangeEvent } from '../model/datatypes';
+import { DraftExistenceChange, DraftStateEvent, OpStateEvent, OpStateMove, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { TreeService } from './tree.service';
 
 /**
@@ -22,11 +21,6 @@ export class StateService {
   // public readonly testDocValue$: Observable<any>;
 
 
-  private operationParamChangeEvent = new Subject<Array<OpParamValType>>();
-  operationParamChangeEvent$ = this.operationParamChangeEvent.asObservable();
-
-
-
   active_id = 0;
   max_size = 10;
   last_saved_time: string = "";
@@ -36,6 +30,45 @@ export class StateService {
   currently_opened_file_id: number;
   history: Array<StateChangeEvent> = [];
 
+
+  // Draft undo event streams
+
+  private draftMoveUndoSubject = new Subject<StateAction>();
+  draftMoveUndo$ = this.draftMoveUndoSubject.asObservable();
+
+  private draftValueChangeUndoSubject = new Subject<StateAction>();
+  draftValueChangeUndo$ = this.draftValueChangeUndoSubject.asObservable();
+
+  private draftLoomChangeUndoSubject = new Subject<StateAction>();
+  draftLoomChangeUndo$ = this.draftLoomChangeUndoSubject.asObservable();
+
+  private draftLoomSettingsChangeUndoSubject = new Subject<StateAction>();
+  draftLoomSettingsChangeUndo$ = this.draftLoomSettingsChangeUndoSubject.asObservable();
+
+  private draftNameChangeUndoSubject = new Subject<StateAction>();
+  draftNameChangeUndo$ = this.draftNameChangeUndoSubject.asObservable();
+
+  private draftCreatedUndoSubject = new Subject<StateAction>();
+  draftCreatedUndo$ = this.draftCreatedUndoSubject.asObservable();
+
+  private draftRemovedUndoSubject = new Subject<StateAction>();
+  draftRemovedUndo$ = this.draftRemovedUndoSubject.asObservable();
+
+  // Operation undo event streams
+  private opMoveUndoSubject = new Subject<StateAction>();
+  opMoveUndo$ = this.opMoveUndoSubject.asObservable();
+
+  private opParamChangeUndoSubject = new Subject<StateAction>();
+  opParamChangeUndo$ = this.opParamChangeUndoSubject.asObservable();
+
+  private opLocalZoomUndoSubject = new Subject<StateAction>();
+  opLocalZoomUndo$ = this.opLocalZoomUndoSubject.asObservable();
+
+  private opCreatedUndoSubject = new Subject<StateAction>();
+  opCreatedUndo$ = this.opCreatedUndoSubject.asObservable();
+
+  private opRemovedUndoSubject = new Subject<StateAction>();
+  opRemovedUndo$ = this.opRemovedUndoSubject.asObservable();
 
 
   constructor() {
@@ -86,6 +119,80 @@ export class StateService {
 
     this.history.push(change);
     console.log("HISTORY IS ", this.history)
+  }
+
+
+  private handleDraftUndo(change: DraftStateEvent) {
+    switch (change.type) {
+      case 'MOVE':
+        this.draftMoveUndoSubject.next(<unknown>change as StateAction);
+        break;
+      case 'VALUE_CHANGE':
+        this.draftValueChangeUndoSubject.next(<unknown>change as StateAction);
+        break;
+      case 'LOOM_CHANGE':
+        this.draftLoomChangeUndoSubject.next(<unknown>change as StateAction);
+        break;
+      case 'LOOM_SETTINGS_CHANGE':
+        this.draftLoomSettingsChangeUndoSubject.next(<unknown>change as StateAction);
+        break;
+      case 'NAME_CHANGE':
+        this.draftNameChangeUndoSubject.next(<unknown>change as StateAction);
+        break;
+      case 'CREATED':
+        this.draftCreatedUndoSubject.next({ type: 'REMOVE', node: (<DraftExistenceChange>change).node });
+        break;
+      case 'REMOVED':
+        this.draftRemovedUndoSubject.next({ type: 'CREATE', node: (<DraftExistenceChange>change).node });
+        break;
+    }
+  }
+
+  private handleOpUndo(change: OpStateEvent) {
+    switch (change.type) {
+      case 'MOVE':
+        this.opMoveUndoSubject.next(<unknown>change as StateAction);
+        break;
+      case 'PARAM_CHANGE':
+        this.opParamChangeUndoSubject.next({ type: 'CHANGE', point: (<OpStateMove>change).before });
+        break;
+      case 'LOCAL_ZOOM':
+        this.opLocalZoomUndoSubject.next(<unknown>change as StateAction);
+        break;
+      case 'CREATED':
+        this.opCreatedUndoSubject.next(<unknown>change as StateAction);
+        break;
+      case 'REMOVED':
+        this.opRemovedUndoSubject.next(<unknown>change as StateAction);
+        break;
+    }
+  }
+
+
+  private handleUndo(change: StateChangeEvent) {
+    console.log("UNDO CALLED with", change)
+    switch (change.originator) {
+
+      case 'OP':
+        this.handleOpUndo(<OpStateEvent>change);
+      case 'DRAFT':
+        this.handleDraftUndo(<DraftStateEvent>change);
+      case 'CONNECTION':
+      case 'WORKSPACE':
+      case 'NOTE':
+      case 'MATERIALS':
+
+
+    }
+
+  }
+
+
+  public undo() {
+
+
+    const last = this.history.pop();
+    if (last) this.handleUndo(last);
 
   }
 
@@ -98,34 +205,11 @@ export class StateService {
    */
   public compareState(a: SaveObj, b: SaveObj) {
 
-    const differences = diff(a, b);
-    console.log("All ", differences);
-
-    differences.forEach(d => {
-
-      if (d.path[0] == 'ops') console.log(d);
-
-      if (d.path[0] == 'ops' && d.type == 'CHANGE') {
-
-
-        let id = d.path[1];
-        let op = a.ops[id];
-
-        console.log("OPERATION IS ", op);
-
-        if (d.path[2] == 'params') {
-          console.log("EMIT EVENT")
-          this.emitOperationParamEvent(op.params)
-        }
-      }
-    });
 
 
   }
 
-  emitOperationParamEvent(params: Array<OpParamValType>) {
-    this.operationParamChangeEvent.next(params);
-  }
+
 
 
   /**
