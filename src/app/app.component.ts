@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { DraftNode, DraftNodeProxy, FileMeta, IndexedColorImageInstance, LoadResponse, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { DraftNode, DraftNodeProxy, FileMeta, LoadResponse, MediaInstance, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -613,7 +613,7 @@ export class AppComponent implements OnInit, OnDestroy {
       //after we have processed the data, we need to now relink any images that were duplicated in the process. 
       let image_id_map = [];
       result.data.indexed_image_data.forEach(image => {
-        let media_item: IndexedColorImageInstance = this.media.duplicateIndexedColorImageInstance(image.id);
+        let media_item: MediaInstance = this.media.duplicateIndexedColorImageInstance(image.id);
         image_id_map.push({ from: image.id, to: media_item.id })
       })
 
@@ -629,7 +629,7 @@ export class AppComponent implements OnInit, OnDestroy {
             let entry = image_id_map.find(el => el.from == from);
 
             if (entry !== undefined) {
-              let img_instance = <IndexedColorImageInstance>this.media.getMedia(entry.to);
+              let img_instance = this.media.getMedia(entry.to);
               //this is just setting it locally, it needs to set the actual operation
               let op_node = this.tree.getOpNode(op.node_id);
               op_node.params[ndx] = { id: entry.to, data: img_instance.img };

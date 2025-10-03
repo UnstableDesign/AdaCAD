@@ -1,10 +1,10 @@
 import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { DynamicOperation, Interlacement, Operation } from 'adacad-drafting-lib';
+import { DynamicOperation, Interlacement, Operation, OpParamValType } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
 import { IOTuple, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { OperationService } from '../../../core/provider/operation.service';
@@ -178,12 +178,6 @@ export class OperationComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    //this.rescale();
-    // this.onOperationParamChange.emit({id: this.id});
-    if (this.name == 'imagemap' || this.name == 'bwimagemap') {
-
-      this.drawImagePreview();
-    }
 
     // const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     // if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
@@ -209,6 +203,10 @@ export class OperationComponent implements OnInit {
 
   onDoubleClick(event: any) {
     this.trigger.openMenu();
+  }
+
+  setParamFromStateEvent(paramid: number, value: OpParamValType) {
+    this.paramsComps.get(paramid).setValueFromStateEvent(value);
   }
 
 
@@ -454,9 +452,6 @@ export class OperationComponent implements OnInit {
 
         if (opnode.name == 'imagemap' || opnode.name == 'bwimagemap') {
 
-
-          this.drawImagePreview();
-
           //update the width and height
           // let image_param = opnode.params[op.dynamic_param_id];
           let image_param = opnode.params[0];
@@ -474,11 +469,6 @@ export class OperationComponent implements OnInit {
 
   nameChanged(id) {
     this.onNameChanged.emit(id);
-  }
-
-  drawImagePreview() {
-    let param = this.paramsComps.get(0);
-    param.drawImagePreview();
   }
 
   //returned from a file upload event

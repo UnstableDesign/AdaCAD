@@ -27,7 +27,7 @@
     <mat-form-field>
       <mat-label>{{param.name}}</mat-label>
       <mat-select [panelWidth]="auto" [formControl]="fc">
-        @for (opt of selectparam.selectlist; track opt) {
+        @for (opt of param.selectlist; track opt) {
         <mat-option [value]="opt.value">
           {{opt.name}}
         </mat-option>
@@ -43,10 +43,10 @@
       <mat-label>{{param.name}}</mat-label>
       <mat-select [panelWidth]="auto" [formControl]="fc">
         <mat-option [value]="1">
-          {{boolparam.truestate}}
+          {{param.truestate}}
         </mat-option>
         <mat-option [value]="0">
-          {{boolparam.falsestate}}
+          {{param.falsestate}}
         </mat-option>
       </mat-select>
     </mat-form-field>

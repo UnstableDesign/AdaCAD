@@ -141,10 +141,18 @@ export class PaletteComponent implements OnInit {
       })
     })
 
+    //Subscribe to state events that are triggered by undo/redo
+    const paramChangeFromStateSubscription = this.ss.opParamChangeUndo$.subscribe(action => {
+
+      const op = this.tree.getOpNode(action.opid);
+      if (op && op.component) (<OperationComponent>op.component).setParamFromStateEvent(action.paramid, action.value);
+
+    });
+
 
     this.stateSubscriptions.push(draftCreatedUndoSubscription);
     this.stateSubscriptions.push(draftRemovedUndoSubscription);
-
+    this.stateSubscriptions.push(paramChangeFromStateSubscription);
 
     this.vc.clear();
     this.default_cell_size = defaults.draft_detail_cell_size;

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { DraftExistenceChange, DraftStateEvent, OpStateEvent, OpStateMove, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { DraftExistenceChange, DraftStateEvent, OpStateEvent, OpStateParamChange, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { TreeService } from './tree.service';
 
 /**
@@ -154,7 +154,13 @@ export class StateService {
         this.opMoveUndoSubject.next(<unknown>change as StateAction);
         break;
       case 'PARAM_CHANGE':
-        this.opParamChangeUndoSubject.next({ type: 'CHANGE', point: (<OpStateMove>change).before });
+        this.opParamChangeUndoSubject.next(
+          {
+            type: 'CHANGE',
+            opid: (<OpStateParamChange>change).opid,
+            paramid: (<OpStateParamChange>change).paramid,
+            value: (<OpStateParamChange>change).before
+          });
         break;
       case 'LOCAL_ZOOM':
         this.opLocalZoomUndoSubject.next(<unknown>change as StateAction);

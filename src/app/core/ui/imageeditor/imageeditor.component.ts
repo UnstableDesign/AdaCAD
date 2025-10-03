@@ -7,7 +7,6 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialog
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatSelect } from '@angular/material/select';
 import { AnalyzedImage, Color, filterToUniqueValues } from 'adacad-drafting-lib';
-import { IndexedColorImageInstance } from '../../model/datatypes';
 import { MediaService } from '../../provider/media.service';
 import { TreeService } from '../../provider/tree.service';
 
@@ -41,8 +40,8 @@ export class ImageeditorComponent {
     }
 
     this.media_id = obj.media_id;
-    const media_item = <IndexedColorImageInstance>this.mediaService.getMedia(this.media_id);
-    this.img = media_item.img;
+    const media_item = this.mediaService.getMedia(this.media_id);
+    this.img = <AnalyzedImage>media_item.img;
 
     this.parseColorTable(this.img.colors, this.img.colors_mapping);
     this.updateColormapping(this.img.colors, this.img.colors_mapping);

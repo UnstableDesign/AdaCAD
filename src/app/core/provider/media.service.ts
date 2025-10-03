@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { AnalyzedImage, Color, filterToUniqueValues, generateId, SingleImage } from 'adacad-drafting-lib';
-import { IndexedColorImageInstance, IndexedColorMediaProxy, MediaInstance } from '../model/datatypes';
+import { IndexedColorMediaProxy, MediaInstance } from '../model/datatypes';
 import { UploadService } from './upload.service';
 
 
@@ -67,7 +67,7 @@ export class MediaService {
    * @param data an object containing any color or color_mapping data that has already been stored for this item
    * @returns 
    */
-  loadIndexedColorFile(id: number, ref: string, saved_data: { colors: Array<any>, color_mapping: Array<any> }): Promise<IndexedColorImageInstance> {
+  loadIndexedColorFile(id: number, ref: string, saved_data: { colors: Array<any>, color_mapping: Array<any> }): Promise<MediaInstance> {
     //console.log("LOAD INDEXED COLOR FILE")
 
     if (id == -1) {
@@ -353,9 +353,9 @@ export class MediaService {
    * @param ref - the reference to media in Firebase storage
    * @param img - specific settings for this media instance
    */
-  addIndexColorMediaInstance(id: number, ref: string, img: AnalyzedImage): IndexedColorImageInstance {
+  addIndexColorMediaInstance(id: number, ref: string, img: AnalyzedImage): MediaInstance {
 
-    let obj: IndexedColorImageInstance = { id, ref, type: 'indexed_color_image', img }
+    let obj: MediaInstance = { id, ref, type: 'indexed_color_image', img }
     this.current.push(obj);
     return obj;
   }
@@ -390,12 +390,10 @@ export class MediaService {
   }
 
 
-  duplicateIndexedColorImageInstance(id: number): IndexedColorImageInstance {
-    let i = <IndexedColorImageInstance>this.getMedia(id);
+  duplicateIndexedColorImageInstance(id: number): MediaInstance {
+    let i = this.getMedia(id);
     if (i == null) return null;
-
-    let image_copy: AnalyzedImage = this.copyIndexedImage(i.img);
-
+    let image_copy: AnalyzedImage = this.copyIndexedImage(<AnalyzedImage>i.img);
     return this.addIndexColorMediaInstance(generateId(8), i.ref, image_copy);
 
   }
@@ -403,7 +401,7 @@ export class MediaService {
 
 
   updateIndexColorMediaInstance(id: number, img: AnalyzedImage) {
-    let obj: IndexedColorImageInstance = <IndexedColorImageInstance>this.getMedia(id);
+    let obj = this.getMedia(id);
     if (obj !== null) {
       obj.img = img;
     }
@@ -425,12 +423,16 @@ export class MediaService {
     this.current = this.current.filter(el => el.id !== id);
   }
 
-  exportIndexedColorImageData(): Array<IndexedColorMediaProxy> {
-    const export_data: Array<IndexedColorImageInstance> = this.current
-      .filter(el => el.type == "indexed_color_image")
-      .map(el => <IndexedColorImageInstance>el);
 
-    const formatted: Array<IndexedColorMediaProxy> = export_data.map(el => { return { id: el.id, ref: el.ref, colors: el.img.colors, color_mapping: el.img.colors_mapping } });
+
+  exportIndexedColorImageData(): Array<IndexedColorMediaProxy> {
+    const export_data: Array<MediaInstance> = this.current
+      .filter(el => el.type == "indexed_color_image");
+
+
+    const formatted: Array<IndexedColorMediaProxy> = export_data.map(
+      el => { return { id: el.id, ref: el.ref, colors: (<AnalyzedImage>el.img).colors, color_mapping: (<AnalyzedImage>el.img).colors_mapping } }
+    );
 
     return formatted;
 

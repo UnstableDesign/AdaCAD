@@ -7,7 +7,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, DraftNode, DraftNodeProxy, IndexedColorImageInstance, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
@@ -171,7 +171,7 @@ export class TreeService {
           return (params[ndx]) ? 1 : 0;
 
         case "file":
-          const id_and_data = <IndexedColorImageInstance>this.media.getMedia(params[ndx]);
+          const id_and_data = this.media.getMedia(params[ndx]);
           if (id_and_data === null || id_and_data.img === null) return { id: params[ndx], data: null }
           else return { id: params[ndx], data: id_and_data.img };
 

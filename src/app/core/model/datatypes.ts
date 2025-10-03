@@ -242,13 +242,9 @@ export type MediaInstance = {
   id: number;
   ref: string;
   type: 'image' | 'indexed_color_image'; //currently we only support images
-  img: IndexedColorImageInstance | SingleImage;
-
+  img: SingleImage | AnalyzedImage;
 }
 
-export type IndexedColorImageInstance = MediaInstance & {
-  img: AnalyzedImage;
-}
 
 export type IndexedColorMediaProxy = {
   id: number,
@@ -484,6 +480,8 @@ type MoveEvent = {
 }
 
 type ParamEvent = {
+  opid: number,
+  paramid: number,
   before: OpParamValType,
   after: OpParamValType
 }
@@ -564,6 +562,9 @@ export type MaterialsStateChange = StateChangeEvent & {
  */
 export type StateAction = {
   type: "CREATE" | "REMOVE" | "CHANGE",
+  opid?: number,
+  paramid?: number,
+  value?: OpParamValType
   node?: Node,
   point?: Point
 }
