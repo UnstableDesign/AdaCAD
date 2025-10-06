@@ -244,7 +244,9 @@ export class MixerComponent {
     const change: OpExistenceChanged = {
       originator: 'OP',
       type: 'CREATED',
-      node: this.tree.getNode(id)
+      node: this.tree.getNode(id),
+      inputs: this.tree.getInwardConnectionProxies(id),
+      outputs: this.tree.getOutwardConnectionProxies(id)
     }
     this.ss.addStateChange(change);
   }
@@ -269,10 +271,13 @@ export class MixerComponent {
    * called when add new draft is clicked form the sidebar. 
    */
   addDraftClicked() {
+    console.log("ADD DRAFT CLICKED ", this.tree.nodes.slice());
+
 
     const dialogRef = this.dialog.open(BlankdraftModal);
 
     dialogRef.componentInstance.onNewDraftCreated.subscribe(obj => {
+      console.log("Dialog Ref Component Listerned creating draft", this.tree.nodes.slice());
 
       console.log("OBJ", obj)
       if (obj == null || obj == undefined) return;
@@ -287,7 +292,9 @@ export class MixerComponent {
         const change: DraftExistenceChange = {
           originator: 'DRAFT',
           type: 'CREATED',
-          node: this.tree.getNode(instance.id)
+          node: this.tree.getNode(instance.id),
+          inputs: [],
+          outputs: []
         }
         this.ss.addStateChange(change);
       }
@@ -575,6 +582,7 @@ export class MixerComponent {
 
 
   public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy) {
+    console.log("LOADING SUBDRAFT from Mixer", id, this.tree.nodes.slice());
     this.palette.loadSubDraft(id, d, nodep, draftp);
   }
 

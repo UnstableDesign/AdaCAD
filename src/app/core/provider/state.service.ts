@@ -1,8 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { DraftExistenceChange, DraftStateEvent, OpStateEvent, OpStateParamChange, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateEvent, NodeAction, OpExistenceChanged, OpStateEvent, OpStateParamChange, ParamAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { FileService } from './file.service';
+import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
+import { WorkspaceService } from './workspace.service';
 
 /**
  * stores a state within the undo/redo timeline
@@ -18,6 +21,9 @@ interface HistoryState {
 })
 export class StateService {
   private tree = inject(TreeService);
+  private fb = inject(FirebaseService);
+  private ws = inject(WorkspaceService);
+  private fs = inject(FileService);
   // public readonly testDocValue$: Observable<any>;
 
 
@@ -30,6 +36,8 @@ export class StateService {
   currently_opened_file_id: number;
   history: Array<StateChangeEvent> = [];
 
+  // Global debug flag to show component IDs
+  showComponentIds: boolean = true;
 
   // Draft undo event streams
 
@@ -48,27 +56,35 @@ export class StateService {
   private draftNameChangeUndoSubject = new Subject<StateAction>();
   draftNameChangeUndo$ = this.draftNameChangeUndoSubject.asObservable();
 
-  private draftCreatedUndoSubject = new Subject<StateAction>();
+  private draftCreatedUndoSubject = new Subject<NodeAction>();
   draftCreatedUndo$ = this.draftCreatedUndoSubject.asObservable();
 
-  private draftRemovedUndoSubject = new Subject<StateAction>();
+  private draftRemovedUndoSubject = new Subject<NodeAction>();
   draftRemovedUndo$ = this.draftRemovedUndoSubject.asObservable();
 
   // Operation undo event streams
   private opMoveUndoSubject = new Subject<StateAction>();
   opMoveUndo$ = this.opMoveUndoSubject.asObservable();
 
-  private opParamChangeUndoSubject = new Subject<StateAction>();
+  private opParamChangeUndoSubject = new Subject<ParamAction>();
   opParamChangeUndo$ = this.opParamChangeUndoSubject.asObservable();
 
   private opLocalZoomUndoSubject = new Subject<StateAction>();
   opLocalZoomUndo$ = this.opLocalZoomUndoSubject.asObservable();
 
-  private opCreatedUndoSubject = new Subject<StateAction>();
+  private opCreatedUndoSubject = new Subject<NodeAction>();
   opCreatedUndo$ = this.opCreatedUndoSubject.asObservable();
 
-  private opRemovedUndoSubject = new Subject<StateAction>();
+  private opRemovedUndoSubject = new Subject<NodeAction>();
   opRemovedUndo$ = this.opRemovedUndoSubject.asObservable();
+
+
+  private connectionCreatedUndoSubject = new Subject<NodeAction>();
+  connectionCreatedUndo$ = this.connectionCreatedUndoSubject.asObservable();
+
+  private connectionRemovedUndoSubject = new Subject<NodeAction>();
+  connectionRemovedUndo$ = this.connectionRemovedUndoSubject.asObservable();
+
 
 
   constructor() {
@@ -119,6 +135,15 @@ export class StateService {
 
     this.history.push(change);
     console.log("HISTORY IS ", this.history)
+
+    if (this.fb.auth.currentUser != null) {
+      this.fs.saver.ada()
+        .then(so => {
+          return this.fb.updateFile(so.file, this.ws.current_file);
+        })
+        .catch(err => console.error(err));
+    }
+
   }
 
 
@@ -140,10 +165,22 @@ export class StateService {
         this.draftNameChangeUndoSubject.next(<unknown>change as StateAction);
         break;
       case 'CREATED':
-        this.draftCreatedUndoSubject.next({ type: 'REMOVE', node: (<DraftExistenceChange>change).node });
+        const a: NodeAction = {
+          type: 'REMOVE',
+          node: (<DraftExistenceChange>change).node,
+          inputs: (<DraftExistenceChange>change).inputs,
+          outputs: (<DraftExistenceChange>change).outputs,
+
+        }
+        this.draftCreatedUndoSubject.next(a);
         break;
       case 'REMOVED':
-        this.draftRemovedUndoSubject.next({ type: 'CREATE', node: (<DraftExistenceChange>change).node });
+        this.draftRemovedUndoSubject.next({
+          type: "CREATE",
+          node: (<DraftExistenceChange>change).node,
+          inputs: (<DraftExistenceChange>change).inputs,
+          outputs: (<DraftExistenceChange>change).outputs
+        });
         break;
     }
   }
@@ -166,10 +203,41 @@ export class StateService {
         this.opLocalZoomUndoSubject.next(<unknown>change as StateAction);
         break;
       case 'CREATED':
-        this.opCreatedUndoSubject.next(<unknown>change as StateAction);
+        this.opCreatedUndoSubject.next({
+          type: "REMOVE",
+          node: (<OpExistenceChanged>change).node,
+          inputs: (<OpExistenceChanged>change).inputs,
+          outputs: (<OpExistenceChanged>change).outputs
+        });
         break;
       case 'REMOVED':
-        this.opRemovedUndoSubject.next(<unknown>change as StateAction);
+        this.opRemovedUndoSubject.next({
+          type: "CREATE",
+          node: (<OpExistenceChanged>change).node,
+          inputs: (<OpExistenceChanged>change).inputs,
+          outputs: (<OpExistenceChanged>change).outputs
+        });
+        break;
+    }
+  }
+
+  private handleConnectionUndo(change: ConnectionStateEvent) {
+    switch (change.type) {
+      case 'CREATED':
+        this.connectionCreatedUndoSubject.next({
+          type: 'REMOVE',
+          node: (<ConnectionExistenceChange>change).node,
+          inputs: (<ConnectionExistenceChange>change).inputs,
+          outputs: (<ConnectionExistenceChange>change).outputs
+        })
+        break;
+      case 'REMOVED':
+        this.connectionRemovedUndoSubject.next({
+          type: 'CREATE',
+          node: (<ConnectionExistenceChange>change).node,
+          inputs: (<ConnectionExistenceChange>change).inputs,
+          outputs: (<ConnectionExistenceChange>change).outputs
+        })
         break;
     }
   }
@@ -181,9 +249,13 @@ export class StateService {
 
       case 'OP':
         this.handleOpUndo(<OpStateEvent>change);
+        break;
       case 'DRAFT':
         this.handleDraftUndo(<DraftStateEvent>change);
+        break;
       case 'CONNECTION':
+        this.handleConnectionUndo(<ConnectionStateEvent>change);
+        break;
       case 'WORKSPACE':
       case 'NOTE':
       case 'MATERIALS':

@@ -74,6 +74,23 @@ export interface DraftMap {
   draft: any;
 }
 
+/**
+ * a way to store the relationship between two nodes so we can restore them if we need on undo
+ */
+export type OutwardConnectionProxy = {
+  identity: "DRAFT" | "OP",
+  outlet_id: number,
+  to_id: number,
+  inlet_id: number
+}
+
+export type InwardConnectionProxy = {
+  from_id: number, //always references a draft id
+  inlet_id: number
+}
+
+
+
 
 /***** OBJECTS/TYPES RELATED TO SCREEN LAYOUT ****/
 
@@ -491,8 +508,10 @@ type NumberEvent = {
   after: number
 }
 
-type CreationEvent = {
-  node: Node
+type NodeEvent = {
+  node: Node,
+  inputs: Array<InwardConnectionProxy>,
+  outputs: Array<OutwardConnectionProxy>
 }
 
 type ConnectionChangeEvent = {
@@ -524,7 +543,7 @@ export type OpStateEvent = StateChangeEvent & {
 export type OpStateMove = OpStateEvent & MoveEvent;
 export type OpStateParamChange = OpStateEvent & ParamEvent;
 export type OpStateLocalZoomChange = OpStateEvent & NumberEvent
-export type OpExistenceChanged = OpStateEvent & CreationEvent;
+export type OpExistenceChanged = OpStateEvent & NodeEvent;
 export type OpStateConnectionChange = OpStateEvent & ConnectionChangeEvent;
 
 
@@ -534,7 +553,14 @@ export type DraftStateEvent = StateChangeEvent & {
 
 export type DraftStateMove = DraftStateEvent & MoveEvent;
 export type DraftStateChange = DraftStateEvent & DraftChangedEvent;
-export type DraftExistenceChange = DraftStateEvent & CreationEvent;
+export type DraftExistenceChange = DraftStateEvent & NodeEvent;
+
+export type ConnectionStateEvent = StateChangeEvent & {
+  type: 'CREATED' | 'REMOVED'
+}
+
+export type ConnectionExistenceChange = ConnectionStateEvent & NodeEvent
+
 
 export type WorkspaceStateChange = StateChangeEvent & {
   type: 'SETTINGS' | 'FILE_META',
@@ -562,11 +588,20 @@ export type MaterialsStateChange = StateChangeEvent & {
  */
 export type StateAction = {
   type: "CREATE" | "REMOVE" | "CHANGE",
-  opid?: number,
-  paramid?: number,
-  value?: OpParamValType
-  node?: Node,
-  point?: Point
 }
+
+export type ParamAction = StateAction & {
+  opid: number,
+  paramid: number,
+  value: OpParamValType
+}
+
+export type NodeAction = StateAction & {
+  node: Node,
+  inputs: Array<InwardConnectionProxy>,
+  outputs: Array<OutwardConnectionProxy>
+}
+
+
 
 

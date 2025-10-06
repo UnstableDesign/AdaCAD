@@ -4,6 +4,9 @@
   [class.no-pointer]="disable_drag" [cdkDragDisabled]="disable_drag" (cdkDragMoved)="dragMove($event)"
   (cdkDragEnded)="dragEnd($event)" (cdkDragStarted)="dragStart($event)">
   <div class="topbar" (dblclick)="onDoubleClick()" cdkDragHandle>
+    @if (ss.showComponentIds) {
+    <div class="debug-id">ID: {{id}}</div>
+    }
   </div>
   <app-draftcontainer #draftcontainer class="from_subdraft" [id]="id" [dirty]="false" [hasParent]="false"
     (connectionSelected)="connectionStarted($event)" (onOpenInEditor)="openInEditor($event)"

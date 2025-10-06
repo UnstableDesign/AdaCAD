@@ -5,8 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Interlacement, Operation, OpParamValType } from 'adacad-drafting-lib';
-import { Subscription } from 'rxjs';
-import { IOTuple, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
+import { IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { OperationService } from '../../../core/provider/operation.service';
 import { StateService } from '../../../core/provider/state.service';
 import { SystemsService } from '../../../core/provider/systems.service';
@@ -80,7 +79,6 @@ export class OperationComponent implements OnInit {
   @Output() onNameChanged = new EventEmitter<any>();
 
 
-  operationParamChangeSubscription: Subscription;
 
 
   params_visible: boolean = true;
@@ -155,10 +153,12 @@ export class OperationComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    this.operationParamChangeSubscription.unsubscribe();
   }
 
   ngOnInit() {
+
+    console.log("ON INIT OPERATION ", this.id, this.name)
+
 
     this.op = this.operations.getOp(this.name);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
@@ -178,6 +178,8 @@ export class OperationComponent implements OnInit {
   }
 
   ngAfterViewInit() {
+
+    console.log("ON AFTER VIEW INIT OPERATION ", this.id, this.name)
 
     // const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     // if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
@@ -545,6 +547,15 @@ export class OperationComponent implements OnInit {
   }
 
   delete() {
+    const change: OpExistenceChanged = {
+      originator: 'OP',
+      type: 'REMOVED',
+      node: this.tree.getNode(this.id),
+      inputs: this.tree.getInwardConnectionProxies(this.id),
+      outputs: this.tree.getOutwardConnectionProxies(this.id)
+    }
+    this.ss.addStateChange(change);
+
     this.deleteOp.emit({ id: this.id });
   }
 

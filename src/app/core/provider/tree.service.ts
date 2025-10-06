@@ -7,7 +7,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, DraftNode, DraftNodeProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
@@ -255,6 +255,7 @@ export class TreeService {
    * @returns the created draft node and the entry associated with this
    */
   loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
+    console.log("LOADING DRAFT DATA ", entry, draft, loom, loom_settings, render_colors, scale, draft_visible)
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -1218,7 +1219,7 @@ export class TreeService {
      */
   async updateDraftsFromResults(parent: number, outputs: Array<OpOutput>, inputs: Array<OpInput>): Promise<Array<number>> {
 
-
+    console.log("UPDATING DRAFTS FROM RESULTS ", parent, outputs, inputs)
     const out = this.getNonCxnOutputs(parent);
     const op_outlets = this.getOutputsWithNdx(parent);
 
@@ -1893,6 +1894,87 @@ export class TreeService {
     if (tn === undefined) return [];
     return tn.outputs;
   }
+
+
+  /**
+   * gets the ids of all the drafts that this node receives. 
+   * since only op nodes can recieve input, we assume all node_ids correspond to operations
+   * 
+   * @param node_id 
+   */
+  getInwardConnectionProxies(node_id: number): Array<InwardConnectionProxy> {
+    const node = <OpNode>this.getNode(node_id);
+    if (node.type !== 'op') console.error("Get Inward Connections Called on Non-Op");
+    const proxies: Array<InwardConnectionProxy> = [];
+    node.inlets.forEach((inlet, ndx) => {
+      const inputs = this.getOpComponentInputs(node_id, ndx);
+      inputs.forEach(input => {
+        proxies.push({
+          from_id: input,
+          inlet_id: ndx
+        });
+      })
+
+    })
+    console.log("INWARD PROXIES ", proxies)
+
+    return proxies;
+  }
+
+  /**
+   * outward connectinos can exist on drafts and operations. If this is an operation, it references the other operations that it will go into
+   * if it is a draft, it will also reference the operations. 
+   * @param node_id 
+   * @returns 
+   */
+  getOutwardConnectionProxies(node_id: number): Array<OutwardConnectionProxy> {
+    const node = <OpNode>this.getNode(node_id);
+    if (node.type !== 'op' && node.type !== 'draft') console.error("Get Inward Connections Called on Non-Op");
+    const proxies: Array<OutwardConnectionProxy> = [];
+
+
+    const immediate_outlets = this.getOutputs(node_id);
+    immediate_outlets.forEach(outlet_cxn => {
+
+      const cxn_out = this.getOutputsWithNdx(outlet_cxn);
+      cxn_out.forEach(outlet_node => {
+        if (outlet_node.tn.node.type == 'draft') {
+
+          const draft_cxn_out = this.getOutputs(outlet_node.tn.node.id);
+          draft_cxn_out.forEach((draft_cxn, outlet_id) => {
+            const ops_connected = this.getOutputsWithNdx(draft_cxn);
+            ops_connected.forEach(op => {
+              proxies.push({
+                identity: 'OP',
+                outlet_id: outlet_id,
+                to_id: op.tn.node.id,
+                inlet_id: op.ndx //need to figure out which inlet this goes into
+              });
+            })
+          })
+
+
+
+
+        } else {
+          //if the connections go directly to an operation, this is a draft
+
+          proxies.push({
+            identity: 'DRAFT',
+            outlet_id: 0,
+            to_id: outlet_node.tn.node.id,
+            inlet_id: outlet_node.ndx //need to figure out which inlet this goes into
+          });
+        }
+      })
+
+
+    })
+
+    console.log("OUTWARD PROXIES ", proxies)
+    return proxies;
+  }
+
 
   getInputsAtNdx(node_id: number, inlet_ndx: number): Array<IOTuple> {
     const tn = this.getTreeNode(node_id);

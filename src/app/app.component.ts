@@ -453,6 +453,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * @returns the new draft id
    */
   generateBlankDraftAndPlaceInMixer(obj: any): Promise<number> {
+    console.log("GENERATING DRAFT FOR MIXER  ", obj, this.tree.nodes.slice());
 
     //if it has a parent and it does not yet have a view ref. 
     //this.tree.setSubdraftParent(id, -1)
@@ -1586,6 +1587,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fs.saver.ada()
       .then(so => {
         this.ss.writeStateToTimeline(so);
+        console.log("SAVING FILE ", so, this.tree.nodes.slice());
         return this.fb.updateFile(so.file, this.ws.current_file);
       })
       .catch(err => console.error(err));

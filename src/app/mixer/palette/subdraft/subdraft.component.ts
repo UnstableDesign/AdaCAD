@@ -4,6 +4,7 @@ import { Draft, Interlacement, LoomSettings } from 'adacad-drafting-lib';
 import { isUp, warps, wefts } from 'adacad-drafting-lib/draft';
 import { DraftNode, Point } from '../../../core/model/datatypes';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
@@ -33,6 +34,7 @@ export class SubdraftComponent implements OnInit {
   private multiselect = inject(MultiselectService);
   private vs = inject(ViewerService);
   zs = inject(ZoomService);
+  private ss = inject(StateService);
 
 
   @ViewChild('draftcontainer') draftcontainer: DraftContainerComponent;
@@ -117,7 +119,10 @@ export class SubdraftComponent implements OnInit {
 
   }
 
+
   ngOnInit() {
+
+    console.log("NEW SUBDRAFT INIT ", this.id)
 
     if (!this.is_preview) this.parent_id = this.tree.getSubdraftParent(this.id);
     const tl: Point = this.viewport.getTopRight();
