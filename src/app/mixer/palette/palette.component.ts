@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
+import { AnalyzedImage, Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
 import { Bounds, DraftExistenceChange, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
@@ -169,6 +169,12 @@ export class PaletteComponent implements OnInit {
      */
     const opRemovedUndoSubscription = this.ss.opRemovedUndo$.subscribe(action => {
 
+      console.log("OP REMOVED UNDO SUBSCRIPTION ", action);
+      action.media.forEach(el => {
+        console.log("ADDING MEDIA INSTANCE ", el);
+        this.media.addIndexColorMediaInstance(el.id, el.ref, <AnalyzedImage>el.img);
+      });
+
       let new_id = -1;
       const on = <OpNode>action.node;
       this.pasteOperation(on).then(id => {
@@ -181,8 +187,6 @@ export class PaletteComponent implements OnInit {
       }).then(el => {
         const outputs_to_update = [];
         action.outputs.forEach(output => {
-          console.log("output connection ")
-
           const children = this.tree.getNonCxnOutputs(new_id);
           if (children.length > output.outlet_id) {
             this.createConnection(children[output.outlet_id], output.to_id, output.inlet_id);
@@ -341,7 +345,7 @@ export class PaletteComponent implements OnInit {
   removeFromViewContainer(ref: ViewRef) {
     const ndx: number = this.vc.indexOf(ref);
     if (ndx !== -1) this.vc.remove(ndx);
-    else console.log('Error: view ref not found for removal', ref);
+    // else console.log('Error: view ref not found for removal', ref);
 
   }
 
@@ -401,13 +405,10 @@ export class PaletteComponent implements OnInit {
   //  */
   addOperation(name: string): number {
 
-    console.log("ADDING OPERATION ", name)
-
     const opcomp: OperationComponent = this.createOperation(name);
 
     this.performAndUpdateDownstream(opcomp.id).then(el => {
       let children = this.tree.getNonCxnOutputs(opcomp.id);
-      console.log("AFTER PERFORM  ", children, this.tree.nodes.slice())
       if (children.length > 0) this.vs.setViewer(children[0])
     });
 
@@ -651,8 +652,6 @@ export class PaletteComponent implements OnInit {
    */
   createSubDraft(d: Draft, loom: Loom, loom_settings: LoomSettings): Promise<SubdraftComponent> {
 
-    console.log("CREATING SUBDRAFT ", d, loom, loom_settings, this.tree.nodes.slice());
-
     const subdraft = this.vc.createComponent(SubdraftComponent);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
     this.setSubdraftSubscriptions(subdraft.instance);
@@ -672,8 +671,6 @@ export class PaletteComponent implements OnInit {
   }
 
   createSubDraftFromEditedDetail(id: number): Promise<SubdraftComponent> {
-    console.log("CREATING SUBDRAFT FROM EDITED DETAIL ", id, this.tree.nodes.slice());
-
     const node: Node = this.tree.getNode(id);
     const subdraft = this.vc.createComponent(SubdraftComponent);
     this.setSubdraftSubscriptions(subdraft.instance);
@@ -700,9 +697,6 @@ export class PaletteComponent implements OnInit {
    * TODO, this likely is not positioning correctly
    */
   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy) {
-    console.log("LOADING SUBDRAFT ", id, this.tree.nodes.slice());
-
-
     const subdraft = this.vc.createComponent(SubdraftComponent);
     const node = this.tree.getNode(id)
     node.component = subdraft.instance;
@@ -760,8 +754,6 @@ export class PaletteComponent implements OnInit {
    * @returns the OperationComponent created
    */
   createOperation(name: string): OperationComponent {
-
-    console.log("CREATING OPERATION ", name)
 
     const op = this.vc.createComponent<OperationComponent>(OperationComponent);
     const id = this.tree.createNode('op', op.instance, op.hostView);
@@ -914,9 +906,6 @@ export class PaletteComponent implements OnInit {
     let l = copyLoom(draftnode.loom);
     let ls = copyLoomSettings(draftnode.loom_settings);
     d.id = generateId(8);
-
-    console.log("PASTING SUBDRAFT ", d, l, ls, this.tree.nodes.slice());
-
 
     return this.createSubDraft(d, l, ls).then(sd => {
       let tr = this.calculateInitialLocation();
@@ -1210,8 +1199,6 @@ export class PaletteComponent implements OnInit {
 
     let new_loom = copyLoom(sd_loom)
     let new_ls = copyLoomSettings(sd_ls)
-    console.log("SUPLICATE DRAFT CALLED");
-
 
     this.createSubDraft(new_draft, new_loom, new_ls)
       .then(new_sd => {
@@ -1751,7 +1738,6 @@ export class PaletteComponent implements OnInit {
    * @param obj 
    */
   opCompLoaded(obj: any) {
-    console.log("OP COMP LOADED ", obj, this.tree.nodes.slice())
     //redraw the inlet
     // let opid = obj.id;
     // const cxns = this.tree.getInputsWithNdx(opid);
@@ -2037,8 +2023,6 @@ export class PaletteComponent implements OnInit {
    * @returns 
    */
   async operationParamChanged(obj: { id: number, prior_inlet_vals: Array<any> }) {
-    console.log("OPERATION PARAM CHANGED")
-
     if (obj === null) return;
 
     return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)

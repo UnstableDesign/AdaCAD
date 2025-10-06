@@ -412,7 +412,7 @@ export class AppComponent implements OnInit, OnDestroy {
             })
 
         } else {
-          console.log("VIEWER IS ", this.vs.getViewer())
+
           this.editor.onFocus(this.vs.getViewer());
         }
 
@@ -567,17 +567,21 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loadMostRecent(): Promise<any> {
 
+    console.log("LOADING MOST RECENT FILE");
+
     return this.fb.getMostRecentFileIdFromUser()
       .then(fileid => {
 
+        console.log("GOT FILE ID ", fileid);
         if (fileid !== null) {
 
           let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
           return Promise.all(fns)
             .then(res => {
+              console.log("GOT FILE ", res);
               const ada = <SaveObj>res[0];
               const meta = <FileMeta>res[1];
-
+              console.log("GOT FILE META ", meta);
               if (ada === undefined) {
                 return Promise.reject("no ada file found at specified file id")
               } else if (meta === undefined) {
@@ -1305,7 +1309,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.clearAll();
     return this.fs.loader.ada(ada, meta, src).then(lr => {
       return this.loadNewFile(lr, 'prepAndLoad');
-    });
+    }).catch(console.error);
   }
 
   /** 
@@ -1313,6 +1317,7 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   async processFileData(data: SaveObj, name: string): Promise<string | void> {
 
+    console.log("PROCESSING FILE DATA", data);
     this.openLoadingAnimation(name)
 
 
@@ -1328,7 +1333,8 @@ export class AppComponent implements OnInit, OnDestroy {
       if (sameOrNewerVersion(data.version, '4.1.7')) {
         //LOAD THE NEW FILE OBJECT
         data.indexed_image_data.forEach(el => {
-          images_to_load.push({ id: el.id, ref: el.ref, data: { colors: el.colors, color_mapping: el.color_mapping } });
+          const repeated_image = images_to_load.find(repeat_el => repeat_el.ref === el.ref);
+          if (repeated_image === undefined) images_to_load.push({ id: el.id, ref: el.ref, data: { colors: el.colors, color_mapping: el.color_mapping } });
         })
 
       } else {
@@ -1339,9 +1345,15 @@ export class AppComponent implements OnInit, OnDestroy {
           param_types.forEach((p, ndx) => {
             //older version stored the media object reference in the parameter
             if (p == 'file') {
-              let new_id = generateId(8);
-              images_to_load.push({ id: new_id, ref: op.params[ndx], data: null });
-              op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
+              const repeated_image = images_to_load.find(repeat_el => repeat_el.ref === op.params[ndx]);
+              if (repeated_image === undefined) {
+                let new_id = generateId(8);
+                images_to_load.push({ id: new_id, ref: op.params[ndx], data: null });
+                op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
+
+              } else {
+                op.params[ndx] = repeated_image.id;
+              }
             }
           });
         })
@@ -1349,7 +1361,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     }
 
-
+    console.log("IMAGES TO LOAD", images_to_load);
     return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
       //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
       // console.log("REPLACE OUTDATED OPS")
@@ -1493,18 +1505,24 @@ export class AppComponent implements OnInit, OnDestroy {
         //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
         data.draft_nodes
           .forEach(np => {
-
             const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
-            const node = this.tree.getNode(new_id.cur_id);
-            if (node === undefined) return;
 
-            (<DraftNode>node).draft.gen_name = np.gen_name ?? 'drafty';
-            (<DraftNode>node).draft.ud_name = np.ud_name ?? '';
-            (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;
-            (<DraftNode>node).loom = (np.loom) ? copyLoom(np.loom) : null;
-            (<DraftNode>node).render_colors = np.render_colors ?? true;
-            (<DraftNode>node).visible = np.draft_visible ?? true;
-            (<DraftNode>node).scale = np.scale ?? 1
+            if (new_id !== undefined) {
+              const node = this.tree.getNode(new_id.cur_id);
+              if (node !== undefined) {
+                (<DraftNode>node).draft.gen_name = np.gen_name ?? 'drafty';
+                (<DraftNode>node).draft.ud_name = np.ud_name ?? '';
+                (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;
+                (<DraftNode>node).loom = (np.loom) ? copyLoom(np.loom) : null;
+                (<DraftNode>node).render_colors = np.render_colors ?? true;
+                (<DraftNode>node).visible = np.draft_visible ?? true;
+                (<DraftNode>node).scale = np.scale ?? 1
+              } else {
+                console.error("a node with the updated id was not found in the tree" + new_id);
+              }
+            } else {
+              console.error("a new id for node not found" + np.node_id);
+            }
           })
 
         this.tree.getOpNodes().forEach(op => {
@@ -1813,7 +1831,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const floating_label_padding = interpolate(pcent, { min: .6, max: 5 })
       const container_height = form_field_entry_size * 3;
       const inlet_outlet_height = form_field_entry_size * 2;
-      console.log("mixer zoom is ", floating_label_size)
+
       document.documentElement.style.setProperty('--scalable-text-heading-size', heading + 'rem');
       document.documentElement.style.setProperty('--form-field-entry-size', form_field_entry_size + 'rem');
       document.documentElement.style.setProperty('--floating-label-size', floating_label_size + 'rem');

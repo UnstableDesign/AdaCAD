@@ -107,6 +107,9 @@ export class ParameterComponent implements OnInit {
         break;
 
       case 'file':
+        this.has_image_uploaded = this.opnode.params[this.paramid].data !== null;
+        console.log("FILE PARAM ", this.opnode.params[this.paramid], this.param.value);
+        console.log("MEDIA SERVICE CONTAINS ", this.mediaService.current.slice());
         this.fc = new UntypedFormControl(this.opnode.params[this.paramid] ?? this.param.value);
         break;
 
@@ -247,12 +250,15 @@ export class ParameterComponent implements OnInit {
   }
 
 
-  openImageEditor() {
+  async openImageEditor() {
 
     const opnode = this.tree.getOpNode(this.opid);
-    const obj = this.mediaService.getMedia(opnode.params[this.paramid].id);
+    let obj: MediaInstance = this.mediaService.getMedia(opnode.params[this.paramid].id);
+    console.log("MEDIA SERVICE CONTAINS ", obj, this.mediaService.current.slice(), opnode.params[this.paramid]);
 
-    if (obj === undefined || obj.img == undefined || obj.img.image == null) return;
+
+    if (obj === undefined || obj === null) return;
+
 
     const dialogRef = this.dialog.open(ImageeditorComponent, { data: { media_id: obj.id, src: this.opnode.name } });
     dialogRef.afterClosed().subscribe(nothing => {

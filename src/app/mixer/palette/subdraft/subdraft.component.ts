@@ -122,8 +122,6 @@ export class SubdraftComponent implements OnInit {
 
   ngOnInit() {
 
-    console.log("NEW SUBDRAFT INIT ", this.id)
-
     if (!this.is_preview) this.parent_id = this.tree.getSubdraftParent(this.id);
     const tl: Point = this.viewport.getTopRight();
     const tl_offset = { x: tl.x, y: tl.y };
@@ -163,7 +161,7 @@ export class SubdraftComponent implements OnInit {
 
     //if scale is changed, automatically call the function to rescale
     if (changes['scale']) {
-      this.rescale().catch(e => console.log(e))
+      this.rescale().catch(e => { /* handle error silently */ })
     }
 
     //if something new is assigned to the draft value for this subdraft, draw it. 
@@ -234,7 +232,6 @@ export class SubdraftComponent implements OnInit {
 
   toggleMultiSelection(e: any) {
 
-    // console.log("TOGGLE MULTI")
     // this.onFocus.emit(this.id);
     this.updateConnectionStyling();
     this.vs.setViewer(this.id);
@@ -506,7 +503,7 @@ export class SubdraftComponent implements OnInit {
         x: scaled_pointer.x - op_topleft_inscale.x,
         y: scaled_pointer.y - op_topleft_inscale.y
       }
-      //console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
+      // console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
 
     }
 

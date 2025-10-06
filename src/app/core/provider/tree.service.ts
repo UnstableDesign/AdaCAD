@@ -255,7 +255,6 @@ export class TreeService {
    * @returns the created draft node and the entry associated with this
    */
   loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
-    console.log("LOADING DRAFT DATA ", entry, draft, loom, loom_settings, render_colors, scale, draft_visible)
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
 
@@ -427,7 +426,6 @@ export class TreeService {
 
     const inputs_to_op: Array<IOTuple> = this.getInputsWithNdx(id);
 
-    console.log("INPUTS ", inputs_to_op.slice(), prior_inlet_vals);
 
 
 
@@ -1219,7 +1217,6 @@ export class TreeService {
      */
   async updateDraftsFromResults(parent: number, outputs: Array<OpOutput>, inputs: Array<OpInput>): Promise<Array<number>> {
 
-    console.log("UPDATING DRAFTS FROM RESULTS ", parent, outputs, inputs)
     const out = this.getNonCxnOutputs(parent);
     const op_outlets = this.getOutputsWithNdx(parent);
 
@@ -1713,12 +1710,10 @@ export class TreeService {
     let b_is_parent = b_children.find(el => el === a);
 
     if (a_is_parent !== undefined) {
-      console.log("A CHILDREN ", a, a_children);
       return this.makeTraceBetween(a, b);
     }
 
     if (b_is_parent !== undefined) {
-      console.log("B CHILDREN ", b_children)
       return this.makeTraceBetween(b, a);
 
     }
@@ -1916,7 +1911,6 @@ export class TreeService {
       })
 
     })
-    console.log("INWARD PROXIES ", proxies)
 
     return proxies;
   }
@@ -1971,7 +1965,6 @@ export class TreeService {
 
     })
 
-    console.log("OUTWARD PROXIES ", proxies)
     return proxies;
   }
 

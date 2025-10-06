@@ -4,8 +4,9 @@ import { MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { DynamicOperation, Interlacement, Operation, OpParamValType } from 'adacad-drafting-lib';
+import { DynamicOperation, Img, Interlacement, Operation, OpParamValType } from 'adacad-drafting-lib';
 import { IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
+import { MediaService } from '../../../core/provider/media.service';
 import { OperationService } from '../../../core/provider/operation.service';
 import { StateService } from '../../../core/provider/state.service';
 import { SystemsService } from '../../../core/provider/systems.service';
@@ -35,6 +36,7 @@ export class OperationComponent implements OnInit {
   vs = inject(ViewerService);
   zs = inject(ZoomService);
   ss = inject(StateService);
+  mediaService = inject(MediaService);
 
 
 
@@ -157,9 +159,6 @@ export class OperationComponent implements OnInit {
 
   ngOnInit() {
 
-    console.log("ON INIT OPERATION ", this.id, this.name)
-
-
     this.op = this.operations.getOp(this.name);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
     this.description = this.op.meta.desc ?? '';
@@ -178,8 +177,6 @@ export class OperationComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-
-    console.log("ON AFTER VIEW INIT OPERATION ", this.id, this.name)
 
     // const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     // if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
@@ -427,9 +424,6 @@ export class OperationComponent implements OnInit {
     const opnode = <OpNode>this.tree.getNode(this.id);
     const original_inlets = this.opnode.inlets.slice();
 
-
-    console.log("ON PARAM CHANGE IN OPERATIONS ", this.is_dynamic_op)
-
     if (this.is_dynamic_op) {
 
       const opnode = <OpNode>this.tree.getNode(this.id);
@@ -547,6 +541,8 @@ export class OperationComponent implements OnInit {
   }
 
   delete() {
+    const operation = this.operations.getOp(this.name);
+    const opnode = this.tree.getOpNode(this.id);
     const change: OpExistenceChanged = {
       originator: 'OP',
       type: 'REMOVED',
@@ -554,6 +550,18 @@ export class OperationComponent implements OnInit {
       inputs: this.tree.getInwardConnectionProxies(this.id),
       outputs: this.tree.getOutwardConnectionProxies(this.id)
     }
+
+    if (operation.params.find(el => el.type === 'file')) change.media = [];
+
+    operation.params.forEach((param, ndx) => {
+      if (param.type === 'file') {
+        const media: Img = opnode.params[ndx];
+        const media_instance = this.mediaService.getMedia(+media.id);
+        change.media.push(media_instance);
+      }
+    });
+
+
     this.ss.addStateChange(change);
 
     this.deleteOp.emit({ id: this.id });

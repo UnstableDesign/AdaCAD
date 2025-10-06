@@ -276,7 +276,7 @@ export class DraftRenderingComponent implements OnInit {
       return;
     }
 
-    let loom_settings = this.tree.getLoomSettings(id);
+    let loom_settings = this.tree.getLoomSettings(id) ?? defaults.loom_settings;
 
     const loom = this.tree.getLoom(id);
     if (loom == null) {

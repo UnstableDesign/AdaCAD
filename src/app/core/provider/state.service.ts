@@ -131,11 +131,7 @@ export class StateService {
     return false;
   }
 
-  public addStateChange(change: StateChangeEvent) {
-
-    this.history.push(change);
-    console.log("HISTORY IS ", this.history)
-
+  private writeStateToFirebase() {
     if (this.fb.auth.currentUser != null) {
       this.fs.saver.ada()
         .then(so => {
@@ -143,6 +139,13 @@ export class StateService {
         })
         .catch(err => console.error(err));
     }
+  }
+
+  public addStateChange(change: StateChangeEvent) {
+
+    this.history.push(change);
+    console.log("HISTORY IS ", this.history)
+    this.writeStateToFirebase();
 
   }
 
@@ -215,7 +218,8 @@ export class StateService {
           type: "CREATE",
           node: (<OpExistenceChanged>change).node,
           inputs: (<OpExistenceChanged>change).inputs,
-          outputs: (<OpExistenceChanged>change).outputs
+          outputs: (<OpExistenceChanged>change).outputs,
+          media: (<OpExistenceChanged>change).media
         });
         break;
     }
@@ -270,7 +274,10 @@ export class StateService {
 
 
     const last = this.history.pop();
-    if (last) this.handleUndo(last);
+    if (last) {
+      this.handleUndo(last);
+      this.writeStateToFirebase();
+    }
 
   }
 

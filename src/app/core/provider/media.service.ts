@@ -21,6 +21,10 @@ export class MediaService {
 
 
 
+  isAlreadyLoaded(id: number): boolean {
+    return this.current.find(el => el.id == id) !== undefined;
+  }
+
   /**
    * called when a new file is loaded, 
    * compiles all the media refs that need to be loaded into memory. Data contains any additional meta-data to factor in while loading
@@ -30,6 +34,7 @@ export class MediaService {
   loadMediaFromUpload(to_load: Array<MediaInstance>): Promise<any> {
     const fns = to_load
       .filter(el => el.ref !== '')
+      .filter(el => !this.isAlreadyLoaded(el.id))
       .map(el => {
         if (el.type == 'indexed_color_image') return this.loadIndexedColorFile(el.id, el.ref, null)
         else return this.loadImage(el.id, el.ref)
@@ -45,8 +50,10 @@ export class MediaService {
    * @returns 
    */
   loadMediaFromFileLoad(to_load: Array<{ id: number, ref: string, data: any }>): Promise<any> {
+    console.log("LOAD MEDIA FROM FILE LOAD", to_load, this.current.slice());
     const fns = to_load
       .filter(el => el.ref !== '')
+      .filter(el => !this.isAlreadyLoaded(el.id))
       .map(el => {
         return this.loadIndexedColorFile(el.id, el.ref, el.data)
       });
@@ -68,7 +75,6 @@ export class MediaService {
    * @returns 
    */
   loadIndexedColorFile(id: number, ref: string, saved_data: { colors: Array<any>, color_mapping: Array<any> }): Promise<MediaInstance> {
-    //console.log("LOAD INDEXED COLOR FILE")
 
     if (id == -1) {
       id = generateId(8);

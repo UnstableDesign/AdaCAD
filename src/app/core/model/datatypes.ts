@@ -511,7 +511,8 @@ type NumberEvent = {
 type NodeEvent = {
   node: Node,
   inputs: Array<InwardConnectionProxy>,
-  outputs: Array<OutwardConnectionProxy>
+  outputs: Array<OutwardConnectionProxy>,
+  media?: Array<MediaInstance>
 }
 
 type ConnectionChangeEvent = {
@@ -599,9 +600,9 @@ export type ParamAction = StateAction & {
 export type NodeAction = StateAction & {
   node: Node,
   inputs: Array<InwardConnectionProxy>,
-  outputs: Array<OutwardConnectionProxy>
+  outputs: Array<OutwardConnectionProxy>,
+  media?: Array<MediaInstance>
 }
-
 
 
 
