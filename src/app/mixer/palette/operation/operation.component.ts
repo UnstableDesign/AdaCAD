@@ -390,13 +390,6 @@ export class OperationComponent implements OnInit {
 
 
 
-  removeConnectionTo(obj: any) {
-
-
-    this.onConnectionRemoved.emit(obj);
-  }
-
-
 
   openHelpDialog() {
 
@@ -681,8 +674,9 @@ export class OperationComponent implements OnInit {
     const change: OpStateMove = {
       originator: 'OP',
       type: 'MOVE',
+      id: this.id,
       before: this.previous_topleft,
-      after: this.topleft //before move
+      after: this.topleft
     }
 
     this.ss.addStateChange(change);

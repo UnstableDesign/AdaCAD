@@ -98,6 +98,8 @@ export class DraftContainerComponent implements AfterViewInit {
   }
 
   ngOnInit() {
+    console.log("ON INIT DRAFT CONTAINER ", this.id)
+
   }
 
   ngAfterViewInit() {

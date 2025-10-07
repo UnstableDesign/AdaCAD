@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateEvent, NodeAction, OpExistenceChanged, OpStateEvent, OpStateParamChange, ParamAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateEvent, MoveAction, NodeAction, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { FileService } from './file.service';
 import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
@@ -153,7 +153,12 @@ export class StateService {
   private handleDraftUndo(change: DraftStateEvent) {
     switch (change.type) {
       case 'MOVE':
-        this.draftMoveUndoSubject.next(<unknown>change as StateAction);
+        this.draftMoveUndoSubject.next(<MoveAction>{
+          type: 'CHANGE',
+          id: (<OpStateMove>change).id,
+          before: (<OpStateMove>change).before,
+          after: (<OpStateMove>change).after
+        });
         break;
       case 'VALUE_CHANGE':
         this.draftValueChangeUndoSubject.next(<unknown>change as StateAction);
@@ -191,7 +196,12 @@ export class StateService {
   private handleOpUndo(change: OpStateEvent) {
     switch (change.type) {
       case 'MOVE':
-        this.opMoveUndoSubject.next(<unknown>change as StateAction);
+        this.opMoveUndoSubject.next(<MoveAction>{
+          type: 'CHANGE',
+          id: (<OpStateMove>change).id,
+          before: (<OpStateMove>change).before,
+          after: (<OpStateMove>change).after
+        });
         break;
       case 'PARAM_CHANGE':
         this.opParamChangeUndoSubject.next(

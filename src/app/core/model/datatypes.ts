@@ -492,6 +492,7 @@ export type StateChangeEvent = {
 }
 
 type MoveEvent = {
+  id: number,
   before: Point,
   after: Point
 }
@@ -589,6 +590,12 @@ export type MaterialsStateChange = StateChangeEvent & {
  */
 export type StateAction = {
   type: "CREATE" | "REMOVE" | "CHANGE",
+}
+
+export type MoveAction = StateAction & {
+  id: number,
+  before: Point,
+  after: Point
 }
 
 export type ParamAction = StateAction & {

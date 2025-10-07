@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AnalyzedImage, Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
-import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
+import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { FirebaseService } from '../../core/provider/firebase.service';
@@ -148,6 +148,14 @@ export class PaletteComponent implements OnInit {
       }).catch(console.error)
     })
 
+
+    const draftMoveUndoSubscription = this.ss.draftMoveUndo$.subscribe(action => {
+      const dn = this.tree.getNode((<MoveAction>action).id);
+      if (dn && dn.component) (<SubdraftComponent>dn.component).setPosition((<MoveAction>action).before);
+      this.subdraftMoved({ id: (<MoveAction>action).id });
+      this.subdraftDropped({ id: (<MoveAction>action).id });
+    })
+
     //Subscribe to state events that are triggered by undo/redo
     const paramChangeFromStateSubscription = this.ss.opParamChangeUndo$.subscribe(action => {
       const op = this.tree.getOpNode(action.opid);
@@ -159,6 +167,13 @@ export class PaletteComponent implements OnInit {
       this.removeOperation(on.id);
     })
 
+    const opMoveUndoSubscription = this.ss.opMoveUndo$.subscribe(action => {
+      const op = this.tree.getOpNode((<MoveAction>action).id);
+      if (op && op.component) (<OperationComponent>op.component).setPosition((<MoveAction>action).before);
+      this.operationMoved({ id: (<MoveAction>action).id });
+      this.operationMoveEnded({ id: (<MoveAction>action).id });
+
+    });
 
 
     /**
@@ -211,14 +226,19 @@ export class PaletteComponent implements OnInit {
     })
 
 
+
+
     this.stateSubscriptions.push(draftCreatedUndoSubscription);
     this.stateSubscriptions.push(draftRemovedUndoSubscription);
+    this.stateSubscriptions.push(draftMoveUndoSubscription);
     this.stateSubscriptions.push(paramChangeFromStateSubscription);
     this.stateSubscriptions.push(opCreatedUndoSubscription);
+    this.stateSubscriptions.push(opMoveUndoSubscription);
     this.stateSubscriptions.push(opRemovedUndoSubscription);
     this.stateSubscriptions.push(cxnRemovedUndoSubscription);
     this.stateSubscriptions.push(cxnCreatedUndoSubscription);
     this.stateSubscriptions.push(cxnRemovedUndoSubscription);
+
 
     this.vc.clear();
     this.default_cell_size = defaults.draft_detail_cell_size;

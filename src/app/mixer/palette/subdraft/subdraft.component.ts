@@ -2,7 +2,7 @@ import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { Draft, Interlacement, LoomSettings } from 'adacad-drafting-lib';
 import { isUp, warps, wefts } from 'adacad-drafting-lib/draft';
-import { DraftNode, Point } from '../../../core/model/datatypes';
+import { DraftNode, DraftStateMove, Point } from '../../../core/model/datatypes';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
@@ -108,6 +108,8 @@ export class SubdraftComponent implements OnInit {
   draft_zoom: number = 1;
 
   offset: Point = null;
+
+  previous_topleft: Point = { x: 0, y: 0 };
 
   constructor() {
     const layer = this.layer;
@@ -452,7 +454,7 @@ export class SubdraftComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
-
+    this.previous_topleft = { x: this.topleft.x, y: this.topleft.y };
 
     this.moving = true;
     this.offset = null;
@@ -551,6 +553,19 @@ export class SubdraftComponent implements OnInit {
     this.last_ndx = { i: -1, j: -1 };
     this.multiselect.setRelativePosition(this.topleft);
     this.onSubdraftDrop.emit({ id: this.id });
+
+
+    const change: DraftStateMove = {
+      originator: 'DRAFT',
+      type: 'MOVE',
+      id: this.id,
+      before: this.previous_topleft,
+      after: this.topleft
+    }
+
+    this.ss.addStateChange(change);
+
+
   }
 
 
