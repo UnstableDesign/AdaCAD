@@ -62,6 +62,8 @@ export class ViewerComponent {
       this.redraw(this.id);
     })
 
+    
+
   }
 
   ngOnInit() {

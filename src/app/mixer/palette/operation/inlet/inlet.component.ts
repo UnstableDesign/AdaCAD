@@ -1,8 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule, UntypedFormControl } from '@angular/forms';
-import { MatOption } from '@angular/material/autocomplete';
 import { MatButton } from '@angular/material/button';
-import { MatSelect } from '@angular/material/select';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, OperationInlet } from 'adacad-drafting-lib';
 import { getDraftName } from 'adacad-drafting-lib/draft';
@@ -16,7 +14,7 @@ import { TreeService } from '../../../../core/provider/tree.service';
   selector: 'app-inlet',
   templateUrl: './inlet.component.html',
   styleUrls: ['./inlet.component.scss'],
-  imports: [MatButton, MatTooltip, MatSelect, FormsModule, MatOption]
+  imports: [MatButton, MatTooltip, FormsModule]
 })
 export class InletComponent implements OnInit {
   tree = inject(TreeService);

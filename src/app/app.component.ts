@@ -194,6 +194,8 @@ export class AppComponent implements OnInit, OnDestroy {
       //redraw the editor if it has this draft loaded
       if (this.editor.id === (<DraftStateAction>action).id) {
         this.editor.redraw();
+        this.editor.updateLoom();
+        this.editor.updateWeavingInfo();
         this.editor.clearSelection();
       }
 
@@ -491,7 +493,8 @@ export class AppComponent implements OnInit, OnDestroy {
       epi: obj.epi,
       units: <"cm" | "in">obj.units,
       frames: obj.frames,
-      treadles: obj.treadles
+      treadles: obj.treadles,
+      ppi: obj.ppi
     }
 
     let loom_util = getLoomUtilByType(loom_settings.type);
@@ -1426,6 +1429,7 @@ export class AppComponent implements OnInit, OnDestroy {
               frames: this.ws.min_frames,
               treadles: this.ws.min_treadles,
               epi: this.ws.epi,
+              ppi: this.ws.ppi,
               units: this.ws.units,
               type: this.ws.type
             }

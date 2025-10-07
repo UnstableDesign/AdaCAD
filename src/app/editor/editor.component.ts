@@ -115,7 +115,11 @@ export class EditorComponent implements OnInit {
   ngOnInit() {
 
     this.pencil = "toggle";
+
+
   }
+
+
 
   ngAfterViewInit() {
     this.scale = this.zs.getEditorZoom();
@@ -287,6 +291,7 @@ export class EditorComponent implements OnInit {
         frames: this.ws.min_frames,
         treadles: this.ws.min_treadles,
         epi: this.ws.epi,
+        ppi: this.ws.ppi,
         units: this.ws.units,
         type: this.ws.type
       }
@@ -324,6 +329,7 @@ export class EditorComponent implements OnInit {
 
       this.draftname = getDraftName(draft);
       this.weaveRef.onNewDraftLoaded(id);
+      this.loom.loadLoom(id);
       this.redraw();
       this.updateWeavingInfo();
       return Promise.resolve(id);
@@ -340,10 +346,11 @@ export class EditorComponent implements OnInit {
 
   }
 
-  ngOnDestroy(): void {
-
-
+  updateLoom() {
+    this.loom.refreshLoom();
   }
+
+
 
 
 
@@ -365,7 +372,7 @@ export class EditorComponent implements OnInit {
 
   public drawdownUpdated() {
     this.vs.updateViewer();
-    this.loom.updateLoom();
+    this.loom.refreshLoom();
     this.updateWeavingInfo();
     this.saveChanges.emit();
   }

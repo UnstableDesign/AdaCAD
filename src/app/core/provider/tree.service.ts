@@ -271,6 +271,7 @@ export class TreeService {
       (<DraftNode>nodes[0]).loom_settings = {
         type: this.ws.type,
         epi: this.ws.epi,
+        ppi: this.ws.ppi,
         units: this.ws.units,
         frames: this.ws.min_frames,
         treadles: this.ws.min_treadles

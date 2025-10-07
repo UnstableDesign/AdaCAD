@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { generateId, Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
+import { defaults, generateId, Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
@@ -173,8 +173,23 @@ export class FileService {
                 draft_visible: (node === undefined) ? true : node.draft_visible,
                 loom: null,
                 loom_settings: (loom === undefined)
-                  ? { type: this.ws.type, epi: this.ws.epi, units: this.ws.units, frames: this.ws.min_frames, treadles: this.ws.min_treadles }
-                  : { type: loom.type, epi: loom.epi, units: loom.units, frames: loom.min_frames, treadles: loom.min_treadles },
+                  ? {
+                    type: this.ws.type,
+                    epi: defaults.loom_settings.epi,
+                    ppi: defaults.loom_settings.ppi,
+                    units: this.ws.units,
+                    frames: this.ws.min_frames,
+                    treadles: this.ws.min_treadles
+                  }
+                  :
+                  {
+                    type: loom.type ?? defaults.loom_settings.type,
+                    epi: loom.epi ?? defaults.loom_settings.epi,
+                    ppi: loom.ppi ?? defaults.loom_settings.ppi,
+                    units: loom.units ?? defaults.loom_settings.units,
+                    frames: loom.min_frames ?? defaults.loom_settings.frames,
+                    treadles: loom.min_treadles ?? defaults.loom_settings.treadles
+                  },
                 render_colors: (node === undefined || node.render_colors === undefined) ? true : node.render_colors,
                 scale: (node === undefined || node.scale === undefined) ? 1 : node.scale,
               }

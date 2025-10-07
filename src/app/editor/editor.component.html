@@ -1,4 +1,4 @@
-<div  class="detail-sidebars" id="detail-sidebar">
+<div class="detail-sidebars" id="detail-sidebar">
 
   <mat-accordion multi>
     <!--
@@ -51,79 +51,66 @@
 
 
 
-          <button
-            mat-stroked-button
-            class="new_draft"
-            color="primary"
-            matTooltip= "Blank Draft"
-            (click)="createNewDraft()">
-            + <i class="fas fa-chess-board"></i> new draft
-          </button>
+    <button mat-stroked-button class="new_draft" color="primary" matTooltip="Blank Draft" (click)="createNewDraft()">
+      + <i class="fas fa-chess-board"></i> new draft
+    </button>
 
 
-          <mat-expansion-panel expanded >
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <i class="fas fa-edit"></i>
-                Edit Draft
-              </mat-panel-title>
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i class="fas fa-edit"></i>
+          Edit Draft
+        </mat-panel-title>
 
-            </mat-expansion-panel-header>
+      </mat-expansion-panel-header>
 
 
 
 
-            <div class="draft_tools">
+      <div class="draft_tools">
 
-              @if (loom.type !== 'jacquard') {
-                <div class="editing-mode-toggle">
-                  <mat-label>drafting style</mat-label>
-                  <mat-button-toggle-group  [(value)]="dm.cur_draft_edit_source"  name="design source" (change)="swapEditingStyleClicked()" aria-label="edit mode">
-                    <mat-button-toggle matTooltip="threading-first" class="draft-edit-mode-loom" value="loom"></mat-button-toggle>
-                    <mat-button-toggle matTooltip="drawdown-first" class="draft-edit-mode-drawdown" value="drawdown"> </mat-button-toggle>
-                  </mat-button-toggle-group>
-                </div>
-              }
-              <mat-label>drafting pencil</mat-label>
+        @if (loom.type !== 'jacquard') {
+        <div class="editing-mode-toggle">
+          <mat-label>drafting style</mat-label>
+          <mat-button-toggle-group [(value)]="dm.cur_draft_edit_source" name="design source"
+            (change)="swapEditingStyleClicked()" aria-label="edit mode">
+            <mat-button-toggle matTooltip="threading-first" class="draft-edit-mode-loom"
+              value="loom"></mat-button-toggle>
+            <mat-button-toggle matTooltip="drawdown-first" class="draft-edit-mode-drawdown" value="drawdown">
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        }
+        <mat-label>drafting pencil</mat-label>
 
-              <mat-button-toggle-group
-                name="editor mode"
-                (change)="selectPencil()"
-                [(ngModel)]="pencil"
-                aria-label="edit mode">
+        <mat-button-toggle-group name="editor mode" (change)="selectPencil()" [(ngModel)]="pencil"
+          aria-label="edit mode">
 
-                <mat-button-toggle
-                  matTooltip="select regions"
-                  value="select">
-                  <i class="fas fa-expand"></i>
-                </mat-button-toggle>
+          <mat-button-toggle matTooltip="select regions" value="select">
+            <i class="fas fa-expand"></i>
+          </mat-button-toggle>
 
-                @for (mode of draw_modes; track mode) {
-                  @if (mode.value !== 'material') {
-                    <mat-button-toggle
-                      [matTooltip]= "mode.viewValue"
-                      [value] = "mode.value"
-                      >
-                      <span class="{{mode.icon}}"></span>
-                    </mat-button-toggle >
-                  }
-                }
+          @for (mode of draw_modes; track mode) {
+          @if (mode.value !== 'material') {
+          <mat-button-toggle [matTooltip]="mode.viewValue" [value]="mode.value">
+            <span class="{{mode.icon}}"></span>
+          </mat-button-toggle>
+          }
+          }
 
-                @for (shuttle of ms.materials; track shuttle) {
-                  <mat-button-toggle
-                    [matTooltip]= "shuttle.name"
-                    [value]="shuttle.id"
-                    >
-                    <span  [style.color]="shuttle.color" ><i class="fa-solid fa-paintbrush"></i></span>
-                  </mat-button-toggle >
-                }
+          @for (shuttle of ms.materials; track shuttle) {
+          <mat-button-toggle [matTooltip]="shuttle.name" [value]="shuttle.id">
+            <span [style.color]="shuttle.color"><i class="fa-solid fa-paintbrush"></i></span>
+          </mat-button-toggle>
+          }
 
-              </mat-button-toggle-group>
+        </mat-button-toggle-group>
 
 
-              <!-- <div class="select">
+        <!-- <div class="select">
               <h3>select</h3> -->
-              <!-- <button
+        <!-- <button
               mat-icon-button
               class="menu-button"
               matTooltip= "Select Region"
@@ -133,7 +120,7 @@
             </button>
           </div> -->
 
-          <!-- <div class="pencils">
+        <!-- <div class="pencils">
           <h3>draft</h3>
           <ng-container *ngFor="let mode of draw_modes">
             <button *ngIf="mode.value !== 'material'"
@@ -160,21 +147,18 @@
           </button>
         </ng-container>
       </div> -->
-    </div>
+      </div>
 
 
-    <!-- <button
+      <!-- <button
     matTooltip= "Set Repeats"
     mat-raised-button
     class="fullwidth set_repeats"
     [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
     (click)='openActions()'><i class="fas fa-magic"></i> Set Repeats</button> -->
 
-    <button
-      matTooltip= "Add/Edit Materials"
-      mat-flat-button
-      class="fullwidth set_repeats"
-      (click)='openMaterials()'><i class="fa-solid fa-paintbrush"></i> Add / Edit Materials</button>
+      <button matTooltip="Add/Edit Materials" mat-flat-button class="fullwidth set_repeats" (click)='openMaterials()'><i
+          class="fa-solid fa-paintbrush"></i> Add / Edit Materials</button>
 
 
 
@@ -192,13 +176,8 @@
 
       </mat-expansion-panel-header>
 
-      <app-loom
-        #loom
-        [id]="id"
-        (unsetSelection)='unsetSelection()'
-        (drawdownUpdated)='drawdownUpdated()'
-        (loomSettingsUpdated)="loomSettingsUpdated()"
-      ></app-loom>
+      <app-loom #loom (unsetSelection)='unsetSelection()' (drawdownUpdated)='drawdownUpdated()'
+        (loomSettingsUpdated)="loomSettingsUpdated()"></app-loom>
     </mat-expansion-panel>
 
 
@@ -212,9 +191,9 @@
       </mat-expansion-panel-header>
 
       @for (line of dressing_info; track line) {
-        <div>
-          {{line.label}}: {{line.value}}
-        </div>
+      <div>
+        {{line.label}}: {{line.value}}
+      </div>
       }
 
 
@@ -229,26 +208,16 @@
 
 
   <div [class.hidden]="parentOp == ''" class="locked_draft">
-    <p>Edits are disabled by default because the draft you are viewing was generated by the <b>{{parentOp}}</b> operation. <button mat-raised-button color="warn" (click)="enableEdits()">Enable Edits</button>
+    <p>Edits are disabled by default because the draft you are viewing was generated by the <b>{{parentOp}}</b>
+      operation. <button mat-raised-button color="warn" (click)="enableEdits()">Enable Edits</button>
   </div>
 
 
 
 
-  <app-draft-rendering
-    id="draft_viewer"
-    #weaveRef
-    source = "editor"
-    [id]="id"
-    [view_only] = "false"
-    [current_view]="current_view"
-    [scale]="scale"
-    (onNewSelection) = "updateSelection($event)"
-    (onDrawdownUpdated)="drawdownUpdated()"
-    (onLoomSettingsUpdated)="loomSettingsUpdated()"
-    (onMaterialChange)="materialChange()"
-    (onViewerExpanded)="expandViewer()">
+  <app-draft-rendering id="draft_viewer" #weaveRef source="editor" [id]="id" [view_only]="false"
+    [current_view]="current_view" [scale]="scale" (onNewSelection)="updateSelection($event)"
+    (onDrawdownUpdated)="drawdownUpdated()" (onLoomSettingsUpdated)="loomSettingsUpdated()"
+    (onMaterialChange)="materialChange()" (onViewerExpanded)="expandViewer()">
   </app-draft-rendering>
 </div>
-
-
