@@ -226,6 +226,9 @@ export interface DraftNodeProxy {
   scale: number;
 }
 
+
+
+
 /**
  * a sparse form of an operation component to use for saving
  * @param node_id the node id this object refers too
@@ -484,7 +487,20 @@ export type ShareObj = {
  * State - UNDO and REDO
  * classify all the kinds of events that can create a workspace change so that we can undo or redo them.
  */
-
+/**
+ * an object to store the state of a draft node for undo/redo
+ * @param draft the draft object
+ * @param draft_visible the visibility of the draft
+ * @param loom the loom object
+ * @param loom_settings the loom settings object
+ */
+export interface DraftNodeState {
+  draft: Draft;
+  draft_visible: boolean;
+  loom: Loom;
+  loom_settings: LoomSettings;
+  scale: number;
+}
 
 
 export type StateChangeEvent = {
@@ -524,8 +540,9 @@ type ConnectionChangeEvent = {
 
 
 type DraftChangedEvent = {
-  before: DraftNode,
-  after: DraftNode
+  id: number,
+  before: DraftNodeState,
+  after: DraftNodeState
 }
 type WorkspaceSettingsChangedEvent = {
   before: any,
@@ -550,7 +567,7 @@ export type OpStateConnectionChange = OpStateEvent & ConnectionChangeEvent;
 
 
 export type DraftStateEvent = StateChangeEvent & {
-  type: 'MOVE' | 'VALUE_CHANGE' | 'LOOM_CHANGE' | 'LOOM_SETTINGS_CHANGE' | 'NAME_CHANGE' | 'CREATED' | 'REMOVED'
+  type: 'MOVE' | 'VALUE_CHANGE' | 'NAME_CHANGE' | 'CREATED' | 'REMOVED'
 }
 
 export type DraftStateMove = DraftStateEvent & MoveEvent;
@@ -609,6 +626,12 @@ export type NodeAction = StateAction & {
   inputs: Array<InwardConnectionProxy>,
   outputs: Array<OutwardConnectionProxy>,
   media?: Array<MediaInstance>
+}
+
+export type DraftStateAction = StateAction & {
+  id: number,
+  before: DraftNodeState,
+  after: DraftNodeState
 }
 
 

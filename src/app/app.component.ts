@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { DraftNode, DraftNodeProxy, FileMeta, LoadResponse, MediaInstance, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MediaInstance, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -141,6 +141,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loaded_from_url = false;
 
+  stateSubscriptions: Array<Subscription> = [];
 
 
 
@@ -179,6 +180,29 @@ export class AppComponent implements OnInit, OnDestroy {
       }
 
     });
+
+
+    //INTERCEPT DRAFT CHANGES IN APP so we can centralize where changes come from and delegate redrawing as required. 
+    const draftStateChangeSubscription = this.ss.draftValueChangeUndo$.subscribe(action => {
+      this.tree.restoreDraftNodeState((<DraftStateAction>action).id, (<DraftStateAction>action).before);
+
+      //redraw and recompute the change in the mixer
+      this.mixer.palette.redrawAllSubdrafts();
+      const outs = this.tree.getNonCxnOutputs((<DraftStateAction>action).id);
+      outs.forEach(el => this.mixer.palette.performAndUpdateDownstream(el));
+
+      //redraw the editor if it has this draft loaded
+      if (this.editor.id === (<DraftStateAction>action).id) {
+        this.editor.redraw();
+        this.editor.clearSelection();
+      }
+
+      if (this.viewer.id === (<DraftStateAction>action).id) {
+        this.viewer.redraw(this.viewer.id);
+      }
+
+    })
+    this.stateSubscriptions.push(draftStateChangeSubscription);
 
 
 
@@ -220,6 +244,8 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.scrollingSubscription) {
       this.scrollingSubscription.unsubscribe();
     }
+
+    this.stateSubscriptions.forEach(element => element.unsubscribe());
   }
 
   ngAfterViewInit() {

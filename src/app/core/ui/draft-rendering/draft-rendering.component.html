@@ -2,7 +2,8 @@
   id="draft-scale-container-{{source}}-{{id}}">
 
   <app-selection #selection class="app-selection" [id]="id" [source]="source" [scale]="scale"
-    (onSelectionEnd)="onSelectionEnd()" (forceRedraw)="redrawAll()" (saveAction)="afterSelectAction()"></app-selection>
+    (onSelectionEnd)="onSelectionEnd()" (forceRedraw)="redrawAll()"
+    (saveAction)="afterSelectAction($event)"></app-selection>
 
   <div class="draft-top {{source}} origin{{ws.selected_origin_option}}">
 

@@ -139,7 +139,9 @@ export class EditorComponent implements OnInit {
 
 
 
-
+  clearSelection() {
+    this.weaveRef.unsetSelection();
+  }
 
 
 

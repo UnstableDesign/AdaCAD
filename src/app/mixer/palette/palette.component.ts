@@ -227,7 +227,6 @@ export class PaletteComponent implements OnInit {
 
 
 
-
     this.stateSubscriptions.push(draftCreatedUndoSubscription);
     this.stateSubscriptions.push(draftRemovedUndoSubscription);
     this.stateSubscriptions.push(draftMoveUndoSubscription);

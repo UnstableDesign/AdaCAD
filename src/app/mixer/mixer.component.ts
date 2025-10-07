@@ -249,6 +249,7 @@ export class MixerComponent {
       outputs: this.tree.getOutwardConnectionProxies(id)
     }
     this.ss.addStateChange(change);
+
   }
 
 

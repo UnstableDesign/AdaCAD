@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateEvent, MoveAction, NodeAction, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, MoveAction, NodeAction, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { FileService } from './file.service';
 import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
@@ -161,13 +161,14 @@ export class StateService {
         });
         break;
       case 'VALUE_CHANGE':
-        this.draftValueChangeUndoSubject.next(<unknown>change as StateAction);
-        break;
-      case 'LOOM_CHANGE':
-        this.draftLoomChangeUndoSubject.next(<unknown>change as StateAction);
-        break;
-      case 'LOOM_SETTINGS_CHANGE':
-        this.draftLoomSettingsChangeUndoSubject.next(<unknown>change as StateAction);
+        this.draftValueChangeUndoSubject.next(
+          <DraftStateAction>{
+            type: 'CHANGE',
+            id: (<DraftStateChange>change).id,
+            before: (<DraftStateChange>change).before,
+            after: (<DraftStateChange>change).after
+          }
+        );
         break;
       case 'NAME_CHANGE':
         this.draftNameChangeUndoSubject.next(<unknown>change as StateAction);

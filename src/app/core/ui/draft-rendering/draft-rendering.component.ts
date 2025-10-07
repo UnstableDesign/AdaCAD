@@ -3,7 +3,7 @@ import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { Subject, Subscription, fromEvent } from 'rxjs';
-import { CanvasList, RenderingFlags } from '../../model/datatypes';
+import { CanvasList, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { FileService } from '../../provider/file.service';
@@ -27,6 +27,7 @@ import { SelectionComponent } from './selection/selection.component';
 
 
 export class DraftRenderingComponent implements OnInit {
+
   private fs = inject(FileService);
   dm = inject(DesignmodesService);
   private ms = inject(MaterialsService);
@@ -38,6 +39,7 @@ export class DraftRenderingComponent implements OnInit {
   render = inject(RenderService);
   vs = inject(ViewerService);
   private zs = inject(ZoomService);
+  private state = inject(StateService);
 
 
   @ViewChild('bitmapImage') bitmap;
@@ -150,6 +152,7 @@ export class DraftRenderingComponent implements OnInit {
   weft_text_div_height: string = '1000px';
 
 
+
   /// ANGULAR FUNCTIONS
   /**
   * Creates the element reference.
@@ -165,6 +168,7 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   ngOnInit() {
+
 
   }
 
@@ -328,8 +332,12 @@ export class DraftRenderingComponent implements OnInit {
   * @param currentPos the position of the click within the target
   */
   setPosAndDraw(target: HTMLElement, shift: boolean, currentPos: Interlacement) {
+    console.log("SET POS AND DRAW ", this.id)
 
     if (this.view_only) return;
+
+    const before = this.tree.getDraftNodeState(this.id);
+
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -366,6 +374,7 @@ export class DraftRenderingComponent implements OnInit {
     }
 
     this.flag_history = true;
+    this.addStateChange(before);
   }
 
 
@@ -611,6 +620,18 @@ export class DraftRenderingComponent implements OnInit {
     return this.selection.hasSelection();
   }
 
+  private addStateChange(before: DraftNodeState) {
+    const after = this.tree.getDraftNodeState(this.id);
+    const change: DraftStateChange = {
+      originator: 'DRAFT',
+      type: 'VALUE_CHANGE',
+      id: this.id,
+      before: before,
+      after: after
+    }
+    this.state.addStateChange(change);
+  }
+
 
 
 
@@ -633,6 +654,8 @@ export class DraftRenderingComponent implements OnInit {
 
   incrementWeftMaterial(si: number) {
     const draft = this.tree.getDraft(this.id);
+
+
     if (this.dm.isSelectedPencil('material')) {
       draft.rowShuttleMapping[si] = this.selected_material_id;
     } else {
@@ -646,6 +669,8 @@ export class DraftRenderingComponent implements OnInit {
     this.rowShuttleMapping = draft.rowShuttleMapping;
     this.redrawAll();
     this.onMaterialChange.emit(draft);
+
+
 
   }
 
@@ -1267,8 +1292,9 @@ export class DraftRenderingComponent implements OnInit {
 
   }
 
-  public afterSelectAction() {
+  public afterSelectAction(before: any) {
     const draft = this.tree.getDraft(this.id);
+    this.addStateChange(before);
     this.onDrawdownUpdated.emit(draft);
   }
 

@@ -1,13 +1,13 @@
 import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { copyLoom, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
+import { copyLoom, copyLoomSettings, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, DraftNode, DraftNodeProxy, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
@@ -2151,6 +2151,31 @@ export class TreeService {
     })
 
     return adjusted;
+  }
+
+  restoreDraftNodeState(id: number, state: DraftNodeState) {
+    const node: DraftNode = <DraftNode>this.getNode(id);
+    node.draft = copyDraft(state.draft);
+    node.visible = state.draft_visible;
+    node.loom = copyLoom(state.loom);
+    node.loom_settings = copyLoomSettings(state.loom_settings);
+    node.scale = state.scale;
+  }
+
+  /**
+   * creates a deep copy of the state of a draft node in case it needs to be restored thruogh an undo event
+   * @param id the id of the draft node to get the state of
+   * @returns 
+   */
+  getDraftNodeState(id: number): DraftNodeState {
+    const node: DraftNode = <DraftNode>this.getNode(id);
+    return {
+      draft: copyDraft(node.draft),
+      draft_visible: node.visible,
+      loom: copyLoom(node.loom),
+      loom_settings: copyLoomSettings(node.loom_settings),
+      scale: node.scale
+    }
   }
 
   /**
