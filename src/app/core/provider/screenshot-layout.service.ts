@@ -186,6 +186,7 @@ export class ScreenshotLayoutService {
 
     const flexContainer = document.createElement('div');
     flexContainer.style.position = 'absolute';
+    flexContainer.style.padding = '200px';
     flexContainer.style.left = '0';
     flexContainer.style.top = '0';
     flexContainer.style.display = 'flex';
@@ -251,6 +252,7 @@ export class ScreenshotLayoutService {
     gridContainer.style.position = 'absolute';
     gridContainer.style.top = '0';
     gridContainer.style.left = '0';
+    gridContainer.style.padding = '200px';
     gridContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     gridContainer.style.alignItems = 'start';
     gridContainer.style.rowGap = this.squareLayoutConfig.rowGap + 'px';

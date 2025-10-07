@@ -51,6 +51,7 @@ import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
+import { ScreenshotLayoutService } from './core/provider/screenshot-layout.service';
 
 @Component({
   selector: 'app-root',
@@ -82,6 +83,7 @@ export class AppComponent implements OnInit, OnDestroy {
   vs = inject(ViewerService);
   vers = inject(VersionService);
   zs = inject(ZoomService);
+  sls = inject(ScreenshotLayoutService);
   private zone = inject(NgZone);
   cdr = inject(ChangeDetectorRef);
   title = 'app';
@@ -149,8 +151,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.current_version = this.vers.currentVersion();
     this.editorModes = editor_modes;
     this.selected_editor_mode = defaults.editor;
-
-
 
     //subscribe to the connection event to see if we have access to the firebase database (and internet) 
     this.connectionSubscription = this.fb.connectionChangeEvent$.subscribe(data => {
@@ -225,6 +225,19 @@ export class AppComponent implements OnInit, OnDestroy {
   ngAfterViewInit() {
     this.recenterViews();
     this.updateTextSizing();
+
+    // Utility functions exposed on window for the screenshot generator script
+
+    // Load ADA file JSON directly
+    (window as any).loadAdaFileJson = async (adaSaveObjJson: SaveObj) => {
+      this.clearAll();
+
+      const loadResponse = await this.fs.loader.ada(adaSaveObjJson, { name: 'untitled', id: 0, desc: '', from_share: '' }, 'upload');
+      return this.loadNewFile(loadResponse, 'openFile');
+    };
+
+    // Zoom to fit with some margins, which are better for the screenshots
+    (window as any).zoomToFit = () => this.zoomToFit(200, 200);
   }
 
 
@@ -1747,7 +1760,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  zoomToFit() {
+  zoomToFit(marginX = 0, marginY = 0) {
+
+    console.log(this.tree.tree);
 
     const view_window: HTMLElement = document.getElementById('scrollable-container');
     if (view_window === null || view_window === undefined) return;
@@ -1767,6 +1782,12 @@ export class AppComponent implements OnInit, OnDestroy {
       const bounds = mergeBounds([b_nodes, n_nodes]);
 
       if (bounds == null) return;
+
+      // Applying margins to bounds
+      bounds.height += marginY * 2;
+      bounds.width += marginX * 2;
+      bounds.topleft.x -= marginX;
+      bounds.topleft.y -= marginY;
 
       let prior = this.zs.getMixerZoom();
       this.zs.zoomToFitMixer(bounds, view_window.getBoundingClientRect());
