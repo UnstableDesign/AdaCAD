@@ -290,7 +290,7 @@ export class FirebaseService implements OnDestroy {
    */
   updateFile(cur_state: SaveObj, meta: FileMeta): Promise<boolean> {
 
-    
+
     if (this.auth.currentUser == null) return Promise.reject('not logged in')
     // this.getFileSize("version", ada.file.version);
     // this.getFileSize("workspace", ada.file.workspace);
@@ -315,7 +315,7 @@ export class FirebaseService implements OnDestroy {
     })
 
 
-    console.log("WRITING FILE DATA FOR ", meta, this.auth.currentUser)
+    //console.log("WRITING FILE DATA FOR ", meta, this.auth.currentUser)
 
     return this.writeFileData(meta.id, cur_state)
       .then(success => {

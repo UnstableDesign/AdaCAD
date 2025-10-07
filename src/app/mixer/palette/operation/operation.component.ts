@@ -391,6 +391,8 @@ export class OperationComponent implements OnInit {
 
 
   removeConnectionTo(obj: any) {
+
+
     this.onConnectionRemoved.emit(obj);
   }
 
@@ -401,7 +403,7 @@ export class OperationComponent implements OnInit {
     let regex = new RegExp(' ', 'g');
     let op_name_format = this.op.name.replace(regex, '_');
     window.open('https://docs.adacad.org/docs/reference/operations/' + op_name_format, '_blank');
-    ;
+
 
   }
 

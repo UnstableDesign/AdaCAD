@@ -144,7 +144,13 @@ export class InletComponent implements OnInit {
 
   }
 
+  /**
+   * 
+   * @param sd_id this is neer called becauise the connection is deleted by the connection component
+   */
   removeConnectionTo(sd_id: number) {
+
+
 
     this.onConnectionRemoved.emit({ from: sd_id, to: this.opid, inletid: this.inletid });
     this.checkIfInletIsOpen();

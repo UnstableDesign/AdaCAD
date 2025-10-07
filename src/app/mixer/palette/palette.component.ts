@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AnalyzedImage, Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
-import { Bounds, DraftExistenceChange, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
+import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { FirebaseService } from '../../core/provider/firebase.service';
@@ -169,9 +169,7 @@ export class PaletteComponent implements OnInit {
      */
     const opRemovedUndoSubscription = this.ss.opRemovedUndo$.subscribe(action => {
 
-      console.log("OP REMOVED UNDO SUBSCRIPTION ", action);
       action.media.forEach(el => {
-        console.log("ADDING MEDIA INSTANCE ", el);
         this.media.addIndexColorMediaInstance(el.id, el.ref, <AnalyzedImage>el.img);
       });
 
@@ -199,12 +197,28 @@ export class PaletteComponent implements OnInit {
 
     })
 
+    const cxnCreatedUndoSubscription = this.ss.connectionCreatedUndo$.subscribe(action => {
+      this.removeConnection({ id: action.node.id });
+    })
+
+    const cxnRemovedUndoSubscription = this.ss.connectionRemovedUndo$.subscribe(action => {
+      console.log("CXN REMOVED UNDO SUBSCRIPTION ", action);
+      const cxn = this.createConnection(action.inputs[0].from_id, action.outputs[0].to_id, action.outputs[0].inlet_id);
+      this.performAndUpdateDownstream(action.outputs[0].to_id).then(el => {
+        let children = this.tree.getNonCxnOutputs(action.outputs[0].to_id);
+        if (children.length > 0) this.vs.setViewer(children[0]);
+      });
+    })
+
 
     this.stateSubscriptions.push(draftCreatedUndoSubscription);
     this.stateSubscriptions.push(draftRemovedUndoSubscription);
     this.stateSubscriptions.push(paramChangeFromStateSubscription);
     this.stateSubscriptions.push(opCreatedUndoSubscription);
     this.stateSubscriptions.push(opRemovedUndoSubscription);
+    this.stateSubscriptions.push(cxnRemovedUndoSubscription);
+    this.stateSubscriptions.push(cxnCreatedUndoSubscription);
+    this.stateSubscriptions.push(cxnRemovedUndoSubscription);
 
     this.vc.clear();
     this.default_cell_size = defaults.draft_detail_cell_size;
@@ -1764,7 +1778,17 @@ export class PaletteComponent implements OnInit {
 
 
 
-    this.createConnection(sd, obj.id, obj.ndx);
+    const cxn = this.createConnection(sd, obj.id, obj.ndx);
+    const change: ConnectionExistenceChange = {
+      originator: 'CONNECTION',
+      type: 'CREATED',
+      node: this.tree.getNode(cxn.id),
+      inputs: [{ from_id: sd, inlet_id: 0 }],
+      outputs: [{ identity: 'OP', outlet_id: 0, to_id: obj.id, inlet_id: obj.ndx }]
+    }
+
+    this.ss.addStateChange(change);
+
 
     this.performAndUpdateDownstream(obj.id).then(el => {
       let children = this.tree.getNonCxnOutputs(obj.id);
@@ -1794,11 +1818,8 @@ export class PaletteComponent implements OnInit {
     let from = this.tree.getConnectionInput(obj.id);
 
 
-
     const to_delete = this.tree.removeConnectionNodeById(obj.id);
     to_delete.forEach(node => this.removeFromViewContainer(node.ref));
-
-
 
     // if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
 
