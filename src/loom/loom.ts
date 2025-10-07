@@ -60,6 +60,7 @@ export const copyLoomSettings = (ls: LoomSettings): LoomSettings => {
   const copy_loomsettings = {
     type: ls.type,
     epi: ls.epi,
+    ppi: ls.ppi,
     units: ls.units,
     frames: ls.frames,
     treadles: ls.treadles
@@ -87,6 +88,16 @@ export const calcWidth = (drawdown: Drawdown, loom_settings: LoomSettings): numb
     return warps(drawdown) / loom_settings.epi;
   } else {
     return warps(drawdown) / loom_settings.epi * 10;
+  }
+
+}
+
+export const calcLength = (drawdown: Drawdown, loom_settings: LoomSettings): number => {
+
+  if (loom_settings.units == 'in') {
+    return wefts(drawdown) / loom_settings.ppi;
+  } else {
+    return wefts(drawdown) / loom_settings.ppi * 10;
   }
 
 }

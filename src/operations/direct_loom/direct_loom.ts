@@ -3,6 +3,7 @@ import { LoomSettings, getLoomUtilByType, numFrames, numTreadles } from "../../l
 import { getInputDraft, getOpParamValById } from "..";
 import { draftingStylesOp } from "../categories";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { defaults } from "../../utils";
 
 const name = "direct_loom";
 
@@ -58,7 +59,8 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   const loom_settings: LoomSettings = {
     type: 'direct',
-    epi: 10,
+    epi: defaults.loom_settings.epi,
+    ppi: defaults.loom_settings.ppi,
     units: 'in',
     frames: frames,
     treadles: frames

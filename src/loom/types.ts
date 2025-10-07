@@ -13,7 +13,8 @@ export type Loom = {
 /**
  * this keeps any user defined preferences associated with a given loom
  * @param type the type of loom to use for computations (currently only supporting jacquard, direct tieup/dobby looms, floor looms with shafts and treadles)
- * @param epi the ends for unit length to use for calcuations
+ * @param epi the ends for unit length to use for calculations
+ * @param ppi the picks for unit length to use for calculations
  * @param units the units to use for length, currently supports inches (1 inch), or centimeters (10cm)
  * @param frames the number of frames the user has specified as the max for their loom
  * @param treadles the number of treadles the user has specified as the max for their loom or -1, if they have no limit
@@ -21,6 +22,7 @@ export type Loom = {
 export type LoomSettings = {
   type: string,
   epi: number,
+  ppi: number,
   units: 'cm' | 'in',
   frames: number,
   treadles: number,

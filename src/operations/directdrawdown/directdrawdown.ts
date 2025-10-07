@@ -103,7 +103,8 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
     frames: wefts(threading_draft.drawdown),
     treadles: warps(lift_draft.drawdown),
     units: 'in',
-    epi: defaults.loom_settings.epi
+    epi: defaults.loom_settings.epi,
+    ppi: defaults.loom_settings.ppi
   }
 
 

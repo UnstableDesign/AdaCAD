@@ -22,7 +22,7 @@ test('testing loom conversion - shaft to direct', async () => {
     ]
 
 
-    const converted_loom = convertTieupToLiftPlan({ threading, tieup, treadling }, { frames: 4, treadles: 4, epi: 12, type: 'direct', units: "cm" });
+    const converted_loom = convertTieupToLiftPlan({ threading, tieup, treadling }, { frames: 4, treadles: 4, epi: 12, ppi: 12, type: 'direct', units: "cm" });
     expect(converted_loom.tieup[0][0]).toEqual(true);
     expect(converted_loom.tieup.length).toEqual(6);
     expect(converted_loom.tieup[0].length).toEqual(6);
