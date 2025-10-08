@@ -299,8 +299,8 @@ export class OperationComponent implements OnInit {
 
 
   hasPin(): boolean {
-    if (!this.vs.hasPin()) return false;
-    return (this.children.find(el => el == this.vs.getPin()) !== undefined)
+    if (!this.vs.hasPin) return false;
+    return (this.children.find(el => el == this.vs.getViewerId()) !== undefined)
   }
 
 
@@ -459,6 +459,8 @@ export class OperationComponent implements OnInit {
   }
 
   nameChanged(id) {
+
+
     this.onNameChanged.emit(id);
   }
 

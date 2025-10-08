@@ -559,6 +559,7 @@ export type OpStateEvent = StateChangeEvent & {
   type: 'MOVE' | 'PARAM_CHANGE' | 'LOCAL_ZOOM' | 'CREATED' | 'REMOVED'
 }
 
+
 export type OpStateMove = OpStateEvent & MoveEvent;
 export type OpStateParamChange = OpStateEvent & ParamEvent;
 export type OpStateLocalZoomChange = OpStateEvent & NumberEvent
@@ -573,6 +574,11 @@ export type DraftStateEvent = StateChangeEvent & {
 export type DraftStateMove = DraftStateEvent & MoveEvent;
 export type DraftStateChange = DraftStateEvent & DraftChangedEvent;
 export type DraftExistenceChange = DraftStateEvent & NodeEvent;
+export type DraftStateNameChange = DraftStateEvent & {
+  id: number,
+  before: string,
+  after: string
+};
 
 export type ConnectionStateEvent = StateChangeEvent & {
   type: 'CREATED' | 'REMOVED'
@@ -634,5 +640,10 @@ export type DraftStateAction = StateAction & {
   after: DraftNodeState
 }
 
+export type RenameAction = StateAction & {
+  id: number,
+  before: string,
+  after: string
+}
 
 

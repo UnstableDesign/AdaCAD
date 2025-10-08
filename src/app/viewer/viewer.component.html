@@ -1,76 +1,54 @@
 <div class="view_container">
 
- <div 
- class="view_options"
- >
+  <div class="view_options">
 
- <button 
- mat-flat-button 
- matTooltip="pin this draft in the viewer"
- (click)="togglePin()"
- >
- <i   [class.active]="vs.hasPin()" class="fa-solid fa-map-pin"></i>
- </button> 
+    <button mat-flat-button matTooltip="pin this draft in the viewer" (click)="onTogglePinPressed()">
+      <i [class.active]="vs.hasPin" class="fa-solid fa-map-pin"></i>
+    </button>
 
- <button  
- mat-flat-button 
- [matMenuTriggerFor]="viewOptions"
- matTooltip="view options" >
- <i class="fa-regular fa-eye"></i>  
- </button>
+    <button mat-flat-button [matMenuTriggerFor]="viewOptions" matTooltip="view options">
+      <i class="fa-regular fa-eye"></i>
+    </button>
 
- <mat-menu #viewOptions>
+    <mat-menu #viewOptions>
 
-    <button  
-     mat-menu-item
-     [class.active]="vis_mode == 'sim'"
-     matTooltip="view in 3D" 
-     (click)="viewAsSimulation()">
-       <i class="fa-solid fa-cube"></i> simulation
-     </button> 
-     
-   
-   <button mat-menu-item
-   [class.active]="vis_mode == 'draft'"
-   (click)="viewAsDraft()">
-   <i class="fa-solid fa-chess-board"></i>  draft
-   </button>
+      <button mat-menu-item [class.active]="vis_mode == 'sim'" matTooltip="view in 3D" (click)="viewAsSimulation()">
+        <i class="fa-solid fa-cube"></i> simulation
+      </button>
 
-   <button mat-menu-item
-   [class.active]="vis_mode == 'structure'"
-   (click)="viewAsStructure()">
-   <i class="fa-solid fa-hashtag"></i>  structure
-   </button>
 
-   <button mat-menu-item
-   [class.active]="vis_mode == 'color'"
-   (click)="viewAsColor()">
-   <i class="fa-solid fa-paint-roller"></i>  color pattern
-   </button>
+      <button mat-menu-item [class.active]="vis_mode == 'draft'" (click)="viewAsDraft()">
+        <i class="fa-solid fa-chess-board"></i> draft
+      </button>
 
- </mat-menu>
+      <button mat-menu-item [class.active]="vis_mode == 'structure'" (click)="viewAsStructure()">
+        <i class="fa-solid fa-hashtag"></i> structure
+      </button>
+
+      <button mat-menu-item [class.active]="vis_mode == 'color'" (click)="viewAsColor()">
+        <i class="fa-solid fa-paint-roller"></i> color pattern
+      </button>
+
+    </mat-menu>
 
 
 
-     <button  
-     mat-flat-button  
-     (click)="openEditor()"
-     matTooltip="edit this draft">
-     <i class="fa-solid fa-pen-to-square"></i> 
-     </button>
-
-
- 
+    <button mat-flat-button (click)="openEditor()" matTooltip="edit this draft">
+      <i class="fa-solid fa-pen-to-square"></i>
+    </button>
 
 
 
 
 
-     
-  
 
 
- </div>
+
+
+
+
+
+  </div>
 
 
   <!-- <div class="draft-data">
@@ -78,127 +56,77 @@
     <div class="dims">draft size: {{warps}} ends x {{wefts}} pics</div>
 
   </div> -->
-  
-    <div 
-    class="current_view" 
-    id="static_draft_view"
-    >
+
+  <div class="current_view" id="static_draft_view">
 
     <div class="scale-container" id="viewer-scale-container">
 
-    <app-draft-rendering
-    #view_rendering
-    [class.hidden]="vis_mode == 'sim'" 
-    source = "viewer"
-    [id]="id"
-    [view_only]="true"
-    [scale]="scale"
-    current_view="color"
-    >
-    </app-draft-rendering>
+      <app-draft-rendering #view_rendering [class.hidden]="vis_mode == 'sim'" source="viewer" [id]="vs.getViewerId()"
+        [view_only]="true" [scale]="scale" current_view="color">
+      </app-draft-rendering>
 
-    <app-simulation 
-    [class.hidden]="vis_mode != 'sim'" 
-    #sim
-     id="sim_viewer" 
-    [id]="id"
-    >
-  </app-simulation>
+      <app-simulation [class.hidden]="vis_mode != 'sim'" #sim id="sim_viewer" [id]="vs.getViewerId()">
+      </app-simulation>
+
+    </div>
 
   </div>
-  
-  </div>
 
-  
 
- 
+
+
 
 
 
 </div>
 
-      <div class="footer-container">
-        <mat-toolbar class="footer">
-          <div class="footer-left">
-      
-            <!-- <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>          -->
-           
-              <mat-slider
-              [class.hidden]="vis_mode == 'sim'" 
-              min="0"
-              [max]="zs.num_steps"  
-              step="1" 
-             >
-              <input matSliderThumb [(ngModel)]="zs.zoom_table_ndx_viewer"  (valueChange)="zoomChange()" >
-            </mat-slider>
+<div class="footer-container">
+  <mat-toolbar class="footer">
+    <div class="footer-left">
 
-      
-            <!-- <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button> -->
-            
+      <!-- <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>          -->
 
-      
-          </div>
-      
+      <mat-slider [class.hidden]="vis_mode == 'sim'" min="0" [max]="zs.num_steps" step="1">
+        <input id='zoomLevel' matSliderThumb [formControl]="zoomLevel" (valueChange)="zoomChange()">
+      </mat-slider>
 
-          <div class="footer-center"> 
-            <input 
-            [(ngModel)]="draft_name" 
-            class="filename"
-            matInput 
-            (change)="updateDraftName()"
-            placeholder="draft_name">
-            <!-- <mat-form-field appearance="outline">
-              <mat-label>draft name</mat-label>
-      
-              <input matInput  [(ngModel)]="draft_name" 
-              [placeholder]="draft_name"  
-              (change)="updateDraftName()">
-            </mat-form-field> -->
-      </div>
-      <div class="footer-right">
 
-            <button  
-            mat-mini-fab
-            color="primary"
-            matTooltip="download draft"
-            [matMenuTriggerFor]="subdraftOptions">
-            <i class="fa-solid fa-download"></i> 
-            </button>
-      
-      
-            <mat-menu #subdraftOptions>
-        
-          
-              <button mat-menu-item
-              (click)="saveAs('bmp')"
-              matTooltip ="Download as Bitmap">
-              <i class="fa-solid fa-download"></i> download as bitmap
-              </button>
-        
-              <button mat-menu-item
-              (click)="saveAs('jpg')"
-              matTooltip ="Download as Printable Image">
-              <i class="fa-solid fa-image"></i> download as image
-              </button>
-        
-              <button mat-menu-item
-              (click)="saveAs('wif')"
-              matTooltip ="Download as .WIF file">
-              <i class="fa-solid fa-file"></i> download as .WIF file
-              </button>
-        
-      
-            </mat-menu>
-
-            </div>
-        </mat-toolbar>
-      </div>
+      <!-- <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button> -->
 
 
 
+    </div>
 
 
+    <div class="footer-center">
+      <input id='draftName' [formControl]="draftName" class="filename" matInput placeholder="draft_name"
+        (keyup.enter)="onRenameSubmit()">
+    </div>
+    <div class="footer-right">
+
+      <button mat-mini-fab color="primary" matTooltip="download draft" [matMenuTriggerFor]="subdraftOptions">
+        <i class="fa-solid fa-download"></i>
+      </button>
 
 
+      <mat-menu #subdraftOptions>
 
 
+        <button mat-menu-item (click)="saveAs('bmp')" matTooltip="Download as Bitmap">
+          <i class="fa-solid fa-download"></i> download as bitmap
+        </button>
+
+        <button mat-menu-item (click)="saveAs('jpg')" matTooltip="Download as Printable Image">
+          <i class="fa-solid fa-image"></i> download as image
+        </button>
+
+        <button mat-menu-item (click)="saveAs('wif')" matTooltip="Download as .WIF file">
+          <i class="fa-solid fa-file"></i> download as .WIF file
+        </button>
+
+
+      </mat-menu>
+
+    </div>
+  </mat-toolbar>
+</div>

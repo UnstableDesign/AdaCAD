@@ -1477,6 +1477,8 @@ export class PaletteComponent implements OnInit {
       .catch(console.error);
 
 
+
+
   }
 
 

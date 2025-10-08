@@ -406,6 +406,7 @@ export class SubdraftComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     this.draftcontainer.draft_visible = this.tree.getDraftVisible(this.id);
     this.draftcontainer.drawDraft(draft);
+    this.draftcontainer.draft_name = this.tree.getDraftName(this.id);
 
   }
 

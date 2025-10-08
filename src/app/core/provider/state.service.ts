@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, MoveAction, NodeAction, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MoveAction, NodeAction, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { FileService } from './file.service';
 import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
@@ -171,7 +171,13 @@ export class StateService {
         );
         break;
       case 'NAME_CHANGE':
-        this.draftNameChangeUndoSubject.next(<unknown>change as StateAction);
+
+        this.draftNameChangeUndoSubject.next(<RenameAction>{
+          type: 'CHANGE',
+          id: (<DraftStateNameChange>change).id,
+          before: (<DraftStateNameChange>change).before,
+          after: (<DraftStateNameChange>change).after
+        });
         break;
       case 'CREATED':
         const a: NodeAction = {

@@ -337,7 +337,7 @@ export class DraftRenderingComponent implements OnInit {
     if (this.view_only) return;
 
     const before = this.tree.getDraftNodeState(this.id);
-
+    console.log("BEFORE ", before.loom.treadling[0])
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -622,6 +622,7 @@ export class DraftRenderingComponent implements OnInit {
 
   private addStateChange(before: DraftNodeState) {
     const after = this.tree.getDraftNodeState(this.id);
+    console.log("AFTER ", after.loom.treadling[0])
     const change: DraftStateChange = {
       originator: 'DRAFT',
       type: 'VALUE_CHANGE',
@@ -996,6 +997,10 @@ export class DraftRenderingComponent implements OnInit {
     const draft = this.tree.getDraft(this.id)
     const loom = this.tree.getLoom(this.id)
     const loom_settings = this.tree.getLoomSettings(this.id);
+
+
+    console.log("REDRAW ALL CALLED FROM DRAFT RENDERING", draft, loom, loom_settings)
+
 
     let flags = {
       drawdown: true,

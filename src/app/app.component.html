@@ -45,11 +45,11 @@
 
         <mat-menu #downloadMenu="matMenu">
           <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
-          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('bmp')">Selected Draft as
+          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('bmp')">Selected Draft as
             Bitmap</button>
-          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('jpg')">Selected Draft as
+          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('jpg')">Selected Draft as
             Image</button>
-          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('wif')">Selected Draft as
+          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('wif')">Selected Draft as
             .WIF</button>
           <!-- <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button> -->
         </mat-menu>

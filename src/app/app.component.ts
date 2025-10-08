@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MediaInstance, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MediaInstance, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -204,7 +204,22 @@ export class AppComponent implements OnInit, OnDestroy {
       }
 
     })
+
+    const draftStateNameChangeSubscription = this.ss.draftNameChangeUndo$.subscribe(action => {
+      console.log("DRAFT STATE NAME CHANGE: ", (<RenameAction>action).id, (<RenameAction>action).before);
+      const draft = this.tree.getDraft((<RenameAction>action).id);
+      draft.ud_name = (<RenameAction>action).before;
+      this.updateDraftName((<RenameAction>action).id);
+
+      if (this.vs.getViewerId() === (<DraftStateAction>action).id) {
+        this.viewer.updateDraftNameFromMixerEvent((<RenameAction>action).before);
+      }
+
+    })
+
+
     this.stateSubscriptions.push(draftStateChangeSubscription);
+    this.stateSubscriptions.push(draftStateNameChangeSubscription);
 
 
 
@@ -422,12 +437,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.mixer.onClose();
 
-        if (this.vs.getViewer() == -1) {
+        if (this.vs.getViewerId() == -1) {
           let obj = {
             warps: defaults.warps,
             wefts: defaults.wefts,
             type: defaults.loom_settings.type,
             epi: defaults.loom_settings.epi,
+            pp1: defaults.loom_settings.ppi,
             units: defaults.loom_settings.units,
             frames: defaults.loom_settings.frames,
             treadles: defaults.loom_settings.treadles
@@ -441,7 +457,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
         } else {
 
-          this.editor.onFocus(this.vs.getViewer());
+          this.editor.onFocus(this.vs.getViewerId());
         }
 
         break;
@@ -1155,7 +1171,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.material_modal = this.dialog.open(MaterialModal, { data: {} });
     this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
-      this.viewer.redraw(this.vs.getViewer());
+      this.vs.updateViewer();
       if (this.selected_editor_mode == 'mixer') this.mixer.redrawAllSubdrafts();
       else this.editor.redraw();
       this.saveFile();
@@ -1426,12 +1442,12 @@ export class AppComponent implements OnInit, OnDestroy {
             const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
             let ls: LoomSettings = {
-              frames: this.ws.min_frames,
-              treadles: this.ws.min_treadles,
-              epi: this.ws.epi,
-              ppi: this.ws.ppi,
-              units: this.ws.units,
-              type: this.ws.type
+              frames: this.ws.min_frames ?? defaults.loom_settings.frames,
+              treadles: this.ws.min_treadles ?? defaults.loom_settings.treadles,
+              epi: this.ws.epi ?? defaults.loom_settings.epi,
+              ppi: this.ws.ppi ?? defaults.loom_settings.ppi,
+              units: this.ws.units ?? defaults.loom_settings.units,
+              type: this.ws.type ?? defaults.loom_settings.type
             }
 
             if (draft_node !== undefined) {
@@ -1547,6 +1563,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 (<DraftNode>node).render_colors = np.render_colors ?? true;
                 (<DraftNode>node).visible = np.draft_visible ?? true;
                 (<DraftNode>node).scale = np.scale ?? 1
+                console.log("LOADED ", new_id, (<DraftNode>node).loom_settings)
               } else {
                 console.error("a node with the updated id was not found in the tree" + new_id);
               }
@@ -1635,7 +1652,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fs.saver.ada()
       .then(so => {
         this.ss.writeStateToTimeline(so);
-        console.log("SAVING FILE ", so, this.tree.nodes.slice());
+        const nullppi = this.tree.getDraftNodes().filter(el => el.loom_settings.ppi === undefined);
+        console.log("SAVING FILE ", nullppi);
         return this.fb.updateFile(so.file, this.ws.current_file);
       })
       .catch(err => console.error(err));
@@ -1939,9 +1957,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   saveDraftAs(format: string) {
 
-    if (!this.vs.hasViewer()) return;
+    if (this.vs.getViewerId() === -1) return;
 
-    let draft: Draft = this.tree.getDraft(this.vs.getViewer());
+    let draft: Draft = this.tree.getDraft(this.vs.getViewerId());
     let b = this.bitmap.nativeElement;
 
     switch (format) {
@@ -1953,8 +1971,8 @@ export class AppComponent implements OnInit, OnDestroy {
         saveAsPrint(b, draft, visvars.use_floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
         break;
       case 'wif':
-        let loom = this.tree.getLoom(this.vs.getViewer());
-        let loom_settings = this.tree.getLoomSettings(this.vs.getViewer());
+        let loom = this.tree.getLoom(this.vs.getViewerId());
+        let loom_settings = this.tree.getLoomSettings(this.vs.getViewerId());
         saveAsWif(this.fs, draft, loom, loom_settings)
         break;
     }

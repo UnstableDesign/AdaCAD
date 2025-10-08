@@ -1,6 +1,6 @@
 import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { copyLoom, copyLoomSettings, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
+import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
@@ -279,6 +279,7 @@ export class TreeService {
 
     } else {
       (<DraftNode>nodes[0]).loom_settings = loom_settings;
+      (<DraftNode>nodes[0]).loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
     }
 
 
@@ -1438,7 +1439,6 @@ export class TreeService {
   }
 
   setLoom(id: number, loom: Loom) {
-    console.log("SETTINGLOOM TO ", loom)
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) dn.loom = (loom === null) ? null : copyLoom(loom);
   }
@@ -2155,6 +2155,7 @@ export class TreeService {
   }
 
   restoreDraftNodeState(id: number, state: DraftNodeState) {
+    console.log("RESTORING DRAFT NODE STATE ", id, state.loom.treadling[0])
     const node: DraftNode = <DraftNode>this.getNode(id);
     node.draft = copyDraft(state.draft);
     node.visible = state.draft_visible;
