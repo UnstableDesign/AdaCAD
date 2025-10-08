@@ -1613,6 +1613,10 @@ export class PaletteComponent implements OnInit {
           let children = this.tree.getNonCxnOutputs(op);
           (<OperationComponent>this.tree.getComponent(op)).updateChildren(children);
         })
+      })
+      .then(() => {
+        //a catch here so that changes that ripple up from the parent's of pinned drafts update in time. 
+        this.vs.updateViewer();
       });
 
   }
