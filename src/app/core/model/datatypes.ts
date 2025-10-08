@@ -605,7 +605,7 @@ export type NoteValueChange = NoteStateChange & {
 }
 
 export type MaterialsStateChange = StateChangeEvent & {
-  type: 'CREATED' | 'REMOVED' | 'UPDATED',
+  type: 'UPDATED',
   before: Array<Material>,
   after: Array<Material>
 }
@@ -653,6 +653,11 @@ export type RenameAction = StateAction & {
   id: number,
   before: string,
   after: string
+}
+
+export type MaterialsStateAction = StateAction & {
+  before: Array<Material>,
+  after: Array<Material>
 }
 
 

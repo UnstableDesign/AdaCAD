@@ -212,7 +212,6 @@ export class NoteComponent implements OnInit {
         after: this.note
       }
 
-      console.log("SAVE NOTE CHANGE ", change);
       this.ss.addStateChange(change);
 
       // this.before = this.notes.copyNote(this.note);

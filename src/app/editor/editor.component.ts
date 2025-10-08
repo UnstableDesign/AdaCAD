@@ -365,7 +365,11 @@ export class EditorComponent implements OnInit {
   }
 
   public materialChange() {
-    this.drawdownUpdated();
+    this.vs.updateViewer();
+    this.updateMixer.emit();
+    this.saveChanges.emit();
+    this.redraw()
+
   }
 
 
@@ -570,10 +574,17 @@ export class EditorComponent implements OnInit {
 
   openMaterials() {
 
+    const allmaterials = this.ms.getShuttles();
+
     const material_modal = this.dialog.open(MaterialModal, { data: {} });
     material_modal.componentInstance.onMaterialChange.subscribe(event => {
 
+      this.materialChange();
+
     });
+
+
+
   }
 
 

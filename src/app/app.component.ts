@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MediaInstance, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MaterialsStateAction, MediaInstance, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -217,13 +217,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
     })
 
+    const materialsUpdatedUndoSubscription = this.ss.materialsUpdatedUndo$.subscribe(action => {
+      this.ms.overloadShuttles((<MaterialsStateAction>action).before);
+      this.editor.redraw();
+      this.vs.updateViewer();
+      this.mixer.palette.redrawAllSubdrafts();
+
+    })
+
 
     this.stateSubscriptions.push(draftStateChangeSubscription);
     this.stateSubscriptions.push(draftStateNameChangeSubscription);
-
-
-
-
+    this.stateSubscriptions.push(materialsUpdatedUndoSubscription);
 
 
     this.scrollingSubscription = this.scroll
@@ -1563,7 +1568,6 @@ export class AppComponent implements OnInit, OnDestroy {
                 (<DraftNode>node).render_colors = np.render_colors ?? true;
                 (<DraftNode>node).visible = np.draft_visible ?? true;
                 (<DraftNode>node).scale = np.scale ?? 1
-                console.log("LOADED ", new_id, (<DraftNode>node).loom_settings)
               } else {
                 console.error("a node with the updated id was not found in the tree" + new_id);
               }
@@ -1764,6 +1768,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    */
   updateMixer() {
+    this.mixer.redrawAllSubdrafts();
   }
 
   updateDraftName(id: any) {

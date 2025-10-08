@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MaterialsStateAction, MaterialsStateChange, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { FileService } from './file.service';
 import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
@@ -105,6 +105,14 @@ export class StateService {
 
   private noteMoveUndoSubject = new Subject<MoveAction>();
   noteMoveUndo$ = this.noteMoveUndoSubject.asObservable();
+
+
+  /**
+   * MATERIALS EVENTS
+   */
+  private materialsUpdatedUndoSubject = new Subject<MaterialsStateAction>();
+  materialsUpdatedUndo$ = this.materialsUpdatedUndoSubject.asObservable();
+
 
 
   constructor() {
@@ -317,10 +325,24 @@ export class StateService {
     }
   }
 
+  private handleMaterialsUndo(change: MaterialsStateChange) {
+    switch (change.type) {
+      case 'UPDATED':
+        console.log("MATERIALS UPDATED UNDO CALLED ", change.before[0].color);
+        this.materialsUpdatedUndoSubject.next(
+          {
+            type: 'CHANGE',
+            before: (<MaterialsStateChange>change).before,
+            after: (<MaterialsStateChange>change).after
+          });
+        break;
+
+    }
+  }
+
 
 
   private handleUndo(change: StateChangeEvent) {
-    console.log("UNDO CALLED with", change)
     switch (change.originator) {
 
       case 'OP':
@@ -335,6 +357,7 @@ export class StateService {
       case 'NOTE':
         this.handleNoteUndo(<NoteStateChange>change);
       case 'MATERIALS':
+        this.handleMaterialsUndo(<MaterialsStateChange>change);
 
 
     }

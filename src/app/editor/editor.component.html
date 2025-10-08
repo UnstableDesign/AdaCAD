@@ -71,8 +71,8 @@
       <div class="draft_tools">
 
         @if (loom.type !== 'jacquard') {
+        <mat-label>drafting style</mat-label>
         <div class="editing-mode-toggle">
-          <mat-label>drafting style</mat-label>
           <mat-button-toggle-group [(value)]="dm.cur_draft_edit_source" name="design source"
             (change)="swapEditingStyleClicked()" aria-label="edit mode">
             <mat-button-toggle matTooltip="threading-first" class="draft-edit-mode-loom"
@@ -98,7 +98,10 @@
           </mat-button-toggle>
           }
           }
-
+        </mat-button-toggle-group>
+        <mat-label>materials</mat-label>
+        <mat-button-toggle-group name="editor mode" (change)="selectPencil()" [(ngModel)]="pencil"
+          aria-label="edit mode">
           @for (shuttle of ms.materials; track shuttle) {
           <mat-button-toggle [matTooltip]="shuttle.name" [value]="shuttle.id">
             <span [style.color]="shuttle.color"><i class="fa-solid fa-paintbrush"></i></span>

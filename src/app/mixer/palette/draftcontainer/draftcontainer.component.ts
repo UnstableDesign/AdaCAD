@@ -100,7 +100,6 @@ export class DraftContainerComponent implements AfterViewInit {
   }
 
   ngOnInit() {
-    console.log("ON INIT DRAFT CONTAINER ", this.id)
 
   }
 
@@ -132,7 +131,6 @@ export class DraftContainerComponent implements AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(obj => {
-      console.log("AFTER CLOSED")
 
       this.state.addStateChange(<DraftStateNameChange>{
         originator: 'DRAFT',
@@ -202,7 +200,6 @@ export class DraftContainerComponent implements AfterViewInit {
 
       if (!changes['dirty'].firstChange) {
         if (this.draft_rendering !== undefined && draft !== undefined && draft !== null) {
-          console.log("SETTING NAME TO ")
           this.draft_name = this.tree.getDraftName(this.id);
           this.draft_rendering.onNewDraftLoaded(this.id);
           this.drawDraft(draft);
