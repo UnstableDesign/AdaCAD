@@ -223,7 +223,27 @@ export class PaletteComponent implements OnInit {
         let children = this.tree.getNonCxnOutputs(action.outputs[0].to_id);
         if (children.length > 0) this.vs.setViewer(children[0]);
       });
-    })
+    });
+
+
+    const noteCreatedUndoSubscription = this.ss.noteCreatedUndo$.subscribe(action => {
+      this.deleteNote(action.id);
+    });
+
+    const noteRemovedUndoSubscription = this.ss.noteRemovedUndo$.subscribe(action => {
+      this.createNote(action.before);
+    });
+
+    const noteUpdatedUndoSubscription = this.ss.noteUpdatedUndo$.subscribe(action => {
+      console.log("NOTE UPDATED UNDO SUBSCRIPTION ", action);
+      const note = this.notes.get(action.id);
+      note.component.updateValues(action.before);
+    });
+
+    const noteMoveUndoSubscription = this.ss.noteMoveUndo$.subscribe(action => {
+      const note = this.notes.get(action.id);
+      note.component.setPosition(action.before);
+    });
 
 
 
@@ -237,7 +257,10 @@ export class PaletteComponent implements OnInit {
     this.stateSubscriptions.push(cxnRemovedUndoSubscription);
     this.stateSubscriptions.push(cxnCreatedUndoSubscription);
     this.stateSubscriptions.push(cxnRemovedUndoSubscription);
-
+    this.stateSubscriptions.push(noteCreatedUndoSubscription);
+    this.stateSubscriptions.push(noteRemovedUndoSubscription);
+    this.stateSubscriptions.push(noteUpdatedUndoSubscription);
+    this.stateSubscriptions.push(noteMoveUndoSubscription);
 
     this.vc.clear();
     this.default_cell_size = defaults.draft_detail_cell_size;

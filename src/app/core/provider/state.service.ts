@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MoveAction, NodeAction, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { FileService } from './file.service';
 import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
@@ -41,6 +41,9 @@ export class StateService {
 
   // Draft undo event streams
 
+  /**
+   * DRAFT EVENTS
+   */
   private draftMoveUndoSubject = new Subject<StateAction>();
   draftMoveUndo$ = this.draftMoveUndoSubject.asObservable();
 
@@ -62,8 +65,9 @@ export class StateService {
   private draftRemovedUndoSubject = new Subject<NodeAction>();
   draftRemovedUndo$ = this.draftRemovedUndoSubject.asObservable();
 
-  // Operation undo event streams
-  private opMoveUndoSubject = new Subject<StateAction>();
+  /**
+   * OPERATION EVENTS
+   */  private opMoveUndoSubject = new Subject<StateAction>();
   opMoveUndo$ = this.opMoveUndoSubject.asObservable();
 
   private opParamChangeUndoSubject = new Subject<ParamAction>();
@@ -78,13 +82,29 @@ export class StateService {
   private opRemovedUndoSubject = new Subject<NodeAction>();
   opRemovedUndo$ = this.opRemovedUndoSubject.asObservable();
 
-
+  /**
+   * CONNECTION EVENTS
+   */
   private connectionCreatedUndoSubject = new Subject<NodeAction>();
   connectionCreatedUndo$ = this.connectionCreatedUndoSubject.asObservable();
 
   private connectionRemovedUndoSubject = new Subject<NodeAction>();
   connectionRemovedUndo$ = this.connectionRemovedUndoSubject.asObservable();
 
+  /**
+   * NOTE EVENTS
+   */
+  private noteCreatedUndoSubject = new Subject<NoteAction>();
+  noteCreatedUndo$ = this.noteCreatedUndoSubject.asObservable();
+
+  private noteRemovedUndoSubject = new Subject<NoteAction>();
+  noteRemovedUndo$ = this.noteRemovedUndoSubject.asObservable();
+
+  private noteUpdatedUndoSubject = new Subject<NoteAction>();
+  noteUpdatedUndo$ = this.noteUpdatedUndoSubject.asObservable();
+
+  private noteMoveUndoSubject = new Subject<MoveAction>();
+  noteMoveUndo$ = this.noteMoveUndoSubject.asObservable();
 
 
   constructor() {
@@ -219,9 +239,6 @@ export class StateService {
             value: (<OpStateParamChange>change).before
           });
         break;
-      case 'LOCAL_ZOOM':
-        this.opLocalZoomUndoSubject.next(<unknown>change as StateAction);
-        break;
       case 'CREATED':
         this.opCreatedUndoSubject.next({
           type: "REMOVE",
@@ -263,6 +280,44 @@ export class StateService {
     }
   }
 
+  private handleNoteUndo(change: NoteStateChange) {
+    switch (change.type) {
+      case 'CREATED':
+        this.noteCreatedUndoSubject.next({
+          type: 'REMOVE',
+          before: (<NoteValueChange>change).before,
+          after: (<NoteValueChange>change).after,
+          id: (<NoteValueChange>change).id
+        });
+        break;
+      case 'REMOVED':
+        this.noteRemovedUndoSubject.next({
+          type: 'CREATE',
+          before: (<NoteValueChange>change).before,
+          after: (<NoteValueChange>change).after,
+          id: (<NoteValueChange>change).id
+        });
+        break;
+      case 'UPDATED':
+        this.noteUpdatedUndoSubject.next({
+          type: 'CHANGE',
+          before: (<NoteValueChange>change).before,
+          after: (<NoteValueChange>change).after,
+          id: (<NoteValueChange>change).id
+        });
+        break;
+      case 'MOVE':
+        this.noteMoveUndoSubject.next(<MoveAction>{
+          type: 'CHANGE',
+          before: (<NoteStateMove>change).before,
+          after: (<NoteStateMove>change).after,
+          id: (<NoteStateMove>change).id
+        });
+        break;
+    }
+  }
+
+
 
   private handleUndo(change: StateChangeEvent) {
     console.log("UNDO CALLED with", change)
@@ -277,8 +332,8 @@ export class StateService {
       case 'CONNECTION':
         this.handleConnectionUndo(<ConnectionStateEvent>change);
         break;
-      case 'WORKSPACE':
       case 'NOTE':
+        this.handleNoteUndo(<NoteStateChange>change);
       case 'MATERIALS':
 
 

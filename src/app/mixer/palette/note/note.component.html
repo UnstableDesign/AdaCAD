@@ -38,43 +38,47 @@
   </div>
 
 
-  <mat-form-field appearance="outline" class="notetitle">
-    <mat-label>note title</mat-label>
-    <input matInput placeholder="note title" [(ngModel)]="note.title" (focusout)="save()" name="title">
+  <form [formGroup]="noteForm">
+    <mat-form-field appearance="outline" class="notetitle">
+      <mat-label>note title</mat-label>
+      <input matInput placeholder="note title" formControlName="title" name="title" (keyup.enter)="save()">
 
-  </mat-form-field>
+    </mat-form-field>
 
-  @if (note.imageurl) {
-  <div>
-    <img [src]="note.imageurl">
-  </div>
-  }
-
-
-  @if (show_url) {
-  <mat-form-field class="url" appearance="outline">
-    <mat-label>url to image</mat-label>
-    <input class="textfield" matInput [(ngModel)]="note.imageurl" [style.width.px]="note.width"
-      placeholder="enter the url to your image">
-    <button matSuffix matTooltip="enter url" mat-icon-button class="fa-solid fa-check" (click)="enterUrl()">
-    </button>
-  </mat-form-field>
-  }
+    @if (note.imageurl) {
+    <div>
+      <img [src]="note.imageurl">
+    </div>
+    }
 
 
+    @if (show_url) {
+    <mat-form-field class="url" appearance="outline">
+      <mat-label>url to image</mat-label>
+      <input class="textfield" matInput formControlName="imageurl" [style.width.px]="note.width"
+        placeholder="enter the url to your image">
+      <button matSuffix matTooltip="enter url" mat-icon-button class="fa-solid fa-check" (click)="enterUrl()">
+      </button>
+    </mat-form-field>
+    }
 
-  <mat-form-field class="textfield" appearance="outline">
-    <mat-label>note text</mat-label>
 
-    <textarea cdkTextareaAutosize resizeToFitContent matInput placeholder="add your note text here"
-      [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
-  </mat-form-field>
+
+    <mat-form-field class="textfield" appearance="outline">
+      <mat-label>note text</mat-label>
+
+      <textarea cdkTextareaAutosize resizeToFitContent matInput placeholder="add your note text here"
+        formControlName="text" name="text" (keyup.enter)="save()"></textarea>
+    </mat-form-field>
+  </form>
 
   <!-- <div class="expand" >
 <button mat-icon-button id="resize_button" class="expand-icon fa-solid fa-up-right-and-down-left-from-center"></button>
 
 </div> -->
-
+  @if (noteForm.dirty) {
+  <button class="save-button" matButton="tonal" (click)="save()">Save</button>
+  }
   <canvas id="notecanvas-{{note.id}}" hidden></canvas>
 
 </div>

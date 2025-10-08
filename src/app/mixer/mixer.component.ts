@@ -11,7 +11,7 @@ import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions } fro
 import { Draft, initDraftWithParams, initLoom, OperationClassification } from 'adacad-drafting-lib';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { DraftExistenceChange, DraftNodeProxy, NodeComponentProxy, NoteStateChange, OpExistenceChanged, Point } from '../core/model/datatypes';
+import { DraftExistenceChange, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -562,7 +562,6 @@ export class MixerComponent {
    * @param note 
    */
   public createNote(note) {
-
     this.palette.createNote(note);
   }
 
@@ -572,9 +571,10 @@ export class MixerComponent {
   public createNewNote() {
     const nc: NoteComponent = this.palette.createNote(null);
 
-    const change: NoteStateChange = {
+    const change: NoteValueChange = {
       originator: 'NOTE',
       type: 'CREATED',
+      id: nc.id,
       before: null,
       after: this.notes.get(nc.id)
     }
@@ -583,7 +583,6 @@ export class MixerComponent {
 
 
   public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy) {
-    console.log("LOADING SUBDRAFT from Mixer", id, this.tree.nodes.slice());
     this.palette.loadSubDraft(id, d, nodep, draftp);
   }
 

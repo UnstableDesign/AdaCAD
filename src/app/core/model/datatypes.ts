@@ -504,7 +504,7 @@ export interface DraftNodeState {
 
 
 export type StateChangeEvent = {
-  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'WORKSPACE' | 'NOTE' | 'MATERIALS'
+  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'NOTE' | 'MATERIALS'
 }
 
 type MoveEvent = {
@@ -556,7 +556,7 @@ type FileMetaChangedEvent = {
 
 
 export type OpStateEvent = StateChangeEvent & {
-  type: 'MOVE' | 'PARAM_CHANGE' | 'LOCAL_ZOOM' | 'CREATED' | 'REMOVED'
+  type: 'MOVE' | 'PARAM_CHANGE' | 'CREATED' | 'REMOVED'
 }
 
 
@@ -593,11 +593,13 @@ export type WorkspaceStateChange = StateChangeEvent & {
   meta: FileMeta
 }
 
-export type WorkspaceStateSettingsChange = WorkspaceStateChange & WorkspaceSettingsChangedEvent;
-export type FileMetaChange = WorkspaceStateChange & FileMetaChangedEvent;
-
 export type NoteStateChange = StateChangeEvent & {
-  type: 'CREATED' | 'REMOVED' | 'UPDATED',
+  type: 'CREATED' | 'REMOVED' | 'UPDATED' | 'MOVE',
+}
+
+export type NoteStateMove = NoteStateChange & MoveEvent;
+export type NoteValueChange = NoteStateChange & {
+  id: number,
   before: Note,
   after: Note
 }
@@ -614,6 +616,13 @@ export type MaterialsStateChange = StateChangeEvent & {
 export type StateAction = {
   type: "CREATE" | "REMOVE" | "CHANGE",
 }
+
+export type NoteAction = StateAction & {
+  before: Note,
+  after: Note,
+  id: number
+}
+
 
 export type MoveAction = StateAction & {
   id: number,
