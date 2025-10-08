@@ -51,8 +51,8 @@ export const initLoom = (warps: number, wefts: number, frames: number, treadles:
 export const copyLoom = (l: Loom): Loom => {
   const copy_loom = {
     threading: l.threading.slice(),
-    treadling: l.treadling.slice(),
-    tieup: l.tieup.slice(),
+    treadling: JSON.parse(JSON.stringify(l.treadling)),//hack to deep copy 2D
+    tieup: JSON.parse(JSON.stringify(l.tieup)),//hack to deep copy 2D
   }
   return copy_loom;
 }
