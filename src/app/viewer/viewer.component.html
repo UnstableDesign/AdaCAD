@@ -38,7 +38,7 @@
     </button>
 
 
-
+    <!-- <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>          -->
 
 
 
@@ -84,12 +84,15 @@
   <mat-toolbar class="footer">
     <div class="footer-left">
 
-      <!-- <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>          -->
 
       <mat-slider [class.hidden]="vis_mode == 'sim'" min="0" [max]="zs.num_steps" step="1">
         <input id='zoomLevel' matSliderThumb [formControl]="zoomLevel" (valueChange)="zoomChange()">
       </mat-slider>
 
+
+
+      <input id='draftName' [formControl]=" draftName" class="filename" matInput placeholder="draft_name"
+        (keyup.enter)="onRenameSubmit()">
 
       <!-- <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button> -->
 
@@ -98,10 +101,9 @@
     </div>
 
 
-    <div class="footer-center">
-      <input id='draftName' [formControl]="draftName" class="filename" matInput placeholder="draft_name"
-        (keyup.enter)="onRenameSubmit()">
-    </div>
+    <!-- <div class="footer-center">
+
+    </div> -->
     <div class="footer-right">
 
       <button mat-mini-fab color="primary" matTooltip="download draft" [matMenuTriggerFor]="subdraftOptions">
