@@ -6,6 +6,7 @@ import { getCellValue, setCellValue } from "../draft/cell";
 import { colIsBlank, hasMatchingColumn, hasMatchingRow } from "../utils/utils";
 import { Drawdown, warps, InterlacementVal, wefts, createBlankDrawdown, Interlacement } from "../draft";
 import { Loom, LoomSettings, LoomUtil } from "./types";
+import { defaults } from "../utils/defaults";
 
 /*********** GENERIC FUNCTIONS RELATING TO LOOMS AND LOOM UTILS ************/
 
@@ -58,12 +59,12 @@ export const copyLoom = (l: Loom): Loom => {
 
 export const copyLoomSettings = (ls: LoomSettings): LoomSettings => {
   const copy_loomsettings = {
-    type: ls.type,
-    epi: ls.epi,
-    ppi: ls.ppi,
-    units: ls.units,
-    frames: ls.frames,
-    treadles: ls.treadles
+    type: ls.type ?? defaults.loom_settings.type,
+    epi: ls.epi ?? defaults.loom_settings.epi,
+    ppi: ls.ppi ?? defaults.loom_settings.ppi,
+    units: ls.units ?? defaults.loom_settings.units,
+    frames: ls.frames ?? defaults.loom_settings.frames,
+    treadles: ls.treadles ?? defaults.loom_settings.treadles
   };
   return copy_loomsettings;
 }
