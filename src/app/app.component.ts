@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MaterialsStateAction, MediaInstance, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -224,10 +224,20 @@ export class AppComponent implements OnInit, OnDestroy {
     })
 
 
+    const mixerPasteUndoSubscription = this.ss.mixerPasteUndo$.subscribe(action => {
+      this.undoPasteSelections(action.ids);
+    });
+
+    const mixerDeleteUndoSubscription = this.ss.mixerDeleteUndo$.subscribe(action => {
+      this.onPasteSelectionsFromUndo(action.obj);
+    });
+
+
     this.stateSubscriptions.push(draftStateChangeSubscription);
     this.stateSubscriptions.push(draftStateNameChangeSubscription);
     this.stateSubscriptions.push(materialsUpdatedUndoSubscription);
-
+    this.stateSubscriptions.push(mixerPasteUndoSubscription);
+    this.stateSubscriptions.push(mixerDeleteUndoSubscription);
 
     this.scrollingSubscription = this.scroll
       .scrolled()
@@ -660,8 +670,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
 
-  insertPasteFile(result: LoadResponse) {
-    this.processFileData(result.data, 'paste').then(data => {
+  insertPasteFile(result: LoadResponse, originated_with_user: boolean) {
+    this.processFileData(result.data, 'paste').then(idmap => {
 
       //after we have processed the data, we need to now relink any images that were duplicated in the process. 
       let image_id_map = [];
@@ -692,10 +702,59 @@ export class AppComponent implements OnInit, OnDestroy {
         })
       })
 
-
+      if (originated_with_user) {
+        const change: MixerStatePasteEvent = {
+          originator: 'MIXER',
+          type: 'PASTE',
+          ids: idmap.map(el => el.cur_id)
+        }
+        this.ss.addStateChange(change);
+      }
       this.saveFile();
     }
     ).catch(console.error);
+  }
+
+
+  async deleteSelections() {
+
+    this.multiselect.copySelections().then(obj => {
+      const change: MixerStateDeleteEvent = {
+        originator: 'MIXER',
+        type: 'DELETE',
+        obj: obj
+      }
+      this.ss.addStateChange(change);
+
+      this.multiselect.selected.forEach(el => {
+        if (this.tree.getType(el.id) == 'op') {
+          this.mixer.palette.removeOperation(el.id);
+        } else if (this.tree.getType(el.id) == 'draft') {
+          this.mixer.palette.removeSubdraft(el.id);
+        }
+      })
+      this.saveFile();
+      this.multiselect.clearSelections();
+
+    })
+
+
+
+  }
+
+  undoPasteSelections(id_list: Array<number>) {
+
+
+    id_list.forEach(id => {
+      if (this.tree.getType(id) == 'op') {
+        this.mixer.palette.removeOperation(id);
+      } else if (this.tree.getType(id) == 'draft') {
+        this.mixer.palette.removeSubdraft(id);
+      }
+    })
+    this.saveFile();
+
+
   }
 
 
@@ -1065,17 +1124,21 @@ export class AppComponent implements OnInit, OnDestroy {
     //check to make sure something has been copied
     if (this.multiselect.copy == undefined) return;
 
-    this.multiselect.copy.then(ada => {
-
-      return this.fs.loader.paste(ada).then(lr => {
-        this.insertPasteFile(lr);
-      });
-    })
+    return this.fs.loader.paste(this.multiselect.copy).then(lr => {
+      this.insertPasteFile(lr, true);
 
 
+    });
+
+  }
+
+  onPasteSelectionsFromUndo(obj: SaveObj) {
+
+    return this.fs.loader.paste(obj).then(lr => {
+      this.insertPasteFile(lr, false);
 
 
-    this.multiselect.clearSelections();
+    });
 
   }
 
@@ -1363,13 +1426,14 @@ export class AppComponent implements OnInit, OnDestroy {
   /** 
    * Take a fileObj returned from the fileservice and process
    */
-  async processFileData(data: SaveObj, name: string): Promise<string | void> {
+  async processFileData(data: SaveObj, name: string): Promise<Array<{ prev_id: number, cur_id: number }>> {
 
+
+    let entry_mapping: Array<{ prev_id: number, cur_id: number }> = [];
     console.log("PROCESSING FILE DATA", data);
     this.openLoadingAnimation(name)
 
 
-    let entry_mapping = [];
 
     // console.log("PROCESSING ", data)
 
@@ -1409,7 +1473,6 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     }
 
-    console.log("IMAGES TO LOAD", images_to_load);
     return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
       //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
       // console.log("REPLACE OUTDATED OPS")
@@ -1421,6 +1484,7 @@ export class AppComponent implements OnInit, OnDestroy {
         return this.loadNodes(data.nodes)
       })
       .then(id_map => {
+        console.log("ID MAP", id_map);
         entry_mapping = id_map;
         // console.log(" LOADED TREE Nodes ", this.tree.nodes, id_map)
         return this.loadTreeNodes(id_map, data.tree);
@@ -1595,13 +1659,13 @@ export class AppComponent implements OnInit, OnDestroy {
         this.editor.renderChange();
 
 
-        return Promise.resolve('alldone')
+        return Promise.resolve(entry_mapping)
       })
-      .catch(e => {
+      .catch(err => {
         //TO DO ADD ERROR STATEMENT
         this.closeLoadingAnimation();
-        console.log("ERROR THOWN in process", e);
         this.clearAll();
+        return Promise.reject(err)
       });
 
 

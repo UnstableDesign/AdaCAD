@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { MixerStateMove, Node, Point } from '../../core/model/datatypes';
+import { MixerStateMove, Node, Point, SaveObj } from '../../core/model/datatypes';
 import { FileService } from '../../core/provider/file.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
@@ -17,7 +17,7 @@ export class MultiselectService {
   selected: Array<{ id: number, topleft: Point }> = [];
   relative_position: Point = { x: 0, y: 0 };
   relative_position_before: Point = { x: 0, y: 0 };
-  copy: any;
+  copy: SaveObj;
   moving_id: number = -1;
 
 
@@ -171,7 +171,7 @@ export class MultiselectService {
    * creates a copy of each of the elements (and their positions, for pasting into this file or another file)
    * @returns 
    */
-  copySelections() {
+  copySelections(): Promise<SaveObj> {
 
     let selected_nodes: Array<Node> = this.selected
       .map(el => this.tree.getNode(el.id))
@@ -199,7 +199,12 @@ export class MultiselectService {
     relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el));
     let all_nodes = selected_nodes.concat(relevant_connection_nodes);
 
-    this.copy = this.fs.saver.copy(all_nodes.map(el => el.id));
+
+    return this.fs.saver.copy(all_nodes.map(el => el.id))
+      .then(ada => {
+        this.copy = ada;
+        return Promise.resolve(ada);
+      });
 
 
 

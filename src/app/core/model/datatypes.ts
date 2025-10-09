@@ -559,8 +559,13 @@ export type MixerStateChangeEvent = StateChangeEvent & {
 }
 
 export type MixerStateMove = MixerStateChangeEvent & MultiMoveEvent;
-export type MixerStateExistenceChange = MixerStateChangeEvent & OpExistenceChanged;
 
+export type MixerStatePasteEvent = MixerStateChangeEvent & {
+  ids: Array<number>,
+};
+export type MixerStateDeleteEvent = MixerStateChangeEvent & {
+  obj: SaveObj,
+};
 export type OpStateEvent = StateChangeEvent & {
   type: 'MOVE' | 'PARAM_CHANGE' | 'CREATED' | 'REMOVED'
 }
@@ -674,3 +679,11 @@ export type MixerStateMoveAction = StateAction & {
   selected: Array<{ id: number, topleft: Point }>,
 }
 
+export type MixerStateRemoveAction = StateAction & {
+  ids: Array<number>,
+}
+
+
+export type MixerStatePasteAction = StateAction & {
+  obj: SaveObj,
+}

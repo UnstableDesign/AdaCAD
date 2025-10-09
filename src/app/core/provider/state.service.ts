@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MaterialsStateAction, MaterialsStateChange, MixerStateChangeEvent, MixerStateMove, MixerStateMoveAction, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MaterialsStateAction, MaterialsStateChange, MixerStateChangeEvent, MixerStateDeleteEvent, MixerStateMove, MixerStateMoveAction, MixerStatePasteAction, MixerStatePasteEvent, MixerStateRemoveAction, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { FileService } from './file.service';
 import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
@@ -117,10 +117,10 @@ export class StateService {
   /**
    * MIXER EVENTS
    */
-  // private mixerPasteUndoSubject = new Subject<MixerStateAction>();
-  // mixerPasteUndo$ = this.mixerPasteUndoSubject.asObservable();
-  // private mixerDeleteUndoSubject = new Subject<MixerStateAction>();
-  // mixerDeleteUndo$ = this.mixerDeleteUndoSubject.asObservable();
+  private mixerPasteUndoSubject = new Subject<MixerStateRemoveAction>();
+  mixerPasteUndo$ = this.mixerPasteUndoSubject.asObservable();
+  private mixerDeleteUndoSubject = new Subject<MixerStatePasteAction>();
+  mixerDeleteUndo$ = this.mixerDeleteUndoSubject.asObservable();
   private mixerMoveUndoSubject = new Subject<MixerStateMoveAction>();
   mixerMoveUndo$ = this.mixerMoveUndoSubject.asObservable();
 
@@ -352,10 +352,16 @@ export class StateService {
   private handleMixerUndo(change: MixerStateChangeEvent) {
     switch (change.type) {
       case 'PASTE':
-        //  this.mixerPasteUndoSubject.next(<MixerStateAction>change);
+        this.mixerPasteUndoSubject.next(<MixerStateRemoveAction>{
+          type: 'REMOVE',
+          ids: (<MixerStatePasteEvent>change).ids
+        });
         break;
       case 'DELETE':
-        // this.mixerDeleteUndoSubject.next(<MixerStateAction>change);
+        this.mixerDeleteUndoSubject.next(<MixerStatePasteAction>{
+          type: 'CREATE',
+          obj: (<MixerStateDeleteEvent>change).obj
+        });
         break;
       case 'MOVE':
         this.mixerMoveUndoSubject.next(<MixerStateMoveAction>{
