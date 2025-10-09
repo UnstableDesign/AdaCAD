@@ -198,15 +198,13 @@ export class AppComponent implements OnInit, OnDestroy {
         this.editor.updateWeavingInfo();
         this.editor.clearSelection();
       }
-
-      if (this.viewer.id === (<DraftStateAction>action).id) {
-        this.viewer.redraw(this.viewer.id);
+      if (this.vs.getViewerId() === (<DraftStateAction>action).id) {
+        this.viewer.redraw();
       }
 
     })
 
     const draftStateNameChangeSubscription = this.ss.draftNameChangeUndo$.subscribe(action => {
-      console.log("DRAFT STATE NAME CHANGE: ", (<RenameAction>action).id, (<RenameAction>action).before);
       const draft = this.tree.getDraft((<RenameAction>action).id);
       draft.ud_name = (<RenameAction>action).before;
       this.updateDraftName((<RenameAction>action).id);

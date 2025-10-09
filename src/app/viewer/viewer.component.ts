@@ -192,9 +192,9 @@ export class ViewerComponent {
    * redraws the current draft, usually following an update from the drawdown
    */
   private redraw() {
-    console.log("REDRAW CALLED FROM VIEWER");
 
     const draft = this.tree.getDraft(this.vs.getViewerId());
+
     this.draftName.setValue(getDraftName(draft), { emitEvent: false });
 
     if (draft !== null) {

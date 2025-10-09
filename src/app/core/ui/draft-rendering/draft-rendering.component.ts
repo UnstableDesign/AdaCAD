@@ -66,6 +66,7 @@ export class DraftRenderingComponent implements OnInit {
   colSystemMapping: Array<number> = [];
   rowSystemMapping: Array<number> = [];
 
+  before: DraftNodeState;
 
   mouse_pressed: boolean = false;
 
@@ -335,8 +336,6 @@ export class DraftRenderingComponent implements OnInit {
 
     if (this.view_only) return;
 
-    const before = this.tree.getDraftNodeState(this.id);
-    console.log("BEFORE ", before.loom.treadling[0])
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -373,7 +372,6 @@ export class DraftRenderingComponent implements OnInit {
     }
 
     this.flag_history = true;
-    this.addStateChange(before);
   }
 
 
@@ -386,6 +384,9 @@ export class DraftRenderingComponent implements OnInit {
   */
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
+
+    this.before = this.tree.getDraftNodeState(this.id);
+
 
     //show this in the viewer
     this.vs.setViewer(this.id);
@@ -585,6 +586,9 @@ export class DraftRenderingComponent implements OnInit {
       this.selection.onSelectStop();
     }
 
+    if (event.type == 'mouseup') this.addStateChange(this.before);
+
+
   }
 
   /**
@@ -621,7 +625,6 @@ export class DraftRenderingComponent implements OnInit {
 
   private addStateChange(before: DraftNodeState) {
     const after = this.tree.getDraftNodeState(this.id);
-    console.log("AFTER ", after.loom.treadling[0])
     const change: DraftStateChange = {
       originator: 'DRAFT',
       type: 'VALUE_CHANGE',
@@ -998,7 +1001,6 @@ export class DraftRenderingComponent implements OnInit {
     const loom_settings = this.tree.getLoomSettings(this.id);
 
 
-    console.log("REDRAW ALL CALLED FROM DRAFT RENDERING", draft, loom, loom_settings)
 
 
     let flags = {

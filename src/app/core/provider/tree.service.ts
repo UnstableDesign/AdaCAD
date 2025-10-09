@@ -2386,7 +2386,11 @@ export class TreeService {
 
     if (dn.component !== null) (<SubdraftComponent>dn.component).draft = temp;
 
+
+    if (dn.loom_settings.type == 'jacquard') return Promise.resolve(null)
+
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
+
     return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings)
       .then(loom => {
         dn.loom = loom;
