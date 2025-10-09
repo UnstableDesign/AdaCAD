@@ -1,0 +1,60 @@
+<mat-dialog-content class="history-content">
+    <h2 mat-dialog-title>
+        State History
+    </h2>
+    <div class="history-subtitle">
+        Timeline of state changes and undo/redo functionality
+    </div>
+    <!-- Control Buttons -->
+    <div class="controls">
+        <button mat-stroked-button color="primary" (click)="undo()">
+            <i class="fas fa-undo"></i>
+            Undo
+        </button>
+        <button mat-stroked-button color="warn" (click)="clearHistory()">
+            <i class="fas fa-trash-alt"></i>
+            Clear History
+        </button>
+    </div>
+
+    <mat-divider></mat-divider>
+
+
+    <!-- State Changes History -->
+    <div class="history-section">
+        <h3>
+            <i class="fas fa-list"></i>
+            Recent State Changes ({{history.length}})
+        </h3>
+
+        <mat-list *ngIf="history.length > 0; else noHistory">
+            <mat-list-item *ngFor="let change of history.reverse(); let i = index" class="history-item">
+                <i class="fas fa-fw history-icon" [class]="getStateChangeIconClass(change.originator)"></i>
+
+                <div matListItemTitle>
+                    {{formatStateChange(change)}}
+                </div>
+
+                <div matListItemLine>
+                    <mat-chip [color]="getStateChangeColor(change.originator)" selected>
+                        {{change.originator}}
+                    </mat-chip>
+
+                </div>
+            </mat-list-item>
+        </mat-list>
+
+        <ng-template #noHistory>
+            <div class="no-history">
+                <p>No state changes recorded yet.</p>
+                <p>Start making changes to see them appear here.</p>
+            </div>
+        </ng-template>
+    </div>
+
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="closeDialog()">Close</button>
+</mat-dialog-actions>

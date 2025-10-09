@@ -534,7 +534,7 @@ type NumberEvent = {
 }
 
 type NodeEvent = {
-  node: Node,
+  node: OpNode | DraftNode | BaseNode,
   inputs: Array<InwardConnectionProxy>,
   outputs: Array<OutwardConnectionProxy>,
   media?: Array<MediaInstance>

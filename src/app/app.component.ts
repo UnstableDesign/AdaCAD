@@ -37,6 +37,7 @@ import { WorkspaceService } from './core/provider/workspace.service';
 import { ZoomService } from './core/provider/zoom.service';
 import { ExamplesComponent } from './core/ui/examples/examples.component';
 import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.component';
+import { HistoryComponent } from './core/ui/history/history.component';
 import { LoadfileComponent } from './core/ui/loadfile/loadfile.component';
 import { LoadingComponent } from './core/ui/loading/loading.component';
 import { LoginComponent } from './core/ui/login/login.component';
@@ -307,12 +308,11 @@ export class AppComponent implements OnInit, OnDestroy {
         this.loadFromShare(+searchParams.get('share'))
           .then(res => {
             this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
-            this.addTimelineStateOnly();
             return true;
           })
           .catch(err => {
             this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
-            this.loadBlankFile().then(el => this.addTimelineStateOnly())
+            this.loadBlankFile()
             return false;
           })
         history.pushState({ page: 1 }, "AdaCAD.org ", "")
@@ -405,16 +405,6 @@ export class AppComponent implements OnInit, OnDestroy {
     return Promise.resolve(id);
   }
 
-  /**
-  * adds a state to the timeline but DOES NOT SAVE TO DB. This is to be called on load, where we don't want to have a saving change, but we do want to record the initial state of the workspace. 
-  */
-  addTimelineStateOnly() {
-
-    this.fs.saver.ada()
-      .then(so => {
-        this.ss.writeStateToTimeline(so);
-      });
-  }
 
 
 
@@ -921,7 +911,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     return this.generateBlankDraftAndPlaceInMixer(obj).then(id => {
       this.vs.setViewer(id);
-      this.addTimelineStateOnly();
     });
 
   }
@@ -958,13 +947,10 @@ export class AppComponent implements OnInit, OnDestroy {
             .then(loadresponse => {
               return this.loadNewFile(loadresponse, 'loadURL')
             })
-            .then(res => {
-              this.addTimelineStateOnly();
-            })
         },
         error: err => {
           this.openSnackBar('ERROR: no example found with name: ' + name)
-          this.loadBlankFile().then(el => this.addTimelineStateOnly());
+          this.loadBlankFile();
         }
       });
 
@@ -1193,18 +1179,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.filebrowser_modal.componentInstance.onLoadFromDB.subscribe(event => {
       this.openSnackBar('loading file from database')
       this.loadFromDB(event)
-        .then(res => {
-          this.addTimelineStateOnly();
-        })
         .catch(err => {
           console.error(err);
           this.openSnackBar('ERROR: we could not find this file in the database')
-          this.loadBlankFile().then(res => { this.addTimelineStateOnly() })
+          this.loadBlankFile()
         });
     });
 
     this.filebrowser_modal.componentInstance.onCreateFile.subscribe(event => {
-      this.loadBlankFile().then(res => { this.addTimelineStateOnly() })
+      this.loadBlankFile()
     });
 
     this.filebrowser_modal.componentInstance.onDuplicateFile.subscribe(event => {
@@ -1214,13 +1197,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.filebrowser_modal.componentInstance.onLoadMostRecent.subscribe(event => {
       this.openSnackBar('Loading Most Recent File')
       this.loadMostRecent()
-        .then(res => {
-          this.addTimelineStateOnly();
-        })
         .catch(err => {
           this.openSnackBar('The most recent file could not be found:' + err)
           console.error(err);
-          this.loadBlankFile().then(res => { this.addTimelineStateOnly() })
+          this.loadBlankFile()
         })
     });
 
@@ -1717,7 +1697,6 @@ export class AppComponent implements OnInit, OnDestroy {
     //if this user is logged in, write it to the
     this.fs.saver.ada()
       .then(so => {
-        this.ss.writeStateToTimeline(so);
         const nullppi = this.tree.getDraftNodes().filter(el => el.loom_settings.ppi === undefined);
         console.log("SAVING FILE ", nullppi);
         return this.fb.updateFile(so.file, this.ws.current_file);
@@ -1743,30 +1722,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  /**
-   * TODO: because it reloads the file, and reassigns IDs to drafts, there is no way to link the previous draft detail in the editor
-   * with what it's new counterpart will be. For now, I'll just force to mixer view
-   */
-  redo() {
-
-    let so: SaveObj = this.ss.restoreNextMixerHistoryState();
-    if (so === null || so === undefined) return;
-
-    this.mixer.clearView();
-    this.editor.clearAll();
-    this.viewer.clearView();
-    this.tree.clear();
-
-    this.fs.loader.ada(
-      so,
-      this.ws.current_file,
-      'redo',
-    )
-      .then(lr => this.loadNewFile(lr, 'statechange'));
-
-
-  }
-
 
   /**
    * TODO: because it reloads the file, and reassigns IDs to drafts, there is no way to link the previous draft detail in the editor
@@ -1774,7 +1729,10 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   undo() {
 
-    this.ss.undo();
+    const history = this.dialog.open(HistoryComponent, {
+      width: '800px',
+    });
+
 
     // this.fs.saver.ada()
     //   .then(current_state => {
