@@ -463,6 +463,7 @@ export class SubdraftComponent implements OnInit {
     //set the relative position of this operation if its the one that's dragging
     if (this.multiselect.isSelected(this.id)) {
       this.multiselect.setRelativePosition(this.topleft);
+      this.multiselect.dragStart(this.id);
     } else {
       this.multiselect.clearSelections();
     }
@@ -555,16 +556,19 @@ export class SubdraftComponent implements OnInit {
     this.multiselect.setRelativePosition(this.topleft);
     this.onSubdraftDrop.emit({ id: this.id });
 
+    if (this.multiselect.moving_id == this.id) {
+      this.multiselect.dragEnd();
+    } else {
+      const change: DraftStateMove = {
+        originator: 'DRAFT',
+        type: 'MOVE',
+        id: this.id,
+        before: this.previous_topleft,
+        after: this.topleft
+      }
 
-    const change: DraftStateMove = {
-      originator: 'DRAFT',
-      type: 'MOVE',
-      id: this.id,
-      before: this.previous_topleft,
-      after: this.topleft
+      this.ss.addStateChange(change);
     }
-
-    this.ss.addStateChange(change);
 
 
   }

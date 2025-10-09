@@ -504,13 +504,21 @@ export interface DraftNodeState {
 
 
 export type StateChangeEvent = {
-  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'NOTE' | 'MATERIALS'
+  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'NOTE' | 'MATERIALS' | 'MIXER'
 }
 
 type MoveEvent = {
   id: number,
   before: Point,
   after: Point
+}
+
+type MultiMoveEvent = {
+  moving_id: number,
+  relative_position_before: Point,
+  relative_position_after: Point,
+  selected_before: Array<{ id: number, topleft: Point }>,
+  selected_after: Array<{ id: number, topleft: Point }>
 }
 
 type ParamEvent = {
@@ -544,16 +552,14 @@ type DraftChangedEvent = {
   before: DraftNodeState,
   after: DraftNodeState
 }
-type WorkspaceSettingsChangedEvent = {
-  before: any,
-  after: any
-}
-type FileMetaChangedEvent = {
-  before: FileMeta,
-  after: FileMeta
-}
 
 
+export type MixerStateChangeEvent = StateChangeEvent & {
+  type: 'PASTE' | 'DELETE' | 'MOVE',
+}
+
+export type MixerStateMove = MixerStateChangeEvent & MultiMoveEvent;
+export type MixerStateExistenceChange = MixerStateChangeEvent & OpExistenceChanged;
 
 export type OpStateEvent = StateChangeEvent & {
   type: 'MOVE' | 'PARAM_CHANGE' | 'CREATED' | 'REMOVED'
@@ -660,4 +666,11 @@ export type MaterialsStateAction = StateAction & {
   after: Array<Material>
 }
 
+
+
+export type MixerStateMoveAction = StateAction & {
+  moving_id: number,
+  relative_position: Point,
+  selected: Array<{ id: number, topleft: Point }>,
+}
 

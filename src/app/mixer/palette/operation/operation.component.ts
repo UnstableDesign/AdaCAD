@@ -582,6 +582,7 @@ export class OperationComponent implements OnInit {
 
     if (this.multiselect.isSelected(this.id)) {
       this.multiselect.setRelativePosition(this.topleft);
+      this.multiselect.dragStart(this.id);
     } else {
       this.multiselect.clearSelections();
     }
@@ -673,15 +674,21 @@ export class OperationComponent implements OnInit {
     this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({ id: this.id });
 
-    const change: OpStateMove = {
-      originator: 'OP',
-      type: 'MOVE',
-      id: this.id,
-      before: this.previous_topleft,
-      after: this.topleft
+    if (this.multiselect.moving_id == this.id) {
+      this.multiselect.dragEnd();
+
+    } else {
+      const change: OpStateMove = {
+        originator: 'OP',
+        type: 'MOVE',
+        id: this.id,
+        before: this.previous_topleft,
+        after: this.topleft
+      }
+
+      this.ss.addStateChange(change);
     }
 
-    this.ss.addStateChange(change);
 
 
   }

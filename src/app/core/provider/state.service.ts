@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MaterialsStateAction, MaterialsStateChange, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MaterialsStateAction, MaterialsStateChange, MixerStateChangeEvent, MixerStateMove, MixerStateMoveAction, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { FileService } from './file.service';
 import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
@@ -114,6 +114,15 @@ export class StateService {
   materialsUpdatedUndo$ = this.materialsUpdatedUndoSubject.asObservable();
 
 
+  /**
+   * MIXER EVENTS
+   */
+  // private mixerPasteUndoSubject = new Subject<MixerStateAction>();
+  // mixerPasteUndo$ = this.mixerPasteUndoSubject.asObservable();
+  // private mixerDeleteUndoSubject = new Subject<MixerStateAction>();
+  // mixerDeleteUndo$ = this.mixerDeleteUndoSubject.asObservable();
+  private mixerMoveUndoSubject = new Subject<MixerStateMoveAction>();
+  mixerMoveUndo$ = this.mixerMoveUndoSubject.asObservable();
 
   constructor() {
 
@@ -340,6 +349,25 @@ export class StateService {
     }
   }
 
+  private handleMixerUndo(change: MixerStateChangeEvent) {
+    switch (change.type) {
+      case 'PASTE':
+        //  this.mixerPasteUndoSubject.next(<MixerStateAction>change);
+        break;
+      case 'DELETE':
+        // this.mixerDeleteUndoSubject.next(<MixerStateAction>change);
+        break;
+      case 'MOVE':
+        this.mixerMoveUndoSubject.next(<MixerStateMoveAction>{
+          type: 'CHANGE',
+          moving_id: (<MixerStateMove>change).moving_id,
+          relative_position: (<MixerStateMove>change).relative_position_before,
+          selected: (<MixerStateMove>change).selected_before,
+        });
+        break;
+    }
+  }
+
 
 
   private handleUndo(change: StateChangeEvent) {
@@ -356,9 +384,13 @@ export class StateService {
         break;
       case 'NOTE':
         this.handleNoteUndo(<NoteStateChange>change);
+        break;
       case 'MATERIALS':
         this.handleMaterialsUndo(<MaterialsStateChange>change);
-
+        break;
+      case 'MIXER':
+        this.handleMixerUndo(<MixerStateChangeEvent>change);
+        break;
 
     }
 

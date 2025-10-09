@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AnalyzedImage, Draft, Interlacement, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
+import { AnalyzedImage, Draft, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
 import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
@@ -246,6 +246,10 @@ export class PaletteComponent implements OnInit {
     });
 
 
+    const mixerMoveUndoSubscription = this.ss.mixerMoveUndo$.subscribe(action => {
+      this.moveSelectionsFromUndo(action.moving_id, action.selected, action.relative_position);
+    });
+
 
     this.stateSubscriptions.push(draftCreatedUndoSubscription);
     this.stateSubscriptions.push(draftRemovedUndoSubscription);
@@ -261,6 +265,7 @@ export class PaletteComponent implements OnInit {
     this.stateSubscriptions.push(noteRemovedUndoSubscription);
     this.stateSubscriptions.push(noteUpdatedUndoSubscription);
     this.stateSubscriptions.push(noteMoveUndoSubscription);
+    this.stateSubscriptions.push(mixerMoveUndoSubscription);
 
     this.vc.clear();
     this.default_cell_size = defaults.draft_detail_cell_size;
@@ -1071,36 +1076,6 @@ export class PaletteComponent implements OnInit {
     }
   }
 
-  /**
-   * draws the selection atop the view
-   * todo: update this to account for scroll
-   * @param ndx 
-   */
-  private drawSelection(ndx: Interlacement) {
-
-    // //instantiate the canvas at this point
-    // this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // const bounds ={
-    //   left: this.selection.start.j*this.zs.zoom,
-    //   top: this.selection.start.i*this.zs.zoom,
-    //   right: ndx.j *this.zs.zoom,
-    //   bottom: ndx.i*this.zs.zoom
-    // };
-
-    // //will draw on outside of selection
-    // this.cx.beginPath();
-    // this.cx.strokeStyle = "#ff4081";
-    // this.cx.lineWidth = 1;
-    // this.cx.setLineDash([this.zs.zoom, 2]);
-    // this.cx.strokeRect(bounds.left - this.viewport.getTopLeft().x, bounds.top  - this.viewport.getTopLeft().y, bounds.right-bounds.left, bounds.bottom-bounds.top);
-    // this.cx.fillStyle = "#ff4081";
-    // this.cx.font = "12px Arial";
-    // const w = Math.round(this.selection.bounds.width /this.zs.zoom);
-    // const h = Math.round(this.selection.bounds.height / this.zs.zoom);
-    // this.cx.fillText(w.toString()+"x"+h.toString(),  bounds.left- this.viewport.getTopLeft().x, bounds.bottom+16-this.viewport.getTopLeft().y);
-
-  }
 
 
   /**
@@ -1186,51 +1161,6 @@ export class PaletteComponent implements OnInit {
 
 
   }
-
-  /**
-   This is called when the finetune mode is closed and we need to create a new subdraft to hold the changes. 
-   * @param obj {parent_id, new_id}
-   * @returns 
-   */
-  // createNewSubdraftFromEdits(obj: any){
-  //   this.changeDesignmode('move')
-
-  //   if(obj === null) return;
-
-  //   const sd = <SubdraftComponent> this.tree.getComponent(obj.parent_id);
-  //   const new_draft = this.tree.getDraft(obj.new_id);
-  //   const new_loom = this.tree.getLoom(obj.new_id);
-  //   const new_ls = this.tree.getLoomSettings(obj.new_id);
-  //   const new_topleft = {
-  //       x: sd.topleft.x + 40 + this.zs.zoom *2, 
-  //       y: sd.topleft.y}
-
-
-
-
-  //   this.loadSubDraft(
-  //     obj.new_id, 
-  //     new_draft, 
-  //     {
-  //       node_id: obj.new_id,
-  //       type: 'draft',
-  //       topleft: sd.topleft
-  //     },
-  //     {
-  //       node_id: obj.new_id,
-  //       draft_id: new_draft.id,
-  //       draft_name: new_draft.ud_name,
-  //       draft: new_draft,
-  //       draft_visible: true,
-  //       loom: new_loom,
-  //       loom_settings:new_ls,
-  //       render_colors: true
-  //     },
-  //     this.zs.zoom);
-  //     this.addTimelineState();
-
-
-  //  }
 
 
   onDuplicateSubdraftCalled(obj: any) {
@@ -1384,69 +1314,6 @@ export class PaletteComponent implements OnInit {
 
 
 
-
-  /**
-  * adds a connector flag to any subdrafts that we are allowed to connect to from this operation
-  */
-  // setDraftsConnectable(op_id: number){
-  //   const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
-  //   const op: OperationComponent = <OperationComponent> this.tree.getComponent(op_id);
-  //   const inputs: Array<number> = this.tree.getInputs(op_id);
-  //   if(inputs.length >= op.maxInputs()){
-  //     nodes.forEach(el => {
-  //       el.unsetConnectable();
-
-  //       //now unset the ones that are already assigned to other ops
-  //       const connections: Array<number> = this.tree.getNonCxnOutputs(el.id);
-  //       const op_ndx: number = connections.findIndex(id => (id === op_id));
-  //       //if it had connections and the connection was not this operation, unset it
-  //       if(op_ndx !== -1){
-  //         el.setConnectable();
-  //       }    
-  //     });
-  //   }else{
-
-  //     nodes.forEach(el => {
-
-  //       //look upstream to see if this operation is linked in any way to this op
-  //       const upstream: Array<number> = this.tree.getUpstreamOperations(el.id);
-  //       const ndx: number = upstream.findIndex(i => i === op_id);
-  //       if(ndx === -1) el.setConnectable();
-
-  //       //now unset the ones that are already assigned to other ops
-  //       const connections: Array<number> = this.tree.getOutputs(el.id);
-  //       const ops: Array<number> = connections.map(cxn => this.tree.getConnectionOutput(cxn));
-  //       const op_ndx: number = ops.findIndex(op => (op === op_id));
-  //       //if it had connections and the connection was not this operation, unset it
-  //       if(ops.length > 0 && op_ndx === -1){
-  //         el.unsetConnectable();
-  //       }    
-
-  //     });
-  //   }
-
-  //   const ops: Array<OperationComponent> = this.tree.getOperations();
-  //   ops.forEach(op => {
-  //     if(op.id != op_id) op.active_connection = true;
-  //   });
-
-  //  }
-
-  /**
-  * disables selection and pointer events on all
-  */
-  // unsetDraftsConnectable(){
-  //   const nodes: Array<SubdraftComponent> = this.tree.getDrafts();
-  //   nodes.forEach(el => {
-  //     el.unsetConnectable();
-  //   });
-
-  //   const ops: Array<OperationComponent> = this.tree.getOperations();
-  //   ops.forEach(op => {
-  //     op.active_connection = false;
-  //   });
-
-  //  }
 
   /**
    * disables selection and pointer events on all
@@ -2126,8 +1993,7 @@ export class PaletteComponent implements OnInit {
 
   }
 
-  paletteClicked() {
-  }
+
 
   /**
    * called from an operation component when it is dragged
@@ -2153,6 +2019,11 @@ export class PaletteComponent implements OnInit {
     this.updateSelectionPositions(obj.id);
   }
 
+
+  /**
+   * 
+   * @param moving_id 
+   */
   updateSelectionPositions(moving_id: number) {
     const selections = this.multiselect.getSelections();
     selections.forEach(sel => {
@@ -2160,10 +2031,7 @@ export class PaletteComponent implements OnInit {
         const comp = this.tree.getComponent(sel);
         this.multiselect.setPosition(sel, comp.topleft)
       }
-
-
     })
-
   }
 
   /**
@@ -2196,6 +2064,28 @@ export class PaletteComponent implements OnInit {
     });
   }
 
+  moveSelectionsFromUndo(moving_id: number, selections: Array<{ id: number, topleft: Point }>, rel_pos: Point) {
+    if (selections.length == 0) return;
+
+    const cur_pos = this.tree.getComponent(moving_id).topleft;
+    const diff: Point = { x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y };
+
+    selections.forEach(sel => {
+      if (this.tree.getNode(sel.id) == null) return;
+
+      if (this.tree.getType(sel.id) == 'op') {
+        const comp = this.tree.getComponent(sel.id) as OperationComponent;
+        const new_pos: Point = { x: (comp.topleft.x - diff.x), y: (comp.topleft.y - diff.y) }
+        comp.setPosition(new_pos)
+        this.updateAttachedComponents(sel.id, true);
+      }
+      if (this.tree.getType(sel.id) == 'draft') {
+        const comp = <SubdraftComponent>this.tree.getComponent(sel.id);
+        const new_pos: Point = { x: (comp.topleft.x - diff.x), y: (comp.topleft.y - diff.y) }
+        if (comp.parent_id == -1) comp.setPosition(new_pos)
+      }
+    });
+  }
 
 
 

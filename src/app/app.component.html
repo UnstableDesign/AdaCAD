@@ -181,9 +181,9 @@
 
 
 
-            <button mat-icon-button matTooltip="redo" (click)="redo()">
+            <!-- <button mat-icon-button matTooltip="redo" (click)="redo()">
               <i class="fa-solid fa-rotate-right"></i>
-            </button>
+            </button> -->
 
           </div>
 
@@ -193,7 +193,8 @@
           <div class="copypaste">
             <button mat-raised-button color="accent" (click)="onCopySelections()">Copy (ctrl-c)</button>
             <button mat-raised-button color="accent" [disabled]="multiselect.copy === undefined"
-              (click)="onPasteSelections()">Paste (ctrl-c)</button>
+              (click)="onPasteSelections()">Paste (ctrl-v)</button>
+            <button mat-raised-button color="accent" (click)="deleteSelections()">Delete</button>
           </div>
           }
 
