@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { DraftNode, DraftNodeProxy, FileMeta, IndexedColorImageInstance, LoadResponse, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, FileMeta, IndexedColorImageInstance, LoadResponse, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -237,7 +237,7 @@ export class AppComponent implements OnInit, OnDestroy {
     };
 
     // Zoom to fit with some margins, which are better for the screenshots
-    (window as any).zoomToFit = () => this.zoomToFit(200, 200);
+    (window as any).zoomToFit = () => this.zoomToFit(true, 50);
   }
 
 
@@ -1760,7 +1760,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  zoomToFit(marginX = 0, marginY = 0) {
+  zoomToFit(useCentering = false, padding = 0) {
 
     console.log(this.tree.tree);
 
@@ -1783,26 +1783,45 @@ export class AppComponent implements OnInit, OnDestroy {
 
       if (bounds == null) return;
 
-      // Applying margins to bounds
-      bounds.height += marginY * 2;
-      bounds.width += marginX * 2;
-      bounds.topleft.x -= marginX;
-      bounds.topleft.y -= marginY;
+      // apply padding around bounds to prevent clipping
+      bounds.height += padding * 2;
+      bounds.width += padding * 2;
+      bounds.topleft.x -= padding;
+      bounds.topleft.y -= padding;
 
       let prior = this.zs.getMixerZoom();
-      this.zs.zoomToFitMixer(bounds, view_window.getBoundingClientRect());
+      const viewWindowRect = view_window.getBoundingClientRect();
+      this.zs.zoomToFitMixer(bounds, viewWindowRect);
       this.mixer.renderChange(prior);
 
-      //since bounds is in absolute terms (relative to the child div, we need to convert the top left into the scaled space)
+      const newZoomRatio = this.zs.getMixerZoom();
+
+      const boundsInPixels: Bounds = {
+        width: bounds.width * newZoomRatio,
+        height: bounds.height * newZoomRatio,
+        topleft: {
+          x: bounds.topleft.x * newZoomRatio,
+          y: bounds.topleft.y * newZoomRatio
+        }
+      }
+
+      const scrollDestination = { ...boundsInPixels.topleft };
+
+      if (useCentering) {
+        const surroundingWhitespace = {
+          width: viewWindowRect.width - boundsInPixels.width,
+          height: viewWindowRect.height - boundsInPixels.height,
+        };
+
+        scrollDestination.x -= surroundingWhitespace.width / 2;
+        scrollDestination.y -= surroundingWhitespace.height / 2;
+      }
+
       view_window.scroll({
-        top: bounds.topleft.y * this.zs.getMixerZoom(),
-        left: bounds.topleft.x * this.zs.getMixerZoom(),
+        top: scrollDestination.y,
+        left: scrollDestination.x,
         behavior: "instant",
-      })
-
-
-
-
+      });
 
     } else {
       // this.zs.zoomToFitEditor()

@@ -51,11 +51,12 @@ type LayoutCssGridConfig = {
 })
 export class ScreenshotLayoutService {
   private tree = inject(TreeService);
-  squareLayoutConfig: LayoutCssGridConfig;
+  squareAndRowLayoutConfig: LayoutCssGridConfig;
   graphLayoutConfig: LayoutCssGridConfig;
+  positionOffset: number;
 
   constructor() {
-    this.squareLayoutConfig = {
+    this.squareAndRowLayoutConfig = {
       columnGap: 100,
       rowGap: 100,
       justifyContent: 'start',
@@ -63,10 +64,14 @@ export class ScreenshotLayoutService {
 
     this.graphLayoutConfig = {
       columnGap: 150,
-      rowGap: 450,
+      rowGap: 220,
       justifyContent: 'start',
     };
 
+    this.positionOffset = 4000;
+
+    // exposing autoLayout function on the window so we can easily call it from the
+    // console / puppeteer script
     (window as any).autoLayout = () => this.autoLayout();
   }
 
@@ -118,7 +123,7 @@ export class ScreenshotLayoutService {
   */
   private _getLayout(g: LayoutGraph): PositionedLayoutGraph {
     if (Object.values(g.edges).every(nodeEdges => nodeEdges.length === 0)) {
-      return this._getSquareLayout(g);
+      return this._getSquareAndRowLayout(g);
     }
 
     return this._getGraphLayout(g);
@@ -134,7 +139,10 @@ export class ScreenshotLayoutService {
 
       const component = node.component;
       if (component && 'setPosition' in component) {
-        component.setPosition({ x, y });
+        // applying a constant offset so the nodes aren't positioned closely to 0,0
+        // when the nodes are too close to 0,0 we can't scroll any further to the left or upwards
+        // and that causes issues with centering things in the screenshots
+        component.setPosition({ x: x + this.positionOffset, y: y + this.positionOffset });
         continue;
       }
 
@@ -219,8 +227,8 @@ export class ScreenshotLayoutService {
   }
 
   /**
-   * a simply layout for a collection of nodes without hierarchy.
-   * tries to place nodes in a square-like layout based on their original ordering.
+   * a simple layout for a collection of nodes without hierarchy.
+   * tries to place nodes in a row or square-like layout based on their original ordering.
    *
    * e.g:
    * ```
@@ -229,18 +237,24 @@ export class ScreenshotLayoutService {
    * ```
    *
    * primarily used for screenshots of draft generator nodes like twill, tabby, etc.
-   * where the screenshots mainly have 1-4 examples of the components settings
+   * where the screenshots mainly have 1-4 examples of the components settings.
+   *
+   * examples with three or fewer nodes just use a single row, more than that and we go with square layouts.
    *
    * @returns a positioned layout graph for use in updating the real node positions
    */
-  private _getSquareLayout(g: LayoutGraph): PositionedLayoutGraph {
+  private _getSquareAndRowLayout(g: LayoutGraph): PositionedLayoutGraph {
     const nodeCount = Object.keys(g.nodes).length;
 
+
+    // three or fewer nodes? single row, otherwise
     // find the square root so we know how many nodes
     // should go in each row in order to make the format
     // square-like
-    // e.g: 1-4 -> 2x2, 4-9 -> 3x3, etc.
-    const size = Math.ceil(Math.sqrt(nodeCount));
+    // e.g: 4 -> 2x2, 4-9 -> 3x3, etc.
+    const size = nodeCount < 4
+      ? nodeCount
+      : Math.ceil(Math.sqrt(nodeCount));
 
     // just use order of nodes from tree, which should be the order they were added in
     const orderedNodes = Object.values(g.nodes).filter(node => this.tree.nodes.findIndex(n => n.id === node.id) !== -1);
@@ -255,9 +269,9 @@ export class ScreenshotLayoutService {
     gridContainer.style.padding = '200px';
     gridContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     gridContainer.style.alignItems = 'start';
-    gridContainer.style.rowGap = this.squareLayoutConfig.rowGap + 'px';
-    gridContainer.style.columnGap = this.squareLayoutConfig.columnGap + 'px';
-    gridContainer.style.justifyContent = this.squareLayoutConfig.justifyContent;
+    gridContainer.style.rowGap = this.squareAndRowLayoutConfig.rowGap + 'px';
+    gridContainer.style.columnGap = this.squareAndRowLayoutConfig.columnGap + 'px';
+    gridContainer.style.justifyContent = this.squareAndRowLayoutConfig.justifyContent;
 
     for (let node of orderedNodes) {
       const nodeElt = document.createElement('div');
@@ -368,6 +382,8 @@ export class ScreenshotLayoutService {
   }
 
   private _sortGraphRows(g: LayoutGraph, unsortedRows: Array<Array<number>>): Array<Array<number>> {
+    // internal function which recursively sorts the nodes in each row based on their original X position
+    // and the nodes relationships to nodes in the previous row to avoid crossed-wires where possible
     const sortGraphRowsRecursive = (g: LayoutGraph, unsortedRows: Array<Array<number>>) => {
       if (unsortedRows.length === 0) {
         return [];
