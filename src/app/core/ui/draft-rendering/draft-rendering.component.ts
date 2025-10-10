@@ -5,7 +5,6 @@ import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange,
 import { Subject, Subscription, fromEvent } from 'rxjs';
 import { CanvasList, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
-import { DesignmodesService } from '../../provider/designmodes.service';
 import { FileService } from '../../provider/file.service';
 import { MaterialsService } from '../../provider/materials.service';
 import { OperationService } from '../../provider/operation.service';
@@ -29,7 +28,6 @@ import { SelectionComponent } from './selection/selection.component';
 export class DraftRenderingComponent implements OnInit {
 
   private fs = inject(FileService);
-  dm = inject(DesignmodesService);
   private ms = inject(MaterialsService);
   private ss = inject(SystemsService);
   ws = inject(WorkspaceService);
@@ -56,6 +54,7 @@ export class DraftRenderingComponent implements OnInit {
   @Output() onDesignModeChange = new EventEmitter();
   @Output() onMaterialChange = new EventEmitter();
   @Output() onLoomSettingsUpdated = new EventEmitter();
+  @Output() onSave = new EventEmitter();
 
 
   hold_copy_for_paste: boolean = false;
@@ -153,6 +152,11 @@ export class DraftRenderingComponent implements OnInit {
   weft_text_div_height: string = '1000px';
 
 
+  pencil = 'toggle'
+
+  draft_edit_source = 'drawdown';
+
+  draft_edit_mode = 'draw';
 
   /// ANGULAR FUNCTIONS
   /**
@@ -166,6 +170,17 @@ export class DraftRenderingComponent implements OnInit {
     this.flag_history = false;
     this.system_codes = defaults.weft_system_codes;
 
+  }
+
+  setPencil(pencil: string) {
+    this.pencil = pencil;
+  }
+  setDraftEditSource(draft_edit_source: string) {
+    this.draft_edit_source = draft_edit_source;
+  }
+
+  setDraftEditMode(draft_edit_mode: string) {
+    this.draft_edit_mode = draft_edit_mode;
   }
 
   ngOnInit() {
@@ -285,14 +300,12 @@ export class DraftRenderingComponent implements OnInit {
 
     const loom = this.tree.getLoom(id);
     if (loom == null) {
-      this.frames = defaults.loom_settings.frames;
-      this.treadles = defaults.loom_settings.treadles;
+      this.frames = 0;
+      this.treadles = 0;
     } else {
       this.frames = Math.max(numFrames(loom), loom_settings.frames);
       this.treadles = Math.max(numTreadles(loom), loom_settings.treadles);
     }
-
-
 
 
     this.isFrame = isFrame(loom_settings);
@@ -304,9 +317,9 @@ export class DraftRenderingComponent implements OnInit {
 
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
-    this.width = warps(draft.drawdown) / loom_settings.epi;
-    if (loom_settings.units == 'cm') this.width *= 10;
-    this.selected_units = loom_settings.units;
+    // this.width = warps(draft.drawdown) / loom_settings.epi;
+    // if (loom_settings.units == 'cm') this.width *= 10;
+    // this.selected_units = loom_settings.units;
 
 
     this.colShuttleMapping = draft.colShuttleMapping.slice();
@@ -326,6 +339,38 @@ export class DraftRenderingComponent implements OnInit {
   }
 
 
+  highlightRowsAndCols(draft: Draft, event: MouseEvent, currentPos: Interlacement) {
+
+
+    const highlightRow = document.getElementById('highlight-row-editor');
+    const highlightCol = document.getElementById('highlight-col-editor');
+
+    const cell_size = this.render.calculateCellSize(draft);
+    const parentContainer = highlightRow.parentElement;
+    const rect = parentContainer.getBoundingClientRect();
+    //event page X is the mouse in absolute terms, rect left is the corner of the parent container
+    //so event.client - rect gives us the distance of the mouse within the parent container. 
+    //when we set the div, we have to consider the scale so we divide by scale 
+    const x = (event.clientX - rect.left) / this.zs.getEditorZoom();
+    const y = (event.clientY - rect.top) / this.zs.getEditorZoom();
+
+    highlightRow.style.top = `${y - cell_size / 2}px`;
+    highlightCol.style.left = `${x - cell_size / 2}px`;
+
+    highlightRow.style.display = 'block';
+    highlightCol.style.display = 'block';
+    // highlightRow.style.top = `${currentPos.i * this.render.calculateCellSize(draft) * this.scale}px`;
+    // highlightCol.style.left = `${currentPos.j * this.render.calculateCellSize(draft) * this.scale}px`;
+  }
+
+  removeHighlighter() {
+
+    const highlightRow = document.getElementById('highlight-row-editor');
+    const highlightCol = document.getElementById('highlight-col-editor');
+    highlightRow.style.display = 'none';
+    highlightCol.style.display = 'none';
+  }
+
   /**
   *  takes an event from mouse event and determines how to handle it 
   * @param target the dom target of the mouse click
@@ -342,17 +387,17 @@ export class DraftRenderingComponent implements OnInit {
     const loom_settings = this.tree.getLoomSettings(this.id);
 
 
-    const editing_style = this.dm.cur_draft_edit_source
+    const editing_style = this.draft_edit_source
 
     if (target && target.id == 'warp-materials-' + this.source + '-' + this.id) {
-      if (this.dm.cur_pencil == 'material') this.drawOnWarpMaterials(draft, currentPos);
+      if (this.pencil == 'material') this.drawOnWarpMaterials(draft, currentPos);
       else this.incrementWarpMaterial(currentPos.j);
 
     } else if (target && target.id == 'warp-systems-' + this.source + '-' + this.id) {
       this.incrementWarpSystem(currentPos.j);
 
     } else if (target && target.id == 'weft-materials-' + this.source + '-' + this.id) {
-      if (this.dm.cur_pencil == 'material') this.drawOnWeftMaterials(draft, currentPos)
+      if (this.pencil == 'material') this.drawOnWeftMaterials(draft, currentPos)
       else this.incrementWeftMaterial(currentPos.i)
 
     } else if (target && target.id == 'weft-systems-' + this.source + '-' + this.id) {
@@ -374,7 +419,57 @@ export class DraftRenderingComponent implements OnInit {
     this.flag_history = true;
   }
 
+  handleMouseEvent(event: MouseEvent, currentPos: Interlacement) {
+    // determine action based on brush type. invert inactive on move.
+    switch (this.draft_edit_mode) {
+      case 'draw':
+        switch (this.pencil) {
+          case 'up':
+          case 'down':
+          case 'unset':
+          case 'material':
+          case 'toggle':
 
+            this.setPosAndDraw(<HTMLElement>event.target, event.shiftKey, currentPos);
+            this.flag_recompute = true;
+
+
+
+            break;
+        }
+
+        break;
+
+
+
+      case 'select':
+      case 'copy':
+
+        this.selection.onSelectDrag(currentPos);
+
+        break;
+      case 'invert':
+      default:
+        break;
+    }
+  }
+
+
+  @HostListener('mousemove', ['$event'])
+  private movingMouse(event) {
+    const draft = this.tree.getDraft(this.id);
+    let cell_size = this.render.calculateCellSize(draft);
+
+    var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
+    var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
+
+    const currentPos: Interlacement = {
+      i: screen_row, //row
+      j: screen_col, //col
+    };
+
+    if (this.source == 'editor') this.highlightRowsAndCols(draft, event, currentPos);
+  }
 
   /**
   * Touch start event. Subscribes to the move event.
@@ -385,6 +480,7 @@ export class DraftRenderingComponent implements OnInit {
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
 
+
     this.before = this.tree.getDraftNodeState(this.id);
 
 
@@ -394,7 +490,6 @@ export class DraftRenderingComponent implements OnInit {
     if (this.id == -1 || this.view_only) return;
 
     this.mouse_pressed = true;
-
 
     const draft = this.tree.getDraft(this.id);
     let cell_size = this.render.calculateCellSize(draft);
@@ -408,7 +503,7 @@ export class DraftRenderingComponent implements OnInit {
     };
 
 
-
+    this.handleMouseEvent(event, currentPos);
     if (event.target.localName === 'canvas') {
 
       this.removeSubscription();
@@ -428,12 +523,12 @@ export class DraftRenderingComponent implements OnInit {
       // Save temp pattern
       this.tempPattern = draft.drawdown.slice();
 
-
-      switch (this.dm.cur_draft_edit_mode) {
+      console.log("on move called", this.draft_edit_mode, this.pencil)
+      switch (this.draft_edit_mode) {
 
         case 'draw':
 
-          switch (this.dm.cur_pencil) {
+          switch (this.pencil) {
 
             case 'toggle':
               this.setPosAndDraw(event.target, event.shiftKey, currentPos);
@@ -482,6 +577,8 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
+
+
   /**
   * Event called when mouse down and moved within the canvas.
   * @extends WeaveDirective
@@ -511,43 +608,32 @@ export class DraftRenderingComponent implements OnInit {
     //don't call unless you've moved to a new spot
     if (this.isSame(currentPos, this.lastPos)) return;
 
-    // determine action based on brush type. invert inactive on move.
-    switch (this.dm.cur_draft_edit_mode) {
-      case 'draw':
-        switch (this.dm.cur_pencil) {
-          case 'up':
-          case 'down':
-          case 'unset':
-          case 'material':
-          case 'toggle':
-
-            this.setPosAndDraw(event.target, event.shiftKey, currentPos);
-            this.flag_recompute = true;
-
-
-
-            break;
-        }
-
-        break;
-
-
-
-      case 'select':
-      case 'copy':
-
-        this.selection.onSelectDrag(currentPos);
-
-        break;
-      case 'invert':
-      default:
-        break;
-    }
+    this.handleMouseEvent(event, currentPos);
 
     this.lastPos = {
       i: currentPos.i, //row
       j: currentPos.j //col
     };
+  }
+
+  updateConnectedDraftComponents(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
+
+    console.log("updateConnectedDraftComponents", this.draft_edit_source)
+    if (this.draft_edit_source == 'drawdown') {
+      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+        .then(loom => {
+          this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
+          this.rowShuttleMapping = draft.rowShuttleMapping;
+          this.onDrawdownUpdated.emit(draft);
+        })
+    } else {
+      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+        .then(draft => {
+          this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
+          this.rowShuttleMapping = draft.rowShuttleMapping;
+          this.onDrawdownUpdated.emit(draft);
+        })
+    }
   }
 
   /**
@@ -559,6 +645,8 @@ export class DraftRenderingComponent implements OnInit {
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
   private onEnd(event) {
+    if (this.source == 'editor' && event.type == 'mouseleave') this.removeHighlighter();
+
     this.mouse_pressed = false;
     if (this.id == -1 || this.view_only) return;
 
@@ -581,12 +669,15 @@ export class DraftRenderingComponent implements OnInit {
 
 
     // remove subscription unless it is leave event with select.
-    if (!(event.type === 'mouseleave' && (this.dm.isSelectedDraftEditingMode('select')))) {
+    if (!(event.type === 'mouseleave' && (this.draft_edit_mode == 'select'))) {
       this.removeSubscription();
       this.selection.onSelectStop();
     }
 
-    if (event.type == 'mouseup') this.addStateChange(this.before);
+    if (event.type == 'mouseup') {
+      this.addStateChange(this.before);
+      this.updateConnectedDraftComponents(this.tree.getDraft(this.id), this.tree.getLoom(this.id), this.tree.getLoomSettings(this.id));
+    }
 
 
   }
@@ -659,7 +750,7 @@ export class DraftRenderingComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
 
 
-    if (this.dm.isSelectedPencil('material')) {
+    if (this.pencil == 'material') {
       draft.rowShuttleMapping[si] = this.selected_material_id;
     } else {
       const len = this.ms.getShuttles().length;
@@ -699,7 +790,7 @@ export class DraftRenderingComponent implements OnInit {
     const warp = col;
 
     const draft = this.tree.getDraft(this.id);
-    if (this.dm.isSelectedPencil('material')) {
+    if (this.pencil == 'material') {
       draft.colShuttleMapping[warp] = this.selected_material_id;
     } else {
       const len = this.ms.getShuttles().length;
@@ -720,6 +811,11 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
+  private highlightDrawdown(draft: Draft, loom_settings: LoomSettings, currentPos: Interlacement) {
+    if (this.canvases.drawdown == null || !currentPos) { return; }
+    if (hasCell(draft.drawdown, currentPos.i, currentPos.j)) {
+    }
+  }
 
 
 
@@ -741,7 +837,7 @@ export class DraftRenderingComponent implements OnInit {
     if (hasCell(draft.drawdown, currentPos.i, currentPos.j)) {
 
       // Set the heddles based on the brush.
-      switch (this.dm.cur_pencil) {
+      switch (this.pencil) {
         case 'up':
           val = true;
           draft.drawdown = setHeddle(draft.drawdown, currentPos.i, currentPos.j, val);
@@ -768,14 +864,17 @@ export class DraftRenderingComponent implements OnInit {
           break;
       }
 
+      this.redraw(draft, null, loom_settings, { drawdown: true });
 
-      this.tree.setDraftAndRecomputeLoom(this.id, draft, this.tree.getLoomSettings(this.id))
-        .then(loom => {
-          this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true });
-          // console.log("on drawdown updated called from draw on drawdown")
-          this.onDrawdownUpdated.emit(draft);
-        })
-        .catch(console.error);
+
+
+      // this.tree.setDraftAndRecomputeLoom(this.id, draft, this.tree.getLoomSettings(this.id))
+      //   .then(loom => {
+      //     this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true });
+      //     // console.log("on drawdown updated called from draw on drawdown")
+      //     this.onDrawdownUpdated.emit(draft);
+      //   })
+      //   .catch(console.error);
 
     }
 
@@ -797,7 +896,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-      switch (this.dm.cur_pencil) {
+      switch (this.pencil) {
         case 'up':
           val = true;
           break;
@@ -842,7 +941,7 @@ export class DraftRenderingComponent implements OnInit {
       const draft = this.tree.getDraft(this.id)
 
 
-      switch (this.dm.cur_pencil) {
+      switch (this.pencil) {
         case 'up':
           val = true;
           break;
@@ -862,7 +961,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
       const utils = getLoomUtilByType(loom_settings.type);
-      if (this.dm.cur_pencil !== 'material') loom = utils.updateThreading(loom, { i: currentPos.i, j: currentPos.j, val: val });
+      if (this.pencil !== 'material') loom = utils.updateThreading(loom, { i: currentPos.i, j: currentPos.j, val: val });
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true });
@@ -886,7 +985,7 @@ export class DraftRenderingComponent implements OnInit {
     var val = false;
 
     if (isInUserTreadlingRange(loom, loom_settings, currentPos)) {
-      switch (this.dm.cur_pencil) {
+      switch (this.pencil) {
         case 'up':
           val = true;
           break;
@@ -907,7 +1006,7 @@ export class DraftRenderingComponent implements OnInit {
 
       //this updates the value in the treadling
       const utils = getLoomUtilByType(loom_settings.type);
-      if (this.dm.cur_pencil !== 'material') loom = utils.updateTreadling(loom, { i: currentPos.i, j: currentPos.j, val: val });
+      if (this.pencil !== 'material') loom = utils.updateTreadling(loom, { i: currentPos.i, j: currentPos.j, val: val });
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true });
@@ -945,8 +1044,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-
-
   /**
   * this rescales the canvas and updates the view from scroll events
   * receives offset of the scroll from the CDKScrollable created when the scroll was initiated
@@ -973,12 +1070,6 @@ export class DraftRenderingComponent implements OnInit {
   //   return (ls === null) ? defaults.epi :  ls.epi;
   // }
 
-  /**
-  * callled when frames become visible or drawdown without frame info is loaded
-  */
-  public recomputeLoom(draft: Draft, loom_settings: LoomSettings) {
-    this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings);
-  }
 
 
   public unsetSelection() {
@@ -1016,6 +1107,8 @@ export class DraftRenderingComponent implements OnInit {
 
     this.redraw(draft, loom, loom_settings, flags);
   }
+
+
 
 
   //takes inputs about what to redraw
@@ -1280,7 +1373,7 @@ export class DraftRenderingComponent implements OnInit {
     const utils = getLoomUtilByType(loom_settings.type);
     loom = utils.insertIntoTreadling(loom, i, []);
 
-    if (this.dm.isSelectedDraftEditSource('drawdown')) {
+    if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
@@ -1324,7 +1417,7 @@ export class DraftRenderingComponent implements OnInit {
     const utils = getLoomUtilByType(loom_settings.type);
 
 
-    if (this.dm.isSelectedDraftEditSource('drawdown')) {
+    if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
@@ -1363,7 +1456,7 @@ export class DraftRenderingComponent implements OnInit {
     loom = utils.deleteFromTreadling(loom, i);
 
 
-    if (this.dm.isSelectedDraftEditSource('drawdown')) {
+    if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
@@ -1401,7 +1494,7 @@ export class DraftRenderingComponent implements OnInit {
     const utils = getLoomUtilByType(loom_settings.type);
     loom = utils.insertIntoThreading(loom, j, -1);
 
-    if (this.dm.isSelectedDraftEditSource('drawdown')) {
+    if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
@@ -1443,7 +1536,7 @@ export class DraftRenderingComponent implements OnInit {
     const utils = getLoomUtilByType(loom_settings.type);
 
 
-    if (this.dm.isSelectedDraftEditSource('drawdown')) {
+    if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
@@ -1483,7 +1576,7 @@ export class DraftRenderingComponent implements OnInit {
     loom = utils.deleteFromThreading(loom, j);
 
 
-    if (this.dm.isSelectedDraftEditSource('drawdown')) {
+    if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
@@ -1530,7 +1623,7 @@ export class DraftRenderingComponent implements OnInit {
 
   public checkForPaint(source: string, index: number, event: any) {
     const draft = this.tree.getDraft(this.id);
-    if (this.dm.isSelectedPencil('material') && this.mouse_pressed) {
+    if (this.pencil == 'material' && this.mouse_pressed) {
       if (source == 'weft') draft.rowShuttleMapping[index] = this.selected_material_id;
       if (source == 'warp') draft.colShuttleMapping[index] = this.selected_material_id;
       this.onMaterialChange.emit();

@@ -156,17 +156,15 @@
         <mat-toolbar class="footer">
 
           <div class="footer-left">
-            <button [class.hide]="selected_editor_mode !== 'mixer'" [class.show]="selected_editor_mode === 'mixer'"
-              mat-icon-button (click)="zoomToFit()">
+
+            <button mat-icon-button (click)="zoomToFit()">
               <i class="fa-solid fa-arrows-to-eye"></i>
             </button>
-
-
 
             <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>
 
             <mat-slider min="0" [max]="zs.num_steps" step="1">
-              <input matSliderThumb [value]="getActiveZoomIndex()" (valueChange)="zoomChange($event)">
+              <input matSliderThumb [formControl]="zoom_form">
             </mat-slider>
 
 

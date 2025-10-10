@@ -327,6 +327,7 @@ export interface Fileloader {
 export interface FileSaver {
   ada: () => Promise<{ json: string, file: SaveObj }>,
   copy: (include: Array<number>) => Promise<SaveObj>,
+  png: (canvas: HTMLCanvasElement) => Promise<string>,
   wif: (draft: Draft, loom: Loom, loom_settings: LoomSettings) => Promise<string>
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>

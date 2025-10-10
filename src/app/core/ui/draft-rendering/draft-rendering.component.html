@@ -1,6 +1,10 @@
 <div class="draft-container {{source}} origin{{ws.selected_origin_option}}"
   id="draft-scale-container-{{source}}-{{id}}">
 
+  <div id="highlight-row-{{source}}" class="highlight-row"></div>
+  <div id="highlight-col-{{source}}" class="highlight-col"></div>
+
+
   <app-selection #selection class="app-selection" [id]="id" [source]="source" [scale]="scale"
     (onSelectionEnd)="onSelectionEnd()" (forceRedraw)="redrawAll()"
     (saveAction)="afterSelectAction($event)"></app-selection>
@@ -55,7 +59,7 @@
     <div class="threading-tieup-container 
         {{source}}
         origin{{ws.selected_origin_option}} 
-        editable-{{dm.cur_draft_edit_source}}
+        editable-{{draft_edit_source}}
         loomtype-{{selected_loom_type}}">
       <div class="threading-canvas">
         <canvas id="threading-{{source}}-{{id}}"></canvas>
@@ -75,7 +79,7 @@
 
   <div class="drawdown-container 
     origin{{ws.selected_origin_option}} 
-    editable-{{dm.cur_draft_edit_source}}">
+    editable-{{draft_edit_source}}">
 
     <div class="drawdown-canvas">
       <div id="origin-marker-{{source}}-{{id}}" class="origin-marker  origin{{ws.selected_origin_option}} "><i

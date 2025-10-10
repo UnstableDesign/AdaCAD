@@ -15,12 +15,12 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Loom, LoomSettings, generateId, interpolate, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
-import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
+import { convertLoom, copyLoom, copyLoomSettings, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
 import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
-import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
+import { mergeBounds, saveAsBmp, saveAsPng, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
 import { FirebaseService } from './core/provider/firebase.service';
 import { MaterialsService } from './core/provider/materials.service';
@@ -129,6 +129,7 @@ export class AppComponent implements OnInit, OnDestroy {
   current_version: string;
 
   filename_form: UntypedFormControl;
+  zoom_form: UntypedFormControl;
 
   private snackBar = inject(MatSnackBar);
 
@@ -262,6 +263,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.filename_form = new UntypedFormControl(this.ws.current_file.name, [Validators.required]);
     this.filename_form.valueChanges.forEach(el => { this.renameWorkspace(el.trim()) })
+
+    this.zoom_form = new UntypedFormControl(this.getActiveZoomIndex());
+    this.zoom_form.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.zoomChange(value);
+      }
+    });
 
   }
 
@@ -398,11 +406,8 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   createNewDraftOnMixer(draft: Draft, loom: Loom | null, loom_settings: LoomSettings): Promise<number> {
 
-    let id = this.mixer.newDraftCreated(draft, loom, loom_settings); //this registers the draft with the tree. 
-    this.tree.setDraftOnly(id, draft);
-    this.tree.setLoom(id, loom);
-    this.tree.setLoomSettings(id, loom_settings);
-    return Promise.resolve(id);
+    return this.mixer.createNewDraft(draft, loom, loom_settings);
+
   }
 
 
@@ -440,13 +445,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.mixer.onClose();
 
+        //nothing is selected
         if (this.vs.getViewerId() == -1) {
+          console.log("NO VIEWER SELECTED, GENERATING BLANK DRAFT");
           let obj = {
             warps: defaults.warps,
             wefts: defaults.wefts,
             type: defaults.loom_settings.type,
             epi: defaults.loom_settings.epi,
-            pp1: defaults.loom_settings.ppi,
+            ppi: defaults.loom_settings.ppi,
             units: defaults.loom_settings.units,
             frames: defaults.loom_settings.frames,
             treadles: defaults.loom_settings.treadles
@@ -470,6 +477,8 @@ export class AppComponent implements OnInit, OnDestroy {
         break;
     }
 
+    // Update the zoom FormControl to reflect the current zoom level for the new mode
+    this.updateZoomFormControl();
 
   }
 
@@ -487,7 +496,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.editor.onFocus(id);
       this.saveFile();
 
-    })
+    }).catch(err => {
+      console.error(err);
+    });
   }
 
   /**
@@ -500,27 +511,33 @@ export class AppComponent implements OnInit, OnDestroy {
    * @returns the new draft id
    */
   generateBlankDraftAndPlaceInMixer(obj: any): Promise<number> {
-    console.log("GENERATING DRAFT FOR MIXER  ", obj, this.tree.nodes.slice());
+    console.log("GENERATING DRAFT FOR MIXER  ", obj);
 
     //if it has a parent and it does not yet have a view ref. 
     //this.tree.setSubdraftParent(id, -1)
     const draft = initDraftWithParams({ warps: obj.warps, wefts: obj.wefts });
-
+    const loom = initLoom(obj.warps, obj.wefts, obj.frames, obj.treadles);
     //use the local loom settings
     const loom_settings: LoomSettings = {
       type: obj.type,
       epi: obj.epi,
+      ppi: obj.ppi,
       units: <"cm" | "in">obj.units,
       frames: obj.frames,
       treadles: obj.treadles,
-      ppi: obj.ppi
     }
 
-    let loom_util = getLoomUtilByType(loom_settings.type);
-    return loom_util.computeLoomFromDrawdown(draft.drawdown, loom_settings)
-      .then(loom => {
-        return this.createNewDraftOnMixer(draft, loom, loom_settings)
-      })
+    return this.createNewDraftOnMixer(draft, loom, loom_settings).then(id => {
+      this.vs.setViewer(id);
+      this.editor.onFocus(id);
+      this.saveFile();
+      return id;
+    }).catch(err => {
+      console.error(err);
+      return Promise.reject(err);
+    });
+
+
   }
 
   createDraft(obj: any) {
@@ -1912,6 +1929,12 @@ export class AppComponent implements OnInit, OnDestroy {
       document.documentElement.style.setProperty('--input-container-height', container_height + 'rem');
       document.documentElement.style.setProperty('--inlet-outlet-height', inlet_outlet_height + 'rem');
     } else {
+
+      //The editor needs to scale text and css sizings so that they match teh current scale of the UI
+
+
+
+
     }
 
   }
@@ -1937,6 +1960,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.zs.zoomOutEditor()
       this.editor.renderChange();
     }
+
+    // Update the FormControl value to reflect the new zoom level
+    this.zoom_form.setValue(this.getActiveZoomIndex(), { emitEvent: false });
   }
 
   zoomIn() {
@@ -1955,6 +1981,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.editor.renderChange();
     }
 
+    // Update the FormControl value to reflect the new zoom level
+    this.zoom_form.setValue(this.getActiveZoomIndex(), { emitEvent: false });
+
   }
 
 
@@ -1966,6 +1995,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   zoomChange(ndx: number) {
+    console.log("ZOOM CHANGE ", ndx);
+
     this.updateTextSizing();
 
     if (this.viewer.view_expanded) {
@@ -1980,6 +2011,16 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Updates the zoom FormControl value when zoom changes from other sources
+   * (like switching editor modes or programmatic zoom changes)
+   */
+  updateZoomFormControl(): void {
+    if (this.zoom_form) {
+      this.zoom_form.setValue(this.getActiveZoomIndex(), { emitEvent: false });
+    }
+  }
+
   saveDraftAs(format: string) {
 
     if (this.vs.getViewerId() === -1) return;
@@ -1988,8 +2029,11 @@ export class AppComponent implements OnInit, OnDestroy {
     let b = this.bitmap.nativeElement;
 
     switch (format) {
+      case 'png':
+        saveAsPng(b, draft, this.ws.selected_origin_option, this.ms, this.fs) //currently not used, was just testing. 
+        break;
       case 'bmp':
-        saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
+        saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs);
         break;
       case 'jpg':
         let visvars = this.viewer.getVisVariables();

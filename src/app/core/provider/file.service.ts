@@ -738,6 +738,10 @@ export class FileService {
         return Promise.resolve(canvas.toDataURL("image/jpeg", 1));
 
       },
+      png: async (canvas: HTMLCanvasElement): Promise<string> => {
+        const blob: Blob = await new Promise(resolve => canvas.toBlob(resolve));
+        return Promise.resolve(URL.createObjectURL(blob));
+      },
       jpg: async (canvas: HTMLCanvasElement): Promise<string> => {
         return Promise.resolve(canvas.toDataURL("image/png"));
       }

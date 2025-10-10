@@ -206,6 +206,10 @@ export class LoomComponent implements OnInit, OnDestroy {
 
   }
 
+  public getValue(field: string) {
+    return this.loomForm?.get(field)?.value;
+  }
+
   private onWeftsChange(value: number) {
     if (this.tree.hasParent(this.id)) return;
 

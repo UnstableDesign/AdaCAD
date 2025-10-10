@@ -73,8 +73,7 @@
         @if (loom.type !== 'jacquard') {
         <mat-label>drafting style</mat-label>
         <div class="editing-mode-toggle">
-          <mat-button-toggle-group [(value)]="dm.cur_draft_edit_source" name="design source"
-            (change)="swapEditingStyleClicked()" aria-label="edit mode">
+          <mat-button-toggle-group [formControl]="editingModeForm" name="design source" aria-label="edit mode">
             <mat-button-toggle matTooltip="threading-first" class="draft-edit-mode-loom"
               value="loom"></mat-button-toggle>
             <mat-button-toggle matTooltip="drawdown-first" class="draft-edit-mode-drawdown" value="drawdown">
@@ -84,8 +83,7 @@
         }
         <mat-label>drafting pencil</mat-label>
 
-        <mat-button-toggle-group name="editor mode" (change)="selectPencil()" [(ngModel)]="pencil"
-          aria-label="edit mode">
+        <mat-button-toggle-group name="editor mode" [formControl]="pencilForm" aria-label="edit mode">
 
           <mat-button-toggle matTooltip="select regions" value="select">
             <i class="fas fa-expand"></i>
@@ -217,10 +215,11 @@
 
 
 
-
-  <app-draft-rendering id="draft_viewer" #weaveRef source="editor" [id]="id" [view_only]="false"
-    [current_view]="current_view" [scale]="scale" (onNewSelection)="updateSelection($event)"
-    (onDrawdownUpdated)="drawdownUpdated()" (onLoomSettingsUpdated)="loomSettingsUpdated()"
-    (onMaterialChange)="materialChange()" (onViewerExpanded)="expandViewer()">
-  </app-draft-rendering>
+  <div class="scale-container" id="editor-scale-container">
+    <app-draft-rendering id="draft_viewer" #weaveRef source="editor" [id]="id" scale="1" [view_only]="false"
+      [current_view]="current_view" (onNewSelection)="updateSelection($event)" (onDrawdownUpdated)="drawdownUpdated()"
+      (onLoomSettingsUpdated)="loomSettingsUpdated()" (onMaterialChange)="materialChange()"
+      (onViewerExpanded)="expandViewer()">
+    </app-draft-rendering>
+  </div>
 </div>

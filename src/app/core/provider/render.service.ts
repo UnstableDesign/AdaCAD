@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Loom, LoomSettings } from 'adacad-drafting-lib';
-import { Draft, getDraftAsImage, warps, wefts } from 'adacad-drafting-lib/draft';
+import { Draft, getCellValue, getDraftAsImage, warps, wefts } from 'adacad-drafting-lib/draft';
 import { numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { CanvasList, RenderingFlags } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
@@ -81,13 +81,12 @@ export class RenderService {
   calculateCellSize(draft: Draft): number {
 
     let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
-    if (max_bound * defaults.draft_detail_cell_size < 4096) {
+
+    if ((max_bound * defaults.draft_detail_cell_size) < defaults.canvas_width) {
       return Math.floor(defaults.draft_detail_cell_size);
-    } else if (max_bound < 4096) {
-      return Math.floor(4096 / max_bound);
+
     } else {
-      //this.draft_cell_size = 1;
-      return 1;
+      return Math.floor(defaults.canvas_width / max_bound);
     }
 
   }
@@ -532,6 +531,10 @@ export class RenderService {
       return Promise.resolve('drawdown canvas was null');
     }
 
+    if (rf.use_floats == false && rf.use_colors == false) {
+      return this.drawDrawdownAsCanvas(draft, canvas, cell_size, pixel_ratio, rf);
+    }
+
     const draft_cx: any = canvas.getContext("2d");
 
     if (draft === null || draft.drawdown == null) {
@@ -551,6 +554,60 @@ export class RenderService {
       draft_cx.putImageData(img, 0, 0);
       return Promise.resolve('');
     }
+  }
+
+  /**
+   * the canvas is going to be much better for user edits since it doesn't have to recompet and draw. 
+   * @param draft 
+   * @param canvas 
+   * @param cell_size 
+   * @param pixel_ratio 
+   * @param rf 
+   * @returns 
+   */
+  drawDrawdownAsCanvas(draft: Draft, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+
+    /**
+     * get draft as image seems to consider the rotation and canvas doesn't. 
+     */
+
+    if (canvas == null || canvas == undefined) {
+      return Promise.resolve('drawdown canvas was null');
+    }
+
+    cell_size = cell_size / pixel_ratio;
+    const draft_cx: any = canvas.getContext("2d");
+    canvas.width = warps(draft.drawdown) * cell_size * pixel_ratio;
+    canvas.height = wefts(draft.drawdown) * cell_size * pixel_ratio;
+    canvas.style.width = (warps(draft.drawdown) * cell_size) + "px";
+    canvas.style.height = (wefts(draft.drawdown) * cell_size) + "px";
+
+
+
+
+    for (let i = 0; i < wefts(draft.drawdown); i++) {
+      for (let j = 0; j < warps(draft.drawdown); j++) {
+        switch (getCellValue(draft.drawdown[i][j])) {
+          case true:
+            draft_cx.fillStyle = "black";
+            break;
+          case false:
+            draft_cx.fillStyle = "white";
+            break;
+          default:
+            draft_cx.fillStyle = "transparent";
+            break;
+        }
+
+        draft_cx.strokeStyle = "red";
+        draft_cx.lineWidth = 1;
+        draft_cx.strokeRect(j * cell_size * pixel_ratio, i * cell_size * pixel_ratio, cell_size * pixel_ratio, cell_size * pixel_ratio);
+        draft_cx.fillRect(j * cell_size * pixel_ratio, i * cell_size * pixel_ratio, cell_size * pixel_ratio, cell_size * pixel_ratio);
+      }
+    }
+
+
+    return Promise.resolve('');
   }
 
 

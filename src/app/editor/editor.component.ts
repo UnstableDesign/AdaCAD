@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { ScrollDispatcher } from '@angular/cdk/overlay';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -12,7 +12,7 @@ import { LoomSettings } from 'adacad-drafting-lib';
 import { createCell, Drawdown, getDraftName } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isFrame } from 'adacad-drafting-lib/loom';
 import { OpNode } from '../core/model/datatypes';
-import { defaults, draft_pencil } from '../core/model/defaults';
+import { draft_pencil } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
@@ -34,7 +34,7 @@ import { RepeatsComponent } from './repeats/repeats.component';
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
-  imports: [MatAccordion, MatButton, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, LoomComponent, DraftRenderingComponent]
+  imports: [MatAccordion, MatButton, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, ReactiveFormsModule, LoomComponent, DraftRenderingComponent]
 })
 export class EditorComponent implements OnInit {
   private dialog = inject(MatDialog);
@@ -98,6 +98,10 @@ export class EditorComponent implements OnInit {
 
   pencil: string;
 
+  // Reactive Forms controls
+  editingModeForm: FormControl;
+  pencilForm: FormControl;
+
   dressing_info: Array<{ label: string, value: string }> = [];
 
 
@@ -115,14 +119,45 @@ export class EditorComponent implements OnInit {
   ngOnInit() {
 
     this.pencil = "toggle";
+    this.dm.cur_draft_edit_source = 'drawdown';
 
+    // Initialize form controls
+    this.editingModeForm = new FormControl(this.dm.cur_draft_edit_source);
+    this.pencilForm = new FormControl(this.pencil);
+
+    // Subscribe to editing mode changes
+    this.editingModeForm.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.dm.cur_draft_edit_source = value;
+        this.swapEditingStyleClicked();
+      }
+    });
+
+    // Subscribe to pencil changes
+    this.pencilForm.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.pencil = value;
+        this.selectPencil();
+      }
+    });
 
   }
 
-
+  /**
+   * Updates the form controls when values change programmatically
+   */
+  updateFormControls(): void {
+    if (this.editingModeForm) {
+      this.editingModeForm.setValue(this.dm.cur_draft_edit_source, { emitEvent: false });
+    }
+    if (this.pencilForm) {
+      this.pencilForm.setValue(this.pencil, { emitEvent: false });
+    }
+  }
 
   ngAfterViewInit() {
     this.scale = this.zs.getEditorZoom();
+
   }
 
 
@@ -172,13 +207,14 @@ export class EditorComponent implements OnInit {
   createNewDraft() {
     //copy over the loom settings
     const obj = {
-      type: this.loom.type,
-      epi: this.loom.epi,
-      units: this.loom.units,
-      frames: this.loom.frames,
-      treadles: this.loom.treadles,
-      warps: defaults.warps,
-      wefts: defaults.wefts,
+      type: this.loom.getValue('loomtype'),
+      epi: this.loom.getValue('epi'),
+      ppi: this.loom.getValue('ppi'),
+      units: this.loom.getValue('units'),
+      frames: this.loom.getValue('frames'),
+      treadles: this.loom.getValue('treadles'),
+      warps: this.loom.getValue('warps'),
+      wefts: this.loom.getValue('wefts'),
       origin: 'newdraft'
     }
 
@@ -215,7 +251,6 @@ export class EditorComponent implements OnInit {
     if (id !== -1) {
       this.loadDraft(id).then(id => {
         this.id = id;
-        this.renderChange();
       }
       ).catch(console.error)
     }
@@ -323,6 +358,7 @@ export class EditorComponent implements OnInit {
 
       if ((ls.type == 'jacquard' && this.dm.cur_draft_edit_source == 'loom') || loom === null) {
         this.dm.selectDraftEditSource('drawdown');
+        this.weaveRef.setDraftEditSource('drawdown');
       }
 
 
@@ -378,8 +414,8 @@ export class EditorComponent implements OnInit {
     this.vs.updateViewer();
     this.loom.refreshLoom();
     this.updateWeavingInfo();
-    this.saveChanges.emit();
   }
+
 
 
   // addTimelineState(){
@@ -423,9 +459,15 @@ export class EditorComponent implements OnInit {
       weft_materials: true
     });
 
-    if (loom_settings.type === 'jacquard') this.dm.selectDraftEditSource('drawdown');
-    else this.dm.selectDraftEditSource('loom');
+    if (loom_settings.type === 'jacquard') {
+      this.dm.selectDraftEditSource('drawdown');
+      this.weaveRef.setDraftEditSource('drawdown');
+    } else {
+      this.dm.selectDraftEditSource('loom');
+      this.weaveRef.setDraftEditSource('loom');
+    }
 
+    this.weaveRef.redrawAll();
     this.updateWeavingInfo();
     this.saveChanges.emit();
 
@@ -543,13 +585,14 @@ export class EditorComponent implements OnInit {
   }
 
   selectPencil() {
+    console.log("SELECT PENCIL CALLED", this.pencil)
     this.weaveRef.unsetSelection();
 
     switch (this.pencil) {
 
       case 'select':
         this.dm.selectDraftEditingMode('select');
-
+        this.weaveRef.setDraftEditMode('select');
         break;
 
       case 'up':
@@ -558,7 +601,8 @@ export class EditorComponent implements OnInit {
       case 'unset':
         this.dm.selectDraftEditingMode('draw');
         this.dm.selectPencil(this.pencil);
-
+        this.weaveRef.setDraftEditMode('draw');
+        this.weaveRef.setPencil(this.pencil);
         break;
 
       default:
@@ -566,6 +610,8 @@ export class EditorComponent implements OnInit {
         this.dm.selectPencil('material');
         this.selected_material_id = this.pencil;
         this.weaveRef.selected_material_id = this.pencil;
+        this.weaveRef.setPencil('material');
+        this.weaveRef.setDraftEditMode('draw');
         break;
 
     }
@@ -596,14 +642,19 @@ export class EditorComponent implements OnInit {
 
   }
 
+
+  /**
+   * when a change of scale is  made to the editor, we do not change the scale of teh underlying component. We just set that to 1 (max) and we scale the local container here. 
+   */
   renderChange() {
-    //the renderer is listening for changes to scale and will redraw
     this.scale = this.zs.getEditorZoom();
-    this.weaveRef.scale = this.scale
-    // this.weaveRef.rescale(this.scale);
+    const container: HTMLElement = document.getElementById('editor-scale-container');
+    container.style.transform = 'scale(' + this.scale + ')';
+    //this.weaveRef.scale = this.scale
+    //this.weaveRef.setScale(this.scale);
 
     //we have to redraw for now so that UI div buttons line up with scaled view
-    this.redraw();
+    // this.redraw();
   }
 
 
@@ -613,15 +664,20 @@ export class EditorComponent implements OnInit {
   swapEditingStyleClicked() {
     if (this.id == -1) return;
 
-    if (this.loom.type !== 'jacquard') {
-      if (this.dm.isSelectedDraftEditSource('drawdown')) {
-        this.dm.selectDraftEditSource('drawdown');
+    console.log("SWAP EDITING STYLE CLICKED", this.loom.getValue('loomtype'), this.dm.cur_draft_edit_source)
+    if (this.loom.getValue('loomtype') !== 'jacquard') {
+
+      if (this.dm.cur_draft_edit_source == 'drawdown') {
+        console.log("SELECTING DRAWDOWN")
+        this.weaveRef.setDraftEditSource('drawdown');
       } else {
-        this.dm.selectDraftEditSource('loom')
+        console.log("SELECTING LOOM")
+        this.weaveRef.setDraftEditSource('loom');
       }
+
     } else {
       this.dm.selectDraftEditSource('drawdown');
-
+      this.weaveRef.setDraftEditSource('drawdown');
     }
 
   }

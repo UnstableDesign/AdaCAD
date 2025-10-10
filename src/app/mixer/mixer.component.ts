@@ -8,7 +8,7 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions } from '@angular/material/tooltip';
-import { Draft, initDraftWithParams, initLoom, OperationClassification } from 'adacad-drafting-lib';
+import { Draft, initDraftWithParams, initLoom, Loom, LoomSettings, OperationClassification } from 'adacad-drafting-lib';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DraftExistenceChange, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, Point } from '../core/model/datatypes';
@@ -103,7 +103,7 @@ export class MixerComponent {
 
     this.classifications = this.ops.getOpClassifications();
 
-    this.vp.setAbsolute(defaults.mixer_canvas_width, defaults.mixer_canvas_height); //max size of canvas, evenly divisible by default cell size
+    this.vp.setAbsolute(defaults.canvas_width, defaults.canvas_height); //max size of canvas, evenly divisible by default cell size
 
     this.op_tree = this.makeOperationsList();
   }
@@ -304,6 +304,32 @@ export class MixerComponent {
     });
   }
 
+
+  /**
+ * called when the app needs to make a draft for the draft editor or when an "add draft" button as been clicked from the draft editor
+ */
+  createNewDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings): Promise<number> {
+
+
+    return this.palette.createSubDraft(draft, loom, loom_settings)
+      .then(instance => {
+        const change: DraftExistenceChange = {
+          originator: 'DRAFT',
+          type: 'CREATED',
+          node: this.tree.getNode(instance.id),
+          inputs: [],
+          outputs: []
+        }
+        this.ss.addStateChange(change);
+        return Promise.resolve(instance.id);
+      }).catch(err => {
+        console.error(err);
+        return Promise.reject(err);
+      });
+
+  }
+
+
   /**
    * triggers a series of actions to occur when the view is switched from editor to mixer
    * @param edited_id the id of the draft that was last edited in the other mode. 
@@ -322,6 +348,7 @@ export class MixerComponent {
 
     //DO TO MAKE SURE USERS CAN TOGGLE ON MIXER DRAFTS
     this.dm.selectDraftEditingMode('draw');
+    this.dm.selectDraftEditSource('drawdown');
     this.dm.selectPencil('toggle');
 
   }

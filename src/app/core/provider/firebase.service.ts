@@ -292,18 +292,18 @@ export class FirebaseService implements OnDestroy {
 
 
     if (this.auth.currentUser == null) return Promise.reject('not logged in')
-    // this.getFileSize("version", ada.file.version);
-    // this.getFileSize("workspace", ada.file.workspace);
-    // this.getFileSize("type", ada.file.type);
-    // this.getFileSize("nodes", ada.file.nodes);
-    // this.getFileSize("tree", ada.file.tree);
-    // this.getFileSize("draft nodes", ada.file.draft_nodes);
-    // this.getFileSize("ops", ada.file.ops);
-    // this.getFileSize("notes", ada.file.notes);
-    // this.getFileSize("materials", ada.file.materials);
-    // this.getFileSize("indexed_image_data", ada.file.indexed_image_data);
-    // console.log('DRAFT NODES # ', ada.file.draft_nodes.length);
-    // console.log('DRAFT NODES Values', ada.file.draft_nodes);
+    this.getFileSize("version", cur_state.version);
+    this.getFileSize("workspace", cur_state.workspace);
+    this.getFileSize("type", cur_state.type);
+    this.getFileSize("nodes", cur_state.nodes);
+    this.getFileSize("tree", cur_state.tree);
+    this.getFileSize("draft nodes", cur_state.draft_nodes);
+    this.getFileSize("ops", cur_state.ops);
+    this.getFileSize("notes", cur_state.notes);
+    this.getFileSize("materials", cur_state.materials);
+    this.getFileSize("indexed_image_data", cur_state.indexed_image_data);
+    // console.log('DRAFT NODES # ', cur_state.draft_nodes.length);
+    // console.log('DRAFT NODES Values', cur_state.draft_nodes);
 
     if (this.getFileSize("file", cur_state) > 16000000) return Promise.reject("file size is too large to write")
 

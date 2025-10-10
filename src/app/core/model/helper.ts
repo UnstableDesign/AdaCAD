@@ -1,5 +1,5 @@
 import { Draft, Loom, LoomSettings, sameOrNewerVersion } from "adacad-drafting-lib";
-import { Cell, Drawdown, flipDraft, getDraftAsImage, getDraftName, initDraft, unpackDrawdownFromArray, warps, wefts } from "adacad-drafting-lib/draft";
+import { Cell, Drawdown, flipDraft, getDraftAsImage, getDraftName, initDraft, unpackDrawdownFromArray, unpackDrawdownFromBitArray, warps, wefts } from "adacad-drafting-lib/draft";
 import { FileService } from "../provider/file.service";
 import { MaterialsService } from "../provider/materials.service";
 import { SystemsService } from "../provider/systems.service";
@@ -50,25 +50,26 @@ export const loadDraftFromFile = (data: any, version: string, src: string): Prom
     if (version === undefined || version === null || !sameOrNewerVersion(version, '3.4.5')) {
         draft.drawdown = parseSavedDrawdown(data.pattern);
     } else {
-        // console.log("VERSION NEWER THAN 3.4.5")
-        if (data.compressed_drawdown === undefined) {
-            draft.drawdown = parseSavedDrawdown(data.drawdown);
-        } else {
+        if (data.super_compressed_drawdown !== undefined) {
+            draft.drawdown = unpackDrawdownFromBitArray(data.super_compressed_drawdown, data.warps, data.wefts)
+        } else if (data.compressed_drawdown !== undefined) {
+
             // console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
 
 
             let compressed: Uint8ClampedArray;
             if (src == 'upload') {
                 compressed = new Uint8ClampedArray(data.compressed_drawdown);
-
-
             } else {
                 compressed = data.compressed_drawdown;
             }
 
             draft.drawdown = unpackDrawdownFromArray(data.compressed_drawdown, data.warps, data.wefts)
 
+        } else {
+            draft.drawdown = parseSavedDrawdown(data.drawdown);
         }
+
     }
 
     draft.rowShuttleMapping = (data.rowShuttleMapping === undefined) ? [] : data.rowShuttleMapping;
@@ -221,6 +222,23 @@ export const saveAsPrint = async (el: any, draft: Draft, floats: boolean, use_co
             a.download = getDraftName(draft) + ".png";
             a.click();
         });
+
+}
+
+export const saveAsPng = async (el: any, draft: Draft, selected_origin_option: number, ms: MaterialsService, fs: FileService) => {
+    let context = el.getContext('2d');
+    el.width = warps(draft.drawdown);
+    el.height = wefts(draft.drawdown);
+    let img = getDraftAsImage(draft, 1, false, false, ms.getShuttles());
+    context.putImageData(img, 0, 0);
+    const a = document.createElement('a')
+    return fs.saver.png(el)
+        .then(href => {
+            a.href = href;
+            a.download = (draft.id) + "_bitmap.png";
+            a.click();
+        });
+
 
 }
 

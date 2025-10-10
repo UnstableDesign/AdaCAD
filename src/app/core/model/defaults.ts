@@ -9,8 +9,8 @@ export const defaults = {
   row_system: 0,
   col_shuttle: 0,
   col_system: 0,
-  mixer_canvas_width: 16380,
-  mixer_canvas_height: 16380,
+  canvas_width: 16384,
+  canvas_height: 16384,
   inlet_button_width: 50,
   weft_system_codes: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
   warps: 12,
@@ -27,7 +27,7 @@ export const defaults = {
     epi: 12,
     ppi: 12,
     units: <'in'>'in',
-    type: 'frame'
+    type: 'jacquard'
   },
   draft_edit_source: 'loom',
   pencil: 'toggle',
