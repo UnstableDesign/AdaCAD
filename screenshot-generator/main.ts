@@ -198,6 +198,7 @@ async function cropScreenshots(specificImagesToCrop: Array<string>) {
       .toFile(path.join(screenshotsProcessedDir, imageFileName));
   }
 
+  console.log();
   console.log('completed cropping');
 }
 

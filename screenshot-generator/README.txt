@@ -1,3 +1,5 @@
+! the screenshot script assumes the application is running locally on http://localhost:4200/
+
 To run the screenshot generator use the command: 
 `npx tsx main.ts`
 
