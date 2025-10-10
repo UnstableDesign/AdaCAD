@@ -58,7 +58,8 @@ async function main() {
 async function captureScreenshots(specificAdaFilesToCapture: Array<string>) {
   console.log('launching browser!');
   const browser = await puppeteer.launch({
-    headless: false,
+    // uncomment the line below to see the screenshots happen live
+    // headless: false,
   });
 
   console.log('opening new page');
