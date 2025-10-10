@@ -1,14 +1,16 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges, inject } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { LoomSettings } from 'adacad-drafting-lib';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from 'adacad-drafting-lib/draft';
-import { convertLoom, copyLoomSettings, generateDirectTieup, getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
+import { calcLength, calcWidth, convertLoom, copyLoomSettings, generateDirectTieup, getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
+import { DraftNodeState, DraftStateChange } from '../../core/model/datatypes';
 import { defaults, density_units, loom_types } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 
@@ -16,13 +18,14 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
   selector: 'app-loom',
   templateUrl: './loom.component.html',
   styleUrls: ['./loom.component.scss'],
-  imports: [FormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix]
+  imports: [ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix]
 })
-export class LoomComponent {
+export class LoomComponent implements OnInit, OnDestroy {
   private tree = inject(TreeService);
+  private fb = inject(FormBuilder);
   dm = inject(DesignmodesService);
   ws = inject(WorkspaceService);
-
+  ss = inject(StateService);
 
   @Input('id') id;
 
@@ -30,77 +33,103 @@ export class LoomComponent {
   // @Output() drawdownUpdated: any = new EventEmitter();
   @Output() loomSettingsUpdated: any = new EventEmitter();
 
-
-  units: any = defaults.loom_settings.units;
-  warps: number = defaults.warps;
-  wefts: number = defaults.wefts;
-  epi: number = defaults.loom_settings.epi;
-  frames: number = defaults.loom_settings.frames;
-  treadles: number = defaults.loom_settings.treadles;
-  type: string = defaults.loom_settings.type;
-  width: number = 0;
+  loomForm: FormGroup;
   density_units;
   loomtypes;
   enabled: boolean = false;
+  before: DraftNodeState;
 
 
   constructor() {
-
     this.density_units = density_units;
     this.loomtypes = loom_types;
+    this.initializeForm();
+  }
+
+  ngOnInit() {
+    // Form initialization is handled in constructor
+  }
+
+  ngOnDestroy() {
+    // Cleanup if needed
+  }
+
+  private initializeForm() {
+    this.loomForm = this.fb.group({
+      loomtype: [defaults.loom_settings.type, Validators.required],
+      warps: [defaults.warps, [Validators.required, Validators.min(1), Validators.max(100000)]],
+      wefts: [defaults.wefts, [Validators.required, Validators.min(1), Validators.max(100000)]],
+      units: [defaults.loom_settings.units, Validators.required],
+      epi: [defaults.loom_settings.epi, [Validators.required, Validators.min(0)]],
+      width: [0, [Validators.min(0), Validators.max(2000)]],
+      ppi: [defaults.loom_settings.ppi, [Validators.required, Validators.min(0)]],
+      length: [0, [Validators.min(0), Validators.max(2000)]],
+      frames: [defaults.loom_settings.frames, [Validators.required, Validators.min(2), Validators.max(1000)]],
+      treadles: [defaults.loom_settings.treadles, [Validators.required, Validators.min(2), Validators.max(1000)]]
+    });
+
+    // Subscribe to form changes
+    this.loomForm.get('loomtype')?.valueChanges.subscribe(value => this.onLoomTypeChange(value));
+    this.loomForm.get('warps')?.valueChanges.subscribe(value => this.onWarpsChange(value));
+    this.loomForm.get('wefts')?.valueChanges.subscribe(value => this.onWeftsChange(value));
+    this.loomForm.get('units')?.valueChanges.subscribe(value => this.onUnitsChange(value));
+    this.loomForm.get('epi')?.valueChanges.subscribe(value => this.onEpiChange(value));
+    this.loomForm.get('width')?.valueChanges.subscribe(value => this.onWidthChange(value));
+    this.loomForm.get('ppi')?.valueChanges.subscribe(value => this.onPpiChange(value));
+    this.loomForm.get('length')?.valueChanges.subscribe(value => this.onLengthChange(value));
+    this.loomForm.get('frames')?.valueChanges.subscribe(value => this.onFramesChange(value));
+    this.loomForm.get('treadles')?.valueChanges.subscribe(value => this.onTreadlesChange(value));
 
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log("ON CHANGES CALLED IN LOOM ", changes['id'].currentValue)
+  loadLoom(id: number) {
+    this.id = id;
+    this.before = this.tree.getDraftNodeState(this.id);
+    this.updateFormValues();
+  }
 
-    this.id = changes['id'].currentValue;
-    if (this.id !== -1) {
-
-      const draft = this.tree.getDraft(this.id);
-      const loom = this.tree.getLoom(this.id);
-      const loom_settings = this.tree.getLoomSettings(this.id);
-
-      this.enabled = !this.tree.hasParent(this.id);
-      this.units = loom_settings.units;
-      this.type = loom_settings.type;
-      this.epi = loom_settings.epi;
-      if (loom !== null) this.frames = Math.max(loom_settings.frames, numFrames(loom));
-      if (loom !== null) this.treadles = Math.max(loom_settings.treadles, numTreadles(loom));
-      this.warps = warps(draft.drawdown);
-      this.wefts = wefts(draft.drawdown);
-
-      this.updateWidth();
-    }
+  refreshLoom() {
+    this.updateFormValues();
   }
 
 
-  updateLoom() {
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    const loom = this.tree.getLoom(this.id);
 
-    if (loom !== null) this.frames = Math.max(loom_settings.frames, numFrames(loom));
-    if (loom !== null) this.treadles = Math.max(loom_settings.treadles, numTreadles(loom));
-  }
-
-  updateWidth() {
-
+  addStateChange() {
     if (this.id == -1) return;
-    const loom_settings = this.tree.getLoomSettings(this.id);
-
-    if (loom_settings.units === "in") {
-      this.width = this.warps / this.epi;
-    } else {
-      this.width = this.warps / this.epi * 10;
+    const change: DraftStateChange = {
+      originator: 'DRAFT',
+      type: 'VALUE_CHANGE',
+      id: this.id,
+      before: this.before,
+      after: this.tree.getDraftNodeState(this.id)
     }
+    this.ss.addStateChange(change);
+  }
 
-
+  private updateFormValues() {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    if (this.loomForm) {
+      this.loomForm.patchValue({
+        loomtype: (loom_settings !== null) ? loom_settings.type : defaults.loom_settings.type,
+        warps: (draft !== null) ? warps(draft.drawdown) : defaults.warps,
+        wefts: (draft !== null) ? wefts(draft.drawdown) : defaults.wefts,
+        units: (loom_settings !== null) ? loom_settings.units : defaults.loom_settings.units,
+        epi: (loom_settings !== null) ? loom_settings.epi : defaults.loom_settings.epi,
+        width: (loom !== null && draft !== null && loom_settings) ? calcWidth(draft.drawdown, loom_settings) : 0,
+        ppi: (loom_settings !== null) ? loom_settings.ppi : defaults.loom_settings.ppi,
+        length: (loom !== null && draft !== null && loom_settings) ? calcLength(draft.drawdown, loom_settings) : 0,
+        frames: (loom !== null) ? Math.max(loom_settings.frames, numFrames(loom)) : loom_settings.frames,
+        treadles: (loom !== null) ? Math.max(loom_settings.treadles, numTreadles(loom)) : loom_settings.treadles
+      }, { emitEvent: false });
+    }
   }
 
 
-  public warpNumChange(e: any) {
 
 
+  private warpNumChange(num: number): Promise<boolean> {
 
 
     const draft = this.tree.getDraft(this.id);
@@ -108,8 +137,8 @@ export class LoomComponent {
     const loom_settings = this.tree.getLoomSettings(this.id);
 
 
-    if (e.warps > warps(draft.drawdown)) {
-      var diff = e.warps - warps(draft.drawdown);
+    if (num > warps(draft.drawdown)) {
+      var diff = num - warps(draft.drawdown);
       for (var i = 0; i < diff; i++) {
 
         let ndx = warps(draft.drawdown);
@@ -123,7 +152,7 @@ export class LoomComponent {
       }
     } else {
 
-      var diff = warps(draft.drawdown) - e.warps;
+      var diff = warps(draft.drawdown) - num;
       for (var i = 0; i < diff; i++) {
         let ndx = warps(draft.drawdown) - 1;
 
@@ -138,17 +167,18 @@ export class LoomComponent {
     }
 
     if (this.dm.isSelectedDraftEditSource('drawdown')) {
-      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      return this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.loomSettingsUpdated.emit();
+          return Promise.resolve(true);
         })
 
     } else {
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      return this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
 
           this.loomSettingsUpdated.emit();
-
+          return Promise.resolve(true);
         })
 
     }
@@ -157,49 +187,44 @@ export class LoomComponent {
   }
 
 
-  warpChange(f: NgForm) {
-
+  private onWarpsChange(value: number) {
     if (this.tree.hasParent(this.id)) return;
 
-    if (!f.value.warps) {
-      f.value.warps = 2;
-      this.warps = f.value.warps;
+    if (!value || value < 1) {
+      value = 2;
+      this.loomForm?.get('warps')?.setValue(value, { emitEvent: false });
     }
 
-    // if(f.value.warps > 40){
-    //   this.warps = 40;
-    //   return;
-    // }
+    this.warpNumChange(value).then(completed => {
+      const draft = this.tree.getDraft(this.id);
+      const loom_settings = this.tree.getLoomSettings(this.id);
+      const w = calcWidth(draft.drawdown, loom_settings);
+      this.loomForm?.get('width')?.setValue(w, { emitEvent: false });
+      this.addStateChange();
+    });
 
-    this.warpNumChange({ warps: f.value.warps })
-    this.updateWidth();
-
-    f.value.width = this.width;
 
   }
 
-  weftChange(f: NgForm) {
-
+  private onWeftsChange(value: number) {
     if (this.tree.hasParent(this.id)) return;
 
-    if (!f.value.wefts) {
-      f.value.wefts = 2;
-      this.wefts = 2;
+    if (!value || value < 1) {
+      value = 1;
+      this.loomForm?.get('wefts')?.setValue(value, { emitEvent: false });
     }
 
-    // if(f.value.wefts > 40){
-    //   this.wefts = 40;
-    //   return;
-    // } 
-
-    this.weftNumChange({ wefts: f.value.wefts })
+    this.weftNumChange(value).then(out => {
+      const draft = this.tree.getDraft(this.id);
+      const loom_settings = this.tree.getLoomSettings(this.id);
+      const length = calcLength(draft.drawdown, loom_settings);
+      this.loomForm?.get('length')?.setValue(length, { emitEvent: false });
+      this.addStateChange();
+    })
 
   }
 
-  public weftNumChange(e: any) {
-
-    if (e.wefts === "" || e.wefts == "null") return;
-
+  public weftNumChange(num: number): Promise<boolean> {
 
     const draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
@@ -207,8 +232,8 @@ export class LoomComponent {
 
     //console.log("Draft", draft.drawdown.slice(), e.wefts)
 
-    if (e.wefts > wefts(draft.drawdown)) {
-      var diff = e.wefts - wefts(draft.drawdown);
+    if (num > wefts(draft.drawdown)) {
+      var diff = num - wefts(draft.drawdown);
 
       for (var i = 0; i < diff; i++) {
         let ndx = wefts(draft.drawdown);
@@ -221,7 +246,7 @@ export class LoomComponent {
       }
     } else {
 
-      var diff = wefts(draft.drawdown) - e.wefts;
+      var diff = wefts(draft.drawdown) - num;
       for (var i = 0; i < diff; i++) {
         let ndx = wefts(draft.drawdown) - 1;
         draft.drawdown = deleteDrawdownRow(draft.drawdown, ndx);
@@ -232,36 +257,31 @@ export class LoomComponent {
 
       }
 
-      console.log("LOOM AFTER ", loom)
     }
 
     if (this.dm.isSelectedDraftEditSource('drawdown')) {
 
-      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      return this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.loomSettingsUpdated.emit();
-
+          return Promise.resolve(true);
         })
     } else {
 
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      return this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.tree.setDraftOnly(this.id, draft);
           this.loomSettingsUpdated.emit();
+          return Promise.resolve(true);
         })
     }
-
-  }
-
-  convertAndUpdateView() {
-
   }
 
 
 
 
-  loomChange(f: NgForm) {
-    this.type = f.value.loomtype;
+  private onLoomTypeChange(type: string) {
+
     if (this.id == -1) return;
 
     const draft = this.tree.getDraft(this.id);
@@ -269,7 +289,7 @@ export class LoomComponent {
     const loom_settings = this.tree.getLoomSettings(this.id);
 
     const new_settings: LoomSettings = copyLoomSettings(loom_settings);
-    new_settings.type = this.type;
+    new_settings.type = type;
 
     convertLoom(draft.drawdown, loom, loom_settings, new_settings).then(loom => {
 
@@ -278,9 +298,15 @@ export class LoomComponent {
 
       const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
       const frames = Math.max(numFrames(loom), loom_settings.frames);
-      this.treadles = Math.max(treadles, frames);
-      this.frames = Math.max(treadles, frames);
+
+      // Update form values
+      this.loomForm?.patchValue({
+        frames: frames,
+        treadles: treadles
+      }, { emitEvent: false });
+
       this.loomSettingsUpdated.emit();
+      this.addStateChange();
 
     }).catch(err => {
       //if there is an error here, it just overwrites the type to jacquard. 
@@ -291,132 +317,191 @@ export class LoomComponent {
         units: this.ws.units,
         frames: this.ws.min_frames,
         treadles: this.ws.min_treadles,
-        epi: this.ws.epi
+        epi: defaults.loom_settings.epi,
+        ppi: defaults.loom_settings.ppi
       });
+      this.addStateChange();
+
 
     })
-
   }
 
-  updateMinTreadles(f: NgForm) {
+  private onTreadlesChange(value: number) {
     //validate the input
     const loom_settings = this.tree.getLoomSettings(this.id);
     const loom = this.tree.getLoom(this.id);
-    const draft = this.tree.getDraft(this.id);
 
-    if (!f.value.treadles) {
-      f.value.treadles = 2;
-      this.treadles = f.value.treadles;
+    if (!value || value < 2) {
+      value = 2;
+      this.loomForm?.get('treadles')?.setValue(value, { emitEvent: false });
     }
 
-    f.value.treadles = Math.ceil(f.value.treadles);
-
-
-    loom_settings.treadles = f.value.treadles;
+    value = Math.ceil(value);
+    loom_settings.treadles = value;
 
     if (loom_settings.type == 'direct') {
-      this.frames = f.value.treadles;
-      this.treadles = f.value.treadles;
-      loom_settings.frames = this.frames;
-      loom_settings.treadles = this.treadles;
-      loom.tieup = generateDirectTieup(f.value.treadles);
-      this.tree.setLoom(this.id, loom);
 
+      loom_settings.frames = Math.max(value, this.loomForm?.get('frames')?.value || 2);
+      loom_settings.treadles = Math.max(value, this.loomForm?.get('frames')?.value || 2);
+
+      loom.tieup = generateDirectTieup(loom_settings.treadles);
+      this.tree.setLoom(this.id, loom);
+      this.tree.setLoomSettings(this.id, loom_settings);
+      // Update frames in form
+      this.loomForm?.get('frames')?.setValue(loom_settings.frames, { emitEvent: false });
+      this.loomForm?.get('treadles')?.setValue(loom_settings.treadles, { emitEvent: false });
+    } else {
+      loom_settings.treadles = value;
+      this.tree.setLoomSettings(this.id, loom_settings);
     }
 
-    this.tree.setLoomSettings(this.id, loom_settings);
     this.loomSettingsUpdated.emit();
-
+    this.addStateChange();
 
   }
 
-  updateMinFrames(f: NgForm) {
+  private onFramesChange(value: number) {
     const loom_settings = this.tree.getLoomSettings(this.id);
     const loom = this.tree.getLoom(this.id);
     const draft = this.tree.getDraft(this.id);
 
-    if (!f.value.frames) {
-      f.value.frames = 2;
-      this.frames = f.value.frames;
-
+    if (!value || value < 2) {
+      value = 2;
+      this.loomForm?.get('frames')?.setValue(value, { emitEvent: false });
     }
 
-
-    f.value.frames = Math.ceil(f.value.frames);
-
-
-    loom_settings.frames = f.value.frames;
+    value = Math.ceil(value);
+    loom_settings.frames = value;
 
     if (loom_settings.type == 'direct') {
-      this.frames = f.value.frames;
-      this.treadles = f.value.frames;
-      loom_settings.frames = this.frames;
-      loom_settings.treadles = this.treadles;
-      loom.tieup = generateDirectTieup(f.value.frames);
+      loom_settings.frames = Math.max(value, this.loomForm?.get('frames')?.value || 2);
+      loom_settings.treadles = Math.max(value, this.loomForm?.get('frames')?.value || 2);
+
+      loom.tieup = generateDirectTieup(loom_settings.treadles);
       this.tree.setLoom(this.id, loom);
+      this.tree.setLoomSettings(this.id, loom_settings);
+      // Update frames in form
+      this.loomForm?.get('frames')?.setValue(loom_settings.frames, { emitEvent: false });
+      this.loomForm?.get('treadles')?.setValue(loom_settings.treadles, { emitEvent: false });
+    } else {
+      loom_settings.frames = value;
+      this.tree.setLoomSettings(this.id, loom_settings);
+
     }
 
-    this.tree.setLoomSettings(this.id, loom_settings);
     this.loomSettingsUpdated.emit();
+    this.addStateChange();
 
   }
 
 
-  public unitChange() {
-
+  private onUnitsChange(value: string) {
     const loom_settings = this.tree.getLoomSettings(this.id);
-    loom_settings.units = this.units;
+    loom_settings.units = value as "in" | "cm";
     this.tree.setLoomSettings(this.id, loom_settings);
+
+    const draft = this.tree.getDraft(this.id);
+    this.loomForm?.get('width')?.setValue(calcWidth(draft.drawdown, loom_settings), { emitEvent: false });
+    this.loomForm?.get('length')?.setValue(calcLength(draft.drawdown, loom_settings), { emitEvent: false });
+
     this.loomSettingsUpdated.emit();
+    this.addStateChange();
+
   }
 
   /**
 * recomputes warps and epi if the width of the loom is changed
-* @param f 
 */
-  widthChange(f: NgForm) {
+  private onWidthChange(value: number) {
     const loom_settings = this.tree.getLoomSettings(this.id);
 
-    if (!f.value.width) {
-      f.value.width = 1;
-      this.width = f.value.width;
-
+    if (!value || value < 0.25) {
+      value = 1;
+      this.loomForm?.get('width')?.setValue(value, { emitEvent: false });
     }
 
+    const epi = this.loomForm?.get('epi')?.value || defaults.loom_settings.epi;
+    const currentWarps = this.loomForm?.get('warps')?.value || defaults.warps;
 
     var new_warps = (loom_settings.units === "in")
-      ? Math.ceil(f.value.width * f.value.epi) :
-      Math.ceil((10 * f.value.warps / f.value.width));
+      ? Math.ceil(value * epi) :
+      Math.ceil((10 * currentWarps / value));
 
-    this.warps = new_warps;
-    this.warpNumChange({ warps: new_warps });
+    this.warpNumChange(new_warps).then(out => {
+      this.loomForm?.get('warps')?.setValue(new_warps, { emitEvent: false });
+    });
+
+    // Update warps in form
+
     this.loomSettingsUpdated.emit();
-
+    this.addStateChange();
 
   }
 
 
+  /**
+* recomputes warps and epi if the width of the loom is changed
+*/
+  private onLengthChange(value: number) {
+    const loom_settings = this.tree.getLoomSettings(this.id);
 
-  epiChange(f: NgForm) {
+    if (!value || value < 0.25) {
+      value = 1;
+      this.loomForm?.get('length')?.setValue(value, { emitEvent: false });
+    }
 
+    const ppi = this.loomForm?.get('ppi')?.value || defaults.loom_settings.ppi;
+    const currentWefts = this.loomForm?.get('wefts')?.value || defaults.wefts;
+
+    var new_wefts = (loom_settings.units === "in")
+      ? Math.ceil(value * ppi) :
+      Math.ceil((10 * currentWefts / value));
+
+    this.weftNumChange(new_wefts).then(out => {
+      this.loomForm?.get('wefts')?.setValue(new_wefts, { emitEvent: false });
+    });
+
+    // Update warps in form
+
+    this.loomSettingsUpdated.emit();
+    this.addStateChange();
+
+  }
+
+
+  private onPpiChange(value: number) {
+    if (this.id == -1) return;
+
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    const draft = this.tree.getDraft(this.id);
+
+    if (!value || value < 0) {
+      value = 1;
+      this.loomForm?.get('ppi')?.setValue(value, { emitEvent: false });
+    }
+
+    loom_settings.ppi = value;
+    this.loomForm?.get('length')?.setValue(calcLength(draft.drawdown, loom_settings), { emitEvent: false });
+    this.loomSettingsUpdated.emit();
+    this.addStateChange();
+
+  }
+
+  private onEpiChange(value: number) {
     if (this.id == -1) return;
 
     const loom_settings = this.tree.getLoomSettings(this.id);
 
-    if (!f.value.epi) {
-      f.value.epi = 1;
-      loom_settings.epi = f.value.epi;
-      this.tree.setLoomSettings(this.id, loom_settings);
+    if (!value || value < 0) {
+      value = 1;
+      this.loomForm?.get('epi')?.setValue(value, { emitEvent: false });
     }
 
-    loom_settings.epi = f.value.epi;
-    this.epi = f.value.epi;
-    this.updateWidth();
+    loom_settings.epi = value;
+    const draft = this.tree.getDraft(this.id);
+    this.loomForm?.get('width')?.setValue(calcWidth(draft.drawdown, loom_settings), { emitEvent: false });
     this.loomSettingsUpdated.emit();
-
-
-
-
+    this.addStateChange();
 
   }
 

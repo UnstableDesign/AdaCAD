@@ -1,13 +1,13 @@
 import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { copyLoom, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
+import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, DraftNode, DraftNodeProxy, IndexedColorImageInstance, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
@@ -103,8 +103,6 @@ export class TreeService {
    */
   onDynanmicOperationParamChange(opid: number, name: string, inlets: Array<any>, param_id: number, param_val: any): Array<any> {
 
-    console.log("ON DYNAMIC PARAM CHANGE ", opid, name, inlets, param_id, param_val)
-
     const op = <DynamicOperation>this.ops.getOp(name);
     const param_type = op.params[param_id].type
     const opnode = this.getOpNode(opid);
@@ -173,7 +171,7 @@ export class TreeService {
           return (params[ndx]) ? 1 : 0;
 
         case "file":
-          const id_and_data = <IndexedColorImageInstance>this.media.getMedia(params[ndx]);
+          const id_and_data = this.media.getMedia(params[ndx]);
           if (id_and_data === null || id_and_data.img === null) return { id: params[ndx], data: null }
           else return { id: params[ndx], data: id_and_data.img };
 
@@ -273,6 +271,7 @@ export class TreeService {
       (<DraftNode>nodes[0]).loom_settings = {
         type: this.ws.type,
         epi: this.ws.epi,
+        ppi: this.ws.ppi,
         units: this.ws.units,
         frames: this.ws.min_frames,
         treadles: this.ws.min_treadles
@@ -280,6 +279,7 @@ export class TreeService {
 
     } else {
       (<DraftNode>nodes[0]).loom_settings = loom_settings;
+      (<DraftNode>nodes[0]).loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
     }
 
 
@@ -428,7 +428,6 @@ export class TreeService {
 
     const inputs_to_op: Array<IOTuple> = this.getInputsWithNdx(id);
 
-    console.log("INPUTS ", inputs_to_op.slice(), prior_inlet_vals);
 
 
 
@@ -1220,7 +1219,6 @@ export class TreeService {
      */
   async updateDraftsFromResults(parent: number, outputs: Array<OpOutput>, inputs: Array<OpInput>): Promise<Array<number>> {
 
-
     const out = this.getNonCxnOutputs(parent);
     const op_outlets = this.getOutputsWithNdx(parent);
 
@@ -1407,7 +1405,6 @@ export class TreeService {
     })
     const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
 
-
     return op.perform(param_vals, cleaned_inputs)
       .then(res => {
         opnode.dirty = false;
@@ -1442,7 +1439,6 @@ export class TreeService {
   }
 
   setLoom(id: number, loom: Loom) {
-    console.log("SETTINGLOOM TO ", loom)
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) dn.loom = (loom === null) ? null : copyLoom(loom);
   }
@@ -1715,12 +1711,10 @@ export class TreeService {
     let b_is_parent = b_children.find(el => el === a);
 
     if (a_is_parent !== undefined) {
-      console.log("A CHILDREN ", a, a_children);
       return this.makeTraceBetween(a, b);
     }
 
     if (b_is_parent !== undefined) {
-      console.log("B CHILDREN ", b_children)
       return this.makeTraceBetween(b, a);
 
     }
@@ -1896,6 +1890,85 @@ export class TreeService {
     if (tn === undefined) return [];
     return tn.outputs;
   }
+
+
+  /**
+   * gets the ids of all the drafts that this node receives. 
+   * since only op nodes can recieve input, we assume all node_ids correspond to operations
+   * 
+   * @param node_id 
+   */
+  getInwardConnectionProxies(node_id: number): Array<InwardConnectionProxy> {
+    const node = <OpNode>this.getNode(node_id);
+    if (node.type !== 'op') console.error("Get Inward Connections Called on Non-Op");
+    const proxies: Array<InwardConnectionProxy> = [];
+    node.inlets.forEach((inlet, ndx) => {
+      const inputs = this.getOpComponentInputs(node_id, ndx);
+      inputs.forEach(input => {
+        proxies.push({
+          from_id: input,
+          inlet_id: ndx
+        });
+      })
+
+    })
+
+    return proxies;
+  }
+
+  /**
+   * outward connectinos can exist on drafts and operations. If this is an operation, it references the other operations that it will go into
+   * if it is a draft, it will also reference the operations. 
+   * @param node_id 
+   * @returns 
+   */
+  getOutwardConnectionProxies(node_id: number): Array<OutwardConnectionProxy> {
+    const node = <OpNode>this.getNode(node_id);
+    if (node.type !== 'op' && node.type !== 'draft') console.error("Get Inward Connections Called on Non-Op");
+    const proxies: Array<OutwardConnectionProxy> = [];
+
+
+    const immediate_outlets = this.getOutputs(node_id);
+    immediate_outlets.forEach(outlet_cxn => {
+
+      const cxn_out = this.getOutputsWithNdx(outlet_cxn);
+      cxn_out.forEach(outlet_node => {
+        if (outlet_node.tn.node.type == 'draft') {
+
+          const draft_cxn_out = this.getOutputs(outlet_node.tn.node.id);
+          draft_cxn_out.forEach((draft_cxn, outlet_id) => {
+            const ops_connected = this.getOutputsWithNdx(draft_cxn);
+            ops_connected.forEach(op => {
+              proxies.push({
+                identity: 'OP',
+                outlet_id: outlet_id,
+                to_id: op.tn.node.id,
+                inlet_id: op.ndx //need to figure out which inlet this goes into
+              });
+            })
+          })
+
+
+
+
+        } else {
+          //if the connections go directly to an operation, this is a draft
+
+          proxies.push({
+            identity: 'DRAFT',
+            outlet_id: 0,
+            to_id: outlet_node.tn.node.id,
+            inlet_id: outlet_node.ndx //need to figure out which inlet this goes into
+          });
+        }
+      })
+
+
+    })
+
+    return proxies;
+  }
+
 
   getInputsAtNdx(node_id: number, inlet_ndx: number): Array<IOTuple> {
     const tn = this.getTreeNode(node_id);
@@ -2079,6 +2152,32 @@ export class TreeService {
     })
 
     return adjusted;
+  }
+
+  restoreDraftNodeState(id: number, state: DraftNodeState) {
+    console.log("RESTORING DRAFT NODE STATE ", id, state.loom.treadling[0])
+    const node: DraftNode = <DraftNode>this.getNode(id);
+    node.draft = copyDraft(state.draft);
+    node.visible = state.draft_visible;
+    node.loom = copyLoom(state.loom);
+    node.loom_settings = copyLoomSettings(state.loom_settings);
+    node.scale = state.scale;
+  }
+
+  /**
+   * creates a deep copy of the state of a draft node in case it needs to be restored thruogh an undo event
+   * @param id the id of the draft node to get the state of
+   * @returns 
+   */
+  getDraftNodeState(id: number): DraftNodeState {
+    const node: DraftNode = <DraftNode>this.getNode(id);
+    return {
+      draft: copyDraft(node.draft),
+      draft_visible: node.visible,
+      loom: copyLoom(node.loom),
+      loom_settings: copyLoomSettings(node.loom_settings),
+      scale: node.scale
+    }
   }
 
   /**
@@ -2287,7 +2386,11 @@ export class TreeService {
 
     if (dn.component !== null) (<SubdraftComponent>dn.component).draft = temp;
 
+
+    if (dn.loom_settings.type == 'jacquard') return Promise.resolve(null)
+
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
+
     return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings)
       .then(loom => {
         dn.loom = loom;

@@ -19,6 +19,7 @@ export class WorkspaceService {
   min_treadles: number = defaults.loom_settings.treadles;
   type: string = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
   epi: number = defaults.loom_settings.epi;
+  ppi: number = defaults.loom_settings.ppi;
   units: 'in' | 'cm' = <'in' | 'cm'>defaults.loom_settings.units;
 
   show_materials: boolean = defaults.show_materials;
@@ -65,6 +66,7 @@ export class WorkspaceService {
     const ls: LoomSettings = {
       type: this.type,
       epi: this.epi,
+      ppi: this.ppi,
       frames: this.min_frames,
       treadles: this.min_treadles,
       units: this.units
@@ -78,6 +80,7 @@ export class WorkspaceService {
     this.min_treadles = defaults.loom_settings.treadles;
     this.type = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
     this.epi = defaults.loom_settings.epi;
+    this.ppi = defaults.loom_settings.ppi;
     this.units = <'in' | 'cm'>defaults.loom_settings.units;
     this.show_materials = defaults.show_materials;
     this.black_cell_up = defaults.black_cell_up;
@@ -89,15 +92,16 @@ export class WorkspaceService {
   }
 
   loadWorkspace(data) {
-    this.min_frames = data.min_frames;
-    this.min_treadles = data.min_treadles;
-    this.type = data.type;
-    this.epi = data.epi;
-    this.units = data.units;
-    this.show_materials = data.show_materials;
-    this.black_cell_up = data.black_cell_up;
-    this.number_threading = data.number_threading;
-    this.selected_origin_option = data.selected_origin_option;
+    this.min_frames = data.min_frames ?? defaults.loom_settings.frames;
+    this.min_treadles = data.min_treadles ?? defaults.loom_settings.treadles;
+    this.type = data.type ?? defaults.loom_settings.type;
+    this.epi = data.epi ?? defaults.loom_settings.epi;
+    this.ppi = data.ppi ?? defaults.loom_settings.ppi;
+    this.units = data.units ?? defaults.loom_settings.units;
+    this.show_materials = data.show_materials ?? defaults.show_materials;
+    this.black_cell_up = data.black_cell_up ?? defaults.black_cell_up;
+    this.number_threading = data.number_threading ?? defaults.number_threading;
+    this.selected_origin_option = data.selected_origin_option ?? defaults.selected_origin_option;
     this.file_favorites = (data.file_favorites === undefined) ? [] : data.file_favorites;
     this.hide_mixer_drafts = (data.hide_mixer_drafts === undefined) ? true : data.hide_mixer_drafts;
     this.show_advanced_operations = (data.show_advanced_operations === undefined) ? false : data.show_advanced_operations;
@@ -152,6 +156,7 @@ export class WorkspaceService {
       min_treadles: this.min_treadles,
       type: this.type,
       epi: this.epi,
+      ppi: this.ppi,
       units: this.units,
       show_materials: this.show_materials,
       black_cell_up: this.black_cell_up,

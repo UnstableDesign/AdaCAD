@@ -5,8 +5,8 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft } from 'adacad-drafting-lib';
-import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
-import { DraftNode } from '../../../core/model/datatypes';
+import { warps, wefts } from 'adacad-drafting-lib/draft';
+import { DraftNode, DraftStateNameChange } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { FileService } from '../../../core/provider/file.service';
@@ -21,6 +21,8 @@ import { RenameComponent } from '../../../core/ui/rename/rename.component';
 
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
+import { Subscription } from 'rxjs';
+import { StateService } from '../../../core/provider/state.service';
 
 
 @Component({
@@ -36,6 +38,7 @@ export class DraftContainerComponent implements AfterViewInit {
   private fs = inject(FileService);
   tree = inject(TreeService);
   render = inject(RenderService);
+  state = inject(StateService);
   private ss = inject(SystemsService);
   private vs = inject(ViewerService);
   ws = inject(WorkspaceService);
@@ -82,12 +85,14 @@ export class DraftContainerComponent implements AfterViewInit {
 
   size_observer: any;
 
+  showingIdChangeSubscription: Subscription;
+
 
 
   constructor() {
 
     //subscribe to id changes on the view service to update view if this is current selected
-    this.vs.showing_id_change$.subscribe(data => {
+    this.showingIdChangeSubscription = this.vs.showing_id_change$.subscribe(data => {
       this.updateStyle(data);
 
     })
@@ -95,6 +100,7 @@ export class DraftContainerComponent implements AfterViewInit {
   }
 
   ngOnInit() {
+
   }
 
   ngAfterViewInit() {
@@ -118,12 +124,25 @@ export class DraftContainerComponent implements AfterViewInit {
   }
 
   rename(event) {
+
+    const before_name = this.tree.getDraftName(this.id);
     const dialogRef = this.dialog.open(RenameComponent, {
       data: { id: this.id }
     });
 
     dialogRef.afterClosed().subscribe(obj => {
+
+      this.state.addStateChange(<DraftStateNameChange>{
+        originator: 'DRAFT',
+        type: 'NAME_CHANGE',
+        id: this.id,
+        before: before_name,
+        after: this.tree.getDraftName(this.id)
+      });
+
+
       this.draft_name = this.tree.getDraftName(this.id);
+      this.vs.updateViewer();
       this.onNameChanged.emit(this.id);
     });
   }
@@ -152,6 +171,9 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
   ngOnDestroy() {
+    if (this.showingIdChangeSubscription) {
+      this.showingIdChangeSubscription.unsubscribe();
+    }
     this.closeSizeObserver();
   }
 
@@ -168,7 +190,7 @@ export class DraftContainerComponent implements AfterViewInit {
         this.warps = 0;
         this.wefts = 0;
       } else {
-        this.draft_name = getDraftName(draft);
+        this.draft_name = this.tree.getDraftName(this.id);
         this.warps = warps(draft.drawdown);
         this.wefts = wefts(draft.drawdown);
       }
@@ -178,8 +200,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
       if (!changes['dirty'].firstChange) {
         if (this.draft_rendering !== undefined && draft !== undefined && draft !== null) {
-
-          this.draft_name = getDraftName(draft);
+          this.draft_name = this.tree.getDraftName(this.id);
           this.draft_rendering.onNewDraftLoaded(this.id);
           this.drawDraft(draft);
 
@@ -244,8 +265,8 @@ export class DraftContainerComponent implements AfterViewInit {
   }
 
   hasPin(): boolean {
-    if (!this.vs.hasPin()) return false;
-    return this.id === this.vs.getPin()
+    if (!this.vs.hasPin) return false;
+    return this.id === this.vs.getViewerId()
   }
 
 

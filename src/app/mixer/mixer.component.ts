@@ -8,20 +8,22 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions } from '@angular/material/tooltip';
-import { Draft, Loom, LoomSettings, OperationClassification } from 'adacad-drafting-lib';
+import { Draft, initDraftWithParams, initLoom, OperationClassification } from 'adacad-drafting-lib';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { DraftNodeProxy, NodeComponentProxy, Point } from '../core/model/datatypes';
+import { DraftExistenceChange, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { NotesService } from '../core/provider/notes.service';
 import { OperationService } from '../core/provider/operation.service';
+import { StateService } from '../core/provider/state.service';
 import { TreeService } from '../core/provider/tree.service';
 import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { BlankdraftModal } from '../core/ui/blankdraft/blankdraft.modal';
+import { NoteComponent } from './palette/note/note.component';
 import { PaletteComponent } from './palette/palette.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';
@@ -61,12 +63,13 @@ export class MixerComponent {
   private dialog = inject(MatDialog);
   ops = inject(OperationService);
   private vs = inject(ViewerService);
+  private ss = inject(StateService);
   zs = inject(ZoomService);
   private multiselect = inject(MultiselectService);
 
 
 
-  @ViewChild(PaletteComponent) palette;
+  @ViewChild(PaletteComponent) palette: PaletteComponent;
 
   @Input() is_fullscreen: boolean;
   @Output() onOpenInEditor: any = new EventEmitter();
@@ -84,7 +87,7 @@ export class MixerComponent {
   classifications: Array<OperationClassification> = [];
   op_tree: any = [];
   filteredOptions: Observable<any>;
-  myControl: FormControl;
+  searchForm: FormControl;
   search_error: any;
 
   /// ANGULAR FUNCTIONS
@@ -96,7 +99,7 @@ export class MixerComponent {
    */
   constructor() {
 
-    this.myControl = new FormControl();
+    this.searchForm = new FormControl();
 
     this.classifications = this.ops.getOpClassifications();
 
@@ -108,7 +111,7 @@ export class MixerComponent {
 
   ngOnInit() {
 
-    this.filteredOptions = this.myControl.valueChanges.pipe(
+    this.filteredOptions = this.searchForm.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
@@ -123,7 +126,7 @@ export class MixerComponent {
   refreshOperations() {
 
     this.op_tree = this.makeOperationsList();
-    this.filteredOptions = this.myControl.valueChanges.pipe(
+    this.filteredOptions = this.searchForm.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value))
     );
@@ -176,7 +179,7 @@ export class MixerComponent {
   public enter() {
 
 
-    const value = this.myControl.value.toLowerCase();
+    const value = this.searchForm.value.toLowerCase();
 
     //run the filter function again without the classification titles
     let tree = this.op_tree.reduce((acc, classification) => {
@@ -184,9 +187,9 @@ export class MixerComponent {
         .filter(option => option.display_name.toLowerCase().includes(value)));
     }, []);
 
-    if (tree.length > 0) this.addOp(tree[0].name);
+    if (tree.length > 0) this.addOperation(tree[0].name);
 
-    this.myControl.setValue('');
+    this.searchForm.setValue('');
 
 
   }
@@ -227,12 +230,26 @@ export class MixerComponent {
 
 
 
+  /**
+   * called when an operation is selected manually from the list on the sidebar on on ENTER in the search window
+   * @param name 
+   */
   addOperation(name: string) {
 
     let id = this.palette.addOperation(name);
-    this.myControl.setValue('');
+    this.searchForm.setValue('');
     const outputs = this.tree.getNonCxnOutputs(id);
-    if (outputs.length > 0) this.vs.setViewer(outputs[0])
+    if (outputs.length > 0) this.vs.setViewer(outputs[0]);
+
+    const change: OpExistenceChanged = {
+      originator: 'OP',
+      type: 'CREATED',
+      node: this.tree.getNode(id),
+      inputs: this.tree.getInwardConnectionProxies(id),
+      outputs: this.tree.getOutwardConnectionProxies(id)
+    }
+    this.ss.addStateChange(change);
+
   }
 
 
@@ -247,24 +264,45 @@ export class MixerComponent {
   }
 
 
-  addOp(event: any) {
-    this.palette.addOperation(event)
-  }
-
-  createNewDraft() {
-
-    const dialogRef = this.dialog.open(BlankdraftModal, {
-    });
-
-    dialogRef.afterClosed().subscribe(obj => {
-      if (obj !== undefined && obj !== null) this.newDraftCreated(obj.draft, obj.loom, obj.loom_settings);
-    });
-  }
+  // addOp(event: any) {
+  //   this.palette.addOperation(event)
+  // }
 
   /**
-   * called when toggled to mixer
-   *
+   * called when add new draft is clicked form the sidebar. 
    */
+  addDraftClicked() {
+    console.log("ADD DRAFT CLICKED ", this.tree.nodes.slice());
+
+
+    const dialogRef = this.dialog.open(BlankdraftModal);
+
+    dialogRef.componentInstance.onNewDraftCreated.subscribe(obj => {
+      console.log("Dialog Ref Component Listerned creating draft", this.tree.nodes.slice());
+
+      console.log("OBJ", obj)
+      if (obj == null || obj == undefined) return;
+
+
+
+      const draft = initDraftWithParams({ warps: obj.warps, wefts: obj.wefts });
+      const loom = initLoom(obj.warps, obj.wefts, this.ws.min_frames, this.ws.min_treadles);
+      const loom_settings = this.ws.getWorkspaceLoomSettings();
+
+      this.palette.createSubDraft(draft, loom, loom_settings).then(instance => {
+        const change: DraftExistenceChange = {
+          originator: 'DRAFT',
+          type: 'CREATED',
+          node: this.tree.getNode(instance.id),
+          inputs: [],
+          outputs: []
+        }
+        this.ss.addStateChange(change);
+      }
+
+      ).catch(console.error)
+    });
+  }
 
   /**
    * triggers a series of actions to occur when the view is switched from editor to mixer
@@ -337,7 +375,7 @@ export class MixerComponent {
 
 
   changeDesignMode(mode) {
-    this.palette.changeDesignMode(mode);
+    // this.palette.changeDesignMode(mode);
   }
 
 
@@ -519,44 +557,30 @@ export class MixerComponent {
 
 
 
+  /**
+   * Called internally when loading files
+   * @param note 
+   */
   public createNote(note) {
     this.palette.createNote(note);
   }
 
-  public createNewNote() {
-    this.palette.createNote(null);
-  }
   /**
-   * called when the user adds a new draft from the sidebar OR when a new draft is created from the editor
-   * @param obj 
+   * Called when create New Note is Clicked
    */
-  public newDraftCreated(draft: Draft, loom: Loom, loom_settings: LoomSettings): number {
-    const id = this.tree.createNode("draft", null, null);
-    const tr: Point = this.palette.calculateInitialLocation();
-    let nodep: NodeComponentProxy = {
-      node_id: id,
-      type: 'draft',
-      topleft: { x: tr.x, y: tr.y }
-    }
+  public createNewNote() {
+    const nc: NoteComponent = this.palette.createNote(null);
 
-    let dnproxy: DraftNodeProxy = {
-      node_id: id,
-      draft_id: id,
-      ud_name: draft.ud_name,
-      gen_name: draft.gen_name,
-      draft: draft,
-      compressed_draft: null,
-      draft_visible: !defaults.hide_mixer_drafts,
-      loom: loom,
-      loom_settings: loom_settings,
-      render_colors: true,
-      scale: 1
+    const change: NoteValueChange = {
+      originator: 'NOTE',
+      type: 'CREATED',
+      id: nc.id,
+      before: null,
+      after: this.notes.get(nc.id)
     }
-
-    this.tree.loadDraftData({ prev_id: null, cur_id: id, }, draft, loom, loom_settings, true, 1, !this.ws.hide_mixer_drafts);
-    this.palette.loadSubDraft(id, draft, nodep, dnproxy);
-    return id;
+    this.ss.addStateChange(change);
   }
+
 
   public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy) {
     this.palette.loadSubDraft(id, d, nodep, draftp);

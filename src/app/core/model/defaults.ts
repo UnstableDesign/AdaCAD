@@ -25,6 +25,7 @@ export const defaults = {
     frames: 8,
     treadles: 8,
     epi: 12,
+    ppi: 12,
     units: <'in'>'in',
     type: 'frame'
   },

@@ -1,12 +1,14 @@
 import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { DynamicOperation, Interlacement, Operation } from 'adacad-drafting-lib';
-import { IOTuple, OpNode, Point } from '../../../core/model/datatypes';
+import { DynamicOperation, Img, Interlacement, Operation, OpParamValType } from 'adacad-drafting-lib';
+import { IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
+import { MediaService } from '../../../core/provider/media.service';
 import { OperationService } from '../../../core/provider/operation.service';
+import { StateService } from '../../../core/provider/state.service';
 import { SystemsService } from '../../../core/provider/systems.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
@@ -33,6 +35,8 @@ export class OperationComponent implements OnInit {
   multiselect = inject(MultiselectService);
   vs = inject(ViewerService);
   zs = inject(ZoomService);
+  ss = inject(StateService);
+  mediaService = inject(MediaService);
 
 
 
@@ -75,6 +79,9 @@ export class OperationComponent implements OnInit {
   @Output() onOpenInEditor = new EventEmitter<any>();
   @Output() onRedrawOutboundConnections = new EventEmitter<any>();
   @Output() onNameChanged = new EventEmitter<any>();
+
+
+
 
   params_visible: boolean = true;
   /**
@@ -134,11 +141,21 @@ export class OperationComponent implements OnInit {
 
   offset: Point = null;
 
+  previous_topleft: Point = null;
+
   // @HostListener('window:resize', ['$event'])
   // onResize(event) {
   //   console.log("FORCE TRANSFORM TO ZERO", this.disable_drag);
   //   this.disable_drag = true;
   // }
+
+
+  constructor() {
+
+  }
+
+  ngOnDestroy(): void {
+  }
 
   ngOnInit() {
 
@@ -160,12 +177,6 @@ export class OperationComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    //this.rescale();
-    // this.onOperationParamChange.emit({id: this.id});
-    if (this.name == 'imagemap' || this.name == 'bwimagemap') {
-
-      this.drawImagePreview();
-    }
 
     // const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     // if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
@@ -191,6 +202,10 @@ export class OperationComponent implements OnInit {
 
   onDoubleClick(event: any) {
     this.trigger.openMenu();
+  }
+
+  setParamFromStateEvent(paramid: number, value: OpParamValType) {
+    this.paramsComps.get(paramid).setValueFromStateEvent(value);
   }
 
 
@@ -284,8 +299,8 @@ export class OperationComponent implements OnInit {
 
 
   hasPin(): boolean {
-    if (!this.vs.hasPin()) return false;
-    return (this.children.find(el => el == this.vs.getPin()) !== undefined)
+    if (!this.vs.hasPin) return false;
+    return (this.children.find(el => el == this.vs.getViewerId()) !== undefined)
   }
 
 
@@ -375,18 +390,13 @@ export class OperationComponent implements OnInit {
 
 
 
-  removeConnectionTo(obj: any) {
-    this.onConnectionRemoved.emit(obj);
-  }
-
-
 
   openHelpDialog() {
 
     let regex = new RegExp(' ', 'g');
     let op_name_format = this.op.name.replace(regex, '_');
     window.open('https://docs.adacad.org/docs/reference/operations/' + op_name_format, '_blank');
-    ;
+
 
   }
 
@@ -408,9 +418,6 @@ export class OperationComponent implements OnInit {
   onParamChange(obj: any) {
     const opnode = <OpNode>this.tree.getNode(this.id);
     const original_inlets = this.opnode.inlets.slice();
-
-
-    console.log("ON PARAM CHANGE IN OPERATIONS ", this.is_dynamic_op)
 
     if (this.is_dynamic_op) {
 
@@ -436,9 +443,6 @@ export class OperationComponent implements OnInit {
 
         if (opnode.name == 'imagemap' || opnode.name == 'bwimagemap') {
 
-
-          this.drawImagePreview();
-
           //update the width and height
           // let image_param = opnode.params[op.dynamic_param_id];
           let image_param = opnode.params[0];
@@ -455,12 +459,9 @@ export class OperationComponent implements OnInit {
   }
 
   nameChanged(id) {
-    this.onNameChanged.emit(id);
-  }
 
-  drawImagePreview() {
-    let param = this.paramsComps.get(0);
-    param.drawImagePreview();
+
+    this.onNameChanged.emit(id);
   }
 
   //returned from a file upload event
@@ -537,6 +538,29 @@ export class OperationComponent implements OnInit {
   }
 
   delete() {
+    const operation = this.operations.getOp(this.name);
+    const opnode = this.tree.getOpNode(this.id);
+    const change: OpExistenceChanged = {
+      originator: 'OP',
+      type: 'REMOVED',
+      node: this.tree.getNode(this.id),
+      inputs: this.tree.getInwardConnectionProxies(this.id),
+      outputs: this.tree.getOutwardConnectionProxies(this.id)
+    }
+
+    if (operation.params.find(el => el.type === 'file')) change.media = [];
+
+    operation.params.forEach((param, ndx) => {
+      if (param.type === 'file') {
+        const media: Img = opnode.params[ndx];
+        const media_instance = this.mediaService.getMedia(+media.id);
+        change.media.push(media_instance);
+      }
+    });
+
+
+    this.ss.addStateChange(change);
+
     this.deleteOp.emit({ id: this.id });
   }
 
@@ -551,11 +575,14 @@ export class OperationComponent implements OnInit {
   dragStart($event: CdkDragStart) {
     this.updateConnectionStyling();
 
+    this.previous_topleft = this.topleft;
+
 
     this.offset = null;
 
     if (this.multiselect.isSelected(this.id)) {
       this.multiselect.setRelativePosition(this.topleft);
+      this.multiselect.dragStart(this.id);
     } else {
       this.multiselect.clearSelections();
     }
@@ -646,6 +673,23 @@ export class OperationComponent implements OnInit {
 
     this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({ id: this.id });
+
+    if (this.multiselect.moving_id == this.id) {
+      this.multiselect.dragEnd();
+
+    } else {
+      const change: OpStateMove = {
+        originator: 'OP',
+        type: 'MOVE',
+        id: this.id,
+        before: this.previous_topleft,
+        after: this.topleft
+      }
+
+      this.ss.addStateChange(change);
+    }
+
+
 
   }
 

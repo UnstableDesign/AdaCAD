@@ -2,8 +2,9 @@ import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { Draft, Interlacement, LoomSettings } from 'adacad-drafting-lib';
 import { isUp, warps, wefts } from 'adacad-drafting-lib/draft';
-import { DraftNode, Point } from '../../../core/model/datatypes';
+import { DraftNode, DraftStateMove, Point } from '../../../core/model/datatypes';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
+import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { WorkspaceService } from '../../../core/provider/workspace.service';
@@ -33,6 +34,7 @@ export class SubdraftComponent implements OnInit {
   private multiselect = inject(MultiselectService);
   private vs = inject(ViewerService);
   zs = inject(ZoomService);
+  private ss = inject(StateService);
 
 
   @ViewChild('draftcontainer') draftcontainer: DraftContainerComponent;
@@ -107,6 +109,8 @@ export class SubdraftComponent implements OnInit {
 
   offset: Point = null;
 
+  previous_topleft: Point = { x: 0, y: 0 };
+
   constructor() {
     const layer = this.layer;
 
@@ -116,6 +120,7 @@ export class SubdraftComponent implements OnInit {
 
 
   }
+
 
   ngOnInit() {
 
@@ -158,7 +163,7 @@ export class SubdraftComponent implements OnInit {
 
     //if scale is changed, automatically call the function to rescale
     if (changes['scale']) {
-      this.rescale().catch(e => console.log(e))
+      this.rescale().catch(e => { /* handle error silently */ })
     }
 
     //if something new is assigned to the draft value for this subdraft, draw it. 
@@ -229,7 +234,6 @@ export class SubdraftComponent implements OnInit {
 
   toggleMultiSelection(e: any) {
 
-    // console.log("TOGGLE MULTI")
     // this.onFocus.emit(this.id);
     this.updateConnectionStyling();
     this.vs.setViewer(this.id);
@@ -402,6 +406,7 @@ export class SubdraftComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     this.draftcontainer.draft_visible = this.tree.getDraftVisible(this.id);
     this.draftcontainer.drawDraft(draft);
+    this.draftcontainer.draft_name = this.tree.getDraftName(this.id);
 
   }
 
@@ -450,7 +455,7 @@ export class SubdraftComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
-
+    this.previous_topleft = { x: this.topleft.x, y: this.topleft.y };
 
     this.moving = true;
     this.offset = null;
@@ -458,6 +463,7 @@ export class SubdraftComponent implements OnInit {
     //set the relative position of this operation if its the one that's dragging
     if (this.multiselect.isSelected(this.id)) {
       this.multiselect.setRelativePosition(this.topleft);
+      this.multiselect.dragStart(this.id);
     } else {
       this.multiselect.clearSelections();
     }
@@ -501,7 +507,7 @@ export class SubdraftComponent implements OnInit {
         x: scaled_pointer.x - op_topleft_inscale.x,
         y: scaled_pointer.y - op_topleft_inscale.y
       }
-      //console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
+      // console.log("LEFT WITH SCALE VS, LEFT POINTER ", op_topleft_inscale, scaled_pointer, this.offset);
 
     }
 
@@ -549,6 +555,22 @@ export class SubdraftComponent implements OnInit {
     this.last_ndx = { i: -1, j: -1 };
     this.multiselect.setRelativePosition(this.topleft);
     this.onSubdraftDrop.emit({ id: this.id });
+
+    if (this.multiselect.moving_id == this.id) {
+      this.multiselect.dragEnd();
+    } else {
+      const change: DraftStateMove = {
+        originator: 'DRAFT',
+        type: 'MOVE',
+        id: this.id,
+        before: this.previous_topleft,
+        after: this.topleft
+      }
+
+      this.ss.addStateChange(change);
+    }
+
+
   }
 
 
@@ -582,8 +604,17 @@ export class SubdraftComponent implements OnInit {
     this.has_active_connection = false;
   }
 
+  delete(id: number) {
+    if (id !== this.id) console.error("In delete - draft id's don't match");
+    this.onDeleteCalled.emit(id);
+  }
 
 
+
+  /**
+   * this is emitted from the draft container when something from it's options menu is selected
+   * @param e 
+   */
   private designAction(e) {
 
     let event = e.event;
@@ -595,7 +626,7 @@ export class SubdraftComponent implements OnInit {
         break;
 
       case 'delete':
-        this.onDeleteCalled.emit({ id });
+        this.delete(id);
         break;
 
       case 'edit':
@@ -611,3 +642,4 @@ export class SubdraftComponent implements OnInit {
 
 
 }
+

@@ -1,5 +1,5 @@
 import { Injectable, ViewRef } from '@angular/core';
-import { generateId, Interlacement } from 'adacad-drafting-lib';
+import { generateId } from 'adacad-drafting-lib';
 import { NoteComponent } from '../../mixer/palette/note/note.component';
 import { Bounds, Note, Point } from '../model/datatypes';
 
@@ -72,7 +72,24 @@ export class NotesService {
 
   }
 
-  createBlankNode(i: Interlacement): Note {
+  copyNote(note: Note): Note {
+    const newnote: Note = {
+      id: note.id,
+      topleft: note.topleft,
+      title: note.title,
+      text: note.text,
+      color: note.color,
+      ref: note.ref,
+      component: note.component,
+      imageurl: note.imageurl,
+      width: note.width,
+      height: note.height
+    }
+    return newnote;
+
+  }
+
+  createBlankNote(): Note {
     const note: Note = {
       id: generateId(8),
       topleft: {

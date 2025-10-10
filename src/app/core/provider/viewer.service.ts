@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { TreeService } from './tree.service';
 import { Subject } from 'rxjs';
+import { TreeService } from './tree.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +13,13 @@ export class ViewerService {
   private tree = inject(TreeService);
 
 
+  hasPin: boolean = false;
+  showing: number = -1;
 
-  pinned_id: number = -1; //must be an ID corresponding to a draft node
-  showing_id: number = -1;//must be an ID corresponding to a draft node
+
   showing_id_change$ = new Subject<any>(); //broadcasts changes to the current draft intended for viewing
   update_viewer$ = new Subject<any>();
+  clear_viewer$ = new Subject<any>();
 
 
   /**
@@ -26,32 +28,32 @@ export class ViewerService {
    * it broadcasts that a change in ID took place
    * @param id 
    */
-  setPin(id: number){
+  setPin(id: number) {
 
-    if(this.tree.getType(id) !== "draft"){
+    if (this.tree.getType(id) !== "draft") {
       console.error("attempting to set viewer to a non-draft id");
+      this.setShowingId(-1)
       return;
-    } 
+    }
 
-    this.pinned_id = id;
-    this.showing_id = id;
-    this.showing_id_change$.next(this.showing_id);
+    this.hasPin = true;
+    if (this.showing !== id) this.setShowingId(id);
 
   }
 
-  getPin() : number {
-    return this.pinned_id;
+  private setShowingId(id: number) {
+    this.showing = id;
+    this.showing_id_change$.next(this.showing);
+
   }
+
+  getPin(): boolean {
+    return this.hasPin;
+  }
+
 
   clearPin() {
-    this.pinned_id = -1;
-    this.showing_id_change$.next(this.showing_id); //this doesn't really need to be called but it's a hack for the styles to update on unpin
-
-
-  }
-
-  hasPin() : boolean {
-    return this.pinned_id !== -1;
+    this.hasPin = false;
   }
 
 
@@ -60,29 +62,31 @@ export class ViewerService {
    * Otherwise, it will set the viewing id to the value of id and broadcasts to the viewer that a change has been made
    * @param id 
    */
-  setViewer(id: number){
-    if(this.tree.getType(id) !== "draft"){
+  setViewer(id: number) {
+    if (this.tree.getType(id) !== "draft") {
       console.error("attempting to set viewer to a non-draft id");
+      this.setShowingId(-1);
       return;
-    } 
+    }
 
-    if(!this.hasPin() && this.showing_id !== id){
-      this.showing_id = id;
-      this.showing_id_change$.next(this.showing_id);
+    if (this.hasPin) return;
 
+    if (this.showing !== id) {
+      this.setShowingId(id);
     }
   }
 
-  getViewer() : number {
-    return this.showing_id;
+  getViewerId(): number {
+    return this.showing;
   }
 
-  hasViewer() : boolean {
-    return (this.showing_id !== -1);
-  }
+  // hasViewer(): boolean {
+  //   return (this.showing_id !== -1);
+  // }
 
   clearViewer() {
-    this.showing_id = -1;
+    this.setShowingId(-1);
+    this.hasPin = false;
   }
 
   /**
@@ -91,12 +95,10 @@ export class ViewerService {
    * and updates the viewer accordingly
    * @param id 
    */
-  checkOnDelete(id: number){
-    if(this.showing_id == id){
+  checkOnDelete(id: number) {
+    if (this.showing == id) {
       this.clearViewer();
-      this.showing_id_change$.next(this.showing_id);
-    } 
-    if(this.pinned_id == id) this.clearPin();
+    }
 
   }
 
@@ -104,8 +106,8 @@ export class ViewerService {
   /**
    * called from the palette or from the editor when a draft has been changed and should be redrawn. 
    */
-  updateViewer(){
-    this.update_viewer$.next(this.showing_id);
+  updateViewer() {
+    this.update_viewer$.next(true);
 
   }
 

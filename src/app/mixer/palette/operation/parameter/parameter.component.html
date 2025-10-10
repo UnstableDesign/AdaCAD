@@ -5,8 +5,18 @@
   <div class="number_input">
     <mat-form-field>
       <mat-label>{{param.name}}</mat-label>
-      <input matInput [ngModel]="opnode.params[paramid]" [formControl]="fc" type="number" [name]=param.name
-        [min]=param.min [max]=param.max step=1 (change)="onParamChange(fc.value)">
+      <input matInput [formControl]="fc" type="number" [name]=param.name [min]=param.min [max]=param.max step=1>
+      @if (fc.invalid && (fc.dirty || fc.touched)) {
+      @if (fc.hasError('required')) {
+      <mat-error>a value between {{param.min}} and {{param.max}} is required</mat-error>
+      }
+      @if (fc.hasError('min')) {
+      <mat-error>value must be greater than {{param.min}}</mat-error>
+      }
+      @if (fc.hasError('max')) {
+      <mat-error>value must be less than {{param.max}}</mat-error>
+      }
+      }
     </mat-form-field>
   </div>
 
@@ -16,9 +26,8 @@
   <div class="select-input">
     <mat-form-field>
       <mat-label>{{param.name}}</mat-label>
-      <mat-select [panelWidth]="auto" [ngModel]="opnode.params[paramid]" [formControl]="fc"
-        (selectionChange)='onParamChange(fc.value)'>
-        @for (opt of selectparam.selectlist; track opt) {
+      <mat-select [panelWidth]="auto" [formControl]="fc">
+        @for (opt of param.selectlist; track opt) {
         <mat-option [value]="opt.value">
           {{opt.name}}
         </mat-option>
@@ -32,13 +41,12 @@
   <div class="boolean-input">
     <mat-form-field>
       <mat-label>{{param.name}}</mat-label>
-      <mat-select [panelWidth]="auto" [ngModel]="opnode.params[paramid]" [formControl]="fc"
-        (selectionChange)='onParamChange(fc.value)'>
+      <mat-select [panelWidth]="auto" [formControl]="fc">
         <mat-option [value]="1">
-          {{boolparam.truestate}}
+          {{param.truestate}}
         </mat-option>
         <mat-option [value]="0">
-          {{boolparam.falsestate}}
+          {{param.falsestate}}
         </mat-option>
       </mat-select>
     </mat-form-field>

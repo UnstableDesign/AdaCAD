@@ -1,5 +1,5 @@
 import { ViewRef } from "@angular/core";
-import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, SingleImage } from "adacad-drafting-lib";
+import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, OpParamValType, SingleImage } from "adacad-drafting-lib";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
 import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
@@ -25,7 +25,6 @@ type BaseNode = {
   component: SubdraftComponent | OperationComponent | ConnectionComponent,
   dirty: boolean
 }
-
 
 /**
  * an OpNode is an extension of BaseNode that includes additional params
@@ -74,6 +73,23 @@ export interface DraftMap {
   component_id: number;
   draft: any;
 }
+
+/**
+ * a way to store the relationship between two nodes so we can restore them if we need on undo
+ */
+export type OutwardConnectionProxy = {
+  identity: "DRAFT" | "OP",
+  outlet_id: number,
+  to_id: number,
+  inlet_id: number
+}
+
+export type InwardConnectionProxy = {
+  from_id: number, //always references a draft id
+  inlet_id: number
+}
+
+
 
 
 /***** OBJECTS/TYPES RELATED TO SCREEN LAYOUT ****/
@@ -210,6 +226,9 @@ export interface DraftNodeProxy {
   scale: number;
 }
 
+
+
+
 /**
  * a sparse form of an operation component to use for saving
  * @param node_id the node id this object refers too
@@ -243,13 +262,9 @@ export type MediaInstance = {
   id: number;
   ref: string;
   type: 'image' | 'indexed_color_image'; //currently we only support images
-  img: IndexedColorImageInstance | SingleImage;
-
+  img: SingleImage | AnalyzedImage;
 }
 
-export type IndexedColorImageInstance = MediaInstance & {
-  img: AnalyzedImage;
-}
 
 export type IndexedColorMediaProxy = {
   id: number,
@@ -468,7 +483,207 @@ export type ShareObj = {
 }
 
 
+/**
+ * State - UNDO and REDO
+ * classify all the kinds of events that can create a workspace change so that we can undo or redo them.
+ */
+/**
+ * an object to store the state of a draft node for undo/redo
+ * @param draft the draft object
+ * @param draft_visible the visibility of the draft
+ * @param loom the loom object
+ * @param loom_settings the loom settings object
+ */
+export interface DraftNodeState {
+  draft: Draft;
+  draft_visible: boolean;
+  loom: Loom;
+  loom_settings: LoomSettings;
+  scale: number;
+}
+
+
+export type StateChangeEvent = {
+  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'NOTE' | 'MATERIALS' | 'MIXER'
+}
+
+type MoveEvent = {
+  id: number,
+  before: Point,
+  after: Point
+}
+
+type MultiMoveEvent = {
+  moving_id: number,
+  relative_position_before: Point,
+  relative_position_after: Point,
+  selected_before: Array<{ id: number, topleft: Point }>,
+  selected_after: Array<{ id: number, topleft: Point }>
+}
+
+type ParamEvent = {
+  opid: number,
+  paramid: number,
+  before: OpParamValType,
+  after: OpParamValType
+}
+
+type NumberEvent = {
+  before: number,
+  after: number
+}
+
+type NodeEvent = {
+  node: Node,
+  inputs: Array<InwardConnectionProxy>,
+  outputs: Array<OutwardConnectionProxy>,
+  media?: Array<MediaInstance>
+}
+
+type ConnectionChangeEvent = {
+  from: number,
+  to: number,
+  inlet: number
+}
+
+
+type DraftChangedEvent = {
+  id: number,
+  before: DraftNodeState,
+  after: DraftNodeState
+}
+
+
+export type MixerStateChangeEvent = StateChangeEvent & {
+  type: 'PASTE' | 'DELETE' | 'MOVE',
+}
+
+export type MixerStateMove = MixerStateChangeEvent & MultiMoveEvent;
+
+export type MixerStatePasteEvent = MixerStateChangeEvent & {
+  ids: Array<number>,
+};
+export type MixerStateDeleteEvent = MixerStateChangeEvent & {
+  obj: SaveObj,
+};
+export type OpStateEvent = StateChangeEvent & {
+  type: 'MOVE' | 'PARAM_CHANGE' | 'CREATED' | 'REMOVED'
+}
+
+
+export type OpStateMove = OpStateEvent & MoveEvent;
+export type OpStateParamChange = OpStateEvent & ParamEvent;
+export type OpStateLocalZoomChange = OpStateEvent & NumberEvent
+export type OpExistenceChanged = OpStateEvent & NodeEvent;
+export type OpStateConnectionChange = OpStateEvent & ConnectionChangeEvent;
+
+
+export type DraftStateEvent = StateChangeEvent & {
+  type: 'MOVE' | 'VALUE_CHANGE' | 'NAME_CHANGE' | 'CREATED' | 'REMOVED'
+}
+
+export type DraftStateMove = DraftStateEvent & MoveEvent;
+export type DraftStateChange = DraftStateEvent & DraftChangedEvent;
+export type DraftExistenceChange = DraftStateEvent & NodeEvent;
+export type DraftStateNameChange = DraftStateEvent & {
+  id: number,
+  before: string,
+  after: string
+};
+
+export type ConnectionStateEvent = StateChangeEvent & {
+  type: 'CREATED' | 'REMOVED'
+}
+
+export type ConnectionExistenceChange = ConnectionStateEvent & NodeEvent
+
+
+export type WorkspaceStateChange = StateChangeEvent & {
+  type: 'SETTINGS' | 'FILE_META',
+  workspace: any; //whatever is in the workspace
+  meta: FileMeta
+}
+
+export type NoteStateChange = StateChangeEvent & {
+  type: 'CREATED' | 'REMOVED' | 'UPDATED' | 'MOVE',
+}
+
+export type NoteStateMove = NoteStateChange & MoveEvent;
+export type NoteValueChange = NoteStateChange & {
+  id: number,
+  before: Note,
+  after: Note
+}
+
+export type MaterialsStateChange = StateChangeEvent & {
+  type: 'UPDATED',
+  before: Array<Material>,
+  after: Array<Material>
+}
+
+/**
+ * this is what is communicated from the state service to the component that needs to execute the command
+ */
+export type StateAction = {
+  type: "CREATE" | "REMOVE" | "CHANGE",
+}
+
+export type NoteAction = StateAction & {
+  before: Note,
+  after: Note,
+  id: number
+}
+
+
+export type MoveAction = StateAction & {
+  id: number,
+  before: Point,
+  after: Point
+}
+
+export type ParamAction = StateAction & {
+  opid: number,
+  paramid: number,
+  value: OpParamValType
+}
+
+export type NodeAction = StateAction & {
+  node: Node,
+  inputs: Array<InwardConnectionProxy>,
+  outputs: Array<OutwardConnectionProxy>,
+  media?: Array<MediaInstance>
+}
+
+export type DraftStateAction = StateAction & {
+  id: number,
+  before: DraftNodeState,
+  after: DraftNodeState
+}
+
+export type RenameAction = StateAction & {
+  id: number,
+  before: string,
+  after: string
+}
+
+export type MaterialsStateAction = StateAction & {
+  before: Array<Material>,
+  after: Array<Material>
+}
 
 
 
+export type MixerStateMoveAction = StateAction & {
+  moving_id: number,
+  relative_position: Point,
+  selected: Array<{ id: number, topleft: Point }>,
+}
 
+export type MixerStateRemoveAction = StateAction & {
+  ids: Array<number>,
+}
+
+
+export type MixerStatePasteAction = StateAction & {
+  obj: SaveObj,
+}

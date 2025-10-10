@@ -1,8 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule, UntypedFormControl } from '@angular/forms';
-import { MatOption } from '@angular/material/autocomplete';
 import { MatButton } from '@angular/material/button';
-import { MatSelect } from '@angular/material/select';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, OperationInlet } from 'adacad-drafting-lib';
 import { getDraftName } from 'adacad-drafting-lib/draft';
@@ -16,7 +14,7 @@ import { TreeService } from '../../../../core/provider/tree.service';
   selector: 'app-inlet',
   templateUrl: './inlet.component.html',
   styleUrls: ['./inlet.component.scss'],
-  imports: [MatButton, MatTooltip, MatSelect, FormsModule, MatOption]
+  imports: [MatButton, MatTooltip, FormsModule]
 })
 export class InletComponent implements OnInit {
   tree = inject(TreeService);
@@ -35,7 +33,6 @@ export class InletComponent implements OnInit {
 
   fc: UntypedFormControl;
   textValidate: any;
-  all_system_codes: Array<any>;
   number_opts: Array<number>;
   opnode: OpNode;
   inlet: OperationInlet;
@@ -49,7 +46,8 @@ export class InletComponent implements OnInit {
 
   ngOnInit(): void {
     this.opnode = this.tree.getOpNode(this.opid);
-    this.all_system_codes = this.systems.weft_systems.map(el => { return { code: el.name, id: el.id } });
+
+
     const op = this.ops.getOp(this.opnode.name);
 
     this.number_opts = [];
@@ -144,7 +142,13 @@ export class InletComponent implements OnInit {
 
   }
 
+  /**
+   * 
+   * @param sd_id this is neer called becauise the connection is deleted by the connection component
+   */
   removeConnectionTo(sd_id: number) {
+
+
 
     this.onConnectionRemoved.emit({ from: sd_id, to: this.opid, inletid: this.inletid });
     this.checkIfInletIsOpen();

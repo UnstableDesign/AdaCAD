@@ -45,11 +45,11 @@
 
         <mat-menu #downloadMenu="matMenu">
           <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
-          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('bmp')">Selected Draft as
+          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('bmp')">Selected Draft as
             Bitmap</button>
-          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('jpg')">Selected Draft as
+          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('jpg')">Selected Draft as
             Image</button>
-          <button mat-menu-item [disabled]="!vs.hasViewer()" (click)="saveDraftAs('wif')">Selected Draft as
+          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('wif')">Selected Draft as
             .WIF</button>
           <!-- <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button> -->
         </mat-menu>
@@ -173,17 +173,17 @@
             <button mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button>
 
 
-            <button mat-icon-button [disabled]="ss.undo_disabled" matTooltip="undo" (click)="undo()">
-              <i class="fa-solid fa-rotate-left"></i>
+            <button mat-icon-button matTooltip="undo" (click)="undo()">
+              <i class="fa-solid fa-rotate-left"></i> {{ss.history.length}}
             </button>
 
 
 
 
 
-            <button mat-icon-button [disabled]="ss.redo_disabled" matTooltip="redo" (click)="redo()">
+            <!-- <button mat-icon-button matTooltip="redo" (click)="redo()">
               <i class="fa-solid fa-rotate-right"></i>
-            </button>
+            </button> -->
 
           </div>
 
@@ -193,7 +193,8 @@
           <div class="copypaste">
             <button mat-raised-button color="accent" (click)="onCopySelections()">Copy (ctrl-c)</button>
             <button mat-raised-button color="accent" [disabled]="multiselect.copy === undefined"
-              (click)="onPasteSelections()">Paste (ctrl-c)</button>
+              (click)="onPasteSelections()">Paste (ctrl-v)</button>
+            <button mat-raised-button color="accent" (click)="deleteSelections()">Delete</button>
           </div>
           }
 

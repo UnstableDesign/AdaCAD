@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Node, Point } from '../../core/model/datatypes';
+import { MixerStateMove, Node, Point, SaveObj } from '../../core/model/datatypes';
 import { FileService } from '../../core/provider/file.service';
+import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { ZoomService } from '../../core/provider/zoom.service';
 
@@ -11,11 +12,49 @@ export class MultiselectService {
   private tree = inject(TreeService);
   private fs = inject(FileService);
   private zs = inject(ZoomService);
-
+  private ss = inject(StateService);
 
   selected: Array<{ id: number, topleft: Point }> = [];
   relative_position: Point = { x: 0, y: 0 };
-  copy: any;
+  relative_position_before: Point = { x: 0, y: 0 };
+  copy: SaveObj;
+  moving_id: number = -1;
+
+
+
+  private selected_before: Array<{ id: number, topleft: Point }> = [];
+
+  /**
+   * when drag starts, we need to store a copy of the current state so we can undo it later
+   */
+  dragStart(id: number) {
+
+    this.moving_id = id;
+    this.selected_before = [];
+    this.selected.forEach(el => {
+      this.selected_before.push({ id: el.id, topleft: { x: el.topleft.x, y: el.topleft.y } });
+    });
+    this.relative_position_before = { x: this.relative_position.x, y: this.relative_position.y };
+  }
+
+  /**
+   * when drag ends, we need to apply the changes to the state
+   */
+  dragEnd() {
+    const change: MixerStateMove = {
+      originator: 'MIXER',
+      type: 'MOVE',
+      moving_id: this.moving_id,
+      relative_position_before: this.relative_position_before,
+      relative_position_after: this.relative_position,
+      selected_before: this.selected_before,
+      selected_after: this.selected
+    }
+    this.ss.addStateChange(change);
+    this.moving_id = -1;
+    this.selected_before = [];
+    this.relative_position = { x: 0, y: 0 };
+  }
 
   updateSelectedStyles(comp_id: number) {
 
@@ -127,11 +166,12 @@ export class MultiselectService {
     return { x: f.topleft.x + diff.x, y: f.topleft.y + diff.y }
   }
 
+
   /**
    * creates a copy of each of the elements (and their positions, for pasting into this file or another file)
    * @returns 
    */
-  copySelections() {
+  copySelections(): Promise<SaveObj> {
 
     let selected_nodes: Array<Node> = this.selected
       .map(el => this.tree.getNode(el.id))
@@ -159,7 +199,12 @@ export class MultiselectService {
     relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el));
     let all_nodes = selected_nodes.concat(relevant_connection_nodes);
 
-    this.copy = this.fs.saver.copy(all_nodes.map(el => el.id));
+
+    return this.fs.saver.copy(all_nodes.map(el => el.id))
+      .then(ada => {
+        this.copy = ada;
+        return Promise.resolve(ada);
+      });
 
 
 

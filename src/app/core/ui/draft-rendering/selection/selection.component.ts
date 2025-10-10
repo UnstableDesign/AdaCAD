@@ -409,7 +409,7 @@ export class SelectionComponent implements OnInit {
    * @returns {void}
    */
   public onPaste(type: string) {
-
+    const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -440,7 +440,7 @@ export class SelectionComponent implements OnInit {
             this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
               .then(loom => {
                 this.tree.setLoom(this.id, loom);
-                this.saveAction.emit();
+                this.saveAction.emit(before);
                 this.forceRedraw.emit();
               });
             break;
@@ -450,7 +450,7 @@ export class SelectionComponent implements OnInit {
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.tree.setDraftOnly(this.id, draft);
-                this.saveAction.emit();
+                this.saveAction.emit(before);
                 this.forceRedraw.emit();
               });
             break;
@@ -460,7 +460,7 @@ export class SelectionComponent implements OnInit {
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.tree.setLoom(this.id, loom);
-                this.saveAction.emit();
+                this.saveAction.emit(before);
                 this.forceRedraw.emit();
               });
             break;
@@ -472,7 +472,7 @@ export class SelectionComponent implements OnInit {
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.tree.setLoom(this.id, loom);
-                this.saveAction.emit();
+                this.saveAction.emit(before);
                 this.forceRedraw.emit();
 
               });
@@ -497,7 +497,7 @@ export class SelectionComponent implements OnInit {
 
             this.tree.setDraftOnly(this.id, draft);
             this.forceRedraw.emit();
-            this.saveAction.emit();
+            this.saveAction.emit(before);
 
 
             break;
@@ -520,7 +520,7 @@ export class SelectionComponent implements OnInit {
 
             this.tree.setDraftOnly(this.id, draft);
             this.forceRedraw.emit();
-            this.saveAction.emit();
+            this.saveAction.emit(before);
 
 
             break;
@@ -544,7 +544,7 @@ export class SelectionComponent implements OnInit {
 
             this.tree.setDraftOnly(this.id, draft);
             this.forceRedraw.emit();
-            this.saveAction.emit();
+            this.saveAction.emit(before);
 
 
             break;
@@ -568,7 +568,7 @@ export class SelectionComponent implements OnInit {
 
             this.tree.setDraftOnly(this.id, draft);
             this.forceRedraw.emit();
-            this.saveAction.emit();
+            this.saveAction.emit(before);
 
 
             break;

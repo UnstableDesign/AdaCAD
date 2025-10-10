@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, getLoomUtilByType, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { Bounds, DraftNode, DraftNodeProxy, FileMeta, IndexedColorImageInstance, LoadResponse, NodeComponentProxy, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -57,7 +57,7 @@ import { ScreenshotLayoutService } from './core/provider/screenshot-layout.servi
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [EventsDirective, MatToolbar, LoadingComponent, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent]
+  imports: [EventsDirective, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent]
 })
 
 
@@ -143,6 +143,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loaded_from_url = false;
 
+  stateSubscriptions: Array<Subscription> = [];
 
 
 
@@ -181,9 +182,62 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
 
+    //INTERCEPT DRAFT CHANGES IN APP so we can centralize where changes come from and delegate redrawing as required. 
+    const draftStateChangeSubscription = this.ss.draftValueChangeUndo$.subscribe(action => {
+      this.tree.restoreDraftNodeState((<DraftStateAction>action).id, (<DraftStateAction>action).before);
+
+      //redraw and recompute the change in the mixer
+      this.mixer.palette.redrawAllSubdrafts();
+      const outs = this.tree.getNonCxnOutputs((<DraftStateAction>action).id);
+      outs.forEach(el => this.mixer.palette.performAndUpdateDownstream(el));
+
+      //redraw the editor if it has this draft loaded
+      if (this.editor.id === (<DraftStateAction>action).id) {
+        this.editor.redraw();
+        this.editor.updateLoom();
+        this.editor.updateWeavingInfo();
+        this.editor.clearSelection();
+      }
+      if (this.vs.getViewerId() === (<DraftStateAction>action).id) {
+        this.viewer.redraw();
+      }
+
+    })
+
+    const draftStateNameChangeSubscription = this.ss.draftNameChangeUndo$.subscribe(action => {
+      const draft = this.tree.getDraft((<RenameAction>action).id);
+      draft.ud_name = (<RenameAction>action).before;
+      this.updateDraftName((<RenameAction>action).id);
+
+      if (this.vs.getViewerId() === (<DraftStateAction>action).id) {
+        this.viewer.updateDraftNameFromMixerEvent((<RenameAction>action).before);
+      }
+
+    })
+
+    const materialsUpdatedUndoSubscription = this.ss.materialsUpdatedUndo$.subscribe(action => {
+      this.ms.overloadShuttles((<MaterialsStateAction>action).before);
+      this.editor.redraw();
+      this.vs.updateViewer();
+      this.mixer.palette.redrawAllSubdrafts();
+
+    })
 
 
+    const mixerPasteUndoSubscription = this.ss.mixerPasteUndo$.subscribe(action => {
+      this.undoPasteSelections(action.ids);
+    });
 
+    const mixerDeleteUndoSubscription = this.ss.mixerDeleteUndo$.subscribe(action => {
+      this.onPasteSelectionsFromUndo(action.obj);
+    });
+
+
+    this.stateSubscriptions.push(draftStateChangeSubscription);
+    this.stateSubscriptions.push(draftStateNameChangeSubscription);
+    this.stateSubscriptions.push(materialsUpdatedUndoSubscription);
+    this.stateSubscriptions.push(mixerPasteUndoSubscription);
+    this.stateSubscriptions.push(mixerDeleteUndoSubscription);
 
     this.scrollingSubscription = this.scroll
       .scrolled()
@@ -220,6 +274,8 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.scrollingSubscription) {
       this.scrollingSubscription.unsubscribe();
     }
+
+    this.stateSubscriptions.forEach(element => element.unsubscribe());
   }
 
   ngAfterViewInit() {
@@ -407,12 +463,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.mixer.onClose();
 
-        if (this.vs.getViewer() == -1) {
+        if (this.vs.getViewerId() == -1) {
           let obj = {
             warps: defaults.warps,
             wefts: defaults.wefts,
             type: defaults.loom_settings.type,
             epi: defaults.loom_settings.epi,
+            pp1: defaults.loom_settings.ppi,
             units: defaults.loom_settings.units,
             frames: defaults.loom_settings.frames,
             treadles: defaults.loom_settings.treadles
@@ -425,8 +482,8 @@ export class AppComponent implements OnInit, OnDestroy {
             })
 
         } else {
-          console.log("VIEWER IS ", this.vs.getViewer())
-          this.editor.onFocus(this.vs.getViewer());
+
+          this.editor.onFocus(this.vs.getViewerId());
         }
 
         break;
@@ -466,6 +523,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * @returns the new draft id
    */
   generateBlankDraftAndPlaceInMixer(obj: any): Promise<number> {
+    console.log("GENERATING DRAFT FOR MIXER  ", obj, this.tree.nodes.slice());
 
     //if it has a parent and it does not yet have a view ref. 
     //this.tree.setSubdraftParent(id, -1)
@@ -477,7 +535,8 @@ export class AppComponent implements OnInit, OnDestroy {
       epi: obj.epi,
       units: <"cm" | "in">obj.units,
       frames: obj.frames,
-      treadles: obj.treadles
+      treadles: obj.treadles,
+      ppi: obj.ppi
     }
 
     let loom_util = getLoomUtilByType(loom_settings.type);
@@ -579,17 +638,21 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loadMostRecent(): Promise<any> {
 
+    console.log("LOADING MOST RECENT FILE");
+
     return this.fb.getMostRecentFileIdFromUser()
       .then(fileid => {
 
+        console.log("GOT FILE ID ", fileid);
         if (fileid !== null) {
 
           let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
           return Promise.all(fns)
             .then(res => {
+              console.log("GOT FILE ", res);
               const ada = <SaveObj>res[0];
               const meta = <FileMeta>res[1];
-
+              console.log("GOT FILE META ", meta);
               if (ada === undefined) {
                 return Promise.reject("no ada file found at specified file id")
               } else if (meta === undefined) {
@@ -620,13 +683,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
 
-  insertPasteFile(result: LoadResponse) {
-    this.processFileData(result.data, 'paste').then(data => {
+  insertPasteFile(result: LoadResponse, originated_with_user: boolean) {
+    this.processFileData(result.data, 'paste').then(idmap => {
 
       //after we have processed the data, we need to now relink any images that were duplicated in the process. 
       let image_id_map = [];
       result.data.indexed_image_data.forEach(image => {
-        let media_item: IndexedColorImageInstance = this.media.duplicateIndexedColorImageInstance(image.id);
+        let media_item: MediaInstance = this.media.duplicateIndexedColorImageInstance(image.id);
         image_id_map.push({ from: image.id, to: media_item.id })
       })
 
@@ -642,7 +705,7 @@ export class AppComponent implements OnInit, OnDestroy {
             let entry = image_id_map.find(el => el.from == from);
 
             if (entry !== undefined) {
-              let img_instance = <IndexedColorImageInstance>this.media.getMedia(entry.to);
+              let img_instance = this.media.getMedia(entry.to);
               //this is just setting it locally, it needs to set the actual operation
               let op_node = this.tree.getOpNode(op.node_id);
               op_node.params[ndx] = { id: entry.to, data: img_instance.img };
@@ -652,10 +715,59 @@ export class AppComponent implements OnInit, OnDestroy {
         })
       })
 
-
+      if (originated_with_user) {
+        const change: MixerStatePasteEvent = {
+          originator: 'MIXER',
+          type: 'PASTE',
+          ids: idmap.map(el => el.cur_id)
+        }
+        this.ss.addStateChange(change);
+      }
       this.saveFile();
     }
     ).catch(console.error);
+  }
+
+
+  async deleteSelections() {
+
+    this.multiselect.copySelections().then(obj => {
+      const change: MixerStateDeleteEvent = {
+        originator: 'MIXER',
+        type: 'DELETE',
+        obj: obj
+      }
+      this.ss.addStateChange(change);
+
+      this.multiselect.selected.forEach(el => {
+        if (this.tree.getType(el.id) == 'op') {
+          this.mixer.palette.removeOperation(el.id);
+        } else if (this.tree.getType(el.id) == 'draft') {
+          this.mixer.palette.removeSubdraft(el.id);
+        }
+      })
+      this.saveFile();
+      this.multiselect.clearSelections();
+
+    })
+
+
+
+  }
+
+  undoPasteSelections(id_list: Array<number>) {
+
+
+    id_list.forEach(id => {
+      if (this.tree.getType(id) == 'op') {
+        this.mixer.palette.removeOperation(id);
+      } else if (this.tree.getType(id) == 'draft') {
+        this.mixer.palette.removeSubdraft(id);
+      }
+    })
+    this.saveFile();
+
+
   }
 
 
@@ -887,6 +999,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string): Promise<any> {
+    console.log("SOURCE ", source)
     this.ws.setCurrentFile(result.meta)
     this.filename_form.setValue(result.meta.name)
 
@@ -1024,17 +1137,21 @@ export class AppComponent implements OnInit, OnDestroy {
     //check to make sure something has been copied
     if (this.multiselect.copy == undefined) return;
 
-    this.multiselect.copy.then(ada => {
-
-      return this.fs.loader.paste(ada).then(lr => {
-        this.insertPasteFile(lr);
-      });
-    })
+    return this.fs.loader.paste(this.multiselect.copy).then(lr => {
+      this.insertPasteFile(lr, true);
 
 
+    });
+
+  }
+
+  onPasteSelectionsFromUndo(obj: SaveObj) {
+
+    return this.fs.loader.paste(obj).then(lr => {
+      this.insertPasteFile(lr, false);
 
 
-    this.multiselect.clearSelections();
+    });
 
   }
 
@@ -1133,7 +1250,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.material_modal = this.dialog.open(MaterialModal, { data: {} });
     this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
-      this.viewer.redraw(this.vs.getViewer());
+      this.vs.updateViewer();
       if (this.selected_editor_mode == 'mixer') this.mixer.redrawAllSubdrafts();
       else this.editor.redraw();
       this.saveFile();
@@ -1316,18 +1433,20 @@ export class AppComponent implements OnInit, OnDestroy {
     this.clearAll();
     return this.fs.loader.ada(ada, meta, src).then(lr => {
       return this.loadNewFile(lr, 'prepAndLoad');
-    });
+    }).catch(console.error);
   }
 
   /** 
    * Take a fileObj returned from the fileservice and process
    */
-  async processFileData(data: SaveObj, name: string): Promise<string | void> {
+  async processFileData(data: SaveObj, name: string): Promise<Array<{ prev_id: number, cur_id: number }>> {
 
+
+    let entry_mapping: Array<{ prev_id: number, cur_id: number }> = [];
+    console.log("PROCESSING FILE DATA", data);
     this.openLoadingAnimation(name)
 
 
-    let entry_mapping = [];
 
     // console.log("PROCESSING ", data)
 
@@ -1339,7 +1458,8 @@ export class AppComponent implements OnInit, OnDestroy {
       if (sameOrNewerVersion(data.version, '4.1.7')) {
         //LOAD THE NEW FILE OBJECT
         data.indexed_image_data.forEach(el => {
-          images_to_load.push({ id: el.id, ref: el.ref, data: { colors: el.colors, color_mapping: el.color_mapping } });
+          const repeated_image = images_to_load.find(repeat_el => repeat_el.ref === el.ref);
+          if (repeated_image === undefined) images_to_load.push({ id: el.id, ref: el.ref, data: { colors: el.colors, color_mapping: el.color_mapping } });
         })
 
       } else {
@@ -1350,16 +1470,21 @@ export class AppComponent implements OnInit, OnDestroy {
           param_types.forEach((p, ndx) => {
             //older version stored the media object reference in the parameter
             if (p == 'file') {
-              let new_id = generateId(8);
-              images_to_load.push({ id: new_id, ref: op.params[ndx], data: null });
-              op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
+              const repeated_image = images_to_load.find(repeat_el => repeat_el.ref === op.params[ndx]);
+              if (repeated_image === undefined) {
+                let new_id = generateId(8);
+                images_to_load.push({ id: new_id, ref: op.params[ndx], data: null });
+                op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
+
+              } else {
+                op.params[ndx] = repeated_image.id;
+              }
             }
           });
         })
 
       }
     }
-
 
     return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
       //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
@@ -1372,6 +1497,7 @@ export class AppComponent implements OnInit, OnDestroy {
         return this.loadNodes(data.nodes)
       })
       .then(id_map => {
+        console.log("ID MAP", id_map);
         entry_mapping = id_map;
         // console.log(" LOADED TREE Nodes ", this.tree.nodes, id_map)
         return this.loadTreeNodes(id_map, data.tree);
@@ -1396,11 +1522,12 @@ export class AppComponent implements OnInit, OnDestroy {
             const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
             let ls: LoomSettings = {
-              frames: this.ws.min_frames,
-              treadles: this.ws.min_treadles,
-              epi: this.ws.epi,
-              units: this.ws.units,
-              type: this.ws.type
+              frames: this.ws.min_frames ?? defaults.loom_settings.frames,
+              treadles: this.ws.min_treadles ?? defaults.loom_settings.treadles,
+              epi: this.ws.epi ?? defaults.loom_settings.epi,
+              ppi: this.ws.ppi ?? defaults.loom_settings.ppi,
+              units: this.ws.units ?? defaults.loom_settings.units,
+              type: this.ws.type ?? defaults.loom_settings.type
             }
 
             if (draft_node !== undefined) {
@@ -1504,18 +1631,24 @@ export class AppComponent implements OnInit, OnDestroy {
         //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
         data.draft_nodes
           .forEach(np => {
-
             const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
-            const node = this.tree.getNode(new_id.cur_id);
-            if (node === undefined) return;
 
-            (<DraftNode>node).draft.gen_name = np.gen_name ?? 'drafty';
-            (<DraftNode>node).draft.ud_name = np.ud_name ?? '';
-            (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;
-            (<DraftNode>node).loom = (np.loom) ? copyLoom(np.loom) : null;
-            (<DraftNode>node).render_colors = np.render_colors ?? true;
-            (<DraftNode>node).visible = np.draft_visible ?? true;
-            (<DraftNode>node).scale = np.scale ?? 1
+            if (new_id !== undefined) {
+              const node = this.tree.getNode(new_id.cur_id);
+              if (node !== undefined) {
+                (<DraftNode>node).draft.gen_name = np.gen_name ?? 'drafty';
+                (<DraftNode>node).draft.ud_name = np.ud_name ?? '';
+                (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;
+                (<DraftNode>node).loom = (np.loom) ? copyLoom(np.loom) : null;
+                (<DraftNode>node).render_colors = np.render_colors ?? true;
+                (<DraftNode>node).visible = np.draft_visible ?? true;
+                (<DraftNode>node).scale = np.scale ?? 1
+              } else {
+                console.error("a node with the updated id was not found in the tree" + new_id);
+              }
+            } else {
+              console.error("a new id for node not found" + np.node_id);
+            }
           })
 
         this.tree.getOpNodes().forEach(op => {
@@ -1539,13 +1672,13 @@ export class AppComponent implements OnInit, OnDestroy {
         this.editor.renderChange();
 
 
-        return Promise.resolve('alldone')
+        return Promise.resolve(entry_mapping)
       })
-      .catch(e => {
+      .catch(err => {
         //TO DO ADD ERROR STATEMENT
         this.closeLoadingAnimation();
-        console.log("ERROR THOWN in process", e);
         this.clearAll();
+        return Promise.reject(err)
       });
 
 
@@ -1598,6 +1731,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fs.saver.ada()
       .then(so => {
         this.ss.writeStateToTimeline(so);
+        const nullppi = this.tree.getDraftNodes().filter(el => el.loom_settings.ppi === undefined);
+        console.log("SAVING FILE ", nullppi);
         return this.fb.updateFile(so.file, this.ws.current_file);
       })
       .catch(err => console.error(err));
@@ -1652,27 +1787,33 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   undo() {
 
+    this.ss.undo();
 
-    let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
-    if (so === null || so === undefined) return;
+    // this.fs.saver.ada()
+    //   .then(current_state => {
 
-    this.mixer.clearView();
-    this.editor.clearAll();
-    this.viewer.clearView();
-    this.tree.clear();
+    //     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
+    //     console.log(this.ss.compareState(so, current_state.file))
+    //     if (so === null || so === undefined) return;
 
-
-    this.fs.loader.ada(
-      so,
-      this.ws.current_file,
-      'undo'
-    ).then(lr => {
-      this.loadNewFile(lr, 'statechange');
+    //   });
 
 
-    }
+    // this.mixer.clearView();
+    // this.editor.clearAll();
+    // this.viewer.clearView();
+    // this.tree.clear();
 
-    );
+
+    // this.fs.loader.ada(
+    //   so,
+    //   this.ws.current_file,
+    //   'undo'
+    // ).then(lr => {
+    //   this.loadNewFile(lr, 'statechange');
+    // }
+
+
 
 
   }
@@ -1702,6 +1843,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * this emerges from the detail or simulation when something needs to trigger the mixer to update
    */
   updateMixer() {
+    this.mixer.redrawAllSubdrafts();
   }
 
   updateDraftName(id: any) {
@@ -1844,7 +1986,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const floating_label_padding = interpolate(pcent, { min: .6, max: 5 })
       const container_height = form_field_entry_size * 3;
       const inlet_outlet_height = form_field_entry_size * 2;
-      console.log("mixer zoom is ", floating_label_size)
+
       document.documentElement.style.setProperty('--scalable-text-heading-size', heading + 'rem');
       document.documentElement.style.setProperty('--form-field-entry-size', form_field_entry_size + 'rem');
       document.documentElement.style.setProperty('--floating-label-size', floating_label_size + 'rem');
@@ -1922,9 +2064,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   saveDraftAs(format: string) {
 
-    if (!this.vs.hasViewer()) return;
+    if (this.vs.getViewerId() === -1) return;
 
-    let draft: Draft = this.tree.getDraft(this.vs.getViewer());
+    let draft: Draft = this.tree.getDraft(this.vs.getViewerId());
     let b = this.bitmap.nativeElement;
 
     switch (format) {
@@ -1936,8 +2078,8 @@ export class AppComponent implements OnInit, OnDestroy {
         saveAsPrint(b, draft, visvars.use_floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
         break;
       case 'wif':
-        let loom = this.tree.getLoom(this.vs.getViewer());
-        let loom_settings = this.tree.getLoomSettings(this.vs.getViewer());
+        let loom = this.tree.getLoom(this.vs.getViewerId());
+        let loom_settings = this.tree.getLoomSettings(this.vs.getViewerId());
         saveAsWif(this.fs, draft, loom, loom_settings)
         break;
     }

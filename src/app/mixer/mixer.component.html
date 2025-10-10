@@ -42,7 +42,7 @@
         </mat-panel-title>
 
       </mat-expansion-panel-header>
-      <button mat-stroked-button color="primary" matTooltip="Blank Draft" (click)="createNewDraft()">
+      <button mat-stroked-button color="primary" matTooltip="Blank Draft" (click)="addDraftClicked()">
         + <i class="fas fa-chess-board"></i> add draft
       </button>
 
@@ -68,7 +68,7 @@
       <mat-form-field matNativeControl class="quickop_form is-fullwidth" appearance="fill" width='100%' color="primary">
         <mat-label><i class="fas fa-search"></i> search operations</mat-label>
 
-        <input type="text" placeholder="" (keyup.enter)="enter()" matInput [formControl]="myControl">
+        <input type="text" placeholder="" (keyup.enter)="enter()" matInput [formControl]="searchForm">
       </mat-form-field>
 
       <div>{{search_error}}</div>

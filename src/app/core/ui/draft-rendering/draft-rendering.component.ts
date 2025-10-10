@@ -3,7 +3,7 @@ import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { Subject, Subscription, fromEvent } from 'rxjs';
-import { CanvasList, RenderingFlags } from '../../model/datatypes';
+import { CanvasList, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { DesignmodesService } from '../../provider/designmodes.service';
 import { FileService } from '../../provider/file.service';
@@ -27,6 +27,7 @@ import { SelectionComponent } from './selection/selection.component';
 
 
 export class DraftRenderingComponent implements OnInit {
+
   private fs = inject(FileService);
   dm = inject(DesignmodesService);
   private ms = inject(MaterialsService);
@@ -38,6 +39,7 @@ export class DraftRenderingComponent implements OnInit {
   render = inject(RenderService);
   vs = inject(ViewerService);
   private zs = inject(ZoomService);
+  private state = inject(StateService);
 
 
   @ViewChild('bitmapImage') bitmap;
@@ -64,6 +66,7 @@ export class DraftRenderingComponent implements OnInit {
   colSystemMapping: Array<number> = [];
   rowSystemMapping: Array<number> = [];
 
+  before: DraftNodeState;
 
   mouse_pressed: boolean = false;
 
@@ -150,6 +153,7 @@ export class DraftRenderingComponent implements OnInit {
   weft_text_div_height: string = '1000px';
 
 
+
   /// ANGULAR FUNCTIONS
   /**
   * Creates the element reference.
@@ -165,6 +169,7 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   ngOnInit() {
+
 
   }
 
@@ -276,7 +281,7 @@ export class DraftRenderingComponent implements OnInit {
       return;
     }
 
-    let loom_settings = this.tree.getLoomSettings(id);
+    let loom_settings = this.tree.getLoomSettings(id) ?? defaults.loom_settings;
 
     const loom = this.tree.getLoom(id);
     if (loom == null) {
@@ -331,6 +336,7 @@ export class DraftRenderingComponent implements OnInit {
 
     if (this.view_only) return;
 
+
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -378,6 +384,9 @@ export class DraftRenderingComponent implements OnInit {
   */
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
+
+    this.before = this.tree.getDraftNodeState(this.id);
+
 
     //show this in the viewer
     this.vs.setViewer(this.id);
@@ -577,6 +586,9 @@ export class DraftRenderingComponent implements OnInit {
       this.selection.onSelectStop();
     }
 
+    if (event.type == 'mouseup') this.addStateChange(this.before);
+
+
   }
 
   /**
@@ -611,6 +623,18 @@ export class DraftRenderingComponent implements OnInit {
     return this.selection.hasSelection();
   }
 
+  private addStateChange(before: DraftNodeState) {
+    const after = this.tree.getDraftNodeState(this.id);
+    const change: DraftStateChange = {
+      originator: 'DRAFT',
+      type: 'VALUE_CHANGE',
+      id: this.id,
+      before: before,
+      after: after
+    }
+    this.state.addStateChange(change);
+  }
+
 
 
 
@@ -633,6 +657,8 @@ export class DraftRenderingComponent implements OnInit {
 
   incrementWeftMaterial(si: number) {
     const draft = this.tree.getDraft(this.id);
+
+
     if (this.dm.isSelectedPencil('material')) {
       draft.rowShuttleMapping[si] = this.selected_material_id;
     } else {
@@ -646,6 +672,8 @@ export class DraftRenderingComponent implements OnInit {
     this.rowShuttleMapping = draft.rowShuttleMapping;
     this.redrawAll();
     this.onMaterialChange.emit(draft);
+
+
 
   }
 
@@ -972,6 +1000,9 @@ export class DraftRenderingComponent implements OnInit {
     const loom = this.tree.getLoom(this.id)
     const loom_settings = this.tree.getLoomSettings(this.id);
 
+
+
+
     let flags = {
       drawdown: true,
       loom: true,
@@ -1236,6 +1267,9 @@ export class DraftRenderingComponent implements OnInit {
 
     if (this.view_only) return;
 
+    const before = this.tree.getDraftNodeState(this.id);
+
+
     const draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -1252,6 +1286,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
           this.rowShuttleMapping = draft.rowShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
+          this.addStateChange(before);
         })
     } else {
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
@@ -1259,7 +1294,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
           this.rowShuttleMapping = draft.rowShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
     }
 
@@ -1267,14 +1302,16 @@ export class DraftRenderingComponent implements OnInit {
 
   }
 
-  public afterSelectAction() {
+  public afterSelectAction(before: any) {
     const draft = this.tree.getDraft(this.id);
+    this.addStateChange(before);
     this.onDrawdownUpdated.emit(draft);
   }
 
   public cloneRow(i: number) {
 
     if (this.view_only) return;
+    const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -1293,7 +1330,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
           this.rowShuttleMapping = draft.rowShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
     } else {
       loom = utils.insertIntoTreadling(loom, i, loom.treadling[i].slice());
@@ -1303,7 +1340,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
           this.rowShuttleMapping = draft.rowShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
     }
 
@@ -1311,6 +1348,8 @@ export class DraftRenderingComponent implements OnInit {
 
   public deleteRow(i: number) {
     if (this.view_only) return;
+
+    const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -1330,7 +1369,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
           this.rowShuttleMapping = draft.rowShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
     } else {
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
@@ -1338,7 +1377,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
           this.rowShuttleMapping = draft.rowShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
     }
   }
@@ -1350,6 +1389,7 @@ export class DraftRenderingComponent implements OnInit {
   */
   public insertCol(j: number) {
     if (this.view_only) return;
+    const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
@@ -1367,7 +1407,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
           this.colShuttleMapping = draft.colShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
 
     } else {
@@ -1377,7 +1417,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
           this.colShuttleMapping = draft.colShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
 
     }
@@ -1386,6 +1426,7 @@ export class DraftRenderingComponent implements OnInit {
 
   public cloneCol(j: number) {
     if (this.view_only) return;
+    const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -1408,7 +1449,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
           this.colShuttleMapping = draft.colShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
 
     } else {
@@ -1419,7 +1460,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
           this.colShuttleMapping = draft.colShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
 
     }
@@ -1429,6 +1470,7 @@ export class DraftRenderingComponent implements OnInit {
 
   public deleteCol(j: number) {
     if (this.view_only) return;
+    const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -1447,7 +1489,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
           this.colShuttleMapping = draft.colShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
 
     } else {
@@ -1456,7 +1498,7 @@ export class DraftRenderingComponent implements OnInit {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, warp_systems: true, warp_materials: true });
           this.colShuttleMapping = draft.colShuttleMapping;
           this.onDrawdownUpdated.emit(draft);
-
+          this.addStateChange(before);
         })
 
     }

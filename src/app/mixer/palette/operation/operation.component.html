@@ -22,7 +22,9 @@
 
       <div class="operation-details">
         <div class="name no-text-select">{{displayname}}</div>
-
+        @if (ss.showComponentIds) {
+        <div class="debug-id">ID: {{id}}</div>
+        }
       </div>
 
 
