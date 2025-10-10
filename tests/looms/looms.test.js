@@ -1,5 +1,6 @@
 const convertTieupToLiftPlan = require('../../src/loom/loom').convertTieupToLiftPlan;
-
+const copyLoom = require('../../src/loom/loom').copyLoom;
+const initLoom = require('../../src/loom/loom').initLoom;
 
 
 test('testing loom conversion - shaft to direct', async () => {
@@ -27,4 +28,18 @@ test('testing loom conversion - shaft to direct', async () => {
     expect(converted_loom.tieup.length).toEqual(6);
     expect(converted_loom.tieup[0].length).toEqual(6);
 
+});
+
+
+test('testing copy loom', async () => {
+
+    const loom = initLoom(10, 10, 10, 10);
+    const copy_loom = copyLoom(loom);
+    expect(copy_loom.tieup).toEqual(loom.tieup);
+    expect(copy_loom.treadling).toEqual(loom.treadling);
+    expect(copy_loom.threading).toEqual(loom.threading);
+
+
+    const copy_null_loom = copyLoom(null);
+    expect(copy_null_loom).toEqual(null);
 });

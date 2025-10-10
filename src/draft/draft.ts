@@ -658,6 +658,92 @@ export const compressDraft = (draft: Draft): CompressedDraft => {
 }
 
 /**
+ * testing more compressed formats for storing the draft data. 
+ * each cell can be stored in two bits
+ *  0 0 - unset - 0
+ *  0 1 - unset - 1
+ *  1 0 - false - 2
+ *  1 1 - true - 3
+ * 
+ * An ClampedUInt has date of 1 byte each. So we can store 4 cells per byte. 
+ * @param drawdown 
+ * @returns 
+ */
+export const exportDrawdownToBitArray = (drawdown: Drawdown): Uint8ClampedArray => {
+  const arr: Array<number> = [];
+
+  let curval = 0;
+  let ticker = 0;
+
+  for (let i = 0; i < wefts(drawdown) * warps(drawdown); i++) {
+    ticker++;
+    curval = curval << 2; //push two 0 in from the left
+    const ndx_i = Math.floor(i / warps(drawdown));
+    const ndx_j = i % warps(drawdown);
+
+    switch (getCellValue(drawdown[ndx_i][ndx_j])) {
+      case null:
+        curval = curval | 0;
+        break;
+      case true:
+        curval = curval | 3;
+        break;
+      case false:
+        curval = curval | 2;
+        break;
+    }
+
+    if (ticker % 4 == 0) {
+      arr.push(curval);
+      curval = 0;
+    }
+  }
+
+  if (ticker % 4 != 0) {
+    while (ticker % 4 != 0) {
+      curval = curval << 2;
+      ticker++;
+    }
+    arr.push(curval);
+  }
+
+  return new Uint8ClampedArray(arr);
+}
+
+
+export const unpackDrawdownFromBitArray = (arr: Uint8ClampedArray, warps: number, wefts: number): Drawdown => {
+  const drawdown: Drawdown = createBlankDrawdown(wefts, warps);
+  const selector: Array<number> = [192, 48, 12, 3]; //11000000, 00110000, 00001100, 00000011
+  console.log(arr, arr.length);
+  for (let i = 0; i < arr.length; i++) {
+    const ddi = i * 4;
+    for (let j = 0; j < 4; j++) {
+      const ndx_i = Math.floor((ddi + j) / warps);
+      const ndx_j = (ddi + j) % warps;
+
+      if (ndx_i < wefts && ndx_j < warps) {
+        const val = (arr[i] & selector[j]) >> (6 - (j * 2)); // & to isolate the region, >> to make it only read as a 2 bit value
+        switch (val) {
+          case 0:
+            drawdown[ndx_i][ndx_j] = createCell(null);
+            break;
+          case 1:
+            drawdown[ndx_i][ndx_j] = createCell(null);
+            break;
+          case 2:
+            drawdown[ndx_i][ndx_j] = createCell(false);
+            break;
+          default:
+            drawdown[ndx_i][ndx_j] = createCell(true);
+            break;
+        }
+      }
+    }
+  }
+  return drawdown;
+}
+
+/**
  * used ot create compressed draft format for saving. Switched back to explore as flat array of numbers 
  * because exporting as unclamped array was not loading correctly when saved to file
  * @param drawdown 
