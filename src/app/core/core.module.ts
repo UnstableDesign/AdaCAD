@@ -12,18 +12,18 @@ import { ViewerService } from './provider/viewer.service';
 
 
 @NgModule({
-    exports: [],
-    imports: [],
-    providers: [
-        UploadService,
-        FileService,
-        VaeService,
-        PatternfinderService,
-        RenderService,
-        ViewerService,
-        ViewadjustService,
-        MediaService,
-        OperationService
-    ]
+	exports: [],
+	imports: [],
+	providers: [
+		UploadService,
+		FileService,
+		VaeService,
+		PatternfinderService,
+		RenderService,
+		ViewerService,
+		ViewadjustService,
+		MediaService,
+		OperationService
+	]
 })
 export class CoreModule { }

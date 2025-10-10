@@ -2171,18 +2171,8 @@ export class PaletteComponent implements OnInit {
   redrawAllSubdrafts() {
     const dns = this.tree.getDraftNodes();
     dns.forEach(dn => {
-      if (dn !== null && dn.component !== null) {
-        (<SubdraftComponent>dn.component).redrawExistingDraft();
-      } else {
-        let parent = this.tree.getSubdraftParent(dn.id);
-        let comp = this.tree.getComponent(parent);
-        if (comp !== null) {
-          (<OperationComponent>comp).redrawchildren++;
-        }
-
-      }
+      this.tree.broadcastDraftValueChange(dn.id);
     })
-
 
     this.redrawConnections();
 

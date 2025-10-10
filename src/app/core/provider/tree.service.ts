@@ -2,6 +2,7 @@ import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
 import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
+import { Subject } from 'rxjs';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
@@ -32,15 +33,6 @@ export class TreeService {
   private open_connection: number = -1;
 
 
-  /**
-   * generates an id from the timestamp and random number (to offset effects to two functions running in the same ms)
-   */
-  getUniqueId(): number {
-
-    return generateId(8);
-
-
-  }
 
   /**
    * go through the list of nodes being loaded and replace any with names that have been outdated.  
@@ -86,6 +78,14 @@ export class TreeService {
 
     return (err_ops.length === 0);
 
+  }
+
+  broadcastDraftValueChange(id: number) {
+    const node = this.getNode(id);
+    if (node.type === 'draft') {
+      const draft = (<DraftNode>node).draft;
+      (<DraftNode>node).onValueChange.next(draft);
+    }
   }
 
 
@@ -321,60 +321,21 @@ export class TreeService {
   loadNode(type: 'draft' | 'op' | 'cxn', id: number): { prev_id: number, cur_id: number } {
 
     let node: Node;
-
+    let new_id: number;
 
     switch (type) {
       case 'draft':
-        node = <DraftNode>{
-          type: type,
-          ref: null,
-          id: this.getUniqueId(),
-          component: null,
-          dirty: false,
-          draft: null,
-          loom: null,
-          loom_settings: null
-        }
-
-
+        new_id = this.createNode('draft', null, null);
         break;
       case 'op':
-
-        node = <OpNode>{
-          type: type,
-          ref: null,
-          id: this.getUniqueId(),
-          component: null,
-          dirty: false,
-          params: [],
-          inlets: [],
-          name: ''
-        }
+        new_id = this.createNode('op', null, null);
         break;
-      default:
-        node = {
-          type: type,
-          ref: null,
-          id: this.getUniqueId(),
-          component: null,
-          dirty: false,
-        }
+      case 'cxn':
+        new_id = this.createNode('cxn', null, null);
         break;
     }
 
-
-    this.nodes.push(node);
-
-    this.tree.push({
-      node: node,
-      parent: null,
-      outputs: [],
-      inputs: []
-    });
-
-
-
-    return { prev_id: id, cur_id: node.id };
+    return { prev_id: id, cur_id: new_id };
   }
 
 
@@ -570,9 +531,60 @@ export class TreeService {
   }
 
 
+  private createDraftNode(ref: ViewRef, component: SubdraftComponent, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, visible: boolean): DraftNode {
+
+
+    const valueChange = new Subject<Draft>();
+    const onValueChange$ = valueChange.asObservable();
+
+    const node: DraftNode = {
+      type: 'draft',
+      ref: ref,
+      id: generateId(8),
+      component: component,
+      dirty: false,
+      draft: draft,
+      loom: loom,
+      loom_settings: loom_settings,
+      render_colors: render_colors,
+      scale: scale,
+      visible: visible,
+      mark_for_deletion: false,
+      onValueChange: valueChange,
+      valueChange$: onValueChange$
+    }
+    return node;
+  }
+
+  createOpNode(ref: ViewRef, component: OperationComponent, name: string, params: Array<any>, inlets: Array<any>): OpNode {
+    const node: OpNode = {
+      type: 'op',
+      ref: ref,
+      id: generateId(8),
+      component: component,
+      inlets: inlets,
+      dirty: false,
+      params: params,
+      name: name
+    }
+    return node;
+  }
+
+  private createConnectionNode(ref: ViewRef, component: ConnectionComponent): Node {
+    const node: Node = {
+      type: 'cxn',
+      ref: ref,
+      id: generateId(8),
+      component: component,
+      dirty: false
+    }
+    return node;
+  }
+
 
   /**
    * create an node and add it to the tree (without relationships)
+   * THIS IS THE ONLY FUNCTION THAT IS ABLE TO CREATE NODES AND ADD THEM TO THE TREE
    * @param id a unique id for this component, ideally created by the viewCompomentRef 
    * @param type the type of component
    * @param component the compoenent instance
@@ -585,37 +597,13 @@ export class TreeService {
 
     switch (type) {
       case 'draft':
-        node = <DraftNode>{
-          type: type,
-          ref: ref,
-          id: this.getUniqueId(),
-          component: component,
-          dirty: false,
-          draft: null
-        }
+        node = this.createDraftNode(ref, <SubdraftComponent>component, null, null, null, false, 1, true);
         break;
       case 'op':
-        node = <OpNode>{
-          type: type,
-          ref: ref,
-          id: this.getUniqueId(),
-          component: component,
-          inlets: [],
-          dirty: false,
-          params: [],
-          name: ''
-        }
-
-
+        node = this.createOpNode(ref, <OperationComponent>component, '', [], []);
         break;
-      default:
-        node = {
-          type: type,
-          ref: ref,
-          id: this.getUniqueId(),
-          component: component,
-          dirty: false,
-        }
+      case 'cxn':
+        node = this.createConnectionNode(ref, <ConnectionComponent>component);
         break;
     }
 
@@ -1156,7 +1144,6 @@ export class TreeService {
 
     this.removeNodeTreeAssociations(node.id);
 
-    //remove all connections connecting to and from this node
     const ndx: number = this.getNodeIndex(id);
     const i: number = this.tree.findIndex(el => (el.node.id == id));
     this.tree.splice(i, 1);
@@ -1248,6 +1235,7 @@ export class TreeService {
           this.setDraftOnly(cxn_child[0], outputs[i].draft);
           if (outputs[i].loom !== undefined) this.setLoom(cxn_child[0], outputs[i].loom)
           if (outputs[i].loom_settings !== undefined) this.setLoomSettings(cxn_child[0], outputs[i].loom_settings)
+          this.broadcastDraftValueChange(cxn_child[0]);
           touched.push(cxn_child[0]);
 
         }
@@ -1286,6 +1274,7 @@ export class TreeService {
           let d = this.getDraft(id);
           d.gen_name = op.generateName(param_vals, inputs);
           const dn = <DraftNode>this.getNode(id);
+          this.broadcastDraftValueChange(id);
           dn.dirty = true;
         })
 
@@ -1901,6 +1890,7 @@ export class TreeService {
   getInwardConnectionProxies(node_id: number): Array<InwardConnectionProxy> {
     const node = <OpNode>this.getNode(node_id);
     if (node.type !== 'op') console.error("Get Inward Connections Called on Non-Op");
+    else return [];
     const proxies: Array<InwardConnectionProxy> = [];
     node.inlets.forEach((inlet, ndx) => {
       const inputs = this.getOpComponentInputs(node_id, ndx);
@@ -2188,6 +2178,8 @@ export class TreeService {
   exportDraftNodeProxiesForSaving(): Promise<Array<DraftNodeProxy>> {
 
 
+
+
     const objs: Array<any> = [];
 
     this.getDraftNodes().forEach(node => {
@@ -2285,7 +2277,7 @@ export class TreeService {
    */
   getNewDraftProxies(draft: Draft, preloaded: Array<number>) {
 
-    const id = this.getUniqueId();
+    const id = generateId(8);
     const node: NodeComponentProxy = {
       node_id: id,
       type: 'draft',

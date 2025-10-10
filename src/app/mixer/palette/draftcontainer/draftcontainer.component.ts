@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChild, inject } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
@@ -19,7 +19,7 @@ import { WorkspaceService } from '../../../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../../../core/ui/draft-rendering/draft-rendering.component';
 import { RenameComponent } from '../../../core/ui/rename/rename.component';
 
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { Subscription } from 'rxjs';
 import { StateService } from '../../../core/provider/state.service';
@@ -29,7 +29,7 @@ import { StateService } from '../../../core/provider/state.service';
   selector: 'app-draftcontainer',
   templateUrl: './draftcontainer.component.html',
   styleUrls: ['./draftcontainer.component.scss'],
-  imports: [MatButton, FormsModule, MatSliderModule, MatSliderThumb, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, DraftRenderingComponent]
+  imports: [MatButton, FormsModule, ReactiveFormsModule, MatSliderModule, MatSliderThumb, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, DraftRenderingComponent]
 })
 export class DraftContainerComponent implements AfterViewInit {
   private dialog = inject(MatDialog);
@@ -45,7 +45,6 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
   @Input() id;
-  @Input() dirty;
   @Input() hasParent;
   @Input() selecting_connection;
   @Output() connectionSelected = new EventEmitter();
@@ -63,7 +62,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
 
-  draft_cell_size: number = 40;
+  // draft_cell_size: number = 40;
 
   exceeds_size: boolean = false;
 
@@ -81,12 +80,16 @@ export class DraftContainerComponent implements AfterViewInit {
 
   local_zoom: number = 1;
 
+  // Reactive Forms control
+  localZoomForm: FormControl;
+
   current_view: string = 'draft';
 
   size_observer: any;
 
   showingIdChangeSubscription: Subscription;
 
+  draftValueChangeSubscription: Subscription;
 
 
   constructor() {
@@ -94,12 +97,15 @@ export class DraftContainerComponent implements AfterViewInit {
     //subscribe to id changes on the view service to update view if this is current selected
     this.showingIdChangeSubscription = this.vs.showing_id_change$.subscribe(data => {
       this.updateStyle(data);
-
     })
+
+
 
   }
 
   ngOnInit() {
+    // Initialize form control
+    this.localZoomForm = new FormControl(1);
 
   }
 
@@ -115,13 +121,30 @@ export class DraftContainerComponent implements AfterViewInit {
     this.local_zoom = this.tree.getDraftScale(this.id);
     this.draft_visible = this.tree.getDraftVisible(this.id);
 
+    // Subscribe to form control value changes
+    this.localZoomForm.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.localZoomChange(value);
+      }
+    });
+
     this.draft_rendering.onNewDraftLoaded(this.id);
     this.drawDraft(draft);
     this.localZoomChange(this.local_zoom);
 
+    let node: DraftNode = this.tree.getNode(this.id) as DraftNode;
+    this.draftValueChangeSubscription = node.valueChange$.subscribe(draft => {
+      console.log("DRAFT VALUE CHANGED", draft);
+      this.drawDraft(draft);
+    });
+
+    console.log("AfterView Init Node is ", node);
+
     this.startSizeObserver();
 
   }
+
+
 
   rename(event) {
 
@@ -174,43 +197,46 @@ export class DraftContainerComponent implements AfterViewInit {
     if (this.showingIdChangeSubscription) {
       this.showingIdChangeSubscription.unsubscribe();
     }
+    if (this.draftValueChangeSubscription) {
+      this.draftValueChangeSubscription.unsubscribe();
+    }
     this.closeSizeObserver();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['dirty']) {
+  // ngOnChanges(changes: SimpleChanges) {
+  //   if (changes['dirty']) {
 
 
 
-      let draft = this.tree.getDraft(this.id);
-      this.draft_visible = this.tree.getDraftVisible(this.id);
+  //     let draft = this.tree.getDraft(this.id);
+  //     this.draft_visible = this.tree.getDraftVisible(this.id);
 
-      if (draft == undefined || draft == null) {
-        this.draft_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
-        this.warps = 0;
-        this.wefts = 0;
-      } else {
-        this.draft_name = this.tree.getDraftName(this.id);
-        this.warps = warps(draft.drawdown);
-        this.wefts = wefts(draft.drawdown);
-      }
-
-
+  //     if (draft == undefined || draft == null) {
+  //       this.draft_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
+  //       this.warps = 0;
+  //       this.wefts = 0;
+  //     } else {
+  //       this.draft_name = this.tree.getDraftName(this.id);
+  //       this.warps = warps(draft.drawdown);
+  //       this.wefts = wefts(draft.drawdown);
+  //     }
 
 
-      if (!changes['dirty'].firstChange) {
-        if (this.draft_rendering !== undefined && draft !== undefined && draft !== null) {
-          this.draft_name = this.tree.getDraftName(this.id);
-          this.draft_rendering.onNewDraftLoaded(this.id);
-          this.drawDraft(draft);
 
-        } else {
-          this.draft_rendering.clear();
-        }
 
-      }
-    }
-  }
+  //     if (!changes['dirty'].firstChange) {
+  //       if (this.draft_rendering !== undefined && draft !== undefined && draft !== null) {
+  //         this.draft_name = this.tree.getDraftName(this.id);
+  //         this.draft_rendering.onNewDraftLoaded(this.id);
+  //         this.drawDraft(draft);
+
+  //       } else {
+  //         this.draft_rendering.clear();
+  //       }
+
+  //     }
+  //   }
+  // }
 
 
   startSizeObserver() {
@@ -290,6 +316,9 @@ export class DraftContainerComponent implements AfterViewInit {
 
   drawDraft(draft: Draft): Promise<boolean> {
 
+
+    this.warps = warps(draft.drawdown);
+    this.wefts = wefts(draft.drawdown);
 
     if (!this.tree.getDraftVisible(this.id)) return Promise.resolve(false);
     if (this.draft_rendering == null || this.draft_rendering == undefined) return Promise.resolve(false);
@@ -394,6 +423,11 @@ export class DraftContainerComponent implements AfterViewInit {
     const dn = <DraftNode>this.tree.getNode(this.id);
     dn.scale = this.local_zoom;
     this.draft_rendering.rescale(dn.scale);
+
+    // Update the form control to reflect the new value
+    if (this.localZoomForm) {
+      this.localZoomForm.setValue(this.local_zoom, { emitEvent: false });
+    }
   }
 
 

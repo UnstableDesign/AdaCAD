@@ -103,10 +103,10 @@
       @for (child_id of children; track child_id) {
 
 
-      <app-draftcontainer class="draftrendering from_operation" [id]="child_id" [dirty]="redrawchildren"
-        [hasParent]="true" (connectionSelected)="connectionStarted($event)"
-        (onDuplicateCalled)="designActionChange($event)" (onDeleteCalled)="designActionChange($event)"
-        (onDrawdownSizeChanged)="updateOutboundConnections($event)" (onNameChanged)="nameChanged($event)">
+      <app-draftcontainer class="draftrendering from_operation" [id]="child_id" [hasParent]="true"
+        (connectionSelected)="connectionStarted($event)" (onDuplicateCalled)="designActionChange($event)"
+        (onDeleteCalled)="designActionChange($event)" (onDrawdownSizeChanged)="updateOutboundConnections($event)"
+        (onNameChanged)="nameChanged($event)">
       </app-draftcontainer>
       }
     </div>

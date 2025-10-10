@@ -1,5 +1,6 @@
 import { ViewRef } from "@angular/core";
 import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, OpParamValType, SingleImage } from "adacad-drafting-lib";
+import { Observable, Subject } from "rxjs";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
 import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
@@ -40,12 +41,18 @@ export type OpNode = BaseNode & {
 }
 
 
-/**
-* a DraftNode is an extension of BaseNode that includes additional params
-* @param draft the active draft at this node
-* @param loom the loom associated with the draft at this node
-* @param loom_settings the settings associted with the loom at this node
-*/
+/***
+ * a DraftNode is an extension of BaseNode that includes additional params
+ * @param draft the active draft at this node
+ * @param loom the loom associated with the draft at this node
+ * @param loom_settings the settings associated with the loom at this node
+ * @param render_colors whether to render the colors of the draft
+ * @param scale the local zoom of the draft to use on the mixer
+ * @param visible whether the draft is visible on the mixer
+ * @param mark_for_deletion whether the draft is marked for deletion
+ * @param onValueChange a subject to emit the draft when it changes
+ * @param valueChange$ an observable to subscribe to the draft when it changes
+ */
 export type DraftNode = BaseNode & {
   draft: Draft,
   loom: Loom,
@@ -53,7 +60,9 @@ export type DraftNode = BaseNode & {
   render_colors: boolean,
   scale: number,
   visible: boolean,
-  mark_for_deletion: boolean
+  mark_for_deletion: boolean,
+  onValueChange: Subject<Draft>,
+  valueChange$: Observable<Draft>
 }
 
 

@@ -110,6 +110,7 @@ export class RenderService {
       return Promise.resolve('rowShuttleMapping or rowSystemMapping null in drawWeftData')
     } else {
 
+      console.log("Drawing weft data with cell size", cell_size)
 
       weft_systems_canvas.height = draft.rowSystemMapping.length * cell_size * pixel_ratio;
       weft_systems_canvas.width = defaults.draft_detail_cell_size * pixel_ratio

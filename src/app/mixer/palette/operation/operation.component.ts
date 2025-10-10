@@ -135,8 +135,6 @@ export class OperationComponent implements OnInit {
 
   color: string = '#000'
 
-  redrawchildren: number = 0; //changing this number will flag a redraw from the draft rendering child
-
   selecting_connection: boolean = false;
 
   offset: Point = null;
@@ -359,7 +357,9 @@ export class OperationComponent implements OnInit {
 
   updateChildren(children: Array<number>) {
     this.children = children;
-    this.redrawchildren++;
+    this.children.forEach(child => {
+      this.tree.broadcastDraftValueChange(child);
+    });
   }
 
   /**

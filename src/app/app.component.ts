@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPng, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -52,6 +52,7 @@ import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
+import { ScreenshotLayoutService } from './core/provider/screenshot-layout.service';
 
 @Component({
   selector: 'app-root',
@@ -83,6 +84,7 @@ export class AppComponent implements OnInit, OnDestroy {
   vs = inject(ViewerService);
   vers = inject(VersionService);
   zs = inject(ZoomService);
+  sls = inject(ScreenshotLayoutService);
   private zone = inject(NgZone);
   cdr = inject(ChangeDetectorRef);
   title = 'app';
@@ -152,8 +154,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.current_version = this.vers.currentVersion();
     this.editorModes = editor_modes;
     this.selected_editor_mode = defaults.editor;
-
-
 
     //subscribe to the connection event to see if we have access to the firebase database (and internet) 
     this.connectionSubscription = this.fb.connectionChangeEvent$.subscribe(data => {
@@ -290,6 +290,19 @@ export class AppComponent implements OnInit, OnDestroy {
   ngAfterViewInit() {
     this.recenterViews();
     this.updateTextSizing();
+
+    // Utility functions exposed on window for the screenshot generator script
+
+    // Load ADA file JSON directly
+    (window as any).loadAdaFileJson = async (adaSaveObjJson: SaveObj) => {
+      this.clearAll();
+
+      const loadResponse = await this.fs.loader.ada(adaSaveObjJson, { name: 'untitled', id: 0, desc: '', from_share: '' }, 'upload');
+      return this.loadNewFile(loadResponse, 'openFile');
+    };
+
+    // Zoom to fit with some margins, which are better for the screenshots
+    (window as any).zoomToFit = () => this.zoomToFit(true, 50);
   }
 
 
@@ -1864,7 +1877,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  zoomToFit() {
+  zoomToFit(useCentering = false, padding = 0) {
+
+    console.log(this.tree.tree);
 
     const view_window: HTMLElement = document.getElementById('scrollable-container');
     if (view_window === null || view_window === undefined) return;
@@ -1885,20 +1900,45 @@ export class AppComponent implements OnInit, OnDestroy {
 
       if (bounds == null) return;
 
+      // apply padding around bounds to prevent clipping
+      bounds.height += padding * 2;
+      bounds.width += padding * 2;
+      bounds.topleft.x -= padding;
+      bounds.topleft.y -= padding;
+
       let prior = this.zs.getMixerZoom();
-      this.zs.zoomToFitMixer(bounds, view_window.getBoundingClientRect());
+      const viewWindowRect = view_window.getBoundingClientRect();
+      this.zs.zoomToFitMixer(bounds, viewWindowRect);
       this.mixer.renderChange(prior);
 
-      //since bounds is in absolute terms (relative to the child div, we need to convert the top left into the scaled space)
+      const newZoomRatio = this.zs.getMixerZoom();
+
+      const boundsInPixels: Bounds = {
+        width: bounds.width * newZoomRatio,
+        height: bounds.height * newZoomRatio,
+        topleft: {
+          x: bounds.topleft.x * newZoomRatio,
+          y: bounds.topleft.y * newZoomRatio
+        }
+      }
+
+      const scrollDestination = { ...boundsInPixels.topleft };
+
+      if (useCentering) {
+        const surroundingWhitespace = {
+          width: viewWindowRect.width - boundsInPixels.width,
+          height: viewWindowRect.height - boundsInPixels.height,
+        };
+
+        scrollDestination.x -= surroundingWhitespace.width / 2;
+        scrollDestination.y -= surroundingWhitespace.height / 2;
+      }
+
       view_window.scroll({
-        top: bounds.topleft.y * this.zs.getMixerZoom(),
-        left: bounds.topleft.x * this.zs.getMixerZoom(),
+        top: scrollDestination.y,
+        left: scrollDestination.x,
         behavior: "instant",
-      })
-
-
-
-
+      });
 
     } else {
       // this.zs.zoomToFitEditor()
