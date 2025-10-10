@@ -165,7 +165,8 @@ export interface CompressedDraft {
   ud_name: string,
   warps: number;
   wefts: number;
-  compressed_drawdown: Array<number>,
+  super_compressed_drawdown?: Uint8ClampedArray,
+  compressed_drawdown?: Array<number>,
   rowShuttleMapping: Array<number>,
   rowSystemMapping: Array<number>,
   colShuttleMapping: Array<number>,
