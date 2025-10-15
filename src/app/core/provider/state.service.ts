@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Draft } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, MaterialsStateAction, MaterialsStateChange, MixerStateChangeEvent, MixerStateDeleteEvent, MixerStateMove, MixerStateMoveAction, MixerStatePasteAction, MixerStatePasteEvent, MixerStateRemoveAction, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
+import { ConnectionExistenceChange, ConnectionStateEvent, DraftExistenceChange, DraftStateAction, DraftStateChange, DraftStateEvent, DraftStateNameChange, FileMetaStateAction, FileMetaStateChange, MaterialsStateAction, MaterialsStateChange, MixerStateChangeEvent, MixerStateDeleteEvent, MixerStateMove, MixerStateMoveAction, MixerStatePasteAction, MixerStatePasteEvent, MixerStateRemoveAction, MoveAction, NodeAction, NoteAction, NoteStateChange, NoteStateMove, NoteValueChange, OpExistenceChanged, OpStateEvent, OpStateMove, OpStateParamChange, ParamAction, RenameAction, SaveObj, StateAction, StateChangeEvent } from '../model/datatypes';
 import { FileService } from './file.service';
 import { FirebaseService } from './firebase.service';
 import { TreeService } from './tree.service';
@@ -119,6 +119,15 @@ export class StateService {
   private mixerMoveUndoSubject = new Subject<MixerStateMoveAction>();
   mixerMoveUndo$ = this.mixerMoveUndoSubject.asObservable();
 
+
+  /**
+   * FILEMETA EVENTS
+   */
+  private fileMetaChangeUndoSubject = new Subject<FileMetaStateAction>();
+  fileMetaChangeUndo$ = this.fileMetaChangeUndoSubject.asObservable();
+
+
+
   constructor() {
 
 
@@ -157,7 +166,7 @@ export class StateService {
     if (this.fb.auth.currentUser != null) {
       this.fs.saver.ada()
         .then(so => {
-          return this.fb.updateFile(so.file, this.ws.current_file);
+          return this.fb.updateFile(so.file, this.ws.getCurrentFile());
         })
         .catch(err => console.error(err));
     }
@@ -359,6 +368,15 @@ export class StateService {
     }
   }
 
+  private handleFileMetaUndo(change: FileMetaStateChange) {
+    this.fileMetaChangeUndoSubject.next(<RenameAction>{
+      type: 'CHANGE',
+      id: (<FileMetaStateChange>change).id,
+      before: (<FileMetaStateChange>change).before,
+      after: (<FileMetaStateChange>change).after
+    });
+  }
+
 
 
   private handleUndo(change: StateChangeEvent) {
@@ -381,6 +399,9 @@ export class StateService {
         break;
       case 'MIXER':
         this.handleMixerUndo(<MixerStateChangeEvent>change);
+        break;
+      case 'FILEMETA':
+        this.handleFileMetaUndo(<FileMetaStateChange>change);
         break;
 
     }

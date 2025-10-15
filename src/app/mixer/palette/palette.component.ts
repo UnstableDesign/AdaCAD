@@ -1089,7 +1089,7 @@ export class PaletteComponent implements OnInit {
       originator: 'DRAFT',
       type: 'REMOVED',
       node: this.tree.getNode(id),
-      inputs: this.tree.getInwardConnectionProxies(id),
+      inputs: [],
       outputs: this.tree.getOutwardConnectionProxies(id)
     }
     this.ss.addStateChange(change);

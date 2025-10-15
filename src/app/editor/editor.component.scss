@@ -8,6 +8,12 @@
     flex-wrap: wrap;
 }
 
+
+.editor-scale-container {
+    display: flex;
+    transform-origin: left top;
+}
+
 .detail-sidebars {
     padding: 16px;
     flex: 0 0 275px;

@@ -600,7 +600,7 @@ export class RenderService {
             break;
         }
 
-        draft_cx.strokeStyle = "red";
+        draft_cx.strokeStyle = "#333333";
         draft_cx.lineWidth = 1;
         draft_cx.strokeRect(j * cell_size * pixel_ratio, i * cell_size * pixel_ratio, cell_size * pixel_ratio, cell_size * pixel_ratio);
         draft_cx.fillRect(j * cell_size * pixel_ratio, i * cell_size * pixel_ratio, cell_size * pixel_ratio, cell_size * pixel_ratio);

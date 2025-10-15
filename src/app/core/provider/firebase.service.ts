@@ -315,7 +315,6 @@ export class FirebaseService implements OnDestroy {
     })
 
 
-    //console.log("WRITING FILE DATA FOR ", meta, this.auth.currentUser)
 
     return this.writeFileData(meta.id, cur_state)
       .then(success => {
@@ -346,8 +345,8 @@ export class FirebaseService implements OnDestroy {
 
 
 
-  writeFileMetaData(meta: FileMeta): Promise<boolean> {
-
+  private writeFileMetaData(meta: FileMeta): Promise<boolean> {
+    console.log("WRITING FILEMETA  DATA FOR ", meta, this.auth.currentUser)
     let user_path = ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + meta.id);
 
 
@@ -364,12 +363,32 @@ export class FirebaseService implements OnDestroy {
       .catch(err => { return Promise.reject(err) })
   }
 
+
+  /**
+   * only called from filebrowser when we need to rename a file (that may not be our current file)
+   * @param meta 
+   * @returns 
+   */
+  renameUserFile(meta: FileMeta): Promise<boolean> {
+    let user_path = ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + meta.id);
+
+
+    if (meta.from_share == undefined || meta.from_share == null) meta.from_share = '';
+
+    return update(user_path, {
+      name: meta.name,
+    })
+      .then(success => { return Promise.resolve(true) })
+      .catch(err => { return Promise.reject(err) })
+  }
+
+
   /**
  * usually called after new data is written, this updates the time at which the file was updated and makes sure the current file id is the one that is saved as the last file opened. 
  * @param fileid 
  * @returns 
  */
-  updateSaveTime(fileid: number): Promise<boolean> {
+  private updateSaveTime(fileid: number): Promise<boolean> {
 
     if (!this.auth.currentUser) return Promise.resolve(false);
 

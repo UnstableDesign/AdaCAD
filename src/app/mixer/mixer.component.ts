@@ -272,8 +272,6 @@ export class MixerComponent {
    * called when add new draft is clicked form the sidebar. 
    */
   addDraftClicked() {
-    console.log("ADD DRAFT CLICKED ", this.tree.nodes.slice());
-
 
     const dialogRef = this.dialog.open(BlankdraftModal);
 
@@ -286,8 +284,8 @@ export class MixerComponent {
 
 
       const draft = initDraftWithParams({ warps: obj.warps, wefts: obj.wefts });
-      const loom = initLoom(obj.warps, obj.wefts, this.ws.min_frames, this.ws.min_treadles);
       const loom_settings = this.ws.getWorkspaceLoomSettings();
+      const loom = loom_settings.type === 'jacquard' ? null : initLoom(obj.warps, obj.wefts, this.ws.min_frames, this.ws.min_treadles);
 
       this.palette.createSubDraft(draft, loom, loom_settings).then(instance => {
         const change: DraftExistenceChange = {

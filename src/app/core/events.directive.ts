@@ -86,7 +86,7 @@ export class EventsDirective {
     if (e.key == "s" && e.metaKey) {
       this.fs.saver.ada()
         .then(so => {
-          return this.fb.updateFile(so.file, this.ws.current_file);
+          return this.fb.updateFile(so.file, this.ws.getCurrentFile());
         })
         .catch(err => console.error(err));
       e.preventDefault();

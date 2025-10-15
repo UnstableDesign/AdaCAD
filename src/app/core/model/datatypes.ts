@@ -514,7 +514,7 @@ export interface DraftNodeState {
 
 
 export type StateChangeEvent = {
-  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'NOTE' | 'MATERIALS' | 'MIXER'
+  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'NOTE' | 'MATERIALS' | 'MIXER' | 'FILEMETA'
 }
 
 type MoveEvent = {
@@ -561,6 +561,14 @@ type DraftChangedEvent = {
   id: number,
   before: DraftNodeState,
   after: DraftNodeState
+}
+
+
+export type FileMetaStateChange = StateChangeEvent & {
+  type: 'NAME_CHANGE',
+  id: number,
+  before: string,
+  after: string
 }
 
 
@@ -636,6 +644,12 @@ export type MaterialsStateChange = StateChangeEvent & {
  */
 export type StateAction = {
   type: "CREATE" | "REMOVE" | "CHANGE",
+}
+
+export type FileMetaStateAction = StateAction & {
+  id: number,
+  before: string,
+  after: string
 }
 
 export type NoteAction = StateAction & {

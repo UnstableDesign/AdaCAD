@@ -379,6 +379,7 @@ export class DraftRenderingComponent implements OnInit {
   */
   setPosAndDraw(target: HTMLElement, shift: boolean, currentPos: Interlacement) {
 
+    console.log("IN SET POS")
     if (this.view_only) return;
 
 
@@ -413,6 +414,7 @@ export class DraftRenderingComponent implements OnInit {
     } else if (target && target.id === ('threading-' + this.source + '-' + this.id)) {
       if (editing_style == "loom") this.drawOnThreading(loom, loom_settings, currentPos);
     } else {
+      console.log("IN SET POS ELSE", editing_style, this.source, this.tree.hasParent(this.id))
       if (editing_style == "drawdown" || (this.source == 'mixer' && !this.tree.hasParent(this.id))) this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
     }
 
@@ -420,7 +422,7 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   handleMouseEvent(event: MouseEvent, currentPos: Interlacement) {
-    // determine action based on brush type. invert inactive on move.
+
     switch (this.draft_edit_mode) {
       case 'draw':
         switch (this.pencil) {
@@ -502,7 +504,6 @@ export class DraftRenderingComponent implements OnInit {
       j: screen_col, //col
     };
 
-
     this.handleMouseEvent(event, currentPos);
     if (event.target.localName === 'canvas') {
 
@@ -522,45 +523,6 @@ export class DraftRenderingComponent implements OnInit {
 
       // Save temp pattern
       this.tempPattern = draft.drawdown.slice();
-
-      console.log("on move called", this.draft_edit_mode, this.pencil)
-      switch (this.draft_edit_mode) {
-
-        case 'draw':
-
-          switch (this.pencil) {
-
-            case 'toggle':
-              this.setPosAndDraw(event.target, event.shiftKey, currentPos);
-              break;
-
-            case 'up':
-            case 'down':
-            case 'unset':
-            case 'material':
-              this.setPosAndDraw(event.target, event.shiftKey, currentPos);
-              this.flag_recompute = true;
-
-              break;
-          }
-
-
-
-          break;
-        case 'select':
-        case 'copy':
-
-          if (event.shiftKey) {
-            this.selection.onSelectDrag(currentPos);
-            this.selection.onSelectStop();
-          }
-          else this.selection.onSelectStart(event.target, currentPos);
-
-          break;
-        default:
-          break;
-      }
-
       this.lastPos = {
         i: currentPos.i, //row
         j: currentPos.j //col
@@ -618,7 +580,6 @@ export class DraftRenderingComponent implements OnInit {
 
   updateConnectedDraftComponents(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
 
-    console.log("updateConnectedDraftComponents", this.draft_edit_source)
     if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
@@ -835,7 +796,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
     if (hasCell(draft.drawdown, currentPos.i, currentPos.j)) {
-
       // Set the heddles based on the brush.
       switch (this.pencil) {
         case 'up':
@@ -864,6 +824,7 @@ export class DraftRenderingComponent implements OnInit {
           break;
       }
 
+      this.tree.setDraftOnly(this.id, draft);
       this.redraw(draft, null, loom_settings, { drawdown: true });
 
 
@@ -1140,6 +1101,7 @@ export class DraftRenderingComponent implements OnInit {
       this.refreshWarpAndWeftSystemNumbering();
       this.refreshOriginMarker();
       this.selection.redraw();
+
 
       return Promise.resolve(res);
     })

@@ -1,9 +1,10 @@
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewEncapsulation, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
@@ -23,7 +24,7 @@ import { ShareComponent } from '../share/share.component';
   templateUrl: './filebrowser.component.html',
   styleUrls: ['./filebrowser.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatDialogTitle, CdkDrag, CdkDragHandle, MatButton, MatDialogClose, CdkScrollable, MatDialogContent, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, MatFormField, MatLabel, MatInput, FormsModule, MatIconButton, MatSuffix, MatDialogActions]
+  imports: [MatDialogTitle, MatExpansionModule, CdkDrag, CdkDragHandle, MatButton, MatDialogClose, CdkScrollable, MatDialogContent, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatIconButton, MatSuffix, MatDialogActions]
 })
 export class FilebrowserComponent implements OnInit, OnDestroy {
   ws = inject(WorkspaceService);
@@ -31,6 +32,7 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   fb = inject(FirebaseService);
   private dialog = inject(MatDialog);
   data = inject(MAT_DIALOG_DATA);
+  private fb_form = inject(FormBuilder);
 
   private _snackBar = inject(MatSnackBar);
 
@@ -43,7 +45,7 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
 
 
   rename_mode_id = -1;
-  rename_file_name = "";
+  renameForm: FormGroup;
 
 
   has_db_connection = false;
@@ -59,11 +61,17 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   user_files = [];
   userFileSubscription: Subscription;
 
+
+  onFileOpenSubscription: Subscription;
+
   currently_open_id: number = -1;
 
 
   constructor() {
-
+    // Initialize the reactive form
+    this.renameForm = this.fb_form.group({
+      fileName: ['', [Validators.required, Validators.minLength(1)]]
+    });
 
     this.dbSubscription = this.fb.connectionChangeEvent$.subscribe(status => {
       this.has_db_connection = status;
@@ -79,8 +87,13 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
 
     this.userFileSubscription = this.fb.userFilesChangeEvent$.subscribe(curfiles => {
       this.user_files = (curfiles) ? curfiles.user : [];
-
     })
+
+    this.onFileOpenSubscription = this.ws.onFileOpen$.subscribe(meta => {
+      this.currently_open_id = meta.id;
+    })
+
+
 
 
 
@@ -89,11 +102,8 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
-
-    this.user_files = this.fb.file_list.user.slice();
-    this.shared_files = this.fb.file_list.shared.slice();
-    this.currently_open_id = this.ws.current_file.id ?? -1;
+    let cur = this.ws.getCurrentFile();
+    this.currently_open_id = (cur !== undefined) ? cur.id : -1;
 
   }
 
@@ -102,6 +112,7 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
     this.authSubscription.unsubscribe();
     this.sharedFileSubscription.unsubscribe();
     this.userFileSubscription.unsubscribe();
+    this.onFileOpenSubscription.unsubscribe();
   }
 
   shareWorkspace(file_id: number) {
@@ -158,34 +169,41 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
 
 
 
-
+  /**
+   * this enables renaming any file, not just the one that's open. 
+   * @param id 
+   */
   rename(id: number) {
     let file_to_rename = this.fb.file_list.user.find(el => el.id == id);
 
     if (file_to_rename !== undefined) {
 
       if (this.rename_mode_id !== -1) {
+        // Save the rename
+        if (this.renameForm.valid) {
+          const newFileName = this.renameForm.get('fileName')?.value;
 
+          const meta = this.fb.getFileMeta(file_to_rename.id)
+            .then(meta => {
+              meta.name = newFileName;
+              return this.fb.renameUserFile(meta);
 
-
-        const meta = this.fb.getFileMeta(file_to_rename.id)
-          .then(meta => {
-            meta.name = this.rename_file_name;
-            return this.fb.writeFileMetaData(meta);
-
-          })
-          .then(success => {
-            this.rename_mode_id = -1;
-            this.rename_file_name = '';
-          })
-          .catch(err => {
-            console.error(err);
-            this.rename_mode_id = -1;
-            this.rename_file_name = '';
-          })
-
+            })
+            .then(success => {
+              this.rename_mode_id = -1;
+              this.renameForm.reset();
+            })
+            .catch(err => {
+              console.error(err);
+              this.rename_mode_id = -1;
+              this.renameForm.reset();
+            })
+        }
       } else {
-        this.rename_file_name = file_to_rename.meta.name;
+        // Enter rename mode
+        this.renameForm.patchValue({
+          fileName: file_to_rename.meta.name
+        });
         this.rename_mode_id = id;
       }
     }

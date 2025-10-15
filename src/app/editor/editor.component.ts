@@ -314,11 +314,14 @@ export class EditorComponent implements OnInit {
   */
   loadDraft(id: number): Promise<any> {
 
-    if (id == -1) return Promise.reject("attempting to load a non-existant ID");
+    if (id == -1) return Promise.reject("attempting to load a non-existent ID");
 
     const draft = this.tree.getDraft(id);
     const loom = this.tree.getLoom(id);
     let ls = this.tree.getLoomSettings(id);
+
+
+
     const loom_fns = [];
 
     if (ls == null) {
@@ -353,10 +356,7 @@ export class EditorComponent implements OnInit {
 
 
 
-
-
-
-      if ((ls.type == 'jacquard' && this.dm.cur_draft_edit_source == 'loom') || loom === null) {
+      if ((ls.type == 'jacquard') || loom === null) {
         this.dm.selectDraftEditSource('drawdown');
         this.weaveRef.setDraftEditSource('drawdown');
       }
@@ -462,9 +462,6 @@ export class EditorComponent implements OnInit {
     if (loom_settings.type === 'jacquard') {
       this.dm.selectDraftEditSource('drawdown');
       this.weaveRef.setDraftEditSource('drawdown');
-    } else {
-      this.dm.selectDraftEditSource('loom');
-      this.weaveRef.setDraftEditSource('loom');
     }
 
     this.weaveRef.redrawAll();
@@ -650,6 +647,7 @@ export class EditorComponent implements OnInit {
     this.scale = this.zs.getEditorZoom();
     const container: HTMLElement = document.getElementById('editor-scale-container');
     container.style.transform = 'scale(' + this.scale + ')';
+    container.style.transformOrigin = 'left top';
     //this.weaveRef.scale = this.scale
     //this.weaveRef.setScale(this.scale);
 

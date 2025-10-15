@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { Bounds, DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Bounds, DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds, saveAsBmp, saveAsPng, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
@@ -27,6 +27,7 @@ import { MaterialsService } from './core/provider/materials.service';
 import { MediaService } from './core/provider/media.service';
 import { NotesService } from './core/provider/notes.service';
 import { OperationService } from './core/provider/operation.service';
+import { ScreenshotLayoutService } from './core/provider/screenshot-layout.service';
 import { StateService } from './core/provider/state.service';
 import { SystemsService } from './core/provider/systems.service';
 import { TreeService } from './core/provider/tree.service';
@@ -52,7 +53,6 @@ import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
-import { ScreenshotLayoutService } from './core/provider/screenshot-layout.service';
 
 @Component({
   selector: 'app-root',
@@ -234,13 +234,17 @@ export class AppComponent implements OnInit, OnDestroy {
       this.onPasteSelectionsFromUndo(action.obj);
     });
 
+    const fileMetaChangeUndoSubscription = this.ss.fileMetaChangeUndo$.subscribe(action => {
+      this.filename_form.setValue((<FileMetaStateAction>action).before, { emitEvent: false });
+    });
+
 
     this.stateSubscriptions.push(draftStateChangeSubscription);
     this.stateSubscriptions.push(draftStateNameChangeSubscription);
     this.stateSubscriptions.push(materialsUpdatedUndoSubscription);
     this.stateSubscriptions.push(mixerPasteUndoSubscription);
     this.stateSubscriptions.push(mixerDeleteUndoSubscription);
-
+    this.stateSubscriptions.push(fileMetaChangeUndoSubscription);
     this.scrollingSubscription = this.scroll
       .scrolled()
       .subscribe((data: any) => {
@@ -261,8 +265,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    this.filename_form = new UntypedFormControl(this.ws.current_file.name, [Validators.required]);
-    this.filename_form.valueChanges.forEach(el => { this.renameWorkspace(el.trim()) })
+    const name = this.ws.getCurrentFile().name;
+    this.filename_form = new UntypedFormControl(name, [Validators.required]);
+    this.filename_form.valueChanges.forEach(el => { })
 
     this.zoom_form = new UntypedFormControl(this.getActiveZoomIndex());
     this.zoom_form.valueChanges.subscribe(value => {
@@ -578,9 +583,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   share() {
+    const fileid = this.ws.getCurrentFile().id;
     const dialogRef = this.dialog.open(ShareComponent, {
       width: '600px',
-      data: { fileid: this.ws.current_file.id }
+      data: { fileid }
     });
   }
 
@@ -606,9 +612,10 @@ export class AppComponent implements OnInit, OnDestroy {
       // break;
 
       case 'ada':
+        const filename = this.ws.getCurrentFile().name;
         this.fs.saver.ada().then(out => {
           link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
-          link.download = this.ws.current_file.name + ".ada";
+          link.download = filename + ".ada";
           link.click();
         })
         break;
@@ -908,7 +915,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
     this.ws.setCurrentFile(meta)
-    if (this.filename_form) this.filename_form.setValue(meta.name)
+    if (this.filename_form) this.filename_form.setValue(meta.name, { emitEvent: false })
     return Promise.resolve(true);
 
   }
@@ -937,7 +944,8 @@ export class AppComponent implements OnInit, OnDestroy {
       treadles: defaults.loom_settings.treadles
     }
 
-    if (this.filename_form) this.filename_form.setValue(this.ws.current_file.name)
+    const name = this.ws.getCurrentFile().name;
+    if (this.filename_form) this.filename_form.setValue(name)
 
     return this.generateBlankDraftAndPlaceInMixer(obj).then(id => {
       this.vs.setViewer(id);
@@ -1199,6 +1207,10 @@ export class AppComponent implements OnInit, OnDestroy {
   openAdaFiles(type: string) {
     if (this.filebrowser_modal != undefined && this.filebrowser_modal.componentInstance != null) return;
 
+
+    //make sure something is loaded in case we just close this
+    if (type == 'welcome') this.loadBlankFile()
+
     this.filebrowser_modal = this.dialog.open(FilebrowserComponent, {
       width: '600px',
       data: {
@@ -1206,13 +1218,13 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
 
+
     this.filebrowser_modal.componentInstance.onLoadFromDB.subscribe(event => {
       this.openSnackBar('loading file from database')
       this.loadFromDB(event)
         .catch(err => {
           console.error(err);
           this.openSnackBar('ERROR: we could not find this file in the database')
-          this.loadBlankFile()
         });
     });
 
@@ -1230,7 +1242,7 @@ export class AppComponent implements OnInit, OnDestroy {
         .catch(err => {
           this.openSnackBar('The most recent file could not be found:' + err)
           console.error(err);
-          this.loadBlankFile()
+          //this.loadBlankFile()
         })
     });
 
@@ -1729,7 +1741,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .then(so => {
         const nullppi = this.tree.getDraftNodes().filter(el => el.loom_settings.ppi === undefined);
         console.log("SAVING FILE ", nullppi);
-        return this.fb.updateFile(so.file, this.ws.current_file);
+        return this.fb.updateFile(so.file, this.ws.getCurrentFile());
       })
       .catch(err => console.error(err));
   }
@@ -1836,8 +1848,16 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   renameWorkspace(name: string) {
-    this.ws.current_file.name = name;
-    if (this.connection_state && this.user_auth_state) this.fb.writeFileMetaData(this.ws.current_file)
+    console.log("RENAMING WORKSPACE TO ", name)
+    this.filename_form.markAsPristine();
+    this.ss.addStateChange(<FileMetaStateChange>{
+      type: 'NAME_CHANGE',
+      id: this.ws.getCurrentFile().id,
+      before: this.ws.getCurrentFile().name,
+      after: name
+    });
+    this.ws.setCurrentFileName(name);
+
   }
 
 

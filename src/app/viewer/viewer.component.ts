@@ -223,8 +223,8 @@ export class ViewerComponent {
   }
 
   filenameChange() {
-    this.ws.current_file.name = this.filename;
-    this.fb.writeFileMetaData(this.ws.current_file);
+    this.ws.setCurrentFileName(this.filename);
+    //check for connection?
   }
 
 

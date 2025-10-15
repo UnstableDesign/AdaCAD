@@ -1,7 +1,9 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { LoomSettings } from 'adacad-drafting-lib';
+import { Subject } from 'rxjs';
 import { FileMeta } from '../model/datatypes';
 import { defaults } from '../model/defaults';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +45,7 @@ export class WorkspaceService {
   /*
   store information associated with the current file
   */
-  current_file: FileMeta = {
+  private current_file: FileMeta = {
     id: -1,
     name: 'no name',
     desc: '',
@@ -51,13 +53,27 @@ export class WorkspaceService {
 
   }
 
+  onFileOpen = new Subject<FileMeta>();
+  onFileOpen$ = this.onFileOpen.asObservable();
 
+  fb = inject(FirebaseService);
 
   constructor() { }
 
 
   public setCurrentFile(meta: FileMeta) {
+    console.log("SETTING CURRENT FILE ", meta)
     this.current_file = meta;
+    this.onFileOpen.next(meta);
+  }
+
+  public getCurrentFile(): FileMeta {
+    return this.current_file;
+  }
+
+  public setCurrentFileName(name: string) {
+    this.current_file.name = name;
+
   }
 
 

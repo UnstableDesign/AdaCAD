@@ -112,7 +112,7 @@
           <button mat-flat-button color="primary" [matMenuTriggerFor]="account"> Hi {{user_auth_name}} <i
               class="fa-solid fa-caret-down"></i> </button>
           <mat-menu #account="matMenu">
-            <button mat-menu-item (click)="openAdaFiles(false)">Manage Saved Files</button>
+            <button mat-menu-item (click)="openAdaFiles('load')">Manage Saved Files</button>
             <button mat-menu-item (click)="logout()">Log Off</button>
           </mat-menu>
           }
@@ -206,8 +206,14 @@
 
           <div class="footer-right">
             filename:
-            <input class="filename" [formControl]="filename_form" matInput placeholder="current filename">
+            <input class="filename" [formControl]="filename_form" (keyup.enter)="renameWorkspace(filename_form.value)"
+              matInput placeholder="current filename">
 
+            @if (filename_form.dirty) {
+            <button mat-raised-button color="primary" (click)="renameWorkspace(filename_form.value)">
+              Save
+            </button>
+            }
 
             <button mat-mini-fab [matMenuTriggerFor]="downloadMenu" matTooltip="download workspace" color="primary">
               <i class="fa-solid fa-download"></i>
