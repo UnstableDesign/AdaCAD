@@ -63,6 +63,28 @@ h4 {
 
 }
 
+.shared {
+    flex: 0 1 10%;
+    justify-content: flex-start;
+
+    .shared-link {
+        color: #1976d2;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: #1565c0;
+            text-decoration: underline;
+        }
+
+        .shared-icon {
+            font-size: 16px;
+        }
+    }
+}
+
 .filename {
     text-align: left;
     justify-content: flex-start;

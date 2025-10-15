@@ -915,7 +915,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
     this.ws.setCurrentFile(meta)
-    if (this.filename_form) this.filename_form.setValue(meta.name, { emitEvent: false })
+    if (this.filename_form) this.filename_form.setValue(meta.name)
     return Promise.resolve(true);
 
   }
@@ -1848,7 +1848,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   renameWorkspace(name: string) {
-    console.log("RENAMING WORKSPACE TO ", name)
     this.filename_form.markAsPristine();
     this.ss.addStateChange(<FileMetaStateChange>{
       type: 'NAME_CHANGE',

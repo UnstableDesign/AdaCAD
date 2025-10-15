@@ -61,6 +61,10 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   user_files = [];
   userFileSubscription: Subscription;
 
+  // Combined and sorted file list
+  all_files: any[] = [];
+  sortBy: 'name' | 'date' | 'shared' = 'date';
+  sortOrder: 'asc' | 'desc' = 'desc';
 
   onFileOpenSubscription: Subscription;
 
@@ -83,10 +87,12 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
 
     this.sharedFileSubscription = this.fb.sharedFilesChangeEvent$.subscribe(curfiles => {
       this.shared_files = (curfiles) ? curfiles.shared : [];
+      this.combineAndSortFiles();
     })
 
     this.userFileSubscription = this.fb.userFilesChangeEvent$.subscribe(curfiles => {
       this.user_files = (curfiles) ? curfiles.user : [];
+      this.combineAndSortFiles();
     })
 
     this.onFileOpenSubscription = this.ws.onFileOpen$.subscribe(meta => {
@@ -104,7 +110,87 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     let cur = this.ws.getCurrentFile();
     this.currently_open_id = (cur !== undefined) ? cur.id : -1;
+    this.combineAndSortFiles();
+  }
 
+  /**
+   * Combines user files and shared files into a single list with type indicators
+   */
+  combineAndSortFiles(): void {
+    const combinedFiles: any[] = [];
+
+    // Add user files with type indicator
+    this.user_files.forEach(file => {
+      combinedFiles.push({
+        ...file,
+        fileType: 'user',
+        displayName: file.meta.name || 'Unknown',
+        displayDate: file.meta.date,
+        sortDate: new Date(file.meta.date)
+      });
+    });
+
+    // Add shared files with type indicator
+    this.shared_files.forEach(file => {
+      combinedFiles.push({
+        ...file,
+        fileType: 'shared',
+        displayName: file.filename || 'Unknown',
+        displayDate: file.date,
+        sortDate: new Date(file.date || 0)
+      });
+    });
+
+    // Sort the combined list
+    this.all_files = this.sortFiles(combinedFiles);
+  }
+
+  /**
+   * Sorts files based on current sort criteria
+   */
+  sortFiles(files: any[]): any[] {
+    return files.sort((a, b) => {
+      let comparison = 0;
+
+      if (this.sortBy === 'name') {
+        comparison = a.displayName.localeCompare(b.displayName);
+      } else if (this.sortBy === 'date') {
+        comparison = a.sortDate.getTime() - b.sortDate.getTime();
+      } else if (this.sortBy === 'shared') {
+        comparison = a.fileType.localeCompare(b.fileType);
+      }
+
+      return this.sortOrder === 'desc' ? -comparison : comparison;
+    });
+  }
+
+  /**
+   * Changes the sort criteria and re-sorts the files
+   */
+  changeSort(criteria: 'name' | 'date'): void {
+    if (this.sortBy === criteria) {
+      // Toggle sort order if same criteria
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Set new criteria with default order
+      this.sortBy = criteria;
+      this.sortOrder = criteria === 'name' ? 'asc' : 'desc';
+    }
+    this.combineAndSortFiles();
+  }
+
+  /**
+   * Returns the appropriate menu reference for a file based on its type
+   */
+  getMenuForFile(file: any): string {
+    return file.fileType === 'user' ? 'userMenu' : 'sharedMenu';
+  }
+
+  /**
+   * Returns the URL for a shared file
+   */
+  getSharedFileUrl(fileId: number): string {
+    return defaults.share_url_base + fileId;
   }
 
   ngOnDestroy(): void {
