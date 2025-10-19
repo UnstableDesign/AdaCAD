@@ -64,7 +64,7 @@ const setNodeType = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood
     return cns;
 }
 
-const getNodeType = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>): CNType => {
+export const getNodeType = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>): CNType => {
     const cn = getCN(ndx, warps, cns);
     return cn.node_type
 }
@@ -88,7 +88,7 @@ const setMvZ = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>, mv
     return cns;
 }
 
-const getMvZ = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>): number => {
+export const getMvZ = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>): number => {
     const cn = getCN(ndx, warps, cns);
     return cn.mv.z;
 }
@@ -314,7 +314,7 @@ const getWeftFloat = (i: number, j: number, warps: number, cns: Array<ContactNei
     if (face == null || face == true) return null;
 
     //walk left
-    while (left == null && count < warps) {
+    while (left.id == -1 && count < warps) {
         const type = getNodeType({ i, j: j_adj, id: 0 }, warps, cns);
         if (type == 'ACN') {
             left = { i, j: j_adj, id: 0 };
@@ -328,7 +328,7 @@ const getWeftFloat = (i: number, j: number, warps: number, cns: Array<ContactNei
     let right: CNIndex = { i: -1, j: -1, id: -1 };
     count = 0;
     j_adj = j;
-    while (right == null && count < warps) {
+    while (right.id == -1 && count < warps) {
         const type = getNodeType({ i, j: j_adj, id: 1 }, warps, cns);
         if (type == 'ACN') {
             right = { i, j: j_adj, id: 1 };
@@ -485,8 +485,8 @@ const getWarpwiseRelationship = (float: CNFloat, attached: Array<CNFloat>): Arra
 
 /**
  * used when parsing the CN graph, this function looks at the next cell in some direction to determine if it should assign ACNs to any of it's edges. 
- * @param i 
- * @param j 
+ * @param i - the row index of the cell at which we are starting the search
+ * @param j - the col index of the cell we are starting the search at. 
  * @param wefts 
  * @param warps 
  * @param layer 
@@ -494,13 +494,13 @@ const getWarpwiseRelationship = (float: CNFloat, attached: Array<CNFloat>): Arra
  * @param cns 
  * @returns 
  */
-const getNextCellOnLayer = (i: number, j: number, wefts: number, warps: number, layer: number, direction: string, cns: Array<ContactNeighborhood>): { i: number, j: number } | null => {
+export const getNextCellOnLayer = (i: number, j: number, wefts: number, warps: number, layer: number, direction: string, cns: Array<ContactNeighborhood>): { i: number, j: number } | null => {
     const i_base = i;
     const j_base = j;
 
     switch (direction) {
         case "above":
-            for (let i_offset = 0; i_offset < wefts; i_offset++) {
+            for (let i_offset = 1; i_offset < wefts - 1; i_offset++) {
                 const i_adj = modStrict(i_base - i_offset, wefts);
                 if (getMvZ({ i: i_adj, j, id: 0 }, warps, cns) == layer) {
                     return { i: i_adj, j }
@@ -509,7 +509,7 @@ const getNextCellOnLayer = (i: number, j: number, wefts: number, warps: number, 
             return null;
 
         case "below":
-            for (let i_offset = 0; i_offset < wefts; i_offset++) {
+            for (let i_offset = 1; i_offset < wefts - 1; i_offset++) {
                 const i_adj = modStrict(i_base + i_offset, wefts);
                 if (getMvZ({ i: i_adj, j, id: 0 }, warps, cns) == layer) {
                     return { i: i_adj, j }
@@ -519,7 +519,7 @@ const getNextCellOnLayer = (i: number, j: number, wefts: number, warps: number, 
 
 
         case "left":
-            for (let j_offset = 0; j_offset < warps; j_offset++) {
+            for (let j_offset = 1; j_offset < warps - 1; j_offset++) {
                 const j_adj = modStrict(j_base - j_offset, warps);
                 if (getMvZ({ i, j: j_adj, id: 0 }, warps, cns) == layer) {
                     return { i, j: j_adj }
@@ -529,7 +529,7 @@ const getNextCellOnLayer = (i: number, j: number, wefts: number, warps: number, 
 
 
         case "right":
-            for (let j_offset = 0; j_offset < warps; j_offset++) {
+            for (let j_offset = 1; j_offset < warps - 1; j_offset++) {
                 const j_adj = modStrict(j_base + j_offset, warps);
                 if (getMvZ({ i, j: j_adj, id: 0 }, warps, cns) == layer) {
                     return { i, j: j_adj }
@@ -545,14 +545,14 @@ const getNextCellOnLayer = (i: number, j: number, wefts: number, warps: number, 
 
 /**
  * given two faces (assuming two neighboring faces), this function determines what kind of node type should be assigned
- * @param f1 
- * @param f2 
+ * @param f1 - current face
+ * @param f2 - assumes this is "last face", which makes a difference!
  * @param ndx 
  * @param warps 
  * @param cns 
  * @returns 
  */
-const classifyNodeTypeBasedOnFaces = (f1: boolean | null, f2: boolean | null, ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
+export const classifyNodeTypeBasedOnFaces = (f1: boolean | null, f2: boolean | null, ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
     if (setAndOppositeFaces(f1, f2)) {
         cns = setNodeType(ndx, warps, cns, 'ACN');
     } else if (setAndSameFaces(f1, f2)) {
@@ -575,7 +575,7 @@ const classifyNodeTypeBasedOnFaces = (f1: boolean | null, f2: boolean | null, nd
  * @param j 
  * @param fs 
  */
-const getUntouchedFloatsInRange = (i: { l: number, r: number }, j: { l: number, r: number }, all_floats: Array<{ id: number, float: CNFloat; touched: boolean }>, wefts: number, warps: number, cns: Array<ContactNeighborhood>): Array<number> => {
+export const getUntouchedFloatsInRange = (i: { l: number, r: number }, j: { l: number, r: number }, all_floats: Array<{ id: number, float: CNFloat; touched: boolean }>, wefts: number, warps: number, cns: Array<ContactNeighborhood>): Array<number> => {
 
 
     const candidates: Array<CNFloat> = [];
@@ -595,7 +595,6 @@ const getUntouchedFloatsInRange = (i: { l: number, r: number }, j: { l: number, 
         for (let y = j.l; y <= j.r; y++) {
             const adj_i = modStrict(x, wefts);
             const adj_j = modStrict(y, warps);
-
             const weft = getWeftFloat(adj_i, adj_j, warps, cns);
             if (weft !== null) candidates.push(weft);
 
@@ -604,7 +603,6 @@ const getUntouchedFloatsInRange = (i: { l: number, r: number }, j: { l: number, 
 
         }
     }
-
     in_range = candidates.map(el => getFloatIndex(el, all_floats)).filter(el => el !== -1 && !all_floats[el].touched);
 
     return in_range;
@@ -619,24 +617,31 @@ const rowHasActiveCNs = (i: number, warps: number, cns: Array<ContactNeighborhoo
 
 }
 
+
 /**
  * This function will virtually "lift" the float specified. If this is a warp float, it will find any other warp floats or weft floats that cross over this warp in the range of limit (to the top/bottom) and mark them to be lifted. If it is a weft float, it will find any other weft floats or warp floats that cross over this weft and mark them to be lifted.
+ * 
+ * what happens, however, is as we start separating layers, the floats may "seem" farther apart because there are so many blanks in between. We need some way to 1 to be 1 nearest neighbors instead of 1 cell. 
  * @param float 
  * @param wefts 
  * @param warps 
  * @param cns 
  * @returns 
  */
-const getFloatsAffectedByLifting = (float: CNFloat, all_floats: Array<{ id: number, float: CNFloat; touched: boolean }>, wefts: number, warps: number, limit: number, cns: Array<ContactNeighborhood>) => {
+export const getFloatsAffectedByLifting = (id: number, all_floats: Array<{ id: number, float: CNFloat; touched: boolean }>, wefts: number, warps: number, limit: number, cns: Array<ContactNeighborhood>) => {
 
     let attached: Array<number> = [];
+    const float_with_id = all_floats.find(el => el.id == id);
+    if (float_with_id == undefined) return [];
+
+    const float = float_with_id.float;
 
     let i_range, j_range = null;
 
     if (float.face) {
         //this is warp facing.
 
-        if ((getWarpFloatLength(float, wefts) + limit * 2) >= wefts) {
+        if ((getWarpFloatLength(float, wefts) + (limit * 2)) >= wefts) {
             i_range = { l: 0, r: wefts - 1 };
 
         } else {
@@ -662,6 +667,7 @@ const getFloatsAffectedByLifting = (float: CNFloat, all_floats: Array<{ id: numb
 
     attached = getUntouchedFloatsInRange(i_range, j_range, all_floats, wefts, warps, cns);
     attached = <Array<number>>filterToUniqueValues(attached);
+    attached = attached.filter(el => el !== id); //filter out the float that called the function
     return attached;
 
 }
@@ -685,9 +691,18 @@ const unsetNodesAtIJ = (i: number, j: number, warps: number, cns: Array<ContactN
 
 }
 
+/**
+ * this function adjusts the CN Node Types based on what might happen between successive throws on the same weft (e.g. where will it catch the edge)
+ * @param pick_id the current pick we are pulling through
+ * @param j the current j index that we are checking 
+ * @param valid_picks a list of all the picks associated with this weft, that we have already seen, that are valid (e.g. they have at least one ACN)
+ * @param warps the number of warps
+ * @param right boolean to signify if we are moving left to right (false) or right to left (true). 
+ * @param cns 
+ * @returns the list of updated CNs and the next j index to check (if needed). Returns -1 if 
+ */
 const determineEdgeBehavior = (pick_id: number, j: number, valid_picks: Array<number>, warps: number, right: boolean, cns: Array<ContactNeighborhood>): { cns: Array<ContactNeighborhood>, next_j: number } => {
 
-    console.log("TOP IS ", pick_id)
 
     const directions = { left: { inc: 1, id: 0 }, right: { inc: -1, id: 1 } };
     const dir = (right) ? directions.right : directions.left;
@@ -698,20 +713,27 @@ const determineEdgeBehavior = (pick_id: number, j: number, valid_picks: Array<nu
     const bottom = valid_picks[modStrict(pick_id - 1, valid_picks.length)];
 
 
-    console.log("GET FACE OF ", { i: top, j, id: 0 })
     const top_f = getFace({ i: top, j, id: 0 }, warps, cns);
-    console.log("GET FACE OF ", { i: bottom, j, id: 0 })
     const bottom_f = getFace({ i: bottom, j, id: 0 }, warps, cns);
 
 
-    if (setAndSameFaces(top_f, bottom_f)) {
 
+
+    if (setAndSameFaces(top_f, bottom_f)) {
+        //  - or | 
+        //  - or |
+        //set both left and right to ECN
+        //continue the search with the next pair
         cns = unsetNodesAtIJ(top, j, warps, cns);
         cns = unsetNodesAtIJ(bottom, j, warps, cns);
 
-        return { cns, next_j: j - 1 };
+        return { cns, next_j: j + dir.inc };
 
     } else if (setAndOppositeFaces(top_f, bottom_f)) {
+        // - or |
+        // | or -
+        //if moving left-to-right the left side would be pulling out, so set these to ACNs suggesting they bind
+        //end the search
 
         cns = setNodeType({ i: top, j, id: dir.id }, warps, cns, 'ACN');
         cns = setNodeType({ i: bottom, j, id: dir.id }, warps, cns, 'ACN');
@@ -720,33 +742,46 @@ const determineEdgeBehavior = (pick_id: number, j: number, valid_picks: Array<nu
 
     } else if (top_f == null) {
 
+        // | (bottom = previous row, set and up ) 
+        // 0 (top = current row, unset which we interpret, in reality, this is interpreted as a heddle down )
+        //find the last place there was a set cell on the top row and set it to ACN
+
         if (bottom_f == true) {
             for (let search = j + dir.inc; search >= 0 && search < warps; search = search + dir.inc) {
-                console.log("SEARCHING", top, { i: top, j: search, id: 0 })
                 if (getFace({ i: top, j: search, id: 0 }, warps, cns) !== null) {
                     cns = setNodeType({ i: bottom, j: search, id: dir.id }, warps, cns, 'ACN');
                     return { cns, next_j: -1 };
                 }
             }
-
-            //I got to the end and it never found anything, just stop
             return { cns, next_j: -1 }
         }
         else if (bottom_f == false) {
+            // - (bottom = previous row, set and heddle down)
+            // 0 (top = unset)
+            // these are functionally the same in how they are rendered in the draft, so same rules as set and same apply
 
             cns = unsetNodesAtIJ(top, j, warps, cns);
             cns = unsetNodesAtIJ(bottom, j, warps, cns);
-            return { cns, next_j: j - 1 };
+            return { cns, next_j: j + dir.inc };
         }
         else {
-            return { cns, next_j: j - 1 };
+            return { cns, next_j: j + dir.inc };
         }
     } else if (bottom_f == null) {
+
+
         if (top_f) {
+            // 0 (bottom = previous row, unset)
+            // | (top = heddle lifted)
+            // the top edge will bind so set the ACN based on the direction and quit
             cns = setNodeType({ i: top, j, id: dir.id }, warps, cns, 'ACN');
             return { cns, next_j: -1 };
         } else {
+            // 0 (bottom = previous row, unset)
+            // _ (top = heddle lowered)
+            // these are functionally thee same so cancel out the nodes and keep searching
             cns = unsetNodesAtIJ(top, j, warps, cns)
+            cns = unsetNodesAtIJ(bottom, j, warps, cns) //we shouldn't need to do this, but just in case?
             return { cns, next_j: j + dir.inc };
         }
     } else {
@@ -1101,7 +1136,7 @@ const calcMVYValue = (i: number, i_start: number, mvy: number, z_map: Array<{ i:
  * @param dd 
  * @returns an initialized list of contact neighborhoods
  */
-const initContactNeighborhoods = (dd: Drawdown): Promise<Array<ContactNeighborhood>> => {
+export const initContactNeighborhoods = (dd: Drawdown): Promise<Array<ContactNeighborhood>> => {
     const width = warps(dd);
     const height = wefts(dd);
     const size = width * height * 4;
@@ -1177,8 +1212,19 @@ const packPicks = (wefts: number, warps: number, cns: Array<ContactNeighborhood>
 
 
 
-
-const updateCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number, sim: SimulationVars): Array<ContactNeighborhood> => {
+/**
+ * updates the list of CNS by assigning each CN values based on it's relationship in the draft. 
+ * if a CN has been assigned a layer it is ignored  
+ * specifically, it looks at every neighbor (by edge) of the cell and sees if it is the same or a different value
+ * if the edge borders differing values, it becomes an ACN, if not, it remains a VCN
+ * A PCN borders an unset?
+ * @param cns 
+ * @param wefts 
+ * @param warps 
+ * @param sim 
+ * @returns 
+ */
+export const updateCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number, sim: SimulationVars): Array<ContactNeighborhood> => {
     // console.log("UPDATE CNS ",)
 
     const regions = [
@@ -1193,8 +1239,10 @@ const updateCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number
             const layer = getMvZ({ i, j, id: 0 }, warps, cns);
 
             for (const region of regions) {
+
                 //find the next next acn above that shares the layer
-                const ij = getNextCellOnLayer(i + region.start_i, j + region.start_j, wefts, warps, layer, region.name, cns);
+                const ij = getNextCellOnLayer(i, j, wefts, warps, layer, region.name, cns)
+
                 if (ij == null) {
                     cns = setNodeType({ i, j, id: region.id }, warps, cns, 'ECN')
                 } else {
@@ -1234,7 +1282,7 @@ const updateCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number
 }
 
 
-const pullRows = (d: Draft, paths: Array<WeftPath>, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
+export const pullRows = (d: Draft, paths: Array<WeftPath>, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
 
     for (let i = 0; i < wefts(d.drawdown); i++) {
         const path = getWeftPath(paths, d.rowSystemMapping[i], d.rowShuttleMapping[i]);
@@ -1252,8 +1300,6 @@ const pullRows = (d: Draft, paths: Array<WeftPath>, cns: Array<ContactNeighborho
 /** checks this row against the last row of the same material and system type and sees if the edge will interlace. If not, it removes any ACNs that would be pulled out in this pic */
 export const pullRow = (i: number, wefts: number, warps: number, prev_i_list: Array<number>, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
 
-    console.log("PULLING ROW ", i, prev_i_list)
-
     if (prev_i_list.length == 0) return cns;
 
 
@@ -1261,10 +1307,12 @@ export const pullRow = (i: number, wefts: number, warps: number, prev_i_list: Ar
     const valid_pics = prev_i_list.filter(el => rowHasActiveCNs(el, warps, cns));
     const ndx = valid_pics.findIndex(el => el == i);
 
+
+
     if (ndx == -1) return cns;
 
     const direction = ndx % 2 == 1; //true means the previous row went from left to right
-    const starting_j = (direction) ? warps - 1 : 0;
+    const starting_j = (direction) ? warps - 1 : 0; //if true, we start on the right (where the last row ended)
 
     let obj: { cns: Array<ContactNeighborhood>, next_j: number } = determineEdgeBehavior(ndx, starting_j, valid_pics, warps, direction, cns);
     cns = obj.cns;
@@ -1273,6 +1321,7 @@ export const pullRow = (i: number, wefts: number, warps: number, prev_i_list: Ar
 
         obj = determineEdgeBehavior(ndx, obj.next_j, valid_pics, warps, direction, cns);
         cns = obj.cns;
+
     }
 
 
@@ -1280,6 +1329,14 @@ export const pullRow = (i: number, wefts: number, warps: number, prev_i_list: Ar
     // printYValues(cns, wefts, warps, false);
     printYValues(cns, wefts, warps, true);
     return cns;
+}
+
+
+export const printFloats = (floats: Array<{ id: number, float: CNFloat, touched: boolean }>) => {
+    for (const f of floats) {
+        const printstring = `FLOAT ${f.id} (${f.float.left.i}, ${f.float.left.j}) to (${f.float.right.i}, ${f.float.right.j}) ${f.touched ? "TOUCHED" : "NOT TOUCHED"}`;
+        console.log(printstring);
+    }
 }
 
 /**
@@ -1291,8 +1348,7 @@ export const pullRow = (i: number, wefts: number, warps: number, prev_i_list: Ar
 * @param sim 
 * @returns 
 */
-const isolateLayers = (wefts: number, warps: number, layer: number, cns: Array<ContactNeighborhood>, sim: SimulationVars): Array<ContactNeighborhood> => {
-
+export const isolateLayers = (wefts: number, warps: number, layer: number, cns: Array<ContactNeighborhood>, sim: SimulationVars): Array<ContactNeighborhood> => {
 
 
     //get weft floats; 
@@ -1329,7 +1385,6 @@ const isolateLayers = (wefts: number, warps: number, layer: number, cns: Array<C
     //internally recursive function that updates the float list
     function liftFloat(float: CNFloat, float_ndx: number) {
 
-
         const float_obj = floats_with_id[float_ndx];
 
         if (float_obj.touched == true) return;
@@ -1338,8 +1393,8 @@ const isolateLayers = (wefts: number, warps: number, layer: number, cns: Array<C
 
         let attached: Array<number> = [];
 
-        attached = getFloatsAffectedByLifting(float, floats_with_id, wefts, warps, sim.lift_limit, cns);
-
+        //*IMPORTANT: we need to lift the floats by the limit * the layer + 1 because as we go down layers, the spacing between each warp is wider (because it includes warps on other layers and thus, needs to be adjusted)
+        attached = getFloatsAffectedByLifting(float_ndx, floats_with_id, wefts, warps, (sim.lift_limit * (layer + 1)), cns);
 
         if (attached.length == 0) return;
 
@@ -1356,14 +1411,15 @@ const isolateLayers = (wefts: number, warps: number, layer: number, cns: Array<C
     liftFloat(floats[longest_warp.id], longest_warp.id);
 
 
-    console.log("**** LIFTING COMPLETE ****")
+    //console.log("**** LIFTING COMPLETE ****")
     for (const f of floats_with_id) {
         if (f.touched) {
             cns = setFloatZ(f.float, wefts, warps, layer, cns);
         }
     }
     cns = updateCNs(cns, wefts, warps, sim);
-    printLayerMap(cns, wefts, warps);
+    //printLayerMap(cns, wefts, warps);
+    //printCNs(cns, wefts, warps);
     return isolateLayers(wefts, warps, ++layer, cns, sim)
 }
 
@@ -1557,7 +1613,7 @@ const createVertex = (ndx: CNIndex, fell: number, d: Draft, cns: Array<ContactNe
  * initializes a list of vertexes for every unique system-material combination used in this draft
  * @param d 
  */
-const initWeftPaths = (d: Draft): Array<WeftPath> => {
+export const initWeftPaths = (d: Draft): Array<WeftPath> => {
 
     const weft_paths: Array<WeftPath> = [];
 
@@ -1575,7 +1631,13 @@ const initWeftPaths = (d: Draft): Array<WeftPath> => {
 }
 
 
-const parseWeftPaths = (d: Draft, paths: Array<WeftPath>): Array<WeftPath> => {
+/**
+ * populates the "pics" field of the weftPaths by mapping system/material combinations to the pics upon which they occur
+ * @param d the draft we are using to populate the WeftPaths
+ * @param paths the newly created (should be empty) list of weft paths
+ * @returns the paths with their 'pics' field updated. 
+ */
+export const parseWeftPaths = (d: Draft, paths: Array<WeftPath>): Array<WeftPath> => {
 
     for (let i = 0; i < wefts(d.drawdown); i++) {
         const material = d.rowShuttleMapping[i];
@@ -1945,19 +2007,59 @@ export const calcClothHeightOffsetFactor = (diam: number, radius: number, offset
 
 // DEBUGGING FUNCTIONS
 
-const printLayerMap = (cns: Array<ContactNeighborhood>, wefts: number, warps: number) => {
+export const printLayerMap = (cns: Array<ContactNeighborhood>, wefts: number, warps: number) => {
 
-    const layer_map = [];
+    let layer_map = "";
     for (let i = 0; i < wefts; i++) {
         const row = [];
         for (let j = 0; j < warps; j++) {
             row.push(getMvZ({ i, j, id: 0 }, warps, cns));
         }
-        layer_map.push(row);
+        //layer_map.push(row);
+        const row_as_string = row.join(" ");
+        layer_map += row_as_string + "\n";
     }
 
-    console.log("LAYER MAP ", layer_map)
+    console.log("LAYER MAP \n", layer_map)
 
+}
+
+
+
+export const printCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number) => {
+
+    //each CN should be printed as:
+    //  . A . 
+    //  V + P
+    //  . E .
+
+
+    let row_ln_1 = ""
+    let row_ln_2 = "";
+    let row_ln_3 = "";
+
+    for (let i = 0; i < wefts; i++) {
+        row_ln_1 = `  `;
+        row_ln_2 = `${i} `;
+        row_ln_3 = `  `;
+        for (let j = 0; j < warps; j++) {
+            let cn_l = getNodeType({ i, j, id: 0 }, warps, cns).substring(0, 1);
+            let cn_r = getNodeType({ i, j, id: 1 }, warps, cns).substring(0, 1);
+            let cn_t = getNodeType({ i, j, id: 2 }, warps, cns).substring(0, 1);
+            let cn_b = getNodeType({ i, j, id: 3 }, warps, cns).substring(0, 1);
+
+            if (cn_l == "P") cn_l = "-";
+            if (cn_r == "P") cn_r = "-";
+            if (cn_t == "P") cn_t = "|";
+            if (cn_b == "P") cn_b = "|";
+
+            row_ln_1 += `   ${cn_t}   `;
+            row_ln_2 += ` ${cn_l} + ${cn_r} `;
+            row_ln_3 += `   ${cn_b}   `;
+        }
+        console.log(row_ln_1 + "\n" + row_ln_2 + "\n" + row_ln_3 + "\n");
+
+    }
 }
 
 

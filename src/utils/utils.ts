@@ -706,3 +706,104 @@ export function makeValidSystemList(input_systems: SystemList, original_systems:
 
 
 }
+
+/**
+ * Parses a string representation of a drawdown into a Drawdown object.
+ * The string should contain rows separated by newlines, where each row contains:
+ * - '|' for heddle up (true)
+ * - '-' for heddle down (false) 
+ * - ' ' (space) for unset (null)
+ * @param drawdownString the string representation of the drawdown
+ * @returns a Drawdown object
+ */
+export function parseStringToDrawdown(drawdownString: string): Drawdown {
+  const { createCell } = require("../draft/cell");
+
+  const lines = drawdownString.split('\n');
+  const drawdown: Drawdown = [];
+
+  for (const line of lines) {
+    const row: Array<Cell> = [];
+    for (const char of line) {
+      switch (char) {
+        case '|':
+          row.push(createCell(true));
+          break;
+        case '-':
+          row.push(createCell(false));
+          break;
+        case ' ':
+          row.push(createCell(null));
+          break;
+        default:
+          // Skip unknown characters
+          break;
+      }
+    }
+    // Only add the row if it has at least one cell
+    if (row.length > 0) {
+      drawdown.push(row);
+    }
+  }
+
+  return drawdown;
+}
+
+/**
+ * Creates a draft from a string representation of a drawdown.
+ * @param drawdownString the string representation of the drawdown
+ * @param gen_name optional generated name for the draft
+ * @param ud_name optional user-defined name for the draft
+ * @returns a Draft object
+ */
+export function createDraftFromString(drawdownString: string, gen_name?: string, ud_name?: string): Draft {
+  const { initDraftFromDrawdown } = require("../draft/draft");
+
+  const drawdown = parseStringToDrawdown(drawdownString);
+  const draft = initDraftFromDrawdown(drawdown);
+
+  if (gen_name !== undefined) {
+    draft.gen_name = gen_name;
+  }
+  if (ud_name !== undefined) {
+    draft.ud_name = ud_name;
+  }
+
+  return draft;
+}
+
+/**
+ * Converts a drawdown back to a string representation.
+ * This is the reverse of parseStringToDrawdown.
+ * @param drawdown the drawdown to convert
+ * @returns a string representation where:
+ *   - '|' represents heddle up (true)
+ *   - '-' represents heddle down (false)
+ *   - ' ' (space) represents unset (null)
+ */
+export function printDrawdownAsString(drawdown: Drawdown): string {
+
+  const rows: string[] = [];
+
+  for (const row of drawdown) {
+    let rowString = '';
+    for (const cell of row) {
+      const value = getCellValue(cell);
+      switch (value) {
+        case true:
+          rowString += '|';
+          break;
+        case false:
+          rowString += '-';
+          break;
+        case null:
+        default:
+          rowString += ' ';
+          break;
+      }
+    }
+    rows.push(rowString);
+  }
+
+  return rows.join('\n');
+}

@@ -714,7 +714,6 @@ export const exportDrawdownToBitArray = (drawdown: Drawdown): Uint8ClampedArray 
 export const unpackDrawdownFromBitArray = (arr: Uint8ClampedArray, warps: number, wefts: number): Drawdown => {
   const drawdown: Drawdown = createBlankDrawdown(wefts, warps);
   const selector: Array<number> = [192, 48, 12, 3]; //11000000, 00110000, 00001100, 00000011
-  console.log(arr, arr.length);
   for (let i = 0; i < arr.length; i++) {
     const ddi = i * 4;
     for (let j = 0; j < 4; j++) {

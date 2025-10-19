@@ -330,3 +330,166 @@ test('testing generate id ', () => {
   expect(generateId(8)).toBeLessThan(100000000)
 
 });
+
+const { parseStringToDrawdown, createDraftFromString, printDrawdownAsString } = require('../../src/utils/utils.ts');
+
+test('testing parseStringToDrawdown', () => {
+  // Test basic parsing
+  const drawdownString = '|--|\n-||-';
+  const drawdown = parseStringToDrawdown(drawdownString);
+
+  expect(drawdown).toHaveLength(2);
+  expect(drawdown[0]).toHaveLength(4); // |--|
+  expect(drawdown[1]).toHaveLength(4); // -||-
+
+  // Test cell values for first row: |--|
+  expect(drawdown[0][0].is_set).toBe(true);
+  expect(drawdown[0][0].is_up).toBe(true);
+
+  expect(drawdown[0][1].is_set).toBe(true);
+  expect(drawdown[0][1].is_up).toBe(false);
+
+  expect(drawdown[0][2].is_set).toBe(true);
+  expect(drawdown[0][2].is_up).toBe(false);
+
+  expect(drawdown[0][3].is_set).toBe(true);
+  expect(drawdown[0][3].is_up).toBe(true);
+
+  // Test cell values for second row: -||-
+  expect(drawdown[1][0].is_set).toBe(true);
+  expect(drawdown[1][0].is_up).toBe(false);
+
+  expect(drawdown[1][1].is_set).toBe(true);
+  expect(drawdown[1][1].is_up).toBe(true);
+
+  expect(drawdown[1][2].is_set).toBe(true);
+  expect(drawdown[1][2].is_up).toBe(true);
+
+  expect(drawdown[1][3].is_set).toBe(true);
+  expect(drawdown[1][3].is_up).toBe(false);
+});
+
+test('testing parseStringToDrawdown with spaces (unset)', () => {
+  const drawdownString = '| -\n- |';
+  const drawdown = parseStringToDrawdown(drawdownString);
+
+  expect(drawdown).toHaveLength(2);
+  expect(drawdown[0]).toHaveLength(3); // |, space, -
+  expect(drawdown[1]).toHaveLength(3); // -, space, |
+
+  // Test cell values including spaces as unset
+  expect(drawdown[0][0].is_set).toBe(true);  // |
+  expect(drawdown[0][0].is_up).toBe(true);
+  expect(drawdown[0][1].is_set).toBe(false); // space (unset)
+  expect(drawdown[0][1].is_up).toBe(false);
+  expect(drawdown[0][2].is_set).toBe(true);  // -
+  expect(drawdown[0][2].is_up).toBe(false);
+
+  expect(drawdown[1][0].is_set).toBe(true);  // -
+  expect(drawdown[1][0].is_up).toBe(false);
+  expect(drawdown[1][1].is_set).toBe(false); // space (unset)
+  expect(drawdown[1][1].is_up).toBe(false);
+  expect(drawdown[1][2].is_set).toBe(true);  // |
+  expect(drawdown[1][2].is_up).toBe(true);
+});
+
+test('testing createDraftFromString', () => {
+  const drawdownString = '|-\n-|';
+  const draft = createDraftFromString(drawdownString, 'Test Draft', 'My Draft');
+
+  expect(draft.gen_name).toBe('Test Draft');
+  expect(draft.ud_name).toBe('My Draft');
+  expect(draft.drawdown).toHaveLength(2);
+  expect(draft.drawdown[0]).toHaveLength(2);
+  expect(draft.rowShuttleMapping).toHaveLength(2);
+  expect(draft.colShuttleMapping).toHaveLength(2);
+  expect(draft.rowSystemMapping).toHaveLength(2);
+  expect(draft.colSystemMapping).toHaveLength(2);
+});
+
+test('testing createDraftFromString with user example', () => {
+  const drawdownString = ' |  - - ';
+  const draft = createDraftFromString(drawdownString);
+
+  expect(draft.drawdown).toHaveLength(1);
+  expect(draft.drawdown[0]).toHaveLength(8); // space, |, space, space, -, space, -, space
+
+  // Test the specific pattern from user example (spaces as unset)
+  expect(draft.drawdown[0][0].is_set).toBe(false); // space (unset)
+  expect(draft.drawdown[0][0].is_up).toBe(false);
+  expect(draft.drawdown[0][1].is_set).toBe(true);  // |
+  expect(draft.drawdown[0][1].is_up).toBe(true);
+  expect(draft.drawdown[0][2].is_set).toBe(false); // space (unset)
+  expect(draft.drawdown[0][2].is_up).toBe(false);
+  expect(draft.drawdown[0][3].is_set).toBe(false); // space (unset)
+  expect(draft.drawdown[0][3].is_up).toBe(false);
+  expect(draft.drawdown[0][4].is_set).toBe(true);  // -
+  expect(draft.drawdown[0][4].is_up).toBe(false);
+  expect(draft.drawdown[0][5].is_set).toBe(false); // space (unset)
+  expect(draft.drawdown[0][5].is_up).toBe(false);
+  expect(draft.drawdown[0][6].is_set).toBe(true);  // -
+  expect(draft.drawdown[0][6].is_up).toBe(false);
+  expect(draft.drawdown[0][7].is_set).toBe(false); // space (unset)
+  expect(draft.drawdown[0][7].is_up).toBe(false);
+});
+
+test('testing printDrawdownAsString', () => {
+  // Test basic conversion
+  const drawdownString = '|--|\n-||-';
+  const drawdown = parseStringToDrawdown(drawdownString);
+  const resultString = printDrawdownAsString(drawdown);
+
+  expect(resultString).toBe('|--|\n-||-');
+});
+
+test('testing printDrawdownAsString with spaces', () => {
+  // Test conversion with unset cells (spaces)
+  const drawdownString = '| -\n- |';
+  const drawdown = parseStringToDrawdown(drawdownString);
+  const resultString = printDrawdownAsString(drawdown);
+
+  expect(resultString).toBe('| -\n- |');
+});
+
+test('testing printDrawdownAsString with user example', () => {
+  // Test the user example string
+  const drawdownString = ' |  - - ';
+  const drawdown = parseStringToDrawdown(drawdownString);
+  const resultString = printDrawdownAsString(drawdown);
+
+  expect(resultString).toBe(' |  - - ');
+});
+
+test('testing round-trip conversion (string -> drawdown -> string)', () => {
+  // Test that parseStringToDrawdown and printDrawdownAsString are inverse operations
+  const originalStrings = [
+    '|--|\n-||-',
+    '| -\n- |',
+    ' |  - - ',
+    '||--\n--||\n-||-',
+    '   \n|||\n   '
+  ];
+
+  for (const originalString of originalStrings) {
+    const drawdown = parseStringToDrawdown(originalString);
+    const resultString = printDrawdownAsString(drawdown);
+    expect(resultString).toBe(originalString);
+  }
+});
+
+test('testing printDrawdownAsString with empty drawdown', () => {
+  // Test with empty drawdown
+  const emptyDrawdown = [];
+  const resultString = printDrawdownAsString(emptyDrawdown);
+
+  expect(resultString).toBe('');
+});
+
+test('testing printDrawdownAsString with single row', () => {
+  // Test with single row
+  const drawdownString = '|- |';
+  const drawdown = parseStringToDrawdown(drawdownString);
+  const resultString = printDrawdownAsString(drawdown);
+
+  expect(resultString).toBe('|- |');
+});

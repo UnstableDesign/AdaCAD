@@ -588,7 +588,6 @@ export const convertTieupToLiftPlan = (loom: Loom, ls: LoomSettings): Loom => {
   const max_frames = Math.max(numFrames(loom), ls.frames);
   const max_treadles = Math.max(numTreadles(loom), ls.treadles);
   const size = Math.max(max_frames, max_treadles);
-  console.log("SIZE IS ", size, ls, loom)
 
   const converted: Loom = {
     threading: loom.threading.slice(),

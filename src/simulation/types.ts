@@ -7,7 +7,7 @@ import { MaterialsList } from "../material";
 
 /**
  * ACN - actual contact point
- * ECN - empty contact point
+ * ECN - empty contact point (weft is unset here)
  * PCN - potential contact point (there is a weft that float over this point)
  * VCN - virtual contact point (used only to draw ends of rows for sim when you want full width no matter what)
  */
