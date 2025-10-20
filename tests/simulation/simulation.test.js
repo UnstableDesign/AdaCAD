@@ -1,6 +1,4 @@
 
-import { call } from '../../src/operations';
-import { satin } from '../../src/operations';
 import { createMaterial } from '../../src/material';
 import { getDraftTopology, getNodeType, getMvZ } from '../../src/simulation/simulation';
 import { parseStringToDrawdown, filterToUniqueValues } from '../../src/utils/utils';
@@ -374,6 +372,7 @@ test('get untouched floats in range', async () => {
 
     const wefts = 8;
     const warps = 8;
+
     //get weft floats; 
     let floats = [];
 
@@ -576,45 +575,6 @@ test('isolate layers, two face twill', async () => {
 
 
 
-const parseDrawdown = require('../../src/simulation/simulation').parseDrawdown;
-test('test simulation parse drawdown', async () => {
-
-
-
-
-    const waffle_draft = initDraftFromDrawdown(waffle_dd);
-    const cns = await initContactNeighborhoods(waffle_dd);
-    // const parsed_cns = await parseDrawdown(waffle_draft, cns, sim)
-
-
-});
-
-
-
-
-
-
-test('testing getDraftTopology', async () => {
-
-    // const simVars = {
-    //     pack: 10,
-    //     lift_limit: 10,
-    //     use_layers: false,
-    //     warp_spacing: 5,
-    //     layer_spacing: 5,
-    //     wefts_as_written: false,
-    //     simulate: false,
-    //     radius: 5
-    // }
-
-    // const waffle_draft = initDraftFromDrawdown(waffle_dd)
-    // const topo = await getDraftTopology(waffle_draft, simVars);
-    // //expect(topo).not.toEqual([]);
-});
-
-
-
-
 const followTheWefts = require('../../src/simulation/simulation').followTheWefts;
 test('testing compute simdata', async () => {
 
@@ -633,10 +593,11 @@ test('testing compute simdata', async () => {
         ms: [material_a, material_b]
     }
 
-    const draft_list = await call(satin, [5, 2, false]);
-    const topo = await getDraftTopology(draft_list[0], simVars);
-    const wefts = await followTheWefts(draft_list[0], topo, simVars)
-    expect(wefts.vtxs).not.toEqual([])
+    const draft = initDraftFromDrawdown(waffle_dd);
+    const topo = await getDraftTopology(draft, simVars);
+    const vtxs = await followTheWefts(draft, topo, simVars);
+    console.log("VTXS ", vtxs[0].vtxs)
+    expect(vtxs[0].vtxs).not.toEqual([])
 
 })
 

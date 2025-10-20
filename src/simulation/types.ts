@@ -27,11 +27,20 @@ export type CNFloat = {
     edge: boolean
 }
 
+/**
+ * store information for ever possible point where a warp and weft can make contact
+ * face - the value of the heddle at this location
+ * node_type - the type of node this is (ACN, ECN, PCN, VCN)
+ * layer - the layer number associated with this ACN. 
+ * ndx - the index of this contact neighborhood
+ * isect - the index of the closest ACN that this weft will cross with. 
+ */
 export type ContactNeighborhood = {
     face: boolean | null,
     node_type: CNType,
-    mv: { y: number, z: number }
+    layer: number,
     ndx: CNIndex
+    isect: CNIndex | null
 }
 
 export type Vec3 = {
