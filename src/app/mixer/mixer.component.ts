@@ -535,9 +535,10 @@ export class MixerComponent {
 
   /**
    * Updates the canvas based on the weave view.
+   * @param old_zoom - optional previous zoom level for center-based zooming
    */
-  public renderChange() {
-    this.palette.rescale();
+  public renderChange(old_zoom?: number) {
+    this.palette.rescale(old_zoom);
   }
 
 

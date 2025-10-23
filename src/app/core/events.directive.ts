@@ -30,6 +30,7 @@ export class EventsDirective {
   @Output() onDrawModeChange: any = new EventEmitter();
   @Output() onExplode: any = new EventEmitter();
   @Output() onWindowResize: any = new EventEmitter();
+  @Output() onPan: any = new EventEmitter();
 
 
   @HostListener('window:resize', ['$event'])
@@ -46,26 +47,41 @@ export class EventsDirective {
   @HostListener('window:keydown', ['$event'])
   private keyEventDetected(e) {
 
+    // ignore arrow keys if user is in an input field
+    const isInputField = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;
+
+    // arrow key panning
+    if (!isInputField && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      const panAmount = 50; // pixels
+      const direction = {
+        'ArrowUp': { x: 0, y: -panAmount },
+        'ArrowDown': { x: 0, y: panAmount },
+        'ArrowLeft': { x: -panAmount, y: 0 },
+        'ArrowRight': { x: panAmount, y: 0 }
+      };
+      e.preventDefault();
+      this.onPan.emit(direction[e.key]);
+      return false;
+    }
 
     /**
-    * ZOOM IN 
+    * ZOOM IN
     */
-    if (e.key == "=" && e.metaKey) {
-
+    if ((e.key == "=" || e.key == "+") && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      e.stopPropagation();
       this.zoomIn.emit();
       return false;
-
-
-
     }
-    /**
-    *  ZOOM OUT 
-    */
-    if (e.key == "-" && e.metaKey) {
 
+    /**
+    *  ZOOM OUT
+    */
+    if ((e.key == "-" || e.key == "_") && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      e.stopPropagation();
       this.zoomOut.emit();
       return false;
-
     }
 
     /**
