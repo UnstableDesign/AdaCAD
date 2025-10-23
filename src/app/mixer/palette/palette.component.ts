@@ -1848,7 +1848,7 @@ export class PaletteComponent implements OnInit {
 
     // use spinY for zoom (normalized spin speed, good for zoom)
     // only zoom if we have enough spin to warrant a zoom step
-    const spinThreshold = 0.5;
+    const spinThreshold = 0.15;
     if (Math.abs(normalized.spinY) < spinThreshold) {
       return;
     }
