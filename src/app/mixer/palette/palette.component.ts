@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AnalyzedImage, Draft, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
+import normalizeWheel from 'normalize-wheel';
 import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
@@ -1827,6 +1828,7 @@ export class PaletteComponent implements OnInit {
 
   /**
    * Handles mouse wheel zoom with Ctrl/Cmd modifier, zooming at cursor position
+   * Uses normalize-wheel to handle cross-browser and touchpad/mouse differences
    * @param event - The wheel event
    */
   @HostListener('wheel', ['$event'])
@@ -1839,6 +1841,17 @@ export class PaletteComponent implements OnInit {
     const view_window: HTMLElement = document.getElementById('scrollable-container');
     const container: HTMLElement = document.getElementById('palette-scale-container');
     if (!view_window || !container) return;
+
+    // normalize wheel event across browsers and 
+    // input types (mouse vs touchpad)
+    const normalized = normalizeWheel(event);
+
+    // use spinY for zoom (normalized spin speed, good for zoom)
+    // only zoom if we have enough spin to warrant a zoom step
+    const spinThreshold = 0.5;
+    if (Math.abs(normalized.spinY) < spinThreshold) {
+      return;
+    }
 
     const zoom_before = this.zs.getMixerZoom();
 
@@ -1855,11 +1868,11 @@ export class PaletteComponent implements OnInit {
       y: (view_window.scrollTop + mousePos.y) / zoom_before
     };
 
-    // Zoom in/out based on wheel direction
-    if (event.deltaY < 0) {
-      this.zs.zoomInMixer();
-    } else {
+    const zoomOut = normalized.spinY > 0;
+    if (zoomOut) {
       this.zs.zoomOutMixer();
+    } else {
+      this.zs.zoomInMixer();
     }
 
     const zoom_after = this.zs.getMixerZoom();
