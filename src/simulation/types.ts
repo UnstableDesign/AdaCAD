@@ -20,11 +20,23 @@ export type CNIndex = {
     id: number
 }
 
+
+/**
+ * a float represents a warp or weft float within the cloth. In code, a float is anchored by two ACNs
+ * id: a unique id to this float (also within the float array)
+ * left: the left side or top edge of the float. weft float left id's will be 0, warp float left ids will be 2
+ * right: the right or bottom edge of the float. ids will be 1 for weft floats and 3 for warp floats. 
+ * face: the side upon which this float (warp floats are true, weft is false)
+ * edge: not sure
+ * blocking: a reference to the id of the float id that restricts the movement of this float down the cloth. 
+ */
 export type CNFloat = {
+    id: number,
     left: CNIndex,
     right: CNIndex,
     face: boolean | null,
-    edge: boolean
+    edge: boolean,
+    blocking: Array<number>
 }
 
 /**

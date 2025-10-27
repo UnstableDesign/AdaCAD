@@ -1,7 +1,7 @@
 
 import { createMaterial } from '../../src/material';
-import { getDraftTopology, getNodeType, getMvZ } from '../../src/simulation/simulation';
-import { parseStringToDrawdown, filterToUniqueValues } from '../../src/utils/utils';
+import { getDraftTopology, getNodeType, getLayer, getFloats } from '../../src/simulation/simulation';
+import { parseStringToDrawdown, filterToUniqueValues, printDrawdown } from '../../src/utils/utils';
 import { initDraftFromDrawdown, initDraftWithParams } from '../../src/draft';
 
 
@@ -370,22 +370,11 @@ test('get untouched floats in range', async () => {
     let cns = await initContactNeighborhoods(waffle_dd);
     cns = updateCNs(cns, 8, 8, sim);
 
-    const wefts = 8;
-    const warps = 8;
-
     //get weft floats; 
-    let floats = [];
-
-    for (let i = 0; i < wefts; i++) {
-        floats = floats.concat(getRowAsFloats(i, warps, cns).filter(float => !float.face));
-    }
-
-    for (let j = 0; j < warps; j++) {
-        floats = floats.concat(getColAsFloats(j, wefts, warps, cns).filter(float => float.face));
-    }
-
+    let floats = getFloats(8, 8, cns);
     const floats_with_id = floats.map((el, ndx) => { return { id: ndx, float: el, touched: false } });
 
+    printDrawdown(waffle_dd);
 
     let in_range = getUntouchedFloatsInRange({ l: 0, r: 0 }, { l: 0, r: 0 }, floats_with_id, 8, 8, cns);
     expect(in_range.length).toBe(1);
@@ -412,24 +401,10 @@ test('get floats affected by lifting', async () => {
     const warps = 8;
     let cns = await initContactNeighborhoods(waffle_dd);
     cns = updateCNs(cns, 8, 8, sim);
-
-
-    //get weft floats; 
-    let floats = [];
-
-    for (let i = 0; i < wefts; i++) {
-        floats = floats.concat(getRowAsFloats(i, warps, cns).filter(float => !float.face));
-    }
-
-    for (let j = 0; j < warps; j++) {
-        floats = floats.concat(getColAsFloats(j, wefts, warps, cns).filter(float => float.face));
-    }
-
-
-    floats = floats.filter(el => getMvZ(el.left, warps, cns) == 0);
+    let floats = getFloats(8, 8, cns);
+    floats = floats.filter(el => getLayer(el.left, warps, cns) == 0);
 
     const floats_with_id = floats.map((el, ndx) => { return { id: ndx, float: el, touched: false } });
-    // const lifted_floats = getFloatsAffectedByLifting(0, 8, 8, cns);
 
     //get Float 28, which should be the longest
     let float_28 = floats_with_id.find(el => el.id == 28);
@@ -488,11 +463,12 @@ test('isolate layers, single layer structure', async () => {
     //TEST ON A SINGLE LAYER STRUCTURE
     let cns = await initContactNeighborhoods(waffle_dd);
     cns = updateCNs(cns, 8, 8, sim);
-    cns = isolateLayers(8, 8, 1, cns, sim);
+    const floats = getFloats(8, 8, cns);
+    cns = isolateLayers(8, 8, floats, 1, cns, sim);
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            expect(getMvZ({ i, j, id: 0 }, 8, cns)).toBe(1);
+            expect(getLayer({ i, j, id: 0 }, 8, cns)).toBe(1);
         }
     }
 
@@ -513,12 +489,13 @@ test('isolate layers, three layer tabby', async () => {
     //TEST ON A SINGLE LAYER STRUCTURE
     let cns = await initContactNeighborhoods(a1b2_c3_d4_tabby_draft);
     cns = updateCNs(cns, 8, 8, sim);
-    cns = isolateLayers(8, 8, 1, cns, sim);
+    const floats = getFloats(8, 8, cns);
+    cns = isolateLayers(8, 8, floats, 1, cns, sim);
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            expect(getMvZ({ i, j, id: 0 }, 8, cns)).not.toBe(0);
-            expect(getMvZ({ i, j, id: 0 }, 8, cns)).not.toBeGreaterThan(3);
+            expect(getLayer({ i, j, id: 0 }, 8, cns)).not.toBe(0);
+            expect(getLayer({ i, j, id: 0 }, 8, cns)).not.toBeGreaterThan(3);
         }
     }
 
@@ -537,12 +514,13 @@ test('isolate layers, double basket', async () => {
     //TEST ON A SINGLE LAYER STRUCTURE
     let cns = await initContactNeighborhoods(a1_b2_basket_draft);
     cns = updateCNs(cns, 12, 12, sim);
-    cns = isolateLayers(12, 12, 1, cns, sim);
+    const floats = getFloats(12, 12, cns);
+    cns = isolateLayers(12, 12, floats, 1, cns, sim);
 
     for (let i = 0; i < 12; i++) {
         for (let j = 0; j < 12; j++) {
-            expect(getMvZ({ i, j, id: 0 }, 12, cns)).not.toBe(0);
-            expect(getMvZ({ i, j, id: 0 }, 12, cns)).not.toBeGreaterThan(2);
+            expect(getLayer({ i, j, id: 0 }, 12, cns)).not.toBe(0);
+            expect(getLayer({ i, j, id: 0 }, 12, cns)).not.toBeGreaterThan(2);
         }
     }
 
@@ -561,14 +539,138 @@ test('isolate layers, two face twill', async () => {
     //TEST ON A SINGLE LAYER STRUCTURE
     let cns = await initContactNeighborhoods(two_side_twill_draft);
     cns = updateCNs(cns, 8, 8, sim);
-    cns = isolateLayers(8, 8, 1, cns, sim);
+    const floats = getFloats(8, 8, cns);
+    cns = isolateLayers(8, 8, floats, 1, cns, sim);
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            expect(getMvZ({ i, j, id: 0 }, 8, cns)).not.toBe(0);
-            expect(getMvZ({ i, j, id: 0 }, 8, cns)).not.toBeGreaterThan(2);
+            expect(getLayer({ i, j, id: 0 }, 8, cns)).not.toBe(0);
+            expect(getLayer({ i, j, id: 0 }, 8, cns)).not.toBeGreaterThan(2);
         }
     }
+
+
+});
+
+
+const setFloatBlocking = require('../../src/simulation/simulation').setFloatBlocking;
+test('set float blocking', async () => {
+
+    //   [-  -  -]  x [ - - - -]    id: 0 (4,10)
+    //   [-  - ] X [-] X [- - -]    id: 1 (3,3),  2 (5,9)
+    //   [-] X [-] X [-] X [- -]    id: 3 (2,2), 4 (4, 4), 5 (6,8)
+    //   X  [-] X  X  X [-] X [-]   id: 6 (1, 1), 7 (5, 5), 8 (7, 7)
+    //   [-] X  X  X  X  X [-] X    id: 9 (0,0), 10 (6,6)
+    //   X [-]  X  X  X [-] X [-]   id: 11 (1,1) 12 (5,5), 13 (7, 7)
+    //  [-]  X [-] X [-] X [- -]    id: 14 (2,2), 15 (4, 4), 16 (6,8)
+    //   [-  - ] X [-] X [- - -]    id: 17 (3,3), 18 (5,9)
+
+    let sim = defaultSimVars;
+    sim.use_layers = true;
+    sim.lift_limit = 1;
+    let cns = await initContactNeighborhoods(waffle_dd);
+    cns = updateCNs(cns, 8, 8, sim);
+
+    printDrawdown(waffle_dd);
+
+    let floats = getFloats(8, 8, cns);
+    //something recursive is happening in here that we need to fix! 
+    floats = setFloatBlocking(8, 8, floats, cns);
+    console.log(floats.map(el => el.blocking))
+
+    //row 0 - 4-10, slides over everything
+    //TO DO: we need to consider if/how this would stack. Would it block on the row below it. It should block on 17
+    //maybe we need to invert and do the same? 
+    expect(floats[0].id).toBe(0);
+    expect(floats[0].blocking.length).toBe(0)
+
+    //row 1 - single cell at 3, blocks with float 0
+    expect(floats[1].id).toBe(1);
+    expect(floats[1].blocking).toStrictEqual([0])
+
+    //row 1 - 5-9, slides under 0 and stacks/blocks on 7
+    expect(floats[2].id).toBe(2);
+    expect(floats[2].blocking.length).toBe(0)
+
+    //row 1 - 2-2 blocks on both floats 1 and 2
+    expect(floats[3].id).toBe(3);
+    expect(floats[3].blocking).toContain(1)
+    expect(floats[3].blocking).toContain(2)
+
+
+
+});
+
+
+const getAttachedFloats = require('../../src/simulation/simulation').getAttachedFloats;
+test('get attached floats', async () => {
+    let sim = defaultSimVars;
+    sim.use_layers = true;
+    sim.lift_limit = 1;
+    let cns = await initContactNeighborhoods(waffle_dd);
+    cns = updateCNs(cns, 8, 8, sim);
+    let floats = getFloats(8, 8, cns);
+
+    let float_a = getWeftFloat(0, 0, 8, 8, floats);
+    let attached = getAttachedFloats(6, float_a, 8, floats)
+    expect(attached.length).toBe(3);
+
+    let float_b = getWeftFloat(1, 3, 8, 8, floats);
+    let attached_b = getAttachedFloats(0, float_b, 8, floats)
+    expect(attached_b.length).toBe(0);
+
+    let float_c = getWeftFloat(1, 5, 8, 8, floats);
+    let attached_c = getAttachedFloats(0, float_c, 8, floats)
+    expect(attached_c.length).toBe(1);
+
+
+
+})
+
+
+const getWeftFloat = require('../../src/simulation/simulation').getWeftFloat;
+test('get weft float', async () => {
+    let sim = defaultSimVars;
+    sim.use_layers = true;
+    sim.lift_limit = 1;
+    let cns = await initContactNeighborhoods(waffle_dd);
+    cns = updateCNs(cns, 8, 8, sim);
+    let floats = getFloats(8, 8, cns);
+
+    let float_a = getWeftFloat(0, 0, 8, 8, floats);
+    expect(float_a.left.i).toBe(0);
+    expect(float_a.left.j).toBe(4);
+
+    let float_b = getWeftFloat(-1, -1, 8, 8, floats);
+    expect(float_b.left.i).toBe(7);
+    expect(float_b.left.j).toBe(5);
+
+
+})
+
+const getFloatRelationships = require('../../src/simulation/simulation').getFloatRelationships;
+test('get float relationships', async () => {
+    let sim = defaultSimVars;
+    sim.use_layers = true;
+    sim.lift_limit = 1;
+    let cns = await initContactNeighborhoods(waffle_dd);
+    cns = updateCNs(cns, 8, 8, sim);
+
+    let floats = getFloats(8, 8, cns);
+    let float = getWeftFloat(0, 0, 8, 8, floats);
+    //something recursive is happening in here that we need to fix! 
+    for (let i = 1; i < 8; i++) {
+        reltns = getFloatRelationships(i, float, 8, 8, floats, cns);
+        expect(reltns.findIndex(el => el == "SLIDE-OVER")).not.toBe(-1);
+    }
+
+    let float_b = getWeftFloat(3, 1, 8, 8, floats);
+    let reltns_b = getFloatRelationships(2, float_b, 8, 8, floats, cns);
+    expect(reltns_b).toStrictEqual(['BUILD'])
+
+    let float_c = getWeftFloat(5, 5, 8, 8, floats);
+    let reltns_c = getFloatRelationships(4, float_c, 8, 8, floats, cns);
+    expect(reltns_c).toStrictEqual(['BUILD'])
 
 
 });
@@ -596,7 +698,6 @@ test('testing compute simdata', async () => {
     const draft = initDraftFromDrawdown(waffle_dd);
     const topo = await getDraftTopology(draft, simVars);
     const vtxs = await followTheWefts(draft, topo, simVars);
-    console.log("VTXS ", vtxs[0].vtxs)
     expect(vtxs[0].vtxs).not.toEqual([])
 
 })
