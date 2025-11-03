@@ -65,6 +65,7 @@ export type Vec3 = {
 export type YarnVertex = {
     vtx: Vec3,
     ndx: CNIndex
+    orientation: boolean | null //true if this is traveling from the back face to front, false otherwise. null if this is a placeholder vertex.
 };
 
 export type WeftPath = {
@@ -89,15 +90,16 @@ export type SimulationData = {
 };
 
 export type SimulationVars = {
-    pack: number,
-    lift_limit: number,
-    use_layers: boolean,
-    warp_spacing: number,
-    layer_spacing: number,
-    wefts_as_written: boolean,
-    simulate: boolean,
-    radius: number,
-    ms: MaterialsList
+    pack: number, //a value between 0 and 1 that represents the pack density of the fabric. 0 is fully packed, 1 is fully open.
+    lift_limit: number, //a number representing how many cells to either side of a float should we also lift if one float is lifted?
+    use_layers: boolean, //if true, the simulation will create layers of floats, with the lift_limit determining how many cells to lift for each layer.
+    warp_spacing: number, //the spacing between warps in the fabric / epi / in mm
+    layer_spacing: number, //the spacing between layers in the fabric / in mm
+    wefts_as_written: boolean, //controls if the paths should be represented as running full width or not
+    simulate: boolean, //if true, the physics simulation will be run. If false, the simulation will not be run.
+    ms: MaterialsList //the materials list used to determine the diameter and stretch of the warps and wefts
+    use_smoothing: boolean, //if true, the simulation will attempt to correct the y position of yarns that travel too far between wefts.
+    repulse_force_correction: number, //a lever to control how strongly ACNs will repulse eachother. 
 }
 
 // export type Particle = {

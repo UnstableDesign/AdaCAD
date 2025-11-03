@@ -2026,7 +2026,7 @@ const createPlaceholderVertex = (ndx: CNIndex, y: number, z: number, d: Draft, s
 
 
     const vtx: Vec3 = { x: x_pos, y: y, z: z };
-    return { ndx, vtx }
+    return { ndx, vtx, orientation: null }
 
 
 }
@@ -2044,7 +2044,7 @@ const createPlaceholderVertex = (ndx: CNIndex, y: number, z: number, d: Draft, s
  * -z is moving from the face moving towards the back of the fabric, +z is moving towars  
  * 1 px = 1 mm
  */
-const createVertex = (ndx: CNIndex, fell: number, d: Draft, vtx_list: Array<YarnVertex>, cns: Array<ContactNeighborhood>, all_floats: Array<CNFloat>, paths: Array<WeftPath>, sim: SimulationVars): YarnVertex => {
+const createVertex = (ndx: CNIndex, orientation: boolean, fell: number, d: Draft, vtx_list: Array<YarnVertex>, cns: Array<ContactNeighborhood>, all_floats: Array<CNFloat>, paths: Array<WeftPath>, sim: SimulationVars): YarnVertex => {
 
     //console.log("CREATING FOR ", ndx)
 
@@ -2060,7 +2060,7 @@ const createVertex = (ndx: CNIndex, fell: number, d: Draft, vtx_list: Array<Yarn
 
     const vtx: Vec3 = { x: x_pos, y: y_pos, z: z_pos };
 
-    return { ndx, vtx }
+    return { ndx, vtx, orientation }
 
 
 }
@@ -2165,12 +2165,12 @@ export const followTheWefts = (draft: Draft, floats: Array<CNFloat>, cns: Array<
                 const ndx_right = { i, j, id: 1 };
 
                 if (getNodeType(ndx_left, warpnum, cns) == 'ACN' && getFace(ndx_left, warpnum, cns) == false) {
-                    const vtx = createVertex(ndx_left, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
+                    const vtx = createVertex(ndx_left, true, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
                     temp_pic.push(vtx);
                 }
 
                 if (getNodeType(ndx_right, warpnum, cns) == 'ACN' && getFace(ndx_right, warpnum, cns) == false) {
-                    const vtx = createVertex(ndx_right, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
+                    const vtx = createVertex(ndx_right, false, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
                     temp_pic.push(vtx);
                 }
             }
@@ -2183,12 +2183,12 @@ export const followTheWefts = (draft: Draft, floats: Array<CNFloat>, cns: Array<
 
 
                 if (getNodeType(ndx_right, warpnum, cns) == 'ACN' && getFace(ndx_right, warpnum, cns) == false) {
-                    const vtx = createVertex(ndx_right, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
+                    const vtx = createVertex(ndx_right, true, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
                     temp_pic.push(vtx);
                 }
 
                 if (getNodeType(ndx_left, warpnum, cns) == 'ACN' && getFace(ndx_right, warpnum, cns) == false) {
-                    const vtx = createVertex(ndx_left, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
+                    const vtx = createVertex(ndx_left, false, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
                     temp_pic.push(vtx);
                 }
             }
