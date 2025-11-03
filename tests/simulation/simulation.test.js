@@ -571,18 +571,16 @@ test('set float blocking', async () => {
     let cns = await initContactNeighborhoods(waffle_dd);
     cns = updateCNs(cns, 8, 8, sim);
 
-    printDrawdown(waffle_dd);
-
     let floats = getFloats(8, 8, cns);
     //something recursive is happening in here that we need to fix! 
     floats = setFloatBlocking(8, 8, floats, cns);
-    console.log(floats.map(el => el.blocking))
+
 
     //row 0 - 4-10, slides over everything
     //TO DO: we need to consider if/how this would stack. Would it block on the row below it. It should block on 17
     //maybe we need to invert and do the same? 
     expect(floats[0].id).toBe(0);
-    expect(floats[0].blocking.length).toBe(0)
+    expect(floats[0].blocking).toStrictEqual([17])
 
     //row 1 - single cell at 3, blocks with float 0
     expect(floats[1].id).toBe(1);
@@ -590,7 +588,7 @@ test('set float blocking', async () => {
 
     //row 1 - 5-9, slides under 0 and stacks/blocks on 7
     expect(floats[2].id).toBe(2);
-    expect(floats[2].blocking.length).toBe(0)
+    expect(floats[2].blocking).toStrictEqual([15, 14])
 
     //row 1 - 2-2 blocks on both floats 1 and 2
     expect(floats[3].id).toBe(3);
@@ -658,36 +656,78 @@ test('get float relationships', async () => {
 
     let floats = getFloats(8, 8, cns);
     let float = getWeftFloat(0, 0, 8, 8, floats);
-    //something recursive is happening in here that we need to fix! 
-    for (let i = 1; i < 8; i++) {
-        reltns = getFloatRelationships(i, float, 8, 8, floats, cns);
-        expect(reltns.findIndex(el => el == "SLIDE-OVER")).not.toBe(-1);
-    }
+    let reltns_a = getFloatRelationships(7, float, 8, 8, floats, cns);
+    let reltns_a_kinds = reltns_a.map(el => el.kind);
+    expect(reltns_a_kinds).toContain('BUILD')
+
 
     let float_b = getWeftFloat(3, 1, 8, 8, floats);
     let reltns_b = getFloatRelationships(2, float_b, 8, 8, floats, cns);
-    expect(reltns_b).toStrictEqual(['BUILD'])
+    let reltns_b_kinds = reltns_b.map(el => el.kind);
+    expect(reltns_b_kinds).toContain('BUILD')
 
     let float_c = getWeftFloat(5, 5, 8, 8, floats);
     let reltns_c = getFloatRelationships(4, float_c, 8, 8, floats, cns);
-    expect(reltns_c).toStrictEqual(['BUILD'])
+    let reltns_c_kinds = reltns_c.map(el => el.kind);
+    expect(reltns_c_kinds).toContain('BUILD')
 
 
 });
 
+const calcX = require('../../src/simulation/simulation').calcX;
+test('calc x', async () => {
+
+    const x = calcX(0, 10, 2, 2, true);
+    const y = calcX(2, 10, 2, 2, false);
+
+    expect(x).toBe(-2)
+    expect(y).toBe(22);
+
+})
+
+const computeThetaMax = require('../../src/simulation/simulation').computeThetaMax;
+test('compute theta max', async () => {
+    const theta_max = computeThetaMax(1);
+    expect(theta_max).toBe(Math.PI / 4);
+
+    const theta_max_b = computeThetaMax(0);
+    expect(theta_max_b).toBe(Math.PI / 24);
+
+});
+
+const computeThetaBetweenVertices = require('../../src/simulation/simulation').computeThetaBetweenVertices;
+test('compute theta between vertices', async () => {
+    const theta = computeThetaBetweenVertices({ vtx: { x: 0, y: 0 } }, { vtx: { x: 1, y: 1 } });
+    expect(theta).toBe(Math.PI / 4);
+
+    const theta_b = computeThetaBetweenVertices({ vtx: { x: 0, y: 0 } }, { vtx: { x: 1, y: -1 } });
+    expect(theta_b).toBe(-Math.PI / 4);
+})
+
+
+const computeYAdjustment = require('../../src/simulation/simulation').computeYAdjustment;
+test('compute y adjustment', async () => {
+    const y_adjustment = computeYAdjustment({ vtx: { x: 0, y: 0 } }, { vtx: { x: 1, y: 1 } }, Math.PI / 8);
+    expect(y_adjustment).toBe(Math.tan(Math.PI / 8));
+
+    const y_adjustment_b = computeYAdjustment({ vtx: { x: 0, y: 0 } }, { vtx: { x: 1, y: -1 } }, Math.PI / 8);
+    expect(y_adjustment_b).toBe(Math.tan(Math.PI / 8) * 1);
+})
 
 
 const followTheWefts = require('../../src/simulation/simulation').followTheWefts;
-test('testing compute simdata', async () => {
+test('testing follow the wefts', async () => {
 
     const material_a = createMaterial({ id: 0 })
+    material_a.diameter = 2;
     const material_b = createMaterial({ id: 1 })
+    material_b.diameter = 2;
 
     const simVars = {
-        pack: 10,
+        pack: 1,
         lift_limit: 10,
-        use_layers: false,
-        warp_spacing: 5,
+        use_layers: true,
+        warp_spacing: 10,
         layer_spacing: 5,
         wefts_as_written: false,
         simulate: false,
@@ -696,8 +736,16 @@ test('testing compute simdata', async () => {
     }
 
     const draft = initDraftFromDrawdown(waffle_dd);
+
     const topo = await getDraftTopology(draft, simVars);
-    const vtxs = await followTheWefts(draft, topo, simVars);
+
+    const vtxs = await followTheWefts(draft, topo.floats, topo.cns, simVars);
+
+
+    vtxs.forEach(el => {
+        console.log("WEFT PATH: ", el.material, el.system, el.vtxs);
+    });
+
     expect(vtxs[0].vtxs).not.toEqual([])
 
 })

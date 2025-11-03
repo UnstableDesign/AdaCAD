@@ -4,6 +4,7 @@ export interface Material {
   name: string;
   insert: boolean; //true is left, false is right
   visible: boolean;
+  stretch: number; // must be between 0-1
   color: string;
   thickness: number; //percentage of base dims
   type: number;
@@ -11,7 +12,7 @@ export interface Material {
   startLabel?: string;
   endLabel?: string;
   notes: string;
-  rgb: {r: number, g: number, b: number}
+  rgb: { r: number, g: number, b: number }
 
 }
 
@@ -29,7 +30,7 @@ export interface MaterialImport {
   startLabel?: string;
   endLabel?: string;
   notes?: string;
-  rgb?: {r: number, g: number, b: number}
+  rgb?: { r: number, g: number, b: number }
 
 }
 
@@ -38,7 +39,7 @@ export type MaterialsList = Array<Material>;
 
 
 
-export interface MaterialMap{
+export interface MaterialMap {
   old_id: number,
   new_id: number
- }
+}

@@ -9,6 +9,7 @@ export const createMaterial = (matDict: MaterialImport): Material => {
   const m: Material = {
     id: -1,
     name: '',
+    stretch: 1,
     insert: true,
     visible: true,
     color: "#666666",
@@ -42,6 +43,18 @@ export const setMaterialID = (m: Material, id: number): Material => {
   if (!m.name) {
     m.name = 'Material ' + (id + 1);
   }
+  return m;
+}
+
+export const getMaterialStretch = (m: Material): number => {
+  return m.stretch;
+}
+
+export const setMaterialStretch = (m: Material, stretch: number): Material => {
+  if (stretch > 1 || stretch < 0) console.error("STRETCH IS OUT OF BOUNDS ", stretch);
+  if (stretch < 0) stretch = 0;
+  if (stretch > 1) stretch = 1;
+  m.stretch = stretch;
   return m;
 }
 

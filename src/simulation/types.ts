@@ -63,9 +63,7 @@ export type Vec3 = {
 
 
 export type YarnVertex = {
-    x: number,
-    y: number,
-    z: number,
+    vtx: Vec3,
     ndx: CNIndex
 };
 
@@ -85,6 +83,7 @@ export type WarpPath = {
 export type SimulationData = {
     draft: Draft,
     topo: Array<ContactNeighborhood>,
+    floats: Array<CNFloat>,
     wefts: Array<WeftPath>,
     warps: Array<WarpPath>
 };
