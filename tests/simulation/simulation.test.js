@@ -16,8 +16,24 @@ const defaultSimVars = {
     layer_spacing: 5,
     wefts_as_written: false,
     simulate: false,
-    radius: 5
+    radius: 5,
+    mass: 5,
+    time: 0.003,
+    use_smoothing: true,
+    repulse_force_correction: 0,
 }
+
+
+const tabby = `
+-|-|-|-|
+|-|-|-|-
+-|-|-|-|
+|-|-|-|-
+-|-|-|-|
+|-|-|-|-
+-|-|-|-|
+|-|-|-|-
+` ;
 
 const waffle = `---|----
 --|-|---
@@ -101,6 +117,7 @@ const a1_b2_basket = `
 
 
 const waffle_dd = parseStringToDrawdown(waffle);
+const tabby_dd = parseStringToDrawdown(tabby);
 const basket_draft = parseStringToDrawdown(basket);
 const satin_draft = parseStringToDrawdown(satin_drawdown);
 const two_side_twill_draft = parseStringToDrawdown(two_side_twill);
@@ -716,7 +733,45 @@ test('compute y adjustment', async () => {
 
 
 const followTheWefts = require('../../src/simulation/simulation').followTheWefts;
-test('testing follow the wefts', async () => {
+test('testing follow the wefts with waffle', async () => {
+
+    const material_a = createMaterial({ id: 0 })
+    material_a.diameter = 2;
+    const material_b = createMaterial({ id: 1 })
+    material_b.diameter = 2;
+
+    const simVars = {
+        pack: 1,
+        lift_limit: 10,
+        use_layers: true,
+        warp_spacing: 10,
+        layer_spacing: 5,
+        wefts_as_written: false,
+        simulate: false,
+        ms: [material_a, material_b],
+        use_smoothing: true,
+        repulse_force_correction: 0,
+        time: 0.003
+    }
+
+    const draft = initDraftFromDrawdown(waffle_dd);
+
+    const topo = await getDraftTopology(draft, simVars);
+
+    const vtxs = await followTheWefts(draft, topo.floats, topo.cns, simVars);
+
+
+    // vtxs.forEach(el => {
+    //     console.log("WEFT PATH: ", el.material, el.system, el.vtxs);
+    // });
+
+    expect(vtxs[0].vtxs).not.toEqual([])
+
+})
+
+
+
+test('testing follow the wefts with tabby', async () => {
 
     const material_a = createMaterial({ id: 0 })
     material_a.diameter = 2;
@@ -732,22 +787,39 @@ test('testing follow the wefts', async () => {
         wefts_as_written: false,
         simulate: false,
         radius: 5,
+        time: 0.003,
+        mass: 5,
         ms: [material_a, material_b]
     }
 
-    const draft = initDraftFromDrawdown(waffle_dd);
+    const draft = initDraftFromDrawdown(tabby_dd);
 
     const topo = await getDraftTopology(draft, simVars);
 
+
+    // const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
+    // printFloats(adj_floats);
+
     const vtxs = await followTheWefts(draft, topo.floats, topo.cns, simVars);
+    let path = vtxs[0];
+
+    expect(path.vtxs.length).toBe(72);
+
+    let second_row = path.vtxs.filter(el => el.ndx.i == 1);
+    // let first_vtx = second_row[0].vtx;
+    // let second_vtx = second_row[1].vtx;
+    // let third_vtx = second_row[2].vtx;
+    // let fourth_vtx = second_row[3].vtx;
+
+    // expect(third_vtx.y).toBe(second_vtx.y);
 
 
-    vtxs.forEach(el => {
-        console.log("WEFT PATH: ", el.material, el.system, el.vtxs);
+    second_row.forEach(el => {
+        console.log("Second row is: ", el.ndx.j, el.vtx);
     });
 
-    expect(vtxs[0].vtxs).not.toEqual([])
 
 })
+
 
 

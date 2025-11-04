@@ -100,6 +100,8 @@ export type SimulationVars = {
     ms: MaterialsList //the materials list used to determine the diameter and stretch of the warps and wefts
     use_smoothing: boolean, //if true, the simulation will attempt to correct the y position of yarns that travel too far between wefts.
     repulse_force_correction: number, //a lever to control how strongly ACNs will repulse eachother. 
+    time: number //the time upon which to apply the force in the ACN simulation of the simulation. 
+    mass: number //the mass of the yarn in the simulation. 
 }
 
 // export type Particle = {

@@ -1757,8 +1757,9 @@ export const getYarnHeightOffset = (i: number, blocking_i: number, paths: Array<
  * @param vtx_list 
  * @returns 
  */
-export const getYOfBlockingFloat = (warps: number, wefts: number, blocking_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars): number => {
+export const getYOfBlockingFloat = (warps: number, wefts: number, blocking_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars, verbose: boolean): number => {
     let blocking_y = 0;
+    if (verbose) console.log("BLOCKING FLOATS ", blocking_floats.map(el => el.id));
 
     blocking_floats.forEach(el => {
 
@@ -1770,12 +1771,14 @@ export const getYOfBlockingFloat = (warps: number, wefts: number, blocking_float
         }
         const y_left = vtx_left.vtx.y;
         const y_right = vtx_right.vtx.y;
+        if (verbose) console.log("Y LEFT AND RIGHT ", el.id, y_left, y_right);
         const y_max = Math.max(y_left, y_right);
         if (y_max > blocking_y) blocking_y = y_max;
     });
     const height_offset = getYarnHeightOffset(blocking_floats[0].left.i, blocking_floats[0].right.i, paths, sim);
 
     //need to add the height of the blocking material
+    if (verbose) console.log("HEIGHT OFFSET ", height_offset)
     return blocking_y + height_offset;
 }
 
@@ -1790,11 +1793,12 @@ export const getYOfBlockingFloat = (warps: number, wefts: number, blocking_float
  * @param vtx_list 
  * @returns 
  */
-export const getRepelForceAtX = (x: number, y: number, warps: number, wefts: number, float: CNFloat, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>): number => {
+export const getRepelForceAtX = (x: number, y: number, warps: number, wefts: number, float: CNFloat, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, verbose: boolean): number => {
 
 
 
-    const r = getDistanceACN(x, y, warps, wefts, float, all_floats, vtx_list);
+    const r = getDistanceACN(x, y, warps, wefts, float, all_floats, vtx_list, verbose);
+    if (verbose) console.log("DISTANCE ACN ", r)
     const r_meters = r / 1000;
 
     const k = 8.99 * Math.pow(10, 9);
@@ -1811,10 +1815,10 @@ export const getRepelForceAtX = (x: number, y: number, warps: number, wefts: num
  * @param force_repel 
  * @returns 
  */
-export const calculateYRepel = (force_repel: number): number => {
-    const a = force_repel / 5; //accelleration is F/mass
-    const t = 1; //time the force is
-    const distance = .5 * Math.pow(a * t, 2);
+export const calculateYRepel = (force_repel: number, time: number, mass: number, verbose: boolean): number => {
+    if (verbose) console.log("FORCE REPEL ", force_repel, time)
+    const a = force_repel / mass; //accelleration is F/mass
+    const distance = .5 * Math.pow(a * time, 2);
     return distance
 }
 
@@ -1833,15 +1837,16 @@ export const calculateYRepel = (force_repel: number): number => {
 // 3. After the beat is released the vertexes are repelled by their proximity to the closest ACN on any of the blocking wefts.  
 // 4. After all the of these values are added, a smoothing step needs to take place to lift up any vertexes based on the stretchiness of the yarn. 
 
-export const calcY = (x: number, insert_y: number, b: number, float: CNFloat | null, warps: number, wefts: number, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars): number => {
+export const calcY = (x: number, insert_y: number, b: number, float: CNFloat | null, warps: number, wefts: number, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars, verbose: boolean = false): number => {
 
 
     //INSERT - assume this is 200 px above the highest vtx. 
     let y = insert_y;
+    if (verbose) console.log("INSERT Y ", insert_y)
 
     //BEAT - assume 300 gets us as far as we need to go. 
     const y_beat = insert_y - (300 * b);
-    // console.log("Y _ BEAT ", y_beat)
+    if (verbose) console.log("Y _ BEAT ", y_beat)
 
     if (float == null) {
         console.error("FLOAT IS NULL IN VTX Y")
@@ -1855,16 +1860,22 @@ export const calcY = (x: number, insert_y: number, b: number, float: CNFloat | n
 
     let y_blocking: number = 0; //
     if (has_blocking_vtx) {
-        y_blocking = getYOfBlockingFloat(warps, wefts, blocking_floats, vtx_list, paths, sim);
-
+        y_blocking = getYOfBlockingFloat(warps, wefts, blocking_floats, vtx_list, paths, sim, verbose);
         y = Math.max(y_blocking, y_beat);
-        const force_repel = getRepelForceAtX(x, y, warps, wefts, float, all_floats, vtx_list);
-        const y_repel = calculateYRepel(force_repel);
+        if (verbose) console.log("Y _ BLOCKING and resulting y", y_blocking, y)
+        const force_repel = getRepelForceAtX(x, y, warps, wefts, float, all_floats, vtx_list, false);
+        if (verbose) console.log("REPEAL FORCE", force_repel)
+
+        const y_repel = calculateYRepel(force_repel, sim.time, sim.mass, verbose);
+        if (verbose) console.log("REPEAL DIST", y_repel)
+
         y += y_repel;
     } else {
         y = Math.max(y_blocking, y_beat);
 
     }
+    if (verbose) console.log("RETURNING ", y)
+
     return y;
 
 
@@ -1955,31 +1966,35 @@ export const smoothPick = (pick: Array<YarnVertex>, stretch: number): Array<Yarn
  * @param vtx_list 
  * @returns the distance between the ACNS as it would be rendered in pixels
  */
-export const getDistanceACN = (x: number, y: number, warps: number, wefts: number, float: CNFloat, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>): number => {
+export const getDistanceACN = (x: number, y: number, warps: number, wefts: number, float: CNFloat, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, verbose: boolean): number => {
+
 
 
     if (float.blocking.length == 0) return -1;
     if (vtx_list.length == 0) return -1;
 
     let min_dist = 10000;
+    if (verbose) console.log("BLOCKING FLOATS ", float.blocking.map(el => el));
     float.blocking.forEach(el => {
         const blocking_float = all_floats.find(f => f.id == el);
+        if (verbose) console.log("CHECKING BLOCKING FLOAT ", el);
+
         if (blocking_float != undefined) {
-            const vtx_left = vtx_list.find(v => v.ndx.i == modStrict(blocking_float.left.i, wefts) && v.ndx.j == modStrict(blocking_float.left.j, warps));
-            const vtx_right = vtx_list.find(v => v.ndx.i == modStrict(blocking_float.right.i, wefts) && v.ndx.j == modStrict(blocking_float.right.j, warps));
+            const vtx_left = vtx_list.find(v => v.ndx.i == modStrict(blocking_float.left.i, wefts) && v.ndx.j == modStrict(blocking_float.left.j, warps) && v.ndx.id == blocking_float.left.id);
+            const vtx_right = vtx_list.find(v => v.ndx.i == modStrict(blocking_float.right.i, wefts) && v.ndx.j == modStrict(blocking_float.right.j, warps) && v.ndx.id == blocking_float.right.id);
+            if (verbose) console.log("VTX LEFT AND RIGHT ", vtx_left, vtx_right);
             if (vtx_left != undefined && vtx_right != undefined) {
                 const dist_square_left = Math.pow(x - vtx_left.vtx.x, 2) + Math.pow(y - vtx_left.vtx.y, 2);
                 const dist_square_right = Math.pow(x - vtx_right.vtx.x, 2) + Math.pow(y - vtx_right.vtx.y, 2);
+                if (verbose) console.log("DIST SQUARE LEFT AND RIGHT ", dist_square_left, dist_square_right);
                 const local_min = Math.min(dist_square_left, dist_square_right);
                 if (local_min < min_dist) min_dist = local_min;
             }
 
         }
 
-
+        if (verbose) console.log("MIN DIST ", min_dist)
     });
-
-    if (min_dist == 10000) return 0;
 
     return Math.sqrt(min_dist);
 
@@ -2046,7 +2061,7 @@ const createPlaceholderVertex = (ndx: CNIndex, y: number, z: number, d: Draft, s
  */
 const createVertex = (ndx: CNIndex, orientation: boolean, fell: number, d: Draft, vtx_list: Array<YarnVertex>, cns: Array<ContactNeighborhood>, all_floats: Array<CNFloat>, paths: Array<WeftPath>, sim: SimulationVars): YarnVertex => {
 
-    //console.log("CREATING FOR ", ndx)
+    if (ndx.i == 1) console.log("CREATING FOR ", ndx)
 
     const weft_material_id = d.rowShuttleMapping[ndx.i];
     const weft_diameter = getDiameter(weft_material_id, sim.ms);
@@ -2055,7 +2070,7 @@ const createVertex = (ndx: CNIndex, orientation: boolean, fell: number, d: Draft
     const float = getWeftFloat(ndx.i, ndx.j, wefts(d.drawdown), warps(d.drawdown), all_floats);
 
     const x_pos = calcX(ndx.j, sim.warp_spacing, warp_diameter, weft_diameter, ndx.id == 0);
-    const y_pos = calcY(x_pos, fell + 200, sim.pack, float, warps(d.drawdown), wefts(d.drawdown), all_floats, vtx_list, paths, sim);
+    const y_pos = calcY(x_pos, fell + 200, sim.pack, float, warps(d.drawdown), wefts(d.drawdown), all_floats, vtx_list, paths, sim, false);
     const z_pos = calcZ(getLayer(ndx, warps(d.drawdown), cns), sim.layer_spacing);
 
     const vtx: Vec3 = { x: x_pos, y: y_pos, z: z_pos };
@@ -2205,14 +2220,14 @@ export const followTheWefts = (draft: Draft, floats: Array<CNFloat>, cns: Array<
 
                 //set it to the layer for this weft
                 const left_ndx = { i, j: 0, id: 0 };
-                if (getNodeType(left_ndx, warpnum, cns) !== 'ACN') {
+                if (getNodeType(left_ndx, warpnum, cns) !== 'ACN' || getFace(left_ndx, warpnum, cns) == true) {
                     cns = setLayer(left_ndx, warpnum, cns, getLayer(temp_pic[0].ndx, warpnum, cns));
                     left = createPlaceholderVertex(left_ndx, temp_pic[0].vtx.y, temp_pic[0].vtx.z, draft, sim);
                 }
 
                 //set it to the layer for this weft
                 const right_ndx = { i, j: warpnum - 1, id: 1 };
-                if (getNodeType(right_ndx, warpnum, cns) !== 'ACN') {
+                if (getNodeType(right_ndx, warpnum, cns) !== 'ACN' || getFace(left_ndx, warpnum, cns) == true) {
                     cns = setLayer(right_ndx, warpnum, cns, getLayer(temp_pic[last_ndx].ndx, warpnum, cns));
                     right = createPlaceholderVertex(right_ndx, temp_pic[last_ndx].vtx.y, temp_pic[last_ndx].vtx.z, draft, sim);
                 }
@@ -2230,8 +2245,12 @@ export const followTheWefts = (draft: Draft, floats: Array<CNFloat>, cns: Array<
 
 
         //SMOOTH LAST PATH
-        const smoothed_pick = smoothPick(temp_pic, getMaterialStretch(sim.ms[material]));
-        path.vtxs = path.vtxs.concat(smoothed_pick);
+        if (sim.use_smoothing) {
+            const smoothed_pick = smoothPick(temp_pic, getMaterialStretch(sim.ms[material]));
+            path.vtxs = path.vtxs.concat(smoothed_pick);
+        } else {
+            path.vtxs = path.vtxs.concat(temp_pic);
+        }
         path.pics.push(i);
         fell_y = getFellY(flat_vtx_list.concat(path.vtxs));
     }
