@@ -1,44 +1,45 @@
-
-#sim_sidebar{
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    justify-content: flex-start;
-    width: 42px;
-    font-size: .8em;
-    flex: none;
-    background-color: white;
-
-}
-
-canvas{
+canvas {
     border: thin solid red;
 }
 
-#sim_viewer{
+.dg.main {
+    position: fixed;
+}
+
+#sim_viewer {
     display: flex;
     flex-direction: row;
 }
 
-#sizeerror{
-    margin: auto 10%;    
+#sizeerror {
+    margin: auto 10%;
     display: none;
 }
 
-#simulation_container{
-    display: flex;
-    flex: 1 1 auto;
+#simulation_container {
+    overflow: scroll;
 
+
+
+}
+
+#simulation_rendering {
+    width: 1000px;
+    height: 1000px;
+}
+
+#simulation_controls {
+    position: fixed;
 }
 
 
 
-.toggle{
+.toggle {
     display: flex;
     flex-direction: row;
 }
 
-.cameracontrols{
+.cameracontrols {
     position: absolute;
     width: 75%;
     text-align: center;
@@ -47,7 +48,7 @@ canvas{
     left: 40px;
 }
 
-.controls{
+.controls {
     position: absolute;
     width: 25%;
     display: flex;
@@ -57,10 +58,9 @@ canvas{
     left: 3%;
 }
 
-.expand{
+.expand {
     position: absolute;
     top: 10px;
     left: 60vw;
     z-index: 2;
 }
-

@@ -43,7 +43,7 @@ export const defaults = {
   //SIM DEFAULTS
   wefts_as_written: false,
   layer_spacing: 10,
-  pack: 100
+  pack: 1
 
 
 }

@@ -167,7 +167,7 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   /**
    * Changes the sort criteria and re-sorts the files
    */
-  changeSort(criteria: 'name' | 'date'): void {
+  changeSort(criteria: 'name' | 'date' | 'shared'): void {
     if (this.sortBy === criteria) {
       // Toggle sort order if same criteria
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
