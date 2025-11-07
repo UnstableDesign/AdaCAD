@@ -185,11 +185,6 @@ export class SimulationService {
     console.log("REDRAWING SIM DATA ")
 
     scene.clear();
-    // const geometry = new THREE.BoxGeometry(2, 2, 2);
-    // const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    // const cube = new THREE.Mesh(geometry, material);
-    // scene.add(cube);
-
 
     const light = new THREE.DirectionalLight(0xffffff, 1.0);
     const back_light = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -207,7 +202,8 @@ export class SimulationService {
     if (!simVars.simulate) {
       console.log("DRAWING AXIS AND YARNS ")
       const boundary_vtx = this.getBoundaryVtxs(simData.wefts, selection);
-      //this.drawAxis(boundary_vtx);
+      console.log("BOUNDARY VTX ", boundary_vtx)
+      this.drawAxis(boundary_vtx, scene);
       this.drawYarns(simData, simVars, selection, boundary_vtx, scene);
     } else {
       //if (simVars.simulate) this.drawSimulation(simData, simVars);
@@ -225,39 +221,9 @@ export class SimulationService {
 
 
 
-  // drawSimulation(simData: SimulationData, simVars: SimulationVars) {
-  //   for (const yarn of simData.wefts) {
-  //     let count = 0;
-
-  //     let diameter = getDiameter(yarn.material, simVars.ms);
-  //     let color = getColorForSim(yarn.material, simVars.ms);
 
 
-  //     for (const vtx of yarn.vtxs) {
-
-  //       const p = createParticle(vtx.x, vtx.y, vtx.z, false);
-
-  //       if (vtx.ndx.j === 0 || vtx.ndx.j === warps(simData.draft.drawdown) - 1) p.pinned = true;
-  //       this.particles.push(p);
-  //       this.scene.add(p.mesh);
-
-  //       if (count >= 1) {
-  //         const distance = this.particles[count - 1].position.distanceTo(this.particles[count].position);
-  //         let s = createSpring(this.particles[count - 1], this.particles[count], distance, color, diameter)
-  //         this.springs.push(s);
-  //         this.scene.add(s.mesh);
-
-  //       }
-  //       count++;
-  //     }
-  //   }
-
-  //   return Promise.resolve(simData);
-
-  // }
-
-
-  drawAxis(boundary_vtx: any) {
+  drawAxis(boundary_vtx: any, scene: THREE.scene) {
 
     console.log("BOUNDARY VTX is ", boundary_vtx)
 
@@ -298,7 +264,7 @@ export class SimulationService {
 
 
     this.axis_scene = this.applyOrientationConversion(this.axis_scene, boundary_vtx);
-    this.scene.add(this.axis_scene);
+    scene.add(this.axis_scene);
 
 
   }
@@ -309,8 +275,6 @@ export class SimulationService {
    * @returns 
    */
   getBoundaryVtxs(paths: Array<WeftPath>, selection: Bounds): { min_x: number, max_x: number, min_y: number, max_y: number } {
-
-    console.log("Boundary ", paths, selection)
 
 
     //collapse the paths into a flat list
@@ -350,6 +314,26 @@ export class SimulationService {
 
 
 
+
+  }
+
+
+  getOrientationVector(vtx: YarnVertex, next: YarnVertex, diameter: number, warps: number): THREE.Vector3 {
+
+    //we are on the right edge of the draft about to move up a row
+    if (next.ndx.i !== vtx.ndx.i && vtx.ndx.j === warps - 1 && vtx.ndx.id == 1) {
+      return new THREE.Vector3(diameter, 0, 0);
+    }
+
+    //we are on the left edge of the draft about to move up a row
+    else if (next.ndx.i !== vtx.ndx.i && vtx.ndx.j === 0 && vtx.ndx.id == 0) {
+      return new THREE.Vector3(-diameter, 0, 0);
+    }
+
+    else {
+      let orientation_factor = vtx.orientation ? diameter : -diameter;
+      return new THREE.Vector3(0, 0, orientation_factor);
+    }
 
   }
 
@@ -405,8 +389,6 @@ export class SimulationService {
     scene.add(this.warp_scene);
 
 
-    //WEFT SIM
-    console.log("PATHS ", simdata.wefts);
 
 
     const curvePath = new THREE.CurvePath();
@@ -423,26 +405,10 @@ export class SimulationService {
         const vtx1 = path.vtxs[x];
         const vtx2 = path.vtxs[x + 1];
 
-        let cp1, cp2: THREE.Vector3;
-        if (vtx1.orientation !== null) {
-          const orientation_factor = vtx1.orientation ? diameter : -diameter;
-          cp1 = new THREE.Vector3(vtx1.vtx.x, vtx1.vtx.y, vtx1.vtx.z + orientation_factor);
-        } else {
-          const orientation_factor = (vtx1.vtx.x - vtx1.vtx.x > 0) ? diameter : -diameter;
-          cp1 = new THREE.Vector3(vtx1.vtx.x + orientation_factor, vtx1.vtx.y, vtx1.vtx.z);
-        }
+        const orientation_vector = this.getOrientationVector(vtx1, vtx2, diameter, warps(simdata.draft.drawdown));
 
-        if (vtx2.orientation !== null) {
-          //inherit the same orientation as vector 1. 
-          const orientation_factor = vtx1.orientation ? diameter : -diameter;
-          cp2 = new THREE.Vector3(vtx2.vtx.x, vtx2.vtx.y, vtx2.vtx.z + orientation_factor);
-        } else {
-          const orientation_factor = (vtx2.vtx.x - vtx1.vtx.x > 0) ? diameter : -diameter;
-          cp2 = new THREE.Vector3(vtx2.vtx.x + orientation_factor, vtx2.vtx.y, vtx2.vtx.z);
-        }
-
-
-
+        const cp1 = new THREE.Vector3(vtx1.vtx.x + orientation_vector.x, vtx1.vtx.y + orientation_vector.y, vtx1.vtx.z + orientation_vector.z);
+        const cp2 = new THREE.Vector3(vtx2.vtx.x + orientation_vector.x, vtx2.vtx.y + orientation_vector.y, vtx2.vtx.z + orientation_vector.z);
 
         const curve = new THREE.CubicBezierCurve3(vtx1.vtx, cp1, cp2, vtx2.vtx);
         curvePath.add(curve);
