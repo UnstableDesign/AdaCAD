@@ -53,11 +53,11 @@ export class SimulationComponent implements OnInit {
       use_layers: true,
       ms: this.ms.getShuttles(),
       simulate: false,
-      use_smoothing: false,
+      use_smoothing: true,
       repulse_force_correction: 0,
-      time: .1,
-      mass: 100,
-      max_theta: Math.PI / 4
+      time: .05,
+      mass: 150,
+      max_theta: Math.PI / 12
     }
 
 
@@ -438,6 +438,7 @@ export class SimulationComponent implements OnInit {
       scene => {
         this.scene = scene;
         this.renderer.render(this.scene, this.camera);
+        this.resetCamera();
       }
     );
   }
@@ -476,6 +477,7 @@ export class SimulationComponent implements OnInit {
           scene => {
             this.scene = scene;
             this.renderer.render(this.scene, this.camera);
+            this.resetCamera();
           }
         )
 
@@ -537,6 +539,53 @@ export class SimulationComponent implements OnInit {
   //   this.renderer.render(this.scene, this.camera);
 
   // }
+
+  /**
+   * Resets the camera to center and frame the simulation scene
+   */
+  resetCamera() {
+    if (!this.scene || !this.camera || !this.controls) return;
+
+    // Calculate bounding box of all objects in the scene
+    const box = new THREE.Box3();
+    const objects = this.scene.children.filter(child => {
+      // Only include meshes and groups, exclude lights
+      return child.type === 'Mesh' || child.type === 'Group' || child.type === 'Line';
+    });
+
+    if (objects.length === 0) return;
+
+    // Expand box to include all objects
+    objects.forEach(object => {
+      box.expandByObject(object);
+    });
+
+    // Get center and size of the bounding box
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    // Calculate the distance needed to fit the scene
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = this.camera.fov * (Math.PI / 180);
+    const cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+
+    // Add some padding
+    const distance = cameraZ * 1.5;
+
+    // Position camera to view the scene from an angle
+    this.camera.position.set(
+      center.x + distance * 0.5,
+      center.y + distance * 0.5,
+      center.z + distance
+    );
+
+    // Set controls target to center of scene
+    this.controls.target.copy(center);
+    this.controls.update();
+
+    // Render the scene with the new camera position
+    this.renderer.render(this.scene, this.camera);
+  }
 
 
 }
