@@ -47,6 +47,7 @@ import { ShareComponent } from './core/ui/share/share.component';
 import { WorkspaceComponent } from './core/ui/workspace/workspace.component';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
 import { EditorComponent } from './editor/editor.component';
+import { LibraryComponent } from './library/library.component';
 import { MixerComponent } from './mixer/mixer.component';
 import { OperationComponent } from './mixer/palette/operation/operation.component';
 import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
@@ -58,7 +59,7 @@ import { ViewerComponent } from './viewer/viewer.component';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [EventsDirective, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent]
+  imports: [EventsDirective, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent, LibraryComponent]
 })
 
 
@@ -89,6 +90,8 @@ export class AppComponent implements OnInit, OnDestroy {
   cdr = inject(ChangeDetectorRef);
   title = 'app';
 
+
+  @ViewChild(LibraryComponent) library: LibraryComponent;
   @ViewChild(MixerComponent) mixer: MixerComponent;
   @ViewChild(EditorComponent) editor: EditorComponent;
   @ViewChild(ViewerComponent) viewer: ViewerComponent;
@@ -492,6 +495,14 @@ export class AppComponent implements OnInit, OnDestroy {
       case 'mixer':
         this.editor.onClose();
         this.mixer.onFocus(this.editor.id);
+        break;
+      case 'library':
+        this.library.onFocus(-1);
+        this.mixer.onClose();
+        this.editor.onClose();
+        break;
+      default:
+        console.error("INVALID EDITOR MODE: ", this.selected_editor_mode);
         break;
     }
 

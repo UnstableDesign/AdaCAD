@@ -94,6 +94,7 @@ export const editor_modes: Array<{ value: string, view: string }> =
   [
     { value: 'draft', view: 'draft editor' },
     { value: 'mixer', view: 'workspace' },
+    { value: 'library', view: 'library' }
   ];
 
 export const draft_view_modes = [

@@ -139,6 +139,10 @@
 
 
 
+      <app-library class="library-container" [class.hide]="selected_editor_mode !== 'library'"
+        [class.show]="selected_editor_mode === 'library'" #library id="library" cdkScrollable
+        (onOpenInEditor)="openInEditor($event)">
+      </app-library>
 
 
       <app-mixer class="mixer-container" [class.hide]="selected_editor_mode !== 'mixer'"

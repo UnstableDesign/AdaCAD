@@ -1,0 +1,276 @@
+.library-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 32px;
+  color: #333;
+}
+
+h2 {
+  font-size: 1.5em;
+  margin-bottom: 16px;
+  margin-top: 32px;
+  color: #555;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.drafts-section,
+.materials-section {
+  margin-bottom: 48px;
+}
+
+.drafts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.draft-card {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 200px;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.draft-thumbnail {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 8px;
+
+  app-draft-rendering {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  ::ng-deep {
+    .draft-container {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+}
+
+.draft-checkbox {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  label {
+    display: none;
+  }
+}
+
+.draft-type-icon {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 18px;
+  color: #666;
+  z-index: 1;
+
+  i {
+    &.fa-seedling {
+      color: #4caf50;
+    }
+
+    &.fa-code {
+      color: #2196f3;
+    }
+  }
+}
+
+.draft-name {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.draft-name-input {
+  width: 100%;
+  border: 1px solid transparent;
+  background-color: transparent;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: text;
+
+  &:hover {
+    border-color: #ccc;
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.1);
+  }
+}
+
+.draft-operations {
+  width: 100%;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  min-height: 20px;
+}
+
+.operations-label {
+  font-size: 0.7em;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.operations-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+}
+
+.operation-tag {
+  display: inline-block;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.operation-arrow {
+  display: inline-block;
+  color: #666;
+  font-size: 0.9em;
+  margin: 0 2px;
+  font-weight: bold;
+}
+
+.download-section {
+  margin-top: 24px;
+  text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+
+  button {
+    i {
+      margin-right: 8px;
+    }
+  }
+}
+
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.material-card {
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+.material-color {
+  width: 100%;
+  height: 60px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.material-info {
+  flex: 1;
+}
+
+.material-name {
+  font-weight: 600;
+  font-size: 1.1em;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.material-diameter {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.material-notes {
+  font-size: 0.85em;
+  color: #777;
+  font-style: italic;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+  word-break: break-word;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 32px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+}
