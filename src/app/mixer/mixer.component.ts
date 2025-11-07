@@ -1,16 +1,7 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, enableProdMode, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltip, MatTooltipDefaultOptions } from '@angular/material/tooltip';
-import { Draft, initDraftWithParams, initLoom, Loom, LoomSettings, OperationClassification } from 'adacad-drafting-lib';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material/tooltip';
+import { Draft, initDraftWithParams, initLoom, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { DraftExistenceChange, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -23,6 +14,7 @@ import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { BlankdraftModal } from '../core/ui/blankdraft/blankdraft.modal';
+import { MixerSidebarComponent } from './mixer-sidebar/mixer-sidebar.component';
 import { NoteComponent } from './palette/note/note.component';
 import { PaletteComponent } from './palette/palette.component';
 import { SubdraftComponent } from './palette/subdraft/subdraft.component';
@@ -51,7 +43,7 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   templateUrl: './mixer.component.html',
   styleUrls: ['./mixer.component.scss'],
   providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }],
-  imports: [MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatButton, MatTooltip, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSlideToggle, PaletteComponent, AsyncPipe]
+  imports: [PaletteComponent, MixerSidebarComponent]
 })
 export class MixerComponent {
   dm = inject(DesignmodesService);
@@ -70,6 +62,7 @@ export class MixerComponent {
 
 
   @ViewChild(PaletteComponent) palette: PaletteComponent;
+  @ViewChild(MixerSidebarComponent) sidebar: MixerSidebarComponent;
 
   @Input() is_fullscreen: boolean;
   @Output() onOpenInEditor: any = new EventEmitter();
@@ -81,15 +74,6 @@ export class MixerComponent {
   scrollingSubscription: any;
   selected_nodes_copy: any = null;
 
-
-  /** variables for operation search */
-
-  classifications: Array<OperationClassification> = [];
-  op_tree: any = [];
-  filteredOptions: Observable<any>;
-  searchForm: FormControl;
-  search_error: any;
-
   /// ANGULAR FUNCTIONS
   /**
    * @constructor
@@ -98,134 +82,17 @@ export class MixerComponent {
    * dialog - Anglar Material dialog module. Used to control the popup modals.
    */
   constructor() {
-
-    this.searchForm = new FormControl();
-
-    this.classifications = this.ops.getOpClassifications();
-
     this.vp.setAbsolute(defaults.canvas_width, defaults.canvas_height); //max size of canvas, evenly divisible by default cell size
-
-    this.op_tree = this.makeOperationsList();
-  }
-
-
-  ngOnInit() {
-
-    this.filteredOptions = this.searchForm.valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value))
-    );
-  }
-
-  operationLevelToggleChange(event: any) {
-    this.ws.show_advanced_operations = event.checked;
-    this.refreshOperations();
-
-  }
-
-  refreshOperations() {
-
-    this.op_tree = this.makeOperationsList();
-    this.filteredOptions = this.searchForm.valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value))
-    );
-  }
-
-  makeOperationsList() {
-
-    function alphabetical(a, b) {
-      if (a.display_name < b.display_name) {
-        return -1;
-      }
-      if (a.display_name > b.display_name) {
-        return 1;
-      }
-      return 0;
-    }
-
-
-    const op_list = this.classifications.map(classification => {
-      return {
-        class_name: classification.category_name,
-        color: classification.color,
-        ops: classification.op_names
-          .map(op => { return { name: op, display_name: this.ops.getDisplayName(op), advanced: this.ops.idAdvanced(op) } })
-          .filter(op => {
-            if (this.ws.show_advanced_operations) {
-              return true;
-            } else {
-              return op.advanced === false;
-            }
-          })
-      }
-    });
-
-
-    op_list.forEach(el => {
-      el.ops.sort(alphabetical);
-    })
-
-    return op_list;
-
-
-
-  }
-
-
-  /**
-   * adds the first of the filtered list of operations to the workspace
-   */
-  public enter() {
-
-
-    const value = this.searchForm.value.toLowerCase();
-
-    //run the filter function again without the classification titles
-    let tree = this.op_tree.reduce((acc, classification) => {
-      return acc.concat(classification.ops
-        .filter(option => option.display_name.toLowerCase().includes(value)));
-    }, []);
-
-    if (tree.length > 0) this.addOperation(tree[0].name);
-
-    this.searchForm.setValue('');
-
-
-  }
-
-
-  private _filter(value: string): any[] {
-
-    const filterValue = value.toLowerCase();
-
-    let tree = this.op_tree.map(classification => {
-      return {
-        class_name: classification.class_name,
-        color: classification.color,
-        ops: classification.ops
-          .filter(option => option.display_name.toLowerCase().includes(filterValue))
-      }
-    });
-
-    tree = tree.filter(classification => classification.ops.length > 0);
-
-    if (tree.length == 0) {
-      this.search_error = "no operations match this search"
-    } else {
-      this.search_error = '';
-    }
-
-    return tree;
-
-
-
   }
 
   setScroll(delta: any) {
     this.palette.handleScroll(delta);
     this.manual_scroll = true;
     //this.view_tool.updateViewPort(data);
+  }
+
+  refreshOperations() {
+    this.sidebar.refreshOperations();
   }
 
 
@@ -235,9 +102,7 @@ export class MixerComponent {
    * @param name 
    */
   addOperation(name: string) {
-
     let id = this.palette.addOperation(name);
-    this.searchForm.setValue('');
     const outputs = this.tree.getNonCxnOutputs(id);
     if (outputs.length > 0) this.vs.setViewer(outputs[0]);
 
@@ -249,7 +114,6 @@ export class MixerComponent {
       outputs: this.tree.getOutwardConnectionProxies(id)
     }
     this.ss.addStateChange(change);
-
   }
 
 
@@ -555,6 +419,13 @@ export class MixerComponent {
   //     });
 
   // }
+
+  public downloadVisibleDraftsAsBmp() {
+    this.palette.downloadVisibleDraftsAsBmp();
+  }
+  public downloadVisibleDraftsAsWif() {
+    this.palette.downloadVisibleDraftsAsWif();
+  }
 
 
 

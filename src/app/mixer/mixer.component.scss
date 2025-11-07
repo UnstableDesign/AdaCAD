@@ -22,16 +22,6 @@
   text-align: right;
 }
 
-.mixer-sidebars{
-
-
-  padding: 16px;
-  flex: 0 0 275px;
-  display: flex;
-  overflow: scroll;
-  flex-direction: column;
-
-}
 
 .palette{
   height: 100%;
@@ -44,20 +34,6 @@
   pointer-events: none;
 }
 
-h3{
-  text-align: left;
-  font-weight: lighter;
-  padding-bottom: 0px;
-  color: #999;
-  margin-top: 24px;
-}
-
-
-.mat-expansion-panel-header{
-  i{
-      padding-right: 8px;
-  }
-}
 
 .sidenav{
   display: flex;
@@ -91,18 +67,6 @@ h3{
 
 
 
-.mat-stroked-button{
-  margin: 2px;
-  max-width: 160px;
-  
-  &.operation{
-    color: white;
-    white-space: normal;
-    line-height: 20px;
-    padding: 10px;
-  }
-
-}
 
 .button_col{
   display: flex;
@@ -151,9 +115,6 @@ h3{
 }
 
 
-.mat-mdc-form-field {
-width: 95%;
-}
 
 
 .workspace_settings{

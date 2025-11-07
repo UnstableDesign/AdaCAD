@@ -188,6 +188,10 @@ export class ViewerComponent {
     } else this.sim.loadNewDraft(id);
   }
 
+  public renderChange() {
+    this.redraw();
+  }
+
   /**
    * redraws the current draft, usually following an update from the drawdown
    */

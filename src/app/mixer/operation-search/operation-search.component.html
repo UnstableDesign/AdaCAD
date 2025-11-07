@@ -1,0 +1,23 @@
+<mat-form-field matNativeControl class="quickop_form is-fullwidth" appearance="fill" width='100%' color="primary">
+  <mat-label><i class="fas fa-search"></i> search operations</mat-label>
+  <input type="text" placeholder="" (keyup.enter)="enter()" matInput [formControl]="searchForm">
+</mat-form-field>
+
+<div>{{search_error}}</div>
+
+<mat-slide-toggle [checked]="ws.show_advanced_operations" (change)="operationLevelToggleChange($event)">
+  Show Advanced Operations</mat-slide-toggle>
+
+@for (classification of filteredOptions | async; track classification) {
+<h3>{{classification.class_name}} </h3>
+@for (op_names of classification.ops; track op_names) {
+<button mat-stroked-button class="operation" [style.background-color]="classification.color"
+  (click)="onAddOperation(op_names.name)" [matTooltip]="ops.getOpDescription(op_names.name)">
+  @if (op_names.advanced) {
+  <span><i class="fa-regular fa-star"></i></span>
+  }
+  {{op_names.display_name}}
+</button>
+}
+}
+

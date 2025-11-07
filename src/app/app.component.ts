@@ -6,7 +6,7 @@ import { User } from '@angular/fire/auth';
 import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
@@ -89,12 +89,12 @@ export class AppComponent implements OnInit, OnDestroy {
   cdr = inject(ChangeDetectorRef);
   title = 'app';
 
-  @ViewChild(MixerComponent) mixer;
-  @ViewChild(EditorComponent) editor;
-  @ViewChild(ViewerComponent) viewer;
+  @ViewChild(MixerComponent) mixer: MixerComponent;
+  @ViewChild(EditorComponent) editor: EditorComponent;
+  @ViewChild(ViewerComponent) viewer: ViewerComponent;
   @ViewChild('bitmapImage') bitmap: any;
-  @ViewChild(ViewadjustComponent) viewadjust;
-  @ViewChild(LoadingComponent) loadingComponent;
+  @ViewChild(ViewadjustComponent) viewadjust: ViewadjustComponent;
+  @ViewChild(LoadingComponent) loadingComponent: MatDialogRef<LoadingComponent>;
 
 
   //modals to manage
@@ -201,7 +201,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.editor.clearSelection();
       }
       if (this.vs.getViewerId() === (<DraftStateAction>action).id) {
-        this.viewer.redraw();
+        this.viewer.renderChange();
       }
 
     })
@@ -641,7 +641,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.processFileData(result.data, result.meta.name)
       .then(data => {
-        this.mixer.changeDesignmode('move')
+        this.mixer.changeDesignMode('move')
         this.clearAll();
         console.log("imported new file", result, result.data)
       })
@@ -1133,7 +1133,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public materialChange() {
 
     this.mixer.materialChange();
-    this.editor.redrawSimulation();
+    this.editor.materialChange();
     this.saveFile();
   }
 
@@ -1359,7 +1359,7 @@ export class AppComponent implements OnInit, OnDestroy {
   originChange(e: any) {
     this.selected_origin = e.value;
     this.ws.selected_origin_option = this.selected_origin;
-    this.mixer.originChange(); //force a redraw so that the weft/warp system info is up to date
+    this.mixer.originChange(this.selected_origin); //force a redraw so that the weft/warp system info is up to date
     this.editor.redraw();
     this.saveFile();
   }
@@ -1760,7 +1760,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   drawModeChange(mode: string) {
-    this.editor.drawModeChange(mode);
+    this.mixer.changeDesignMode(mode);
   }
 
 
@@ -1871,7 +1871,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   updateMixerView(event: any) {
-    this.mixer.renderChange(event);
+    this.mixer.renderChange();
   }
 
   /**
@@ -1904,9 +1904,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (view_window === null || view_window === undefined) return;
 
 
-    if (this.viewer.view_expanded) {
-      this.viewer.renderChange();
-    } else if (this.selected_editor_mode == 'mixer') {
+    if (this.selected_editor_mode == 'mixer') {
 
       let selections = this.multiselect.getSelections();
 
@@ -1928,7 +1926,7 @@ export class AppComponent implements OnInit, OnDestroy {
       let prior = this.zs.getMixerZoom();
       const viewWindowRect = view_window.getBoundingClientRect();
       this.zs.zoomToFitMixer(bounds, viewWindowRect);
-      this.mixer.renderChange(prior);
+      this.mixer.renderChange();
 
       const newZoomRatio = this.zs.getMixerZoom();
 
@@ -2004,13 +2002,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.updateTextSizing();
 
-    if (this.viewer.view_expanded) {
-      this.zs.zoomOutViewer();
-      this.viewer.renderChange();
-    } else if (this.selected_editor_mode == 'mixer') {
+    if (this.selected_editor_mode == 'mixer') {
       const prior = this.zs.getMixerZoom();
       this.zs.zoomOutMixer();
-      this.mixer.renderChange(prior);
+      this.mixer.renderChange();
 
 
 
@@ -2028,13 +2023,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.updateTextSizing();
 
-    if (this.viewer.view_expanded) {
-      this.zs.zoomInViewer();
-      this.viewer.renderChange();
-    } else if (this.selected_editor_mode == 'mixer') {
-      const prior = this.zs.getMixerZoom();
+    if (this.selected_editor_mode == 'mixer') {
       this.zs.zoomInMixer();
-      this.mixer.renderChange(prior);
+      this.mixer.renderChange();
     } else {
       this.zs.zoomInEditor()
       this.editor.renderChange();
@@ -2058,10 +2049,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.updateTextSizing();
 
-    if (this.viewer.view_expanded) {
-      this.zs.setZoomIndexOnViewer(ndx);
-      this.viewer.renderChange();
-    } else if (this.selected_editor_mode == 'mixer') {
+    if (this.selected_editor_mode == 'mixer') {
       this.zs.setZoomIndexOnMixer(ndx);
       this.mixer.renderChange();
     } else {
@@ -2096,7 +2084,7 @@ export class AppComponent implements OnInit, OnDestroy {
         break;
       case 'jpg':
         let visvars = this.viewer.getVisVariables();
-        saveAsPrint(b, draft, visvars.use_floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
+        saveAsPrint(b, draft, visvars.floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
         break;
       case 'wif':
         let loom = this.tree.getLoom(this.vs.getViewerId());

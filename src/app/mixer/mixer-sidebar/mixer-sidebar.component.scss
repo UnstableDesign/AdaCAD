@@ -1,0 +1,97 @@
+.mixer-sidebars{
+  padding: 16px;
+  flex: 0 0 275px;
+  display: flex;
+  overflow: scroll;
+  flex-direction: column;
+  position: relative;
+  transition: flex 0.3s ease;
+
+  &.hide{
+    display: none;
+  }
+
+  &.collapsed{
+    flex: 0 0 60px;
+    padding: 8px;
+    overflow: visible;
+  }
+}
+
+.toggle-button{
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+
+  &:hover{
+    background-color: rgba(255, 255, 255, 1);
+  }
+
+  i{
+    font-size: 14px;
+  }
+}
+
+.collapsed-content{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 48px;
+  align-items: center;
+  width: 100%;
+}
+
+.collapsed-icon-button{
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  
+  i{
+    font-size: 18px;
+  }
+
+  &:hover{
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+h3{
+  text-align: left;
+  font-weight: lighter;
+  padding-bottom: 0px;
+  color: #999;
+  margin-top: 24px;
+}
+
+.mat-expansion-panel-header{
+  i{
+      padding-right: 8px;
+  }
+}
+
+.mat-stroked-button{
+  margin: 2px;
+  max-width: 160px;
+  
+  &.operation{
+    color: white;
+    white-space: normal;
+    line-height: 20px;
+    padding: 10px;
+  }
+}
+
+.mat-mdc-form-field {
+  width: 95%;
+}
+
