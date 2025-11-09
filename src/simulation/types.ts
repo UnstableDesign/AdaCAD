@@ -102,6 +102,7 @@ export type SimulationVars = {
     repulse_force_correction: number, //a lever to control how strongly ACNs will repulse eachother. 
     time: number //the time upon which to apply the force in the ACN simulation of the simulation. 
     mass: number //the mass of the yarn in the simulation. 
+    max_theta: number //the maximum theta that a yarn can travel between two ACNS
 }
 
 // export type Particle = {
