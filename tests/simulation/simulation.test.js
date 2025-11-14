@@ -1,6 +1,6 @@
 
 import { createMaterial } from '../../src/material';
-import { getDraftTopology, getNodeType, getFloats, getWeftLayer } from '../../src/simulation/simulation';
+import { getDraftTopology, getNodeType, getFloats, getWeftLayer, printCNs } from '../../src/simulation/simulation';
 import { parseStringToDrawdown, filterToUniqueValues, printDrawdown } from '../../src/utils/utils';
 import { initDraftFromDrawdown, initDraftWithParams } from '../../src/draft';
 
@@ -528,6 +528,7 @@ const isolateLayers = require('../../src/simulation/simulation').isolateLayers;
 test('isolate layers, single layer structure', async () => {
 
 
+
     let sim = defaultSimVars;
     sim.use_layers = true;
     sim.lift_limit = 1;
@@ -694,7 +695,7 @@ test('set float on two layer', async () => {
     const weft_floats = setFloatBlocking(8, 8, cns);
     const floats_with_id = weft_floats.map(el => { return { id: el.id, float: el, touched: false } })
 
-    printFloats(floats_with_id)
+    //printFloats(floats_with_id)
 
 
 });
@@ -832,7 +833,7 @@ test('smooth pick, zig zag', async () => {
     expect(smoothed_pick[3].vtx.y).toBe(1);
     expect(smoothed_pick[4].vtx.y).toBeGreaterThan(0);
 
-    console.log("SMOOTHED PICK: ", smoothed_pick.map(el => el.vtx.y));
+    // console.log("SMOOTHED PICK: ", smoothed_pick.map(el => el.vtx.y));
 
 })
 
@@ -952,7 +953,7 @@ test('testing follow the wefts with two layer tabby', async () => {
     simVars.lift_limit = 3;
     simVars.mass = 150;
     simVars.time = 0.5;
-    simVars.max_theta = Math.PI / 4;
+    simVars.max_theta = 0;
     simVars.ms = [material_a, material_b];
     simVars.use_smoothing = true;
     simVars.repulse_force_correction = 0;
@@ -965,11 +966,76 @@ test('testing follow the wefts with two layer tabby', async () => {
     const topo = await getDraftTopology(draft, simVars);
 
     const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
-    // printFloats(adj_floats);
+    printFloats(adj_floats);
 
-    const vtxs = await followTheWefts(draft, topo.floats, topo.cns, simVars);
+    const paths = await followTheWefts(draft, topo.floats, topo.cns, simVars);
+
+    for (let i = 0; i < paths[0].vtxs.length; i++) {
+        let point = paths[0].vtxs[i];
+        console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
+    }
 
 
+    const path = paths[0];
+    let max_y_0 = path.vtxs.filter(el => el.ndx.i == 0).reduce((acc, el) => {
+        return Math.max(acc, el.vtx.y);
+    }, 0);
+    let max_y_1 = path.vtxs.filter(el => el.ndx.i == 1).reduce((acc, el) => {
+        return Math.max(acc, el.vtx.y);
+    }, 0);
+
+    let max_y_2 = path.vtxs.filter(el => el.ndx.i == 2).reduce((acc, el) => {
+        return Math.max(acc, el.vtx.y);
+    }, 0);
+    expect(max_y_1).toBeGreaterThan(max_y_0);
+    expect(max_y_2).toBeGreaterThan(max_y_1);
+
+
+
+
+
+
+})
+
+
+
+test('testing follow the wefts with three layer tabby', async () => {
+
+    const material_a = createMaterial({ id: 0 })
+    material_a.diameter = 2;
+    const material_b = createMaterial({ id: 1 })
+    material_b.diameter = 2;
+
+    const simVars = defaultSimVars;
+    simVars.use_layers = true;
+    simVars.lift_limit = 3;
+    simVars.mass = 150;
+    simVars.time = 0.5;
+    simVars.max_theta = 0;
+    simVars.ms = [material_a, material_b];
+    simVars.use_smoothing = true;
+    simVars.repulse_force_correction = 0;
+
+
+    const draft = initDraftFromDrawdown(a1b2_c3_d4_tabby_draft);
+
+    printDrawdown(draft.drawdown);
+
+    const topo = await getDraftTopology(draft, simVars);
+
+    const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
+    printFloats(adj_floats);
+    printCNs(topo.cns, 8, 8);
+
+    const paths = await followTheWefts(draft, topo.floats, topo.cns, simVars);
+
+    for (let i = 0; i < paths[0].vtxs.length; i++) {
+        let point = paths[0].vtxs[i];
+        console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
+    }
+
+
+    // const path = paths[0];
     // let max_y_0 = path.vtxs.filter(el => el.ndx.i == 0).reduce((acc, el) => {
     //     return Math.max(acc, el.vtx.y);
     // }, 0);
@@ -989,7 +1055,4 @@ test('testing follow the wefts with two layer tabby', async () => {
 
 
 })
-
-
-
 
