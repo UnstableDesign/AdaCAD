@@ -68,14 +68,23 @@ const satin_drawdown = `
 |-------
 `;
 
-const two_side_twill = `-|---|--
-|-|||-||
---|---|-
-||-|||-|
----|---|
-||||---|
-|---|---
--|||-|||
+const two_side_twill =
+    `|-||||||
+-----|--
+||-|||||
+------|-
+|||-||||
+-------|
+||||-|||
+|-------
+|||||-||
+-|------
+||||||-|
+--|-----
+|||||||-
+---|----
+-|||||||
+----|---
 `;
 
 const a1b2_c3_d4_tabby = `
@@ -1056,3 +1065,44 @@ test('testing follow the wefts with three layer tabby', async () => {
 
 })
 
+
+test('testing follow the wefts with two face twill', async () => {
+
+    const material_a = createMaterial({ id: 0 })
+    material_a.diameter = 2;
+    const material_b = createMaterial({ id: 1 })
+    material_b.diameter = 2;
+
+    const simVars = defaultSimVars;
+    simVars.use_layers = true;
+    simVars.lift_limit = 3;
+    simVars.mass = 150;
+    simVars.time = 0.5;
+    simVars.max_theta = Math.PI / 4;
+    simVars.ms = [material_a, material_b];
+    simVars.use_smoothing = true;
+    simVars.repulse_force_correction = 0;
+
+
+    const draft = initDraftFromDrawdown(two_side_twill_draft);
+
+    const topo = await getDraftTopology(draft, simVars);
+
+    const paths = await followTheWefts(draft, topo, simVars);
+
+    for (let i = 0; i < paths[0].vtxs.length; i++) {
+        let point = paths[0].vtxs[i];
+        console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
+    }
+
+
+
+
+
+
+
+
+
+
+
+})
