@@ -2,7 +2,7 @@
 //import * as THREE from 'three';
 import { Draft, Drawdown, getCellValue, warps, wefts } from "../draft";
 import { getDiameter, getMaterialStretch, Material } from "../material";
-import { filterToUniqueValues, interpolate, modStrict } from "../utils";
+import { filterToUniqueValues, interpolate, modStrict, printDrawdown } from "../utils";
 import { CNIndex, ContactNeighborhood, CNType, CNFloat, SimulationVars, WeftPath, YarnVertex, WarpPath, SimulationData, Vec3 } from "./types";
 
 
@@ -21,19 +21,17 @@ export const computeSimulationData = async (draft: Draft, simVars: SimulationVar
     const simData: SimulationData = {
         draft: draft,
         topo: topo ?? [],
-        floats: floats ?? [],
         wefts: wefts ?? [],
         warps: warps ?? []
     };
 
     if (simData.topo.length == 0) {
-        const res = await getDraftTopology(simData.draft, simVars);
-        simData.topo = res.cns;
-        simData.floats = res.floats;
+        simData.topo = await getDraftTopology(simData.draft, simVars);
+
     }
 
     if (simData.wefts.length == 0)
-        simData.wefts = await followTheWefts(simData.draft, simData.floats, simData.topo, simVars);
+        simData.wefts = await followTheWefts(simData.draft, simData.topo, simVars);
 
     if (simData.warps.length == 0)
         simData.warps = await placeWarps(simData.draft, simData.wefts, simVars);
@@ -97,38 +95,6 @@ export const getLayer = (ndx: CNIndex, warps: number, cns: Array<ContactNeighbor
     return cn.layer;
 }
 
-export const getWeftLayer = (i: number, j: number, wefts: number, warps: number, cns: Array<ContactNeighborhood>): number => {
-
-    //walk left until you hit an ACN - then return it's layer. 
-    let found = false;
-    let layer = 0;
-    for (let j_offset = 0; j_offset < warps - 1 && !found; j_offset++) {
-        const j_adj = modStrict(j - j_offset, warps);
-        const cn = getCN({ i, j: j_adj, id: 0 }, warps, cns);
-        if (cn.node_type == 'ACN') {
-            found = true;
-            layer = cn.layer;
-        }
-    }
-    if (!found) console.error("NO ACN FOUND FOR WEFT LAYER", i, j);
-    return layer;
-}
-
-export const getWarpLayer = (i: number, j: number, wefts: number, warps: number, cns: Array<ContactNeighborhood>): number => {
-
-    //walk down until you hit an ACN - then return it's layer. 
-    let found = false;
-    let layer = 0;
-    for (let i_offset = 0; i_offset < wefts - 1 && !found; i_offset++) {
-        const i_adj = modStrict(i - i_offset, wefts);
-        const cn = getCN({ i: i_adj, j, id: 2 }, warps, cns);
-        if (cn.node_type == 'ACN') {
-            found = true;
-            layer = cn.layer;
-        }
-    }
-    return layer;
-}
 
 export const layerNotSet = (i: number, j: number, id: number, warps: number, cns: Array<ContactNeighborhood>): boolean => {
     const cn_left = getCN({ i, j, id: 0 }, warps, cns);
@@ -269,45 +235,6 @@ export const getColAsFloats = (j: number, wefts: number, warps: number, cns: Arr
 
 }
 
-
-
-// /**
-//  * used in support of determining how floats stack, this function gets a list of id's that are attached to a given float. Since more than one float may be attached, this takes that list of ids and returns the number of floats it represents. 
-//  * @param i 
-//  * @param warps 
-//  * @param face 
-//  * @param segments the list of indicies
-//  * @param cns 
-//  * @returns 
-//  */
-// const extractFloat = (i: number, warps: number, face: boolean | null, segments: Array<number>, cns: Array<ContactNeighborhood>): { float: CNFloat | null, last: number } => {
-
-//     //walk to the first ACN
-//     let start = null;
-//     let end = null;
-
-//     for (let s = 0; s < segments.length; s++) {
-
-//         //check the left side
-//         const adj_j = modStrict(segments[s], warps);
-//         if (getNodeType({ i, j: adj_j, id: 0 }, warps, cns) == 'ACN') {
-//             if (start == null) {
-//                 start = { i, j: segments[s], id: 0 }
-//             }
-//         }
-//         //check the right side
-//         if (getNodeType({ i, j: adj_j, id: 1 }, warps, cns) == 'ACN') {
-//             if (start !== null) {
-//                 end = { i, j: segments[s], id: 1 };
-//                 const edge = (end.j >= warps - 1 || start.j <= 0);
-//                 return { float: { left: start, right: end, face, edge }, last: segments[s] }
-//             }
-//         }
-
-//     }
-//     //got to the end and there was no closing this might mean we have reached the end of the row. 
-//     return { float: null, last: segments.length }
-// }
 
 
 const checkWarpIndexInRange = (i: number, j: number, wefts: number, float: CNFloat): boolean => {
@@ -478,269 +405,6 @@ export const getAttachedFloats = (i: number, float: CNFloat, warps: number, all_
 }
 
 
-// /**
-//  * get all the weft-wise floats with the same face value that share an edge with the input float that reside on the row indicated by i. Given that if we are assuming repeats, some indexes might be beyond or not actually existing in the cn list
-//  * @param i 
-//  * @param warps 
-//  * @param float 
-//  * @param cns 
-//  * @returns 
-//  */
-// const getAttachedFloats = (i: number, wefts: number, warps: number, float: CNFloat, cns: Array<ContactNeighborhood>): Array<CNFloat> => {
-//     const attached = [];
-//     let segments = [];
-
-
-
-//     if (i < 0) i = modStrict(i, wefts);
-
-
-//     //walk along the input float and push any lower neighbors that match face
-//     for (let j = float.left.j; j <= float.right.j; j++) {
-//         const adj_j = modStrict(j, warps); //protect when float ends are out of range
-//         const face = getFace({ i, j: adj_j, id: 0 }, warps, cns);
-//         if (float.face !== null && float.face == face) {
-//             segments.push(j)
-//         }
-//     }
-
-
-//     if (segments.length == 0) return [];
-
-//     const left_edge = segments[0];
-//     const right_edge = segments[segments.length - 1]
-
-
-//     //walk left to find attached
-//     let edge_found = false;
-//     for (let count = 1; count < warps && !edge_found; count++) {
-//         const adj_j = modStrict((left_edge - count), warps);
-//         const face = getFace({ i, j: adj_j, id: 0 }, warps, cns);
-//         if (float.face !== null && float.face == face) {
-//             segments.unshift((left_edge - count))
-//         } else {
-//             edge_found = true;
-//         }
-//     }
-
-
-//     //walk right to find attached
-//     edge_found = false;
-//     for (let count = 1; count < warps && !edge_found; count++) {
-//         const adj_j = modStrict((right_edge + count), warps);
-//         const face = getFace({ i, j: adj_j, id: 0 }, warps, cns);
-//         if (float.face !== null && float.face == face) {
-//             segments.push(right_edge + count);
-
-//         } else {
-//             edge_found = true;
-//         }
-//     }
-
-//     //SEGMENTS NOW CONTAINS A LIST OF ALL the Cells of the same face color, the left most and right most CNS in these cells should be the edges. This list may be empty if there was only the opposite color attached. 
-
-//     let loops = 0;
-//     while (segments.length > 0 && loops < 20) {
-//         loops++;
-//         const extracted = extractFloat(i, warps, float.face, segments, cns);
-//         if (extracted.float !== null) {
-//             attached.push(extracted.float)
-//         }
-
-//         segments = segments.filter(el => el > extracted.last);
-//     }
-
-//     return attached;
-// }
-
-
-/**
- * in cases where two floats share an edge, we need more information than just the two same faced floats. we need to look at their attached alternating floats and determine if/how they cross. 
- * another way to do this would be to compare the two floats in a cell-wise fashion and anywhere where they share a value, we ignore and anywhere where they have different values, we compare the 
- * orientations of the cells to see if a cross happens. 
- * @param float 
- * @param attached 
- * @param wefts 
- * @param warps 
- * @param all_floats 
- */
-const getSharedEdgeFloatRelationship = (float: CNFloat, attached: CNFloat, wefts: number, warps: number, all_floats: Array<CNFloat>): { kind: string, float: CNFloat | null } => {
-    //we need to project out from the shared edge. 
-
-
-    if (float.left.j == attached.left.j) {
-        //walk left to find the edges of the attached float
-
-        const float_left_neighbor = getWeftFloat(float.left.i, float.left.j - 1, wefts, warps, all_floats);
-        const attached_left_neighbor = getWeftFloat(attached.left.i, attached.left.j - 1, wefts, warps, all_floats);
-
-        if (float_left_neighbor !== null && attached_left_neighbor !== null) {
-            const float_neighbor_end = float_left_neighbor.left.j;
-            const attached_neighbor_end = attached_left_neighbor.left.j;
-
-            const s1_lessthan_s2 = float.right.j < attached.right.j;
-            const e1_lessthan_e2 = float_neighbor_end < attached_neighbor_end;
-            const e1_equal_e2 = float_neighbor_end == attached_neighbor_end;
-
-            if (e1_equal_e2) {
-                //   - x x | - - x x 
-                //   - x x | - - - x
-                return { kind: "SLIDE", float: attached };
-            }
-            else if (s1_lessthan_s2 !== e1_lessthan_e2) {
-                //   - x x | - - x x 
-                //   x x x | - - - x
-                return { kind: "BUILD", float: attached };
-            } else {
-                //   x x x | - - x x 
-                //   - x x | - - - x
-                return { kind: "SLIDE", float: attached };
-            }
-        } else {
-            console.error("NO NEIGHBOR FOUND FOR FLOAT ", float.id, " AND ATTACHED ", attached.id)
-            return { kind: "NONE", float: null };
-        }
-
-    } else {
-        //walk right to find the edges of the attached float
-
-
-        const float_right_neighbor = getWeftFloat(float.right.i, float.right.j + 1, wefts, warps, all_floats);
-        const attached_right_neighbor = getWeftFloat(attached.right.i, attached.right.j + 1, wefts, warps, all_floats);
-
-        if (float_right_neighbor !== null && attached_right_neighbor !== null) {
-            const float_neighbor_end = float_right_neighbor.right.j;
-            const attached_neighbor_end = attached_right_neighbor.right.j;
-
-
-            const s1_lessthan_s2 = float.left.j < attached.left.j;
-            const e1_lessthan_e2 = float_neighbor_end < attached_neighbor_end;
-            const e1_equal_e2 = float_neighbor_end == attached_neighbor_end;
-
-            if (e1_equal_e2) {
-                //  x - - - | x x x - - 
-                //  x x x - | x x x - - 
-                return { kind: "SLIDE", float: attached };
-            } else if (s1_lessthan_s2 !== e1_lessthan_e2) {
-                //  x - - - | x x x - - 
-                //  x x x - | x x - - - 
-                return { kind: "BUILD", float: attached };
-            } else {
-                //  x - - - | x x - - -
-                //  x x x - | x x x - - 
-                return { kind: "SLIDE", float: attached };
-            }
-        } else {
-            console.error("NO NEIGHBOR FOUND FOR FLOAT ", float.id, " AND ATTACHED ", attached.id)
-            return { kind: "NONE", float: null };
-        }
-
-
-
-
-    }
-
-
-
-}
-
-
-//APPROACH 2: 
-//work purly from ACNS 
-//compare pairwise face values (on row i and isubn)
-//walk to the first case where face i != face isubn
-//walk to along until you find another case where face i != face i subn in the opposite configuration to the original find. 
-//mark any floats on isubn between the two points as blocking for float i. 
-
-
-/**
- * Given two floats that lie above each other on the draft, this function determines the relation ship of the float and the floats on previous rows.It 
- * checks the edge ACNs to determine how this float will intersect, or not, with any previous float. Along the way, it adds any floats that intersect, or block, 
- * the starting float to the blocking list. 
- * @param float : the float we are virtually pushing down the cloth
- * @param attached : a list of floats on a previous row that share an edge with this float. 
- * 
- * @returns 
- */
-const getWarpwiseRelationship = (float: CNFloat, attached: Array<CNFloat>, wefts: number, warps: number, all_floats: Array<CNFloat>): Array<{ kind: string, float: CNFloat | null }> => {
-
-
-
-    const reltns: Array<{ kind: string, float: CNFloat | null }> = [];
-
-    //we need to start but putting both floats in the same coordinate space. 
-    // so if the width is 8 and there is a float from 4-10, it wraps from 4 around to 2. 
-    // the other float, then, needs to be compared it it's original location and it's location + warps
-
-    // . . . . - - - - | - -
-    // . - . . . . . . | . -
-
-
-    attached.forEach((el) => {
-
-
-        const { ar, al, fr, fl } = alignCoordinates(el.right.j, el.left.j, float.right.j, float.left.j, warps);
-
-
-        if (fr > ar && fl > al) {
-            //float:     x x - - - - x x
-            //attached:  x - - - - x x x                     
-            // console.log("A2")
-            reltns.push({ kind: "BUILD", float: el });
-
-        } else if (fr < ar && fl < al) {
-
-            //float:     x - - - - x x x
-            //attached:  x x - - - - x x  
-            // console.log("B", fl, fr, al, ar)
-            reltns.push({ kind: "BUILD", float: el });
-        }
-        else if (fr == ar && fl == al) {
-            // console.log("C")
-            //float:     x x - - - - x x
-            //attached:  x x - - - - x x  
-            reltns.push({ kind: "STACK", float: el });
-        }
-        else if (fl == al || fr == ar) {
-            //THIS CASE IS INCONCLUSIVE IF WE ONLY LOOK AT TWO WEFT FLOATS
-            //float:     x x - - - - - x
-            //attached:  x x - - - x x x 
-            const reltn = getSharedEdgeFloatRelationship(float, el, wefts, warps, all_floats);
-            reltns.push(reltn);
-        }
-
-        else if (fl < al && fr > ar) {
-            // console.log("E")
-            //float:     x x - - - - - x
-            //attached:  x x x - - x x x  
-            // input float is wider than attached float. 
-
-            if (float.face == false) reltns.push({ kind: "SLIDE-OVER", float: el })
-            else reltns.push({ kind: "SLIDE-UNDER", float: el })
-        }
-
-        else if (fl > al && fr < ar) {
-            // console.log("F")
-            //float:     x x - - x x x x
-            //attached:  x - - - - - x x  
-            if (float.face == false) reltns.push({ kind: "SLIDE-UNDER", float: el })
-            else reltns.push({ kind: "SLIDE-OVER", float: el })
-        } else {
-            console.error(" UNACCOUNTED FOR RELATIONSHIP FOUND BETWEEN ", float, el)
-        }
-        //  }
-
-
-
-
-    });
-
-
-
-    return reltns;
-
-
-}
 
 
 /**
@@ -1769,7 +1433,7 @@ export const isolateLayers = (wefts: number, warps: number, floats: Array<CNFloa
  * @param sim variables to control how the parsing takes place (e.g. specifically if you want to render the draft as it would be woven vs forcing it to go full width)
  * @returns 
  */
-const parseDrawdown = (d: Draft, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<{ cns: Array<ContactNeighborhood>, floats: Array<CNFloat> }> => {
+const parseDrawdown = (d: Draft, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<ContactNeighborhood>> => {
 
     // console.log("**************** NEW DRAFT LOADED **************", d)
 
@@ -1804,7 +1468,7 @@ const parseDrawdown = (d: Draft, cns: Array<ContactNeighborhood>, sim: Simulatio
     floats = setFloatBlocking(wefts(dd), warps(dd), cns);
 
 
-    return Promise.resolve({ cns, floats });
+    return Promise.resolve(cns);
 }
 
 
@@ -1812,7 +1476,7 @@ const parseDrawdown = (d: Draft, cns: Array<ContactNeighborhood>, sim: Simulatio
 /**
  * update this to contact neighborhood 
  */
-export const getDraftTopology = async (draft: Draft, sim: SimulationVars): Promise<{ cns: Array<ContactNeighborhood>, floats: Array<CNFloat> }> => {
+export const getDraftTopology = async (draft: Draft, sim: SimulationVars): Promise<Array<ContactNeighborhood>> => {
 
     return initContactNeighborhoods(draft.drawdown)
         .then(cns => {
@@ -1893,12 +1557,12 @@ const getFellY = (vtxs: Array<YarnVertex>): number => {
  *      c - contact point (true for left side of the warp, false for right)
 **/
 
-export const calcX = (j: number, d: number, warp_w: number, weft_w: number, left: boolean): number => {
+export const calcX = (vtx: Vec3, j: number, d: number, warp_w: number, weft_w: number, left: boolean): Vec3 => {
 
     const basis = j * d;
     const offset = warp_w / 2 + weft_w / 2;
-    const adj = (left) ? basis - offset : basis + offset;
-    return adj;
+    vtx.x = (left) ? basis - offset : basis + offset;
+    return vtx;
 
 
 };
@@ -2008,6 +1672,15 @@ export const getFloatVtxRight = (float: CNFloat, warps: number, wefts: number, v
     return vtxs[0];
 }
 
+
+export const getBlockingVtx = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>, vtx_list: Array<YarnVertex>): YarnVertex | null => {
+    const cn = getCN(ndx, warps, cns);
+
+    const blocking_vtx = cn.isect !== null ? getVertexForCN(cn.isect, vtx_list) : null;
+
+    return blocking_vtx;
+}
+
 /**
  * computes the y value of the highest vertex of the blocking floats.
  * it is possible for the blocking float to not have been added yet, for instance, if the float is wrapping. In that case, this function returns 
@@ -2017,32 +1690,18 @@ export const getFloatVtxRight = (float: CNFloat, warps: number, wefts: number, v
  * @param vtx_list 
  * @returns 
  */
-export const getYOfBlockingFloat = (warps: number, wefts: number, blocking_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars, verbose: boolean): number => {
-    let blocking_y = 0;
-    if (verbose) console.log("BLOCKING FLOATS ", blocking_floats.map(el => el.id));
-
-    blocking_floats.forEach(el => {
-
-        if (verbose) console.log("CHECKING BLOCKING FLOAT ", el.id);
-        //the blocking float may technically wrap the edge of the draft. When rendering, we should ignore any out of range ACNS 
+export const getYOfBlockingVtx = (blocking_vtx: YarnVertex | null, paths: Array<WeftPath>, sim: SimulationVars, verbose: boolean): number => {
 
 
-        const vtx_left = getFloatVtxLeft(el, warps, wefts, vtx_list);
-        const vtx_right = getFloatVtxRight(el, warps, wefts, vtx_list);
+    let blocking_y: number = 0; //the y value of the highest vertex of the blocking floats. 
 
-        const y_left = (vtx_left !== null) ? vtx_left.vtx.y : -1;
-        const y_right = (vtx_right !== null) ? vtx_right.vtx.y : -1;
+    if (blocking_vtx === null) return 0;
 
-        if (verbose) console.log("Y LEFT AND RIGHT ", el.id, vtx_left, vtx_right, y_left, y_right);
-
-        const y_max = Math.max(y_left, y_right);
-        if (y_max > blocking_y) blocking_y = y_max;
-    });
-    const height_offset = getYarnHeightOffset(blocking_floats[0].right.i, paths, sim);
-
-    //need to add the height of the blocking material
-    if (verbose) console.log("HEIGHT OFFSET ", height_offset)
+    blocking_y = blocking_vtx.vtx.y;
+    if (verbose) console.log("BLOCKING Y ", blocking_y)
+    const height_offset = getYarnHeightOffset(blocking_vtx.ndx.i, paths, sim);
     return blocking_y + height_offset;
+
 }
 
 
@@ -2056,11 +1715,14 @@ export const getYOfBlockingFloat = (warps: number, wefts: number, blocking_float
  * @param vtx_list 
  * @returns 
  */
-export const getRepelForceAtX = (x: number, y: number, warps: number, wefts: number, float: CNFloat, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, verbose: boolean): number => {
+export const getRepelForceAtVtx = (vtx: Vec3, blocking_vtx: YarnVertex | null, verbose: boolean): number => {
 
+    if (blocking_vtx === null) return -1;
 
+    let r = Math.sqrt(Math.pow(vtx.x - blocking_vtx.vtx.x, 2) + Math.pow(vtx.y - blocking_vtx.vtx.y, 2));
+    if (r == -1) return -1;
+    if (r == 0) r = .8
 
-    const r = getDistanceACN(x, y, warps, wefts, float, all_floats, vtx_list, verbose);
     if (verbose) console.log("DISTANCE ACN ", r)
     const r_meters = r / 1000;
 
@@ -2105,6 +1767,14 @@ export const calculateYRepel = (force_repel: number, time: number, mass: number,
 export const getBlockingFloatsForACN = (warps: number, float: CNFloat, all_floats: Array<CNFloat>): Array<CNFloat> => {
     const blocking_list = float.blocking.filter(el => all_floats.find(f => f.id == el) !== undefined).map(el => all_floats.find(f => f.id == el) as CNFloat);
     return blocking_list;
+}
+
+export const getVertexForCN = (ndx: CNIndex, vtx_list: Array<YarnVertex>): YarnVertex | null => {
+    const vtx = vtx_list.find(el => el.ndx.i == ndx.i && el.ndx.j == ndx.j && el.ndx.id == ndx.id);
+    if (vtx !== undefined) {
+        return vtx;
+    }
+    return null;
 }
 
 /**
@@ -2153,48 +1823,39 @@ export const getBlockingFloatsForACN = (warps: number, float: CNFloat, all_float
 // 3. After the beat is released the vertexes are repelled by their proximity to the closest ACN on any of the blocking wefts.  
 // 4. After all the of these values are added, a smoothing step needs to take place to lift up any vertexes based on the stretchiness of the yarn. 
 
-export const calcY = (x: number, y: number, b: number, float: CNFloat | null, warps: number, wefts: number, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars, verbose: boolean = false): number => {
+export const calcY = (ndx: CNIndex, vtx: Vec3, b: number, warps: number, wefts: number, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars, cns: Array<ContactNeighborhood>, verbose: boolean = false): Vec3 => {
+
 
 
     //INSERT - assume this is 200 px above the highest vtx. 
 
-    if (verbose) console.log("INSERT Y ", y)
+    if (verbose) console.log("INSERT Y ", vtx.y)
 
     //BEAT - assume 300 gets us as far as we need to go. 
-    const y_beat = y - (30 * b);
+    const y_beat = vtx.y - (30 * b);
     if (verbose) console.log("Y _ BEAT ", y_beat)
 
-    if (float == null) {
-        console.error("FLOAT IS NULL IN VTX Y")
-        return y_beat;
-    }
+    const blocking_vtx = getBlockingVtx(ndx, warps, cns, vtx_list);
+    const y_blocking = getYOfBlockingVtx(blocking_vtx, paths, sim, verbose);
 
-    //since we only create vertices for weft floats, we need to also quickly check the blocking on neighboring warp floats
-    const blocking_floats = getBlockingFloatsForACN(warps, float, all_floats);
-    if (verbose) console.log("BLOCKING FLOATS ", blocking_floats.map(el => el.id));
-    //y limit represents the location of the blocking yarn that will intersect with this float. 
-    const has_blocking_vtx: boolean = hasBlockingVtx(warps, wefts, blocking_floats, vtx_list);
+    vtx.y = Math.max(y_blocking, y_beat);
 
-    if (verbose) console.log("HAS BLOCKING VTX ", has_blocking_vtx)
-    let y_blocking: number = 0; //the y value of the highest vertex of the blocking floats. 
-    if (has_blocking_vtx) {
-        y_blocking = getYOfBlockingFloat(warps, wefts, blocking_floats, vtx_list, paths, sim, verbose);
-        y = Math.max(y_blocking, y_beat);
-        if (verbose) console.log("Y _ BLOCKING and resulting y", y_blocking, y)
-        const force_repel = getRepelForceAtX(x, y, warps, wefts, float, all_floats, vtx_list, verbose);
+
+    const force_repel = getRepelForceAtVtx(vtx, blocking_vtx, verbose);
+    if (force_repel == -1) {
+        vtx.y = Math.max(getYarnHeightOffset(0, paths, sim), y_beat);
+    } else {
         if (verbose) console.log("REPEAL FORCE", force_repel)
 
         const y_repel = calculateYRepel(force_repel, sim.time, sim.mass, verbose);
         if (verbose) console.log("REPEAL DIST", y_repel)
 
-        y += y_repel;
-    } else {
-        y = Math.max(getYarnHeightOffset(0, paths, sim), y_beat);
-
+        vtx.y += y_repel;
     }
-    if (verbose) console.log("RETURNING ", y)
 
-    return y;
+    if (verbose) console.log("RETURNING ", vtx.y)
+
+    return vtx;
 
 
 }
@@ -2268,52 +1929,34 @@ export const smoothPick = (pick: Array<YarnVertex>, stretch: number, theta_max: 
  * a value of 0 means the acns are directly above one another, and should stack. A value close to one, is a strong repel. 
  * a larger value means that the ACNs are separated by some other distance. 
  * At a later date, we make this consider x and y, in the case when the y values between vary. 
- * @param x 
- * @param float 
- * @param all_floats 
- * @param vtx_list 
  * @returns the distance between the ACNS as it would be rendered in pixels
  */
-export const getDistanceACN = (x: number, y: number, warps: number, wefts: number, float: CNFloat, all_floats: Array<CNFloat>, vtx_list: Array<YarnVertex>, verbose: boolean): number => {
+export const getClosestBlockingVertex = (ndx: CNIndex, vtx: Vec3, warps: number, wefts: number, vtx_list: Array<YarnVertex>, cns: Array<ContactNeighborhood>, verbose: boolean): number => {
 
 
 
-    if (float.blocking.length == 0) return -1;
     if (vtx_list.length == 0) return -1;
 
+    const weft_layer = getWeftLayer(ndx, warps, cns);
+
+    //get eligable blocking vertices that have already been added to the vtx list
+    //CONSIDER IF WE NEED TO CAP THIS TO SOME AMOUNT SO THAT IT DOESN"T EXPLODE WITH NEEDLESS VALUES
+    const eligable_blocking_vtxs = vtx_list.filter(el => getLayer(el.ndx, warps, cns) == weft_layer);
+
+    if (eligable_blocking_vtxs.length == 0) return -1;
+
     let min_dist = 10000;
-    // if (verbose) console.log("BLOCKING FLOATS ", float.blocking.map(el => el));
-    float.blocking.forEach(el => {
-        const blocking_float = all_floats.find(f => f.id == el);
-        if (verbose) console.log("CHECKING BLOCKING FLOAT ", el);
-
-        if (blocking_float != undefined) {
-            const vtx_left = getFloatVtxLeft(blocking_float, warps, wefts, vtx_list);
-            const vtx_right = getFloatVtxRight(blocking_float, warps, wefts, vtx_list);
-            if (verbose) console.log("VTX LEFT AND RIGHT ", vtx_left?.ndx, vtx_right?.ndx);
+    eligable_blocking_vtxs.forEach(el => {
 
 
-            if (vtx_left == null && vtx_right == null) {
-                console.error("NO VTXS FOUND FOR BLOCKING FLOAT ", blocking_float.id);
-                return;
-            }
+        //initialize the distances to a large number
+        let dist_square: number = 100000;
+        dist_square = Math.pow(vtx.x - el.vtx.x, 2) + Math.pow(vtx.y - el.vtx.y, 2);
 
-            //initialize the distances to a large number
-            let dist_square_left: number = 100000;
-            let dist_square_right: number = 100000;
-            if (vtx_left != null) {
-                dist_square_left = Math.pow(x - vtx_left.vtx.x, 2) + Math.pow(y - vtx_left.vtx.y, 2);
-            }
+        if (dist_square < min_dist) min_dist = dist_square;
 
-            if (vtx_right != null) {
-                dist_square_right = Math.pow(x - vtx_right.vtx.x, 2) + Math.pow(y - vtx_right.vtx.y, 2);
-            }
-            if (verbose) console.log("DIST SQUARE LEFT AND RIGHT ", dist_square_left, dist_square_right);
-            const local_min = Math.min(dist_square_left, dist_square_right);
-            if (local_min < min_dist) min_dist = local_min;
-        }
 
-        if (verbose) console.log("MIN DIST ", min_dist)
+        //if (verbose) console.log("MIN DIST ", min_dist)
     });
 
     return Math.sqrt(min_dist);
@@ -2334,8 +1977,9 @@ export const getDistanceACN = (x: number, y: number, warps: number, wefts: numbe
  * @param layer_spacing 
  * @returns 
  */
-export const calcZ = (layer: number, layer_spacing: number): number => {
-    return layer * -layer_spacing;
+export const calcZ = (pos: Vec3, layer: number, layer_spacing: number): Vec3 => {
+    pos.z = layer * -layer_spacing;
+    return pos;
 }
 
 
@@ -2352,16 +1996,16 @@ export const calcZ = (layer: number, layer_spacing: number): number => {
  */
 const createPlaceholderVertex = (ndx: CNIndex, y: number, z: number, d: Draft, sim: SimulationVars): YarnVertex => {
 
+    let pos: Vec3 = { x: 0, y: y, z: z };
 
     const weft_material_id = d.rowShuttleMapping[ndx.i];
     const weft_diameter = getDiameter(weft_material_id, sim.ms);
     const warp_material_id = d.colShuttleMapping[ndx.j];
     const warp_diameter = getDiameter(warp_material_id, sim.ms);
-    const x_pos = calcX(ndx.j, sim.warp_spacing, warp_diameter, weft_diameter, ndx.id == 0);
+    pos = calcX(pos, ndx.j, sim.warp_spacing, warp_diameter, weft_diameter, ndx.id == 0);
 
 
-    const vtx: Vec3 = { x: x_pos, y: y, z: z };
-    return { ndx, vtx, orientation: null }
+    return { ndx, vtx: pos, orientation: null }
 
 
 }
@@ -2379,9 +2023,9 @@ const createPlaceholderVertex = (ndx: CNIndex, y: number, z: number, d: Draft, s
  * -z is moving from the face moving towards the back of the fabric, +z is moving towars  
  * 1 px = 1 mm
  */
-const createWeftVertex = (ndx: CNIndex, fell: number, d: Draft, vtx_list: Array<YarnVertex>, cns: Array<ContactNeighborhood>, all_floats: Array<CNFloat>, paths: Array<WeftPath>, sim: SimulationVars): YarnVertex => {
+const createWeftVertex = (ndx: CNIndex, fell: number, d: Draft, vtx_list: Array<YarnVertex>, cns: Array<ContactNeighborhood>, paths: Array<WeftPath>, sim: SimulationVars): YarnVertex => {
 
-    //const verbose = ndx.i == 3;
+    // const verbose = ndx.i == 0;
     const verbose = false;
     if (verbose) console.log("CREATING FOR ", ndx)
 
@@ -2390,22 +2034,20 @@ const createWeftVertex = (ndx: CNIndex, fell: number, d: Draft, vtx_list: Array<
     const weft_diameter = getDiameter(weft_material_id, sim.ms);
     const warp_material_id = d.colShuttleMapping[ndx.j];
     const warp_diameter = getDiameter(warp_material_id, sim.ms);
-    const float = getWeftFloat(ndx.i, ndx.j, wefts(d.drawdown), warps(d.drawdown), all_floats);
     const face = getFace(ndx, warps(d.drawdown), cns);
     const edge = (ndx.id == 0) ? true : false; //left or right
 
     //orientation is face xor edge
     const orientation = face !== edge;
+    let pos: Vec3 = { x: 0, y: fell + pack_offset, z: 0 };
 
-    const x_pos = calcX(ndx.j, sim.warp_spacing, warp_diameter, weft_diameter, ndx.id == 0);
-    const y_pos = calcY(x_pos, fell + pack_offset, sim.pack, float, warps(d.drawdown), wefts(d.drawdown), 0.
-        , vtx_list, paths, sim, verbose);
-    const z_pos = calcZ(getLayer(ndx, warps(d.drawdown), cns), sim.layer_spacing);
+    pos = calcX(pos, ndx.j, sim.warp_spacing, warp_diameter, weft_diameter, ndx.id == 0);
+    pos = calcY(ndx, pos, sim.pack, warps(d.drawdown), wefts(d.drawdown), vtx_list, paths, sim, cns, verbose);
+    pos = calcZ(pos, getLayer(ndx, warps(d.drawdown), cns), sim.layer_spacing);
 
-    const vtx: Vec3 = { x: x_pos, y: y_pos, z: z_pos };
 
-    if (verbose) console.log("CREATED VTX ", ndx, vtx)
-    return { ndx, vtx, orientation }
+    if (verbose) console.log("CREATED VTX ", ndx, pos)
+    return { ndx, vtx: pos, orientation }
 
 
 }
@@ -2732,16 +2374,101 @@ export const reduceVerticesAndSetOrientation = (paths: Array<WeftPath>, warps: n
 }
 
 
-/**
- * this function walks the ACNS pick by pick. It creates a vertex anywhere it finds a weft-float ACN. It also assigns that vertex to the 
- * correct weft path. 
- * @param draft 
- * @param floats 
- * @param cns 
- * @param sim 
- * @returns 
- */
-export const followTheWefts = (draft: Draft, floats: Array<CNFloat>, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<WeftPath>> => {
+export const getWeftLayer = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>): number => {
+
+    //walk left until you hit an ACN - then return it's layer. 
+    let found = false;
+    let layer_left = 0, layer_right = 0;
+    for (let j_offset = 0; j_offset < warps - 1 && !found; j_offset++) {
+        const j_adj = modStrict(ndx.j - j_offset, warps);
+        const cn_left = getCN({ i: ndx.i, j: j_adj, id: 0 }, warps, cns);
+        if (cn_left.node_type == 'ACN') {
+            found = true;
+            layer_left = cn_left.layer;
+        }
+    }
+
+    found = false;
+    for (let j_offset = 0; j_offset < warps - 1 && !found; j_offset++) {
+        const j_adj = modStrict(ndx.j + j_offset, warps);
+        const cn_right = getCN({ i: ndx.i, j: j_adj, id: 1 }, warps, cns);
+        if (cn_right.node_type == 'ACN') {
+            found = true;
+            layer_right = cn_right.layer;
+        }
+    }
+
+    if (layer_left !== layer_right) {
+        console.error("WEFT LAYER MISMATCH", ndx, layer_left, layer_right);
+    }
+
+    return layer_left;
+}
+
+export const getWarpLayer = (ndx: CNIndex, wefts: number, warps: number, cns: Array<ContactNeighborhood>): number => {
+    //walk up until you hit an ACN - then return it's layer. 
+    let found = false;
+    let layer_left = 0, layer_right = 0;
+    for (let i_offset = 0; i_offset < wefts - 1 && !found; i_offset++) {
+        const i_adj = modStrict(ndx.i - i_offset, wefts);
+        const cn_left = getCN({ i: i_adj, j: ndx.j, id: 2 }, warps, cns);
+        if (cn_left.node_type == 'ACN') {
+            found = true;
+            layer_left = cn_left.layer;
+        }
+    }
+
+    found = false;
+    for (let i_offset = 0; i_offset < wefts - 1 && !found; i_offset++) {
+        const i_adj = modStrict(ndx.i + i_offset, wefts);
+        const cn_right = getCN({ i: i_adj, j: ndx.j, id: 3 }, warps, cns);
+        if (cn_right.node_type == 'ACN') {
+            found = true;
+            layer_right = cn_right.layer;
+        }
+    }
+
+    if (layer_left !== layer_right) {
+        console.error("WARP LAYER MISMATCH", ndx, layer_left, layer_right);
+    }
+
+    return layer_left;
+}
+
+
+export const pruneAndSetCNBlocking = (wefts: number, warps: number, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
+    const acns = cns
+        .filter(el => el.node_type == 'ACN')
+        .filter(el => getWeftLayer(el.ndx, warps, cns) == getWarpLayer(el.ndx, wefts, warps, cns));
+
+
+
+    acns.forEach(acn => {
+        const layer = getWeftLayer(acn.ndx, warps, cns);
+        const potential_blocks = acns.filter(el => getWeftLayer(el.ndx, warps, cns) == layer && el.ndx.i < acn.ndx.i && el.ndx.id < 2);
+        //get the closest neighbor that is on teh same layer and that is in this vertex list. 
+        const closest_neighbor = potential_blocks.reduce((acc: { dist: number, ndx: CNIndex | null }, el: ContactNeighborhood) => {
+            const dist = Math.abs(el.ndx.i - acn.ndx.i);
+            if (dist < acc.dist) return { dist: dist, ndx: el.ndx };
+            return acc;
+        }, { dist: 1000, ndx: null });
+
+        if (closest_neighbor.ndx !== null) {
+            acn.isect = closest_neighbor.ndx;
+        }
+    });
+
+    return acns;
+
+}
+
+export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<WeftPath>> => {
+    printDrawdown(draft.drawdown);
+    printCNs(cns, warps(draft.drawdown), wefts(draft.drawdown));
+
+
+    const pruned_cns = pruneAndSetCNBlocking(wefts(draft.drawdown), warps(draft.drawdown), cns);
+
     const warpnum = warps(draft.drawdown);
 
     //get a list of the unique system-material combinations of this weft. 
@@ -2765,57 +2492,70 @@ export const followTheWefts = (draft: Draft, floats: Array<CNFloat>, cns: Array<
         const direction = (path.pics.length % 2 == 0);  //true is left to right, false is 
         let temp_pic: Array<YarnVertex> = [];
 
+        let pic_acns = pruned_cns.filter(el => el.ndx.i == i && el.ndx.id < 2);
+        if (!direction) pic_acns = pic_acns.reverse();
 
-        if (direction) {
-            for (let j = 0; j < warpnum; j++) {
-
-                const ndx_left = { i, j, id: 0 };
-                const ndx_right = { i, j, id: 1 };
-
-                if (getNodeType(ndx_left, warpnum, cns) == 'ACN') {
-                    const vtx = createWeftVertex(ndx_left, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
-                    temp_pic.push(vtx);
-                }
-
-                if (getNodeType(ndx_right, warpnum, cns) == 'ACN') {
-                    const vtx = createWeftVertex(ndx_right, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
-                    temp_pic.push(vtx);
-                }
-            }
-
-        } else {
-
-            for (let j = warpnum - 1; j >= 0; j--) {
-                const ndx_left = { i, j, id: 0 };
-                const ndx_right = { i, j, id: 1 };
+        pic_acns.forEach(el => {
+            const vtx = createWeftVertex(el.ndx, fell_y, draft, flat_vtx_list, cns, paths, sim);
+            temp_pic.push(vtx);
+        });
 
 
-                if (getNodeType(ndx_right, warpnum, cns) == 'ACN') {
-                    const vtx = createWeftVertex(ndx_right, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
-                    temp_pic.push(vtx);
-                }
+        // if (direction) {
+        //     for (let j = 0; j < warpnum; j++) {
 
-                if (getNodeType(ndx_left, warpnum, cns) == 'ACN') {
-                    const vtx = createWeftVertex(ndx_left, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
-                    temp_pic.push(vtx);
-                }
-            }
-        }
+        //         const ndx_left = { i, j, id: 0 };
+        //         const ndx_right = { i, j, id: 1 };
+
+        //         if (getNodeType(ndx_left, warpnum, cns) == 'ACN' && getWeftLayer(ndx_left, warpnum, cns) == getWarpLayer(ndx_left, wefts(draft.drawdown), warpnum, cns)) {
+        //             const vtx = createWeftVertex(ndx_left, fell_y, draft, flat_vtx_list, cns, paths, sim);
+        //             temp_pic.push(vtx);
+        //         }
+
+        //         if (getNodeType(ndx_right, warpnum, cns) == 'ACN' && getWeftLayer(ndx_right, warpnum, cns) == getWarpLayer(ndx_right, wefts(draft.drawdown), warpnum, cns)) {
+        //             const vtx = createWeftVertex(ndx_right, fell_y, draft, flat_vtx_list, cns, paths, sim);
+        //             temp_pic.push(vtx);
+        //         }
+        //     }
+
+        // } else {
+
+        //     for (let j = warpnum - 1; j >= 0; j--) {
+        //         const ndx_left = { i, j, id: 0 };
+        //         const ndx_right = { i, j, id: 1 };
+
+
+        //         if (getNodeType(ndx_right, warpnum, cns) == 'ACN' && getWeftLayer(ndx_right, warpnum, cns) == getWarpLayer(ndx_right, wefts(draft.drawdown), warpnum, cns)) {
+        //             const vtx = createWeftVertex(ndx_right, fell_y, draft, flat_vtx_list, cns, paths, sim);
+        //             temp_pic.push(vtx);
+        //         }
+
+        //         if (getNodeType(ndx_left, warpnum, cns) == 'ACN' && getWeftLayer(ndx_left, warpnum, cns) == getWarpLayer(ndx_left, wefts(draft.drawdown), warpnum, cns)) {
+        //             const vtx = createWeftVertex(ndx_left, fell_y, draft, flat_vtx_list, cns, paths, sim);
+        //             temp_pic.push(vtx);
+        //         }
+        //     }
+        // }
+
+        // console.log("TEMP PIC ", i, temp_pic.map(el => el.vtx.y));
 
         //updates the x and y values based on blocking of both front and back facing weft floats
         temp_pic = alignXYValues(temp_pic, sim);
 
 
+        //  console.log("AFTER ALIGNMET ", i, temp_pic.map(el => el.vtx.y));
 
         //given a particular theta, smooth the pick. Make sure the yarn cannot move more than theta away from the highest vertex. 
         if (sim.use_smoothing) {
             temp_pic = smoothPick(temp_pic, getMaterialStretch(sim.ms[material]), sim.max_theta, sim.warp_spacing);
         }
+        //  console.log("AFTER SMOOTHING ", i, temp_pic.map(el => el.vtx.y));
 
 
         //if we are rending full width add placeholder verticies and make sure they match the layer of the weft. 
         if (!sim.wefts_as_written)
             temp_pic = addPlaceholderVertices(temp_pic, i, direction, warpnum, cns, draft, sim);
+        //   console.log("AFTER PLACEHOLDER ", i, temp_pic.map(el => el.vtx.y));
 
 
 
@@ -2838,6 +2578,116 @@ export const followTheWefts = (draft: Draft, floats: Array<CNFloat>, cns: Array<
 
 
 }
+
+
+
+
+/**
+ * this function walks the ACNS pick by pick. It creates a vertex anywhere it finds a weft-float ACN. It also assigns that vertex to the 
+ * correct weft path. 
+ * @param draft 
+ * @param floats 
+ * @param cns 
+ * @param sim 
+ * @returns 
+ */
+// export const followTheWefts = (draft: Draft, floats: Array<CNFloat>, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<WeftPath>> => {
+//     const warpnum = warps(draft.drawdown);
+
+//     //get a list of the unique system-material combinations of this weft. 
+//     let paths: Array<WeftPath> = initWeftPaths(draft);
+//     let fell_y = 0;
+
+//     //parse row by row, then assign to the specific path to which this belongs
+//     for (let i = 0; i < wefts(draft.drawdown); i++) {
+
+//         //console.log("FOLLOWING WEFT ", i);
+
+//         const system = draft.rowSystemMapping[i];
+//         const material = draft.rowShuttleMapping[i];
+//         const path = getWeftPath(paths, system, material);
+
+//         if (path === undefined || path === null) {
+//             return Promise.reject("weft path with system and material not found");
+//         }
+
+//         const flat_vtx_list = getFlatVtxList(paths);
+//         const direction = (path.pics.length % 2 == 0);  //true is left to right, false is 
+//         let temp_pic: Array<YarnVertex> = [];
+
+
+//         if (direction) {
+//             for (let j = 0; j < warpnum; j++) {
+
+//                 const ndx_left = { i, j, id: 0 };
+//                 const ndx_right = { i, j, id: 1 };
+
+//                 if (getNodeType(ndx_left, warpnum, cns) == 'ACN') {
+//                     const vtx = createWeftVertex(ndx_left, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
+//                     temp_pic.push(vtx);
+//                 }
+
+//                 if (getNodeType(ndx_right, warpnum, cns) == 'ACN') {
+//                     const vtx = createWeftVertex(ndx_right, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
+//                     temp_pic.push(vtx);
+//                 }
+//             }
+
+//         } else {
+
+//             for (let j = warpnum - 1; j >= 0; j--) {
+//                 const ndx_left = { i, j, id: 0 };
+//                 const ndx_right = { i, j, id: 1 };
+
+
+//                 if (getNodeType(ndx_right, warpnum, cns) == 'ACN') {
+//                     const vtx = createWeftVertex(ndx_right, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
+//                     temp_pic.push(vtx);
+//                 }
+
+//                 if (getNodeType(ndx_left, warpnum, cns) == 'ACN') {
+//                     const vtx = createWeftVertex(ndx_left, fell_y, draft, flat_vtx_list, cns, floats, paths, sim);
+//                     temp_pic.push(vtx);
+//                 }
+//             }
+//         }
+
+//         //updates the x and y values based on blocking of both front and back facing weft floats
+//         temp_pic = alignXYValues(temp_pic, sim);
+
+
+
+//         //given a particular theta, smooth the pick. Make sure the yarn cannot move more than theta away from the highest vertex. 
+//         if (sim.use_smoothing) {
+//             temp_pic = smoothPick(temp_pic, getMaterialStretch(sim.ms[material]), sim.max_theta, sim.warp_spacing);
+//         }
+
+
+//         //if we are rending full width add placeholder verticies and make sure they match the layer of the weft. 
+//         if (!sim.wefts_as_written)
+//             temp_pic = addPlaceholderVertices(temp_pic, i, direction, warpnum, cns, draft, sim);
+
+
+
+
+//         path.vtxs = path.vtxs.concat(temp_pic);
+//         path.pics.push(i);
+//         fell_y = getFellY(flat_vtx_list.concat(path.vtxs));
+//     }
+
+
+
+
+
+//     //since we added vertexes at the edges of every float, places where a front and back facing float meet have two verticies. 
+//     //we only need to render these as though they were a single vertex so we prune the vertices of these duplicates
+//     paths = reduceVerticesAndSetOrientation(paths, warpnum, cns, sim);
+
+
+//     return Promise.resolve(paths);
+
+
+// }
 
 
 
@@ -2964,36 +2814,6 @@ export const calcClothHeightOffsetFactor = (diam: number, radius: number, offset
 
 // DEBUGGING FUNCTIONS
 
-export const printLayerMap = (cns: Array<ContactNeighborhood>, wefts: number, warps: number) => {
-
-    // let weft_layer_map = "";
-    // for (let i = 0; i < wefts; i++) {
-    //     const row = [];
-    //     for (let j = 0; j < warps; j++) {
-    //         row.push(getLayer({ i, j, id: 0 }, warps, cns));
-    //     }
-    //     //layer_map.push(row);
-    //     const row_as_string = row.join(" ");
-    //     weft_layer_map += row_as_string + "\n";
-    // }
-
-    // console.log("WEFT LAYER MAP \n", weft_layer_map)
-
-    // let warp_layer_map = "";
-
-    // for (let j = 0; j < warps; j++) {
-    //     const row = [];
-    //     for (let i = 0; i < wefts; i++) {
-    //         row.push(getLayer({ i, j, id: 2 }, warps, cns));
-    //     }
-    //     const row_as_string = row.join(" ");
-    //     warp_layer_map += row_as_string + "\n";
-    // }
-    // console.log("WARP LAYER MAP \n", warp_layer_map)
-
-}
-
-
 
 export const printCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number) => {
 
@@ -3006,29 +2826,6 @@ export const printCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: 
     let row_ln_1 = ""
     let row_ln_2 = "";
     let row_ln_3 = "";
-
-    // for (let i = 0; i < wefts; i++) {
-    //     row_ln_1 = `  `;
-    //     row_ln_2 = `${i} `;
-    //     row_ln_3 = `  `;
-    //     for (let j = 0; j < warps; j++) {
-    //         let cn_l = getNodeType({ i, j, id: 0 }, warps, cns).substring(0, 1);
-    //         let cn_r = getNodeType({ i, j, id: 1 }, warps, cns).substring(0, 1);
-    //         let cn_t = getNodeType({ i, j, id: 2 }, warps, cns).substring(0, 1);
-    //         let cn_b = getNodeType({ i, j, id: 3 }, warps, cns).substring(0, 1);
-
-    //         if (cn_l == "P") cn_l = "-";
-    //         if (cn_r == "P") cn_r = "-";
-    //         if (cn_t == "P") cn_t = "|";
-    //         if (cn_b == "P") cn_b = "|";
-
-    //         row_ln_1 += `   ${cn_t}   `;
-    //         row_ln_2 += ` ${cn_l} + ${cn_r} `;
-    //         row_ln_3 += `   ${cn_b}   `;
-    //     }
-    //     console.log(row_ln_1 + "\n" + row_ln_2 + "\n" + row_ln_3 + "\n");
-
-    // }
 
     for (let i = 0; i < wefts; i++) {
         row_ln_1 = `  `;

@@ -539,9 +539,12 @@ test('isolate layers, single layer structure', async () => {
     const floats = getFloats(8, 8, cns);
     cns = isolateLayers(8, 8, floats, 1, cns, sim);
 
+    printCNs(cns, 8, 8);
+
+
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            expect(getWeftLayer(i, j, 8, 8, cns)).toBe(1);
+            expect(getWeftLayer({ i, j, id: 0 }, 8, cns)).toBe(1);
         }
     }
 
@@ -567,8 +570,8 @@ test('isolate layers, three layer tabby', async () => {
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            expect(getWeftLayer(i, j, 8, 8, cns)).not.toBe(0);
-            expect(getWeftLayer(i, j, 8, 8, cns)).not.toBeGreaterThan(3);
+            expect(getWeftLayer({ i, j, id: 0 }, 8, cns)).not.toBe(0);
+            expect(getWeftLayer({ i, j, id: 0 }, 8, cns)).not.toBeGreaterThan(3);
         }
     }
 
@@ -592,8 +595,8 @@ test('isolate layers, double basket', async () => {
 
     for (let i = 0; i < 12; i++) {
         for (let j = 0; j < 12; j++) {
-            expect(getWeftLayer(i, j, 12, 12, cns, floats)).not.toBe(0);
-            expect(getWeftLayer(i, j, 12, 12, cns, floats)).not.toBeGreaterThan(2);
+            expect(getWeftLayer({ i, j, id: 0 }, 12, cns)).not.toBe(0);
+            expect(getWeftLayer({ i, j, id: 0 }, 12, cns)).not.toBeGreaterThan(2);
         }
     }
 
@@ -617,8 +620,8 @@ test('isolate layers, two face twill', async () => {
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            expect(getWeftLayer(i, j, 8, 8, cns, floats)).not.toBe(0);
-            expect(getWeftLayer(i, j, 8, 8, cns, floats)).not.toBeGreaterThan(2);
+            expect(getWeftLayer({ i, j, id: 0 }, 8, cns)).not.toBe(0);
+            expect(getWeftLayer({ i, j, id: 0 }, 8, cns)).not.toBeGreaterThan(2);
         }
     }
 
@@ -780,11 +783,14 @@ test('get float relationships', async () => {
 const calcX = require('../../src/simulation/simulation').calcX;
 test('calc x', async () => {
 
-    const x = calcX(0, 10, 2, 2, true);
-    const y = calcX(2, 10, 2, 2, false);
+    let vtx = { x: 0, y: 0, z: 0 };
+    let vtx_b = { x: 0, y: 0, z: 0 };
 
-    expect(x).toBe(-2)
-    expect(y).toBe(22);
+    vtx = calcX(vtx, 0, 10, 2, 2, true);
+    vtx_b = calcX(vtx_b, 2, 10, 2, 2, false);
+
+    expect(vtx.x).toBe(-2)
+    expect(vtx_b.x).toBe(22);
 
 })
 
@@ -868,7 +874,7 @@ test('testing follow the wefts with waffle', async () => {
 
     const topo = await getDraftTopology(draft, simVars);
 
-    const paths = await followTheWefts(draft, topo.floats, topo.cns, simVars);
+    const paths = await followTheWefts(draft, topo, simVars);
     let path = paths[0];
 
     // console.log("PATH: ", path.vtxs.map(el => el.vtx.y));
@@ -908,13 +914,14 @@ test('testing follow the wefts with tabby', async () => {
     printDrawdown(draft.drawdown);
 
     const topo = await getDraftTopology(draft, simVars);
-
+    printCNs(topo, 8, 8);
 
     // const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
     // printFloats(adj_floats);
 
-    const vtxs = await followTheWefts(draft, topo.floats, topo.cns, simVars);
-    let path = vtxs[0];
+    const paths = await followTheWefts(draft, topo, simVars);
+    let path = paths[0];
+    path.vtxs.forEach(el => console.log(el.ndx, el.vtx.y));
 
     expect(path.vtxs.length).toBe(72);
 
@@ -965,10 +972,10 @@ test('testing follow the wefts with two layer tabby', async () => {
 
     const topo = await getDraftTopology(draft, simVars);
 
-    const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
-    printFloats(adj_floats);
+    // const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
+    // printFloats(adj_floats);
 
-    const paths = await followTheWefts(draft, topo.floats, topo.cns, simVars);
+    const paths = await followTheWefts(draft, topo, simVars);
 
     for (let i = 0; i < paths[0].vtxs.length; i++) {
         let point = paths[0].vtxs[i];
@@ -1023,31 +1030,24 @@ test('testing follow the wefts with three layer tabby', async () => {
 
     const topo = await getDraftTopology(draft, simVars);
 
-    const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
-    printFloats(adj_floats);
-    printCNs(topo.cns, 8, 8);
+    const paths = await followTheWefts(draft, topo, simVars);
 
-    const paths = await followTheWefts(draft, topo.floats, topo.cns, simVars);
-
-    for (let i = 0; i < paths[0].vtxs.length; i++) {
-        let point = paths[0].vtxs[i];
-        console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
-    }
+    // for (let i = 0; i < paths[0].vtxs.length; i++) {
+    //     let point = paths[0].vtxs[i];
+    //     console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
+    // }
 
 
-    // const path = paths[0];
-    // let max_y_0 = path.vtxs.filter(el => el.ndx.i == 0).reduce((acc, el) => {
-    //     return Math.max(acc, el.vtx.y);
-    // }, 0);
-    // let max_y_1 = path.vtxs.filter(el => el.ndx.i == 1).reduce((acc, el) => {
-    //     return Math.max(acc, el.vtx.y);
-    // }, 0);
+    const path = paths[0];
+    let max_y_0 = path.vtxs.filter(el => el.ndx.i == 0).reduce((acc, el) => {
+        return Math.max(acc, el.vtx.y);
+    }, 0);
+    let max_y_4 = path.vtxs.filter(el => el.ndx.i == 4).reduce((acc, el) => {
+        return Math.max(acc, el.vtx.y);
+    }, 0);
 
-    // let max_y_2 = path.vtxs.filter(el => el.ndx.i == 2).reduce((acc, el) => {
-    //     return Math.max(acc, el.vtx.y);
-    // }, 0);
-    // expect(max_y_1).toBeGreaterThan(max_y_0);
-    // expect(max_y_2).toBeGreaterThan(max_y_1);
+
+    expect(max_y_4).toBeGreaterThan(max_y_0);
 
 
 

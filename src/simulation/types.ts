@@ -37,6 +37,7 @@ export type CNFloat = {
     face: boolean | null,
     edge: boolean,
     blocking: Array<number>
+
 }
 
 /**
@@ -51,7 +52,7 @@ export type ContactNeighborhood = {
     face: boolean | null,
     node_type: CNType,
     layer: number,
-    ndx: CNIndex
+    ndx: CNIndex,
     isect: CNIndex | null
 }
 
@@ -84,7 +85,6 @@ export type WarpPath = {
 export type SimulationData = {
     draft: Draft,
     topo: Array<ContactNeighborhood>,
-    floats: Array<CNFloat>,
     wefts: Array<WeftPath>,
     warps: Array<WarpPath>
 };
