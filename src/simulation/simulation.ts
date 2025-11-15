@@ -2,7 +2,7 @@
 //import * as THREE from 'three';
 import { Draft, Drawdown, getCellValue, warps, wefts } from "../draft";
 import { getDiameter, getMaterialStretch, Material } from "../material";
-import { filterToUniqueValues, interpolate, modStrict, printDrawdown } from "../utils";
+import { filterToUniqueValues, interpolate, modStrict } from "../utils";
 import { CNIndex, ContactNeighborhood, CNType, CNFloat, SimulationVars, WeftPath, YarnVertex, WarpPath, SimulationData, Vec3 } from "./types";
 
 
@@ -1216,7 +1216,6 @@ export const setFloatBlocking = (wefts: number, warps: number, cns: Array<Contac
 //  * @returns 
 //  */
 export const updateCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: number, sim: SimulationVars): Array<ContactNeighborhood> => {
-    console.log("UPDATE CNS ", wefts, warps);
 
     const regions = [
         { name: "above", id: 2, start_i: -1, start_j: 0 },
@@ -1455,12 +1454,10 @@ const parseDrawdown = (d: Draft, cns: Array<ContactNeighborhood>, sim: Simulatio
 
     //gets all the weft floats
     const floats = getFloats(wefts(dd), warps(dd), cns);
+    cns = isolateLayers(wefts(dd), warps(dd), floats, 1, cns, sim);
 
-    if (sim.use_layers) {
-        cns = isolateLayers(wefts(dd), warps(dd), floats, 1, cns, sim);
-        //need to update float blocking based on updated layers
-    }
 
+    printCNs(cns, wefts(dd), warps(dd));
     return Promise.resolve(cns);
 }
 
@@ -1494,53 +1491,6 @@ const getFellY = (vtxs: Array<YarnVertex>): number => {
     return max_y;
 
 }
-
-/**
- * looks at the move number of the current node and determines, based on the nodes this is connected to, how far is should actually move from it's relationship to neighboring interlacements. This could be more sophisticated (but right now it returns the max over a window of a given size). 
- * @param ndx 
- * @param cns 
- */
-// const calcYOffset = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>, simVars: SimulationVars): number => {
-
-//     const max_dist = 10; //the distance at which one weft would NOT affect another
-//     const mvy = getMvY(ndx, warps, cns);
-
-//     const j_dist = simVars.warp_spacing;  //the distance traveled for each j
-//     const j_check = Math.floor((max_dist / j_dist) / 2);
-//     const left = (simVars.wefts_as_written) ? ndx.j - j_check : modStrict(ndx.j - j_check, warps);
-//     const right = (simVars.wefts_as_written) ? ndx.j + j_check : modStrict(ndx.j + j_check, warps);
-//     const j_left = Math.min(left, right);
-//     const j_right = Math.max(left, right);
-
-//     // console.log("J, J LEFT, J RIGHT ", ndx.j, j_left, j_right)
-//     const row = cns.filter(
-//         el => el.ndx.i == ndx.i
-//             && el.node_type == "ACN"
-//             && el.ndx.j >= j_left
-//             && el.ndx.j <= j_right
-//     );
-
-//     //row should have at least i
-//     // console.log("ROW ", row);
-
-//     // let sum:number = row.reduce((acc, el) => {
-//     //   acc += el.mv.y;
-//     //   return acc;
-//     // }, 0);
-
-//     // return sum / row.length;
-
-//     const min: number = row.reduce((acc, el) => {
-//         if (acc < el.mv.y) acc = el.mv.y;
-//         return acc;
-//     }, mvy);
-
-//     return min;
-
-
-
-// }
-
 
 /**
  * center the x on the warp
@@ -1663,7 +1613,6 @@ export const getFloatVtxRight = (float: CNFloat, warps: number, wefts: number, v
 
 export const getBlockingVtx = (ndx: CNIndex, warps: number, cns: Array<ContactNeighborhood>, vtx_list: Array<YarnVertex>): YarnVertex | null => {
     const cn = getCN(ndx, warps, cns);
-
     const blocking_vtx = cn.isect !== null ? getVertexForCN(cn.isect, vtx_list) : null;
 
     return blocking_vtx;
@@ -1758,7 +1707,8 @@ export const getBlockingFloatsForACN = (warps: number, float: CNFloat, all_float
 }
 
 export const getVertexForCN = (ndx: CNIndex, vtx_list: Array<YarnVertex>): YarnVertex | null => {
-    const vtx = vtx_list.find(el => el.ndx.i == ndx.i && el.ndx.j == ndx.j && el.ndx.id == ndx.id);
+    // console.log("vertex list length ", vtx_list);
+    const vtx = vtx_list.find(el => el.ndx.i == ndx.i && el.ndx.j == ndx.j);
     if (vtx !== undefined) {
         return vtx;
     }
@@ -1824,7 +1774,10 @@ export const calcY = (ndx: CNIndex, vtx: Vec3, b: number, warps: number, wefts: 
     if (verbose) console.log("Y _ BEAT ", y_beat)
 
     const blocking_vtx = getBlockingVtx(ndx, warps, cns, vtx_list);
+    if (verbose) console.log("BLOCKING VTX ", blocking_vtx)
     const y_blocking = getYOfBlockingVtx(blocking_vtx, paths, sim, verbose);
+    if (verbose) console.log("Y BLOCKING ", y_blocking)
+
 
     vtx.y = Math.max(y_blocking, y_beat);
 
@@ -2009,7 +1962,7 @@ const createPlaceholderVertex = (ndx: CNIndex, y: number, z: number, d: Draft, s
  */
 const createWeftVertex = (ndx: CNIndex, fell: number, d: Draft, vtx_list: Array<YarnVertex>, cns: Array<ContactNeighborhood>, paths: Array<WeftPath>, sim: SimulationVars): YarnVertex => {
 
-    // const verbose = ndx.i == 0;
+    //const verbose = ndx.i == 2;
     const verbose = false;
     if (verbose) console.log("CREATING FOR ", ndx)
 
@@ -2291,7 +2244,6 @@ export const getOrientation = (el: YarnVertex, el2: YarnVertex, warps: number, c
 export const pruneDuplicateVertices = (temp_pic: Array<YarnVertex>): Array<YarnVertex> => {
 
 
-
     return temp_pic.reduce((acc: Array<YarnVertex>, el: YarnVertex) => {
 
         const has_index = acc.findIndex(accel => accel.ndx.j == el.ndx.j);
@@ -2408,22 +2360,32 @@ export const getWarpLayer = (ndx: CNIndex, wefts: number, warps: number, cns: Ar
 export const pruneAndSetCNBlocking = (wefts: number, warps: number, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
     const acns = cns
         .filter(el => el.node_type == 'ACN')
+        .filter(el => el.ndx.id < 2)
         .filter(el => getWeftLayer(el.ndx, warps, cns) == getWarpLayer(el.ndx, wefts, warps, cns));
 
 
 
     acns.forEach(acn => {
         const layer = getWeftLayer(acn.ndx, warps, cns);
-        const potential_blocks = acns.filter(el => getWeftLayer(el.ndx, warps, cns) == layer && el.ndx.i < acn.ndx.i && el.ndx.id < 2);
-        //get the closest neighbor that is on teh same layer and that is in this vertex list. 
-        const closest_neighbor = potential_blocks.reduce((acc: { dist: number, ndx: CNIndex | null }, el: ContactNeighborhood) => {
-            const dist = Math.abs(el.ndx.i - acn.ndx.i);
-            if (dist < acc.dist) return { dist: dist, ndx: el.ndx };
-            return acc;
-        }, { dist: 1000, ndx: null });
+        let potential_blocks = acns.filter(el => getWeftLayer(el.ndx, warps, cns) == layer && el.ndx.i < acn.ndx.i && el.ndx.id < 2);
 
-        if (closest_neighbor.ndx !== null) {
-            acn.isect = closest_neighbor.ndx;
+        //prune this list so it is just the max i
+        const max_i = potential_blocks.reduce((acc: number, el: ContactNeighborhood) => {
+            return Math.max(acc, el.ndx.i);
+        }, 0);
+        potential_blocks = potential_blocks.filter(el => el.ndx.i == max_i);
+
+        //get the j value that is the closest to this vertex. 
+        const closest_j = potential_blocks.reduce((acc: number, el: ContactNeighborhood) => {
+            return Math.min(acc, Math.abs(el.ndx.j - acn.ndx.j));
+        }, 1000);
+        potential_blocks = potential_blocks.filter(el => Math.abs(el.ndx.j - acn.ndx.j) == closest_j);
+
+
+
+
+        if (potential_blocks.length > 0) {
+            acn.isect = potential_blocks[0].ndx
         }
     });
 
@@ -2432,11 +2394,12 @@ export const pruneAndSetCNBlocking = (wefts: number, warps: number, cns: Array<C
 }
 
 export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<WeftPath>> => {
-    printDrawdown(draft.drawdown);
-    printCNs(cns, wefts(draft.drawdown), warps(draft.drawdown));
+    // printDrawdown(draft.drawdown);
+    // printCNs(cns, wefts(draft.drawdown), warps(draft.drawdown));
 
 
     const pruned_cns = pruneAndSetCNBlocking(wefts(draft.drawdown), warps(draft.drawdown), cns);
+    // console.log("PRUNED CNS ", pruned_cns.map(el => el.isect));
 
     const warpnum = warps(draft.drawdown);
 
@@ -2447,7 +2410,7 @@ export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, si
     //parse row by row, then assign to the specific path to which this belongs
     for (let i = 0; i < wefts(draft.drawdown); i++) {
 
-        console.log("FOLLOWING WEFT ", i);
+        //console.log("FOLLOWING WEFT ", i);
 
         const system = draft.rowSystemMapping[i];
         const material = draft.rowShuttleMapping[i];
@@ -2464,17 +2427,17 @@ export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, si
         let pic_acns = pruned_cns.filter(el => el.ndx.i == i && el.ndx.id < 2);
         if (!direction) pic_acns = pic_acns.reverse();
 
-        console.log("PIC ACNS ", pic_acns.map(el => el.ndx));
+        // console.log("PIC ACNS ", pic_acns.map(el => el.ndx));
         pic_acns.forEach(el => {
             const vtx = createWeftVertex(el.ndx, fell_y, draft, flat_vtx_list, cns, paths, sim);
             temp_pic.push(vtx);
         });
 
-        console.log("TEMP BEFORE ", temp_pic.map(el => el.ndx));
+        //  console.log("TEMP BEFORE ", temp_pic.map(el => el.ndx));
 
         //updates the x and y values based on blocking of both front and back facing weft floats
         temp_pic = pruneDuplicateVertices(temp_pic);
-        console.log("AFTER PRUNING ", temp_pic.map(el => el.ndx));
+        //  console.log("AFTER PRUNING ", temp_pic.map(el => el.ndx));
 
         //  console.log("AFTER ALIGNMET ", i, temp_pic.map(el => el.vtx.y));
 
@@ -2746,7 +2709,6 @@ export const printCNs = (cns: Array<ContactNeighborhood>, wefts: number, warps: 
     //  . A . 
     //  V + P
     //  . E .
-    console.log("WEFTS ", wefts, " WARPS ", warps);
 
 
     let row_ln_1 = ""

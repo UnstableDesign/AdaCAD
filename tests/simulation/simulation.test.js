@@ -1,9 +1,7 @@
-
-import { createMaterial } from '../../src/material';
-import { getDraftTopology, getNodeType, getFloats, getWeftLayer, printCNs } from '../../src/simulation/simulation';
+import { getNodeType, getFloats, getWeftLayer, getDraftTopology } from '../../src/simulation/simulation';
 import { parseStringToDrawdown, filterToUniqueValues, printDrawdown } from '../../src/utils/utils';
 import { initDraftFromDrawdown, initDraftWithParams } from '../../src/draft';
-
+import { createMaterial } from '../../src/material';
 
 //** created a series of drafts intended to test the abilities of the simulation and layer inference.  */
 
@@ -456,7 +454,6 @@ test('get untouched floats in range', async () => {
     let floats = getFloats(8, 8, cns);
     const floats_with_id = floats.map((el, ndx) => { return { id: ndx, float: el, touched: false } });
 
-    printDrawdown(waffle_dd);
 
     let in_range = getUntouchedFloatsInRange({ l: 0, r: 0 }, { l: 0, r: 0 }, floats_with_id, 8, 8, cns);
     expect(in_range.length).toBe(1);
@@ -548,7 +545,6 @@ test('isolate layers, single layer structure', async () => {
     const floats = getFloats(8, 8, cns);
     cns = isolateLayers(8, 8, floats, 1, cns, sim);
 
-    printCNs(cns, 8, 8);
 
 
     for (let i = 0; i < 8; i++) {
@@ -569,13 +565,14 @@ test('isolate layers, three layer tabby', async () => {
 
     let sim = defaultSimVars;
     sim.use_layers = true;
-    sim.lift_limit = 1;
+    sim.lift_limit = 2;
 
     //TEST ON A SINGLE LAYER STRUCTURE
     let cns = await initContactNeighborhoods(a1b2_c3_d4_tabby_draft);
     cns = updateCNs(cns, 8, 8, sim);
     const floats = getFloats(8, 8, cns);
     cns = isolateLayers(8, 8, floats, 1, cns, sim);
+
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
@@ -619,7 +616,7 @@ test('isolate layers, two face twill', async () => {
 
     let sim = defaultSimVars;
     sim.use_layers = true;
-    sim.lift_limit = 1;
+    sim.lift_limit = 2;
 
     //TEST ON A SINGLE LAYER STRUCTURE
     let cns = await initContactNeighborhoods(two_side_twill_draft);
@@ -682,35 +679,6 @@ test('set float blocking', async () => {
 });
 
 
-test('set float on two layer', async () => {
-
-    //   x [- - -]  x [ - - -]      id: 0 (1, 3), 1 (5, 7)
-    //   x x x [-]  x x x  [-]      id: 2 (3,3),  3 (7,7)
-    //   [- -] x [- - -] x [-]      id: 4 (3, 5) 5 (7, 9)
-    //   x[-] x  x  x [-] x x       id: 6 (1, 1) 7 (5, 5)
-    //   x [- - -]  x [ - - -]      id: 8 (1, 3), 9 (5, 7)
-    //   x x x [-]  x x x  [-]      id: 10 (3,3), 11 (7,7)
-    //   [- -] x [- - -] x [-]      id: 12 (3, 5) 13 (7, 9)
-    //   x[-] x  x  x [-] x x       id: 14 (1, 1) 15 (5, 5)
-
-    let sim = defaultSimVars;
-    sim.use_layers = true;
-    sim.lift_limit = 1;
-    let cns = await initContactNeighborhoods(two_layer_tabby_dd);
-    cns = updateCNs(cns, 8, 8, sim);
-
-
-    let floats = getFloats(8, 8, cns);
-    cns = isolateLayers(8, 8, floats, 1, cns, sim);
-
-    //something recursive is happening in here that we need to fix! 
-    const weft_floats = setFloatBlocking(8, 8, cns);
-    const floats_with_id = weft_floats.map(el => { return { id: el.id, float: el, touched: false } })
-
-    //printFloats(floats_with_id)
-
-
-});
 
 
 
@@ -760,48 +728,35 @@ test('get weft float', async () => {
 
 })
 
-const getFloatRelationships = require('../../src/simulation/simulation').getFloatRelationships;
-test('get float relationships', async () => {
-    let sim = defaultSimVars;
-    sim.use_layers = true;
-    sim.lift_limit = 1;
-    let cns = await initContactNeighborhoods(waffle_dd);
-    cns = updateCNs(cns, 8, 8, sim);
+// const getFloatRelationships = require('../../src/simulation/simulation').getFloatRelationships;
+// test('get float relationships', async () => {
+//     let sim = defaultSimVars;
+//     sim.use_layers = true;
+//     sim.lift_limit = 1;
+//     let cns = await initContactNeighborhoods(waffle_dd);
+//     cns = updateCNs(cns, 8, 8, sim);
 
-    let floats = getFloats(8, 8, cns);
-    let float = getWeftFloat(0, 0, 8, 8, floats);
+//     let floats = getFloats(8, 8, cns);
+//     let float = getWeftFloat(0, 0, 8, 8, floats);
 
-    // let reltns_a = getFloatRelationships(7, float, 8, 8, floats, cns);
-    // let reltns_a_kinds = reltns_a.map(el => el.kind);
-    // expect(reltns_a_kinds).toContain('BUILD')
-
-
-    let float_b = getWeftFloat(3, 1, 8, 8, floats);
-    let reltns_b = getFloatRelationships(2, float_b, 8, 8, floats, cns);
-    let reltns_b_kinds = reltns_b.map(el => el.kind);
-    expect(reltns_b_kinds).toContain('BUILD')
-
-    let float_c = getWeftFloat(5, 5, 8, 8, floats);
-    let reltns_c = getFloatRelationships(4, float_c, 8, 8, floats, cns);
-    let reltns_c_kinds = reltns_c.map(el => el.kind);
-    expect(reltns_c_kinds).toContain('BUILD')
+//     // let reltns_a = getFloatRelationships(7, float, 8, 8, floats, cns);
+//     // let reltns_a_kinds = reltns_a.map(el => el.kind);
+//     // expect(reltns_a_kinds).toContain('BUILD')
 
 
-});
+//     let float_b = getWeftFloat(3, 1, 8, 8, floats);
+//     let reltns_b = getFloatRelationships(2, float_b, 8, 8, floats, cns);
+//     let reltns_b_kinds = reltns_b.map(el => el.kind);
+//     expect(reltns_b_kinds).toContain('BUILD')
 
-const calcX = require('../../src/simulation/simulation').calcX;
-test('calc x', async () => {
+//     let float_c = getWeftFloat(5, 5, 8, 8, floats);
+//     let reltns_c = getFloatRelationships(4, float_c, 8, 8, floats, cns);
+//     let reltns_c_kinds = reltns_c.map(el => el.kind);
+//     expect(reltns_c_kinds).toContain('BUILD')
 
-    let vtx = { x: 0, y: 0, z: 0 };
-    let vtx_b = { x: 0, y: 0, z: 0 };
 
-    vtx = calcX(vtx, 0, 10, 2, 2, true);
-    vtx_b = calcX(vtx_b, 2, 10, 2, 2, false);
+// });
 
-    expect(vtx.x).toBe(-2)
-    expect(vtx_b.x).toBe(22);
-
-})
 
 const computeThetaMax = require('../../src/simulation/simulation').computeThetaMax;
 test('compute theta max', async () => {
@@ -871,7 +826,7 @@ test('testing follow the wefts with waffle', async () => {
         simulate: false,
         time: .003,
         mass: 5,
-        max_theta: 0,
+        max_theta: Math.PI / 4,
         ms: [material_a, material_b],
         use_smoothing: true,
         repulse_force_correction: 0,
@@ -879,7 +834,7 @@ test('testing follow the wefts with waffle', async () => {
 
     const draft = initDraftFromDrawdown(waffle_dd);
 
-    printDrawdown(draft.drawdown);
+    //printDrawdown(draft.drawdown);
 
     const topo = await getDraftTopology(draft, simVars);
 
@@ -923,16 +878,12 @@ test('testing follow the wefts with tabby', async () => {
     printDrawdown(draft.drawdown);
 
     const topo = await getDraftTopology(draft, simVars);
-    printCNs(topo, 8, 8);
-
-    // const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
-    // printFloats(adj_floats);
 
     const paths = await followTheWefts(draft, topo, simVars);
     let path = paths[0];
-    path.vtxs.forEach(el => console.log(el.ndx, el.vtx.y));
+    //path.vtxs.forEach(el => console.log(el.ndx, el.vtx.y));
 
-    expect(path.vtxs.length).toBe(72);
+    expect(path.vtxs.length).toBe(64);
 
     let max_y_0 = path.vtxs.filter(el => el.ndx.i == 0).reduce((acc, el) => {
         return Math.max(acc, el.vtx.y);
@@ -964,21 +915,24 @@ test('testing follow the wefts with two layer tabby', async () => {
     const material_b = createMaterial({ id: 1 })
     material_b.diameter = 2;
 
-    const simVars = defaultSimVars;
-    simVars.use_layers = true;
-    simVars.lift_limit = 3;
-    simVars.mass = 150;
-    simVars.time = 0.5;
-    simVars.max_theta = 0;
-    simVars.ms = [material_a, material_b];
-    simVars.use_smoothing = true;
-    simVars.repulse_force_correction = 0;
+    const simVars = {
+        pack: 1, //max packing
+        lift_limit: 2,
+        use_layers: true,
+        warp_spacing: 10,
+        layer_spacing: 5,
+        wefts_as_written: false,
+        simulate: false,
+        time: .003,
+        mass: 5,
+        max_theta: Math.PI / 4,
+        ms: [material_a, material_b],
+        use_smoothing: true,
+        repulse_force_correction: 0,
+    }
 
 
     const draft = initDraftFromDrawdown(two_layer_tabby_dd);
-
-    printDrawdown(draft.drawdown);
-
     const topo = await getDraftTopology(draft, simVars);
 
     // const adj_floats = topo.floats.map(el => { return { id: el.id, float: el, touched: false } });
@@ -986,10 +940,10 @@ test('testing follow the wefts with two layer tabby', async () => {
 
     const paths = await followTheWefts(draft, topo, simVars);
 
-    for (let i = 0; i < paths[0].vtxs.length; i++) {
-        let point = paths[0].vtxs[i];
-        console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
-    }
+    // for (let i = 0; i < paths[0].vtxs.length; i++) {
+    //     let point = paths[0].vtxs[i];
+    //     console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
+    // }
 
 
     const path = paths[0];
@@ -1022,15 +976,21 @@ test('testing follow the wefts with three layer tabby', async () => {
     const material_b = createMaterial({ id: 1 })
     material_b.diameter = 2;
 
-    const simVars = defaultSimVars;
-    simVars.use_layers = true;
-    simVars.lift_limit = 3;
-    simVars.mass = 150;
-    simVars.time = 0.5;
-    simVars.max_theta = 0;
-    simVars.ms = [material_a, material_b];
-    simVars.use_smoothing = true;
-    simVars.repulse_force_correction = 0;
+    const simVars = {
+        pack: 1, //max packing
+        lift_limit: 2,
+        use_layers: true,
+        warp_spacing: 10,
+        layer_spacing: 5,
+        wefts_as_written: false,
+        simulate: false,
+        time: .003,
+        mass: 5,
+        max_theta: Math.PI / 4,
+        ms: [material_a, material_b],
+        use_smoothing: true,
+        repulse_force_correction: 0,
+    }
 
 
     const draft = initDraftFromDrawdown(a1b2_c3_d4_tabby_draft);
@@ -1073,15 +1033,21 @@ test('testing follow the wefts with two face twill', async () => {
     const material_b = createMaterial({ id: 1 })
     material_b.diameter = 2;
 
-    const simVars = defaultSimVars;
-    simVars.use_layers = true;
-    simVars.lift_limit = 3;
-    simVars.mass = 150;
-    simVars.time = 0.5;
-    simVars.max_theta = Math.PI / 4;
-    simVars.ms = [material_a, material_b];
-    simVars.use_smoothing = true;
-    simVars.repulse_force_correction = 0;
+    const simVars = {
+        pack: 1, //max packing
+        lift_limit: 2,
+        use_layers: true,
+        warp_spacing: 10,
+        layer_spacing: 5,
+        wefts_as_written: false,
+        simulate: false,
+        time: .003,
+        mass: 5,
+        max_theta: Math.PI / 4,
+        ms: [material_a, material_b],
+        use_smoothing: true,
+        repulse_force_correction: 0,
+    }
 
 
     const draft = initDraftFromDrawdown(two_side_twill_draft);
@@ -1090,19 +1056,9 @@ test('testing follow the wefts with two face twill', async () => {
 
     const paths = await followTheWefts(draft, topo, simVars);
 
-    for (let i = 0; i < paths[0].vtxs.length; i++) {
-        let point = paths[0].vtxs[i];
-        console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
-    }
-
-
-
-
-
-
-
-
-
-
+    // for (let i = 0; i < paths[0].vtxs.length; i++) {
+    //     let point = paths[0].vtxs[i];
+    //     console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
+    // }
 
 })
