@@ -20,7 +20,7 @@ import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
 import { Bounds, DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
-import { mergeBounds, saveAsBmp, saveAsPng, saveAsPrint, saveAsWif } from './core/model/helper';
+import { mergeBounds, saveAsBmp, saveAsColoringPage, saveAsPng, saveAsPrint, saveAsWif } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
 import { FirebaseService } from './core/provider/firebase.service';
 import { MaterialsService } from './core/provider/materials.service';
@@ -2096,6 +2096,9 @@ export class AppComponent implements OnInit, OnDestroy {
       case 'jpg':
         let visvars = this.viewer.getVisVariables();
         saveAsPrint(b, draft, visvars.floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
+        break;
+      case 'coloring_page':
+        saveAsColoringPage(b, draft, this.ms, this.sys_serve, this.fs)
         break;
       case 'wif':
         let loom = this.tree.getLoom(this.vs.getViewerId());

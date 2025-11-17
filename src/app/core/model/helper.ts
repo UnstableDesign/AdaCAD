@@ -1,5 +1,6 @@
 import { Draft, Loom, LoomSettings, sameOrNewerVersion } from "adacad-drafting-lib";
 import { Cell, Drawdown, flipDraft, getDraftAsImage, getDraftName, initDraft, unpackDrawdownFromArray, unpackDrawdownFromBitArray, warps, wefts } from "adacad-drafting-lib/draft";
+import { jsPDF } from "jspdf";
 import { FileService } from "../provider/file.service";
 import { MaterialsService } from "../provider/materials.service";
 import { SystemsService } from "../provider/systems.service";
@@ -222,6 +223,64 @@ export const saveAsPrint = async (el: any, draft: Draft, floats: boolean, use_co
             a.download = getDraftName(draft) + ".png";
             a.click();
         });
+
+}
+
+
+export const saveAsColoringPage = async (el: any, draft: Draft, ms: MaterialsService, ss: SystemsService, fs: FileService) => {
+
+    let b = el;
+    let context = b.getContext('2d');
+    const cellSize = 40;
+    b.width = (warps(draft.drawdown)) * cellSize;
+    b.height = (wefts(draft.drawdown)) * cellSize;
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, b.width, b.height);
+
+    // Draw the draft image (black and white for coloring page)
+    let img = getDraftAsImage(draft, cellSize, true, false, ms.getShuttles());
+    context.putImageData(img, 0, 0);
+
+
+    // Convert canvas to image data URL
+    const imageDataUrl = b.toDataURL('image/png');
+
+    // Create PDF with letter size (8.5" x 11" = 612 x 792 points)
+    const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: 'letter'
+    });
+
+    // Letter size dimensions in points
+    const pageWidth = 612;
+    const pageHeight = 792;
+    const margin = 36; // 0.5" margins
+    const availableWidth = pageWidth - (2 * margin);
+    const availableHeight = pageHeight - (2 * margin);
+
+    // Calculate scaling to fit within available space
+    const imageWidth = b.width;
+    const imageHeight = b.height;
+    const scaleX = availableWidth / imageWidth;
+    const scaleY = availableHeight / imageHeight;
+    const scale = Math.min(scaleX, scaleY);
+
+    // Calculate scaled dimensions
+    const scaledWidth = imageWidth * scale;
+    const scaledHeight = imageHeight * scale;
+
+    // Center the image on the page
+    const x = margin + (availableWidth - scaledWidth) / 2;
+    const y = margin + (availableHeight - scaledHeight) / 2;
+
+    // Add image to PDF
+    pdf.addImage(imageDataUrl, 'PNG', x, y, scaledWidth, scaledHeight);
+
+    // Save PDF
+    pdf.save(getDraftName(draft) + ".pdf");
+
+    return Promise.resolve();
 
 }
 
