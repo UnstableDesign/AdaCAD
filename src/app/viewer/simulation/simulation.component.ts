@@ -156,7 +156,7 @@ export class SimulationComponent implements OnInit {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xf0f0f0);
 
-    this.camera = new THREE.PerspectiveCamera(30, width / height, 1, 500);
+    this.camera = new THREE.PerspectiveCamera(30, width / height, .1, 2000);
     this.camera.position.set(0, 0, 5);
     this.camera.lookAt(this.scene.position);
 
@@ -165,10 +165,6 @@ export class SimulationComponent implements OnInit {
     this.renderer.setSize(width, height);
     rendering_div.appendChild(this.renderer.domElement);
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    this.scene.add(cube);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.tanFOV = Math.tan(((Math.PI / 180) * this.camera.fov / 2));
@@ -205,35 +201,35 @@ export class SimulationComponent implements OnInit {
 
 
   handlePackChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo, this.simData.floats).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
   }
 
   handleSmoothingChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo, this.simData.floats).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
   }
 
   handleMaxThetaChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo, this.simData.floats).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
   }
 
   handleTimeChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo, this.simData.floats).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
   }
 
   handleMassChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo, this.simData.floats).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
@@ -242,14 +238,14 @@ export class SimulationComponent implements OnInit {
 
 
   handleWeftAsWrittenChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
   }
 
   handleLayerSpacingChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo, this.simData.floats).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
@@ -257,7 +253,7 @@ export class SimulationComponent implements OnInit {
 
 
   handleWarpSpacingChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo, this.simData.floats).then(simdata => {
+    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })

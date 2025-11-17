@@ -1,4 +1,5 @@
-import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -23,7 +24,7 @@ import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-render
   imports: [MatButton, DraftRenderingComponent, FormsModule, MatFormField, MatLabel, MatInput, MatTooltip],
   standalone: true
 })
-export class LibraryComponent implements OnInit {
+export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('hiddenCanvas', { static: false }) hiddenCanvas: ElementRef<HTMLCanvasElement>;
   @ViewChildren(DraftRenderingComponent) draftRenderings: QueryList<DraftRenderingComponent>;
 
@@ -37,6 +38,7 @@ export class LibraryComponent implements OnInit {
   drafts: Array<{ id: number; name: string; draft: Draft }> = [];
   materials: Array<Material> = [];
   selectedDraftIds: Set<number> = new Set();
+  private draftRenderingsSubscription: Subscription;
 
   ngOnInit() {
 
@@ -45,6 +47,34 @@ export class LibraryComponent implements OnInit {
 
     this.loadDrafts();
     this.loadMaterials();
+  }
+
+  ngAfterViewInit() {
+    // Trigger rendering after view is initialized
+    this.renderAllDrafts();
+
+    // Subscribe to QueryList changes to handle dynamic updates
+    this.draftRenderingsSubscription = this.draftRenderings.changes.subscribe(() => {
+      this.renderAllDrafts();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.draftRenderingsSubscription) {
+      this.draftRenderingsSubscription.unsubscribe();
+    }
+  }
+
+  private renderAllDrafts() {
+    // Use setTimeout to ensure the view has fully updated
+    setTimeout(() => {
+      this.draftRenderings.forEach((rendering) => {
+        if (rendering.id !== -1) {
+          rendering.onNewDraftLoaded(rendering.id);
+          rendering.redrawAll();
+        }
+      });
+    }, 0);
   }
 
   loadDrafts() {
@@ -85,14 +115,8 @@ export class LibraryComponent implements OnInit {
     this.loadDrafts();
     this.loadMaterials();
 
-    // Call onNewDraftLoaded on all draft-rendering components after view updates
-    setTimeout(() => {
-      this.draftRenderings.forEach((rendering) => {
-        if (rendering.id !== -1) {
-          rendering.onNewDraftLoaded(rendering.id);
-        }
-      });
-    }, 0);
+    // Trigger rendering after view updates
+    this.renderAllDrafts();
   }
 
   toggleDraftSelection(draftId: number) {

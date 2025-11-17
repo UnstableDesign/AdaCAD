@@ -64,7 +64,7 @@ export class SimulationService {
 
     if (!this.isAcceptableSize(draft)) return Promise.reject("size error");
 
-    return computeSimulationData(draft, simVars, topo, floats);
+    return computeSimulationData(draft, simVars, topo);
 
   }
 
@@ -318,21 +318,76 @@ export class SimulationService {
   }
 
 
-  getOrientationVector(vtx: YarnVertex, next: YarnVertex, diameter: number, warps: number): THREE.Vector3 {
+  /**
+   * gets the directionality at vtx1. 
+   * @param vtx0 if null, we're just going left to right
+   * @param vtx1 
+   * @param vtx2 
+   * @returns 
+   */
+  getDirectionality(vtx1: YarnVertex, vtx2: YarnVertex): boolean {
+    if (vtx1 === null) return true;
+    if (vtx1.ndx.i < vtx2.ndx.i) return null; //moving upward
+    if (vtx1.ndx.j < vtx2.ndx.j) return true;
+    return false;
+  }
 
-    //we are on the right edge of the draft about to move up a row
-    if (next.ndx.i !== vtx.ndx.i && vtx.ndx.j === warps - 1 && vtx.ndx.id == 1) {
-      return new THREE.Vector3(diameter, 0, 0);
-    }
 
-    //we are on the left edge of the draft about to move up a row
-    else if (next.ndx.i !== vtx.ndx.i && vtx.ndx.j === 0 && vtx.ndx.id == 0) {
-      return new THREE.Vector3(-diameter, 0, 0);
-    }
+  getFloatLength(vtx1: YarnVertex, vtx2: YarnVertex): number {
+    if (vtx1 === null || vtx2 == null) return 0;
+    return Math.abs(vtx2.ndx.j - vtx1.ndx.j);
+  }
 
-    else {
-      let orientation_factor = vtx.orientation ? diameter : -diameter;
-      return new THREE.Vector3(0, 0, orientation_factor);
+
+
+  getOrientationVector(vtx0: YarnVertex, vtx1: YarnVertex, vtx2: YarnVertex, warp_spacing: number, diameter: number): { orientation_1: THREE.Vector3, orientation_2: THREE.Vector3 } {
+
+
+    const last_directionality = this.getDirectionality(vtx0, vtx1);
+    const directionality = this.getDirectionality(vtx1, vtx2);
+    const control_point_len = warp_spacing / 2;
+
+    const last_float = this.getFloatLength(vtx0, vtx1);
+    const this_float = this.getFloatLength(vtx1, vtx2);
+    const orientation = vtx1.orientation;
+    //we are on the  edge of the draft about to move up a row
+    if (directionality == null) {
+      //at an edge
+      if (last_directionality === true) {
+        return {
+          orientation_1: new THREE.Vector3(diameter, 0, 0),
+          orientation_2: new THREE.Vector3(diameter, 0, 0)
+        }
+      }
+      else if (last_directionality === false) {
+        return {
+          orientation_1: new THREE.Vector3(-diameter, 0, 0),
+          orientation_2: new THREE.Vector3(-diameter, 0, 0)
+        }
+      }
+      else {
+        return {
+          orientation_1: new THREE.Vector3(0, 0, 0),
+          orientation_2: new THREE.Vector3(0, 0, 0)
+        }
+      }
+    } else if (directionality === true) {
+      //moving left to right
+
+
+
+      return {
+        orientation_1: new THREE.Vector3(control_point_len, 0, 0),
+        orientation_2: new THREE.Vector3(-control_point_len, 0, 0)
+      }
+    } else {
+      return {
+        orientation_1: new THREE.Vector3(-control_point_len, 0, 0),
+        orientation_2: new THREE.Vector3(control_point_len, 0, 0)
+
+      }
+
+
     }
 
   }
@@ -356,7 +411,7 @@ export class SimulationService {
       let pts = [];
       path.vtxs.forEach(vtx => {
         if (vtx.vtx.x !== undefined) {
-          pts.push(new THREE.Vector3(vtx.vtx.x, vtx.vtx.y, -vtx.vtx.z));
+          pts.push(new THREE.Vector3(vtx.vtx.x, vtx.vtx.y, vtx.vtx.z));
         }
       });
 
@@ -391,8 +446,11 @@ export class SimulationService {
 
 
 
-    const curvePath = new THREE.CurvePath();
+
     simdata.wefts.forEach(path => {
+
+
+      const curvePath = new THREE.CurvePath();
 
       const material_id = path.material;
       let diameter = getDiameter(material_id, simVars.ms);
@@ -401,14 +459,23 @@ export class SimulationService {
       let pts = [];
 
       //GET POINTS
+
       for (let x = 0; x < path.vtxs.length - 1; x++) {
+
+        //we need to reference 3 vertices. 
+        //vtx0 is the vertex we last drew (used to calibrate directionality)
+        //vtxy is the start of vertex in a pair of verticies that is currently being drawn
+        //vtx2 is the ending  vertex in a pair of verticies that is currently being drawn
+        const vtx0 = (x > 0) ? path.vtxs[x - 1] : null;
         const vtx1 = path.vtxs[x];
         const vtx2 = path.vtxs[x + 1];
 
-        const orientation_vector = this.getOrientationVector(vtx1, vtx2, diameter, warps(simdata.draft.drawdown));
 
-        const cp1 = new THREE.Vector3(vtx1.vtx.x + orientation_vector.x, vtx1.vtx.y + orientation_vector.y, vtx1.vtx.z + orientation_vector.z);
-        const cp2 = new THREE.Vector3(vtx2.vtx.x + orientation_vector.x, vtx2.vtx.y + orientation_vector.y, vtx2.vtx.z + orientation_vector.z);
+
+        const o_vecs = this.getOrientationVector(vtx0, vtx1, vtx2, simVars.warp_spacing, diameter);
+
+        const cp1 = new THREE.Vector3(vtx1.vtx.x + o_vecs.orientation_1.x, vtx1.vtx.y + o_vecs.orientation_1.y, vtx1.vtx.z + o_vecs.orientation_1.z);
+        const cp2 = new THREE.Vector3(vtx2.vtx.x + o_vecs.orientation_2.x, vtx2.vtx.y + o_vecs.orientation_2.y, vtx2.vtx.z + o_vecs.orientation_2.z);
 
         const curve = new THREE.CubicBezierCurve3(vtx1.vtx, cp1, cp2, vtx2.vtx);
         curvePath.add(curve);

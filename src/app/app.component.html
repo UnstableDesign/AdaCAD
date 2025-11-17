@@ -95,7 +95,7 @@
         <mat-button-toggle-group name="editingMode" [(ngModel)]="selected_editor_mode" class="toggle"
           aria-label="Editor Style" (change)="toggleEditorMode()">
           @for (mode of editorModes; track mode) {
-          <mat-button-toggle [value]="mode.value">{{mode.view}}</mat-button-toggle>
+          <mat-button-toggle [value]="mode.value"><span [class]="mode.icon"></span></mat-button-toggle>
           }
         </mat-button-toggle-group>
       </div>

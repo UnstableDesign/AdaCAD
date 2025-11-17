@@ -90,11 +90,11 @@ export const origin_option_list: Array<{ value: number, view: string }> =
     { value: 3, view: 'top left' },
   ];
 
-export const editor_modes: Array<{ value: string, view: string }> =
+export const editor_modes: Array<{ value: string, view: string, icon: string }> =
   [
-    { value: 'draft', view: 'draft editor' },
-    { value: 'mixer', view: 'workspace' },
-    { value: 'library', view: 'library' }
+    { value: 'draft', view: 'draft editor', icon: 'fa-solid fa-pen-to-square' },
+    { value: 'mixer', view: 'workspace', icon: 'fa-solid fa-code-branch' },
+    { value: 'library', view: 'library', icon: 'fa-solid fa-book-open' }
   ];
 
 export const draft_view_modes = [
