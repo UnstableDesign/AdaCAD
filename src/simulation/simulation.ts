@@ -34,7 +34,7 @@ export const computeSimulationData = async (draft: Draft, simVars: SimulationVar
         simData.wefts = await followTheWefts(simData.draft, simData.topo, simVars);
 
     if (simData.warps.length == 0)
-        simData.warps = await placeWarps(simData.draft, simData.wefts, simVars);
+        simData.warps = await placeWarps(simData.draft, simData.wefts, simData.topo, simVars);
 
     return Promise.resolve(simData);
 
@@ -1685,22 +1685,6 @@ export const calculateYRepel = (force_repel: number, time: number, mass: number,
 }
 
 
-// export const getLeftNeighboringFloat = (warps: number, float: CNFloat, all_floats: Array<CNFloat>): CNFloat | null => {
-//     const float_left_j = modStrict(float.left.j - 1, warps);
-//     const left_float = all_floats.filter(el => el.right.i == float.left.i && modStrict(el.right.j, warps) == float_left_j && el.right.id == 1);
-//     if (left_float.length == 0) return null;
-//     return left_float[0];
-// }
-
-
-// export const getRightNeighboringFloat = (warps: number, float: CNFloat, all_floats: Array<CNFloat>): CNFloat | null => {
-//     const float_right_j = modStrict(float.right.j + 1, warps);
-//     const right_float = all_floats.filter(el => el.left.i == float.right.i && modStrict(el.left.j, warps) == float_right_j && el.left.id == 0);
-//     if (right_float.length == 0) return null;
-//     return right_float[0];
-// }
-
-
 export const getBlockingFloatsForACN = (warps: number, float: CNFloat, all_floats: Array<CNFloat>): Array<CNFloat> => {
     const blocking_list = float.blocking.filter(el => all_floats.find(f => f.id == el) !== undefined).map(el => all_floats.find(f => f.id == el) as CNFloat);
     return blocking_list;
@@ -1715,53 +1699,29 @@ export const getVertexForCN = (ndx: CNIndex, vtx_list: Array<YarnVertex>): YarnV
     return null;
 }
 
-/**
- * when calculating y on a weft, we need to see where the weft collides with other wefts. Since verticies are only created on weft floats this function also checks the floats to the left and right to see what they block with.
- * @param float 
- * @param all_floats 
- * @param cns 
- */
-// export const getRelevantBlockingFloatsForACN = (warps: number, float: CNFloat, all_floats: Array<CNFloat>, verbose: boolean): Array<CNFloat> => {
+export const calcWarpVertexY = (ndx: CNIndex, vtx: Vec3, paths: Array<WeftPath>): Vec3 => {
 
-//     const blocking_list = float.blocking.filter(el => all_floats.find(f => f.id == el) !== undefined).map(el => all_floats.find(f => f.id == el) as CNFloat);
+    const weft_i = ndx.i;
+    const elig_paths = paths.filter(el => el.pics.includes(weft_i));
+    if (elig_paths === undefined || elig_paths === null || elig_paths.length == 0) return vtx;
 
-//     const left = getLeftNeighboringFloat(warps, float, all_floats);
+    const path = elig_paths[0].vtxs.filter(el => el.ndx.i == weft_i);
+    //find the closest weft vertex to this path
 
-//     if (left !== null) {
-//         const left_float_blocking = left.blocking.filter(el => all_floats.find(f => f.id == el) !== undefined).map(el => all_floats.find(f => f.id == el) as CNFloat);
-//         left_float_blocking.forEach(el => {
-//             if (blocking_list.find(f => f.id == el.id) == undefined) {
-//                 blocking_list.push(el);
-//             }
-//         });
-//     }
+    const closest_vtx = path.reduce((acc: { dist: number, vtx: YarnVertex | null }, el: YarnVertex) => {
+        const dist = Math.abs(el.vtx.x - vtx.x);
+        if (dist < acc.dist) return { dist: dist, vtx: el };
+        return acc;
+    }, { dist: 100000, vtx: null });
+    if (closest_vtx === undefined || closest_vtx === null) return vtx;
 
 
-//     const right = getRightNeighboringFloat(warps, float, all_floats);
-//     if (right !== null) {
-//         const right_float_blocking = right.blocking.filter(el => all_floats.find(f => f.id == el) !== undefined).map(el => all_floats.find(f => f.id == el) as CNFloat);
-//         right_float_blocking.forEach(el => {
-//             if (blocking_list.find(f => f.id == el.id) == undefined) {
-//                 blocking_list.push(el);
-//             }
-//         });
-//     }
-//     if (verbose) console.log("LEFT AND RIGHT CHECK ", left, right)
-//     return blocking_list;
-// }
+    vtx.y = closest_vtx.vtx?.vtx.y ?? 0;
+    return vtx;
+}
 
-// y is a function of: 
-//  *      i - the position in which the yarn is inserted
-//  *      b - the strength of the beat (0, 1)
-//  *      p - the proximity of this vertex to the crossing of it's float with another float the closer the cross to this point, the more it will "repel" the previous warp (which is, itself, a function of warp density)
-//  *      max_dist the farthest this weft and be away from the fell. (x, float, all floats)
-// This function calculates the position of y as though multiple actions have been taken. 
-// 1. The weft is inserted at a position y insert that is 200px above all other y values 
-// 2. The beat pushes the y it max pressure, all vertexes are pushed as far as they will go. 
-// 3. After the beat is released the vertexes are repelled by their proximity to the closest ACN on any of the blocking wefts.  
-// 4. After all the of these values are added, a smoothing step needs to take place to lift up any vertexes based on the stretchiness of the yarn. 
 
-export const calcY = (ndx: CNIndex, vtx: Vec3, b: number, warps: number, wefts: number, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars, cns: Array<ContactNeighborhood>, verbose: boolean = false): Vec3 => {
+export const calcWeftVertexY = (ndx: CNIndex, vtx: Vec3, b: number, warps: number, wefts: number, vtx_list: Array<YarnVertex>, paths: Array<WeftPath>, sim: SimulationVars, cns: Array<ContactNeighborhood>, verbose: boolean = false): Vec3 => {
 
 
 
@@ -1881,7 +1841,6 @@ export const getClosestBlockingVertex = (ndx: CNIndex, vtx: Vec3, warps: number,
     const weft_layer = getWeftLayer(ndx, warps, cns);
 
     //get eligable blocking vertices that have already been added to the vtx list
-    //CONSIDER IF WE NEED TO CAP THIS TO SOME AMOUNT SO THAT IT DOESN"T EXPLODE WITH NEEDLESS VALUES
     const eligable_blocking_vtxs = vtx_list.filter(el => getLayer(el.ndx, warps, cns) == weft_layer);
 
     if (eligable_blocking_vtxs.length == 0) return -1;
@@ -1918,13 +1877,20 @@ export const getClosestBlockingVertex = (ndx: CNIndex, vtx: Vec3, warps: number,
  * @param layer_spacing 
  * @returns 
  */
-export const calcZ = (pos: Vec3, face: boolean | null, layer: number, layer_spacing: number, warp_diameter: number, weft_diameter: number): Vec3 => {
+export const calcWeftVertexZ = (pos: Vec3, face: boolean | null, layer: number, layer_spacing: number, warp_diameter: number, weft_diameter: number): Vec3 => {
     if (face == null) console.error("FACE IS NULL in calcZ");
     const offset = warp_diameter / 2 + weft_diameter / 2;
     pos.z = layer * -layer_spacing;
     pos.z = (face) ? pos.z - offset : pos.z + offset;
     return pos;
 }
+
+export const calcWarpVertexZ = (pos: Vec3, face: boolean | null, layer: number, layer_spacing: number): Vec3 => {
+    if (face == null) console.error("FACE IS NULL in calcZ");
+    pos.z = layer * -layer_spacing;
+    return pos;
+}
+
 
 
 /**
@@ -1947,6 +1913,23 @@ const createPlaceholderVertex = (ndx: CNIndex, y: number, z: number, d: Draft, s
 
 }
 
+const createWarpVertex = (ndx: CNIndex, d: Draft, cns: Array<ContactNeighborhood>, weft_paths: Array<WeftPath>, sim: SimulationVars): YarnVertex => {
+    const verbose = false;
+    if (verbose) console.log("CREATING WARP VTX FOR ", ndx)
+
+    const face = getFace(ndx, warps(d.drawdown), cns);
+    const edge = (ndx.id == 2) ? true : false; //left or right
+    const orientation = face !== edge;
+
+    let pos: Vec3 = { x: 0, y: 0, z: 0 };
+    pos = calcX(pos, ndx.j, sim.warp_spacing);
+    pos = calcWarpVertexY(ndx, pos, weft_paths);
+    pos = calcWarpVertexZ(pos, face, getLayer(ndx, warps(d.drawdown), cns), sim.layer_spacing);
+
+    return { ndx, vtx: pos, orientation }
+
+
+}
 
 /**
  * z is a function of: 
@@ -1974,13 +1957,12 @@ const createWeftVertex = (ndx: CNIndex, fell: number, d: Draft, vtx_list: Array<
     const face = getFace(ndx, warps(d.drawdown), cns);
     const edge = (ndx.id == 0) ? true : false; //left or right
 
-    //orientation is face xor edge
     const orientation = face !== edge;
     let pos: Vec3 = { x: 0, y: fell + pack_offset, z: 0 };
 
     pos = calcX(pos, ndx.j, sim.warp_spacing);
-    pos = calcY(ndx, pos, sim.pack, warps(d.drawdown), wefts(d.drawdown), vtx_list, paths, sim, cns, verbose);
-    pos = calcZ(pos, face, getLayer(ndx, warps(d.drawdown), cns), sim.layer_spacing, warp_diameter, weft_diameter);
+    pos = calcWeftVertexY(ndx, pos, sim.pack, warps(d.drawdown), wefts(d.drawdown), vtx_list, paths, sim, cns, verbose);
+    pos = calcWeftVertexZ(pos, face, getLayer(ndx, warps(d.drawdown), cns), sim.layer_spacing, warp_diameter, weft_diameter);
 
 
     if (verbose) console.log("CREATED VTX ", ndx, pos)
@@ -2142,34 +2124,7 @@ export const getMaxY = (weft_paths: Array<WeftPath>): number => {
     }, 0);
 }
 
-/**
- * generates a yarn path for each warp and returns a collection of warps for drawing. 
- * @param draft 
- * @param topo 
- * @param wefts 
- * @param sim 
- * @returns 
- */
-export const placeWarps = (draft: Draft, weft_paths: Array<WeftPath>, sim: SimulationVars): Promise<Array<WarpPath>> => {
 
-    const warp_paths: Array<WarpPath> = [];
-    const min_y = getMinY(weft_paths);
-    const max_y = getMaxY(weft_paths);
-
-    for (let j = 0; j < warps(draft.drawdown); j++) {
-        const system = draft.colSystemMapping[j];
-        const material = draft.colShuttleMapping[j];
-        const path: Array<YarnVertex> = createWarpPathFromWeftPaths(wefts(draft.drawdown), min_y, max_y, weft_paths, j, sim);
-
-        if (path === undefined || path === null) {
-            return Promise.reject("warp path with system and material not found");
-        } else {
-            warp_paths.push({ system, material, vtxs: path });
-        }
-    }
-
-    return Promise.resolve(warp_paths);
-}
 
 export const addPlaceholderVertices = (temp_pic: Array<YarnVertex>, i: number, direction: boolean, warpnum: number, cns: Array<ContactNeighborhood>, draft: Draft, sim: SimulationVars): Array<YarnVertex> => {
     let start_vtx: YarnVertex | null = null;
@@ -2241,12 +2196,31 @@ export const getOrientation = (el: YarnVertex, el2: YarnVertex, warps: number, c
  * @param temp_pic 
  * @returns 
  */
-export const pruneDuplicateVertices = (temp_pic: Array<YarnVertex>): Array<YarnVertex> => {
+export const pruneDuplicateWeftVertices = (temp_pic: Array<YarnVertex>): Array<YarnVertex> => {
 
 
     return temp_pic.reduce((acc: Array<YarnVertex>, el: YarnVertex) => {
 
         const has_index = acc.findIndex(accel => accel.ndx.j == el.ndx.j);
+        if (has_index == -1) {
+            acc.push(el);
+        }
+        return acc;
+    }, []);
+
+}
+
+
+/**
+ * 
+ * @param temp_pic 
+ * @returns 
+ */
+export const pruneDuplicateWarpVertices = (temp_pic: Array<YarnVertex>): Array<YarnVertex> => {
+
+    return temp_pic.reduce((acc: Array<YarnVertex>, el: YarnVertex) => {
+
+        const has_index = acc.findIndex(accel => accel.ndx.i == el.ndx.i);
         if (has_index == -1) {
             acc.push(el);
         }
@@ -2356,8 +2330,18 @@ export const getWarpLayer = (ndx: CNIndex, wefts: number, warps: number, cns: Ar
     return layer_left;
 }
 
+export const pruneWarps = (wefts: number, warps: number, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
+    const acns = cns
+        .filter(el => el.node_type == 'ACN')
+        .filter(el => el.ndx.id >= 2)
+        .filter(el => getWarpLayer(el.ndx, wefts, warps, cns) == getWeftLayer(el.ndx, warps, cns));
 
-export const pruneAndSetCNBlocking = (wefts: number, warps: number, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
+
+    return acns;
+}
+
+
+export const pruneWeftsAndSetCNBlocking = (wefts: number, warps: number, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
     const acns = cns
         .filter(el => el.node_type == 'ACN')
         .filter(el => el.ndx.id < 2)
@@ -2393,12 +2377,75 @@ export const pruneAndSetCNBlocking = (wefts: number, warps: number, cns: Array<C
 
 }
 
+
+
+export const placeWarps = (draft: Draft, weft_paths: Array<WeftPath>, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<WarpPath>> => {
+
+
+    const max_y = weft_paths.reduce((acc: number, el: WeftPath) => {
+        return Math.max(acc, el.vtxs.reduce((acc: number, el: YarnVertex) => {
+            return Math.max(acc, el.vtx.y);
+        }, 0));
+    }, 0);
+
+    const pruned_cns = pruneWarps(wefts(draft.drawdown), warps(draft.drawdown), cns);
+    // console.log("PRUNED CNS ", pruned_cns.map(el => el.isect));
+
+    const warp_paths: Array<WarpPath> = [];
+    //parse end by end,creating one path for each warp
+    for (let j = 0; j < warps(draft.drawdown); j++) {
+
+        //console.log("FOLLOWING WEFT ", i);
+        const path: WarpPath = {
+            system: draft.colSystemMapping[j],
+            material: draft.colShuttleMapping[j],
+            vtxs: []
+        }
+
+        const end_acns = pruned_cns.filter(el => el.ndx.j == j && el.ndx.id >= 2);
+
+        end_acns.forEach(el => {
+            const vtx = createWarpVertex(el.ndx, draft, cns, weft_paths, sim);
+            path.vtxs.push(vtx);
+        });
+
+        path.vtxs = pruneDuplicateWarpVertices(path.vtxs);
+
+
+        //add placeholders at the ends
+
+        // //if we are rending full width add placeholder verticies and make sure they match the layer of the weft. 
+        // temp_pic = addPlaceholderVertices(temp_pic, i, direction, warpnum, cns, draft, sim);
+        // //   console.log("AFTER PLACEHOLDER ", i, temp_pic.map(el => el.vtx.y));
+
+        if (path.vtxs.length > 0) {
+            const first_vtx = path.vtxs[0];
+            const last_vtx = path.vtxs[path.vtxs.length - 1];
+            path.vtxs.unshift({ ndx: { i: -1, j: j, id: 2 }, vtx: { x: first_vtx.vtx.x, y: -10, z: first_vtx.vtx.z }, orientation: null });
+            path.vtxs.push({ ndx: { i: wefts(draft.drawdown), j: j, id: 3 }, vtx: { x: last_vtx.vtx.x, y: max_y + 10, z: last_vtx.vtx.z }, orientation: null });
+            warp_paths.push(path);
+        } else {
+            let start_vtx: Vec3 = { x: 0, y: -10, z: 0 };
+            start_vtx = calcX(start_vtx, j, sim.warp_spacing);
+            path.vtxs.unshift({ ndx: { i: -1, j: j, id: 2 }, vtx: start_vtx, orientation: null });
+            path.vtxs.push({ ndx: { i: wefts(draft.drawdown), j: j, id: 3 }, vtx: { x: start_vtx.x, y: max_y + 10, z: start_vtx.z }, orientation: null });
+        }
+    }
+
+
+    return Promise.resolve(warp_paths);
+
+
+}
+
+
+
 export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<WeftPath>> => {
     // printDrawdown(draft.drawdown);
     // printCNs(cns, wefts(draft.drawdown), warps(draft.drawdown));
 
 
-    const pruned_cns = pruneAndSetCNBlocking(wefts(draft.drawdown), warps(draft.drawdown), cns);
+    const pruned_cns = pruneWeftsAndSetCNBlocking(wefts(draft.drawdown), warps(draft.drawdown), cns);
     // console.log("PRUNED CNS ", pruned_cns.map(el => el.isect));
 
     const warpnum = warps(draft.drawdown);
@@ -2436,7 +2483,7 @@ export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, si
         //  console.log("TEMP BEFORE ", temp_pic.map(el => el.ndx));
 
         //updates the x and y values based on blocking of both front and back facing weft floats
-        temp_pic = pruneDuplicateVertices(temp_pic);
+        temp_pic = pruneDuplicateWeftVertices(temp_pic);
         //  console.log("AFTER PRUNING ", temp_pic.map(el => el.ndx));
 
         //  console.log("AFTER ALIGNMET ", i, temp_pic.map(el => el.vtx.y));

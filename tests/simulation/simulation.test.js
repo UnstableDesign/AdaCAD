@@ -808,6 +808,7 @@ test('smooth pick, zig zag', async () => {
 })
 
 
+
 const followTheWefts = require('../../src/simulation/simulation').followTheWefts;
 test('testing follow the wefts with waffle', async () => {
 
@@ -1060,5 +1061,80 @@ test('testing follow the wefts with two face twill', async () => {
     //     let point = paths[0].vtxs[i];
     //     console.log(point.ndx, " - ", point.vtx.y, ", ", point.vtx.z, " - ", point.orientation);
     // }
+
+})
+
+const placeWarps = require('../../src/simulation/simulation').placeWarps;
+test('testing place warps with waffle', async () => {
+
+    const material_a = createMaterial({ id: 0 })
+    material_a.diameter = 2;
+    const material_b = createMaterial({ id: 1 })
+    material_b.diameter = 2;
+
+    const simVars = {
+        pack: 1, //max packing
+        lift_limit: 10,
+        use_layers: true,
+        warp_spacing: 10,
+        layer_spacing: 5,
+        wefts_as_written: false,
+        simulate: false,
+        time: .003,
+        mass: 5,
+        max_theta: Math.PI / 4,
+        ms: [material_a, material_b],
+        use_smoothing: true,
+        repulse_force_correction: 0,
+    }
+
+    const draft = initDraftFromDrawdown(waffle_dd);
+
+    const topo = await getDraftTopology(draft, simVars);
+
+    const wefts = await followTheWefts(draft, topo, simVars);
+
+    const warps = await placeWarps(draft, wefts, topo, simVars);
+
+    expect(warps.length).toEqual(8);
+    expect(warps[0].vtxs.length).toBeLessThanOrEqual(10);
+
+})
+
+
+test('testing place warps with three layer tabby', async () => {
+
+    const material_a = createMaterial({ id: 0 })
+    material_a.diameter = 2;
+    const material_b = createMaterial({ id: 1 })
+    material_b.diameter = 2;
+
+    const simVars = {
+        pack: 1, //max packing
+        lift_limit: 2,
+        use_layers: true,
+        warp_spacing: 10,
+        layer_spacing: 5,
+        wefts_as_written: false,
+        simulate: false,
+        time: .003,
+        mass: 5,
+        max_theta: Math.PI / 4,
+        ms: [material_a, material_b],
+        use_smoothing: true,
+        repulse_force_correction: 0,
+    }
+
+
+    const draft = initDraftFromDrawdown(a1b2_c3_d4_tabby_draft);
+
+    const topo = await getDraftTopology(draft, simVars);
+
+    const paths = await followTheWefts(draft, topo, simVars);
+
+    const warps = await placeWarps(draft, paths, topo, simVars);
+
+    console.log(warps.map(el => el.vtxs.map(el => el.ndx)));
+    expect(warps.length).toEqual(8);
 
 })
