@@ -476,7 +476,7 @@ const drawFloatViewCell = (arr: Uint8ClampedArray, i: number, j: number, val: bo
     r: 245,
     g: 245,
     b: 245,
-    a: 255
+    a: 0
   }
 
   const cols = rendering_color_defaults.concat([warp, weft, bg])
