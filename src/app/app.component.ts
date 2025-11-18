@@ -2047,6 +2047,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   }
 
+  /**
+   * pans the mixer by the given offset
+   */
+  panMixer(diff: { x: number, y: number }) {
+    if (this.selected_editor_mode == 'mixer' && this.mixer && this.mixer.palette) {
+      this.mixer.palette.handlePan(diff);
+    }
+  }
 
   onExplode() {
     this.updateTextSizing();

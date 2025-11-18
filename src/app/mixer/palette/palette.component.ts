@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AnalyzedImage, Draft, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import { Subscription, fromEvent } from 'rxjs';
+import normalizeWheel from 'normalize-wheel';
 import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
@@ -96,6 +97,21 @@ export class PaletteComponent implements OnInit {
   snack_message: string;
 
   snack_bounds: Bounds;
+
+  /**
+   * track if shift key is held for cursor grabby hand feedback
+   */
+  shift_held: boolean = false;
+
+  /**
+   * track if space key is held for cursor grabby hand feedback
+   */
+  space_held: boolean = false;
+
+  /**
+   * track if middle mouse button is held for cursor grabby hand feedback
+   */
+  middle_mouse_held: boolean = false;
 
   /**
 * stores the bounds of the shape being drawn
@@ -348,18 +364,21 @@ export class PaletteComponent implements OnInit {
   handleScroll(position: Point) {
     this.viewport.setTopLeft(position);
     const div: HTMLElement = document.getElementById('scrollable-container');
-    div.offsetParent.scrollLeft = this.viewport.getTopLeft().x;
-    div.offsetParent.scrollTop = this.viewport.getTopLeft().y;
+    if (!div) return;
+    div.scrollLeft = this.viewport.getTopLeft().x;
+    div.scrollTop = this.viewport.getTopLeft().y;
   }
 
   /**
-   * called when user moves position within viewer
-   * @param data 
+   * pans the mixer viewport by the given offset
+   * @param diff - the {x, y} offset to pan by in pixels
    */
   handlePan(diff: Point) {
     const div: HTMLElement = document.getElementById('scrollable-container');
-    div.offsetParent.scrollLeft += diff.x;
-    div.offsetParent.scrollTop += diff.y;
+    if (!div) return;
+
+    div.scrollLeft += diff.x;
+    div.scrollTop += diff.y;
   }
 
 
@@ -374,14 +393,19 @@ export class PaletteComponent implements OnInit {
     // this.viewport.setTopLeft(position);
     // console.log(old_center, this.viewport.getCenterPoint());
     const div: HTMLElement = document.getElementById('scrollable-container');
-    const past_scroll_x = div.offsetParent.scrollLeft / old_zoom;
+
+    if (!div) {
+      return;
+    }
+
+    const past_scroll_x = div.scrollLeft / old_zoom;
     const new_scroll_x = past_scroll_x * this.zs.getMixerZoom();
 
-    const past_scroll_y = div.offsetParent.scrollTop / old_zoom;
+    const past_scroll_y = div.scrollTop / old_zoom;
     const new_scroll_y = past_scroll_y * this.zs.getMixerZoom();
 
-    div.offsetParent.scrollLeft = new_scroll_x;
-    div.offsetParent.scrollTop = new_scroll_y;
+    div.scrollLeft = new_scroll_x;
+    div.scrollTop = new_scroll_y;
   }
 
 
@@ -394,8 +418,10 @@ export class PaletteComponent implements OnInit {
 
 
     const div: HTMLElement = document.getElementById('scrollable-container');
-    if (div === null || div === undefined || div.offsetParent == null) return;
-    this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop, div.offsetParent.clientWidth, div.offsetParent.clientHeight);
+
+    if (div === null || div === undefined) return;
+
+    this.viewport.set(div.scrollLeft, div.scrollTop, div.clientWidth, div.clientHeight);
     //update the canvas to this position
   }
 
@@ -504,41 +530,67 @@ export class PaletteComponent implements OnInit {
 
 
   /**
-   * updates the view after a zoom event is called. Changes the scale of the palette scale container and 
+   * updates the view after a zoom event is called. Changes the scale of the palette scale container and
    * scrolls such that the top left point when zoom is called remains the same after the zoom is updated
-   * 
-   * the position of the operation does not change, only the scale does. 
+   *
+   * the position of the operation does not change, only the scale does.
+   * @param old_zoom - optional previous zoom level for center-based zooming
    */
-  rescale() {
+  rescale(old_zoom?: number) {
 
     const view_window: HTMLElement = document.getElementById('scrollable-container');
     const container: HTMLElement = document.getElementById('palette-scale-container');
     if (view_window === null || view_window === undefined) return;
 
-    //let the top left point of the scroll, this is given in terms of palette scale container. 
+    //let the top left point of the scroll, this is given in terms of palette scale container.
     if (container === null) return;
 
-    // //what % of the range is this point 
-    let pcentX = view_window.scrollLeft / view_window.scrollWidth;
-    let pcentY = view_window.scrollTop / view_window.scrollHeight;
+    const new_zoom = this.zs.getMixerZoom();
 
+    // if the old_zoom is provided, then zoom at viewport center 
+    // e.g, for keyboard shortcuts
+    if (old_zoom !== undefined && old_zoom !== new_zoom) {
+      const centerX = view_window.clientWidth / 2;
+      const centerY = view_window.clientHeight / 2;
 
-    //transform to the top left 
-    //container.style.transformOrigin = scrollLeft+"px "+scrollTop+"px"; //this goes to the center point
-    container.style.transformOrigin = "top left"; //reset after moving as to not affect scrolling 
-    container.style.transform = 'scale(' + this.zs.getMixerZoom() + ')';
+      // calculate world position at viewport center
+      const worldPos = {
+        x: (view_window.scrollLeft + centerX) / old_zoom,
+        y: (view_window.scrollTop + centerY) / old_zoom
+      };
 
+      // apply CSS scale transform
+      container.style.transformOrigin = "top left";
+      container.style.transform = 'scale(' + new_zoom + ')';
 
-    // move the scroll by the same % within the new div size
-    let newScrollLeft = view_window.scrollWidth * pcentX;
-    let newScrollTop = view_window.scrollWidth * pcentY;
+      // calculate new scroll position to keep center point fixed
+      const newScrollLeft = worldPos.x * new_zoom - centerX;
+      const newScrollTop = worldPos.y * new_zoom - centerY;
 
+      view_window.scroll({
+        left: newScrollLeft,
+        top: newScrollTop,
+        behavior: "instant"
+      });
 
-    view_window.scroll({
-      left: newScrollLeft,
-      top: newScrollTop,
-      behavior: "instant"
-    });
+    } else {
+      // original behavior: maintain scroll percentage (zoom from top-left)
+      let pcentX = view_window.scrollLeft / view_window.scrollWidth;
+      let pcentY = view_window.scrollTop / view_window.scrollHeight;
+
+      container.style.transformOrigin = "top left";
+      container.style.transform = 'scale(' + new_zoom + ')';
+
+      // move the scroll by the same % within the new div size
+      let newScrollLeft = view_window.scrollWidth * pcentX;
+      let newScrollTop = view_window.scrollWidth * pcentY;
+
+      view_window.scroll({
+        left: newScrollLeft,
+        top: newScrollTop,
+        behavior: "instant"
+      });
+    }
 
     this.redrawConnections();
   }
@@ -1320,14 +1372,18 @@ export class PaletteComponent implements OnInit {
    */
   freezePaletteObjects() {
     const nodes: Array<any> = this.tree.getComponents();
-    nodes.forEach(el => {
-      el.disableDrag();
-    });
+    nodes
+      .filter(el => el && el.disableDrag)
+      .forEach(el => {
+        el.disableDrag();
+      });
 
     const notes: Array<any> = this.notes.getComponents();
-    notes.forEach(el => {
-      el.disableDrag();
-    });
+    notes
+      .filter(el => el && el.disableDrag)
+      .forEach(el => {
+        el.disableDrag();
+      });
   }
 
   /**
@@ -1335,16 +1391,19 @@ export class PaletteComponent implements OnInit {
   */
   unfreezePaletteObjects() {
     const nodes: Array<any> = this.tree.getComponents();
-    nodes.forEach(el => {
-      if (el != null) {
+    nodes
+      .filter(el => el && el.disableDrag)
+      .forEach(el => {
         el.enableDrag();
-      }
-    });
+      });
 
     const notes: Array<any> = this.notes.getComponents();
-    notes.forEach(el => {
-      el.enableDrag();
-    });
+
+    notes
+      .filter(el => el && el.disableDrag)
+      .forEach(el => {
+        el.enableDrag();
+      });
   }
 
 
@@ -1768,8 +1827,85 @@ export class PaletteComponent implements OnInit {
 
 
   /**
-   * handles actions to take when the mouse is down inside of the palette
-   * @param event the mousedown event
+   * Handles mouse wheel zoom with Ctrl/Cmd modifier, zooming at cursor position
+   * Uses normalize-wheel to handle cross-browser and touchpad/mouse differences
+   * @param event - The wheel event
+   */
+  @HostListener('wheel', ['$event'])
+  private onWheel(event: WheelEvent) {
+    // Only zoom when Ctrl (Windows/Linux) or Cmd (Mac) is pressed
+    if (!event.ctrlKey && !event.metaKey) return;
+
+    event.preventDefault();
+
+    const view_window: HTMLElement = document.getElementById('scrollable-container');
+    const container: HTMLElement = document.getElementById('palette-scale-container');
+    if (!view_window || !container) return;
+
+    // normalize wheel event across browsers and 
+    // input types (mouse vs touchpad)
+    const normalized = normalizeWheel(event);
+
+    // use spinY for zoom (normalized spin speed, good for zoom)
+    // only zoom if we have enough spin to warrant a zoom step
+    const spinThreshold = 0.15;
+    if (Math.abs(normalized.spinY) < spinThreshold) {
+      return;
+    }
+
+    const zoom_before = this.zs.getMixerZoom();
+
+    // Get mouse position relative to the scrollable container (not viewport)
+    const rect = view_window.getBoundingClientRect();
+    const mousePos = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    };
+
+    // Calculate world position under cursor BEFORE zoom
+    const worldPos = {
+      x: (view_window.scrollLeft + mousePos.x) / zoom_before,
+      y: (view_window.scrollTop + mousePos.y) / zoom_before
+    };
+
+    const zoomOut = normalized.spinY > 0;
+    if (zoomOut) {
+      this.zs.zoomOutMixer();
+    } else {
+      this.zs.zoomInMixer();
+    }
+
+    const zoom_after = this.zs.getMixerZoom();
+
+    // Apply CSS scale transform
+    container.style.transformOrigin = "top left";
+    container.style.transform = 'scale(' + zoom_after + ')';
+
+    // Calculate new scroll position to keep world position under cursor
+    const newScrollLeft = worldPos.x * zoom_after - mousePos.x;
+    const newScrollTop = worldPos.y * zoom_after - mousePos.y;
+
+    // Set scroll position
+    view_window.scroll({
+      left: newScrollLeft,
+      top: newScrollTop,
+      behavior: "instant"
+    });
+
+    this.viewport.set(
+      view_window.scrollLeft,
+      view_window.scrollTop,
+      view_window.clientWidth,
+      view_window.clientHeight
+    );
+
+    // Redraw connections at new zoom level
+    this.redrawConnections();
+  }
+
+  /**
+   * Handles mouse down events, including pan mode triggers (shift+click, space+click, middle-click)
+   * @param event - The mousedown event
    */
   @HostListener('mousedown', ['$event'])
   private onStart(event) {
@@ -1800,19 +1936,27 @@ export class PaletteComponent implements OnInit {
 
     this.removeSubscription();
 
+    // Enable panning with Shift+left-click, Space+left-click, or middle-click
+    const isPanMode = this.dm.isSelectedMixerEditingMode("pan");
+    const isShiftClick = event.shiftKey && event.button === 0;
+    const isSpaceClick = this.space_held && event.button === 0;
+    const isMiddleClick = event.button === 1;
 
+    if (isMiddleClick) {
+      // set to true so we can show grabby hand cursor
+      this.middle_mouse_held = true;
+    }
 
-    if (this.dm.isSelectedMixerEditingMode("move")) {
-
-      if (event.shiftKey) return;
-      this.multiselect.clearSelections();
-
-    } else if (this.dm.isSelectedMixerEditingMode("pan")) {
-
+    if (isPanMode || isShiftClick || isSpaceClick || isMiddleClick) {
+      event.preventDefault(); // Prevent middle-click scroll behavior and space scrolling
       this.panStarted({ x: event.clientX, y: event.clientY });
       this.moveSubscription =
         fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e));
+      return;
+    }
 
+    if (this.dm.isSelectedMixerEditingMode("move")) {
+      this.multiselect.clearSelections();
     }
   }
 
@@ -1840,15 +1984,14 @@ export class PaletteComponent implements OnInit {
 
     const mouse: Point = { x: this.viewport.getTopLeft().x + event.clientX, y: this.viewport.getTopLeft().y + event.clientY };
 
-    if (this.dm.isSelectedMixerEditingMode("pan")) {
-
+    // pan if in pan mode, or if shift/middle-click was used to initiate
+    if (this.last_point) {
       const diff = {
         x: (this.last_point.x - event.clientX),
         y: (this.last_point.y - event.clientY)
       }
 
       this.handlePan(diff);
-
     }
     this.last_point = { x: event.clientX, y: event.clientY };
   }
@@ -1857,8 +2000,8 @@ export class PaletteComponent implements OnInit {
 
   /**
    * Called when the mouse is up or leaves the boundary of the view
-   * @param event 
-   * @returns 
+   * @param event
+   * @returns
    */
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
@@ -1867,13 +2010,21 @@ export class PaletteComponent implements OnInit {
 
     this.removeSubscription();
 
-    if (this.dm.isSelectedMixerEditingMode('pan')) {
-      const div: HTMLElement = document.getElementById('scrollable-container');
-      this.viewport.set(div.offsetParent.scrollLeft, div.offsetParent.scrollTop, div.offsetParent.clientWidth, div.offsetParent.clientHeight);
-
+    // reset middle mouse state
+    if (event.button === 1 || event.type === 'mouseleave') {
+      this.middle_mouse_held = false;
     }
 
+    // update viewport if panning happened
+    if (this.last_point) {
+      const div: HTMLElement = document.getElementById('scrollable-container');
+      if (div) {
+        this.viewport.set(div.scrollLeft, div.scrollTop, div.clientWidth, div.clientHeight);
+      }
 
+      // re-enable dragging on nodes after panning
+      this.unfreezePaletteObjects();
+    }
 
     //unset vars that would have been created on press
     this.last_point = undefined;
@@ -1881,11 +2032,31 @@ export class PaletteComponent implements OnInit {
 
 
 
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Shift' && !this.shift_held) {
+      this.shift_held = true;
+    }
+    if (event.key === ' ' && !this.space_held) {
+      this.space_held = true;
+    }
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Shift') {
+      this.shift_held = false;
+    }
+    if (event.key === ' ') {
+      this.space_held = false;
+    }
+  }
+
   /**
    * this function will update any components that should move when the compoment passed by obj moves
-   * moves all compoments returned from tree.getNodesToUpdate(). All changes to what updates should be 
+   * moves all compoments returned from tree.getNodesToUpdate(). All changes to what updates should be
    * handled by getNodesToUpdateOnMove
-   * @param obj 
+   * @param obj
    */
   updateAttachedComponents(id: number, follow: boolean) {
 
