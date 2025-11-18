@@ -87,7 +87,6 @@
 .ui-right {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 
@@ -123,9 +122,9 @@
 
 .static-container {
   display: flex;
+  flex: 1 1 100%;
   align-items: stretch;
   flex-direction: column;
-  flex: 1 1 100%;
   overflow: hidden;
   background-color: whitesmoke;
 

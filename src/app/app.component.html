@@ -52,6 +52,11 @@
             Image</button>
           <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('wif')">Selected Draft as
             .WIF</button>
+
+          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('coloring_page')"
+            matTooltip="Download as Coloring Page">
+            <i class="fa-solid fa-pencil"></i> Selected Draft as Coloring Page
+          </button>
           <!-- <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button> -->
         </mat-menu>
 

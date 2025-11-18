@@ -1,10 +1,12 @@
 import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatButton, MatMiniFabButton } from '@angular/material/button';
+import { MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { MatSidenav, MatSidenavContainer } from '@angular/material/sidenav';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -12,19 +14,20 @@ import { Draft, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
 import { DraftStateNameChange } from '../core/model/datatypes';
 import { FirebaseService } from '../core/provider/firebase.service';
+import { OperationService } from '../core/provider/operation.service';
 import { StateService } from '../core/provider/state.service';
 import { TreeService } from '../core/provider/tree.service';
 import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
+import { RenameComponent } from '../core/ui/rename/rename.component';
 import { SimulationComponent } from './simulation/simulation.component';
-
 @Component({
   selector: 'app-viewer',
   templateUrl: './viewer.component.html',
   styleUrls: ['./viewer.component.scss'],
-  imports: [ReactiveFormsModule, MatExpansionModule, MatFormFieldModule, MatButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, DraftRenderingComponent, SimulationComponent, MatToolbar, MatSlider, MatSliderThumb, MatInput, MatMiniFabButton]
+  imports: [ReactiveFormsModule, MatIconButton, MatButtonToggleModule, MatExpansionModule, MatFormFieldModule, MatButton, MatTooltip, DraftRenderingComponent, SimulationComponent, MatToolbar, MatSlider, MatSliderThumb, MatInput, MatMiniFabButton, MatSidenavContainer, MatSidenav]
 })
 export class ViewerComponent {
   private tree = inject(TreeService);
@@ -33,6 +36,9 @@ export class ViewerComponent {
   zs = inject(ZoomService);
   fb = inject(FirebaseService);
   ss = inject(StateService);
+  ops = inject(OperationService);
+  private dialog = inject(MatDialog);
+
 
 
   @Output() onOpenEditor: any = new EventEmitter();
@@ -46,14 +52,16 @@ export class ViewerComponent {
   // Reactive form for viewer controls
 
   draft_canvas: HTMLCanvasElement;
+  draft_name: string = '';
   draft_cx: any;
   pixel_ratio: number = 1;
   vis_mode: string = 'color'; //sim, draft, structure, color
   view_expanded: boolean = false;
+  view_controls_visible: boolean = false;
   filename: string = '';
-  draftName: FormControl;
   zoomLevel: FormControl;
-
+  visMode: FormControl;
+  viewFace: FormControl;
   warps: number = 0;
   wefts: number = 0;
   scale: number = 0;
@@ -74,8 +82,9 @@ export class ViewerComponent {
       this.redraw();
     })
 
-    this.draftName = new FormControl('');
+    this.viewFace = new FormControl('front');
     this.zoomLevel = new FormControl(0);
+    this.visMode = new FormControl('color');
 
 
 
@@ -89,10 +98,12 @@ export class ViewerComponent {
   ngOnInit() {
 
 
-    // Subscribe to form changes
-    this.draftName.valueChanges.subscribe(value => {
-      //do nothing, broadcast change on enter
+    this.viewFace.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.swapViewFace(value);
+      }
     });
+
 
     this.zoomLevel.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
@@ -101,10 +112,32 @@ export class ViewerComponent {
       }
     });
 
+    this.visMode.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.vis_mode = value;
+        if (this.vis_mode === 'sim' && this.sim) {
+          this.sim.loadNewDraft(this.vs.getViewerId());
+        } else {
+          this.redraw();
+        }
+      }
+    });
+
 
     // this.filename = this.ws.current_file.name;
     this.scale = this.zs.getViewerZoom();
 
+  }
+
+  swapViewFace(face: string) {
+    console.log("SWAPPING VIEW FACE TO: ", face);
+    this.drawDraft(face == 'front').then(() => {
+      this.centerScrollbars();
+    }).catch(console.error);
+  }
+
+  toggleViewControls() {
+    this.view_controls_visible = !this.view_controls_visible;
   }
 
 
@@ -121,43 +154,14 @@ export class ViewerComponent {
   }
 
 
-  /**
-   * called when a name update has taken place in the mixer so we can update the form here. 
-   * @returns 
-   */
-  onRenameSubmit() {
-
-    if (this.vs.getViewerId() == -1) return;
-
-    const draft = this.tree.getDraft(this.vs.getViewerId());
-    const draftName = this.draftName.value;
-    draft.ud_name = draftName;
-
-    this.ss.addStateChange(<DraftStateNameChange>{
-      originator: 'DRAFT',
-      type: 'NAME_CHANGE',
-      id: this.vs.getViewerId(),
-      before: this.before_name,
-      after: draftName
-    });
-
-
-    this.before_name = getDraftName(this.tree.getDraft(this.vs.getViewerId()));
-    this.onDraftRename.emit(this.vs.getViewerId());
-    //broadcast that this changed. 
-  }
 
   updateDraftNameFromMixerEvent(name: string) {
     console.log("UPDATING DRAFT NAME FROM MIXER EVENT: ", name, this.tree.getDraftName(this.vs.getViewerId()));
-    this.draftName.setValue(name, { emitEvent: false });
+    this.draft_name = name;
     this.before_name = name;
 
   }
 
-  // renameDraft(name: string) {
-  //   this.before_name = getDraftName(this.tree.getDraft(this.id));
-  //   this.draftName.setValue(this.before_name, { emitEvent: false });
-  // }
 
   private clearDraft() {
     //clear draft here
@@ -172,7 +176,8 @@ export class ViewerComponent {
 
     this.before_name = getDraftName(this.tree.getDraft(id));
     console.log("LOADING DRAFT, BEFORE NAME: ", this.before_name);
-    this.draftName.setValue(this.before_name, { emitEvent: false });
+    this.draft_name = this.before_name;
+    this.visMode.setValue(this.vis_mode, { emitEvent: false });
 
     if (draft !== null) {
       this.warps = warps(draft.drawdown);
@@ -180,7 +185,7 @@ export class ViewerComponent {
     }
 
     if (this.vis_mode != 'sim') {
-      this.drawDraft()
+      this.drawDraft(this.viewFace.value == 'front')
         .then(() => {
           this.centerScrollbars();
         })
@@ -199,7 +204,7 @@ export class ViewerComponent {
 
     const draft = this.tree.getDraft(this.vs.getViewerId());
 
-    this.draftName.setValue(getDraftName(draft), { emitEvent: false });
+    this.draft_name = getDraftName(draft);
 
     if (draft !== null) {
       this.warps = warps(draft.drawdown);
@@ -207,7 +212,7 @@ export class ViewerComponent {
     }
 
     if (this.vis_mode != 'sim') {
-      this.drawDraft().then(() => {
+      this.drawDraft(this.viewFace.value == 'front').then(() => {
         this.centerScrollbars()
       }).catch(console.error);
     } else this.sim.loadNewDraft(this.vs.getViewerId());
@@ -233,24 +238,19 @@ export class ViewerComponent {
 
 
   viewAsSimulation() {
-    this.vis_mode = 'sim';
-    this.sim.loadNewDraft(this.vs.getViewerId());
-
+    this.visMode.setValue('sim');
   }
 
   viewAsDraft() {
-    this.vis_mode = 'draft';
-    this.redraw();
+    this.visMode.setValue('draft');
   }
 
   viewAsStructure() {
-    this.vis_mode = 'structure';
-    this.redraw();
+    this.visMode.setValue('structure');
   }
 
   viewAsColor() {
-    this.vis_mode = 'color';
-    this.redraw();
+    this.visMode.setValue('color');
   }
 
 
@@ -272,10 +272,38 @@ export class ViewerComponent {
     }
   }
 
+  openNameChangeDialog() {
+
+    const before_name = this.tree.getDraftName(this.vs.getViewerId());
+    const dialogRef = this.dialog.open(RenameComponent, {
+      data: { id: this.vs.getViewerId() }
+    });
+
+    dialogRef.afterClosed().subscribe(obj => {
+
+      this.ss.addStateChange(<DraftStateNameChange>{
+        originator: 'DRAFT',
+        type: 'NAME_CHANGE',
+        id: this.vs.getViewerId(),
+        before: before_name,
+        after: this.tree.getDraftName(this.vs.getViewerId())
+      });
+
+
+      this.draft_name = this.tree.getDraftName(this.vs.getViewerId());
+      this.onDraftRename.emit(this.vs.getViewerId());
+    });
+
+
+    this.onDraftRename.emit(this.vs.getViewerId());
+
+
+  }
+
 
   clearView() {
 
-    this.view_rendering.clearAll();
+    if (this.view_rendering !== undefined) this.view_rendering.clearAll();
     //this.viewerForm.patchValue({ draftName: 'no draft selected' });
     this.warps = 0;
     this.wefts = 0;
@@ -300,7 +328,7 @@ export class ViewerComponent {
    * draw whatever is stored in the draft object to the screen
    * @returns 
    */
-  private drawDraft(): Promise<any> {
+  private drawDraft(front: boolean = true): Promise<any> {
 
 
     const draft: Draft = this.tree.getDraft(this.vs.getViewerId());
@@ -318,10 +346,51 @@ export class ViewerComponent {
       show_loom: false
     }
 
-    //console.log("REDRAW CALLED FROM VIEW RENDERING")
-    return this.view_rendering.redraw(draft, null, null, flags).then(el => {
-      return Promise.resolve(true);
-    })
+    //if we are looking at the back face, invert and flip the draft
+    if (!front) {
+      const invert_op = this.ops.getOp('invert');
+      const params = [];
+      const drafts = [{
+        drafts: [draft],
+        inlet_id: 0,
+        inlet_params: []
+      }]
+
+      return invert_op.perform(params, drafts).then(manipulated_draft => {
+        const dd = manipulated_draft[0].draft;
+        const flip_op = this.ops.getOp('flip');
+        const flip_params = [{
+          param: flip_op.params[0],
+          val: 1
+        },
+        {
+          param: flip_op.params[1],
+          val: 0
+        },];
+        const flip_drafts = [{
+          drafts: [dd],
+          inlet_id: 0,
+          inlet_params: []
+        }]
+
+        return flip_op.perform(flip_params, flip_drafts)
+      }).then(manipulated_draft => {
+        const dd = manipulated_draft[0].draft;
+
+        return this.view_rendering.redraw(dd, null, null, flags).then(el => {
+          return Promise.resolve(true);
+        })
+      });
+
+
+    } else {
+      //console.log("REDRAW CALLED FROM VIEW RENDERING")
+      return this.view_rendering.redraw(draft, null, null, flags).then(el => {
+        return Promise.resolve(true);
+      })
+    }
+
+
 
 
 

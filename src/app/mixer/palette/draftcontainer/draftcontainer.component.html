@@ -74,10 +74,20 @@
 
 
 
-  <app-draft-rendering [class.hidden]="!draft_visible" #draft_rendering source="mixer" [id]="id" [view_only]="hasParent"
-    [current_view]="current_view" [scale]="local_zoom" (onDrawdownUpdated)="drawdownUpdated()"
-    (onMaterialChange)="drawdownUpdated()">
-  </app-draft-rendering>
+  <div class="draft-rendering-wrapper">
+    @if (hasPin()) {
+    <button mat-mini-fab 
+            color="accent" 
+            class="pin-indicator"
+            matTooltip="Pinned in viewer">
+      <i class="fa-solid fa-map-pin"></i>
+    </button>
+    }
+    <app-draft-rendering [class.hidden]="!draft_visible" #draft_rendering source="mixer" [id]="id" [view_only]="hasParent"
+      [current_view]="current_view" [scale]="local_zoom" (onDrawdownUpdated)="drawdownUpdated()"
+      (onMaterialChange)="drawdownUpdated()">
+    </app-draft-rendering>
+  </div>
 
 
 

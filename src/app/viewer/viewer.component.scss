@@ -6,24 +6,79 @@
     margin: 16px;
 }
 
-.view_container {
-    background-color: darkgrey;
-    padding: 16px 16px 0px 42px;
-    overflow: hidden;
+.no-draft-placeholder {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    text-align: center;
+
+    p {
+        margin: 0;
+        padding: 24px;
+        color: #999;
+    }
+}
+
+
+.viewer_container {
+    padding: 16px 16px 16px 32px;
     display: flex;
     flex-direction: column;
-    flex-grow: 3;
-    flex-shrink: 0;
+    background-color: white;
+    width: auto;
+    height: 100%;
+    overflow: hidden;
+}
+
+.viewer-controls {
+    min-width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    background-color: whitesmoke;
+    padding: 8px;
+
+
+}
+
+.draft-info-list {
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+
+    button {
+        font-size: 12px;
+    }
+}
+
+.draft-info-list .fieldname {
+    display: inline-block;
+    font-weight: normal;
+    width: 100%;
+    color: #999;
+}
+
+.draft-info-list .fieldvalue {
+    font-weight: normal;
+}
+
+
+.draft-info-list li {
+    padding: 8px;
+    border-bottom: thin solid #3f51b5;
 }
 
 .footer-container {}
 
 .viewer-header {
     display: flex;
-    flex-direction: row;
-    background-color: whitesmoke;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 16px;
+
 }
 
 .filename {
@@ -37,11 +92,11 @@
 
 
 .current_view {
+    height: 83%;
     background-color: whitesmoke;
     display: flex;
     align-items: center;
     overflow: scroll;
-    height: 62vh;
 }
 
 .view_options {
@@ -120,7 +175,13 @@
     width: 100%;
     height: 100%;
     display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
 }
+
+
+
 
 
 .filelist {

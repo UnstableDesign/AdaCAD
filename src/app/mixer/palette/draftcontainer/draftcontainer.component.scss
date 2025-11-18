@@ -159,6 +159,18 @@
 	background-color: transparent;
 }
 
+.draft-rendering-wrapper {
+	position: relative;
+	display: inline-block;
+}
+
+.pin-indicator {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	z-index: 10;
+}
+
 
 
 svg {
