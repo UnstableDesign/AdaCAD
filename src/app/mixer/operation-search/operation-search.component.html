@@ -17,7 +17,10 @@
   <div class="operations-list">
     @for (classification of filteredOptions | async; track classification) {
     <div class="operation-category-block">
-      <span class="operation-category-name">{{classification.class_name}} </span>
+
+      <div class="operation-category-name" matTooltip="{{classification.description}}">
+        {{classification.class_name}}
+      </div>
 
       @for (op_names of classification.ops; track op_names) {
       <button mat-stroked-button class="operation" [style.background-color]="classification.color"

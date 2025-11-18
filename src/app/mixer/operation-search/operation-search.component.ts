@@ -73,6 +73,7 @@ export class OperationSearchComponent implements OnInit {
       return {
         class_name: classification.category_name,
         color: classification.color,
+        description: classification.description,
         ops: classification.op_names
           .map(op => { return { name: op, display_name: this.ops.getDisplayName(op), advanced: this.ops.idAdvanced(op) } })
           .filter(op => {
@@ -117,6 +118,7 @@ export class OperationSearchComponent implements OnInit {
     let tree = this.op_tree.map(classification => {
       return {
         class_name: classification.class_name,
+        description: classification.description,
         color: classification.color,
         ops: classification.ops
           .filter(option => option.display_name.toLowerCase().includes(filterValue))
