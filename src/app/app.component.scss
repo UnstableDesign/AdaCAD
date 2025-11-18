@@ -5,6 +5,12 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  @include mat.toolbar-overrides((standard-height: 54px));
+
 }
 
 
@@ -31,6 +37,7 @@
   gap: 8px;
   font-size: 14px;
   flex: 1 1;
+  align-items: center;
   overflow: hidden;
 
 }
@@ -45,14 +52,17 @@
   border: thin solid #3f51b5;
   margin: 0px 8px 0px 0px;
   border-radius: 3px;
+  color: #3f51b5;
 }
 
 
 
 .header-container {
+
+
   display: flex;
   flex-direction: column;
-  flex: 0 1 64px;
+  flex: 0 1 54px;
   background-color: #3f51b5;
   overflow: hidden;
   position: fixed;
@@ -69,7 +79,7 @@
 .ui-left {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
+  height: 100%;
   overflow: hidden;
 
 }
@@ -83,22 +93,14 @@
 
 .ui-grid {
   position: relative;
-  top: 64px;
+  top: 54px;
+  height: calc(100vh - 54px);
   display: flex;
   background: white;
   flex-direction: row;
   align-items: stretch;
 }
 
-
-.footer-container {
-  display: flex;
-  flex-direction: row;
-  flex: 0 1 64px;
-  flex-wrap: wrap;
-  background-color: #3f51b5;
-  justify-content: space-between;
-}
 
 .mixer-container {
 
@@ -160,18 +162,31 @@
 
 }
 
-.footer {
+.footer-container {
+  border-top: thin solid #3f51b5;
+  color: #3f51b5;
+  position: fixed;
+  width: calc(100% - 32px);
   display: flex;
+  align-items: center;
+  flex-direction: row;
+  top: calc(100vh - 54px);
+  display: flex;
+  background-color: white;
   justify-content: space-between;
-  flex: 0 1 100%;
-  flex-wrap: nowrap;
   padding: 0px 16px;
 }
+
 
 .footer-left {
   display: flex;
   overflow: hidden;
   flex: 1 1;
+  align-items: center;
+
+  button {
+    color: #3f51b5;
+  }
 }
 
 .footer-center,
@@ -180,6 +195,8 @@
   display: flex;
   flex: 0 1;
   gap: 8px;
+  align-items: center;
+
 }
 
 .design_mode {
