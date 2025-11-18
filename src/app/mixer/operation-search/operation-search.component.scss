@@ -1,16 +1,83 @@
-h3{
-  text-align: left;
-  font-weight: lighter;
-  padding-bottom: 0px;
-  color: #999;
-  margin-top: 24px;
+@use '@angular/material' as mat;
+
+
+
+.operation-toggle {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 8px 0px;
 }
 
-.mat-stroked-button{
+.operation-search-form {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0px;
+}
+
+.operation-category-block {
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-wrap: wrap;
+
+  .operation-category-name {
+    display: flex;
+    font-size: 14px;
+    font-weight: normal;
+    width: 100%;
+    text-align: left;
+    color: black;
+    margin: 0px 0px 8px 0px;
+    padding: 0px 0px 0px 0px;
+  }
+
+  button {
+    text-wrap-mode: wrap;
+    text-wrap-style: balance;
+    height: auto;
+    padding: 6px 0px;
+    color: white;
+    font-size: 12px;
+    font-family: monospace;
+  }
+
+
+
+
+
+}
+
+
+.operation-search-footer {
+  font-size: 12px;
+  font-weight: normal;
+  color: black;
+  margin: 0px 0px 0px 0px;
+  padding: 16px 0px 24px 0px;
+}
+
+
+.operations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+
+.operation-search-container {
+  display: flex;
+  flex-direction: column;
+
+}
+
+
+.mat-stroked-button {
   margin: 2px;
   max-width: 160px;
-  
-  &.operation{
+
+  &.operation {
     color: white;
     white-space: normal;
     line-height: 20px;
@@ -18,11 +85,8 @@ h3{
   }
 }
 
-.mat-mdc-form-field {
-  width: 95%;
-}
+
 
 .quickop_form {
   width: 100%;
 }
-

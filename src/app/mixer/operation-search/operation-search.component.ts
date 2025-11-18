@@ -4,7 +4,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
 import { OperationClassification } from 'adacad-drafting-lib';
 import { Observable } from 'rxjs';
@@ -16,7 +16,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
   selector: 'app-operation-search',
   templateUrl: './operation-search.component.html',
   styleUrls: ['./operation-search.component.scss'],
-  imports: [MatButton, MatTooltip, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSlideToggle, AsyncPipe],
+  imports: [MatButton, MatTooltip, MatSlideToggleModule, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, AsyncPipe],
   standalone: true
 })
 export class OperationSearchComponent implements OnInit {

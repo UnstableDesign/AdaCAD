@@ -24,8 +24,10 @@
 
   <!-- Expanded view -->
   @if (!isCollapsed) {
-  <mat-accordion multi>
-    <!-- <mat-expansion-panel expanded>
+  <div class="full-mixer-sidebar">
+
+    <mat-accordion multi>
+      <!-- <mat-expansion-panel expanded>
     <mat-expansion-panel-header>
       <mat-panel-title>
         <i class="fas fa-eye"></i>
@@ -57,44 +59,31 @@
 
   </mat-expansion-panel>
   -->
+      <mat-expansion-panel expanded hideToggle>
 
-    <mat-expansion-panel expanded>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <i class="fas fa-edit"></i>
-          Edit Workspace
-        </mat-panel-title>
+        <div class="edit-workspace">
+          <button matButton="outlined" color="primary" matTooltip="Add Blank Draft" (click)="onAddDraft()">
+            + <i class="fas fa-chess-board"></i> add draft
+          </button>
 
-      </mat-expansion-panel-header>
-      <button mat-stroked-button color="primary" matTooltip="Blank Draft" (click)="onAddDraft()">
-        + <i class="fas fa-chess-board"></i> add draft
-      </button>
+          <button matButton="outlined" color="primary" matTooltip="Add Note" (click)="onCreateNote()">
+            + <i class="fas fa-comment"></i> add note
+          </button>
+        </div>
+        <div class="mixer-operations">
+          <h4>operations</h4>
 
-      <button mat-stroked-button color="primary" matTooltip="Note" color="primary" (click)="onCreateNote()">
-        + <i class="fas fa-comment"></i> add note
-      </button>
+          <app-operation-search #operationSearch (addOperation)="onAddOperation($event)"></app-operation-search>
 
-    </mat-expansion-panel>
+        </div>
 
-
-
-    <mat-expansion-panel expanded>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <i class="fa-solid fa-code"></i>
-          Operators
-        </mat-panel-title>
-
-      </mat-expansion-panel-header>
-
-      <app-operation-search #operationSearch (addOperation)="onAddOperation($event)"></app-operation-search>
-
-    </mat-expansion-panel>
+      </mat-expansion-panel>
 
 
 
 
-  </mat-accordion>
+    </mat-accordion>
+  </div>
   }
 
 </div>

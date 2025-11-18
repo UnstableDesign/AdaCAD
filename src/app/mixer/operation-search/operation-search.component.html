@@ -1,23 +1,38 @@
-<mat-form-field matNativeControl class="quickop_form is-fullwidth" appearance="fill" width='100%' color="primary">
-  <mat-label><i class="fas fa-search"></i> search operations</mat-label>
-  <input type="text" placeholder="" (keyup.enter)="enter()" matInput [formControl]="searchForm">
-</mat-form-field>
+<div class="operation-search-container">
+  <div class="operation-toggle">
+    <mat-slide-toggle [checked]="ws.show_advanced_operations" (change)="operationLevelToggleChange($event)">
+      Show Advanced </mat-slide-toggle>
+  </div>
 
-<div>{{search_error}}</div>
 
-<mat-slide-toggle [checked]="ws.show_advanced_operations" (change)="operationLevelToggleChange($event)">
-  Show Advanced Operations</mat-slide-toggle>
+  <div class="operation-search-form">
+    <mat-form-field matNativeControl class="quickop_form is-fullwidth" color="primary">
+      <mat-label><i class="fas fa-search"></i> search operations</mat-label>
+      <input type="text" placeholder="" (keyup.enter)="enter()" matInput [formControl]="searchForm">
+    </mat-form-field>
 
-@for (classification of filteredOptions | async; track classification) {
-<h3>{{classification.class_name}} </h3>
-@for (op_names of classification.ops; track op_names) {
-<button mat-stroked-button class="operation" [style.background-color]="classification.color"
-  (click)="onAddOperation(op_names.name)" [matTooltip]="ops.getOpDescription(op_names.name)">
-  @if (op_names.advanced) {
-  <span><i class="fa-regular fa-star"></i></span>
-  }
-  {{op_names.display_name}}
-</button>
-}
-}
+    <div>{{search_error}}</div>
+  </div>
 
+  <div class="operations-list">
+    @for (classification of filteredOptions | async; track classification) {
+    <div class="operation-category-block">
+      <span class="operation-category-name">{{classification.class_name}} </span>
+
+      @for (op_names of classification.ops; track op_names) {
+      <button mat-stroked-button class="operation" [style.background-color]="classification.color"
+        (click)="onAddOperation(op_names.name)" [matTooltip]="ops.getOpDescription(op_names.name)">
+        @if (op_names.advanced) {
+        <span><i class="fa-regular fa-star"></i></span>
+        }
+        {{op_names.display_name}}
+      </button>
+      }
+    </div>
+    }
+  </div>
+
+  <div class="operation-search-footer">
+    Learn more about operations <a href="https://docs.adacad.org/docs/reference/operations/" target="_blank">here</a>
+  </div>
+</div>
