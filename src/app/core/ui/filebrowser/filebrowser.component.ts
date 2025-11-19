@@ -3,12 +3,14 @@ import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, EventEmitter, OnDestroy, OnInit, Output, ViewEncapsulation, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatCheckbox } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
 import { FileMeta, ShareObj } from '../../model/datatypes';
@@ -24,7 +26,7 @@ import { ShareComponent } from '../share/share.component';
   templateUrl: './filebrowser.component.html',
   styleUrls: ['./filebrowser.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [MatDialogTitle, MatExpansionModule, CdkDrag, CdkDragHandle, MatButton, MatDialogClose, CdkScrollable, MatDialogContent, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatIconButton, MatSuffix, MatDialogActions]
+  imports: [MatDialogTitle, MatExpansionModule, CdkDrag, CdkDragHandle, MatButton, MatCheckbox, MatDialogClose, CdkScrollable, MatDialogContent, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem, MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatIconButton, MatSuffix, MatDialogActions, MatTabGroup, MatTab]
 })
 export class FilebrowserComponent implements OnInit, OnDestroy {
   ws = inject(WorkspaceService);
@@ -61,14 +63,18 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   user_files = [];
   userFileSubscription: Subscription;
 
-  // Combined and sorted file list
-  all_files: any[] = [];
-  sortBy: 'name' | 'date' | 'shared' = 'date';
-  sortOrder: 'asc' | 'desc' = 'desc';
+  // Separate file lists
+  user_files_display: any[] = [];
+  shared_files_display: any[] = [];
+  userSortBy: 'name' | 'date' = 'date';
+  userSortOrder: 'asc' | 'desc' = 'desc';
+  sharedSortBy: 'name' | 'date' = 'date';
+  sharedSortOrder: 'asc' | 'desc' = 'desc';
 
   onFileOpenSubscription: Subscription;
 
   currently_open_id: number = -1;
+  selectedFileIds: Set<number> = new Set();
 
 
   constructor() {
@@ -114,67 +120,71 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Combines user files and shared files into a single list with type indicators
+   * Prepares and sorts user and shared files separately
    */
   combineAndSortFiles(): void {
-    const combinedFiles: any[] = [];
+    // Prepare user files
+    const userFiles = this.user_files.map(file => ({
+      ...file,
+      fileType: 'user',
+      displayName: file.meta.name || 'Unknown',
+      displayDate: file.meta.date,
+      sortDate: new Date(file.meta.date)
+    }));
 
-    // Add user files with type indicator
-    this.user_files.forEach(file => {
-      combinedFiles.push({
-        ...file,
-        fileType: 'user',
-        displayName: file.meta.name || 'Unknown',
-        displayDate: file.meta.date,
-        sortDate: new Date(file.meta.date)
-      });
-    });
+    // Prepare shared files
+    const sharedFiles = this.shared_files.map(file => ({
+      ...file,
+      fileType: 'shared',
+      displayName: file.filename || 'Unknown',
+      displayDate: file.date,
+      sortDate: new Date(file.date || 0)
+    }));
 
-    // Add shared files with type indicator
-    this.shared_files.forEach(file => {
-      combinedFiles.push({
-        ...file,
-        fileType: 'shared',
-        displayName: file.filename || 'Unknown',
-        displayDate: file.date,
-        sortDate: new Date(file.date || 0)
-      });
-    });
-
-    // Sort the combined list
-    this.all_files = this.sortFiles(combinedFiles);
+    // Sort each list separately
+    this.user_files_display = this.sortFiles(userFiles, this.userSortBy, this.userSortOrder);
+    this.shared_files_display = this.sortFiles(sharedFiles, this.sharedSortBy, this.sharedSortOrder);
   }
 
   /**
-   * Sorts files based on current sort criteria
+   * Sorts files based on sort criteria
    */
-  sortFiles(files: any[]): any[] {
+  sortFiles(files: any[], sortBy: 'name' | 'date', sortOrder: 'asc' | 'desc'): any[] {
     return files.sort((a, b) => {
       let comparison = 0;
 
-      if (this.sortBy === 'name') {
+      if (sortBy === 'name') {
         comparison = a.displayName.localeCompare(b.displayName);
-      } else if (this.sortBy === 'date') {
+      } else if (sortBy === 'date') {
         comparison = a.sortDate.getTime() - b.sortDate.getTime();
-      } else if (this.sortBy === 'shared') {
-        comparison = a.fileType.localeCompare(b.fileType);
       }
 
-      return this.sortOrder === 'desc' ? -comparison : comparison;
+      return sortOrder === 'desc' ? -comparison : comparison;
     });
   }
 
   /**
-   * Changes the sort criteria and re-sorts the files
+   * Changes the sort criteria for user files
    */
-  changeSort(criteria: 'name' | 'date' | 'shared'): void {
-    if (this.sortBy === criteria) {
-      // Toggle sort order if same criteria
-      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+  changeUserSort(criteria: 'name' | 'date'): void {
+    if (this.userSortBy === criteria) {
+      this.userSortOrder = this.userSortOrder === 'asc' ? 'desc' : 'asc';
     } else {
-      // Set new criteria with default order
-      this.sortBy = criteria;
-      this.sortOrder = criteria === 'name' ? 'asc' : 'desc';
+      this.userSortBy = criteria;
+      this.userSortOrder = criteria === 'name' ? 'asc' : 'desc';
+    }
+    this.combineAndSortFiles();
+  }
+
+  /**
+   * Changes the sort criteria for shared files
+   */
+  changeSharedSort(criteria: 'name' | 'date'): void {
+    if (this.sharedSortBy === criteria) {
+      this.sharedSortOrder = this.sharedSortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sharedSortBy = criteria;
+      this.sharedSortOrder = criteria === 'name' ? 'asc' : 'desc';
     }
     this.combineAndSortFiles();
   }
@@ -297,6 +307,90 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
 
   remove(fileid: number) {
     this.fb.removeFile(fileid);
+  }
+
+  /**
+   * Toggle selection of a file
+   */
+  toggleFileSelection(fileId: number, fileType: string): void {
+    // Only allow selection of user files that aren't currently open
+    if (fileType === 'user' && fileId !== this.currently_open_id && fileId !== this.ws.getCurrentFile().id) {
+      if (this.selectedFileIds.has(fileId)) {
+        this.selectedFileIds.delete(fileId);
+      } else {
+        this.selectedFileIds.add(fileId);
+      }
+    }
+  }
+
+  /**
+   * Check if a file is selected
+   */
+  isFileSelected(fileId: number): boolean {
+    return this.selectedFileIds.has(fileId);
+  }
+
+  /**
+   * Toggle select all user files
+   */
+  toggleSelectAll(): void {
+    const selectableFiles = this.user_files_display.filter(
+      file => file.id !== this.currently_open_id &&
+        file.id !== this.ws.getCurrentFile().id
+    );
+
+    if (this.isAllSelected()) {
+      // Deselect all
+      this.selectedFileIds.clear();
+    } else {
+      // Select all selectable files
+      selectableFiles.forEach(file => {
+        this.selectedFileIds.add(file.id);
+      });
+    }
+  }
+
+  /**
+   * Check if all selectable files are selected
+   */
+  isAllSelected(): boolean {
+    const selectableFiles = this.user_files_display.filter(
+      file => file.id !== this.currently_open_id &&
+        file.id !== this.ws.getCurrentFile().id
+    );
+    return selectableFiles.length > 0 && selectableFiles.every(file => this.selectedFileIds.has(file.id));
+  }
+
+  /**
+   * Check if some (but not all) files are selected
+   */
+  isIndeterminate(): boolean {
+    const selectableFiles = this.user_files_display.filter(
+      file => file.id !== this.currently_open_id &&
+        file.id !== this.ws.getCurrentFile().id
+    );
+    const selectedCount = selectableFiles.filter(file => this.selectedFileIds.has(file.id)).length;
+    return selectedCount > 0 && selectedCount < selectableFiles.length;
+  }
+
+  /**
+   * Get count of selected files
+   */
+  getSelectedCount(): number {
+    return this.selectedFileIds.size;
+  }
+
+  /**
+   * Batch delete selected files
+   */
+  batchDelete(): void {
+    if (this.selectedFileIds.size === 0) return;
+
+    const fileIds = Array.from(this.selectedFileIds);
+    fileIds.forEach(fileId => {
+      this.fb.removeFile(fileId);
+    });
+    this.selectedFileIds.clear();
   }
 
   /**

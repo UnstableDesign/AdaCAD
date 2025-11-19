@@ -4,13 +4,17 @@
 
 .welcome-options {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
+    padding: 16px;
 }
 
-h1 {
-    font-size: 2em;
+.welcome-subtitle {
+    padding: 16px 0px;
+    width: 100%;
 }
+
+
 
 h2 {
     color: rgba(0, 0, 0, .54);
@@ -57,15 +61,60 @@ h4 {
     flex-direction: column;
 }
 
-.lastviewed {
-    flex: 0 1 20%;
-    justify-content: flex-end;
-
+.file-header,
+.file-item {
+    font-size: 12px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+    border-bottom: thin dotted grey;
+    align-items: center;
+    gap: 8px;
 }
 
-.shared {
+
+
+.file-header {
+    background-color: #3f51b5;
+    color: white;
+
+    .mdc-button,
+    .mdc-checkbox {
+        color: white;
+        font-size: 12px;
+    }
+}
+
+.browser_header {
+    padding: 16px;
+    font-size: 12px;
+    color: #3f51b5;
+}
+
+.file-item.current {
+    color: #ff4081;
+}
+
+.file-item.selected {
+    background-color: rgba(63, 81, 181, 0.1);
+}
+
+.field-select {
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.field-shared {
     flex: 0 1 10%;
     justify-content: flex-start;
+    font-size: 12px;
+
+    .mdc-icon-button {
+        font-size: 12px;
+    }
 
     .shared-link {
         color: #1976d2;
@@ -85,32 +134,18 @@ h4 {
     }
 }
 
-.filename {
+.field-name {
     text-align: left;
     justify-content: flex-start;
     flex: 1 1 50%;
 }
 
-
-
-.file-item-block {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    width: 100%;
-    border-bottom: thin dotted grey;
-    align-items: flex-start;
-    padding: 8px 0px;
-    gap: 12px;
-
+.field-date {
+    flex: 0 1 20%;
+    justify-content: flex-end;
 }
 
-.current {
-    color: #ff4081;
-}
-
-
-.actions {
+.field-actions {
     flex: 0 1 20%;
     display: flex;
     justify-content: center;

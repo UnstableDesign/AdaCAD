@@ -5,19 +5,23 @@
   @if (data.type=='manage') {
   <span>Manage Saved Files</span>
   }
+  @if(data.type == 'welcome') {
+  <span>Welcome Back</span>
+  }
 </p>
 
 
 @if (data.type=='welcome') {
 <div class="welcome">
-  <h1>Welcome back</h1>
-  <h2>Where would you like to start?</h2>
+  <div class="welcome-title">Where would you like to start?</div>
   <div class="welcome-options">
-    <button mat-raised-button mat-dialog-close (click)="openMostRecent()">Open your most recent file</button>
-    <button mat-raised-button mat-dialog-close>Start a blank file</button>
-    <button mat-raised-button mat-dialog-close>Close this Window</button>
-    <h2>Or, select a file below</h2>
+    <button matButton="filled" color="primary" mat-dialog-close (click)="openMostRecent()"> most recent
+      file</button>
+    <button matButton="outlined" color="primary" mat-dialog-close>blank file</button>
+    <button matButton="outlined" color="primary" mat-dialog-close><i class="fa-solid fa-xmark"></i> close</button>
   </div>
+  <div class="welcome-subtitle">Or, select a file below</div>
+
 </div>
 }
 
@@ -28,159 +32,230 @@
   Saved files cannot be accessed because you are offline.
   }
 
+  <mat-tab-group>
+    <!-- User Files Tab -->
+    <mat-tab label="Your Files">
+      <div class="browser_list">
+        <div class="file-header">
+          <div class="field-select">
+            <mat-checkbox [checked]="isAllSelected()" [indeterminate]="isIndeterminate()" (change)="toggleSelectAll()">
+            </mat-checkbox>
+          </div>
+          <div class="field-name">
+            <button mat-button (click)="changeUserSort('name')" [class.active]="userSortBy === 'name'">
+              Name
+              @if (userSortBy === 'name') {
+              <i class="fas fa-sort-{{userSortOrder === 'asc' ? 'up' : 'down'}}"></i>
+              }
+            </button>
+          </div>
+          <div class="field-date">
+            <button mat-button (click)="changeUserSort('date')" [class.active]="userSortBy === 'date'">
+              Date
+              @if (userSortBy === 'date') {
+              <i class="fas fa-sort-{{userSortOrder === 'asc' ? 'up' : 'down'}}"></i>
+              }
+            </button>
+          </div>
+          <div class="field-actions">
+            Actions
+          </div>
+        </div>
 
-  <!-- Combined File List -->
-  <div class="browser_list">
-    <div class="file-item-block header">
-      <div class="shared">
-        <button mat-button (click)="changeSort('shared')" [class.active]="sortBy === 'shared'">
-          Shared
-          @if (sortBy === 'shared') {
-          <i class="fas fa-sort-{{sortOrder === 'asc' ? 'up' : 'down'}}"></i>
-          }
-        </button>
-      </div>
-      <div class="filename">
-        <button mat-button (click)="changeSort('name')" [class.active]="sortBy === 'name'">
-          Name
-          @if (sortBy === 'name') {
-          <i class="fas fa-sort-{{sortOrder === 'asc' ? 'up' : 'down'}}"></i>
-          }
-        </button>
-      </div>
-      <div class="lastviewed">
-        <button mat-button (click)="changeSort('date')" [class.active]="sortBy === 'date'">
-          Date
-          @if (sortBy === 'date') {
-          <i class="fas fa-sort-{{sortOrder === 'asc' ? 'up' : 'down'}}"></i>
-          }
-        </button>
-      </div>
-      <div class="actions">
-        Actions
-      </div>
-    </div>
+        @for (file of user_files_display; track file.id) {
+        <div class="file-item" [class.current]="file.id == currently_open_id"
+          [class.selected]="isFileSelected(file.id)">
+          <div class="field-select">
+            @if (file.id !== currently_open_id && file.id !== ws.getCurrentFile().id) {
+            <mat-checkbox [checked]="isFileSelected(file.id)" (change)="toggleFileSelection(file.id, 'user')">
+            </mat-checkbox>
+            }
+          </div>
+          <div class="field-name">
+            @if (file.id !== -1 && rename_mode_id == file.id) {
+            <mat-form-field appearance="outline" [formGroup]="renameForm">
+              <mat-label>Rename Workspace</mat-label>
+              <input matInput color="accent" formControlName="fileName" placeholder="Filename">
+              <button matSuffix mat-icon-button [class.primary]="file.id == currently_open_id"
+                (click)="rename(file.id)">
+                <i class="fas fa-save"></i></button>
+            </mat-form-field>
+            }
+            @if (rename_mode_id !== file.id) {
+            <div class="file-name-container">
 
-    @for (file of all_files; track file.id) {
-    <div class="file-item-block" [class.current]="file.id == currently_open_id"
-      [class.shared]="file.fileType === 'shared'">
-      <div class="shared">
-        @if (file.fileType === 'shared') {
-        <button mat-raised-button (click)="copyToClipboard(file.id)"><i class="fa-solid fa-link"></i></button>
-        }
-      </div>
-      <div class="filename">
-        @if (rename_mode_id == file.id && file.fileType === 'user') {
-        <mat-form-field appearance="outline" [formGroup]="renameForm">
-          <mat-label>Rename Workspace</mat-label>
-          <input matInput color="accent" formControlName="fileName" placeholder="Filename">
-          <button matSuffix mat-icon-button [class.primary]="file.id == currently_open_id" (click)="rename(file.id)">
-            <i class="fas fa-save"></i></button>
-        </mat-form-field>
-        }
-        @if (rename_mode_id !== file.id || file.fileType === 'shared') {
-        <div class="file-name-container">
+              <button matButton="filled" matTooltip="open" [disabled]="file.id == currently_open_id"
+                (click)="openFile(file.id)">
+                {{file.displayName}}
+              </button>
+            </div>
+            }
+          </div>
 
-          <h4>{{file.displayName}}</h4>
-          @if (file.fileType === 'shared' && file.desc) {
-          <p class="desc">{{file.desc}}</p>
-          }
+          <div class="field-date">
+            @if (file.id == currently_open_id) {
+            <span class="opened-indicator">opened</span>
+            } @else {
+            {{file.displayDate}}
+            }
+          </div>
+
+          <div class="field-actions">
+            <button mat-icon-button [matMenuTriggerFor]="userMenu">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+
+
+            <!-- User File Menu -->
+            <mat-menu #userMenu="matMenu">
+              <button [disabled]="file.id == currently_open_id" mat-menu-item (click)="openFile(file.id)">
+                <i class="fas fa-folder-open"></i> open
+              </button>
+              <button mat-menu-item (click)="rename(file.id)">
+                <i class="fas fa-edit"></i> rename
+              </button>
+              <button mat-menu-item (click)="duplicate(file.id)">
+                <i class="fas fa-copy"></i> make a copy
+              </button>
+              <button mat-menu-item (click)="shareWorkspace(file.id)">
+                <i class="fa-solid fa-share-nodes"></i> share
+              </button>
+              <button mat-menu-item matTooltip="download" (click)="exportWorkspace(file.id)">
+                <i class="fa-solid fa-download"></i> download file
+              </button>
+              <button mat-menu-item [disabled]="file.id == this.ws.getCurrentFile().id"
+                [matMenuTriggerFor]="deleteConfirm">
+                <i class="fa-solid fa-trash"></i> delete
+              </button>
+            </mat-menu>
+
+
+
+
+
+
+
+            <!-- Confirmation Menus -->
+            <mat-menu #deleteConfirm>
+              <button mat-flat-button (click)="remove(file.id)">
+                Are you sure?
+              </button>
+            </mat-menu>
+
+          </div>
         </div>
         }
       </div>
+    </mat-tab>
 
-      <div class="lastviewed">
-        @if (file.id == currently_open_id) {
-        <span class="opened-indicator">opened</span>
-        } @else {
-        {{file.displayDate}}
+    <!-- Shared Files Tab -->
+    <mat-tab label="Shared Files">
+      <div class="browser_header">
+        This is a list of files you have shared. After you share a file, you can no longer edit the shared version.
+        Opening the file creates a new copy of the shared file in your workspace.
+      </div>
+      <div class="browser_list">
+        <div class="file-header">
+          <div class="field-select"></div>
+          <div class="field-shared">
+            <button mat-icon-button matTooltip="copy link" disabled style="visibility: hidden;">
+              <i class="fa-solid fa-link"></i>
+            </button>
+          </div>
+          <div class="field-name">
+            <button mat-button (click)="changeSharedSort('name')" [class.active]="sharedSortBy === 'name'">
+              Name
+              @if (sharedSortBy === 'name') {
+              <i class="fas fa-sort-{{sharedSortOrder === 'asc' ? 'up' : 'down'}}"></i>
+              }
+            </button>
+          </div>
+          <div class="field-date">
+            <button mat-button (click)="changeSharedSort('date')" [class.active]="sharedSortBy === 'date'">
+              Date
+              @if (sharedSortBy === 'date') {
+              <i class="fas fa-sort-{{sharedSortOrder === 'asc' ? 'up' : 'down'}}"></i>
+              }
+            </button>
+          </div>
+          <div class="field-actions">
+            Actions
+          </div>
+        </div>
+
+        @for (file of shared_files_display; track file.id) {
+        <div class="file-item" [class.current]="file.id == currently_open_id">
+          <div class="field-select"></div>
+          <div class="field-shared">
+            <button mat-icon-button (click)="copyToClipboard(file.id)" matTooltip="copy link">
+              <i class="fa-solid fa-link"></i>
+            </button>
+          </div>
+          <div class="field-name">
+            <div class="file-name-container">
+              <button matButton="filled" matTooltip="open" [disabled]="file.id == currently_open_id"
+                (click)="openFile(file.id)">
+                {{file.displayName}}
+              </button>
+              <!-- @if (file.desc) {
+              <p class="desc">{{file.desc}}</p>
+              } -->
+            </div>
+          </div>
+
+          <div class="field-date">
+            @if (file.id == currently_open_id) {
+            <span class="opened-indicator">opened</span>
+            } @else {
+            {{file.displayDate}}
+            }
+          </div>
+
+          <div class="field-actions">
+            <button mat-icon-button [matMenuTriggerFor]="sharedMenu">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+
+            <!-- Shared File Menu -->
+            <mat-menu #sharedMenu="matMenu">
+              <button mat-menu-item (click)="openFile(file.id)">
+                <i class="fas fa-folder-open"></i> open file
+              </button>
+              <button mat-menu-item (click)="editSharedFile(file.id)">
+                <i class="fas fa-edit"></i> edit sharing settings
+              </button>
+              <button mat-menu-item (click)="copyToClipboard(file.id)">
+                <i class="fa-solid fa-link"></i> copy link
+              </button>
+              <button mat-menu-item matTooltip="download" (click)="exportSharedWorkspace(file.id)">
+                <i class="fa-solid fa-download"></i> download file
+              </button>
+              <button mat-menu-item [matMenuTriggerFor]="stopShareConfirm">
+                <i class="fa-solid fa-link-slash"></i> stop sharing
+              </button>
+            </mat-menu>
+
+            <!-- Confirmation Menu -->
+            <mat-menu #stopShareConfirm>
+              <button mat-flat-button (click)="unshare(file.id)">
+                Are you sure?
+              </button>
+            </mat-menu>
+          </div>
+        </div>
         }
       </div>
-
-      <div class="actions">
-        @if (file.fileType === 'user') {
-        <button mat-raised-button [matMenuTriggerFor]="userMenu">
-          <i class="fa-solid fa-ellipsis"></i>
-        </button>
-        <!-- User File Menu -->
-        <mat-menu #userMenu="matMenu">
-          <button [disabled]="file.id == currently_open_id" mat-menu-item (click)="openFile(file.id)">
-            <i class="fas fa-folder-open"></i> open
-          </button>
-          <button mat-menu-item (click)="rename(file.id)">
-            <i class="fas fa-edit"></i> rename
-          </button>
-          <button mat-menu-item (click)="duplicate(file.id)">
-            <i class="fas fa-copy"></i> make a copy
-          </button>
-          <button mat-menu-item (click)="shareWorkspace(file.id)">
-            <i class="fa-solid fa-share-nodes"></i> share
-          </button>
-          <button mat-menu-item matTooltip="download" (click)="exportWorkspace(file.id)">
-            <i class="fa-solid fa-download"></i> download file
-          </button>
-          <button mat-menu-item [disabled]="file.id == this.ws.current_file.id" [matMenuTriggerFor]="deleteConfirm">
-            <i class="fa-solid fa-trash"></i> delete
-          </button>
-        </mat-menu>
-        }
-        @if (file.fileType === 'shared') {
-        <button mat-raised-button [matMenuTriggerFor]="sharedMenu">
-          <i class="fa-solid fa-ellipsis"></i>
-        </button>
-        <!-- Shared File Menu -->
-        <mat-menu #sharedMenu="matMenu">
-          <button mat-menu-item (click)="openFile(file.id)">
-            <i class="fas fa-folder-open"></i> open file
-          </button>
-          <button mat-menu-item (click)="editSharedFile(file.id)">
-            <i class="fas fa-edit"></i> edit sharing settings
-          </button>
-          <button mat-menu-item (click)="copyToClipboard(file.id)">
-            <i class="fa-solid fa-link"></i> copy link
-          </button>
-          <button mat-menu-item matTooltip="download" (click)="exportSharedWorkspace(file.id)">
-            <i class="fa-solid fa-download"></i> download file
-          </button>
-          <button mat-menu-item [matMenuTriggerFor]="stopShareConfirm">
-            <i class="fa-solid fa-link-slash"></i> stop sharing
-          </button>
-        </mat-menu>
-
-
-        }
-
-
-
-
-
-
-
-        <!-- Confirmation Menus -->
-        <mat-menu #deleteConfirm>
-          <button mat-flat-button (click)="remove(file.id)">
-            Are you sure?
-          </button>
-        </mat-menu>
-
-        <mat-menu #stopShareConfirm>
-          <button mat-flat-button (click)="unshare(file.id)">
-            Are you sure?
-          </button>
-        </mat-menu>
-      </div>
-    </div>
-    }
-  </div>
-
-
-
-
-  <!-- HEADER ROW -->
+    </mat-tab>
+  </mat-tab-group>
 
 
 
 </mat-dialog-content>
 <mat-dialog-actions align="end">
+  @if (getSelectedCount() > 0) {
+  <button mat-raised-button color="warn" (click)="batchDelete()">
+    Delete {{getSelectedCount()}} file{{getSelectedCount() > 1 ? 's' : ''}}
+  </button>
+  }
   <button mat-raised-button color="primary" mat-dialog-close>Close</button>
 </mat-dialog-actions>
