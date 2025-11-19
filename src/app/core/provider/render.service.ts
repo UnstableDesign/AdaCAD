@@ -33,6 +33,8 @@ export class RenderService {
 
   draft_cell_size: number;
 
+  pixel_ratio: number;
+
 
 
 
@@ -43,6 +45,7 @@ export class RenderService {
     this.draft_cell_size = defaults.draft_detail_cell_size;
     this.current_view = 'draft';
     this.view_front = true;
+    this.pixel_ratio = window.devicePixelRatio || 1;
 
   }
 
@@ -78,16 +81,36 @@ export class RenderService {
   * the canvas object is limited in how many pixels it can render. Adjust the draft cell size based on the number of cells in the draft
   * @param draft 
   */
-  calculateCellSize(draft: Draft): number {
+  calculateCellSize(draft: Draft, out_format: string): number {
+    console.log("Calculating cell size for draft", draft.id, "out_format", out_format);
 
     let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
+    let area = wefts(draft.drawdown) * warps(draft.drawdown);
+    let ratio_square = Math.pow(this.pixel_ratio, 2);
+    let num_array_values = area * Math.pow(defaults.draft_detail_cell_size, 2) * 4 * ratio_square;
 
-    if ((max_bound * defaults.draft_detail_cell_size) < defaults.canvas_width) {
-      return Math.floor(defaults.draft_detail_cell_size);
+    if (out_format == 'canvas') {
+      if ((max_bound * defaults.draft_detail_cell_size) < defaults.canvas_width) {
+        return Math.floor(defaults.draft_detail_cell_size);
 
+      } else {
+        return Math.floor(defaults.canvas_width / max_bound);
+      }
     } else {
-      return Math.floor(defaults.canvas_width / max_bound);
+      console.log("Area is", num_array_values, "array buffer size is", defaults.array_buffer_size);
+      //the limiting factor is the array buffer
+      if (num_array_values <= defaults.array_buffer_size) {
+        return Math.floor(defaults.draft_detail_cell_size);
+      } else {
+        let modified_cell_size = Math.sqrt(defaults.array_buffer_size / (area * 4 * ratio_square));
+        console.log("Modified cell size is", modified_cell_size, "ratio_square", ratio_square);
+        return Math.floor(modified_cell_size);
+      }
+
     }
+
+
+
 
   }
 
@@ -532,6 +555,7 @@ export class RenderService {
       return Promise.resolve('drawdown canvas was null');
     }
 
+    //a workaround that goes back to the canvas to render, since it's better for drawing
     if (rf.use_floats == false && rf.use_colors == false) {
       return this.drawDrawdownAsCanvas(draft, canvas, cell_size, pixel_ratio, rf);
     }
@@ -550,6 +574,8 @@ export class RenderService {
       canvas.height = wefts(draft.drawdown) * cell_size * pixel_ratio;
       canvas.style.width = (warps(draft.drawdown) * cell_size) + "px";
       canvas.style.height = (wefts(draft.drawdown) * cell_size) + "px";
+
+      console.log("Drawing drawdown with cell size", cell_size, "pixel ratio", pixel_ratio, "canvas width", canvas.width, "canvas height", canvas.height);
 
       let img = getDraftAsImage(draft, cell_size * pixel_ratio, rf.use_floats, rf.use_colors, this.ms.getShuttles());
       draft_cx.putImageData(img, 0, 0);
@@ -613,16 +639,16 @@ export class RenderService {
 
 
   /**
- * gets the default canvas width (before scaling) of rendering this draft in the current context 
- * which is used to make the canvas fit the scaled content
- */
-  getBaseDimensions(draft: Draft, canvas: HTMLCanvasElement): { width: number, height: number } {
-    let cell_size = this.calculateCellSize(draft);
-    let pixel_ratio = this.getPixelRatio(canvas);
+  * gets the default canvas width (before scaling) of rendering this draft in the current context 
+  * which is used to make the canvas fit the scaled content
+  */
+  getBaseDimensions(draft: Draft, canvas: HTMLCanvasElement, out_format: string): { width: number, height: number } {
+    //  let pixel_ratio = this.getPixelRatio(canvas);
+    let cell_size = this.calculateCellSize(draft, out_format);
 
     return {
-      width: warps(draft.drawdown) * cell_size * pixel_ratio,
-      height: wefts(draft.drawdown) * cell_size * pixel_ratio
+      width: warps(draft.drawdown) * cell_size * this.pixel_ratio,
+      height: wefts(draft.drawdown) * cell_size * this.pixel_ratio
     };
 
   }
@@ -630,16 +656,16 @@ export class RenderService {
 
 
 
-  getPixelRatio(canvas: HTMLCanvasElement) {
-    const draft_cx: any = canvas.getContext("2d");
-    let dpr = window.devicePixelRatio || 1;
-    let bsr = draft_cx.webkitBackingStorePixelRatio ||
-      draft_cx.mozBackingStorePixelRatio ||
-      draft_cx.msBackingStorePixelRatio ||
-      draft_cx.oBackingStorePixelRatio ||
-      draft_cx.backingStorePixelRatio || 1;
-    return dpr / bsr;
-  }
+  // getPixelRatio(canvas: HTMLCanvasElement) {
+  //   const draft_cx: any = canvas.getContext("2d");
+  //   let dpr = window.devicePixelRatio || 1;
+  //   let bsr = draft_cx.webkitBackingStorePixelRatio ||
+  //     draft_cx.mozBackingStorePixelRatio ||
+  //     draft_cx.msBackingStorePixelRatio ||
+  //     draft_cx.oBackingStorePixelRatio ||
+  //     draft_cx.backingStorePixelRatio || 1;
+  //   return dpr / bsr;
+  // }
 
 
   clear(canvases: CanvasList): Promise<boolean> {
@@ -680,33 +706,35 @@ export class RenderService {
   async drawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
     let fns = [];
     // set the width and height
-    let pixel_ratio = this.getPixelRatio(canvases.drawdown);
-    let cell_size = this.calculateCellSize(draft);
+    // let pixel_ratio = this.getPixelRatio(canvases.drawdown);
+    let out_format = (!rf.use_floats && !rf.use_colors) ? 'canvas' : 'array_buffer';
+    let cell_size = this.calculateCellSize(draft, out_format);
+
 
     if (draft.drawdown.length == 0) return this.clear(canvases);
 
     if (rf.u_drawdown) {
-      fns = fns.concat(this.drawDrawdown(draft, canvases.drawdown, cell_size, pixel_ratio, rf));
+      fns = fns.concat(this.drawDrawdown(draft, canvases.drawdown, cell_size, this.pixel_ratio, rf));
     }
 
     if (rf.u_warp_mats || rf.u_warp_sys) {
-      fns = fns.concat(this.drawWarpData(draft, cell_size, pixel_ratio, canvases.warp_systems, canvases.warp_mats));
+      fns = fns.concat(this.drawWarpData(draft, cell_size, this.pixel_ratio, canvases.warp_systems, canvases.warp_mats));
     }
 
     if (rf.u_weft_mats || rf.u_weft_sys) {
-      fns = fns.concat(this.drawWeftData(draft, cell_size, pixel_ratio, canvases.weft_systems, canvases.weft_mats));
+      fns = fns.concat(this.drawWeftData(draft, cell_size, this.pixel_ratio, canvases.weft_systems, canvases.weft_mats));
     }
 
     if (rf.u_threading) {
-      fns = fns.concat(this.drawThreading(loom, loom_settings, canvases.threading, cell_size, pixel_ratio, rf.show_loom));
+      fns = fns.concat(this.drawThreading(loom, loom_settings, canvases.threading, cell_size, this.pixel_ratio, rf.show_loom));
     }
 
     if (rf.u_treadling) {
-      fns = fns.concat(this.drawTreadling(loom, loom_settings, canvases.treadling, cell_size, pixel_ratio, rf.show_loom));
+      fns = fns.concat(this.drawTreadling(loom, loom_settings, canvases.treadling, cell_size, this.pixel_ratio, rf.show_loom));
     }
 
     if (rf.u_tieups) {
-      fns = fns.concat(this.drawTieups(loom, loom_settings, canvases.tieup, cell_size, pixel_ratio, rf.show_loom));
+      fns = fns.concat(this.drawTieups(loom, loom_settings, canvases.tieup, cell_size, this.pixel_ratio, rf.show_loom));
     }
 
     return Promise.all(fns).then(errs => {
@@ -731,8 +759,9 @@ export class RenderService {
    * @param factor 
    * @param canvases 
    */
-  rescaleCanvases(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList) {
-    let cell_size = this.calculateCellSize(draft);
+  rescaleCanvases(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList, out_format: string) {
+    // let pixel_ratio = this.getPixelRatio(canvases.drawdown);
+    let cell_size = this.calculateCellSize(draft, out_format);
 
 
     // console.log("rescale in render service (factor, cell_size)", factor, cell_size )

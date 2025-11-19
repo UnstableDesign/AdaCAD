@@ -234,7 +234,6 @@ export class ViewerComponent {
 
 
   centerScrollbars() {
-    console.log("CENTERING SCROLLBARS", this.vs.getViewerId(), this.vis_mode);
     // Skip if no draft is selected or in simulation mode
     if (this.vs.getViewerId() === -1 || this.vis_mode === 'sim') {
       return;
@@ -246,24 +245,18 @@ export class ViewerComponent {
     // Use a recursive function to wait for elements to be ready
     const attemptCenter = (attempts: number = 0) => {
       const maxAttempts = 50; // Try for up to 5 seconds (50 * 100ms)
-      console.log("ATTEMPTING TO CENTER SCROLLBARS, ATTEMPT: ", attempts);
 
       // Get the container and draft rendering elements
       const container = document.getElementById('viewer-scale-container');
       const draftId = this.vs.getViewerId();
       const draftContainer = document.getElementById(`draft-scale-container-viewer-${draftId}`);
 
-      console.log("Container exists:", !!container, "Draft container exists:", !!draftContainer);
-
       if (!container || !draftContainer) {
-        console.log("Elements not found, will retry. Attempt:", attempts, "Max:", maxAttempts);
         if (attempts < maxAttempts) {
           setTimeout(() => {
-            console.log("Retrying attemptCenter, attempt:", attempts + 1);
             attemptCenter(attempts + 1);
           }, 100);
         } else {
-          console.log("Max attempts reached, giving up");
           // Show draft rendering even if we couldn't calculate zoom
           this.draft_rendering_visible = true;
         }
@@ -279,14 +272,10 @@ export class ViewerComponent {
       const canvas = document.getElementById(`drawdown-viewer-${draftId}`) as HTMLCanvasElement;
 
       if (!canvas) {
-        console.log("Canvas not found, will retry. Attempt:", attempts, "Max:", maxAttempts);
         if (attempts < maxAttempts) {
           setTimeout(() => {
-            console.log("Retrying attemptCenter due to missing canvas, attempt:", attempts + 1);
             attemptCenter(attempts + 1);
           }, 100);
-        } else {
-          console.log("Max attempts reached due to missing canvas, giving up");
         }
         return;
       }
@@ -295,18 +284,13 @@ export class ViewerComponent {
       const baseDraftWidth = canvas.width;
       const baseDraftHeight = canvas.height;
 
-      console.log("Dimensions - Container:", containerWidth, "x", containerHeight, "Canvas base size:", baseDraftWidth, "x", baseDraftHeight);
-
       // Check if dimensions are valid (greater than 0)
       if (containerWidth === 0 || containerHeight === 0 || baseDraftWidth === 0 || baseDraftHeight === 0) {
-        console.log("Invalid dimensions, will retry. Attempt:", attempts, "Max:", maxAttempts);
         if (attempts < maxAttempts) {
           setTimeout(() => {
-            console.log("Retrying attemptCenter due to invalid dimensions, attempt:", attempts + 1);
             attemptCenter(attempts + 1);
           }, 100);
         } else {
-          console.log("Max attempts reached due to invalid dimensions, giving up");
           // Show draft rendering even if we couldn't calculate zoom
           this.draft_rendering_visible = true;
         }
@@ -316,26 +300,20 @@ export class ViewerComponent {
       // Get current zoom
       const currentZoomIndex = this.zoomLevel.value;
       const currentZoom = this.zs.zoom_table[currentZoomIndex];
-
       const minZoom = this.zs.getZoomMin();
-      console.log("Current zoom index:", currentZoomIndex, "Current zoom value:", currentZoom, "Min zoom:", minZoom);
 
       // Calculate zoom factors needed to fit
       const widthFactor = containerWidth / baseDraftWidth;
       const heightFactor = containerHeight / baseDraftHeight;
       const fitZoom = Math.min(widthFactor, heightFactor);
 
-      console.log("FIT ZOOM: ", fitZoom, "Draft size:", baseDraftWidth, "x", baseDraftHeight, "Container:", containerWidth, "x", containerHeight);
-
       // Find the largest zoom index that still fits
       let bestZoomIndex = 0;
 
       // Access zoom_table through the service (it's a public array)
       const zoomTable = (this.zs as any).zoom_table;
-      console.log("Zoom table exists:", !!zoomTable, "Length:", zoomTable?.length);
 
       if (zoomTable && zoomTable.length > 0) {
-        console.log("Iterating through zoom table");
         for (let i = 0; i < zoomTable.length; i++) {
           const zoomValue = zoomTable[i];
           const scaledWidth = baseDraftWidth * zoomValue;
@@ -344,33 +322,23 @@ export class ViewerComponent {
           // Check if this zoom fits within the container
           if (scaledWidth <= containerWidth && scaledHeight <= containerHeight) {
             bestZoomIndex = i;
-            console.log("Zoom index", i, "fits. Zoom value:", zoomValue, "Scaled size:", scaledWidth, "x", scaledHeight);
           } else {
             // Once we exceed, stop
-            console.log("Zoom index", i, "exceeds container. Stopping.");
             break;
           }
         }
-      } else {
-        console.log("Zoom table not available or empty");
       }
-
-      console.log("BEST ZOOM INDEX: ", bestZoomIndex);
-      console.log("Current zoom index:", currentZoomIndex, "Best zoom index:", bestZoomIndex);
 
       // Set the zoom if it's different from current
       if (bestZoomIndex !== currentZoomIndex) {
-        console.log("Setting zoom to index:", bestZoomIndex);
         this.zs.setZoomIndexOnViewer(bestZoomIndex);
         this.zoomLevel.setValue(bestZoomIndex, { emitEvent: false });
         this.zoomChange();
-        console.log("Zoom change completed");
         // Show draft rendering after zoom change is applied
         setTimeout(() => {
           this.draft_rendering_visible = true;
         }, 50);
       } else {
-        console.log("Zoom index unchanged, no update needed");
         // Show draft rendering immediately if zoom didn't change
         this.draft_rendering_visible = true;
       }
@@ -379,7 +347,6 @@ export class ViewerComponent {
     // Start the attempt with a small delay to let the DOM update
     requestAnimationFrame(() => {
       setTimeout(() => {
-        console.log("Starting first attemptCenter call");
         attemptCenter(0);
       }, 50);
     });
@@ -473,7 +440,8 @@ export class ViewerComponent {
 
     this.scale = this.zs.getViewerZoom();
     this.view_rendering.scale = this.scale;
-    this.view_rendering.rescale(this.scale);
+    const out_format = (!this.getVisVariables().floats && !this.getVisVariables().use_colors) ? 'canvas' : 'array_buffer';
+    this.view_rendering.rescale(this.scale, out_format);
     //TO DO re-enable this but figure out where it is being called from
     //this.drawDraft(this.id);
   }

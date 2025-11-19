@@ -345,7 +345,7 @@ export class DraftRenderingComponent implements OnInit {
     const highlightRow = document.getElementById('highlight-row-editor');
     const highlightCol = document.getElementById('highlight-col-editor');
 
-    const cell_size = this.render.calculateCellSize(draft);
+    const cell_size = this.render.calculateCellSize(draft, 'canvas');
     const parentContainer = highlightRow.parentElement;
     const rect = parentContainer.getBoundingClientRect();
     //event page X is the mouse in absolute terms, rect left is the corner of the parent container
@@ -459,8 +459,10 @@ export class DraftRenderingComponent implements OnInit {
 
   @HostListener('mousemove', ['$event'])
   private movingMouse(event) {
+
+    if (this.view_only) return;
     const draft = this.tree.getDraft(this.id);
-    let cell_size = this.render.calculateCellSize(draft);
+    let cell_size = this.render.calculateCellSize(draft, 'canvas');
 
     var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
     var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
@@ -494,7 +496,7 @@ export class DraftRenderingComponent implements OnInit {
     this.mouse_pressed = true;
 
     const draft = this.tree.getDraft(this.id);
-    let cell_size = this.render.calculateCellSize(draft);
+    let cell_size = this.render.calculateCellSize(draft, 'canvas');
 
     var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
     var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
@@ -550,7 +552,7 @@ export class DraftRenderingComponent implements OnInit {
   private onMove(event) {
 
     const draft = this.tree.getDraft(this.id);
-    let cell_size = this.render.calculateCellSize(draft);
+    let cell_size = this.render.calculateCellSize(draft, 'canvas');
 
 
     // set up the point based on touched square.
@@ -1010,14 +1012,14 @@ export class DraftRenderingComponent implements OnInit {
   * receives offset of the scroll from the CDKScrollable created when the scroll was initiated
   */
   //this does not draw on canvas but just rescales the canvas
-  public rescale(scale: number) {
+  public rescale(scale: number, out_format: string) {
     this.scale = scale;
     if (this.id == -1) return;
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    this.render.rescaleCanvases(draft, loom, loom_settings, scale, this.canvases)
+    this.render.rescaleCanvases(draft, loom, loom_settings, scale, this.canvases, out_format)
     this.refreshOriginMarker();
 
 
@@ -1097,7 +1099,8 @@ export class DraftRenderingComponent implements OnInit {
     }
 
     return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
-      this.render.rescaleCanvases(draft, loom, loom_settings, this.scale, this.canvases)
+      let out_format = (!rf.use_floats && !rf.use_colors) ? 'canvas' : 'array_buffer';
+      this.render.rescaleCanvases(draft, loom, loom_settings, this.scale, this.canvases, out_format)
       this.refreshWarpAndWeftSystemNumbering();
       this.refreshOriginMarker();
       this.selection.redraw();

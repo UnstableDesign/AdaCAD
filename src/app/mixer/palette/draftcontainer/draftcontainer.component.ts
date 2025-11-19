@@ -422,7 +422,7 @@ export class DraftContainerComponent implements AfterViewInit {
     this.local_zoom = event;
     const dn = <DraftNode>this.tree.getNode(this.id);
     dn.scale = this.local_zoom;
-    this.draft_rendering.rescale(dn.scale);
+    this.draft_rendering.rescale(dn.scale, 'canvas');
 
     // Update the form control to reflect the new value
     if (this.localZoomForm) {

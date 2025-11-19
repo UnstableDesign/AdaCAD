@@ -11,6 +11,7 @@ export const defaults = {
   col_system: 0,
   canvas_width: 16384,
   canvas_height: 16384,
+  array_buffer_size: 1073741824, //1GB
   inlet_button_width: 50,
   weft_system_codes: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
   warps: 12,

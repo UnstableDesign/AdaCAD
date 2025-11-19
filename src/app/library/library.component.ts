@@ -1,5 +1,4 @@
-import { Component, ElementRef, AfterViewInit, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -7,6 +6,7 @@ import { MatInput } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Material } from 'adacad-drafting-lib';
 import { Draft } from 'adacad-drafting-lib/draft';
+import { Subscription } from 'rxjs';
 import { DraftNode, DraftStateNameChange } from '../core/model/datatypes';
 import { saveAsBmp } from '../core/model/helper';
 import { FileService } from '../core/provider/file.service';
@@ -42,7 +42,6 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
 
-    console.log("LIBRARY ON INIT");
 
 
     this.loadDrafts();
