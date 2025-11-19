@@ -119,8 +119,8 @@
     <div class="scale-container" id="viewer-scale-container">
 
 
-      <app-draft-rendering #view_rendering [class.hidden]="vis_mode == 'sim'" source="viewer" [id]="vs.getViewerId()"
-        [view_only]="true" [scale]="scale" current_view="color">
+      <app-draft-rendering #view_rendering [class.hidden]="vis_mode == 'sim' || !draft_rendering_visible"
+        source="viewer" [id]="vs.getViewerId()" [view_only]="true" [scale]="scale" current_view="color">
       </app-draft-rendering>
 
       <app-simulation [class.hidden]="vis_mode != 'sim'" #sim id="sim_viewer" [id]="vs.getViewerId()">
