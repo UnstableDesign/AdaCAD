@@ -1,3 +1,6 @@
+@use '@angular/material' as mat;
+
+
 // .mat-mdc-icon-button{
 //     font-size: 14px;
 //   }
@@ -32,15 +35,46 @@
 }
 
 .viewer-controls {
-    min-width: 100%;
+    width: 100%;
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    background-color: whitesmoke;
-    padding: 8px;
+    gap: 2px;
+    justify-content: space-between;
+    padding: 8px 0px 24px 0px;
+    align-items: center;
+
+    @include mat.button-toggle-overrides((text-color:#3f51b5,
+            selected-state-text-color:#3f51b5,
+            label-text-size: 12px,
+            height: 36px));
 
 
+    .viewer-zoom-container {
+        flex: 1 0 40%;
+    }
+
+    .viewer-extra-controls {
+        flex: 1 0 40%;
+        display: flex;
+        flex-direction: row;
+        gap: 2px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .mat-mdc-slider {
+        min-width: 80px !important;
+    }
+
+
+}
+
+.pin-container {
+    position: relative;
+    top: -8px;
+    right: 3px;
+    height: 0px;
+    overflow: visible;
 }
 
 .draft-info-list {
@@ -204,4 +238,48 @@
 
 .hidden {
     display: none;
+}
+
+.toggle-group-wrapper {
+    position: relative;
+}
+
+.collapsible-toggle-group {
+
+    // Hide non-selected toggles by default
+    ::ng-deep .mat-button-toggle:not(.mat-button-toggle-checked) {
+        max-width: 0;
+        opacity: 0;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: 0;
+        margin-right: 0;
+        border-left: none;
+        border-right: none;
+        overflow: hidden;
+        transition: max-width 0.3s ease, opacity 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+    }
+
+    // Show all toggles on hover
+
+
+    // Show all toggles when focused (clicked)
+    &:focus-within {
+        ::ng-deep .mat-button-toggle:not(.mat-button-toggle-checked) {
+            max-width: 200px;
+            opacity: 1;
+            padding-left: initial;
+            padding-right: initial;
+            margin-left: initial;
+            margin-right: initial;
+            border-left: initial;
+            border-right: initial;
+        }
+    }
+
+    // Keep selected toggle always visible
+    ::ng-deep .mat-button-toggle-checked {
+        opacity: 1 !important;
+        max-width: none !important;
+    }
 }

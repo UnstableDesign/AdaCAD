@@ -51,10 +51,6 @@
   <div class="viewer-controls" [class.hidden]="vs.getViewerId() === -1">
 
 
-    <button mat-mini-fab [color]="vs.hasPin ? 'accent' : 'primary'" (click)="onTogglePinPressed()" class="pin-button"
-      [matTooltip]="vs.hasPin ? 'Unpin draft' : 'Pin draft to viewer'">
-      <i class="fa-solid fa-map-pin"></i>
-    </button>
 
     <div class="viewer-zoom-container">
       <mat-slider [class.hidden]="vis_mode == 'sim'" min="0" [max]="zs.num_steps" step="1">
@@ -63,43 +59,59 @@
     </div>
 
 
-    <mat-button-toggle-group [formControl]="visMode" appearance="standard">
-      <mat-button-toggle matTooltip="view in 3D" value="sim">
-        <i class="fa-solid fa-cube"></i>
-      </mat-button-toggle>
-      <mat-button-toggle value="draft" matTooltip="view as draft">
-        <i class="fa-solid fa-chess-board"></i>
-      </mat-button-toggle>
-      <mat-button-toggle value="structure" matTooltip="view structure">
-        <i class="fa-solid fa-hashtag"></i>
-      </mat-button-toggle>
-      <mat-button-toggle value="color" matTooltip="view color pattern">
-        <i class="fa-solid fa-paint-roller"></i>
-      </mat-button-toggle>
-    </mat-button-toggle-group>
+    <div class="viewer-extra-controls">
+      <div class="toggle-group-wrapper">
+        <mat-button-toggle-group hideSingleSelectionIndicator [formControl]="visMode" appearance="standard"
+          class="collapsible-toggle-group">
+          <mat-button-toggle matTooltip="view in 3D" value="sim">
+            <i class="fa-solid fa-cube"></i>
+          </mat-button-toggle>
+          <mat-button-toggle value="draft" matTooltip="view as draft">
+            <i class="fa-solid fa-chess-board"></i>
+          </mat-button-toggle>
+          <mat-button-toggle value="structure" matTooltip="view structure">
+            <i class="fa-solid fa-hashtag"></i>
+          </mat-button-toggle>
+          <mat-button-toggle value="color" matTooltip="view color pattern">
+            <i class="fa-solid fa-paint-roller"></i>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
 
 
 
-    <mat-button-toggle-group [disabled]="visMode.value == 'sim'" [formControl]="viewFace" appearance="standard">
-      <mat-button-toggle value="front">
-        front
-      </mat-button-toggle>
-      <mat-button-toggle value="back">
-        back
-      </mat-button-toggle>
-    </mat-button-toggle-group>
+      <div class="toggle-group-wrapper">
+        <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
+          [formControl]="viewFace" appearance="standard" class="collapsible-toggle-group">
+          <mat-button-toggle value="front">
+            front
+          </mat-button-toggle>
+          <mat-button-toggle value="back">
+            back
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
 
 
 
-    <button mat-mini-fab [color]="view_controls_visible ? 'accent' : 'primary'" (click)="toggleViewControls()"><i
-        class="fa-solid fa-circle-info"></i>
+      <button matIconButton="filled" [color]="view_controls_visible ? 'accent' : 'primary'"
+        (click)="toggleViewControls()"><i class="fa-solid fa-circle-info"></i>
+      </button>
+    </div>
+
+
+
+
+
+
+  </div>
+
+
+  <div class="pin-container" [class.hidden]="vs.getViewerId() === -1">
+    <button mat-mini-fab [color]="vs.hasPin ? 'accent' : 'primary'" (click)="onTogglePinPressed()" class="pin-button"
+      [matTooltip]="vs.hasPin ? 'Unpin draft' : 'Pin draft to viewer'">
+      <i class="fa-solid fa-map-pin"></i>
     </button>
-
-
-
-
-
-
   </div>
 
   <div class="current_view" id="static_draft_view" [class.hidden]="vs.getViewerId() === -1">

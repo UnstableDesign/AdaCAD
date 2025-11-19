@@ -323,11 +323,11 @@ export class SelectionComponent implements OnInit {
       case 'flip_x':
         op = this.ops.getOp('flip');
         params = [{
-          param: op.params[0],
+          param: op.params[1],
           val: 0
         },
         {
-          param: op.params[1],
+          param: op.params[0],
           val: 1
         },];
         drafts = [{
