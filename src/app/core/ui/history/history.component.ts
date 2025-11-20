@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatD
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { ConnectionStateEvent, DraftExistenceChange, DraftNode, DraftStateChange, DraftStateEvent, DraftStateMove, DraftStateNameChange, MaterialsStateChange, MixerStateChangeEvent, NoteStateChange, OpExistenceChanged, OpNode, OpStateEvent, OpStateParamChange, StateChangeEvent } from '../../model/datatypes';
+import { ConnectionStateEvent, DraftExistenceChange, DraftNode, DraftStateChange, DraftStateEvent, DraftStateMove, DraftStateNameChange, FileMetaStateChange, MaterialsStateChange, MixerStateChangeEvent, NoteStateChange, OpExistenceChanged, OpNode, OpStateEvent, OpStateParamChange, StateChangeEvent } from '../../model/datatypes';
 import { StateService } from '../../provider/state.service';
 import { TreeService } from '../../provider/tree.service';
 
@@ -33,14 +33,31 @@ export class HistoryComponent {
   private dialogRef = inject<MatDialogRef<HistoryComponent>>(MatDialogRef);
   private data = inject(MAT_DIALOG_DATA);
   private tree = inject(TreeService);
-  get history(): StateChangeEvent[] {
-    return this.stateService.history;
-  }
+
+  historyReversed: Array<{ change: StateChangeEvent, description: string }> = [];
 
 
   get activeId(): number {
     return this.stateService.active_id;
   }
+
+  ngOnInit() {
+    this.updateHistory();
+    this.stateService.stateChange$.subscribe(() => {
+      this.updateHistory();
+    });
+  }
+
+  ngOnDestroy() {
+    this.stateService.stateChangeSubject.unsubscribe();
+  }
+
+  updateHistory() {
+    this.historyReversed = this.stateService.history.slice().reverse()
+      .map(change => ({ change, description: this.formatStateChange(change) }));
+  }
+
+  trackHistory(_, item) { return item.change.id; }
 
 
 
@@ -155,9 +172,15 @@ export class HistoryComponent {
     }
   }
 
+  formatFileMetaChange(change: FileMetaStateChange): string {
+    console.log("FORMATTING FILE META CHANGE", change);
+    switch (change.type) {
+      case 'META_CHANGE': return 'changed the workspace name or description';
+    }
+  }
+
   formatStateChange(change: StateChangeEvent): string {
     const originator = change.originator;
-
     switch (originator) {
       case 'DRAFT': return this.formatDraftChange(<DraftStateChange>change);
       case 'OP': return this.formatOpChange(<OpStateEvent>change);
@@ -165,6 +188,7 @@ export class HistoryComponent {
       case 'NOTE': return this.formatNoteChange(<NoteStateChange>change);
       case 'MATERIALS': return this.formatMaterialsChange(<MaterialsStateChange>change);
       case 'MIXER': return this.formatMixerChange(<MixerStateChangeEvent>change);
+      case 'FILEMETA': return this.formatFileMetaChange(<FileMetaStateChange>change);
     }
 
 

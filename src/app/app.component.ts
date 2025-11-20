@@ -238,7 +238,10 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     const fileMetaChangeUndoSubscription = this.ss.fileMetaChangeUndo$.subscribe(action => {
-      this.filename_form.setValue((<FileMetaStateAction>action).before, { emitEvent: false });
+      this.filename_form.setValue((<FileMetaStateAction>action).before.name, { emitEvent: false });
+      this.library.updateWorkspaceName((<FileMetaStateAction>action).before.name);
+      this.library.updateWorkspaceDescriptionFromUndo((<FileMetaStateAction>action).before.desc);
+      this.ws.setCurrentFile((<FileMetaStateAction>action).before);
     });
 
 
@@ -637,6 +640,7 @@ export class AppComponent implements OnInit, OnDestroy {
         break;
     }
   }
+
 
 
 
@@ -1859,14 +1863,37 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   renameWorkspace(name: string) {
+
+    console.log("RENAMING WORKSPACE TO ", name);
+
     this.filename_form.markAsPristine();
-    this.ss.addStateChange(<FileMetaStateChange>{
-      type: 'NAME_CHANGE',
+
+    //needs to be a deep copy 
+    const beforeMeta: FileMeta = {
       id: this.ws.getCurrentFile().id,
-      before: this.ws.getCurrentFile().name,
-      after: name
-    });
+      name: this.ws.getCurrentFile().name,
+      desc: this.ws.getCurrentFile().desc,
+      from_share: this.ws.getCurrentFile().from_share,
+      time: this.ws.getCurrentFile().time,
+    };
+    this.ws.getCurrentFile();
     this.ws.setCurrentFileName(name);
+    const afterMeta = this.ws.getCurrentFile();
+    this.ss.addStateChange(<FileMetaStateChange>{
+      originator: 'FILEMETA',
+      type: 'META_CHANGE',
+      id: this.ws.getCurrentFile().id,
+      before: beforeMeta,
+      after: afterMeta
+    });
+
+    this.library.updateWorkspaceName(name)
+
+  }
+
+  renameWorkspaceFromLibrary(name: string) {
+    this.filename_form.setValue(name, { emitEvent: false });
+    this.filename_form.markAsPristine();
 
   }
 

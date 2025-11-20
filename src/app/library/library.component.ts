@@ -1,32 +1,35 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { MatError, MatInput } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Material } from 'adacad-drafting-lib';
 import { Draft } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
-import { DraftNode, DraftStateNameChange } from '../core/model/datatypes';
+import { DraftNode, DraftStateNameChange, FileMetaStateChange, MediaInstance } from '../core/model/datatypes';
 import { saveAsBmp } from '../core/model/helper';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
+import { MediaService } from '../core/provider/media.service';
 import { OperationService } from '../core/provider/operation.service';
 import { StateService } from '../core/provider/state.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
-
 @Component({
   selector: 'app-library',
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
-  imports: [MatButton, DraftRenderingComponent, FormsModule, MatFormField, MatLabel, MatInput, MatTooltip],
+  imports: [MatButton, ReactiveFormsModule, DraftRenderingComponent, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule],
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('hiddenCanvas', { static: false }) hiddenCanvas: ElementRef<HTMLCanvasElement>;
   @ViewChildren(DraftRenderingComponent) draftRenderings: QueryList<DraftRenderingComponent>;
+
+  @Output() onWorkspaceRename = new EventEmitter<string>();
 
   private tree = inject(TreeService);
   private ms = inject(MaterialsService);
@@ -34,18 +37,46 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   private fs = inject(FileService);
   private ss = inject(StateService);
   private ops = inject(OperationService);
+  private mediaService = inject(MediaService);
 
   drafts: Array<{ id: number; name: string; draft: Draft }> = [];
   materials: Array<Material> = [];
+  media: Array<MediaInstance> = [];
   selectedDraftIds: Set<number> = new Set();
   private draftRenderingsSubscription: Subscription;
 
+
+  filename: FormControl;
+  fileDescription: FormControl;
+  id: number;
+  from_share: string;
+  time: number;
+  owner: string;
+
+  fileMetaChangeUndoSubscription: Subscription;
+
   ngOnInit() {
+    // Initialize form control with current filename
+    const currentFileName = this.ws.getCurrentFile()?.name || '';
+    this.filename = new FormControl(currentFileName, [Validators.required, Validators.minLength(1)]);
+
+    const currentFileDescription = this.ws.getCurrentFile()?.desc || '';
+    this.fileDescription = new FormControl('');
 
 
-
+    const meta = this.ws.getCurrentFile();
+    this.loadMeta();
     this.loadDrafts();
     this.loadMaterials();
+    this.loadMedia();
+
+    // this.filename.valueChanges.subscribe(value => {
+    //   if (this.filename.valid && this.filename.dirty) {
+    //     this.renameWorkspace(value);
+    //   }
+    // });
+
+
   }
 
   ngAfterViewInit() {
@@ -59,10 +90,78 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+
+    if (this.fileMetaChangeUndoSubscription) {
+      this.fileMetaChangeUndoSubscription.unsubscribe();
+    }
     if (this.draftRenderingsSubscription) {
       this.draftRenderingsSubscription.unsubscribe();
     }
   }
+
+
+  //called from library when the workspace name is changed in the library. 
+  renameWorkspace(name: string) {
+    this.filename.markAsPristine();
+
+
+    const beforeMeta = {
+      id: this.ws.getCurrentFile().id,
+      name: this.ws.getCurrentFile().name,
+      desc: this.ws.getCurrentFile().desc,
+      from_share: this.ws.getCurrentFile().from_share,
+      time: this.ws.getCurrentFile().time,
+    };
+
+    this.ws.setCurrentFileName(name);
+    const afterMeta = this.ws.getCurrentFile();
+
+    this.ss.addStateChange(<FileMetaStateChange>{
+      type: 'META_CHANGE',
+      id: this.ws.getCurrentFile().id,
+      before: beforeMeta,
+      after: afterMeta
+    });
+    this.ws.setCurrentFileName(name);
+    this.onWorkspaceRename.emit(name);
+  }
+
+  //called from app when the workspace name is changed in the footer. 
+  updateWorkspaceName(name: string) {
+    this.filename.setValue(name, { emitEvent: false });
+    this.filename.markAsPristine();
+  }
+
+  //description changes can only originate from this location 
+  updateWorkspaceDescription(description: string) {
+    this.fileDescription.markAsPristine();
+
+    const beforeMeta = {
+      id: this.ws.getCurrentFile().id,
+      name: this.ws.getCurrentFile().name,
+      desc: this.ws.getCurrentFile().desc,
+      from_share: this.ws.getCurrentFile().from_share,
+      time: this.ws.getCurrentFile().time,
+    };
+
+    this.ws.setCurrentFileDesc(description);
+    const afterMeta = this.ws.getCurrentFile();
+
+
+    this.ss.addStateChange(<FileMetaStateChange>{
+      originator: 'FILEMETA',
+      type: 'META_CHANGE',
+      id: this.ws.getCurrentFile().id,
+      before: beforeMeta,
+      after: afterMeta
+    });
+  }
+
+  updateWorkspaceDescriptionFromUndo(description: string) {
+    this.fileDescription.setValue(description, { emitEvent: false });
+    this.fileDescription.markAsPristine();
+  }
+
 
   private renderAllDrafts() {
     // Use setTimeout to ensure the view has fully updated
@@ -74,6 +173,13 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
     }, 0);
+  }
+
+  loadMeta() {
+    const meta = this.ws.getCurrentFile();
+    this.id = meta.id;
+    this.from_share = meta.from_share;
+    this.time = meta?.time || -1;
   }
 
   loadDrafts() {
@@ -97,22 +203,32 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getDraftOperationCount(draftId: number): number {
-    if (this.isSeedDraft(draftId)) {
-      return 0;
-    }
-    return this.tree.getUpstreamOperations(draftId).length;
+    return 0;
+    // if (this.isSeedDraft(draftId)) {
+    //   return 0;
+    // }
+    // return this.tree.getUpstreamOperations(draftId).length;
   }
 
   loadMaterials() {
     this.materials = this.ms.getShuttles();
   }
 
+  loadMedia() {
+    this.media = this.mediaService.current.slice(); // Create a copy of the array
+  }
+
   onFocus(id: number) {
     this.drafts = [];
     this.materials = [];
+    this.media = [];
     this.selectedDraftIds.clear();
     this.loadDrafts();
     this.loadMaterials();
+    this.loadMedia();
+    this.loadMeta();
+    this.filename.setValue(this.ws.getCurrentFile().name, { emitEvent: false });
+    this.fileDescription.setValue(this.ws.getCurrentFile().desc || '', { emitEvent: false });
 
     // Trigger rendering after view updates
     this.renderAllDrafts();
@@ -143,7 +259,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
       return [];
     }
 
-    const upstreamOpIds = this.tree.getUpstreamOperations(draftId);
+    // const upstreamOpIds = this.tree.getUpstreamOperations(draftId);
+    const upstreamOpIds = [];
     const operations: Array<{ displayName: string; opName: string; color: string }> = [];
 
     upstreamOpIds.forEach(opId => {

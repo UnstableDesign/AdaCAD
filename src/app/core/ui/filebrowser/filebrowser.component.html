@@ -84,7 +84,7 @@
             @if (rename_mode_id !== file.id) {
             <div class="file-name-container">
 
-              <button matButton="filled" matTooltip="open" [disabled]="file.id == currently_open_id"
+              <button matButton="filled" matTooltip="open" mat-dialog-close [disabled]="file.id == currently_open_id"
                 (click)="openFile(file.id)">
                 {{file.displayName}}
               </button>
@@ -194,7 +194,7 @@
           <div class="field-name">
             <div class="file-name-container">
               <button matButton="filled" matTooltip="open" [disabled]="file.id == currently_open_id"
-                (click)="openFile(file.id)">
+                (click)="openFile(file.id)" mat-dialog-close>
                 {{file.displayName}}
               </button>
               <!-- @if (file.desc) {

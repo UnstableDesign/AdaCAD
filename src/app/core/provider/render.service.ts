@@ -47,7 +47,12 @@ export class RenderService {
     this.view_front = true;
     this.pixel_ratio = window.devicePixelRatio || 1;
 
+
+
   }
+
+
+
 
 
   /**
@@ -82,7 +87,6 @@ export class RenderService {
   * @param draft 
   */
   calculateCellSize(draft: Draft, out_format: string): number {
-    console.log("Calculating cell size for draft", draft.id, "out_format", out_format);
 
     let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
     let area = wefts(draft.drawdown) * warps(draft.drawdown);
@@ -97,13 +101,11 @@ export class RenderService {
         return Math.floor(defaults.canvas_width / max_bound);
       }
     } else {
-      console.log("Area is", num_array_values, "array buffer size is", defaults.array_buffer_size);
       //the limiting factor is the array buffer
       if (num_array_values <= defaults.array_buffer_size) {
         return Math.floor(defaults.draft_detail_cell_size);
       } else {
         let modified_cell_size = Math.sqrt(defaults.array_buffer_size / (area * 4 * ratio_square));
-        console.log("Modified cell size is", modified_cell_size, "ratio_square", ratio_square);
         return Math.floor(modified_cell_size);
       }
 

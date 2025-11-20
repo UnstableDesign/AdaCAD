@@ -37,6 +37,12 @@ export class StateService {
   // Draft undo event streams
 
   /**
+   * GENERAL CALL FOR ANY STATE CHANGE EVENT ADDED OR REMOVED FROM THE HISTORY
+   */
+  stateChangeSubject = new Subject<void>();
+  stateChange$ = this.stateChangeSubject.asObservable();
+
+  /**
    * DRAFT EVENTS
    */
   private draftMoveUndoSubject = new Subject<StateAction>();
@@ -177,6 +183,8 @@ export class StateService {
     this.history.push(change);
     console.log("HISTORY IS ", this.history)
     this.writeStateToFirebase();
+
+    this.stateChangeSubject.next();
 
   }
 
@@ -369,12 +377,19 @@ export class StateService {
   }
 
   private handleFileMetaUndo(change: FileMetaStateChange) {
-    this.fileMetaChangeUndoSubject.next(<RenameAction>{
-      type: 'CHANGE',
-      id: (<FileMetaStateChange>change).id,
-      before: (<FileMetaStateChange>change).before,
-      after: (<FileMetaStateChange>change).after
-    });
+
+    switch (change.type) {
+      case 'META_CHANGE':
+        this.fileMetaChangeUndoSubject.next(<FileMetaStateAction>{
+          type: 'CHANGE',
+          id: (<FileMetaStateChange>change).id,
+          before: (<FileMetaStateChange>change).before,
+          after: (<FileMetaStateChange>change).after
+        });
+        break;
+    }
+
+
   }
 
 
@@ -405,6 +420,8 @@ export class StateService {
         break;
 
     }
+
+    this.stateChangeSubject.next();
 
   }
 

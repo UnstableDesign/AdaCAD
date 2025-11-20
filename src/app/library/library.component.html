@@ -1,9 +1,124 @@
 <div class="library-container">
-  <h1>Library</h1>
+
+  <div class="project-info">
+
+
+    <div class="project-info-left">
+      <div class="project-name">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Workspace Name</mat-label>
+          <input matInput [formControl]="filename" placeholder="Enter project name"
+            (keyup.enter)="renameWorkspace(filename.value)">
+          @if (filename.invalid && (filename.dirty || filename.touched)) {
+          <mat-error>
+            @if (filename.errors?.['required']) {
+            Project name is required
+            } @else if (filename.errors?.['minlength']) {
+            Project name must be at least 1 character
+            }
+          </mat-error>
+          }
+
+
+
+        </mat-form-field>
+        @if (filename.dirty) {
+        <button mat-raised-button color="accent" (click)="renameWorkspace(filename.value)">
+          Save
+        </button>
+        }
+
+      </div>
+      <div class="project-description">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Project Description</mat-label>
+          <textarea matInput (keyup.enter)="updateWorkspaceDescription(fileDescription.value)"
+            [formControl]="fileDescription" placeholder="Enter project description" rows="4"></textarea>
+        </mat-form-field>
+
+        @if (fileDescription.dirty) {
+        <button mat-raised-button color="accent" (click)="updateWorkspaceDescription(fileDescription.value)">
+          Save
+        </button>
+        }
+
+      </div>
+    </div>
+
+    <div class="project-info-right">
+      <div class="project-id">
+        <div class='project-info-field'>Database ID</div>
+        <div class='project-info-value'>{{ id }}</div>
+      </div>
+
+      @if(from_share) {
+      <div class="project-owner">
+        <div class='project-info-field'>Shared from</div>
+        <div class='project-info-value'>Project Owner</div>
+      </div>
+      }
+
+      @if(time) {
+      <div class="project-created-at">
+        <div class='project-info-field'>Last Saved:</div>
+        <div class='project-info-value'>@if(time > 0) {
+          {{time}}
+          } @else {
+          Not saved yet
+          }</div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Media Section -->
+  <section class="media-section">
+    <h2>Media</h2>
+    <div class="media-grid">
+      @for (mediaItem of media; track mediaItem.id) {
+      <div class="media-card">
+        <div class="media-thumbnail">
+          <img [src]="mediaItem.img.image.src" [alt]="mediaItem.img.name || 'Media item'"
+            (error)="$event.target.style.display='none'">
+        </div>
+        <div class="media-info">
+          <div class="media-name">{{ mediaItem.img.name || 'Unnamed Media' }}</div>
+          <div class="media-type">
+            <mat-chip [color]="mediaItem.type === 'indexed_color_image' ? 'primary' : 'accent'" selected>
+              {{ mediaItem.type === 'indexed_color_image' ? 'Indexed Color' : 'Image' }}
+            </mat-chip>
+          </div>
+          <div class="media-dimensions">
+            {{ mediaItem.img.width }} × {{ mediaItem.img.height }}px
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    @if (media.length === 0) {
+    <p class="empty-message">No media uploaded to this workspace.</p>
+    }
+  </section>
 
   <!-- Drafts Section -->
   <section class="drafts-section">
     <h2>Drafts</h2>
+    <div class="draft-actions">
+      @if (drafts.length > 0) {
+      <button mat-raised-button color="primary" (click)="downloadAllDraftsAsBitmaps()">
+        <i class="fas fa-download"></i>
+        @if (getSelectedDraftsCount() > 0) {
+        Download Selected Drafts as Bitmaps
+        } @else {
+        Download All Drafts as Bitmaps
+        }
+      </button>
+      }
+    </div>
+
+
     <div class="drafts-grid">
       @for (draft of drafts; track draft.id) {
       <div class="draft-card">
@@ -60,18 +175,7 @@
       </div>
       }
     </div>
-    @if (drafts.length > 0) {
-    <div class="download-section">
-      <button mat-raised-button color="primary" (click)="downloadAllDraftsAsBitmaps()">
-        <i class="fas fa-download"></i>
-        @if (getSelectedDraftsCount() > 0) {
-        Download Selected Drafts as Bitmaps
-        } @else {
-        Download All Drafts as Bitmaps
-        }
-      </button>
-    </div>
-    }
+
     @if (drafts.length === 0) {
     <p class="empty-message">No drafts in this workspace.</p>
     }

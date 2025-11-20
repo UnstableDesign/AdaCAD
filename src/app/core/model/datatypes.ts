@@ -565,10 +565,10 @@ type DraftChangedEvent = {
 
 
 export type FileMetaStateChange = StateChangeEvent & {
-  type: 'NAME_CHANGE',
+  type: 'META_CHANGE',
   id: number,
-  before: string,
-  after: string
+  before: FileMeta,
+  after: FileMeta
 }
 
 
@@ -648,8 +648,8 @@ export type StateAction = {
 
 export type FileMetaStateAction = StateAction & {
   id: number,
-  before: string,
-  after: string
+  before: FileMeta,
+  after: FileMeta
 }
 
 export type NoteAction = StateAction & {
@@ -689,6 +689,8 @@ export type RenameAction = StateAction & {
   before: string,
   after: string
 }
+
+
 
 export type MaterialsStateAction = StateAction & {
   before: Array<Material>,

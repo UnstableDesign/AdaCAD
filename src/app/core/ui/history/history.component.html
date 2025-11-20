@@ -24,20 +24,20 @@
     <div class="history-section">
         <h3>
             <i class="fas fa-list"></i>
-            Recent State Changes ({{history.length}})
+            Recent State Changes ({{historyReversed.length}})
         </h3>
 
-        <mat-list *ngIf="history.length > 0; else noHistory">
-            <mat-list-item *ngFor="let change of history.reverse(); let i = index" class="history-item">
-                <i class="fas fa-fw history-icon" [class]="getStateChangeIconClass(change.originator)"></i>
+        <mat-list *ngIf="historyReversed.length > 0; else noHistory">
+            <mat-list-item *ngFor="let entry of historyReversed; trackBy: trackHistory" class="history-item">
+                <i class="fas fa-fw history-icon" [class]="getStateChangeIconClass(entry.change.originator)"></i>
 
                 <div matListItemTitle>
-                    {{formatStateChange(change)}}
+                    {{entry.description}}
                 </div>
 
                 <div matListItemLine>
-                    <mat-chip [color]="getStateChangeColor(change.originator)" selected>
-                        {{change.originator}}
+                    <mat-chip [color]="getStateChangeColor(entry.change.originator)" selected>
+                        {{entry.change.originator}}
                     </mat-chip>
 
                 </div>

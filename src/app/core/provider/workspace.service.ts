@@ -76,6 +76,10 @@ export class WorkspaceService {
 
   }
 
+  public setCurrentFileDesc(desc: string) {
+    this.current_file.desc = desc;
+  }
+
 
 
   getWorkspaceLoomSettings(): LoomSettings {
