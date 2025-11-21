@@ -31,6 +31,7 @@ export * from './layer/layer'
 export * from './notation/notation'
 export * from './direct_loom/direct_loom';
 export * from './floor_loom/floor_loom';
+export * from './material_sequence/material_sequence';
 export * from './makesymmetric/makesymmetric';
 export * from './margin/margin';
 export * from './mask/mask'
@@ -60,6 +61,7 @@ export * from './tabby/tabby'
 export * from './tabby/tabby'
 export * from './tile/tile'
 export * from './trim/trim'
+export * from './threading_treadling_sequence/threading_treadling_sequence'
 export * from './rand_tree/rand_tree'
 export * from './twill/twill'
 export * from './undulatewarps/undulatewarps'

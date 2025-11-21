@@ -1,6 +1,6 @@
 import { initDraftWithParams, createCell } from "../../draft";
 import { getOpParamValById } from "../../operations";
-import { StringParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
+import { StringParam, OperationInlet, OpParamVal, Operation, OpMeta, SelectParam } from "../types";
 import { parseRegex } from "../../utils";
 import { colorEffectsOp } from "../categories";
 
@@ -27,10 +27,22 @@ const sequence_pattern: StringParam =
     dx: 'creates a draft with weft materials specified by the number sequence'
 };
 
+const orientation: SelectParam = {
+    name: 'orientation',
+    type: 'select',
+    selectlist: [
+        { name: 'warps', value: 0 },
+        { name: 'wefts', value: 1 },
+        { name: 'both', value: 2 },
+    ],
+    value: 0,
+    dx: 'the orientation of the sequence'
+}
 
 
 
-const params = [sequence_pattern];
+
+const params = [sequence_pattern, orientation];
 
 
 const inlets: Array<OperationInlet> = [];
@@ -40,7 +52,7 @@ const perform = (param_vals: Array<OpParamVal>) => {
 
 
     const sequence_string: string = <string>getOpParamValById(0, param_vals);
-
+    const orientation: number = <number>getOpParamValById(1, param_vals);
     const regex_matches = parseRegex(sequence_string, sequence_pattern.regex)
 
 
@@ -50,10 +62,11 @@ const perform = (param_vals: Array<OpParamVal>) => {
 
 
     const draft = initDraftWithParams({
-        wefts: 1,
-        warps: sequence_array.length,
+        wefts: (orientation === 0) ? 1 : sequence_array.length,
+        warps: (orientation === 1) ? 1 : sequence_array.length,
         drawdown: [[createCell(false)]],
-        colSystemMapping: sequence_array
+        colSystemMapping: (orientation === 0 || orientation === 2) ? sequence_array : [],
+        rowSystemMapping: (orientation === 1 || orientation === 2) ? sequence_array : [],
     })
 
 
