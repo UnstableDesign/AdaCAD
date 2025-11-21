@@ -134,11 +134,9 @@ export class DraftContainerComponent implements AfterViewInit {
 
     let node: DraftNode = this.tree.getNode(this.id) as DraftNode;
     this.draftValueChangeSubscription = node.valueChange$.subscribe(draft => {
-      console.log("DRAFT VALUE CHANGED", draft);
       this.drawDraft(draft);
     });
 
-    console.log("AfterView Init Node is ", node);
 
     this.startSizeObserver();
 

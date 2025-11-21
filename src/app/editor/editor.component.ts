@@ -24,7 +24,6 @@ import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
-import { MaterialModal } from '../core/ui/material/material.modal';
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
 
@@ -617,14 +616,17 @@ export class EditorComponent implements OnInit {
 
   openMaterials() {
 
-    const allmaterials = this.ms.getShuttles();
 
-    const material_modal = this.dialog.open(MaterialModal, { data: {} });
-    material_modal.componentInstance.onMaterialChange.subscribe(event => {
+    //change this to open the library component 
 
-      this.materialChange();
+    // const allmaterials = this.ms.getShuttles();
 
-    });
+    // const material_modal = this.dialog.open(MaterialModal, { data: {} });
+    // material_modal.componentInstance.onMaterialChange.subscribe(event => {
+
+    //   this.materialChange();
+
+    // });
 
 
 

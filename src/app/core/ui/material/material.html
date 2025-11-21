@@ -1,0 +1,116 @@
+<!-- <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button> -->
+
+
+<mat-accordion [formGroup]="materialsForm">
+  <div formArrayName="materials">
+    @for (materialControl of materialsFormArray.controls; track materialControl.get('uid')?.value) {
+    <mat-expansion-panel [formGroupName]="$index">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i [style.color]="materialControl.get('color')?.value" class="fas fa-square"></i>
+          {{materialControl.get('id')?.value}}: {{materialControl.get('name')?.value}}
+        </mat-panel-title>
+        <mat-panel-description>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <mat-form-field class="is-fullwidth">
+        <mat-label>color</mat-label>
+        <input matInput #colorpicker type="color" placeholder="Color" class="colorpicker"
+          [style.background]="materialControl.get('color')?.value" formControlName="color"
+          (input)="materialColorChange(materialControl.get('id')?.value, $event.target.value)" (change)="save()" />
+      </mat-form-field>
+      <mat-form-field class="is-fullwidth">
+        <mat-label>name</mat-label>
+        <input matInput placeholder="Material Name"
+          (change)="onNameChange(materialControl.get('id')?.value, $event.target.value)" formControlName="name">
+      </mat-form-field>
+      <mat-form-field class="form-field is-fullwidth">
+        <mat-label>diameter (in mm)</mat-label>
+        <input matInput type="number" placeholder="Yarn Diameter (in mm)" min="0" max="100" step=".25"
+          (change)="diameterChange(materialControl.get('id')?.value, materialControl.get('diameter')?.value)"
+          formControlName="diameter">
+        <span matTextSuffix>mm</span>
+      </mat-form-field>
+      <div class="is-fullwidth">
+        <mat-form-field class="is-fullwidth">
+          <mat-label>Add Notes</mat-label>
+          <textarea matInput (change)="notesChange(materialControl.get('id')?.value, $event.target.value)"
+            formControlName="notes"></textarea>
+        </mat-form-field>
+      </div>
+      @if (ms.materials.length > 1) {
+      <div class="material-actions">
+
+
+        @if(materialsForm.dirty) {
+        <button class="is-fullwidth" mat-flat-button color="primary" (click)="save()">
+          <i class="fa fa-save"></i> Save Changes
+        </button>
+        }
+        <button class="is-fullwidth" mat-flat-button [matMenuTriggerFor]="replacements">
+          <i class="fa fa-trash"></i> Delete
+        </button>
+
+
+
+        <mat-menu #replacements="matMenu">
+          @for (rep of ms.materials; track rep) {
+          <button mat-button (click)="delete(materialControl.get('id')?.value, rep.id)">
+            {{ rep.name }}
+          </button>
+          }
+        </mat-menu>
+      </div>
+      }
+    </mat-expansion-panel>
+    }
+  </div>
+
+  <mat-expansion-panel [formGroup]="newMaterialForm">
+
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <i class="fas fa-plus" (click)='addmaterial = !addmaterial'></i> Add Material
+      </mat-panel-title>
+      <mat-panel-description>
+
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <mat-form-field class="is-fullwidth">
+      <mat-label>color</mat-label>
+      <input matInput #colorpicker type="color" placeholder="Color" class="colorpicker"
+        [style.background]="newMaterialForm.get('color')?.value" formControlName="color" />
+    </mat-form-field>
+
+    <mat-form-field class="is-fullwidth">
+      <mat-label>name</mat-label>
+      <input matInput placeholder="Material Name" formControlName="name">
+    </mat-form-field>
+
+
+
+    <mat-form-field class="form-field is-fullwidth">
+      <mat-label>diameter (in mm)</mat-label>
+      <input matInput type="number" placeholder="Yarn Diameter (in mm)" min="0" max="100" step=".5"
+        formControlName="diameter">
+      <span matTextSuffix>mm</span>
+    </mat-form-field>
+
+
+
+
+
+    <div class="is-fullwidth">
+      <mat-form-field class="is-fullwidth">
+        <mat-label>Add Notes</mat-label>
+        <textarea matInput formControlName="notes"></textarea>
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" (click)="addNewShuttle()"> Add This Material</button>
+    </div>
+
+
+  </mat-expansion-panel>
+</mat-accordion>

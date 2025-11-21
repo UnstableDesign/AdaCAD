@@ -1,10 +1,3 @@
-.library-container {
-  max-width: 1200px;
-  min-width: 800px;
-  margin: 0 auto;
-  padding: 16px;
-}
-
 .project-info {
   display: flex;
   width: 100%;
@@ -59,6 +52,20 @@ h2 {
 .materials-section,
 .media-section {
   margin-bottom: 48px;
+}
+
+.draft-actions,
+.materials-actions {
+  margin-bottom: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  button {
+    i {
+      margin-right: 8px;
+    }
+  }
 }
 
 .drafts-grid {

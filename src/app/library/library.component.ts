@@ -1,14 +1,15 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatError, MatInput } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Material } from 'adacad-drafting-lib';
+import { hexToRgb, Material } from 'adacad-drafting-lib';
 import { Draft } from 'adacad-drafting-lib/draft';
+import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
 import { Subscription } from 'rxjs';
-import { DraftNode, DraftStateNameChange, FileMetaStateChange, MediaInstance } from '../core/model/datatypes';
+import { DraftNode, DraftStateNameChange, FileMetaStateChange, MaterialsStateChange, MediaInstance } from '../core/model/datatypes';
 import { saveAsBmp } from '../core/model/helper';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
@@ -18,15 +19,17 @@ import { StateService } from '../core/provider/state.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
+import { MaterialComponent } from '../core/ui/material/material';
 @Component({
   selector: 'app-library',
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
-  imports: [MatButton, ReactiveFormsModule, DraftRenderingComponent, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule],
+  imports: [MatButton, MaterialComponent, ReactiveFormsModule, DraftRenderingComponent, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule],
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('hiddenCanvas', { static: false }) hiddenCanvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild('csvFileInput', { static: false }) csvFileInput: ElementRef<HTMLInputElement>;
   @ViewChildren(DraftRenderingComponent) draftRenderings: QueryList<DraftRenderingComponent>;
 
   @Output() onWorkspaceRename = new EventEmitter<string>();
@@ -39,8 +42,9 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   private ops = inject(OperationService);
   private mediaService = inject(MediaService);
 
+  @ViewChild('materials', { static: false }) materials: MaterialComponent;
+
   drafts: Array<{ id: number; name: string; draft: Draft }> = [];
-  materials: Array<Material> = [];
   media: Array<MediaInstance> = [];
   selectedDraftIds: Set<number> = new Set();
   private draftRenderingsSubscription: Subscription;
@@ -211,7 +215,10 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadMaterials() {
-    this.materials = this.ms.getShuttles();
+    console.log("LIBRARY LOAD MATERIALS", this.materials);
+    if (this.materials !== undefined && this.materials !== null) {
+      this.materials.onLoad();
+    }
   }
 
   loadMedia() {
@@ -220,7 +227,6 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onFocus(id: number) {
     this.drafts = [];
-    this.materials = [];
     this.media = [];
     this.selectedDraftIds.clear();
     this.loadDrafts();
@@ -253,6 +259,9 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   isSeedDraft(draftId: number): boolean {
     return this.tree.isSeedDraft(draftId);
   }
+
+
+
 
   getDraftOperations(draftId: number): Array<{ displayName: string; opName: string; color: string }> {
     if (this.isSeedDraft(draftId)) {
@@ -418,6 +427,256 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
       } catch (error) {
         console.error(`Error downloading draft ${draftInfo.name}:`, error);
       }
+    }
+  }
+
+  /**
+   * Exports the current materials list as a CSV file
+   */
+  exportMaterialsAsCSV() {
+    const materials = this.ms.getShuttles();
+
+    // CSV header
+    const headers = ['id', 'name', 'color', 'diameter', 'notes'];
+
+    // Escape CSV values (handle commas, quotes, and newlines)
+    const escapeCSV = (value: any): string => {
+      if (value === null || value === undefined) {
+        return '';
+      }
+      const str = String(value);
+      // If the value contains comma, quote, or newline, wrap it in quotes and escape quotes
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    // Build CSV content
+    const csvRows = [headers.join(',')];
+
+    materials.forEach(material => {
+      const row = [
+        escapeCSV(material.id),
+        escapeCSV(material.name),
+        escapeCSV(material.color),
+        escapeCSV(material.diameter),
+        escapeCSV(material.notes || '')
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `materials_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Handles CSV file upload and updates materials
+   */
+  onCSVFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e: any) => {
+      try {
+        const csvContent = e.target.result as string;
+        this.importMaterialsFromCSV(csvContent);
+      } catch (error) {
+        console.error('Error reading CSV file:', error);
+        alert('Error reading CSV file. Please check the file format.');
+      }
+
+      // Reset the input so the same file can be selected again
+      if (this.csvFileInput) {
+        this.csvFileInput.nativeElement.value = '';
+      }
+    };
+
+    reader.onerror = () => {
+      alert('Error reading file. Please try again.');
+      if (this.csvFileInput) {
+        this.csvFileInput.nativeElement.value = '';
+      }
+    };
+
+    reader.readAsText(file);
+  }
+
+  /**
+   * Parses CSV content and updates materials
+   */
+  private importMaterialsFromCSV(csvContent: string) {
+    const lines = csvContent.split('\n').filter(line => line.trim().length > 0);
+
+    if (lines.length < 2) {
+      alert('CSV file must contain at least a header row and one data row.');
+      return;
+    }
+
+    // Parse header
+    const headerLine = lines[0];
+    const headers = this.parseCSVLine(headerLine);
+
+    // Expected headers
+    const expectedHeaders = ['id', 'name', 'color', 'diameter', 'notes'];
+    const headerMap: { [key: string]: number } = {};
+
+    // Validate all required headers are present
+    for (const header of expectedHeaders) {
+      const index = headers.findIndex(h => h.toLowerCase().trim() === header.toLowerCase());
+      if (index === -1) {
+        alert(`CSV file is missing required column: ${header}`);
+        return;
+      }
+      headerMap[header] = index;
+    }
+
+    // Parse data rows
+    const importedMaterials: Material[] = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const values = this.parseCSVLine(lines[i]);
+
+      if (values.length < expectedHeaders.length) {
+        console.warn(`Skipping row ${i + 1}: insufficient columns`);
+        continue;
+      }
+
+      try {
+        const id = parseInt(values[headerMap['id']], 10);
+        const name = values[headerMap['name']] || '';
+        const color = values[headerMap['color']] || '#000000';
+        const diameter = parseFloat(values[headerMap['diameter']]) || 1;
+        const notes = values[headerMap['notes']] || '';
+
+        // Validate color format
+        if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
+          console.warn(`Row ${i + 1}: Invalid color format "${color}", using default`);
+          continue;
+        }
+
+        const material = createMaterial({
+          id: id,
+          name: name,
+          color: color,
+          diameter: diameter,
+          notes: notes,
+          insert: true,
+          visible: true,
+          thickness: 100,
+          type: 0
+        });
+
+        material.rgb = hexToRgb(color);
+        importedMaterials.push(material);
+      } catch (error) {
+        console.error(`Error parsing row ${i + 1}:`, error);
+      }
+    }
+
+    if (importedMaterials.length === 0) {
+      alert('No valid materials found in CSV file.');
+      return;
+    }
+
+    // Confirm before updating
+    const confirmMessage = `This will replace ${this.ms.getShuttles().length} existing materials with ${importedMaterials.length} materials from the CSV file. Continue?`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    // Store before state for undo
+    const beforeMaterials = this.ms.getShuttles().slice();
+
+    // Update materials - reassign IDs to match array indices
+    importedMaterials.forEach((material, index) => {
+      setMaterialID(material, index);
+    });
+
+    // Replace materials
+
+    console.log("IMPORTED MATERIALS", importedMaterials);
+
+    // Add state change for undo/redo
+    const change: MaterialsStateChange = {
+      originator: 'MATERIALS',
+      type: 'UPDATED',
+      before: beforeMaterials,
+      after: this.ms.getShuttles().slice()
+    };
+    this.ss.addStateChange(change);
+
+
+    this.ms.overloadShuttles(importedMaterials);
+
+    console.log("After Overload", this.ms.getShuttles());
+    // Reload materials in the view
+    this.loadMaterials();
+
+    alert(`Successfully imported ${importedMaterials.length} materials.`);
+  }
+
+  /**
+   * Parses a CSV line, handling quoted values
+   */
+  private parseCSVLine(line: string): string[] {
+    const values: string[] = [];
+    let current = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const nextChar = i < line.length - 1 ? line[i + 1] : '';
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          // Escaped quote
+          current += '"';
+          i++; // Skip next quote
+        } else {
+          // Toggle quote state
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        // End of field
+        values.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+
+    // Add the last field
+    values.push(current.trim());
+
+    return values;
+  }
+
+  /**
+   * Triggers the CSV file input click
+   */
+  triggerCSVImport() {
+    if (this.csvFileInput) {
+      this.csvFileInput.nativeElement.click();
     }
   }
 }

@@ -42,7 +42,6 @@ import { HistoryComponent } from './core/ui/history/history.component';
 import { LoadfileComponent } from './core/ui/loadfile/loadfile.component';
 import { LoadingComponent } from './core/ui/loading/loading.component';
 import { LoginComponent } from './core/ui/login/login.component';
-import { MaterialModal } from './core/ui/material/material.modal';
 import { ShareComponent } from './core/ui/share/share.component';
 import { WorkspaceComponent } from './core/ui/workspace/workspace.component';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
@@ -1269,18 +1268,18 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  openMaterials() {
-    if (this.material_modal != undefined && this.material_modal.componentInstance != null) return;
+  // openMaterials() {
+  //   if (this.material_modal != undefined && this.material_modal.componentInstance != null) return;
 
-    this.material_modal = this.dialog.open(MaterialModal, { data: {} });
-    this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
-      this.vs.updateViewer();
-      if (this.selected_editor_mode == 'mixer') this.mixer.redrawAllSubdrafts();
-      else this.editor.redraw();
-      this.saveFile();
+  //   this.material_modal = this.dialog.open(MaterialModal, { data: {} });
+  //   this.material_modal.componentInstance.onMaterialChange.subscribe(event => {
+  //     this.vs.updateViewer();
+  //     if (this.selected_editor_mode == 'mixer') this.mixer.redrawAllSubdrafts();
+  //     else this.editor.redraw();
+  //     this.saveFile();
 
-    });
-  }
+  //   });
+  // }
 
   openLoadingAnimation(filename: string) {
     this.loadingComponent = this.dialog.open(LoadingComponent, { data: { name: filename } });

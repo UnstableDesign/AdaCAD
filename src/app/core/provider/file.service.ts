@@ -58,7 +58,7 @@ export class FileService {
     const dloader: Fileloader = {
 
       ada: async (data: SaveObj | any, meta: FileMeta, src: string): Promise<LoadResponse> => {
-
+        console.log("LOADING FILE", data.materials);
         if (meta.desc === undefined) meta.desc = ""
         if (meta.name == undefined) meta.name = 'draft'
         if (meta.from_share == undefined) meta.from_share = ''
