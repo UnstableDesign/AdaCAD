@@ -20,7 +20,7 @@ const ends: NumParam =
   name: 'ends',
   type: 'number',
   min: 1,
-  max: 500,
+  max: 5000,
   value: 10,
   dx: ""
 };
@@ -30,7 +30,7 @@ const pics: NumParam =
   name: 'pics',
   type: 'number',
   min: 1,
-  max: 500,
+  max: 5000,
   value: 10,
   dx: ""
 }

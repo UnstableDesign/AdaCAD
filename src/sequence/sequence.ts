@@ -861,6 +861,22 @@ export namespace Sequence {
       return this;
     }
 
+    shiftRow(i: number, val: number) {
+      const row = this.getWeft(i);
+      const shifted = new OneD(row).shift(val).val();
+      this.state[i] = shifted;
+      return this;
+    }
+
+    shiftCol(j: number, val: number) {
+      const col = this.getWarp(j);
+      const shifted = new OneD(col).shift(val).val();
+      this.state.forEach((row, i) => {
+        row[j] = shifted[i];
+      });
+      return this;
+    }
+
     copy(): TwoD {
 
       const dd = this.export();
