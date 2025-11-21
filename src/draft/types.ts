@@ -20,6 +20,7 @@ export interface Draft {
   rowSystemMapping: Array<number>,
   colShuttleMapping: Array<number>,
   colSystemMapping: Array<number>,
+  notes?: string
 }
 
 /**
