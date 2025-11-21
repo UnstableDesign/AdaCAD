@@ -225,6 +225,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.vs.updateViewer();
       this.mixer.palette.redrawAllSubdrafts();
       this.library.loadMaterials();
+      this.saveFile();
 
     })
 
