@@ -224,6 +224,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.editor.redraw();
       this.vs.updateViewer();
       this.mixer.palette.redrawAllSubdrafts();
+      this.library.loadMaterials();
 
     })
 
@@ -242,6 +243,8 @@ export class AppComponent implements OnInit, OnDestroy {
       this.library.updateWorkspaceDescriptionFromUndo((<FileMetaStateAction>action).before.desc);
       this.ws.setCurrentFile((<FileMetaStateAction>action).before);
     });
+
+
 
 
     this.stateSubscriptions.push(draftStateChangeSubscription);

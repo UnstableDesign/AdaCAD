@@ -272,6 +272,19 @@ export class MaterialComponent {
     this.state.addStateChange(change);
     this.materialsForm.markAsPristine();
 
+    this.allmaterials = [];
+    this.ms.getShuttles().forEach((el, ndx) => {
+      this.allmaterials.push((<Material>{
+        id: el.id,
+        name: el.name,
+        color: el.color,
+        rgb: el.rgb,
+        diameter: el.diameter,
+        notes: el.notes
+      }));
+    });
+
+
   }
 
   // private syncFormToMaterials() {
