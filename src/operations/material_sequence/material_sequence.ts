@@ -65,8 +65,8 @@ const perform = (param_vals: Array<OpParamVal>) => {
         wefts: (orientation === 0) ? 1 : sequence_array.length,
         warps: (orientation === 1) ? 1 : sequence_array.length,
         drawdown: [[createCell(false)]],
-        colSystemMapping: (orientation === 0 || orientation === 2) ? sequence_array : [],
-        rowSystemMapping: (orientation === 1 || orientation === 2) ? sequence_array : [],
+        colShuttleMapping: (orientation === 0 || orientation === 2) ? sequence_array : [],
+        rowShuttleMapping: (orientation === 1 || orientation === 2) ? sequence_array : [],
     })
 
 

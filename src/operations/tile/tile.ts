@@ -49,9 +49,9 @@ const offset: NumParam = {
   name: 'offset',
   type: 'number',
   min: 0,
-  max: 1,
+  max: 100,
   value: 0,
-  dx: 'the portion of this draft that will be staggered'
+  dx: 'the portion of this draft that will be staggered as a percentage'
 }
 
 const params = [warp_repeats, weft_repeats, mode, offset];
@@ -88,15 +88,15 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   seq.import(input_draft.drawdown).fill(w, h);
 
 
-  const weft_shift = Math.floor(offset * warps(input_draft.drawdown));
-  const warp_shift = Math.floor(offset * wefts(input_draft.drawdown));
+  const weft_shift = Math.floor(offset / 100 * warps(input_draft.drawdown));
+  const warp_shift = Math.floor(offset / 100 * wefts(input_draft.drawdown));
 
 
   switch (mode) {
     case 0: //horizontal brick
       for (let repeat = 0; repeat < weft_rep; repeat++) {
         for (let i = 0; i < wefts(input_draft.drawdown); i++) {
-          seq.shiftRow(repeat * wefts(input_draft.drawdown) + i, weft_shift);
+          seq.shiftRow(repeat * wefts(input_draft.drawdown) + i, weft_shift * repeat);
         }
       }
 
@@ -104,7 +104,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     case 1: //vertical
       for (let repeat = 0; repeat < warp_rep; repeat++) {
         for (let j = 0; j < warps(input_draft.drawdown); j++) {
-          seq.shiftCol(repeat * warps(input_draft.drawdown) + j, warp_shift);
+          seq.shiftCol(repeat * warps(input_draft.drawdown) + j, warp_shift * repeat);
         }
       }
       break;

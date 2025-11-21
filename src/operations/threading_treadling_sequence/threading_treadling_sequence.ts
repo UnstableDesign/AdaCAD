@@ -61,21 +61,29 @@ const perform = (param_vals: Array<OpParamVal>) => {
         .filter(el => el !== ' ')
         .map(el => parseInt(el))
 
-    //get the max value in the sequence
-    const max = sequence_array.reduce((acc, curr) => Math.max(acc, curr), 0);
 
-    console.log(sequence_array);
+
+    //get the max value in the sequence
+    const max = sequence_array.reduce((acc, curr) => {
+        acc = Math.max(acc, curr);
+        return acc;
+    }, 0);
+
+
+
     const base: Array<number> = [];
     for (let i = 0; i < max; i++) {
         base.push(0);
     }
 
+
     const treadling_seq = new Sequence.TwoD();
     const threading_seq = new Sequence.TwoD();
-    sequence_array.forEach((el, ndx) => {
+
+    sequence_array.forEach((el) => {
         const row = new Sequence.OneD(base)
-        if (ndx - 1 >= 0) {
-            row.set(ndx - 1, 1);
+        if (el - 1 >= 0) {
+            row.set(el - 1, 1);
         }
         treadling_seq.pushWeftSequence(row.val());
         threading_seq.pushWarpSequence(row.val());
