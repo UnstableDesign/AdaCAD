@@ -10,6 +10,7 @@
  * @param rowSystemMapping the repeating pattern to use to assign draft rows to systems (structual units like layers for instance)
  * @param colShuttleMapping the repeating pattern to use to assign draft columns to shuttles (materials)
  * @param colSystemMapping the repeating pattern to use to assign draft columns to systems (structual units like layers for instance)
+ * @param notes a user defined notes about this draft (no currently used)
  */
 export interface Draft {
   id: number,
