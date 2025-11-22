@@ -58,6 +58,10 @@
 .draft-top {
   display: flex;
   justify-content: flex-end;
+
+  &.library {
+    display: none;
+  }
 }
 
 
@@ -135,6 +139,11 @@
 
 .draft-container.mixer {
   padding: 8px;
+
+}
+
+.draft-container.library {
+  padding: 0px;
 
 }
 
@@ -459,7 +468,22 @@
 
 .drawdown-container {
   display: flex;
-  padding: var(--cell-width) 0px;
+
+  &.editor {
+    padding: var(--cell-width) 0px;
+  }
+
+  &.mixer {
+    padding: var(--cell-width) 0px;
+  }
+
+  &.library {
+    padding: 0px;
+  }
+
+  &.viewer {
+    padding: 0px;
+  }
 
 }
 

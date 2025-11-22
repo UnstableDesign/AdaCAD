@@ -1,10 +1,14 @@
 <div class="draft-info-card-container">
 
     <div class="draft-info-card-header">
-        <div class="draft-info-card-header-name"> <mat-form-field appearance="outline">
-                <mat-label>Draft Name</mat-label>
-                <input matInput [formControl]="nameForm">
-            </mat-form-field></div>
+        <div class="draft-info-card-header-name">
+            <mat-form-field appearance="filled">
+                <input matInput [formControl]="nameForm" (keyup.enter)="saveName()">
+            </mat-form-field>
+            @if((nameForm.dirty)) {
+            <button matButton="filled" color="accent" (click)="saveName()">Save</button>
+            }
+        </div>
         <div class="draft-info-card-header-select">
             <input type="checkbox" [formControl]="selectBoxForm" (change)="toggleDraftSelection()">
             <label [for]="'draft-' + id"></label>
@@ -14,17 +18,36 @@
 
 
     <div class="draft-info-card-body">
-        <div class="draft-info-card-body-input-list">inputs</div>
+        <div class="draft-info-card-body-input-list">
+            @for (input of inputList; track input.uid) {
+            <div class="input-list-item">
+                @if(input.op_name === 'image map') {
+                <div class="image_map_input_icon" [style.background-color]="input.value"></div>
+                }
+
+                @else if(input.type === 'n/a') {
+                <div class="dynamic_input_icon">{{input.value}}</div>
+                }
+
+
+                <div class="input-list-item-op-name" [style.background-color]="input.category_color">{{input.op_name}}
+                </div>
+
+            </div>
+            }
+
+
+        </div>
         <div class="draft-info-card-main">
 
             <div class="draft-info-card-body-rendering-and-notes">
                 <div class="draft-info-card-body-rendering">
-                    <app-draft-rendering source="library" [id]="id" [view_only]="true" [scale]="0.15"
-                        [oversize]="oversize" current_view="drawdown">
+                    <app-draft-rendering #draftRendering source="viewer" [id]="id" [view_only]="true" [scale]="0.25"
+                        [oversize]="oversize" current_view="draft">
                     </app-draft-rendering>
                 </div>
                 <div class="draft-info-card-body-notes">
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="filled">
                         <mat-label>Notes</mat-label>
                         <textarea matInput [formControl]="notesForm" class="draft-notes-input"></textarea>
                     </mat-form-field>
@@ -34,19 +57,19 @@
             <div class="draft-data">
                 <div class="dims"> {{warpnum}} x {{weftnum}}</div>
                 <div class="density">
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="filled">
                         <mat-label>warp density</mat-label>
                         <input matInput [formControl]="epiForm" type="number" min="0">
                     </mat-form-field>
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="filled">
                         <mat-label>weft density</mat-label>
                         <input matInput [formControl]="ppiForm" type="number" min="0">
                     </mat-form-field>
 
 
                 </div>
-                <div class="warp_systems"> placeholder</div>
-                <div class="weft_systems">placeholder</div>
+                <div class="warp_systems"> x</div>
+                <div class="weft_systems">x</div>
             </div>
 
 

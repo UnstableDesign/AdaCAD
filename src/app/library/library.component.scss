@@ -5,6 +5,8 @@
   flex-direction: row;
   gap: 8px;
 
+
+
 }
 
 .project-info-left {
@@ -19,13 +21,23 @@
 .project-description {
   width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 0px;
-  align-items: center;
+  align-items: flex-start;
+
 
   .mat-mdc-form-field {
     width: 80%;
   }
+}
+
+.project-name {
+  .mat-mdc-form-field {
+    font-size: 1.5em;
+    font-weight: bold;
+    font-family: monospace;
+  }
+
 }
 
 .project-info-right {
@@ -40,10 +52,12 @@ h1 {
   font-size: 2em;
   margin-bottom: 32px;
   color: #333;
+  font-family: monospace;
 }
 
 h2 {
   font-size: 1.5em;
+  font-family: monospace;
   margin-bottom: 16px;
   margin-top: 32px;
   color: #555;

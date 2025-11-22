@@ -1863,6 +1863,11 @@ export class AppComponent implements OnInit, OnDestroy {
       let comp = this.tree.getComponent(id);
       (<SubdraftComponent>comp).draftcontainer.updateName();
     }
+
+    //update the anme in the viewer as well
+    if (this.vs.getViewerId() === id) {
+      this.viewer.updateDraftNameFromMixerEvent(this.tree.getDraftName(id));
+    }
   }
 
   renameWorkspace(name: string) {

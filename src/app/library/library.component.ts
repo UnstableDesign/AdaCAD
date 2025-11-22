@@ -7,10 +7,10 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatError, MatInput } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
 import { hexToRgb, Material } from 'adacad-drafting-lib';
-import { Draft, getDraftName } from 'adacad-drafting-lib/draft';
+import { Draft } from 'adacad-drafting-lib/draft';
 import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
 import { Subscription } from 'rxjs';
-import { DraftNode, DraftStateNameChange, FileMetaStateChange, MaterialsStateChange, MediaInstance } from '../core/model/datatypes';
+import { DraftNode, FileMetaStateChange, MaterialsStateChange, MediaInstance } from '../core/model/datatypes';
 import { saveAsBmp } from '../core/model/helper';
 import { FileService } from '../core/provider/file.service';
 import { FirebaseService } from '../core/provider/firebase.service';
@@ -38,6 +38,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren(DraftRenderingComponent) draftRenderings: QueryList<DraftRenderingComponent>;
 
   @Output() onWorkspaceRename = new EventEmitter<string>();
+  @Output() onDraftNameChange = new EventEmitter<number>();
+
 
   private tree = inject(TreeService);
   private ms = inject(MaterialsService);
@@ -228,28 +230,6 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  isInputToImageMap(id: number): string {
-
-    const draft = this.tree.getDraft(id);
-    let out_cxns = this.tree.getOutputsWithNdx(id);
-    console.log("DRAFT", draft, getDraftName(draft), out_cxns);
-    let out_ops = out_cxns.map(o => this.tree.getConnectionOutputWithIndex(o.tn.node.id));
-
-    console.log("IS INPUT TO IMAGE MAP", id, out_ops.map(o => this.tree.getOpNode(o.id).name));
-
-    let img = out_ops.findIndex(el => this.tree.getOpNode(el.id).name === 'imagemap');
-
-    if (img !== -1) {
-      const node = this.tree.getOpNode(out_ops[img].id);
-      console.log("CONNECT AT ", out_ops[img].inlet, node.inlets[out_ops[img].inlet]);
-      return node.inlets[out_ops[img].inlet];
-    } else {
-      return null
-    }
-
-
-
-  }
 
   loadDrafts(showHidden: boolean = false) {
 
@@ -319,27 +299,12 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
 
-
-  onDraftNameChange(draftId: number, newName: string) {
-    const draft = this.tree.getDraft(draftId);
-    if (!draft) return;
-
-    const beforeName = this.tree.getDraftName(draftId);
-    draft.ud_name = newName;
-
-    // Update the draft in the tree
-    this.tree.setDraftOnly(draftId, draft);
-
-    // Add state change for undo/redo
-    this.ss.addStateChange(<DraftStateNameChange>{
-      originator: 'DRAFT',
-      type: 'NAME_CHANGE',
-      id: draftId,
-      before: beforeName,
-      after: newName
-    });
-
-
+  /**
+   * passes along message from draft info card component
+   * @param draftId 
+   */
+  onDraftRename(draftId: number) {
+    this.onDraftNameChange.emit(draftId);
   }
 
   async downloadAllDraftsAsBitmaps() {
