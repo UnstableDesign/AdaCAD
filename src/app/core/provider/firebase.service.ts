@@ -55,6 +55,9 @@ export class FirebaseService implements OnDestroy {
 
 
 
+  saveTimeUpdatedEvent = new BehaviorSubject<number>(0);
+  saveTimeUpdatedEvent$ = this.saveTimeUpdatedEvent.asObservable();
+
   constructor() {
 
     // CHECK FOR CONNECTION EVENT 
@@ -322,6 +325,7 @@ export class FirebaseService implements OnDestroy {
         return this.writeFileMetaData(meta)
       })
       .then(success => {
+        this.saveTimeUpdatedEvent.next(Date.now());
         return this.updateSaveTime(meta.id)
       })
       .then(success => {

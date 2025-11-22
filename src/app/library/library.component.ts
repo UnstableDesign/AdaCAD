@@ -1,17 +1,19 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatError, MatInput } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
 import { hexToRgb, Material } from 'adacad-drafting-lib';
-import { Draft } from 'adacad-drafting-lib/draft';
+import { Draft, getDraftName } from 'adacad-drafting-lib/draft';
 import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
 import { Subscription } from 'rxjs';
 import { DraftNode, DraftStateNameChange, FileMetaStateChange, MaterialsStateChange, MediaInstance } from '../core/model/datatypes';
 import { saveAsBmp } from '../core/model/helper';
 import { FileService } from '../core/provider/file.service';
+import { FirebaseService } from '../core/provider/firebase.service';
 import { MaterialsService } from '../core/provider/materials.service';
 import { MediaService } from '../core/provider/media.service';
 import { OperationService } from '../core/provider/operation.service';
@@ -20,11 +22,14 @@ import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { MaterialComponent } from '../core/ui/material/material';
+import { ShareComponent } from '../core/ui/share/share.component';
+import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component';
+
 @Component({
   selector: 'app-library',
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
-  imports: [MatButton, MaterialComponent, ReactiveFormsModule, DraftRenderingComponent, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule],
+  imports: [MatButton, MaterialComponent, MatIconButton, ReactiveFormsModule, DraftRenderingComponent, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -38,18 +43,24 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   private ms = inject(MaterialsService);
   private ws = inject(WorkspaceService);
   private fs = inject(FileService);
+  private fb = inject(FirebaseService);
+  private builder = inject(FormBuilder);
+
   private ss = inject(StateService);
   private ops = inject(OperationService);
   private mediaService = inject(MediaService);
+  private dialog = inject(MatDialog);
 
   @ViewChild('materials', { static: false }) materials: MaterialComponent;
+  @ViewChildren(DraftinfocardComponent) draftInfocards: QueryList<DraftinfocardComponent>;
 
-  drafts: Array<{ id: number; name: string; draft: Draft }> = [];
+  draftsData: Array<{ uid: string, id: number }> = [];
   media: Array<MediaInstance> = [];
   selectedDraftIds: Set<number> = new Set();
   private draftRenderingsSubscription: Subscription;
 
 
+  draftInputs: Array<{ id: number; name: string; draft: Draft }> = [];
   filename: FormControl;
   fileDescription: FormControl;
   id: number;
@@ -58,29 +69,32 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   owner: string;
 
   fileMetaChangeUndoSubscription: Subscription;
+  savedTimeSubscription: Subscription;
+
+  constructor() {
+
+    this.draftsData = [];
+  }
 
   ngOnInit() {
     // Initialize form control with current filename
     const currentFileName = this.ws.getCurrentFile()?.name || '';
     this.filename = new FormControl(currentFileName, [Validators.required, Validators.minLength(1)]);
 
-    const currentFileDescription = this.ws.getCurrentFile()?.desc || '';
     this.fileDescription = new FormControl('');
 
 
-    const meta = this.ws.getCurrentFile();
     this.loadMeta();
     this.loadDrafts();
     this.loadMaterials();
     this.loadMedia();
 
-    // this.filename.valueChanges.subscribe(value => {
-    //   if (this.filename.valid && this.filename.dirty) {
-    //     this.renameWorkspace(value);
-    //   }
-    // });
 
 
+
+    this.savedTimeSubscription = this.fb.saveTimeUpdatedEvent$.subscribe(time => {
+      this.time = time;
+    });
   }
 
   ngAfterViewInit() {
@@ -95,12 +109,23 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
 
+    if (this.savedTimeSubscription) {
+      this.savedTimeSubscription.unsubscribe();
+    }
     if (this.fileMetaChangeUndoSubscription) {
       this.fileMetaChangeUndoSubscription.unsubscribe();
     }
     if (this.draftRenderingsSubscription) {
       this.draftRenderingsSubscription.unsubscribe();
     }
+  }
+
+  share() {
+    const fileid = this.ws.getCurrentFile().id;
+    const dialogRef = this.dialog.open(ShareComponent, {
+      width: '600px',
+      data: { fileid }
+    });
   }
 
 
@@ -186,36 +211,70 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.time = meta?.time || -1;
   }
 
-  loadDrafts() {
+  formatTime(timestamp: number): string {
+    if (!timestamp || timestamp <= 0) {
+      return 'Not saved yet';
+    }
+    const date = new Date(timestamp);
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  }
+
+
+  isInputToImageMap(id: number): string {
+
+    const draft = this.tree.getDraft(id);
+    let out_cxns = this.tree.getOutputsWithNdx(id);
+    console.log("DRAFT", draft, getDraftName(draft), out_cxns);
+    let out_ops = out_cxns.map(o => this.tree.getConnectionOutputWithIndex(o.tn.node.id));
+
+    console.log("IS INPUT TO IMAGE MAP", id, out_ops.map(o => this.tree.getOpNode(o.id).name));
+
+    let img = out_ops.findIndex(el => this.tree.getOpNode(el.id).name === 'imagemap');
+
+    if (img !== -1) {
+      const node = this.tree.getOpNode(out_ops[img].id);
+      console.log("CONNECT AT ", out_ops[img].inlet, node.inlets[out_ops[img].inlet]);
+      return node.inlets[out_ops[img].inlet];
+    } else {
+      return null
+    }
+
+
+
+  }
+
+  loadDrafts(showHidden: boolean = false) {
+
+
+
+    this.draftsData = [];
+
+    //keep a list of hidden drafts
     const draftNodes: Array<DraftNode> = this.tree.getDraftNodes();
-    console.log("LIBRARY LOAD DRAFTS", draftNodes);
-    this.drafts = draftNodes
-      .filter(node => node.draft !== null && node.draft !== undefined)
-      .map(node => ({
-        id: node.id,
-        name: this.tree.getDraftName(node.id),
-        draft: node.draft
-      }))
-      .sort((a, b) => {
-        // Get the number of operations for each draft
-        const aOpCount = this.getDraftOperationCount(a.id);
-        const bOpCount = this.getDraftOperationCount(b.id);
+    draftNodes.filter(node => node.draft !== null && node.draft !== undefined)
+      .filter(node => showHidden === true ? true : node.visible === true)
+      .forEach(node => {
 
-        // Sort by operation count (ascending)
-        return aOpCount - bOpCount;
+        this.draftsData.push({
+          uid: Math.random().toString(36).substring(2, 15),
+          id: node.id
+        });
       });
+
+
+
   }
 
-  getDraftOperationCount(draftId: number): number {
-    return 0;
-    // if (this.isSeedDraft(draftId)) {
-    //   return 0;
-    // }
-    // return this.tree.getUpstreamOperations(draftId).length;
-  }
 
   loadMaterials() {
-    console.log("LIBRARY LOAD MATERIALS", this.materials);
     if (this.materials !== undefined && this.materials !== null) {
       this.materials.onLoad();
     }
@@ -226,7 +285,6 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onFocus(id: number) {
-    this.drafts = [];
     this.media = [];
     this.selectedDraftIds.clear();
     this.loadDrafts();
@@ -248,11 +306,10 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  isDraftSelected(draftId: number): boolean {
-    return this.selectedDraftIds.has(draftId);
-  }
+
 
   getSelectedDraftsCount(): number {
+
     return this.selectedDraftIds.size;
   }
 
@@ -262,116 +319,6 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
 
-
-  getDraftOperations(draftId: number): Array<{ displayName: string; opName: string; color: string }> {
-    if (this.isSeedDraft(draftId)) {
-      return [];
-    }
-
-    // const upstreamOpIds = this.tree.getUpstreamOperations(draftId);
-    const upstreamOpIds = [];
-    const operations: Array<{ displayName: string; opName: string; color: string }> = [];
-
-    upstreamOpIds.forEach(opId => {
-      const opNode = this.tree.getOpNode(opId);
-      if (opNode) {
-        const displayName = this.ops.getDisplayName(opNode.name);
-        let displayNames: Array<string> = [];
-
-        if (typeof displayName === 'string') {
-          displayNames = [displayName];
-        } else if (Array.isArray(displayName)) {
-          displayNames = displayName.filter(name => typeof name === 'string');
-        }
-
-        // Get the category color for this operation
-        const categories = this.ops.getOpCategories(opNode.name);
-        const color = categories.length > 0 ? categories[0].color : '#e3f2fd';
-
-        displayNames.forEach(name => {
-          operations.push({
-            displayName: name,
-            opName: opNode.name,
-            color: color
-          });
-        });
-      }
-    });
-
-    // Reverse the order so operations appear left to right in creation order
-    return operations.reverse();
-  }
-
-  getDraftUsedBy(draftId: number): Array<{ displayName: string; opName: string; color: string; inletLabel?: string }> {
-    // Get all operations that directly use this draft as input
-    const allOpNodes = this.tree.getOpNodes();
-    const operations: Array<{ displayName: string; opName: string; color: string; inletLabel?: string }> = [];
-
-    allOpNodes.forEach(opNode => {
-      // Find which inlet this draft is connected to
-      const inputsWithNdx = this.tree.getInputsWithNdx(opNode.id);
-      let inletId = -1;
-
-      for (const input of inputsWithNdx) {
-        // Check if this input connection leads to our draft
-        // The input.tn.node.id is a connection node, so we need to get the draft from it
-        if (input.tn.node.type === 'cxn') {
-          const connectionInput = this.tree.getConnectionInput(input.tn.node.id);
-          if (connectionInput === draftId) {
-            inletId = input.ndx;
-            break;
-          }
-        }
-      }
-
-      if (inletId === -1) return; // Draft not found as input to this operation
-
-      const op = this.ops.getOp(opNode.name);
-      if (!op) return;
-
-      // Check if this inlet has a dynamic value (color, string, notation, profile)
-      let inletLabel: string | undefined = undefined;
-      if (inletId < op.inlets.length) {
-        const inlet = op.inlets[inletId];
-        const dynamicInletTypes = ['color', 'string', 'notation', 'profile'];
-
-        if (dynamicInletTypes.includes(inlet.type)) {
-          // Get the inlet value from the opNode
-          if (opNode.inlets && opNode.inlets[inletId] !== undefined) {
-            const inletValue = opNode.inlets[inletId];
-            // Use the inlet name if available, otherwise use the value
-            inletLabel = inlet.name || String(inletValue);
-          } else if (inlet.name) {
-            inletLabel = inlet.name;
-          }
-        }
-      }
-
-      const displayName = this.ops.getDisplayName(opNode.name);
-      let displayNames: Array<string> = [];
-
-      if (typeof displayName === 'string') {
-        displayNames = [displayName];
-      } else if (Array.isArray(displayName)) {
-        displayNames = displayName.filter(name => typeof name === 'string');
-      }
-
-      // Get the category color for this operation
-      const categories = this.ops.getOpCategories(opNode.name);
-      const color = categories.length > 0 ? categories[0].color : '#e3f2fd';
-
-      displayNames.forEach(name => {
-        operations.push({
-          displayName: name,
-          opName: opNode.name,
-          color: color,
-          inletLabel: inletLabel
-        });
-      });
-    });
-
-    return operations;
-  }
 
   onDraftNameChange(draftId: number, newName: string) {
     const draft = this.tree.getDraft(draftId);
@@ -392,11 +339,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
       after: newName
     });
 
-    // Update the local drafts array
-    const draftIndex = this.drafts.findIndex(d => d.id === draftId);
-    if (draftIndex !== -1) {
-      this.drafts[draftIndex].name = this.tree.getDraftName(draftId);
-    }
+
   }
 
   async downloadAllDraftsAsBitmaps() {
@@ -407,17 +350,13 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const canvas = this.hiddenCanvas.nativeElement;
 
-    // Get drafts to download - either selected ones or all if none selected
-    const draftsToDownload = this.selectedDraftIds.size > 0
-      ? this.drafts.filter(d => this.selectedDraftIds.has(d.id))
-      : this.drafts;
 
     // Download each draft sequentially to avoid browser blocking multiple downloads
-    for (const draftInfo of draftsToDownload) {
+    for (const draftId of this.selectedDraftIds.values()) {
       try {
         await saveAsBmp(
           canvas,
-          draftInfo.draft,
+          this.tree.getDraft(draftId),
           this.ws.selected_origin_option,
           this.ms,
           this.fs
@@ -425,7 +364,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
         // Small delay between downloads to prevent browser blocking
         await new Promise(resolve => setTimeout(resolve, 300));
       } catch (error) {
-        console.error(`Error downloading draft ${draftInfo.name}:`, error);
+        console.error(`Error downloading draft ${draftId}:`, error);
       }
     }
   }

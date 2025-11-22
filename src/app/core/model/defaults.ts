@@ -22,6 +22,7 @@ export const defaults = {
   selected_origin_option: 3,
   default_material_diameter: 1,
   hide_mixer_drafts: false,
+  oversize_dim_threshold: 250,
   loom_settings: {
     frames: 8,
     treadles: 8,
@@ -44,7 +45,8 @@ export const defaults = {
   //SIM DEFAULTS
   wefts_as_written: false,
   layer_spacing: 10,
-  pack: 1
+  pack: 1,
+
 
 
 }

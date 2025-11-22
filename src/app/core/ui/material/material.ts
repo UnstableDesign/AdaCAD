@@ -94,7 +94,6 @@ export class MaterialComponent {
       this.replacements.push((ndx + 1 % this.ms.getShuttles().length));
     });
 
-    console.log("On load materials", this.ms.getShuttles());
     this.updateMaterialsForm();
     //  this.syncFormToMaterials();
   }
@@ -126,7 +125,6 @@ export class MaterialComponent {
     materialsArray.clear({ emitEvent: false });
 
     this.ms.getShuttles().forEach((material, index) => {
-      console.log("Updating materials form", material);
       materialsArray.push(this.fb.group({
         uid: [Math.random().toString(36).substring(2, 15)],
         id: [material.id],

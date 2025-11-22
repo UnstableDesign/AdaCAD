@@ -1,3 +1,15 @@
+@if (oversize) {
+<div class="oversize-warning">
+  <i class="fas fa-exclamation-triangle"></i>
+  <button mat-button (click)="toggleOversize()">Load/Hide this Image</button>
+  This draft is oversize.
+</div>
+}
+
+
+
+
+
 <div class="draft-container {{source}} origin{{ws.selected_origin_option}}"
   id="draft-scale-container-{{source}}-{{id}}">
 

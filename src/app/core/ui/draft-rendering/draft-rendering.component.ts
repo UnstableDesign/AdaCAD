@@ -47,6 +47,7 @@ export class DraftRenderingComponent implements OnInit {
   @Input('current_view') current_view: string;
   @Input('view_only') view_only: boolean;
   @Input('scale') scale: number;
+  @Input('oversize') oversize: boolean = false;
 
   @Output() onNewSelection = new EventEmitter();
   @Output() onDrawdownUpdated = new EventEmitter();
@@ -64,6 +65,7 @@ export class DraftRenderingComponent implements OnInit {
   rowShuttleMapping: Array<number> = [];
   colSystemMapping: Array<number> = [];
   rowSystemMapping: Array<number> = [];
+
 
   before: DraftNodeState;
 
@@ -1077,6 +1079,9 @@ export class DraftRenderingComponent implements OnInit {
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, flags: any): Promise<boolean> {
 
+    if (this.oversize) {
+      return Promise.resolve(true);
+    }
 
     if (draft == null) return;
 
@@ -1103,7 +1108,9 @@ export class DraftRenderingComponent implements OnInit {
       this.render.rescaleCanvases(draft, loom, loom_settings, this.scale, this.canvases, out_format)
       this.refreshWarpAndWeftSystemNumbering();
       this.refreshOriginMarker();
-      this.selection.redraw();
+
+
+      if (this.selection != undefined) this.selection.redraw();
 
 
       return Promise.resolve(res);
@@ -1115,12 +1122,26 @@ export class DraftRenderingComponent implements OnInit {
 
   }
 
+  toggleOversize() {
+    this.oversize = false;
+
+    this.redrawAll();
+    if (this.selection != undefined) this.selection.redraw();
+
+  }
+
   refreshOriginMarker() {
+    if (this.oversize) {
+      return;
+    }
     const div = document.getElementById("origin-marker-" + this.source + "-" + this.id);
     if (div !== null) div.style.transform = "scale(" + this.scale + ")";
   }
 
   refreshWarpAndWeftSystemNumbering() {
+    if (this.oversize) {
+      return;
+    }
     // let warpdatadiv = document.getElementById('warp-systems-text-'+this.source+'-'+this.id);
     // let weftdatadiv = document.getElementById('weft-systems-text-'+this.source+'-'+this.id);
     // console.log("REFRESH NUMBERING ", this.source, warpdatadiv, weftdatadiv)

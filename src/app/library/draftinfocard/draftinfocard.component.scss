@@ -1,0 +1,97 @@
+.draft-info-card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 4px;
+    text-align: center;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+    position: relative;
+    align-items: flex-start;
+    min-height: 200px;
+    max-width: 300px;
+
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+}
+
+.draft-info-card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.draft-info-card-header-name {
+    font-weight: bold;
+    text-wrap-mode: wrap;
+    text-wrap-style: pretty;
+    flex: 1 1 80%;
+}
+
+.draft-info-card-header-select {
+    flex: 0 1 20%;
+}
+
+.draft-info-card-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    background-color: #fff;
+}
+
+.draft-info-card-body-input-list {
+    width: 50px;
+    height: 100%;
+    overflow-y: scroll;
+    background-color: blue;
+}
+
+.draft-info-card-main {
+
+    display: flex;
+    width: 250px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+    background-color: green;
+}
+
+.draft-info-card-body-rendering-and-notes {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+.draft-info-card-body-rendering {
+    width: 150px;
+    height: 100%;
+    overflow: scroll;
+}
+
+.draft-info-card-body-notes {
+    width: 100px;
+    overflow-y: scroll;
+}
+
+.draft-data {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+.dims,
+.density,
+.warp_systems,
+.weft_systems {
+    flex: 1 1 25%;
+}
