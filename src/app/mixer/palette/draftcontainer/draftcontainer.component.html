@@ -1,15 +1,32 @@
 <!-- {{id}} -->
 
+
+@if (hasPin()) {
+
+<button mat-mini-fab color="accent" [style.scale]="getGlobalZoomUndo()" class="pin-indicator" (click)="unpinFromView()"
+  matTooltip="Pinned in viewer">
+  <i class="fa-solid fa-map-pin"></i>
+</button>
+}
+
+
+
+
+
 <div class="subdraft-container" id="subdraft-container-{{id}}">
 
 
-  <div class="header-container">
+  <div class="header-container" [class.hidden]="!draft_visible">
 
-    @if (!draft_visible) {
-    <button class="show_draft" matIconButton (click)="toggleVisibility()">
-      <i class="fa fa-eye" aria-hidden="true"></i>
-    </button>
-    }
+
+
+    <div class="rendering-view-opts" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
+      <!-- set local zoom -->
+      <mat-slider class='slider' min=".1" max="2" step="0.1">
+        <input matSliderThumb [formControl]="localZoomForm" #slider>
+      </mat-slider>
+
+    </div>
 
     @if (draft_visible) {
     <button class="show_draft" matIconButton (click)="toggleVisibility()">
@@ -17,14 +34,6 @@
     </button>
     }
 
-
-    <div class="rendering-view-opts" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
-      <!-- set local zoom -->
-      <mat-slider class='slider' min=".1" max="1" step="0.1">
-        <input matSliderThumb [formControl]="localZoomForm" #slider>
-      </mat-slider>
-
-    </div>
 
 
 
@@ -74,24 +83,17 @@
 
 
 
-  <div class="draft-rendering-wrapper">
-    @if (hasPin()) {
-    <button mat-mini-fab 
-            color="accent" 
-            class="pin-indicator"
-            matTooltip="Pinned in viewer">
-      <i class="fa-solid fa-map-pin"></i>
-    </button>
-    }
-    <app-draft-rendering [class.hidden]="!draft_visible" #draft_rendering source="mixer" [id]="id" [view_only]="hasParent"
-      [current_view]="current_view" [scale]="local_zoom" (onDrawdownUpdated)="drawdownUpdated()"
+  <div class="draft-rendering-wrapper" [class.hidden]="!draft_visible">
+
+    <app-draft-rendering [class.hidden]="!draft_visible" #draft_rendering source="mixer" [id]="id"
+      [view_only]="hasParent" [current_view]="current_view" [scale]="local_zoom" (onDrawdownUpdated)="drawdownUpdated()"
       (onMaterialChange)="drawdownUpdated()">
     </app-draft-rendering>
   </div>
 
 
 
-  <div class="output_meta">
+  <div class="output_meta" [class.hidden]="!draft_visible">
 
     <div class="name_and_dims">
       <div class="text">
@@ -105,20 +107,31 @@
       </div>
 
     </div>
+  </div>
 
 
 
-    <canvas #bitmapImage hidden></canvas>
+  <canvas #bitmapImage hidden></canvas>
 
-    <div class="outlet_row">
+  <div [class.outlet_row-draft-visible-false]="!draft_visible" [class.outlet_row]="draft_visible">
 
 
-      <button mat-raised-button id="{{id}}-out" class="outlet" [class.active]="selecting_connection"
-        [class.outlet_connected]="outlet_connected" matTooltip="connect this draft to an operation"
-        (click)="connectionStarted($event)">
-        <i class="fa-sharp fa-solid fa-circle-down"></i>
-      </button>
-    </div>
+
+
+    <button mat-raised-button id="{{id}}-out" class="outlet" [class.active]="selecting_connection"
+      [class.outlet_connected]="outlet_connected" matTooltip="connect this draft to an operation"
+      (click)="connectionStarted($event)">
+      <i class="fa-sharp fa-solid fa-circle-down"></i>
+    </button>
+
+    @if(!draft_visible) {
+    <button class="show_draft" matIconButton (click)="toggleVisibility()">
+      <i class="fa fa-eye" aria-hidden="true"></i>
+    </button>
+    }
 
 
   </div>
+
+
+</div>

@@ -210,11 +210,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const draftStateNameChangeSubscription = this.ss.draftNameChangeUndo$.subscribe(action => {
       const draft = this.tree.getDraft((<RenameAction>action).id);
-      draft.ud_name = (<RenameAction>action).before;
+      draft.ud_name = (<RenameAction>action).before.name;
       this.updateDraftName((<RenameAction>action).id);
 
       if (this.vs.getViewerId() === (<DraftStateAction>action).id) {
-        this.viewer.updateDraftNameFromMixerEvent((<RenameAction>action).before);
+        this.viewer.updateDraftNameFromMixerEvent((<RenameAction>action).before.name);
+        this.viewer.updateDraftNotesFromMixerEvent((<RenameAction>action).before.notes);
       }
 
     })

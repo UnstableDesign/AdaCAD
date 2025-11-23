@@ -19,6 +19,21 @@
 
     <div class="draft-info-card-body">
         <div class="draft-info-card-body-input-list">
+            <h3 class="input-list-header">From</h3>
+
+            <div class="input-list-item">
+                @if(parent && parent.type === 'operation') {
+                <div class="input-list-item-op-name" [style.background-color]="parent.category_color">{{parent.op_name}}
+                </div>
+                } @else {
+                <div class="input-list-item-op-name" [style.background-color]="parent.category_color">seed</div>
+                }
+            </div>
+
+            @if(inputList.length > 0) {
+            <h3 class="input-list-header">To</h3>
+            }
+
             @for (input of inputList; track input.uid) {
             <div class="input-list-item">
                 @if(input.op_name === 'image map') {
@@ -37,47 +52,63 @@
             }
 
 
+
         </div>
+
         <div class="draft-info-card-main">
 
             <div class="draft-info-card-body-rendering-and-notes">
+
+                <mat-slider class='slider' min=".1" max="2" step="0.1">
+                    <input matSliderThumb [formControl]="localZoomForm" #slider>
+                </mat-slider>
                 <div class="draft-info-card-body-rendering">
-                    <app-draft-rendering #draftRendering source="mixer" [id]="id" [view_only]="true" [scale]=".33"
+                    <app-draft-rendering #draftRendering source="mixer" [id]="id" [view_only]="true" [scale]="0.25"
                         [oversize]="oversize" current_view="draft">
                     </app-draft-rendering>
                 </div>
-                <div class="draft-info-card-body-notes">
-                    <mat-form-field appearance="filled">
-                        <mat-label>Notes</mat-label>
-                        <textarea matInput [formControl]="notesForm" class="draft-notes-input"></textarea>
-                    </mat-form-field>
-                </div>
+
+            </div>
+
+            <div class="draft-info-card-body-notes">
+                <div class="data-label">notes</div>
+                <p class="notes-text">{{notesForm.value}}
+                    <button mat-icon-button (click)="updateNotes()">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </p>
+
+
             </div>
 
             <div class="draft-data">
-                <div class="dims"> {{warpnum}} x {{weftnum}}</div>
+                <div class="dims">
+                    <div class="data-label">size</div>
+                    <div>{{warpnum}} x {{weftnum}}</div>
+                </div>
                 <div class="density">
-                    <mat-form-field appearance="filled">
-                        <mat-label>warp density</mat-label>
-                        <input matInput [formControl]="epiForm" type="number" min="0">
-                    </mat-form-field>
-                    <mat-form-field appearance="filled">
-                        <mat-label>weft density</mat-label>
-                        <input matInput [formControl]="ppiForm" type="number" min="0">
-                    </mat-form-field>
+                    <div class="data-label">density (epi/ppi)</div>
+                    <div class="density-inputs">
+                        <mat-form-field appearance="filled">
+                            <input matInput [formControl]="epiForm" type="number" min="0">
+                        </mat-form-field>
+                        <mat-form-field appearance="filled">
+                            <input matInput [formControl]="ppiForm" type="number" min="0">
+                        </mat-form-field>
+                        <div class="density-input-units">{{densityUnits}}</div>
+                    </div>
 
 
                 </div>
-                <div class="warp_systems"> x</div>
-                <div class="weft_systems">x</div>
+
             </div>
 
 
             <div class="draft-actions">
                 <app-download origin="library" [ids]="[id]" [workspaceName]=""></app-download>
-                <button mat-icon-button matTooltip="open the draft in the editor"><i
+                <button matButton matTooltip="open the draft in the editor"><i
                         class="fa-solid fa-pen-to-square"></i></button>
-                <button mat-icon-button matTooltip="open the draft in the mixer"><i
+                <button matButton matTooltip="open the draft in the mixer"><i
                         class="fa-solid fa-code-branch"></i></button>
             </div>
 

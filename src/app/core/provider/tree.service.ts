@@ -1474,6 +1474,12 @@ export class TreeService {
     return (dn.draft.ud_name === "") ? dn.draft.gen_name : dn.draft.ud_name;
   }
 
+  getDraftNotes(id: number): string {
+    const dn: DraftNode = <DraftNode>this.getNode(id);
+    if (dn === null || dn === undefined || dn.draft === null) return "null draft";
+    return dn.draft.notes || "";
+  }
+
   getDraftScale(id: number): number {
     if (id === -1) return 1;
     const dn: DraftNode = <DraftNode>this.getNode(id);
@@ -2202,6 +2208,7 @@ export class TreeService {
           draft_id: (<DraftNode>node).draft.id,
           ud_name: (<DraftNode>node).draft.ud_name,
           gen_name: (<DraftNode>node).draft.gen_name,
+          notes: (<DraftNode>node).draft.notes,
           draft: null,
           compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
           draft_visible: ((<DraftNode>node).visible == undefined) ? !this.ws.hide_mixer_drafts : (<DraftNode>node).visible,
@@ -2289,6 +2296,7 @@ export class TreeService {
       draft_id: draft.id,
       ud_name: '',
       gen_name: '',
+      notes: '',
       draft: null,
       compressed_draft: null,
       draft_visible: true,

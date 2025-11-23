@@ -6,7 +6,7 @@ import { MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft } from 'adacad-drafting-lib';
 import { warps, wefts } from 'adacad-drafting-lib/draft';
-import { DraftNode, DraftStateNameChange } from '../../../core/model/datatypes';
+import { DraftNode } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { FileService } from '../../../core/provider/file.service';
@@ -23,6 +23,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { Subscription } from 'rxjs';
 import { StateService } from '../../../core/provider/state.service';
+import { ZoomService } from '../../../core/provider/zoom.service';
 
 
 @Component({
@@ -42,6 +43,7 @@ export class DraftContainerComponent implements AfterViewInit {
   private ss = inject(SystemsService);
   private vs = inject(ViewerService);
   ws = inject(WorkspaceService);
+  private zs = inject(ZoomService);
 
 
   @Input() id;
@@ -53,6 +55,7 @@ export class DraftContainerComponent implements AfterViewInit {
   @Output() onOpenInEditor = new EventEmitter();
   @Output() onRecomputeChildren = new EventEmitter();
   @Output() onDrawdownSizeChanged = new EventEmitter();
+  @Output() onDraftVisibilityChanged = new EventEmitter();
   @Output() onNameChanged = new EventEmitter();
 
   @ViewChild('bitmapImage') bitmap: any;
@@ -143,24 +146,20 @@ export class DraftContainerComponent implements AfterViewInit {
   }
 
 
+  getGlobalZoomUndo(): number {
+
+    let mixer_zoom = this.zs.getMixerZoom();
+    console.log("MIXER ZOOM: ", mixer_zoom);
+    return 1 / mixer_zoom;
+  }
 
   rename(event) {
 
-    const before_name = this.tree.getDraftName(this.id);
     const dialogRef = this.dialog.open(RenameComponent, {
       data: { id: this.id }
     });
 
     dialogRef.afterClosed().subscribe(obj => {
-
-      this.state.addStateChange(<DraftStateNameChange>{
-        originator: 'DRAFT',
-        type: 'NAME_CHANGE',
-        id: this.id,
-        before: before_name,
-        after: this.tree.getDraftName(this.id)
-      });
-
 
       this.draft_name = this.tree.getDraftName(this.id);
       this.vs.updateViewer();
@@ -243,8 +242,9 @@ export class DraftContainerComponent implements AfterViewInit {
     const config = { attributes: true, characterData: true, childList: false, subtree: false };
     const callback = (mutationList, observer) => {
       for (const mutation of mutationList) {
-        if (mutation.type === "attributes") {
-          // console.log(`The ${mutation.attributeName} attribute was modified.`);
+        //changed this to only listen on height because it was triggering for too many attributes
+        if (mutation.type === "attributes" && mutation.attributeName === "height") {
+          console.log(`The ${mutation.attributeName} attribute was modified.`);
           this.onDrawdownSizeChanged.emit(this.id);
         }
       }
@@ -266,16 +266,24 @@ export class DraftContainerComponent implements AfterViewInit {
     this.tree.setDraftVisiblity(this.id, this.draft_visible);
     this.updateDraftRendering();
 
+
   }
 
   updateDraftRendering() {
     const draft = this.tree.getDraft(this.id);
 
-    if (this.draft_rendering !== undefined && draft !== undefined && draft !== null) {
+
+    if (this.draft_rendering !== undefined && draft !== undefined && draft !== null && this.draft_visible) {
       this.draft_rendering.onNewDraftLoaded(this.id);
-      this.drawDraft(draft);
+      this.drawDraft(draft).then(el => {
+        this.onDraftVisibilityChanged.emit(this.id);
+      });
+
     } else {
-      this.draft_rendering.clear();
+      this.draft_rendering.clear().then(el => {
+        this.onDraftVisibilityChanged.emit(this.id);
+      });
+
     }
   }
 
@@ -421,6 +429,7 @@ export class DraftContainerComponent implements AfterViewInit {
     const dn = <DraftNode>this.tree.getNode(this.id);
     dn.scale = this.local_zoom;
     this.draft_rendering.rescale(dn.scale, 'canvas');
+    this.onDrawdownSizeChanged.emit(this.id);
 
     // Update the form control to reflect the new value
     if (this.localZoomForm) {

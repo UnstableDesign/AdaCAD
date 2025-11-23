@@ -1,19 +1,22 @@
 import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { getDraftName, defaults as libDefaults, warps, wefts } from 'adacad-drafting-lib';
-import { DraftStateNameChange } from '../../core/model/datatypes';
+import { DraftNode, DraftStateNameChange } from '../../core/model/datatypes';
 import { defaults as appDefaults } from '../../core/model/defaults';
 import { OperationService } from '../../core/provider/operation.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { DownloadComponent } from '../../core/ui/download/download.component';
 import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-rendering.component';
+import { RenameComponent } from '../../core/ui/rename/rename.component';
 @Component({
   selector: 'app-draftinfocard',
-  imports: [ReactiveFormsModule, DownloadComponent, MatButtonModule, MatFormField, MatInput, MatLabel, MatIconButton, MatTooltip, DraftRenderingComponent],
+  imports: [ReactiveFormsModule, DownloadComponent, MatSliderModule, MatButtonModule, MatFormField, MatInput, MatLabel, MatIconButton, MatTooltip, DraftRenderingComponent],
   templateUrl: './draftinfocard.component.html',
   styleUrl: './draftinfocard.component.scss'
 })
@@ -25,20 +28,25 @@ export class DraftinfocardComponent {
   private tree = inject(TreeService);
   private ss = inject(StateService);
   private ops = inject(OperationService);
-
+  private dialog = inject(MatDialog);
+  private state = inject(StateService);
 
   nameForm = new FormControl('');
   notesForm = new FormControl('');
   epiForm = new FormControl<number>(0);
   ppiForm = new FormControl<number>(0);
   selectBoxForm = new FormControl<boolean>(false);
+  localZoomForm;
+
   loomUnits = null;
   loomType = null;
   warpnum = 0;
   weftnum = 0;
   oversize = false;
-
   inputList: Array<{ uid: string, op_name: string, inlet_name: string, type: string, value: string, category_color: string }> = [];
+  parent: { uid: string, op_name: string, type: string, category_color: string }
+  densityUnits: string;
+
 
   @Input() id: number;
   @Output() onDraftSelectionChange = new EventEmitter<number>();
@@ -46,7 +54,17 @@ export class DraftinfocardComponent {
   ngOnInit() {
 
 
+
+    this.localZoomForm = new FormControl(this.tree.getDraftScale(this.id));
+    this.localZoomForm.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.localZoomChange(value);
+      }
+    });
+
     this.refreshData();
+
+
 
 
   }
@@ -66,17 +84,30 @@ export class DraftinfocardComponent {
     this.notesForm.setValue(draft.notes || '', { emitEvent: false });
     this.epiForm.setValue(loom_settings.epi || libDefaults.loom_settings.epi, { emitEvent: false });
     this.ppiForm.setValue(loom_settings.ppi || libDefaults.loom_settings.ppi, { emitEvent: false });
+    this.localZoomForm.setValue(this.tree.getDraftScale(this.id), { emitEvent: false });
     this.selectBoxForm.setValue(false, { emitEvent: false });
     this.loomUnits = loom_settings.units || libDefaults.loom_settings.units;
+    this.densityUnits = this.loomUnits === 'in' ? 'ends / inch' : 'ends / 10cm';
     this.loomType = loom_settings.type || libDefaults.loom_settings.type;
     this.warpnum = warps(draft.drawdown) || -1;
     this.weftnum = wefts(draft.drawdown) || -1;
     this.oversize = (this.warpnum > appDefaults.oversize_dim_threshold || this.weftnum > appDefaults.oversize_dim_threshold) ? true : false;
     this.inputList = this.getInputListForDraft(this.id);
-
+    this.parent = this.getParentForDraft(this.id);
     this.draftRendering.redrawAll();
 
 
+  }
+
+  localZoomChange(event: any) {
+    const dn = <DraftNode>this.tree.getNode(this.id);
+    dn.scale = event;
+    this.draftRendering.rescale(dn.scale, 'canvas');
+
+    // Update the form control to reflect the new value
+    if (this.localZoomForm) {
+      this.localZoomForm.setValue(dn.scale, { emitEvent: false });
+    }
   }
 
 
@@ -120,18 +151,55 @@ export class DraftinfocardComponent {
   }
 
 
+  getParentForDraft(id: number): { uid: string, op_name: string, type: string, category_color: string } {
+    const parent = this.tree.getSubdraftParent(id);
+    if (parent === -1) {
+      return {
+        uid: Math.random().toString(36).substring(2, 15),
+        op_name: 'n/a',
+        type: 'seed',
+        category_color: '#000'
+      };
+    } else {
+      let op_node = this.tree.getOpNode(parent);
+      let op_obj = this.ops.getOp(op_node.name);
+
+      return {
+        uid: Math.random().toString(36).substring(2, 15),
+        op_name: op_obj.meta.displayname || op_node.name,
+        type: 'operation',
+        category_color: this.ops.getCatColor(this.ops.getOp(op_node.name).meta.categories[0].name) || '#000'
+      };
+    }
+  }
+
+  updateNotes() {
+    const dialogRef = this.dialog.open(RenameComponent, {
+      data: { id: this.id }
+    });
+
+
+    dialogRef.afterClosed().subscribe(obj => {
+      this.refreshData();
+      this.notesForm.setValue(this.tree.getDraftNotes(this.id), { emitEvent: false });
+      this.onDraftRename.emit(this.id);
+    });
+
+  }
+
+
 
   saveName() {
     const before_name = this.tree.getDraftName(this.id);
-
+    const before_notes = this.tree.getDraftNotes(this.id);
 
 
     this.ss.addStateChange(<DraftStateNameChange>{
       originator: 'DRAFT',
       type: 'NAME_CHANGE',
       id: this.id,
-      before: before_name,
-      after: this.nameForm.value
+      before: { name: before_name, notes: before_notes },
+      after: { name: this.nameForm.value, notes: before_notes }
     });
 
     this.tree.getDraft(this.id).ud_name = this.nameForm.value;

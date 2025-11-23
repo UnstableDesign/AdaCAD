@@ -226,6 +226,7 @@ export interface DraftNodeProxy {
   draft_id: number;
   ud_name: string;
   gen_name: string;
+  notes: string;
   draft: Draft;
   compressed_draft: CompressedDraft;
   draft_visible: boolean;
@@ -605,8 +606,8 @@ export type DraftStateChange = DraftStateEvent & DraftChangedEvent;
 export type DraftExistenceChange = DraftStateEvent & NodeEvent;
 export type DraftStateNameChange = DraftStateEvent & {
   id: number,
-  before: string,
-  after: string
+  before: { name: string, notes: string },
+  after: { name: string, notes: string }
 };
 
 export type ConnectionStateEvent = StateChangeEvent & {
@@ -686,8 +687,8 @@ export type DraftStateAction = StateAction & {
 
 export type RenameAction = StateAction & {
   id: number,
-  before: string,
-  after: string
+  before: { name: string, notes: string },
+  after: { name: string, notes: string }
 }
 
 

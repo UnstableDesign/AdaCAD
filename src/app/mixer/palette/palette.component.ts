@@ -2,8 +2,8 @@ import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewC
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AnalyzedImage, Draft, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
-import { Subscription, fromEvent } from 'rxjs';
 import normalizeWheel from 'normalize-wheel';
+import { Subscription, fromEvent } from 'rxjs';
 import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';

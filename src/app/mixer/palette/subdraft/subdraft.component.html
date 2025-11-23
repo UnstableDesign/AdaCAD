@@ -12,6 +12,7 @@
     (connectionSelected)="connectionStarted($event)" (onOpenInEditor)="openInEditor($event)"
     (onDuplicateCalled)="designAction($event)" (onDeleteCalled)="designAction($event)"
     (onRecomputeChildren)="designAction($event)" (onDrawdownSizeChanged)="updateOutboundConnections()"
+    (onDraftVisibilityChanged)="updateOutboundConnections($event)"
     (onNameChanged)="nameChange($event)"></app-draftcontainer>
 </div>
 }

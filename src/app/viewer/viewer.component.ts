@@ -12,7 +12,6 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
-import { DraftStateNameChange } from '../core/model/datatypes';
 import { FirebaseService } from '../core/provider/firebase.service';
 import { OperationService } from '../core/provider/operation.service';
 import { StateService } from '../core/provider/state.service';
@@ -53,6 +52,7 @@ export class ViewerComponent {
 
   draft_canvas: HTMLCanvasElement;
   draft_name: string = '';
+  draft_notes: string = '';
   draft_cx: any;
   pixel_ratio: number = 1;
   vis_mode: string = 'color'; //sim, draft, structure, color
@@ -67,7 +67,7 @@ export class ViewerComponent {
   wefts: number = 0;
   scale: number = 0;
   before_name: string = '';
-
+  before_notes: string = '';
   idChangeSubscription: Subscription;
   updateViewerSubscription: Subscription;
 
@@ -163,6 +163,12 @@ export class ViewerComponent {
 
   }
 
+  updateDraftNotesFromMixerEvent(notes: string) {
+    this.draft_notes = notes;
+    this.before_notes = notes;
+
+  }
+
 
   private clearDraft() {
     //clear draft here
@@ -178,8 +184,10 @@ export class ViewerComponent {
     if (draft == null) return;
 
     this.before_name = getDraftName(this.tree.getDraft(id));
+    this.before_notes = this.tree.getDraftNotes(id);
     console.log("LOADING DRAFT, BEFORE NAME: ", this.before_name);
     this.draft_name = this.before_name;
+    this.draft_notes = this.before_notes;
     this.visMode.setValue(this.vis_mode, { emitEvent: false });
 
     if (draft !== null) {
@@ -395,20 +403,11 @@ export class ViewerComponent {
 
   openNameChangeDialog() {
 
-    const before_name = this.tree.getDraftName(this.vs.getViewerId());
     const dialogRef = this.dialog.open(RenameComponent, {
       data: { id: this.vs.getViewerId() }
     });
 
     dialogRef.afterClosed().subscribe(obj => {
-
-      this.ss.addStateChange(<DraftStateNameChange>{
-        originator: 'DRAFT',
-        type: 'NAME_CHANGE',
-        id: this.vs.getViewerId(),
-        before: before_name,
-        after: this.tree.getDraftName(this.vs.getViewerId())
-      });
 
 
       this.draft_name = this.tree.getDraftName(this.vs.getViewerId());

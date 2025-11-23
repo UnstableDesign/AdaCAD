@@ -169,6 +169,7 @@ export class FileService {
                 ud_name: (node.draft_name) ? node.draft_name : node.ud_name,
                 gen_name: (node.draft_name) ? node.draft_name : node.gen_name,
                 draft: null,
+                notes: (draft.notes === undefined) ? '' : draft.notes,
                 compressed_draft: null,
                 draft_visible: (node === undefined) ? true : node.draft_visible,
                 loom: null,

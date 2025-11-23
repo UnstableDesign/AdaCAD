@@ -1161,7 +1161,12 @@ export class DraftRenderingComponent implements OnInit {
 
 
     return this.render.clear(this.canvases).then(res => {
-      return Promise.resolve(res);
+      //impose a delay so that the position change can happen before connections are redrawn
+      return new Promise<boolean>((resolve) => {
+        setTimeout(() => {
+          resolve(res);
+        }, 200);
+      });
     })
 
 

@@ -86,6 +86,8 @@ export class WorkspaceService {
 
 
 
+
+
   getWorkspaceLoomSettings(): LoomSettings {
     const ls: LoomSettings = {
       type: this.type,

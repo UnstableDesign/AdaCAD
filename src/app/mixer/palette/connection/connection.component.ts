@@ -227,7 +227,6 @@ export class ConnectionComponent implements OnInit {
     if (sd_element === null) return;
 
     let sd_container = sd_element.getBoundingClientRect();
-
     const zoom_factor = 1 / this.zs.getMixerZoom();
     //on screen position relative to palette
     let screenX = sd_container.x - parent_rect.x + parent.scrollLeft;

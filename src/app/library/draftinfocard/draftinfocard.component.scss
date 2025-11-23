@@ -14,7 +14,6 @@
     cursor: pointer;
     position: relative;
     align-items: flex-start;
-    height: 300px;
     max-width: 300px;
 
     &:hover {
@@ -53,8 +52,8 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: #333;
-    color: #fff;
+    background-color: #f5f5f5;
+    color: black;
     width: 100%;
     font-weight: bold;
     font-size: 12px;
@@ -63,8 +62,8 @@
 
 
 
-    @include mat.form-field-overrides((filled-container-color: #333,
-            filled-input-text-color: #fff,
+    @include mat.form-field-overrides((filled-container-color: #f5f5f5,
+            filled-input-text-color: black,
             container-text-weight:bold));
 }
 
@@ -99,8 +98,25 @@
     align-items: center;
     gap: 4px;
     margin: 4px 2px;
-    border-right: 1px solid #999;
 }
+
+.input-list-header {
+    font-size: 8px;
+    font-weight: normal;
+    text-align: center;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
+
+.data-label {
+    font-size: 8px;
+    font-weight: normal;
+    text-transform: uppercase;
+    color: #999;
+}
+
 
 
 .input-list-item {
@@ -136,6 +152,8 @@
     text-wrap-style: pretty;
     border-radius: 2px;
     color: white;
+    padding: 2px 0px;
+
 }
 
 .draft-info-card-main {
@@ -145,19 +163,27 @@
     flex-direction: column;
     justify-content: flex-start;
     gap: 2px;
+
+    .slider {
+        vertical-align: middle;
+    }
+
+
+    @include mat.slider-overrides((active-track-color: black,
+            active-track-height: 3px,
+            handle-color: black))
 }
 
 .draft-info-card-body-rendering-and-notes {
     width: 100%;
-    height: 200px;
+    height: 160px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: flex-start;
     gap: 2px;
 }
 
 .draft-info-card-body-rendering {
-    width: 150px;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -167,27 +193,37 @@
 }
 
 .draft-info-card-body-notes {
-    width: 90px;
-    height: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
     overflow-y: scroll;
-    padding: 4px 2px;
+    padding: 2px 31px 4px 0px;
 
-    @include mat.form-field-overrides((container-text-size: 12px,
-            container-text-line-height:12px));
-
-
-
-    .mat-mdc-form-field {
-        padding: 0px !important;
-        width: 100px !important;
-        font-size: 12px !important;
-    }
-
-    ::ng-deep .mdc-floating-label {
+    button {
         font-size: 12px;
-
+        width: 12px;
+        height: 12px;
+        padding: 0px;
+        margin: 0px;
     }
 
+    @include mat.icon-button-overrides((icon-size: 12px,
+            touch-target-size: 12px,
+            icon-color: black));
+
+
+
+}
+
+.notes-text {
+    width: 100%;
+    text-align: left;
+    padding: 0px 2px;
+    font-size: 12px;
+    line-height: 14px;
+    padding: 0px;
+    margin: 0px;
 }
 
 .draft-data {
@@ -205,21 +241,46 @@
 .weft_systems {
     font-size: 12px;
     line-height: 14px;
-    flex: 1 1 25%;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 
 
-    @include mat.form-field-overrides((container-text-size: 12px,
+    @include mat.form-field-overrides((container-text-size: 20px,
             container-text-line-height:12px));
 
 
     .mat-mdc-form-field {
         padding: 0px !important;
-        width: 20px !important;
+        width: 30px !important;
         height: 20px !important;
         font-size: 12px !important;
     }
 
+    .mdc-text-field--filled {
+        height: 20px !important;
+        padding: 0px !important;
+    }
 
+    ::ng-deep .mat-mdc-form-field-infix {
+        height: 20px !important;
+        padding: 0px !important;
+    }
+
+    ::ng-deep.mdc-text-field {
+        padding: 0px !important;
+    }
+
+
+}
+
+
+.density-inputs {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 2px;
 }
 
 .draft-actions {
