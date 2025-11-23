@@ -7,7 +7,6 @@
 
 
 
-<canvas #bitmapImage hidden></canvas>
 
 
 <div class="view-container">
@@ -38,26 +37,11 @@
             Saved Files</button>
           <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button>
           <!-- <button mat-menu-item (click)="redo()" >Import Bitmaps</button> -->
-          <button mat-menu-item [matMenuTriggerFor]="downloadMenu">Export</button>
+          <app-download origin="menu" [ids]="(vs.showing === -1 ? [] : [vs.showing])"
+            [workspaceName]="filename_form.value"></app-download>
           <button mat-menu-item (click)="saveFile()">Save</button>
           <button mat-menu-item (click)="openAboutDialog()">About</button>
 
-        </mat-menu>
-
-        <mat-menu #downloadMenu="matMenu">
-          <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
-          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('bmp')">Selected Draft as
-            Bitmap</button>
-          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('jpg')">Selected Draft as
-            Image</button>
-          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('wif')">Selected Draft as
-            .WIF</button>
-
-          <button mat-menu-item [disabled]="vs.showing == -1" (click)="saveDraftAs('coloring_page')"
-            matTooltip="Download as Coloring Page">
-            <i class="fa-solid fa-pencil"></i> Selected Draft as Coloring Page
-          </button>
-          <!-- <button mat-menu-item (click)="downloadWorkspace('bmp')">All Drafts as Bitmaps</button> -->
         </mat-menu>
 
         <mat-menu #openFile="matMenu">
@@ -172,7 +156,7 @@
 
     <div class="ui-right" [style.width.px]="vas.right">
       <app-viewer #viewer class="static-container" (onOpenEditor)="openInEditor($event)"
-        (onDraftRename)="updateDraftName($event)" (onSave)="saveDraftAs($event)"></app-viewer>
+        (onDraftRename)="updateDraftName($event)"></app-viewer>
 
 
 
@@ -238,10 +222,8 @@
       </button>
       }
 
-      <button mat-raised-button [matMenuTriggerFor]="downloadMenu" matTooltip="download workspace" color="primary">
-        <i class="fa-solid fa-download"></i>
-      </button>
-
+      <app-download origin="footer" [ids]="(vs.showing === -1 ? [] : [vs.showing])"
+        [workspaceName]="filename_form.value"></app-download>
       <button mat-raised-button matTooltip="share" color="primary" (click)="share()">
         <i class="fa-solid fa-share-nodes"></i>
       </button>

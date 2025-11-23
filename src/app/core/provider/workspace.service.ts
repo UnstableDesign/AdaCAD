@@ -56,6 +56,9 @@ export class WorkspaceService {
   onFileOpen = new Subject<FileMeta>();
   onFileOpen$ = this.onFileOpen.asObservable();
 
+  onFilenameUpdated = new Subject<string>();
+  onFilenameUpdated$ = this.onFilenameUpdated.asObservable();
+
   fb = inject(FirebaseService);
 
   constructor() { }
@@ -65,6 +68,7 @@ export class WorkspaceService {
     console.log("SETTING CURRENT FILE ", meta)
     this.current_file = meta;
     this.onFileOpen.next(meta);
+    this.onFilenameUpdated.next(meta.name);
   }
 
   public getCurrentFile(): FileMeta {
@@ -73,7 +77,7 @@ export class WorkspaceService {
 
   public setCurrentFileName(name: string) {
     this.current_file.name = name;
-
+    this.onFilenameUpdated.next(this.current_file.name);
   }
 
   public setCurrentFileDesc(desc: string) {

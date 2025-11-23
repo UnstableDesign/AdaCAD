@@ -9,10 +9,11 @@ import { defaults as appDefaults } from '../../core/model/defaults';
 import { OperationService } from '../../core/provider/operation.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
+import { DownloadComponent } from '../../core/ui/download/download.component';
 import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-rendering.component';
 @Component({
   selector: 'app-draftinfocard',
-  imports: [ReactiveFormsModule, MatButtonModule, MatFormField, MatInput, MatLabel, MatIconButton, MatTooltip, DraftRenderingComponent],
+  imports: [ReactiveFormsModule, DownloadComponent, MatButtonModule, MatFormField, MatInput, MatLabel, MatIconButton, MatTooltip, DraftRenderingComponent],
   templateUrl: './draftinfocard.component.html',
   styleUrl: './draftinfocard.component.scss'
 })
@@ -83,11 +84,7 @@ export class DraftinfocardComponent {
     this.onDraftSelectionChange.emit(this.id);
   }
 
-  downloadDraft() {
 
-    //placeholder
-
-  }
 
 
   /**

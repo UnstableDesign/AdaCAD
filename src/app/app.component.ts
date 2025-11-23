@@ -20,7 +20,7 @@ import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
 import { Bounds, DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
-import { mergeBounds, saveAsBmp, saveAsColoringPage, saveAsPng, saveAsPrint, saveAsWif } from './core/model/helper';
+import { mergeBounds } from './core/model/helper';
 import { FileService } from './core/provider/file.service';
 import { FirebaseService } from './core/provider/firebase.service';
 import { MaterialsService } from './core/provider/materials.service';
@@ -36,6 +36,7 @@ import { ViewadjustService } from './core/provider/viewadjust.service';
 import { ViewerService } from './core/provider/viewer.service';
 import { WorkspaceService } from './core/provider/workspace.service';
 import { ZoomService } from './core/provider/zoom.service';
+import { DownloadComponent } from './core/ui/download/download.component';
 import { ExamplesComponent } from './core/ui/examples/examples.component';
 import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.component';
 import { HistoryComponent } from './core/ui/history/history.component';
@@ -58,7 +59,7 @@ import { ViewerComponent } from './viewer/viewer.component';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [EventsDirective, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent, LibraryComponent]
+  imports: [EventsDirective, DownloadComponent, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, MatMiniFabButton, ViewadjustComponent, ViewerComponent, LibraryComponent]
 })
 
 
@@ -94,7 +95,6 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(MixerComponent) mixer: MixerComponent;
   @ViewChild(EditorComponent) editor: EditorComponent;
   @ViewChild(ViewerComponent) viewer: ViewerComponent;
-  @ViewChild('bitmapImage') bitmap: any;
   @ViewChild(ViewadjustComponent) viewadjust: ViewadjustComponent;
   @ViewChild(LoadingComponent) loadingComponent: MatDialogRef<LoadingComponent>;
 
@@ -246,6 +246,16 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
 
+    //called from footer or library when the name is changed, this just streamlines the publishing of that event. 
+    //download also listens on this signals to update teh download form name
+    const fileNameChangeSubscription = this.ws.onFilenameUpdated$.subscribe((name) => {
+      this.library.updateWorkspaceName(name);
+      this.filename_form.setValue(name, { emitEvent: false });
+
+    });
+
+
+
 
 
     this.stateSubscriptions.push(draftStateChangeSubscription);
@@ -254,6 +264,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.stateSubscriptions.push(mixerPasteUndoSubscription);
     this.stateSubscriptions.push(mixerDeleteUndoSubscription);
     this.stateSubscriptions.push(fileMetaChangeUndoSubscription);
+    this.stateSubscriptions.push(fileNameChangeSubscription);
     this.scrollingSubscription = this.scroll
       .scrolled()
       .subscribe((data: any) => {
@@ -607,42 +618,6 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * this is called when a user pushes save from the topbar
-   * @param event 
-   */
-  public async downloadWorkspace(type: any): Promise<any> {
-
-    const link = document.createElement('a')
-
-
-    switch (type) {
-      // case 'jpg': 
-
-      // //this.printMixer();
-
-      // break;
-
-      // case 'wif': 
-      //    this.mixer.downloadVisibleDraftsAsWif();
-      //    return Promise.resolve(null);
-      // break;
-
-      case 'ada':
-        const filename = this.ws.getCurrentFile().name;
-        this.fs.saver.ada().then(out => {
-          link.href = "data:application/json;charset=UTF-8," + encodeURIComponent(out.json);
-          link.download = filename + ".ada";
-          link.click();
-        })
-        break;
-
-      case 'bmp':
-        this.mixer.downloadVisibleDraftsAsBmp();
-        return Promise.resolve(null);
-        break;
-    }
-  }
 
 
 
@@ -2122,35 +2097,5 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  saveDraftAs(format: string) {
-
-    if (this.vs.getViewerId() === -1) return;
-
-    let draft: Draft = this.tree.getDraft(this.vs.getViewerId());
-    let b = this.bitmap.nativeElement;
-
-    switch (format) {
-      case 'png':
-        saveAsPng(b, draft, this.ws.selected_origin_option, this.ms, this.fs) //currently not used, was just testing. 
-        break;
-      case 'bmp':
-        saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs);
-        break;
-      case 'jpg':
-        let visvars = this.viewer.getVisVariables();
-        saveAsPrint(b, draft, visvars.floats, visvars.use_colors, this.ws.selected_origin_option, this.ms, this.sys_serve, this.fs)
-        break;
-      case 'coloring_page':
-        saveAsColoringPage(b, draft, this.ms, this.sys_serve, this.fs)
-        break;
-      case 'wif':
-        let loom = this.tree.getLoom(this.vs.getViewerId());
-        let loom_settings = this.tree.getLoomSettings(this.vs.getViewerId());
-        saveAsWif(this.fs, draft, loom, loom_settings)
-        break;
-    }
-
-
-  }
 
 }

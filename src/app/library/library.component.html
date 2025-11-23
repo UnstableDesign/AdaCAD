@@ -129,11 +129,18 @@
     </button>
 
     @if (getSelectedDraftsCount() > 0) {
-    <button mat-raised-button color="primary" (click)="downloadAllDraftsAsBitmaps()">
+    <button mat-raised-button color="primary" (click)="hideSelectedDrafts()">
       <i class="fas fa-eye-slash"></i>
       Hide Selected Drafts
     </button>
     }
+    }
+
+    @if (hiddenDrafts.length > 0) {
+    <button mat-raised-button color="none" (click)="showHiddenDrafts()">
+      <i class="fas fa-eye"></i>
+      Show {{hiddenDrafts.length}} Hidden Drafts
+    </button>
     }
 
     <button mat-raised-button>

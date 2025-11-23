@@ -69,6 +69,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   from_share: string;
   time: number;
   owner: string;
+  hiddenDrafts: Array<DraftNode> = [];
 
   fileMetaChangeUndoSubscription: Subscription;
   savedTimeSubscription: Subscription;
@@ -231,7 +232,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
 
-  loadDrafts(showHidden: boolean = false) {
+  loadDrafts() {
 
 
 
@@ -240,7 +241,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     //keep a list of hidden drafts
     const draftNodes: Array<DraftNode> = this.tree.getDraftNodes();
     draftNodes.filter(node => node.draft !== null && node.draft !== undefined)
-      .filter(node => showHidden === true ? true : node.visible === true)
+      .filter(node => node.visible === true)
       .forEach(node => {
 
         this.draftsData.push({
@@ -250,7 +251,30 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
 
+    this.hiddenDrafts = this.tree.getDraftNodes()
+      .filter(node => node.draft !== null && node.draft !== undefined)
+      .filter(node => node.visible === false);
 
+
+
+
+
+
+  }
+
+  hideSelectedDrafts() {
+    this.selectedDraftIds.forEach(id => {
+      const node = this.tree.getNode(id) as DraftNode;
+      node.visible = false;
+    });
+    this.loadDrafts();
+  }
+
+  showHiddenDrafts() {
+    this.hiddenDrafts.forEach(node => {
+      node.visible = true;
+    });
+    this.loadDrafts();
   }
 
 

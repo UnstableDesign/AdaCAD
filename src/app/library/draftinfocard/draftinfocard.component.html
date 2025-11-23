@@ -42,7 +42,7 @@
 
             <div class="draft-info-card-body-rendering-and-notes">
                 <div class="draft-info-card-body-rendering">
-                    <app-draft-rendering #draftRendering source="viewer" [id]="id" [view_only]="true" [scale]="0.25"
+                    <app-draft-rendering #draftRendering source="mixer" [id]="id" [view_only]="true" [scale]=".33"
                         [oversize]="oversize" current_view="draft">
                     </app-draft-rendering>
                 </div>
@@ -74,9 +74,8 @@
 
 
             <div class="draft-actions">
-                <button matIconButton matTooltip="download draft" (click)="downloadDraft()">
-                    <i class="fas fa-download"></i>
-                </button> <button mat-icon-button matTooltip="open the draft in the editor"><i
+                <app-download origin="library" [ids]="[id]" [workspaceName]=""></app-download>
+                <button mat-icon-button matTooltip="open the draft in the editor"><i
                         class="fa-solid fa-pen-to-square"></i></button>
                 <button mat-icon-button matTooltip="open the draft in the mixer"><i
                         class="fa-solid fa-code-branch"></i></button>
