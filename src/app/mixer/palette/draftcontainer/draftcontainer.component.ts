@@ -162,7 +162,6 @@ export class DraftContainerComponent implements AfterViewInit {
     dialogRef.afterClosed().subscribe(obj => {
 
       this.draft_name = this.tree.getDraftName(this.id);
-      this.vs.updateViewer();
       this.onNameChanged.emit(this.id);
     });
   }
@@ -390,7 +389,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
   drawdownUpdated() {
     if (!this.tree.hasParent(this.id)) {
-      this.vs.updateViewer();
+      // this.vs.updateViewer();
       this.onRecomputeChildren.emit({ event: 'edit', id: this.id });
     }
   }

@@ -7,6 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatD
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { Subscription } from 'rxjs';
 import { ConnectionStateEvent, DraftExistenceChange, DraftNode, DraftStateChange, DraftStateEvent, DraftStateMove, DraftStateNameChange, FileMetaStateChange, MaterialsStateChange, MixerStateChangeEvent, NoteStateChange, OpExistenceChanged, OpNode, OpStateEvent, OpStateParamChange, StateChangeEvent } from '../../model/datatypes';
 import { StateService } from '../../provider/state.service';
 import { TreeService } from '../../provider/tree.service';
@@ -35,7 +36,7 @@ export class HistoryComponent {
   private tree = inject(TreeService);
 
   historyReversed: Array<{ change: StateChangeEvent, description: string }> = [];
-
+  stateChangeSubscription: Subscription;
 
   get activeId(): number {
     return this.stateService.active_id;
@@ -43,13 +44,13 @@ export class HistoryComponent {
 
   ngOnInit() {
     this.updateHistory();
-    this.stateService.stateChange$.subscribe(() => {
+    this.stateChangeSubscription = this.stateService.stateChange$.subscribe(() => {
       this.updateHistory();
     });
   }
 
   ngOnDestroy() {
-    this.stateService.stateChangeSubject.unsubscribe();
+    this.stateChangeSubscription.unsubscribe();
   }
 
   updateHistory() {

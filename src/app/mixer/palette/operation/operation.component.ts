@@ -357,9 +357,10 @@ export class OperationComponent implements OnInit {
 
   updateChildren(children: Array<number>) {
     this.children = children;
-    this.children.forEach(child => {
-      this.tree.broadcastDraftValueChange(child);
-    });
+    //we don't need to redraw here because redrawing was already called from perform op
+    // this.children.forEach(child => {
+    //   this.tree.broadcastDraftValueChange(child);
+    // });
   }
 
   /**

@@ -1394,6 +1394,7 @@ export class TreeService {
     })
     const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
 
+    console.log("PERFORM OP ", id, " with inputs: ", cleaned_inputs, param_vals, op);
     return op.perform(param_vals, cleaned_inputs)
       .then(res => {
         opnode.dirty = false;

@@ -1078,6 +1078,7 @@ export class DraftRenderingComponent implements OnInit {
 
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, flags: any): Promise<boolean> {
+    const startTime = performance.now();
 
     if (this.oversize) {
       return Promise.resolve(true);
@@ -1112,6 +1113,9 @@ export class DraftRenderingComponent implements OnInit {
 
       if (this.selection != undefined) this.selection.redraw();
 
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      console.log(`[DraftRendering] redraw() ${draft.id} execution time: ${duration.toFixed(2)}ms (draft: ${draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null'}, flags: ${JSON.stringify(rf)})`);
 
       return Promise.resolve(res);
     })

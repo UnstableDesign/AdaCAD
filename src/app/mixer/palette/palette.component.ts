@@ -2155,8 +2155,6 @@ export class PaletteComponent implements OnInit {
           const tuple = this.tree.getConnectionOutputWithIndex(input_cxn);
           if (comp !== null) (<ConnectionComponent>comp).updateToPosition(tuple.inlet, tuple.arr);
         })
-
-        this.vs.updateViewer();
       })
       .catch(console.error);
 

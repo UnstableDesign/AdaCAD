@@ -81,6 +81,7 @@ export class ViewerComponent {
     })
 
     this.updateViewerSubscription = this.vs.update_viewer$.subscribe(data => {
+      console.log("VIEWER - call from update viewer$ ", data);
       this.redraw();
     })
 
@@ -218,6 +219,7 @@ export class ViewerComponent {
    * redraws the current draft, usually following an update from the drawdown
    */
   private redraw() {
+
     // Hide draft rendering when redrawing
     if (this.vis_mode != 'sim') {
       this.draft_rendering_visible = false;
@@ -505,6 +507,7 @@ export class ViewerComponent {
       }).then(manipulated_draft => {
         const dd = manipulated_draft[0].draft;
 
+        console.log("VIEWER - REDRAWING DRAFT ", this.vs.getViewerId());
         return this.view_rendering.redraw(dd, null, null, flags).then(el => {
           return Promise.resolve(true);
         })
@@ -513,6 +516,8 @@ export class ViewerComponent {
 
     } else {
       //console.log("REDRAW CALLED FROM VIEW RENDERING")
+      console.log("VIEWER - REDRAWING DRAFT ", this.vs.getViewerId());
+
       return this.view_rendering.redraw(draft, null, null, flags).then(el => {
         return Promise.resolve(true);
       })
