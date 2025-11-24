@@ -2151,7 +2151,6 @@ export class TreeService {
   }
 
   restoreDraftNodeState(id: number, state: DraftNodeState) {
-    console.log("RESTORING DRAFT NODE STATE ", id, state.loom.treadling[0])
     const node: DraftNode = <DraftNode>this.getNode(id);
     node.draft = copyDraft(state.draft);
     node.visible = state.draft_visible;
@@ -2208,7 +2207,7 @@ export class TreeService {
           draft_id: (<DraftNode>node).draft.id,
           ud_name: (<DraftNode>node).draft.ud_name,
           gen_name: (<DraftNode>node).draft.gen_name,
-          notes: (<DraftNode>node).draft.notes,
+          notes: (<DraftNode>node).draft.notes || '',
           draft: null,
           compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
           draft_visible: ((<DraftNode>node).visible == undefined) ? !this.ws.hide_mixer_drafts : (<DraftNode>node).visible,

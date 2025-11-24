@@ -17,7 +17,6 @@
 	.slider {
 		vertical-align: middle;
 		width: 400px;
-
 	}
 
 	button {
@@ -49,12 +48,9 @@
 
 
 .on_view {
-	border: 8px dotted #FFFFFF;
+	border: calc(var(--form-field-entry-size)/3) solid #3f51b5;
 }
 
-.has_pin {
-	border: 8px solid #FFFFFF;
-}
 
 
 .output_meta {

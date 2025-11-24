@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 import { FirebaseService } from '../core/provider/firebase.service';
 import { OperationService } from '../core/provider/operation.service';
 import { StateService } from '../core/provider/state.service';
+import { SystemsService } from '../core/provider/systems.service';
 import { TreeService } from '../core/provider/tree.service';
 import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
@@ -37,7 +38,7 @@ export class ViewerComponent {
   ss = inject(StateService);
   ops = inject(OperationService);
   private dialog = inject(MatDialog);
-
+  private systemsService = inject(SystemsService);
 
 
   @Output() onOpenEditor: any = new EventEmitter();
@@ -79,13 +80,14 @@ export class ViewerComponent {
       else this.loadDraft(data);
     })
 
-    this.vs.update_viewer$.subscribe(data => {
+    this.updateViewerSubscription = this.vs.update_viewer$.subscribe(data => {
       this.redraw();
     })
 
     this.viewFace = new FormControl('front');
     this.zoomLevel = new FormControl(0);
     this.visMode = new FormControl('color');
+
 
 
 
@@ -125,16 +127,11 @@ export class ViewerComponent {
     });
 
 
-    // this.filename = this.ws.current_file.name;
-    this.scale = this.zs.getViewerZoom();
-
   }
 
   swapViewFace(face: string) {
-    console.log("SWAPPING VIEW FACE TO: ", face);
-    this.drawDraft(face == 'front').then(() => {
-      this.centerScrollbars();
-    }).catch(console.error);
+    this.drawDraft(face == 'front')
+      .catch(console.error);
   }
 
   toggleViewControls() {
@@ -174,6 +171,9 @@ export class ViewerComponent {
     //clear draft here
   }
 
+
+
+
   private loadDraft(id: number) {
     console.log("LOADING DRAFT, ID: ", id);
 
@@ -185,10 +185,12 @@ export class ViewerComponent {
 
     this.before_name = getDraftName(this.tree.getDraft(id));
     this.before_notes = this.tree.getDraftNotes(id);
-    console.log("LOADING DRAFT, BEFORE NAME: ", this.before_name);
     this.draft_name = this.before_name;
     this.draft_notes = this.before_notes;
+
     this.visMode.setValue(this.vis_mode, { emitEvent: false });
+
+
 
     if (draft !== null) {
       this.warps = warps(draft.drawdown);
@@ -202,6 +204,7 @@ export class ViewerComponent {
         })
         .catch(console.error);
     } else {
+
       this.draft_rendering_visible = true; // Show immediately for sim mode
       this.sim.loadNewDraft(id);
     }
@@ -222,6 +225,7 @@ export class ViewerComponent {
 
     const draft = this.tree.getDraft(this.vs.getViewerId());
 
+
     this.draft_name = getDraftName(draft);
 
     if (draft !== null) {
@@ -231,7 +235,8 @@ export class ViewerComponent {
 
     if (this.vis_mode != 'sim') {
       this.drawDraft(this.viewFace.value == 'front').then(() => {
-        this.centerScrollbars()
+        this.draft_rendering_visible = true;
+
       }).catch(console.error);
     } else {
       this.draft_rendering_visible = true; // Show immediately for sim mode
@@ -467,6 +472,8 @@ export class ViewerComponent {
       show_loom: false
     }
 
+
+
     //if we are looking at the back face, invert and flip the draft
     if (!front) {
       const invert_op = this.ops.getOp('invert');
@@ -510,6 +517,7 @@ export class ViewerComponent {
         return Promise.resolve(true);
       })
     }
+
 
 
 

@@ -32,7 +32,7 @@ export class StateService {
   history: Array<StateChangeEvent> = [];
 
   // Global debug flag to show component IDs
-  showComponentIds: boolean = true;
+  showComponentIds: boolean = false;
 
   // Draft undo event streams
 

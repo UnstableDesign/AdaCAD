@@ -6,11 +6,13 @@ import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { getDraftName, defaults as libDefaults, warps, wefts } from 'adacad-drafting-lib';
+import { Subscription } from 'rxjs';
 import { DraftNode, DraftStateNameChange } from '../../core/model/datatypes';
 import { defaults as appDefaults } from '../../core/model/defaults';
 import { OperationService } from '../../core/provider/operation.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
+import { ViewerService } from '../../core/provider/viewer.service';
 import { DownloadComponent } from '../../core/ui/download/download.component';
 import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-rendering.component';
 import { RenameComponent } from '../../core/ui/rename/rename.component';
@@ -30,6 +32,7 @@ export class DraftinfocardComponent {
   private ops = inject(OperationService);
   private dialog = inject(MatDialog);
   private state = inject(StateService);
+  private vs = inject(ViewerService);
 
   nameForm = new FormControl('');
   notesForm = new FormControl('');
@@ -37,6 +40,8 @@ export class DraftinfocardComponent {
   ppiForm = new FormControl<number>(0);
   selectBoxForm = new FormControl<boolean>(false);
   localZoomForm;
+
+  selectedInViewer: boolean = false;
 
   loomUnits = null;
   loomType = null;
@@ -51,8 +56,16 @@ export class DraftinfocardComponent {
   @Input() id: number;
   @Output() onDraftSelectionChange = new EventEmitter<number>();
   @Output() onDraftRename = new EventEmitter<number>();
+  @Output() onOpenInEditor = new EventEmitter<number>();
+  @Output() onOpenInMixer = new EventEmitter<number>();
+
+
+  viewerSubscription: Subscription;
+
   ngOnInit() {
 
+
+    console.log("DRAFT INFO CARD INIT", this.id);
 
 
     this.localZoomForm = new FormControl(this.tree.getDraftScale(this.id));
@@ -60,6 +73,11 @@ export class DraftinfocardComponent {
       if (value !== null && value !== undefined) {
         this.localZoomChange(value);
       }
+    });
+
+    this.selectedInViewer = this.vs.getViewerId() === this.id;
+    this.viewerSubscription = this.vs.showing_id_change$.subscribe(data => {
+      this.selectedInViewer = data === this.id;
     });
 
     this.refreshData();
@@ -72,6 +90,10 @@ export class DraftinfocardComponent {
   ngAfterViewInit() {
     this.draftRendering.onNewDraftLoaded(this.id);
     this.draftRendering.redrawAll();
+  }
+
+  ngOnDestroy() {
+    this.viewerSubscription.unsubscribe();
   }
 
 
@@ -95,6 +117,7 @@ export class DraftinfocardComponent {
     this.inputList = this.getInputListForDraft(this.id);
     this.parent = this.getParentForDraft(this.id);
     this.draftRendering.redrawAll();
+    this.selectedInViewer = this.vs.getViewerId() === this.id;
 
 
   }
@@ -115,6 +138,14 @@ export class DraftinfocardComponent {
     this.onDraftSelectionChange.emit(this.id);
   }
 
+
+  openDraftInEditor() {
+    this.onOpenInEditor.emit(this.id);
+  }
+
+  openDraftInMixer() {
+    this.onOpenInMixer.emit(this.id);
+  }
 
 
 

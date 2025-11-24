@@ -39,7 +39,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Output() onWorkspaceRename = new EventEmitter<string>();
   @Output() onDraftNameChange = new EventEmitter<number>();
-
+  @Output() onOpenInEditor = new EventEmitter<number>();
+  @Output() onOpenInMixer = new EventEmitter<number>();
 
   private tree = inject(TreeService);
   private ms = inject(MaterialsService);
@@ -129,6 +130,16 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
       width: '600px',
       data: { fileid }
     });
+  }
+
+  openDraftInEditor(id: number) {
+    this.onOpenInEditor.emit(id);
+  }
+
+
+
+  openDraftInMixer(id: number) {
+    this.onOpenInMixer.emit(id);
   }
 
 

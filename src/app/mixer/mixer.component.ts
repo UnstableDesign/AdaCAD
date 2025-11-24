@@ -2,7 +2,7 @@ import { Component, enableProdMode, EventEmitter, inject, Input, Output, ViewChi
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material/tooltip';
 import { Draft, initDraftWithParams, initLoom, Loom, LoomSettings } from 'adacad-drafting-lib';
-import { DraftExistenceChange, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, Point } from '../core/model/datatypes';
+import { DraftExistenceChange, DraftNode, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, OpNode, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -493,6 +493,59 @@ export class MixerComponent {
 
   centerView() {
     this.palette.centerView();
+  }
+
+  /**
+   * Sets the zoom to a provided value and optionally centers on a specific point.
+   * Uses existing scrollbar listeners to update the view.
+   * @param zoom - The zoom value to set (e.g., 0.5 for 50% zoom)
+   * @param centerPoint - Optional point to center on in world coordinates. If not provided, maintains current scroll position.
+   */
+  setZoomAndCenter(id: number) {
+
+    console.log("SET ZOOM AND CENTER", id);
+
+    let node: OpNode | DraftNode;
+    if (this.tree.hasParent(id)) {
+      const parent = this.tree.getSubdraftParent(id);
+      node = <OpNode>this.tree.getOpNode(parent);
+    } else {
+      node = <DraftNode>this.tree.getNode(id);
+    }
+
+    if (node.component === undefined) console.error("NODE COMPONENT UNDEFINED", node);
+    const centerPoint = node.component.topleft;
+
+
+    const view_window: HTMLElement = document.getElementById('scrollable-container');
+    if (view_window === null || view_window === undefined) return;
+
+    // Set the new zoom value
+    this.zs.setZoomIndexOnMixer(15);
+    const new_zoom = this.zs.getMixerZoom();
+
+    // Apply the zoom change using existing rescale method
+    if (centerPoint !== undefined) {
+      // Calculate the scroll position needed to center on the provided point
+      // Formula: scrollLeft = worldPoint.x * zoom - viewportWidth / 2
+      const viewportWidth = view_window.clientWidth;
+      const viewportHeight = view_window.clientHeight;
+
+      const scrollLeft = centerPoint.x * new_zoom - viewportWidth / 2;
+      const scrollTop = centerPoint.y * new_zoom - viewportHeight / 2;
+
+      // First apply the zoom transform (without old_zoom to avoid center-based zoom)
+      this.palette.rescale();
+
+      // Then set the scroll position to center on the point using existing scroll handler
+      // Use requestAnimationFrame to ensure rescale has completed and DOM is updated
+      requestAnimationFrame(() => {
+        this.setScroll({ x: scrollLeft, y: scrollTop });
+      });
+    } else {
+      // No center point provided, maintain current scroll percentage
+      this.palette.rescale();
+    }
   }
 
 

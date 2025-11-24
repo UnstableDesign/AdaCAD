@@ -1753,16 +1753,20 @@ export class AppComponent implements OnInit, OnDestroy {
     this.toggleEditorMode();
   }
 
+  openInMixer(id: number) {
+    this.vs.clearPin();
+    this.vs.setViewer(id);
+    this.selected_editor_mode = 'mixer';
+    this.toggleEditorMode();
+    this.mixer.setZoomAndCenter(id);
+  }
+
   drawModeChange(mode: string) {
     this.mixer.changeDesignMode(mode);
   }
 
 
 
-  /**
-   * TODO: because it reloads the file, and reassigns IDs to drafts, there is no way to link the previous draft detail in the editor
-   * with what it's new counterpart will be. For now, I'll just force to mixer view
-   */
   undo() {
 
     const history = this.dialog.open(HistoryComponent, {

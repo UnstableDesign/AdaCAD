@@ -131,8 +131,8 @@
 
       <app-library class="library-container" [class.hide]="selected_editor_mode !== 'library'"
         [class.show]="selected_editor_mode === 'library'" #library id="library" cdkScrollable
-        (onOpenInEditor)="openInEditor($event)" (onDraftNameChange)="updateDraftName($event)"
-        (onWorkspaceRename)="renameWorkspaceFromLibrary($event)">
+        (onOpenInEditor)="openInEditor($event)" (onOpenInMixer)="openInMixer($event)"
+        (onDraftNameChange)="updateDraftName($event)" (onWorkspaceRename)="renameWorkspaceFromLibrary($event)">
       </app-library>
 
 

@@ -1,4 +1,4 @@
-<div class="draft-info-card-container">
+<div class="draft-info-card-container" [class.selected]="selectedInViewer">
 
     <div class="draft-info-card-header">
         <div class="draft-info-card-header-name">
@@ -106,9 +106,9 @@
 
             <div class="draft-actions">
                 <app-download origin="library" [ids]="[id]" [workspaceName]=""></app-download>
-                <button matButton matTooltip="open the draft in the editor"><i
+                <button matButton matTooltip="open the draft in the editor" (click)="openDraftInEditor()"><i
                         class="fa-solid fa-pen-to-square"></i></button>
-                <button matButton matTooltip="open the draft in the mixer"><i
+                <button matButton matTooltip="open the draft in the mixer" (click)="openDraftInMixer()"><i
                         class="fa-solid fa-code-branch"></i></button>
             </div>
 

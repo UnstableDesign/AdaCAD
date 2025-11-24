@@ -154,7 +154,8 @@
     <div class="drafts-grid">
       @for(draft of draftsData; track draft.uid) {
       <app-draftinfocard [id]="draft.id" (onDraftSelectionChange)="toggleDraftSelection($event)"
-        (onDraftRename)="onDraftRename($event)"></app-draftinfocard>
+        (onDraftRename)="onDraftRename($event)" (onOpenInEditor)="openDraftInEditor($event)"
+        (onOpenInMixer)="openDraftInMixer($event)"></app-draftinfocard>
       <!-- <div class="draft-card" [formGroupName]="$index">
        
  
