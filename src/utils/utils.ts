@@ -432,17 +432,31 @@ export function hexToRgb(hex: string) {
  * in connection with lcm, the gcd (greatest common divisor) determines the largest number that can divide into both inputs
  * I used Eulers algorithm with Euclidan Divison for determining this. 
  * assumes non-zero inputs
+ * @param timeoutMs - optional timeout in milliseconds. If provided and exceeded, returns -1
+ * @param startTime - optional start time for timeout tracking (used internally for recursive calls)
  */
-export function gcd(a: number, b: number): number {
+export function gcd(a: number, b: number, timeoutMs?: number, startTime?: number): number {
+  // Check timeout if provided
+  if (timeoutMs !== undefined) {
+    const currentTime = startTime ?? Date.now();
+    if (Date.now() - currentTime > timeoutMs) {
+      return -1; // Timeout indicator
+    }
+  }
 
   if (b === 0) return a;
 
   const max = (a > b) ? a : b;
   const min = (a <= b) ? a : b;
 
-  return gcd(min, max % min);
+  const result = gcd(min, max % min, timeoutMs, startTime);
 
+  // Propagate timeout indicator
+  if (result === -1 && timeoutMs !== undefined) {
+    return -1;
+  }
 
+  return result;
 }
 
 
@@ -450,27 +464,44 @@ export function gcd(a: number, b: number): number {
  * this is an algorithm for finding the least common multiple of a give set of input numbers 
  * it works based on the formula lcd (a,b) = a*b / gcd(a,b), and then calculates in a pairwise fashion.
  * this has the risk of breaking with very large sets of inputs and/or prime numbers of a large size
+ * @param original - array of numbers to find the LCM of
+ * @param timeoutMs - optional timeout in milliseconds. If provided and exceeded, returns -1 (gcd will always be positive so we can use -1 aS A FLAG)
  */
-export function lcm(original: Array<number>): number {
+export function lcm(original: Array<number>, timeoutMs: number): number {
 
   if (original.length == 0) return 0;
   if (original.length == 1) return original[0];
+
+  const startTime = timeoutMs !== undefined ? Date.now() : undefined;
 
   const set: Array<number> = original.slice();
   const a: number = set.shift() ?? 0;
   const b: number = set.shift() ?? 0;
 
   let mult: number = a * b;
-  let gcd_val = gcd(a, b);
+  let gcd_val = gcd(a, b, timeoutMs, startTime);
+
+  // Check if gcd timed out
+  if (gcd_val === -1) return -1;
 
   let lcd = mult / gcd_val;
 
-
   while (set.length > 0) {
+    // Check timeout before each iteration
+    if (timeoutMs !== undefined && startTime !== undefined) {
+      if (Date.now() - startTime > timeoutMs) {
+        return -1;
+      }
+    }
+
     const c = set.shift();
     if (c === undefined) break;
     mult = c * lcd;
-    gcd_val = gcd(c, lcd);
+    gcd_val = gcd(c, lcd, timeoutMs, startTime);
+
+    // Check if gcd timed out
+    if (gcd_val === -1) return -1;
+
     lcd = mult / gcd_val;
   }
 

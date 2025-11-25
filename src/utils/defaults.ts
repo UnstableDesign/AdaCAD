@@ -1,6 +1,7 @@
 import { DraftCellColor } from "../media/types";
 
 export const defaults = {
+  lcm_timeout: 1000, //the timeout in milliseconds for the lcm function
   draft_detail_cell_size: 20,
   draft_name: 'drafty',
   row_shuttle: 1,
@@ -136,3 +137,9 @@ export const licenses = [
   { value: 'by-nc-nd', viewValue: 'CC BY-NC-ND', img: "by-nc-nd.png", desc: "This license enables reusers to copy and distribute the material in any medium or format in unadapted form only, for noncommercial purposes only, and only so long as attribution is given to the creator. " },
   { value: 'cc-zero', viewValue: 'CC0', img: "cc-zero.png", desc: "CC0 (aka CC Zero) is a public dedication tool, which enables creators to give up their copyright and put their works into the worldwide public domain. CC0 enables reusers to distribute, remix, adapt, and build upon the material in any medium or format, with no conditions." },
 ]
+
+
+//add this one function so we can set this globally from the UI if need be
+export const setLCMTimeout = (timeout: number) => {
+  defaults.lcm_timeout = timeout;
+}

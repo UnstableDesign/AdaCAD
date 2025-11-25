@@ -2,6 +2,7 @@
 import { computeFilter, lcm } from "../utils/utils";
 import { cellToSequenceVal, createCellFromSequenceVal, getCellValue } from "../draft/cell";
 import { Cell, Drawdown } from "../draft/types";
+import { defaults } from "../utils";
 
 
 export namespace Sequence {
@@ -177,7 +178,11 @@ export namespace Sequence {
       row.forEach(cell => {
         if (typeof cell == 'number') this.push(cell);
 
-        else this.push(getCellValue(cell) ? 1 : 0);
+        else {
+          const val = getCellValue(cell);
+          if (val === null) this.push(2);
+          else this.push(val ? 1 : 0);
+        }
       })
       return this;
 
@@ -696,7 +701,9 @@ export namespace Sequence {
       const height = this.state.length;
       if (height > 0 && height != seq.length) {
 
-        const lcm_val = lcm([height, seq.length]);
+        let lcm_val = lcm([height, seq.length], defaults.lcm_timeout);
+        if (lcm_val !== -1) lcm_val = Math.max(height, seq.length);
+
         const width = this.state[0].length;
 
         const difference = lcm_val - height;
