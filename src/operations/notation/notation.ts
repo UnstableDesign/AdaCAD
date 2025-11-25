@@ -1,6 +1,6 @@
 import { warps, wefts, Draft, initDraftFromDrawdown, generateMappingFromPattern } from "../../draft";
 import { Sequence } from "../../sequence";
-import { parseRegex, lcm } from "../../utils";
+import { parseRegex, lcm, defaults } from "../../utils";
 import { compoundOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs, getAllDraftsAtInletByLabel } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
@@ -90,11 +90,11 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   const ends = lcm(
     layer_draft_map.filter(el => el.draft !== null)
-      .map(ldm => warps(ldm.draft!.drawdown))) * warps(system_map[0].drawdown);
+      .map(ldm => warps(ldm.draft!.drawdown)), defaults.lcm_timeout) * warps(system_map[0].drawdown);
 
   const pics = lcm(
     layer_draft_map.filter(el => el.draft !== null)
-      .map(ldm => wefts(ldm.draft!.drawdown))) * wefts(system_map[0].drawdown);
+      .map(ldm => wefts(ldm.draft!.drawdown)), defaults.lcm_timeout) * wefts(system_map[0].drawdown);
 
   //assign drafts to their specified systems. 
   let weft_sys_above: Array<number> = [];

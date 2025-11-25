@@ -1,6 +1,6 @@
 import { Draft, warps, Cell, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { parseRegex, lcm, filterToUniqueValues } from "../../utils";
+import { parseRegex, lcm, filterToUniqueValues, defaults } from "../../utils";
 import { clothOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
@@ -70,7 +70,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   let total_warps: number = 0;
   const all_warps = all_drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
-  total_warps = lcm(all_warps);
+  total_warps = lcm(all_warps, defaults.lcm_timeout);
 
   const profile_draft_map = op_inputs
     .map(el => {

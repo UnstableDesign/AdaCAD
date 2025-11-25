@@ -1,6 +1,6 @@
 import { Draft, warps, wefts, getCol, getCellValue, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { lcm, getMaxWarps } from "../../utils";
+import { lcm, getMaxWarps, defaults } from "../../utils";
 import { clothOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
@@ -68,7 +68,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   let total_warps: number = 0;
   const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
-  if (factor_in_repeats === 1) total_warps = lcm(all_warps);
+  if (factor_in_repeats === 1) total_warps = lcm(all_warps, defaults.lcm_timeout);
   else total_warps = getMaxWarps(drafts);
 
   const pattern = new Sequence.TwoD();

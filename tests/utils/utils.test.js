@@ -269,10 +269,10 @@ test('testing least common multiple', () => {
   let arr_c = [12, 12, 12, 12];
   let arr_d = [10];
 
-  expect(lcm(arr_c)).toBe(12);
-  expect(lcm(arr_b)).toBe(1764);
-  expect(lcm(arr_a)).toBe(168);
-  expect(lcm(arr_d)).toBe(10);
+  expect(lcm(arr_c, 1000)).toBe(12);
+  expect(lcm(arr_b, 1000)).toBe(1764);
+  expect(lcm(arr_a, 1000)).toBe(168);
+  expect(lcm(arr_d, 1000)).toBe(10);
 
 });
 

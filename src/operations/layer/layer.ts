@@ -1,6 +1,6 @@
 import { Draft, warps, wefts, initDraftFromDrawdown, generateMappingFromPattern } from "../../draft";
 import { Sequence } from "../../sequence";
-import { lcm } from "../../utils";
+import { defaults, lcm } from "../../utils";
 import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, parseDraftNames } from "../operations";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
@@ -50,8 +50,8 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   const composite = new Sequence.TwoD().setBlank(2
   );
-  const ends = lcm(drafts.map(el => warps(el.drawdown))) * drafts.length;
-  const pics = lcm(drafts.map(el => wefts(el.drawdown))) * drafts.length;
+  const ends = lcm(drafts.map(el => warps(el.drawdown)), defaults.lcm_timeout) * drafts.length;
+  const pics = lcm(drafts.map(el => wefts(el.drawdown)), defaults.lcm_timeout) * drafts.length;
 
 
 

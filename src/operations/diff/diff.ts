@@ -2,7 +2,7 @@ import { initDraftFromDrawdown, createCell, wefts, warps, updateWeftSystemsAndSh
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
-import { lcm } from "../../utils";
+import { defaults, lcm } from "../../utils";
 import { computeOp } from "../categories";
 
 const name = "diff";
@@ -91,8 +91,8 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   let width, height = 0;
 
   if (repeat) {
-    height = lcm([wefts(draft_a.drawdown), wefts(draft_b.drawdown)]);
-    width = lcm([warps(draft_a.drawdown), warps(draft_b.drawdown)]);
+    height = lcm([wefts(draft_a.drawdown), wefts(draft_b.drawdown)], defaults.lcm_timeout);
+    width = lcm([warps(draft_a.drawdown), warps(draft_b.drawdown)], defaults.lcm_timeout);
   } else {
     height = Math.max(wefts(draft_b.drawdown) + shift_pics, wefts(draft_a.drawdown));
     width = Math.max(warps(draft_b.drawdown) + shift_ends, warps(draft_a.drawdown));

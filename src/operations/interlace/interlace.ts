@@ -1,6 +1,6 @@
 import { wefts, makeSystemsUnique, warps, initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { lcm, getMaxWarps } from "../../utils";
+import { lcm, getMaxWarps, defaults } from "../../utils";
 import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
@@ -63,7 +63,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   if (drafts.length == 0) return Promise.resolve([]);
 
 
-  const total_wefts = lcm(drafts.map(el => wefts(el.drawdown))) * drafts.length;
+  const total_wefts = lcm(drafts.map(el => wefts(el.drawdown)), defaults.lcm_timeout) * drafts.length;
 
 
   const make_unique = drafts.reduce((acc: Array<Array<number>>, draft) => {
@@ -76,7 +76,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   let total_warps;
   if (repeat) {
-    total_warps = lcm(drafts.map(el => warps(el.drawdown)));
+    total_warps = lcm(drafts.map(el => warps(el.drawdown)), defaults.lcm_timeout);
   } else {
     total_warps = getMaxWarps(drafts);
   }

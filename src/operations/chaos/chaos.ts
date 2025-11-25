@@ -2,7 +2,7 @@ import { warps, wefts, flipDraft, cellToSequenceVal, initDraftFromDrawdown, upda
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
-import { lcm } from "../../utils";
+import { defaults, lcm } from "../../utils";
 import { clothOp } from "../categories";
 
 
@@ -63,10 +63,10 @@ const perform = async (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) 
 
 
   const all_warps = input_drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
-  const total_warps = lcm(all_warps);
+  const total_warps = lcm(all_warps, defaults.lcm_timeout);
 
   const all_wefts = input_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
-  const total_wefts = lcm(all_wefts);
+  const total_wefts = lcm(all_wefts, defaults.lcm_timeout);
   const num_inputs = input_drafts.length;
 
   const draft_indexing_fns = [];

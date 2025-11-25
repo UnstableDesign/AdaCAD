@@ -1,6 +1,6 @@
 import { Draft, wefts, getCol, warps, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
-import { parseRegex, lcm, filterToUniqueValues } from "../../utils";
+import { parseRegex, lcm, filterToUniqueValues, defaults } from "../../utils";
 import { clothOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, reduceToStaticInputs } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
@@ -69,7 +69,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   let total_wefts: number = 0;
   const all_wefts = all_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
-  total_wefts = lcm(all_wefts);
+  total_wefts = lcm(all_wefts, defaults.lcm_timeout);
 
 
   const profile_draft_map = op_inputs

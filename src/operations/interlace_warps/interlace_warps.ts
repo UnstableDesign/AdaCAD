@@ -2,7 +2,7 @@ import { warps, wefts, getCol, initDraftFromDrawdown, updateWeftSystemsAndShuttl
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
-import { lcm, getMaxWefts } from "../../utils";
+import { lcm, getMaxWefts, defaults } from "../../utils";
 import { compoundOp } from "../categories";
 
 const name = "interlace_warps";
@@ -66,11 +66,11 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   if (drafts.length == 0) return Promise.resolve([]);
 
 
-  const total_warps = lcm(drafts.map(el => warps(el.drawdown))) * drafts.length;
+  const total_warps = lcm(drafts.map(el => warps(el.drawdown)), defaults.lcm_timeout) * drafts.length;
 
   let total_wefts;
   if (repeat) {
-    total_wefts = lcm(drafts.map(el => wefts(el.drawdown)));
+    total_wefts = lcm(drafts.map(el => wefts(el.drawdown)), defaults.lcm_timeout);
   } else {
     total_wefts = getMaxWefts(drafts);
   }

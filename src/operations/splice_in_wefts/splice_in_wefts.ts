@@ -1,6 +1,6 @@
 import { Draft, wefts, warps, makeSystemsUnique, getHeddle, initDraftFromDrawdown, updateWarpSystemsAndShuttles } from "../../draft";
 import { Sequence } from "../../sequence";
-import { lcm, getMaxWarps } from "../../utils";
+import { lcm, getMaxWarps, defaults } from "../../utils";
 import { compoundOp } from "../categories";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
@@ -101,7 +101,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     } else {
       factors = [wefts(receiving_draft.drawdown), wefts(splicing_draft.drawdown) * (pics_btwn + 1)];
     }
-    total_wefts = lcm(factors);
+    total_wefts = lcm(factors, defaults.lcm_timeout);
   }
   else {
     //sums the wefts from all the drafts
@@ -112,7 +112,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   let total_warps: number = 0;
   const all_warps = all_drafts.map(el => warps((el) ? el.drawdown : [])).filter(el => el > 0);
-  if (repeat === 1) total_warps = lcm(all_warps);
+  if (repeat === 1) total_warps = lcm(all_warps, defaults.lcm_timeout);
   else total_warps = getMaxWarps(all_drafts);
 
 
