@@ -2,6 +2,8 @@ import { Cell, getCellValue, Draft, wefts, warps, Drawdown, SystemList } from ".
 import { Loom, LoomSettings } from "../loom";
 import { MaterialMap } from "../material";
 import { OperationInlet } from "../operations";
+import { createCell } from "../draft/cell";
+import { initDraftFromDrawdown } from "../draft/draft";
 
 
 
@@ -748,7 +750,6 @@ export function makeValidSystemList(input_systems: SystemList, original_systems:
  * @returns a Drawdown object
  */
 export function parseStringToDrawdown(drawdownString: string): Drawdown {
-  const { createCell } = require("../draft/cell");
 
   const lines = drawdownString.split('\n');
   const drawdown: Drawdown = [];
@@ -788,7 +789,6 @@ export function parseStringToDrawdown(drawdownString: string): Drawdown {
  * @returns a Draft object
  */
 export function createDraftFromString(drawdownString: string, gen_name?: string, ud_name?: string): Draft {
-  const { initDraftFromDrawdown } = require("../draft/draft");
 
   const drawdown = parseStringToDrawdown(drawdownString);
   const draft = initDraftFromDrawdown(drawdown);

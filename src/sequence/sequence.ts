@@ -506,10 +506,12 @@ export namespace Sequence {
 
       //first, make the seqences of compatible sizes
       let total_wefts: number = 0;
-      total_wefts = lcm([this.wefts(), seq.wefts()]);
+      total_wefts = lcm([this.wefts(), seq.wefts()], defaults.lcm_timeout);
+      if (total_wefts !== -1) total_wefts = Math.max(this.wefts(), seq.wefts());
 
       let total_warps: number = 0;
-      total_warps = lcm([this.warps(), seq.warps()]);
+      total_warps = lcm([this.warps(), seq.warps()], defaults.lcm_timeout);
+      if (total_warps !== -1) total_warps = Math.max(this.warps(), seq.warps());
 
       this.fill(total_warps, total_wefts);
       seq.fill(total_warps, total_wefts);
@@ -745,7 +747,9 @@ export namespace Sequence {
     unshiftWarpSequence(seq: Array<number>) {
       const height = this.state.length;
       if (this.state.length > 0 && height != seq.length) {
-        const lcm_val = lcm([height, seq.length]);
+        let lcm_val = lcm([height, seq.length], defaults.lcm_timeout);
+        if (lcm_val !== -1) lcm_val = Math.max(height, seq.length);
+
         const width = this.state[0].length;
 
         for (let j = 0; j < width; j++) {
@@ -784,7 +788,8 @@ export namespace Sequence {
       if (this.state.length > 0 && this.state[0].length !== seq.length) {
         const width = this.state[0].length;
 
-        const lcm_val = lcm([width, seq.length]);
+        let lcm_val = lcm([width, seq.length], defaults.lcm_timeout);
+        if (lcm_val !== -1) lcm_val = Math.max(width, seq.length);
 
         this.state.forEach((row, ndx) => {
           this.state[ndx] = new OneD(row).resize(lcm_val).val();
@@ -808,7 +813,8 @@ export namespace Sequence {
       if (this.state.length > 0 && this.state[0].length !== seq.length) {
         const width = this.state[0].length;
 
-        const lcm_val = lcm([width, seq.length]);
+        let lcm_val = lcm([width, seq.length], defaults.lcm_timeout);
+        if (lcm_val !== -1) lcm_val = Math.max(width, seq.length);
 
         this.state.forEach((row, ndx) => {
           this.state[ndx] = new OneD(row).resize(lcm_val).val();
