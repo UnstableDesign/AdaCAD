@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Loom, LoomSettings } from 'adacad-drafting-lib';
-import { Draft, getCellValue, getDraftAsImage, warps, wefts } from 'adacad-drafting-lib/draft';
+import { Draft, getCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { CanvasList, RenderingFlags } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
@@ -557,30 +557,159 @@ export class RenderService {
     }
 
     //a workaround that goes back to the canvas to render, since it's better for drawing
-    if (rf.use_floats == false && rf.use_colors == false) {
-      return this.drawDrawdownAsCanvas(draft, canvas, cell_size, pixel_ratio, rf);
+    return this.drawDrawdownAsCanvas(draft, canvas, cell_size, pixel_ratio, rf);
+
+
+    // const draft_cx: any = canvas.getContext("2d");
+
+    // if (draft === null || draft.drawdown == null) {
+    //   canvas.width = 0;
+    //   canvas.height = 0;
+    //   canvas.style.width = "0px";
+    //   canvas.style.height = "0px";
+    //   return Promise.resolve('draft or drawdown was null');
+    // } else {
+
+    //   canvas.width = warps(draft.drawdown) * cell_size * pixel_ratio;
+    //   canvas.height = wefts(draft.drawdown) * cell_size * pixel_ratio;
+    //   canvas.style.width = (warps(draft.drawdown) * cell_size) + "px";
+    //   canvas.style.height = (wefts(draft.drawdown) * cell_size) + "px";
+
+
+    //   let img = getDraftAsImage(draft, cell_size * pixel_ratio, rf.use_floats, rf.use_colors, this.ms.getShuttles());
+    //   draft_cx.putImageData(img, 0, 0);
+    //   return Promise.resolve('');
+    // }
+  }
+
+  drawAsDraft(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+
+    const unit = cell_size * pixel_ratio;
+    for (let i = 0; i < wefts(draft.drawdown); i++) {
+      for (let j = 0; j < warps(draft.drawdown); j++) {
+        switch (getCellValue(draft.drawdown[i][j])) {
+          case true:
+            draft_cx.fillStyle = "black";
+            break;
+          case false:
+            draft_cx.fillStyle = "white";
+            break;
+          default:
+            draft_cx.fillStyle = "transparent";
+            break;
+        }
+
+        draft_cx.strokeStyle = "#333333";
+        draft_cx.lineWidth = 1;
+        draft_cx.strokeRect(j * unit, i * unit, unit, unit);
+        draft_cx.fillRect(j * unit, i * unit, unit, unit);
+      }
+    }
+    return Promise.resolve('');
+
+
+  }
+
+  drawAsCloth(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+
+    const unit = cell_size * pixel_ratio;
+    let margin = 2;
+    if (unit <= 4) {
+      margin = 1;
+    } else if (unit <= 2) {
+      margin = 0;
+    }
+    let yarn = unit - (2 * margin)
+    //draw warps as a base color
+    for (let j = 0; j < warps(draft.drawdown); j++) {
+      let color = this.ms.getColor(draft.colShuttleMapping[j]);
+      draft_cx.fillStyle = color;
+      draft_cx.fillRect(j * unit + margin, 0, yarn, unit * wefts(draft.drawdown));
     }
 
-    const draft_cx: any = canvas.getContext("2d");
+    for (let i = 0; i < wefts(draft.drawdown); i++) {
+      for (let j = 0; j < warps(draft.drawdown); j++) {
+        let cell_val = getCellValue(draft.drawdown[i][j]);
+        let color = this.ms.getColor(draft.rowShuttleMapping[i]);
+        draft_cx.fillStyle = color;
+        if (cell_val == true) {
+          //add the traces of the weft to the left and right
+          draft_cx.fillRect(j * unit, i * unit + margin, margin, yarn);
+          draft_cx.fillRect(j * unit + (margin + yarn), i * unit + margin, margin, yarn);
 
-    if (draft === null || draft.drawdown == null) {
-      canvas.width = 0;
-      canvas.height = 0;
-      canvas.style.width = "0px";
-      canvas.style.height = "0px";
-      return Promise.resolve('draft or drawdown was null');
-    } else {
-
-      canvas.width = warps(draft.drawdown) * cell_size * pixel_ratio;
-      canvas.height = wefts(draft.drawdown) * cell_size * pixel_ratio;
-      canvas.style.width = (warps(draft.drawdown) * cell_size) + "px";
-      canvas.style.height = (wefts(draft.drawdown) * cell_size) + "px";
-
-
-      let img = getDraftAsImage(draft, cell_size * pixel_ratio, rf.use_floats, rf.use_colors, this.ms.getShuttles());
-      draft_cx.putImageData(img, 0, 0);
-      return Promise.resolve('');
+        } else if (cell_val == false) {
+          draft_cx.fillRect(j * unit - margin, i * unit + margin, unit + margin * 2, yarn);
+        }
+      }
     }
+    return Promise.resolve('');
+  }
+
+  drawAsFloats(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+    draft_cx.globalAlpha = 1;
+    const unit = cell_size * pixel_ratio;
+    let margin = 2;
+    if (unit <= 4) {
+      margin = 1;
+    } else if (unit <= 2) {
+      margin = 0;
+    }
+    margin = 0;
+    let yarn = unit - (2 * margin);
+    draft_cx.strokeStyle = "#000000";
+    draft_cx.lineWidth = 1;
+    draft_cx.fillStyle = "#ffffff";
+    //draw warps as a base color
+    for (let j = 0; j < warps(draft.drawdown); j++) {
+      let color = this.ms.getColor(draft.colShuttleMapping[j]);
+
+      draft_cx.fillRect(j * unit + margin, 0, yarn, unit * wefts(draft.drawdown));
+      draft_cx.strokeRect(j * unit + margin, 0, yarn, unit * wefts(draft.drawdown));
+    }
+
+    for (let i = 0; i < wefts(draft.drawdown); i++) {
+      for (let j = 0; j < warps(draft.drawdown); j++) {
+        let cell_val = getCellValue(draft.drawdown[i][j]);
+        if (cell_val == false) {
+
+          draft_cx.fillRect(j * unit - margin - 1, i * unit + margin, unit + margin * 2 + 2, yarn);
+          draft_cx.beginPath(); // Start a new path
+
+          draft_cx.moveTo(j * unit - margin, i * unit + margin); // Move the pen to (30, 50)
+          draft_cx.lineTo(j * unit - margin + unit, i * unit + margin); // Draw a line to (150, 100)
+          draft_cx.stroke(); // Render the path
+          draft_cx.closePath();
+
+          draft_cx.moveTo(j * unit - margin, i * unit + margin + yarn); // Move the pen to (30, 50)
+          draft_cx.lineTo(j * unit - margin + unit, i * unit + margin + yarn); // Draw a line to (150, 100)
+          draft_cx.stroke(); // Render the path
+          draft_cx.closePath();
+
+        }
+      }
+    }
+
+    for (let i = 0; i < wefts(draft.drawdown); i++) {
+      for (let j = 0; j < warps(draft.drawdown); j++) {
+        let cell_val = getCellValue(draft.drawdown[i][j]);
+        if (cell_val == true) {
+
+          draft_cx.beginPath(); // Start a new path
+          draft_cx.moveTo(j * unit + margin, i * unit); // Move the pen to (30, 50)
+          draft_cx.lineTo(j * unit + margin, i * unit + unit); // Draw a line to (150, 100)
+          draft_cx.stroke(); // Render the path
+          draft_cx.closePath();
+
+          draft_cx.beginPath(); // Start a new path
+          draft_cx.moveTo(j * unit + margin + yarn, i * unit); // Move the pen to (30, 50)
+          draft_cx.lineTo(j * unit + margin + yarn, i * unit + unit); // Draw a line to (150, 100)
+          draft_cx.stroke(); // Render the path
+          draft_cx.closePath();
+
+        }
+      }
+    }
+    return Promise.resolve('');
   }
 
   /**
@@ -608,33 +737,19 @@ export class RenderService {
     canvas.height = wefts(draft.drawdown) * cell_size * pixel_ratio;
     canvas.style.width = (warps(draft.drawdown) * cell_size) + "px";
     canvas.style.height = (wefts(draft.drawdown) * cell_size) + "px";
+    draft_cx.fillStyle = "#F5F5F5";
+    draft_cx.fillRect(0, 0, canvas.width, canvas.height);
 
+    if (!rf.use_colors && !rf.use_floats) {
 
-
-
-    for (let i = 0; i < wefts(draft.drawdown); i++) {
-      for (let j = 0; j < warps(draft.drawdown); j++) {
-        switch (getCellValue(draft.drawdown[i][j])) {
-          case true:
-            draft_cx.fillStyle = "black";
-            break;
-          case false:
-            draft_cx.fillStyle = "white";
-            break;
-          default:
-            draft_cx.fillStyle = "transparent";
-            break;
-        }
-
-        draft_cx.strokeStyle = "#333333";
-        draft_cx.lineWidth = 1;
-        draft_cx.strokeRect(j * cell_size * pixel_ratio, i * cell_size * pixel_ratio, cell_size * pixel_ratio, cell_size * pixel_ratio);
-        draft_cx.fillRect(j * cell_size * pixel_ratio, i * cell_size * pixel_ratio, cell_size * pixel_ratio, cell_size * pixel_ratio);
-      }
+      return this.drawAsDraft(draft, draft_cx, cell_size, pixel_ratio, rf);
+    } else if (rf.use_floats == true && rf.use_colors == false) {
+      return this.drawAsFloats(draft, draft_cx, cell_size, pixel_ratio, rf);
+    } else {
+      return this.drawAsCloth(draft, draft_cx, cell_size, pixel_ratio, rf);
     }
 
 
-    return Promise.resolve('');
   }
 
 
