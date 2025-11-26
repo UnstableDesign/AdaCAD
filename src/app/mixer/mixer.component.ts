@@ -66,6 +66,7 @@ export class MixerComponent {
 
   @Input() is_fullscreen: boolean;
   @Output() onOpenInEditor: any = new EventEmitter();
+  @Output() onPerformOperationError: any = new EventEmitter();
 
 
   origin_options: any = null;
@@ -446,7 +447,9 @@ export class MixerComponent {
   }
 
 
-
+  public postOperationErrorMessage($event: any) {
+    this.onPerformOperationError.emit($event);
+  }
 
   public notesChanged(e: any) {
     console.log(e);

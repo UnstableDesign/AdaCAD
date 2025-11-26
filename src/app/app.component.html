@@ -138,7 +138,7 @@
 
       <app-mixer class="mixer-container" [class.hide]="selected_editor_mode !== 'mixer'"
         [class.show]="selected_editor_mode === 'mixer'" #mixer id="mixer" cdkScrollable
-        (onOpenInEditor)="openInEditor($event)">
+        (onOpenInEditor)="openInEditor($event)" (onPerformOperationError)="postOperationErrorMessage($event)">
       </app-mixer>
 
 

@@ -2,14 +2,13 @@ import { DraftCellColor } from "./datatypes";
 
 export const defaults = {
   editor: 'mixer',
-  max_simulation_area: 10000,
   draft_detail_cell_size: 20,
   draft_name: 'drafty',
   row_shuttle: 1,
   row_system: 0,
   col_shuttle: 0,
   col_system: 0,
-  canvas_width: 16384,
+  canvas_width: 16384, //dictated by the canvas element on different browsers
   canvas_height: 16384,
   array_buffer_size: 1073741824, //~1GB
   inlet_button_width: 50,
@@ -22,7 +21,8 @@ export const defaults = {
   selected_origin_option: 3,
   default_material_diameter: 1,
   hide_mixer_drafts: false,
-  oversize_dim_threshold: 250,
+
+
   loom_settings: {
     frames: 8,
     treadles: 8,
@@ -40,8 +40,14 @@ export const defaults = {
   zoom_ndx_viewer: 10,
   show_advanced_operations: false,
   share_url_base: 'https://adacad.org/?share=',
+
+  //THRESHOLDS
   force_jacquard_threshold: 10000,
+  oversize_dim_threshold: 250,
+  max_simulation_area: 10000,
+  max_draft_input_area: 10000,
   largest_lcm_factor: 500,
+
   //SIM DEFAULTS
   wefts_as_written: false,
   layer_spacing: 10,

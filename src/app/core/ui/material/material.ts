@@ -1,8 +1,6 @@
-import { CdkScrollable } from '@angular/cdk/scrolling';
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
-import { MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelDescription, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -20,7 +18,7 @@ import { ViewerService } from '../../provider/viewer.service';
   selector: 'app-material',
   templateUrl: './material.html',
   styleUrls: ['./material.scss'],
-  imports: [CdkScrollable, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatSuffix, MatButton, MatMenuTrigger, MatMenu, MatDialogActions, MatDialogClose]
+  imports: [MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatSuffix, MatButton, MatMenuTrigger, MatMenu]
 })
 
 

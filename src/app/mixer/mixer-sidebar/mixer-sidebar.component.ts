@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, Output, ViewChild, inject } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatDivider } from '@angular/material/divider';
-import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { MatAccordion, MatExpansionPanel } from '@angular/material/expansion';
 import { MatTooltip } from '@angular/material/tooltip';
 import { OperationSearchComponent } from '../operation-search/operation-search.component';
 import { OperationSearchModal } from '../operation-search/operation-search.modal';
@@ -11,7 +10,7 @@ import { OperationSearchModal } from '../operation-search/operation-search.modal
   selector: 'app-mixer-sidebar',
   templateUrl: './mixer-sidebar.component.html',
   styleUrls: ['./mixer-sidebar.component.scss'],
-  imports: [MatAccordion, MatIconButton, MatExpansionPanel, MatExpansionPanelHeader, MatDivider, MatExpansionPanelTitle, MatButton, MatTooltip, OperationSearchComponent],
+  imports: [MatAccordion, MatIconButton, MatExpansionPanel, MatButton, MatTooltip, OperationSearchComponent],
   standalone: true
 })
 export class MixerSidebarComponent {

@@ -1,14 +1,11 @@
 import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
+import { MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatSidenav, MatSidenavContainer } from '@angular/material/sidenav';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
-import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
@@ -27,7 +24,7 @@ import { SimulationComponent } from './simulation/simulation.component';
   selector: 'app-viewer',
   templateUrl: './viewer.component.html',
   styleUrls: ['./viewer.component.scss'],
-  imports: [ReactiveFormsModule, MatIconButton, MatButtonToggleModule, MatExpansionModule, MatFormFieldModule, MatButton, MatTooltip, DraftRenderingComponent, SimulationComponent, MatToolbar, MatSlider, MatSliderThumb, MatInput, MatMiniFabButton, MatSidenavContainer, MatSidenav]
+  imports: [ReactiveFormsModule, MatIconButton, MatButtonToggleModule, MatExpansionModule, MatFormFieldModule, MatTooltip, DraftRenderingComponent, SimulationComponent, MatSlider, MatSliderThumb, MatMiniFabButton]
 })
 export class ViewerComponent {
   private tree = inject(TreeService);

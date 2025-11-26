@@ -8,32 +8,57 @@ import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from './materials.service';
 import { WorkspaceService } from './workspace.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+interface RenderQueueItem {
+  type: 'render';
+  draft: Draft;
+  loom: Loom;
+  loom_settings: LoomSettings;
+  canvases: CanvasList;
+  rf: RenderingFlags;
+  onComplete: () => void;
+}
+
+interface ScaleQueueItem {
+  type: 'scale';
+  draft: Draft;
+  loom: Loom;
+  loom_settings: LoomSettings;
+  canvases: CanvasList;
+  rf: RenderingFlags;
+  scale: number;
+  onComplete: () => void;
+}
 
 /**
  * this service manages drawing the draft and looms across the different components including: 
  * editor, viewer, and mixer. 
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class RenderService {
   private ss = inject(SystemsService);
   private ms = inject(MaterialsService);
   private ws = inject(WorkspaceService);
 
-  // view_frames: boolean;
-
   current_view: string;
 
   view_front: boolean;
-
-  // visibleRows: Array<number>; 
 
   zoom: number;
 
   draft_cell_size: number;
 
   pixel_ratio: number;
+
+
+  //force all the drafts into a queue for rendering. This is used to prevent the rendering from being blocked by large drafts.
+  private queue: Array<RenderQueueItem | ScaleQueueItem> = [];
+  private isProcessing: boolean = false;
+  private queueProcessorRunning: boolean = false;
+
+
+
 
 
 
@@ -46,39 +71,79 @@ export class RenderService {
     this.current_view = 'draft';
     this.view_front = true;
     this.pixel_ratio = window.devicePixelRatio || 1;
+    this.queue = [];
 
 
+    this.startQueueProcessor();
 
   }
 
 
+  public addToQueue(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags, type: 'render' | 'scale', onComplete: () => void, scale?: number) {
+    if (type == 'render') {
+      this.queue.push({ type: 'render', draft, loom, loom_settings, canvases, rf, onComplete });
+      console.log(`[QUEUE] Added render task for draft ${draft.id} to queue. Queue length: ${this.queue.length}`);
+    } else {
+      this.queue.push({ type: 'scale', draft, loom, loom_settings, canvases, rf, scale, onComplete });
+      console.log(`[QUEUE] Added scale task for draft ${draft.id} to queue. Queue length: ${this.queue.length}`);
+    }
+  }
+
+  /**
+   * Starts the queue processor that continuously checks for and processes queue items
+   * This runs indefinitely, checking for new items even when the queue is empty
+   */
+  private startQueueProcessor() {
+    if (this.queueProcessorRunning) {
+      return; // Already running
+    }
+
+    this.queueProcessorRunning = true;
+    console.log('[QUEUE] Starting queue processor');
+    this.processQueue();
+  }
 
 
 
   /**
-   * given the ndx, get the next visible row or -1 if there isn't a next
-   * @param ndx 
+   * Continuously processes the queue, one item at a time
+   * Keeps running even when queue is empty, checking periodically for new items
    */
-  // getNextVisibleRow(ndx: number) : number {
+  private async processQueue() {
+    while (true) {
+      if (this.queue.length > 0 && !this.isProcessing) {
+        this.isProcessing = true;
+        const item = this.queue.shift();
 
-  //   const next: number = ndx ++;
-  //   if(next >= this.visibleRows.length) return -1;
+        if (item) {
+          console.log(`[QUEUE] Processing ${item.type} task for draft ${item.draft.id}. Queue remaining: ${this.queue.length}`);
+          const startTime = performance.now();
 
-  //   return this.visibleRows[next];
+          try {
+            if (item.type == 'render') {
+              await this.drawDraft(item.draft, item.loom, item.loom_settings, item.canvases, item.rf);
+            } else {
+              await this.rescaleCanvases(item.draft, item.loom, item.loom_settings, item.scale, item.canvases);
+            }
 
-  // }
+            const duration = performance.now() - startTime;
+            console.log(`[QUEUE] Completed ${item.type} task for draft ${item.draft.id} in ${duration.toFixed(2)}ms`);
+            //item.onComplete();
+          } catch (error) {
+            console.error(`[QUEUE] Error processing ${item.type} task for draft ${item.draft.id}:`, error);
+            // item.onComplete(); // Still call onComplete even on error
+          }
+        }
+
+        this.isProcessing = false;
+      } else {
+        // Queue is empty or already processing, wait a bit before checking again
+        await new Promise(resolve => setTimeout(resolve, 10)); // Check every 10ms
+      }
+    }
+  }
 
 
-
-  // updateVisible(draft: Draft) {
-
-  //   this.visibleRows = 
-  //     draft.rowSystemMapping.map((val, ndx) => {
-  //       return (this.ss.weftSystemIsVisible(val)) ? ndx : -1;  
-  //     })
-  //     .filter(el => el !== -1);
-
-  // }
 
 
 
@@ -582,10 +647,20 @@ export class RenderService {
     // }
   }
 
-  drawAsDraft(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+  private drawAsDraft(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+    const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
+    const totalRows = wefts(draft.drawdown);
+    console.log(`[RENDER] drawAsDraft START: ${totalCells} cells, ${totalRows} rows`);
+    const startTime = performance.now();
 
     const unit = cell_size * pixel_ratio;
     for (let i = 0; i < wefts(draft.drawdown); i++) {
+      // Log progress every 10% for large drafts
+      if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
+        const progress = ((i / totalRows) * 100).toFixed(0);
+        console.log(`[RENDER] drawAsDraft progress: ${progress}% (row ${i}/${totalRows})`);
+      }
+
       for (let j = 0; j < warps(draft.drawdown); j++) {
         switch (getCellValue(draft.drawdown[i][j])) {
           case true:
@@ -605,12 +680,19 @@ export class RenderService {
         draft_cx.fillRect(j * unit, i * unit, unit, unit);
       }
     }
+
+    const duration = performance.now() - startTime;
+    console.log(`[RENDER] drawAsDraft COMPLETE: ${totalCells} cells drawn in ${duration.toFixed(2)}ms`);
     return Promise.resolve('');
 
 
   }
 
-  drawAsCloth(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+  private drawAsCloth(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+    const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
+    const totalRows = wefts(draft.drawdown);
+    console.log(`[RENDER] drawAsCloth START: ${totalCells} cells, ${totalRows} rows`);
+    const startTime = performance.now();
 
     const unit = cell_size * pixel_ratio;
     let margin = 2;
@@ -628,6 +710,12 @@ export class RenderService {
     }
 
     for (let i = 0; i < wefts(draft.drawdown); i++) {
+      // Log progress every 10% for large drafts
+      if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
+        const progress = ((i / totalRows) * 100).toFixed(0);
+        console.log(`[RENDER] drawAsCloth progress: ${progress}% (row ${i}/${totalRows})`);
+      }
+
       for (let j = 0; j < warps(draft.drawdown); j++) {
         let cell_val = getCellValue(draft.drawdown[i][j]);
         let color = this.ms.getColor(draft.rowShuttleMapping[i]);
@@ -642,10 +730,18 @@ export class RenderService {
         }
       }
     }
+
+    const duration = performance.now() - startTime;
+    console.log(`[RENDER] drawAsCloth COMPLETE: ${totalCells} cells drawn in ${duration.toFixed(2)}ms`);
     return Promise.resolve('');
   }
 
-  drawAsFloats(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+  private drawAsFloats(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+    const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
+    const totalRows = wefts(draft.drawdown);
+    console.log(`[RENDER] drawAsFloats START: ${totalCells} cells, ${totalRows} rows`);
+    const startTime = performance.now();
+
     draft_cx.globalAlpha = 1;
     const unit = cell_size * pixel_ratio;
     let margin = 2;
@@ -668,6 +764,12 @@ export class RenderService {
     }
 
     for (let i = 0; i < wefts(draft.drawdown); i++) {
+      // Log progress every 10% for large drafts
+      if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
+        const progress = ((i / totalRows) * 100).toFixed(0);
+        console.log(`[RENDER] drawAsFloats progress: ${progress}% (row ${i}/${totalRows})`);
+      }
+
       for (let j = 0; j < warps(draft.drawdown); j++) {
         let cell_val = getCellValue(draft.drawdown[i][j]);
         if (cell_val == false) {
@@ -709,6 +811,9 @@ export class RenderService {
         }
       }
     }
+
+    const duration = performance.now() - startTime;
+    console.log(`[RENDER] drawAsFloats COMPLETE: ${totalCells} cells drawn in ${duration.toFixed(2)}ms`);
     return Promise.resolve('');
   }
 
@@ -721,7 +826,11 @@ export class RenderService {
    * @param rf 
    * @returns 
    */
-  drawDrawdownAsCanvas(draft: Draft, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+  private drawDrawdownAsCanvas(draft: Draft, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+    const size = `${warps(draft.drawdown)}x${wefts(draft.drawdown)}`;
+    const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
+    console.log(`[RENDER] drawDrawdownAsCanvas: Draft ${draft.id} (${size}), ${totalCells} cells`);
+    const drawStartTime = performance.now();
 
     /**
      * get draft as image seems to consider the rotation and canvas doesn't. 
@@ -741,12 +850,26 @@ export class RenderService {
     draft_cx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (!rf.use_colors && !rf.use_floats) {
-
-      return this.drawAsDraft(draft, draft_cx, cell_size, pixel_ratio, rf);
+      console.log(`[RENDER] Calling drawAsDraft for draft ${draft.id} - ${totalCells} cells to draw`);
+      return this.drawAsDraft(draft, draft_cx, cell_size, pixel_ratio, rf).then(result => {
+        const duration = performance.now() - drawStartTime;
+        console.log(`[RENDER] drawAsDraft completed for draft ${draft.id} in ${duration.toFixed(2)}ms`);
+        return result;
+      });
     } else if (rf.use_floats == true && rf.use_colors == false) {
-      return this.drawAsFloats(draft, draft_cx, cell_size, pixel_ratio, rf);
+      console.log(`[RENDER] Calling drawAsFloats for draft ${draft.id} - ${totalCells} cells to draw`);
+      return this.drawAsFloats(draft, draft_cx, cell_size, pixel_ratio, rf).then(result => {
+        const duration = performance.now() - drawStartTime;
+        console.log(`[RENDER] drawAsFloats completed for draft ${draft.id} in ${duration.toFixed(2)}ms`);
+        return result;
+      });
     } else {
-      return this.drawAsCloth(draft, draft_cx, cell_size, pixel_ratio, rf);
+      console.log(`[RENDER] Calling drawAsCloth for draft ${draft.id} - ${totalCells} cells to draw`);
+      return this.drawAsCloth(draft, draft_cx, cell_size, pixel_ratio, rf).then(result => {
+        const duration = performance.now() - drawStartTime;
+        console.log(`[RENDER] drawAsCloth completed for draft ${draft.id} in ${duration.toFixed(2)}ms`);
+        return result;
+      });
     }
 
 
@@ -818,17 +941,23 @@ export class RenderService {
    * draw whatever is stored in the draft object to the screen
    * @returns 
    */
-  async drawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
+  private async drawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
+    console.log(`[RENDER] START: drawDraft for draft ${draft.id} (${warps(draft.drawdown)}x${wefts(draft.drawdown)})`);
+    const renderStartTime = performance.now();
+
     let fns = [];
     // set the width and height
     // let pixel_ratio = this.getPixelRatio(canvases.drawdown);
-    let out_format = (!rf.use_floats && !rf.use_colors) ? 'canvas' : 'array_buffer';
-    let cell_size = this.calculateCellSize(draft, out_format);
+    let cell_size = this.calculateCellSize(draft, 'canvas');
+    console.log(`[RENDER] Cell size: ${cell_size}`);
 
-
-    if (draft.drawdown.length == 0) return this.clear(canvases);
+    if (draft.drawdown.length == 0) {
+      console.log(`[RENDER] RETURN: Draft ${draft.id} has empty drawdown`);
+      return this.clear(canvases);
+    }
 
     if (rf.u_drawdown) {
+      console.log(`[RENDER] Drawing drawdown for draft ${draft.id} - THIS MAY HANG FOR LARGE DRAFTS`);
       fns = fns.concat(this.drawDrawdown(draft, canvases.drawdown, cell_size, this.pixel_ratio, rf));
     }
 
@@ -853,6 +982,8 @@ export class RenderService {
     }
 
     return Promise.all(fns).then(errs => {
+      const duration = performance.now() - renderStartTime;
+      console.log(`[RENDER] COMPLETE: drawDraft for draft ${draft.id} finished in ${duration.toFixed(2)}ms`);
 
       errs.forEach(el => {
         if (el !== '') console.error(el);
@@ -874,12 +1005,9 @@ export class RenderService {
    * @param factor 
    * @param canvases 
    */
-  rescaleCanvases(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList, out_format: string) {
+  private async rescaleCanvases(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList): Promise<boolean> {
     // let pixel_ratio = this.getPixelRatio(canvases.drawdown);
-    let cell_size = this.calculateCellSize(draft, out_format);
-
-
-    // console.log("rescale in render service (factor, cell_size)", factor, cell_size )
+    let cell_size = this.calculateCellSize(draft, 'canvas');
 
 
     canvases.drawdown.style.width = (warps(draft.drawdown) * cell_size * factor) + "px";
@@ -914,7 +1042,7 @@ export class RenderService {
     canvases.weft_systems.style.height = (draft.rowShuttleMapping.length * cell_size) * factor + "px";
     canvases.weft_systems.style.width = defaults.draft_detail_cell_size * factor + "px";
 
-
+    return Promise.resolve(true);
 
   }
 
@@ -927,7 +1055,7 @@ export class RenderService {
    * @param canvas 
    * @returns 
    */
-  getInitialTransform(container: HTMLElement, canvas: HTMLCanvasElement): number {
+  private getInitialTransform(container: HTMLElement, canvas: HTMLCanvasElement): number {
     /* now recalc the scale based on the draft size: */
     //  let div_draftviewer = document.getElementById('static_draft_view');
     let rect_viewer = container.getBoundingClientRect();

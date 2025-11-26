@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, EventEmitter, Output, inject } from '@angular/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { OperationSearchComponent } from './operation-search.component';
 
@@ -8,7 +8,7 @@ import { OperationSearchComponent } from './operation-search.component';
   selector: 'app-operation-search-modal',
   templateUrl: './operation-search.modal.html',
   styleUrls: ['./operation-search.modal.scss'],
-  imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, MatIconButton, MatDialogClose, OperationSearchComponent],
+  imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, MatDialogClose, OperationSearchComponent],
   standalone: true
 })
 export class OperationSearchModal {

@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angu
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { MatFormField, MatInput } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { getDraftName, defaults as libDefaults, warps, wefts } from 'adacad-drafting-lib';
@@ -18,7 +18,7 @@ import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-ren
 import { RenameComponent } from '../../core/ui/rename/rename.component';
 @Component({
   selector: 'app-draftinfocard',
-  imports: [ReactiveFormsModule, DownloadComponent, MatSliderModule, MatButtonModule, MatFormField, MatInput, MatLabel, MatIconButton, MatTooltip, DraftRenderingComponent],
+  imports: [ReactiveFormsModule, DownloadComponent, MatSliderModule, MatButtonModule, MatFormField, MatInput, MatIconButton, MatTooltip, DraftRenderingComponent],
   templateUrl: './draftinfocard.component.html',
   styleUrl: './draftinfocard.component.scss'
 })

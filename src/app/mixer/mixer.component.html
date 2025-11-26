@@ -6,5 +6,5 @@
 <app-palette id="scrollable-container" class="palette mode-{{dm.cur_mixer_mode}}"
   [class.no-pointer]="!palette.pointer_events" [class.shift-held]="palette.shift_held"
   [class.space-held]="palette.space_held" [class.middle-mouse-held]="palette.middle_mouse_held" #palette
-  (onOpenInEditor)="openDraftInEditor($event)">
+  (onOpenInEditor)="openDraftInEditor($event)" (onPerformOperationError)="postOperationErrorMessage($event)">
 </app-palette>

@@ -1444,9 +1444,9 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   async processFileData(data: SaveObj, name: string): Promise<Array<{ prev_id: number, cur_id: number }>> {
 
-
-    let entry_mapping: Array<{ prev_id: number, cur_id: number }> = [];
     console.log("PROCESSING FILE DATA", data);
+    let entry_mapping: Array<{ prev_id: number, cur_id: number }> = [];
+    console.log("[LOAD] START: Processing file data", name);
     this.openLoadingAnimation(name)
 
 
@@ -1490,38 +1490,35 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
+      console.log("[LOAD] STEP 1: Media loaded");
       //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
       // console.log("REPLACE OUTDATED OPS")
       return this.tree.replaceOutdatedOps(data.ops);
     })
       .then(correctedOps => {
+        console.log("[LOAD] STEP 2: Operations corrected");
         data.ops = correctedOps;
         //console.log(" LOAD NODES")
         return this.loadNodes(data.nodes)
       })
       .then(id_map => {
-        console.log("ID MAP", id_map);
+        console.log("[LOAD] STEP 3: Nodes loaded, ID map created", id_map.length, "nodes");
         entry_mapping = id_map;
         // console.log(" LOADED TREE Nodes ", this.tree.nodes, id_map)
         return this.loadTreeNodes(id_map, data.tree);
-      }
-      ).then(treenodes => {
-        // console.log("TREE NODES is ", data.treenodes)
+      })
+      .then(treenodes => {
+        console.log("[LOAD] STEP 4: Tree nodes loaded", treenodes.length, "tree nodes");
         const seednodes: Array<{ prev_id: number, cur_id: number }> = treenodes
           .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
           .map(tn => tn.entry);
 
-        // console.log("SEED NODES ARE ", seednodes)
+        //attach teh drafts back to the seed nodes to which they belong
         const seeds: Array<{ entry, id, draft, loom, loom_settings, render_colors, scale, draft_visible }> = seednodes
+          .filter(sn => data.nodes.find(node => node.node_id === sn.prev_id) !== undefined)
           .map(sn => {
 
-
-            let d: Draft = null;
-            let loom: Loom = null;
-            let render_colors = true;
-            let draft_visible = true;
-            let scale = 1;
-
+            //this should always be true since we filterd out undefined nodes
             const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
 
             let ls: LoomSettings = {
@@ -1533,43 +1530,49 @@ export class AppComponent implements OnInit, OnDestroy {
               type: this.ws.type ?? defaults.loom_settings.type
             }
 
-            if (draft_node !== undefined) {
 
-              const located_draft: DraftNodeProxy = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
+            console.log("Looking for draft node", draft_node.node_id, "in", data.draft_nodes)
+            const located_draft: DraftNodeProxy = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
 
-              if (located_draft === undefined) {
-                console.log("Looking for ", draft_node.node_id, "in", data.draft_nodes.map(el => el.draft_id))
-                console.error("could not find draft with id in draft list");
+            //if this happens it means that there is a node that is marked as a seed draft (probably an error) that does not have any 
+            //associated draft data. 
+            if (located_draft === undefined) {
+              console.log("Looking for ", draft_node.node_id, "in", data.draft_nodes.map(el => el.draft_id))
+              console.error("could not find draft with id in draft list");
+              const d = initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
+              d.id = sn.cur_id;
+              return {
+                entry: sn,
+                id: sn.cur_id,
+                draft: d,
+                loom: null,
+                loom_settings: ls,
+                render_colors: false,
+                scale: 1,
+                draft_visible: true
               }
-              else {
-                d = (located_draft.draft) ? copyDraft(located_draft.draft) : initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
-                ls = (located_draft.loom_settings) ? copyLoomSettings(located_draft.loom_settings) : ls;
-                loom = (located_draft.loom) ? copyLoom(located_draft.loom) : initLoom(warps(d.drawdown), wefts(d.drawdown), ls.frames, ls.treadles);
-                render_colors = located_draft.render_colors ?? false;
-                scale = located_draft.scale ?? 1;
-                draft_visible = located_draft.draft_visible ?? true;
+            }
+            else {
+              const d = (located_draft.draft) ? copyDraft(located_draft.draft) : initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
+              d.id = (sn.cur_id);
+
+              const loom = (located_draft.loom) ? copyLoom(located_draft.loom) : initLoom(warps(d.drawdown), wefts(d.drawdown), ls.frames, ls.treadles);
+
+              return {
+                entry: sn,
+                id: sn.cur_id,
+                draft: d,
+                loom: loom,
+                loom_settings: (located_draft.loom_settings) ? copyLoomSettings(located_draft.loom_settings) : ls,
+                render_colors: located_draft.render_colors ?? false,
+                scale: located_draft.scale ?? 1,
+                draft_visible: located_draft.draft_visible ?? true
               }
-
-            } else {
-              console.error("draft node could not be found")
             }
-
-            d.id = (sn.cur_id);
-
-            return {
-              entry: sn,
-              id: sn.cur_id,
-              draft: d,
-              loom: loom,
-              loom_settings: ls,
-              render_colors: render_colors,
-              scale: scale,
-              draft_visible: draft_visible
-            }
-
           });
 
         const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom, seed.loom_settings, seed.render_colors, seed.scale, seed.draft_visible));
+        console.log("[LOAD] STEP 5: Creating", seed_fns.length, "seed drafts and", data.ops.length, "operations");
 
         const op_fns = data.ops.map(op => {
           const entry = entry_mapping.find(el => el.prev_id == op.node_id);
@@ -1580,13 +1583,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
       })
       .then(el => {
+        console.log("[LOAD] STEP 6: Validating nodes");
         return this.tree.validateNodes();
       })
       .then(el => {
-        //console.log("performing top level ops");
-        return this.tree.performTopLevelOps();
+        console.log("[LOAD] STEP 7: Performing top level operations - THIS MAY TAKE TIME FOR LARGE FILES");
+        const startTime = performance.now();
+        return this.tree.performTopLevelOps().then(result => {
+          const duration = performance.now() - startTime;
+          console.log(`[LOAD] STEP 7 COMPLETE: Top level ops performed in ${duration.toFixed(2)}ms`);
+          return result;
+        });
       })
       .then(el => {
+        console.log("[LOAD] STEP 8: Cleaning up null drafts");
         //delete any nodes that no longer need to exist
 
         this.tree.getDraftNodes()
@@ -1601,6 +1611,7 @@ export class AppComponent implements OnInit, OnDestroy {
           })
       })
       .then(el => {
+        console.log("[LOAD] STEP 9: Loading UI components");
 
         return this.tree.nodes.forEach(node => {
 
@@ -1630,6 +1641,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
       })
       .then(el => {
+        console.log("[LOAD] STEP 10: Setting draft node properties");
 
         //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
         data.draft_nodes
@@ -1654,6 +1666,8 @@ export class AppComponent implements OnInit, OnDestroy {
             }
           })
 
+        //this is breaking on large files, disable because I also don't think it's needed anymore
+        console.log("[LOAD] STEP 11: Updating operation children -- verify if we need this");
         this.tree.getOpNodes().forEach(op => {
           (<OperationComponent>op.component).updateChildren(this.tree.getNonCxnOutputs(op.id));
         })
@@ -1666,21 +1680,44 @@ export class AppComponent implements OnInit, OnDestroy {
 
       })
       .then(res => {
+        console.log("[LOAD] STEP 12: Starting final render - THIS MAY HANG ON LARGE FILES");
+        const renderStartTime = performance.now();
 
-        this.closeLoadingAnimation();
         this.updateOrigin(this.ws.selected_origin_option);
 
+        console.log("[LOAD] STEP 12a: Refreshing operations");
+        //make sure the sidebar settings for operations are set
         this.mixer.refreshOperations();
+
+        console.log("[LOAD] STEP 12b: Rendering mixer change");
+        //set scale 
         this.mixer.renderChange();
+
+        console.log("[LOAD] STEP 12c: Rendering editor change");
         this.editor.renderChange();
 
+        const renderDuration = performance.now() - renderStartTime;
+        console.log(`[LOAD] COMPLETE: All rendering finished in ${renderDuration.toFixed(2)}ms`);
+        this.closeLoadingAnimation();
 
         return Promise.resolve(entry_mapping)
       })
       .catch(err => {
+        console.error("[LOAD] ERROR:", err);
+        this.openSnackBar('ERROR: there was a problem loading this file:' + err)
+
         //TO DO ADD ERROR STATEMENT
         this.closeLoadingAnimation();
         this.clearAll();
+
+
+
+        //if it was an operation size error, remove the offending operation and try again. 
+        if (err.includes('size check failed')) {
+          const offending_op = this.tree.getOpNode(err.split(' ')[1]);
+
+        }
+
         return Promise.reject(err)
       });
 
@@ -1689,6 +1726,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
 
+  }
+
+  postOperationErrorMessage($event: any) {
+    this.openSnackBar($event.error);
   }
 
 

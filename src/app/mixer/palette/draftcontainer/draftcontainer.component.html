@@ -87,7 +87,7 @@
 
     <app-draft-rendering [class.hidden]="!draft_visible" #draft_rendering source="mixer" [id]="id"
       [view_only]="hasParent" [current_view]="current_view" [scale]="local_zoom" (onDrawdownUpdated)="drawdownUpdated()"
-      (onMaterialChange)="drawdownUpdated()">
+      (onMaterialChange)="drawdownUpdated()" (redrawComplete)="redrawComplete($event)">
     </app-draft-rendering>
   </div>
 

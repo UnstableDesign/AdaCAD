@@ -84,6 +84,8 @@ export class TreeService {
     const node = this.getNode(id);
     if (node.type === 'draft') {
       const draft = (<DraftNode>node).draft;
+      const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
+      console.log(`[BROADCAST] Draft ${id} (${size})`);
       (<DraftNode>node).onValueChange.next(draft);
     }
   }
@@ -1302,14 +1304,24 @@ export class TreeService {
       if (el.type === "op") el.dirty = true;
     })
 
+    console.log("[OPS] START: Performing top level operations");
     const top_level_nodes =
       this.nodes
         .filter(el => el.type === 'op')
         .filter(el => this.getUpstreamOperations(el.id).length === 0)
         .map(el => el.id);
 
+    console.log("[OPS] Found", top_level_nodes.length, "top level operations");
+    const startTime = performance.now();
 
-    return this.performGenerationOps(top_level_nodes);
+    return this.performGenerationOps(top_level_nodes).then(result => {
+      const duration = performance.now() - startTime;
+      console.log(`[OPS] COMPLETE: All operations performed in ${duration.toFixed(2)}ms`);
+      return result;
+    }).catch(err => {
+      console.error("Error performing top level ops", err);
+      return Promise.reject(err);
+    });
 
   }
 
@@ -1335,6 +1347,19 @@ export class TreeService {
       const fns = needs_performing.filter(el => el.dirty).map(el => el.id);
       if (needs_performing.length === 0) return [];
       return this.performGenerationOps(fns);
+    }).catch(err => {
+      console.log("ERROR", err);
+      //if one of the performs fails, see if we can remove it and call again
+      if (err.node_id !== undefined) {
+        const offending_op = err.node_id;
+        //this.removeOperationNode(offending_op);
+        return this.performGenerationOps(needs_computing.filter(el => el !== offending_op));
+      } else {
+        console.error("Error performing generation ops", err);
+        return Promise.reject(err);
+      }
+
+
     });
 
 
@@ -1363,9 +1388,11 @@ export class TreeService {
   async performOp(id: number): Promise<Array<number>> {
 
     const opnode = <OpNode>this.getNode(id);
+    console.log("PERFORMING OP", id, opnode.name)
     const op = this.ops.getOp(opnode.name);
+    console.log("OP", op)
     const all_inputs = this.getInputsWithNdx(id);
-
+    console.log("ALL INPUTS", all_inputs)
 
     if (op === null || op === undefined) return Promise.reject("Operation is null")
 
@@ -1394,12 +1421,21 @@ export class TreeService {
     })
     const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
 
-    console.log("PERFORM OP ", id, " with inputs: ", cleaned_inputs, param_vals, op);
+    let passes_size_check = op.sizeCheck(param_vals, cleaned_inputs);
+    if (!passes_size_check) return Promise.reject({ node_id: id, error: "Operation " + op.name + " size check failed" });
+
+
     return op.perform(param_vals, cleaned_inputs)
       .then(res => {
+        let has_err = res.find(el => el.err !== undefined);
+        if (has_err !== undefined) return Promise.reject(has_err.err);
         opnode.dirty = false;
         return this.updateDraftsFromResults(id, res, cleaned_inputs);
       })
+      .catch(err => {
+        console.error("Error performing op", id, err);
+        return Promise.reject(err);
+      });
   }
 
 
@@ -1556,7 +1592,7 @@ export class TreeService {
    * subdraft -> op (input to op)
    * op -> subdraft (output generatedd by op)
    * @returns an array of the ids of the elements connected to this op
-
+  
    */
   addConnection(from: number, from_ndx: number, to: number, to_ndx: number, cxn: number): Array<number> {
 
@@ -1784,10 +1820,10 @@ export class TreeService {
   }
 
   /**
- * returns the ids of all nodes connected to the input node that are not connection nodes
- * in the case of dynamic ops, also provide the input index
- * @param op_id 
- */
+  * returns the ids of all nodes connected to the input node that are not connection nodes
+  * in the case of dynamic ops, also provide the input index
+  * @param op_id 
+  */
   getOpComponentInputs(op_id: number, ndx: number): Array<number> {
     const inputs: Array<IOTuple> = this.getInputsWithNdx(op_id);
     const id_list: Array<number> = inputs
@@ -1832,9 +1868,9 @@ export class TreeService {
   }
 
   /**
- * returns the ids of all nodes connected to the output node that are not connection nodes
- * @param op_id 
- */
+  * returns the ids of all nodes connected to the output node that are not connection nodes
+  * @param op_id 
+  */
   getNonCxnOutputs(id: number): Array<number> {
     const outputs: Array<number> = this.getOutputs(id);
     const node_list: Array<Node> = outputs.map(id => (this.getNode(id)));
@@ -1848,9 +1884,9 @@ export class TreeService {
 
 
   /**
- * returns the ids of all nodes connected to the output node that are not connection nodes
- * @param op_id 
- */
+  * returns the ids of all nodes connected to the output node that are not connection nodes
+  * @param op_id 
+  */
   getDraftOutputs(id: number): Array<number> {
     const outputs: Array<number> = this.getOutputs(id);
     const node_list: Array<Node> = outputs.map(id => (this.getNode(id)));

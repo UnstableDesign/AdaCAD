@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -29,7 +29,7 @@ import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component'
   selector: 'app-library',
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
-  imports: [MatButton, MaterialComponent, MatIconButton, ReactiveFormsModule, DraftRenderingComponent, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
+  imports: [MatButton, MaterialComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {

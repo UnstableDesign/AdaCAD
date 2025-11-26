@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
-import { MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { Draft } from 'adacad-drafting-lib/draft';
 import { DraftStateNameChange } from '../../model/datatypes';
@@ -14,7 +14,7 @@ import { TreeService } from '../../provider/tree.service';
   selector: 'app-rename',
   templateUrl: './rename.component.html',
   styleUrl: './rename.component.scss',
-  imports: [MatDialogTitle, ReactiveFormsModule, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, MatHint, MatDialogActions, MatButton, MatDialogClose]
+  imports: [MatDialogTitle, ReactiveFormsModule, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, MatDialogActions, MatButton, MatDialogClose]
 })
 export class RenameComponent {
   private tree = inject(TreeService);

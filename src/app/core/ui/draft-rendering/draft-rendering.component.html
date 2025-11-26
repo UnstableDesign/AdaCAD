@@ -1,4 +1,4 @@
-@if (oversize) {
+@if (oversize && !ignoreOversize) {
 <div class="oversize-warning">
   <i class="fas fa-exclamation-triangle"></i>
   <button mat-button (click)="toggleOversize()">Load/Hide this Image</button>

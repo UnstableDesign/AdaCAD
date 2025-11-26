@@ -160,6 +160,10 @@ export class DraftRenderingComponent implements OnInit {
 
   draft_edit_mode = 'draw';
 
+  ignoreOversize: boolean = false;
+
+  redrawComplete = new EventEmitter();
+
   /// ANGULAR FUNCTIONS
   /**
   * Creates the element reference.
@@ -192,7 +196,7 @@ export class DraftRenderingComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    // define the elements and context of the weave draft, threading, treadling, and tieups.
+    //define the elements and context of the weave draft, threading, treadling, and tieups.
     const canvasEl = <HTMLCanvasElement>document.getElementById('drawdown-' + this.source + '-' + this.id);
     const threadingCanvas = <HTMLCanvasElement>document.getElementById('threading-' + this.source + '-' + this.id);
     const tieupsCanvas = <HTMLCanvasElement>document.getElementById('tieups-' + this.source + '-' + this.id);
@@ -223,15 +227,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
   }
-
-  //THIS DETECTS AND REDRAWS WHEN IT DOESN"T NEED TO 
-  //ngOnChanges(changes:SimpleChanges){
-  // console.log("CHANGES ", changes)
-  // if (changes['scale']) {
-  //  if(!changes['scale'].isFirstChange() && this.tree.getDraftVisible(this.id)) this.redrawAll();
-  // }
-
-  //}
 
 
 
@@ -589,7 +584,7 @@ export class DraftRenderingComponent implements OnInit {
         .then(loom => {
           this.redraw(draft, loom, loom_settings, { drawdown: true, loom: true, weft_systems: true, weft_materials: true });
           this.rowShuttleMapping = draft.rowShuttleMapping;
-          this.onDrawdownUpdated.emit(draft);
+          this.redrawComplete.emit(draft);
         })
     } else {
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
@@ -1021,10 +1016,14 @@ export class DraftRenderingComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    this.render.rescaleCanvases(draft, loom, loom_settings, scale, this.canvases, out_format)
-    this.refreshOriginMarker();
 
-
+    //rescale
+    if (!this.oversize || this.ignoreOversize) {
+      this.render.addToQueue(draft, loom, loom_settings, this.canvases, null, 'scale', () => {
+        console.log(`[SCALE] COMPLETE: Draft ${this.id} scaled successfully `);
+      }, this.scale);
+      this.refreshOriginMarker();
+    }
 
   }
 
@@ -1079,12 +1078,29 @@ export class DraftRenderingComponent implements OnInit {
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, flags: any): Promise<boolean> {
     const startTime = performance.now();
+    const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
+    console.log(`[DRAW] START: Drawing draft ${this.id} (${size})`);
 
-    if (this.oversize) {
+    let area = warps(draft.drawdown) * wefts(draft.drawdown);
+    if (area > defaults.oversize_dim_threshold) this.oversize = true;
+    else this.oversize = false;
+
+
+    if (this.oversize && !this.ignoreOversize) {
+      const duration = performance.now() - startTime;
+      console.log(`[DRAW] RETURN: Draft ${this.id} is too large to redraw (area: ${area}), skipping draw after ${duration.toFixed(2)}ms`);
+      this.render.clear(this.canvases);
       return Promise.resolve(true);
     }
 
-    if (draft == null) return;
+    //cancel the forceLoad after one call
+    if (this.oversize && this.ignoreOversize) this.ignoreOversize = false;
+
+    if (draft == null) {
+      const duration = performance.now() - startTime;
+      console.log(`[DRAW] RETURN: Draft ${this.id} is null, skipping draw after ${duration.toFixed(2)}ms`);
+      return;
+    }
 
     this.colSystemMapping = draft.colSystemMapping;
     this.rowSystemMapping = draft.rowSystemMapping;
@@ -1104,30 +1120,24 @@ export class DraftRenderingComponent implements OnInit {
       show_loom: (flags.show_loom !== undefined && flags.show_loom == true)
     }
 
-    return this.render.drawDraft(draft, loom, loom_settings, this.canvases, rf).then(res => {
-      let out_format = (!rf.use_floats && !rf.use_colors) ? 'canvas' : 'array_buffer';
-      this.render.rescaleCanvases(draft, loom, loom_settings, this.scale, this.canvases, out_format)
+    this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
       this.refreshWarpAndWeftSystemNumbering();
       this.refreshOriginMarker();
 
+      console.log(`[DRAW] COMPLETE: Draft ${this.id} drawn successfully `);
+    });
 
+    this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'scale', () => {
       if (this.selection != undefined) this.selection.redraw();
+      console.log(`[SCALE] COMPLETE: Draft ${this.id} scaled successfully `);
+    }, this.scale);
 
-      const endTime = performance.now();
-      const duration = endTime - startTime;
-      console.log(`[DraftRendering] redraw() ${draft.id} execution time: ${duration.toFixed(2)}ms (draft: ${draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null'}, flags: ${JSON.stringify(rf)})`);
-
-      return Promise.resolve(res);
-    })
-
-
-
-
+    return Promise.resolve(true);
 
   }
 
   toggleOversize() {
-    this.oversize = false;
+    this.ignoreOversize = !this.ignoreOversize;
 
     this.redrawAll();
     if (this.selection != undefined) this.selection.redraw();
@@ -1203,146 +1213,6 @@ export class DraftRenderingComponent implements OnInit {
   }
 
 
-  //  /**
-  //  * Saves the draft as a bitmap file
-  //  * @extends WeaveDirective
-  //  * @param {string} fileName - name to save file as
-  //  * @returns {void}
-  //  */
-  // public getPrintableCanvas(obj) : HTMLCanvasElement {
-
-  //   const frames = numFrames(this.loom);
-  //   const treadles = numTreadles(this.loom);
-
-  //   let dims = this.render.getCellDims("base");
-
-  //   let b = obj.bitmap.nativeElement;
-  //   let context = b.getContext('2d');
-
-  //   b.width = (warps(this.weave.drawdown) + treadles + 6) * dims.w;
-  //   b.height = (wefts(this.weave.drawdown) + frames + 6) * dims.h;
-
-  //   context.fillStyle = "white";
-  //   context.fillRect(0,0,b.width,b.height);
-
-  //   //use this to solve 0 width errors on drawIMage
-  //   if(this.loom_settings.type !== 'jacquard'){
-
-  //     context.drawImage(this.threadingCanvas, 0, dims.h*3);
-  //     context.drawImage(this.tieupsCanvas, (warps(this.weave.drawdown) +1)* dims.w, 3*dims.h);
-  //     context.drawImage(this.treadlingCanvas, (warps(this.weave.drawdown) +1)* dims.w, (frames + 4)*dims.h);
-
-  //   }
-
-  //   //systems
-  //   context.drawImage(this.warpSystemsCanvas, 0, 0);
-  //   context.drawImage(this.warpMaterialsCanvas, 0, dims.h);
-
-  //   context.drawImage(this.canvasEl, -dims.w, (frames+3)*dims.h);
-
-  //   context.drawImage(this.weftMaterialsCanvas,(warps(this.weave.drawdown)+ treadles +1)* dims.w, (frames + 4)*dims.h);
-  //   context.drawImage(this.weftSystemsCanvas,(warps(this.weave.drawdown)+ treadles +2)* dims.w, (frames + 4)*dims.h);
-  //   return b;
-  // }
-
-  /**
-  * Saves the draft as a bitmap file
-  * @extends WeaveDirective
-  * @param {string} fileName - name to save file as
-  * @returns {void}
-  */
-  // public getBMPCanvas(obj) : HTMLCanvasElement {
-  //   let b = obj.bitmap.nativeElement;
-  //   let context = b.getContext('2d');
-  //   let draft = this.weave.drawdown;
-  //   var i,j;
-
-  //   b.width = warps(this.weave.drawdown);
-  //   b.height = wefts(this.weave.drawdown);
-  //   context.fillStyle = "white";
-  //   context.fillRect(0,0,b.width,b.height);
-
-  //   context.fillStyle = "black";
-
-  //   for( i = 0; i < b.height; i++) {
-  //     for( j=0; j < b.width; j++) {
-  //       let up = draft[i][j].isUp();
-  //       if(up) {
-  //         context.fillRect(j,i,1,1)
-  //       }
-  //     }
-  //   }
-  //   return b;
-  // }
-
-  /**
-  *
-  *
-  */
-  // public onSave(e: any) {
-
-  //   e.bitmap = this.bitmap;
-
-  //   if (e.type === "bmp"){
-  //     let link = e.downloadLink.nativeElement;
-  //     link.href = this.fs.saver.bmp(this.getBMPCanvas(e));
-  //     link.download = e.name + ".jpg"; //Canvas2Bitmap  seems to be broken now
-  //   } 
-  //   else if (e.type === "ada"){
-  //     let link = e.downloadLink.nativeElement;
-  //     link.href = this.fs.saver.ada('draft', [this.weave], [this.loom],  false, 5);
-  //     link.download = e.name + ".ada";
-  //   } 
-  //   else if (e.type === "wif"){
-  //     let link = e.downloadLink.nativeElement;
-  //     link.href= this.fs.saver.wif(this.weave, this.loom);
-  //     link.download = e.filename +".wif";
-
-  //   } 
-  //   else if (e.type === "jpg"){
-  //     let link = e.downloadLink.nativeElement;
-  //     link.href = this.fs.saver.jpg(this.getPrintableCanvas(e));
-  //     link.download = e.name + ".jpg";
-  //   } 
-
-  // }
-
-
-  // public print(e){
-  //   let draft = this.tree.getDraft(this.id);
-  //   let loom = this.tree.getLoom(this.id);
-  //   let width = (Math.max(500, warps(draft.drawdown)+ numTreadles(loom))*this.cell_size + 200);
-  //   let height = Math.max(500, (wefts(draft.drawdown)+ numFrames(loom))*this.cell_size + 200);
-  //   var node = document.getElementById('draft-container');
-  //   htmlToImage.toPng(node, {  backgroundColor: 'white', width, height})
-  //   .then(function (dataUrl) {
-
-  //     var win = window.open('about:blank', "_new");
-  //     win.document.open();
-  //     win.document.write([
-  //         '<html>',
-  //         '   <head>',
-  //         '   </head>',
-  //         '   <body onload="window.print()" onafterprint="window.close()">',
-  //         '       <img src="' + dataUrl + '"/>',
-  //         '   </body>',
-  //         '</html>'
-  //     ].join(''));
-  //     win.document.close();
-
-  //     // const link = document.createElement('a')
-  //     // link.href= dataUrl;
-  //     // link.download = getDraftName(draft)+"_detailview.jpg";
-  //     // link.click();
-
-
-
-
-  //   })
-  //   .catch(function (error) {
-  //     console.error('oops, something went wrong!', error);
-  //   });
-  // }
 
 
 

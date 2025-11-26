@@ -54,6 +54,7 @@ export class PaletteComponent implements OnInit {
 
   // @Output() onDesignModeChange: any = new EventEmitter();  
   @Output() onOpenInEditor: any = new EventEmitter();
+  @Output() onPerformOperationError: any = new EventEmitter();
 
   /**
    * A container that supports the automatic generation and removal of the components inside of it
@@ -161,7 +162,9 @@ export class PaletteComponent implements OnInit {
           outputs_to_update.push(this.performAndUpdateDownstream(output.to_id));
         });
         return Promise.all(outputs_to_update);
-      }).catch(console.error)
+      }).catch(error => {
+        this.postOperationErrorMessage(dn.component.id, error);
+      });
     })
 
 
@@ -224,7 +227,9 @@ export class PaletteComponent implements OnInit {
         });
         return Promise.all(outputs_to_update);
 
-      }).catch(console.error)
+      }).catch(err => {
+        this.postOperationErrorMessage(on.id, err);
+      })
 
     })
 
@@ -233,11 +238,12 @@ export class PaletteComponent implements OnInit {
     })
 
     const cxnRemovedUndoSubscription = this.ss.connectionRemovedUndo$.subscribe(action => {
-      console.log("CXN REMOVED UNDO SUBSCRIPTION ", action);
       const cxn = this.createConnection(action.inputs[0].from_id, action.outputs[0].to_id, action.outputs[0].inlet_id);
       this.performAndUpdateDownstream(action.outputs[0].to_id).then(el => {
         let children = this.tree.getNonCxnOutputs(action.outputs[0].to_id);
         if (children.length > 0) this.vs.setViewer(children[0]);
+      }).catch(err => {
+        this.postOperationErrorMessage(action.outputs[0].to_id, err);
       });
     });
 
@@ -497,6 +503,8 @@ export class PaletteComponent implements OnInit {
     this.performAndUpdateDownstream(opcomp.id).then(el => {
       let children = this.tree.getNonCxnOutputs(opcomp.id);
       if (children.length > 0) this.vs.setViewer(children[0])
+    }).catch(err => {
+      this.postOperationErrorMessage(opcomp.id, err);
     });
 
     return opcomp.id;
@@ -519,6 +527,9 @@ export class PaletteComponent implements OnInit {
 
     return this.performAndUpdateDownstream(opcomp.id).then(el => {
       return Promise.resolve(new_node.id);
+    }).catch(err => {
+      this.postOperationErrorMessage(opcomp.id, err);
+      return Promise.reject(err);
     });
 
   }
@@ -1050,7 +1061,9 @@ export class PaletteComponent implements OnInit {
     })
 
     outputs.forEach(out => {
-      this.performAndUpdateDownstream(out);
+      this.performAndUpdateDownstream(out).catch(err => {
+        this.postOperationErrorMessage(out, err);
+      });
     })
 
   }
@@ -1090,7 +1103,9 @@ export class PaletteComponent implements OnInit {
     });
 
     outputs.forEach(out => {
-      this.performAndUpdateDownstream(out);
+      this.performAndUpdateDownstream(out).catch(err => {
+        this.postOperationErrorMessage(out, err);
+      });
     })
 
   }
@@ -1420,7 +1435,9 @@ export class PaletteComponent implements OnInit {
   onNameChange(id: number) {
 
     const outs = this.tree.getNonCxnOutputs(id);
-    const to_perform = outs.map(el => this.performAndUpdateDownstream(el));
+    const to_perform = outs.map(el => this.performAndUpdateDownstream(el).catch(err => {
+      this.postOperationErrorMessage(el, err);
+    }));
 
     return Promise.all(to_perform)
       .catch(console.error);
@@ -1566,6 +1583,10 @@ export class PaletteComponent implements OnInit {
       .then(() => {
         //a catch here so that changes that ripple up from the parent's of pinned drafts update in time. 
         this.vs.updateViewer();
+      })
+      .catch(err => {
+        console.error("Error performing and updating downstream", err);
+        return Promise.reject(err);
       });
 
   }
@@ -1734,7 +1755,10 @@ export class PaletteComponent implements OnInit {
   }
 
 
-
+  postOperationErrorMessage(op_id: number, err: any) {
+    //emit something here to the parent to flash a message
+    this.onPerformOperationError.emit({ op_id: op_id, error: err });
+  }
 
   /**
    * emitted from operation when it receives a hit on its connection button, the id refers to the operation id
@@ -1767,6 +1791,9 @@ export class PaletteComponent implements OnInit {
     this.performAndUpdateDownstream(obj.id).then(el => {
       let children = this.tree.getNonCxnOutputs(obj.id);
       if (children.length > 0) this.vs.setViewer(children[0]);
+    }).catch(err => {
+      console.error("Error performing and updating downstream", err);
+      this.postOperationErrorMessage(obj.id, err);
     });
 
     this.processConnectionEnd();
@@ -1778,7 +1805,10 @@ export class PaletteComponent implements OnInit {
     this.createConnection(from, to, inlet);
 
 
-    this.performAndUpdateDownstream(to);
+    this.performAndUpdateDownstream(to).catch(err => {
+      console.error("Error performing and updating downstream", err);
+      this.postOperationErrorMessage(to, err);
+    });
 
   }
 
@@ -1805,6 +1835,9 @@ export class PaletteComponent implements OnInit {
         this.vs.updateViewer();
 
 
+      }).catch(err => {
+        console.error("Error performing and updating downstream", err);
+        this.postOperationErrorMessage(to.id, err);
       });
     }
 
@@ -2118,7 +2151,9 @@ export class PaletteComponent implements OnInit {
     const outputs = this.tree.getNonCxnOutputs(obj.id);
     const fns = outputs.map(out => this.performAndUpdateDownstream(out));
 
-    Promise.all(fns).catch(console.error)
+    Promise.all(fns).catch(error => {
+      this.postOperationErrorMessage(obj.id, error);
+    })
 
   }
 
@@ -2156,7 +2191,9 @@ export class PaletteComponent implements OnInit {
           if (comp !== null) (<ConnectionComponent>comp).updateToPosition(tuple.inlet, tuple.arr);
         })
       })
-      .catch(console.error);
+      .catch(error => {
+        this.postOperationErrorMessage(obj.id, error);
+      });
 
 
 
@@ -2338,12 +2375,22 @@ export class PaletteComponent implements OnInit {
 
 
   redrawAllSubdrafts() {
+    console.log("[REDRAW] START: Redrawing all subdrafts");
     const dns = this.tree.getDraftNodes();
-    dns.forEach(dn => {
+    console.log("[REDRAW] Found", dns.length, "draft nodes to redraw");
+
+    const startTime = performance.now();
+    dns.forEach((dn, index) => {
+      const draftSize = dn.draft ? `${warps(dn.draft.drawdown)}x${wefts(dn.draft.drawdown)}` : 'null';
+      console.log(`[REDRAW] ${index + 1}/${dns.length}: Broadcasting draft ${dn.id} (${draftSize})`);
       this.tree.broadcastDraftValueChange(dn.id);
     })
 
-    this.redrawConnections();
+    const duration = performance.now() - startTime;
+    console.log(`[REDRAW] COMPLETE: All subdrafts broadcast in ${duration.toFixed(2)}ms`);
 
+    console.log("[REDRAW] Redrawing connections");
+    this.redrawConnections();
+    console.log("[REDRAW] All redraws complete");
   }
 }

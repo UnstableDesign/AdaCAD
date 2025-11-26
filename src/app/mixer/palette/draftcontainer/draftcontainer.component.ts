@@ -146,6 +146,8 @@ export class DraftContainerComponent implements AfterViewInit {
   }
 
 
+
+
   getGlobalZoomUndo(): number {
 
     let mixer_zoom = this.zs.getMixerZoom();
@@ -190,6 +192,9 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
   ngOnDestroy() {
+
+
+
     if (this.showingIdChangeSubscription) {
       this.showingIdChangeSubscription.unsubscribe();
     }
@@ -198,41 +203,6 @@ export class DraftContainerComponent implements AfterViewInit {
     }
     this.closeSizeObserver();
   }
-
-  // ngOnChanges(changes: SimpleChanges) {
-  //   if (changes['dirty']) {
-
-
-
-  //     let draft = this.tree.getDraft(this.id);
-  //     this.draft_visible = this.tree.getDraftVisible(this.id);
-
-  //     if (draft == undefined || draft == null) {
-  //       this.draft_name = 'this operation did not create a draft, check to make sure it has all the inputs it needs';
-  //       this.warps = 0;
-  //       this.wefts = 0;
-  //     } else {
-  //       this.draft_name = this.tree.getDraftName(this.id);
-  //       this.warps = warps(draft.drawdown);
-  //       this.wefts = wefts(draft.drawdown);
-  //     }
-
-
-
-
-  //     if (!changes['dirty'].firstChange) {
-  //       if (this.draft_rendering !== undefined && draft !== undefined && draft !== null) {
-  //         this.draft_name = this.tree.getDraftName(this.id);
-  //         this.draft_rendering.onNewDraftLoaded(this.id);
-  //         this.drawDraft(draft);
-
-  //       } else {
-  //         this.draft_rendering.clear();
-  //       }
-
-  //     }
-  //   }
-  // }
 
 
   startSizeObserver() {
@@ -321,7 +291,6 @@ export class DraftContainerComponent implements AfterViewInit {
 
   drawDraft(draft: Draft): Promise<boolean> {
 
-
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
 
@@ -341,14 +310,18 @@ export class DraftContainerComponent implements AfterViewInit {
     }
 
 
-    return this.draft_rendering.redraw(draft, loom, loom_settings, flags).then(el => {
-      this.tree.setDraftClean(this.id);
-      this.onDrawdownSizeChanged.emit(this.id);
-      return Promise.resolve(true);
-    })
+    //pushes to the queue
+    this.draft_rendering.redraw(draft, loom, loom_settings, flags);
 
 
 
+
+  }
+
+  //emits after the queue finishes
+  redrawComplete(draft: Draft) {
+    this.tree.setDraftClean(this.id);
+    this.onDrawdownSizeChanged.emit(this.id);
   }
 
 
@@ -387,9 +360,12 @@ export class DraftContainerComponent implements AfterViewInit {
     )
   }
 
+  /**
+   * this is called when an event happens in the render that would need to be redrawn, like a material changing, etc. 
+   */
   drawdownUpdated() {
     if (!this.tree.hasParent(this.id)) {
-      // this.vs.updateViewer();
+      this.vs.updateViewer();
       this.onRecomputeChildren.emit({ event: 'edit', id: this.id });
     }
   }
