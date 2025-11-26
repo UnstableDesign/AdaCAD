@@ -1,4 +1,4 @@
-import { initDraftFromDrawdown } from "../../draft";
+import { Draft, DraftSizeError, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
 import { StringParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
@@ -72,7 +72,8 @@ const perform = (param_vals: Array<OpParamVal>) => {
   }
 
   const draft = initDraftFromDrawdown(pattern.export());
-  return Promise.resolve([{ draft }]);
+  if ((draft as DraftSizeError).error !== undefined) return Promise.reject([{ error: (draft as DraftSizeError).error }]);
+  return Promise.resolve([{ draft: draft as Draft }]);
 
 }
 

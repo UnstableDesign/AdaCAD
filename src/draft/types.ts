@@ -174,3 +174,4 @@ export interface CompressedDraft {
   colSystemMapping: Array<number>,
 }
 
+

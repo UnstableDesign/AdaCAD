@@ -2,6 +2,7 @@ import { DraftCellColor } from "../media/types";
 
 export const defaults = {
   lcm_timeout: 1000, //the timeout in milliseconds for the lcm function
+  max_area: 6250000, //the maximum area in cells for a draft, this is used to prevent drafts from being too large to render
   draft_detail_cell_size: 20,
   draft_name: 'drafty',
   row_shuttle: 1,

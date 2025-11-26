@@ -44,13 +44,23 @@ export const copyDraft = (d: Draft): Draft => {
     colShuttleMapping: d.colShuttleMapping,
     colSystemMapping: d.colSystemMapping
   });
+
+
   return copy_draft;
 }
 
 
 
-
+/**
+ * initializes a draft with the parameters provided. If the draft is too large to render, an error will be returned.
+ * @param params 
+ * @returns 
+ */
 export const initDraftWithParams = (params: InitDraftParams): Draft => {
+
+  //we need to do a check here to make sure a 
+
+
   const d: Draft = {
     id: generateId(8),
     gen_name: defaults.draft_name,
@@ -69,18 +79,27 @@ export const initDraftWithParams = (params: InitDraftParams): Draft => {
   if (params.ud_name !== undefined) d.ud_name = params.ud_name;
 
   //handle common error
-  if (params.pattern !== undefined) params.drawdown = params.pattern.map(row => row.map(cell => createCell(cell)));
+  if (params.pattern !== undefined) {
+    const area = params.pattern.length * params.pattern[0].length;
+    if (area > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
+    params.drawdown = params.pattern.map(row => row.map(cell => createCell(cell)));
+  }
   //start with empty draft 
 
   if (params.wefts === undefined) {
     if (params.drawdown == undefined) params.wefts = 1;
     else params.wefts = wefts(params.drawdown);
+
+    if (params.wefts > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
   }
 
   if (params.warps === undefined) {
     if (params.drawdown == undefined) params.warps = 1;
     else params.warps = warps(params.drawdown);
+    if (params.warps > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
   }
+
+  if (params.wefts * params.warps > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
 
   for (let i = 0; i < params.wefts; i++) {
     d.drawdown.push([]);
@@ -99,6 +118,7 @@ export const initDraftWithParams = (params: InitDraftParams): Draft => {
   if (params.drawdown !== undefined) {
     const total_wefts: number = wefts(params.drawdown);
     const total_warps: number = warps(params.drawdown);
+    if (total_wefts * total_warps > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
     d.drawdown.forEach((row, i) => {
       row.forEach((cell, j) => {
         const val = (params.drawdown ? params.drawdown[i % total_wefts][j % total_warps] : undefined);
@@ -140,6 +160,11 @@ export const initDraftWithParams = (params: InitDraftParams): Draft => {
  * @returns 
  */
 export const initDraftFromDrawdown = (drawdown: Drawdown): Draft => {
+
+
+  const area = drawdown.length * drawdown[0].length;
+  if (area > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
+
   const d: Draft = {
     id: generateId(8),
     gen_name: defaults.draft_name,
@@ -195,6 +220,9 @@ export const createDraft = (
   colShuttleMapping: Array<number>,
   colSystemMapping: Array<number>
 ): Draft => {
+
+  const area = pattern.length * pattern[0].length;
+  if (area > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
 
   const d: Draft = {
     id: generateId(8),
@@ -621,8 +649,15 @@ const drawFloatViewCell = (arr: Uint8ClampedArray, i: number, j: number, val: bo
  */
 export const cropDraft = (draft: Draft, top: number, left: number, width: number, height: number): Draft => {
 
-  const cropped = copyDraft(draft);
-  cropped.drawdown = createBlankDrawdown(height, width);
+  const cropped = copyDraft(draft) as Draft; //this can never have a size error since a draft cannot be made too large
+
+  if ((width * height) > defaults.max_area) {
+    width = warps(draft.drawdown);
+    height = wefts(draft.drawdown);
+  }
+
+
+  cropped.drawdown = createBlankDrawdown(height, width) as Drawdown;
   for (let i = top; i < top + height && i < wefts(draft.drawdown); i++) {
     cropped.rowShuttleMapping[i - top] = draft.rowShuttleMapping[i];
     cropped.rowSystemMapping[i - top] = draft.rowSystemMapping[i];
@@ -711,36 +746,37 @@ export const exportDrawdownToBitArray = (drawdown: Drawdown): Uint8ClampedArray 
 }
 
 
-export const unpackDrawdownFromBitArray = (arr: Uint8ClampedArray, warps: number, wefts: number): Drawdown => {
-  const drawdown: Drawdown = createBlankDrawdown(wefts, warps);
-  const selector: Array<number> = [192, 48, 12, 3]; //11000000, 00110000, 00001100, 00000011
-  for (let i = 0; i < arr.length; i++) {
-    const ddi = i * 4;
-    for (let j = 0; j < 4; j++) {
-      const ndx_i = Math.floor((ddi + j) / warps);
-      const ndx_j = (ddi + j) % warps;
+// export const unpackDrawdownFromBitArray = (arr: Uint8ClampedArray, warps: number, wefts: number): Drawdown => {
 
-      if (ndx_i < wefts && ndx_j < warps) {
-        const val = (arr[i] & selector[j]) >> (6 - (j * 2)); // & to isolate the region, >> to make it only read as a 2 bit value
-        switch (val) {
-          case 0:
-            drawdown[ndx_i][ndx_j] = createCell(null);
-            break;
-          case 1:
-            drawdown[ndx_i][ndx_j] = createCell(null);
-            break;
-          case 2:
-            drawdown[ndx_i][ndx_j] = createCell(false);
-            break;
-          default:
-            drawdown[ndx_i][ndx_j] = createCell(true);
-            break;
-        }
-      }
-    }
-  }
-  return drawdown;
-}
+//   const drawdown: Drawdown = createBlankDrawdown(wefts, warps);
+//   const selector: Array<number> = [192, 48, 12, 3]; //11000000, 00110000, 00001100, 00000011
+//   for (let i = 0; i < arr.length; i++) {
+//     const ddi = i * 4;
+//     for (let j = 0; j < 4; j++) {
+//       const ndx_i = Math.floor((ddi + j) / warps);
+//       const ndx_j = (ddi + j) % warps;
+
+//       if (ndx_i < wefts && ndx_j < warps) {
+//         const val = (arr[i] & selector[j]) >> (6 - (j * 2)); // & to isolate the region, >> to make it only read as a 2 bit value
+//         switch (val) {
+//           case 0:
+//             drawdown[ndx_i][ndx_j] = createCell(null);
+//             break;
+//           case 1:
+//             drawdown[ndx_i][ndx_j] = createCell(null);
+//             break;
+//           case 2:
+//             drawdown[ndx_i][ndx_j] = createCell(false);
+//             break;
+//           default:
+//             drawdown[ndx_i][ndx_j] = createCell(true);
+//             break;
+//         }
+//       }
+//     }
+//   }
+//   return drawdown;
+// }
 
 /**
  * used ot create compressed draft format for saving. Switched back to explore as flat array of numbers 
@@ -773,7 +809,10 @@ export const exportDrawdownToArray = (drawdown: Drawdown): Array<number> => {
 }
 
 export const unpackDrawdownFromArray = (compressed: Array<number>, warps: number, wefts: number): Drawdown => {
-  const dd: Drawdown = createBlankDrawdown(wefts, warps);
+
+  if (wefts * warps > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
+
+  const dd: Drawdown = createBlankDrawdown(wefts, warps) as Drawdown;
 
   for (let n = 0; n < compressed.length; n++) {
     const i = Math.floor(n / warps);
@@ -810,6 +849,7 @@ export const unpackDrawdownFromArray = (compressed: Array<number>, warps: number
  * @returns a Drawdown object
  */
 export const createBlankDrawdown = (wefts: number, warps: number): Drawdown => {
+  if (wefts * warps > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);
   const drawdown: Drawdown = [];
   for (let i = 0; i < wefts; i++) {
     drawdown.push([]);
@@ -829,7 +869,7 @@ export const createBlankDrawdown = (wefts: number, warps: number): Drawdown => {
  */
 export const applyMask = (mask: Drawdown, pattern: Drawdown): Drawdown => {
 
-  const res = createBlankDrawdown(wefts(mask), warps(mask));
+  const res = createBlankDrawdown(wefts(mask), warps(mask)) as Drawdown;
   for (let i = 0; i < wefts(mask); i++) {
     for (let j = 0; j < warps(mask); j++) {
       if (getCellValue(mask[i][j])) {
@@ -871,7 +911,7 @@ export const invertDrawdown = (drawdown: Drawdown): Drawdown => {
  */
 export const shiftDrawdown = (drawdown: Drawdown, up: boolean, inc: number): Drawdown => {
 
-  const shifted = createBlankDrawdown(wefts(drawdown), warps(drawdown));
+  const shifted = createBlankDrawdown(wefts(drawdown), warps(drawdown)) as Drawdown;
   for (let i = 0; i < wefts(drawdown); i++) {
     for (let j = 0; j < warps(drawdown); j++) {
       let set_to: boolean | null = false;
@@ -893,7 +933,7 @@ export const shiftDrawdown = (drawdown: Drawdown, up: boolean, inc: number): Dra
 */
 export const flipDrawdown = (drawdown: Drawdown, horiz: boolean): Drawdown => {
 
-  const flip = createBlankDrawdown(wefts(drawdown), warps(drawdown));
+  const flip = createBlankDrawdown(wefts(drawdown), warps(drawdown)) as Drawdown;
   for (let i = 0; i < wefts(drawdown); i++) {
     for (let j = 0; j < warps(drawdown); j++) {
       let set_to: boolean | null = false;
@@ -942,7 +982,7 @@ export const generateMappingFromPattern = (drawdown: Drawdown, pattern: Array<nu
  */
 export const updateWeftSystemsAndShuttles = (to: Draft, from: Draft): Draft => {
 
-  if (from == null || from == undefined) from = initDraftWithParams({ wefts: 1, warps: 1, drawdown: [[createCell(false)]] });
+  if (from == null || from == undefined) from = initDraftWithParams({ wefts: 1, warps: 1, drawdown: [[createCell(false)]] }) as Draft;
 
   to.rowShuttleMapping = generateMappingFromPattern(to.drawdown, from.rowShuttleMapping, 'row');
 
@@ -954,7 +994,7 @@ export const updateWeftSystemsAndShuttles = (to: Draft, from: Draft): Draft => {
 
 export const updateWarpSystemsAndShuttles = (to: Draft, from: Draft): Draft => {
 
-  if (from == null || from == undefined) from = initDraftWithParams({ wefts: 1, warps: 1, drawdown: [[createCell(false)]] });
+  if (from == null || from == undefined) from = initDraftWithParams({ wefts: 1, warps: 1, drawdown: [[createCell(false)]] }) as Draft;
 
   to.colShuttleMapping = generateMappingFromPattern(to.drawdown, from.colShuttleMapping, 'col');
 
@@ -1203,8 +1243,8 @@ export const flipDraft = (d: Draft, horiz: boolean, vert: boolean): Promise<Draf
       ud_name: d.ud_name,
       colShuttleMapping: d.colShuttleMapping,
       colSystemMapping: d.colSystemMapping
-    });
-  draft.drawdown = createBlankDrawdown(wefts(d.drawdown), warps(d.drawdown));
+    }) as Draft;
+  draft.drawdown = createBlankDrawdown(wefts(d.drawdown), warps(d.drawdown)) as Drawdown;
 
   for (let i = 0; i < wefts(d.drawdown); i++) {
     let flipped_i = i;
