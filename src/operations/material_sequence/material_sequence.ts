@@ -1,7 +1,7 @@
 import { initDraftWithParams, createCell } from "../../draft";
 import { getOpParamValById } from "../../operations";
 import { StringParam, OperationInlet, OpParamVal, Operation, OpMeta, SelectParam } from "../types";
-import { parseRegex } from "../../utils";
+import { defaults, parseRegex } from "../../utils";
 import { colorEffectsOp } from "../categories";
 
 const name = "material_sequence";
@@ -80,9 +80,23 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
     return 'material sequence(' + param_vals[0].val + ')';
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>): boolean => {
+    const sequence_string: string = <string>getOpParamValById(0, op_params);
+    const orientation: number = <number>getOpParamValById(1, op_params);
+    const regex_matches = parseRegex(sequence_string, sequence_pattern.regex)
 
+    const sequence_array = regex_matches
+        .filter(el => el !== ' ')
+        .map(el => parseInt(el))
 
-export const material_sequence: Operation = { name, meta, params, inlets, perform, generateName };
+    if (orientation === 0 || orientation === 1) {
+        return sequence_array.length <= defaults.max_area ? true : false;
+    } else {
+        return sequence_array.length * sequence_array.length <= defaults.max_area ? true : false;
+    }
+}
+
+export const material_sequence: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

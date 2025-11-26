@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, SelectParam } from "../types";
 import { clothOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "tile";
 
@@ -124,5 +125,18 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'tile(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const input_draft = getInputDraft(op_inputs);
+  if (input_draft == null) return true;
 
-export const tile: Operation = { name, meta, params, inlets, perform, generateName };
+
+  const warp_rep = <number>getOpParamValById(0, op_params);
+  const weft_rep = <number>getOpParamValById(1, op_params);
+
+  const w = warp_rep * warps(input_draft.drawdown);
+  const h = weft_rep * wefts(input_draft.drawdown);
+
+  return (w * h <= defaults.max_area) ? true : false;
+}
+
+export const tile: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

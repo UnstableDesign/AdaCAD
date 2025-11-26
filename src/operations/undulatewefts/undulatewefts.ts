@@ -101,9 +101,11 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'undulate wefts(' + param_vals[0].val + ')';
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-
-export const undulatewefts: Operation = { name, meta, params, inlets, perform, generateName };
+export const undulatewefts: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

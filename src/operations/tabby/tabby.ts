@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "tabby";
 
@@ -105,8 +106,19 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'tabby(' + flattenParamVals(param_vals) + ')';
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const raised: number = <number>getOpParamValById(0, param_vals);
+  const lowered: number = <number>getOpParamValById(1, param_vals);
+  const rep: number = <number>getOpParamValById(2, param_vals);
+  const alt_rep: number = <number>getOpParamValById(3, param_vals);
 
-export const tabby: Operation = { name, meta, params, inlets, perform, generateName };
+  const width = raised + lowered;
+  const height = rep + alt_rep;
+
+  return (width * height <= defaults.max_area) ? true : false;
+}
+
+export const tabby: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 import { transformationOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "crop";
 
@@ -135,6 +136,12 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
     return 'crop(' + name_list + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>): boolean => {
+    const width: number = <number>getOpParamValById(2, op_params);
+    const height: number = <number>getOpParamValById(3, op_params);
 
-export const crop: Operation = { name, meta, params, inlets, perform, generateName };
+    return (width * height <= defaults.max_area) ? true : false;
+}
+
+export const crop: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 

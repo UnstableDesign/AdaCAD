@@ -1,7 +1,7 @@
 import { initDraftWithParams, createCell, Cell, wefts, warps, getHeddle, Draft, initDraftFromDrawdown } from "../../draft";
 import { Img, AnalyzedImage } from "../../media";
 import { getOpParamValById } from "../../operations";
-import { filterToUniqueValues } from "../../utils";
+import { defaults, filterToUniqueValues } from "../../utils";
 import { clothOp } from "../categories";
 import { FileParam, NumParam, OperationInlet, OpParamVal, OpInput, OpInletValType, OpParamValType, DynamicOperation, OpMeta } from "../types";
 
@@ -153,5 +153,11 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>): boolean => {
+  const res_w: number = <number>getOpParamValById(1, op_params);
+  const res_h: number = <number>getOpParamValById(2, op_params);
+  return (res_w * res_h <= defaults.max_area) ? true : false;
+}
 
-export const imagemap: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+
+export const imagemap: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange, sizeCheck };

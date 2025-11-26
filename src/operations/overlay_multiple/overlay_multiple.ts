@@ -70,5 +70,15 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'overlay_multi' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const drafts = getAllDraftsAtInlet(op_inputs, 0);
 
-export const overlay_multiple: Operation = { name, meta, params, inlets, perform, generateName };
+  if (drafts.length == 0) return true;
+
+  const ends = lcm(drafts.map(el => warps(el.drawdown)), defaults.lcm_timeout);
+  const pics = lcm(drafts.map(el => wefts(el.drawdown)), defaults.lcm_timeout);
+
+  return (ends * pics <= defaults.max_area) ? true : false;
+}
+
+export const overlay_multiple: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

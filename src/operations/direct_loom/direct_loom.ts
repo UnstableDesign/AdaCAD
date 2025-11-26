@@ -117,5 +117,8 @@ const generateName = (): string => {
   return 'makedirectloom';
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const direct_loom: Operation = { name, meta, params, inlets, perform, generateName };
+export const direct_loom: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

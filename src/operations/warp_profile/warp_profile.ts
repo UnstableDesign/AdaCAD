@@ -156,5 +156,49 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 }
 
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
 
-export const warp_profile: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+  const original_string = <string>getOpParamValById(0, op_params);
+  const original_string_split = parseRegex(original_string, (<StringParam>op_params[0].param).regex);
+
+  if (original_string_split == null || original_string_split.length == 0) return true;
+
+  if (op_inputs.length == 0) return true;
+
+  //now just get all the drafts
+  const all_drafts: Array<Draft> = op_inputs
+    .filter(el => el.inlet_id > 0)
+    .reduce((acc: Draft[], el) => {
+      el.drafts.forEach(draft => { acc.push(draft) });
+      return acc;
+    }, []);
+
+  let total_wefts: number = 0;
+  const all_wefts = all_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
+  total_wefts = lcm(all_wefts, defaults.lcm_timeout);
+
+
+  const profile_draft_map = op_inputs
+    .map(el => {
+      return {
+        id: el.inlet_id,
+        val: (el.inlet_params[0] == undefined) ? '' : (el.inlet_params[0]).toString(),
+        draft: el.drafts[0]
+      }
+    });
+
+
+  let total_warps: number = 0;
+  original_string_split.forEach(string_id => {
+    const draft_map_item = profile_draft_map.find(el => el.val == string_id);
+    if (draft_map_item !== undefined) {
+      total_warps += warps(draft_map_item.draft.drawdown);
+    }
+  })
+
+  return (total_warps * total_wefts <= defaults.max_area) ? true : false;
+}
+
+
+
+export const warp_profile: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange, sizeCheck };

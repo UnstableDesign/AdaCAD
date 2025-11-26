@@ -76,5 +76,8 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'set interlacements to unset(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const set_interlacement_to_unset: Operation = { name, meta, params, inlets, perform, generateName };
+export const set_interlacement_to_unset: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

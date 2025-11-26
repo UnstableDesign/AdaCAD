@@ -1,7 +1,7 @@
 import { initDraftFromDrawdown, Draft } from "../../draft";
 import { getOpParamValById } from "..";
 import { StringParam, OperationInlet, OpParamVal, Operation, OpMeta, SelectParam } from "../types";
-import { parseRegex } from "../../utils";
+import { defaults, parseRegex } from "../../utils";
 import { draftingStylesOp } from "../categories";
 import { Sequence } from "../../sequence";
 
@@ -110,9 +110,30 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
     return 'threading/treadling sequence(' + param_vals[0].val + ')';
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+    const sequence_string: string = <string>getOpParamValById(0, param_vals);
+    const regex_matches = parseRegex(sequence_string, sequence_pattern.regex)
 
 
-export const threading_treadling_sequence: Operation = { name, meta, params, inlets, perform, generateName };
+    const sequence_array = regex_matches
+        .filter(el => el !== ' ')
+        .map(el => parseInt(el))
+
+
+
+    //get the max value in the sequence
+    const height = sequence_array.reduce((acc, curr) => {
+        acc = Math.max(acc, curr);
+        return acc;
+    }, 0);
+
+    const width = sequence_array.length;
+
+    return (width * height <= defaults.max_area) ? true : false;
+
+}
+
+export const threading_treadling_sequence: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

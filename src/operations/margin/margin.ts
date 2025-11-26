@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { transformationOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "margin";
 
@@ -183,6 +184,22 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return name_list + "+margin";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const base_drafts = getAllDraftsAtInlet(op_inputs, 0);
+  const starting_pics = <number>getOpParamValById(0, op_params);
+  const ending_pics = <number>getOpParamValById(1, op_params);
+  const starting_ends = <number>getOpParamValById(2, op_params);
+  const ending_ends = <number>getOpParamValById(3, op_params);
 
-export const margin: Operation = { name, meta, params, inlets, perform, generateName };
+  if (base_drafts.length == 0) return true;
+  const base_draft = base_drafts[0];
+
+  const width = warps(base_draft.drawdown) + starting_ends + ending_ends;
+  const height = wefts(base_draft.drawdown) + ending_pics + starting_pics;
+
+  return (width * height <= defaults.max_area) ? true : false;
+
+}
+
+export const margin: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 

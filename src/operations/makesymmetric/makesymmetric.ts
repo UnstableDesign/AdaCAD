@@ -1,8 +1,9 @@
-import { initDraftFromDrawdown } from "../../draft";
+import { initDraftFromDrawdown, warps, wefts } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getInputDraft, getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../../operations";
 import { SelectParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { transformationOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "makesymmetric";
 
@@ -290,5 +291,29 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
     return 'symmetric(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+    const input_draft = getInputDraft(op_inputs);
+    const sym_mode = getOpParamValById(0, op_params);
+    if (input_draft == null) return true;
 
-export const makesymmetric: Operation = { name, meta, params, inlets, perform, generateName };
+    const warpnum = warps(input_draft.drawdown);
+    const weftnum = wefts(input_draft.drawdown);
+
+    switch (sym_mode) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            return (warpnum * weftnum * 4 <= defaults.max_area) ? true : false;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            return (warpnum * weftnum * 2 <= defaults.max_area) ? true : false;
+        default:
+            return (warpnum * weftnum <= defaults.max_area) ? true : false;;
+    }
+
+}
+
+export const makesymmetric: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

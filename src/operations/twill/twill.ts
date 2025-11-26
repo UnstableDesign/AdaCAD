@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById } from "../../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "twill";
 
@@ -102,8 +103,14 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'twill(' + raised + "," + lowered + "," + dir + ')';
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const raised: number = <number>getOpParamValById(0, param_vals);
+  const lowered: number = <number>getOpParamValById(1, param_vals);
+  const size = raised + lowered;
+  return (size * size <= defaults.max_area) ? true : false;
+}
 
-export const twill: Operation = { name, meta, params, inlets, perform, generateName };
+export const twill: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

@@ -135,5 +135,23 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return "join top(" + name_list + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
 
-export const join_top: Operation = { name, meta, params, inlets, perform, generateName };
+  const drafts = getAllDraftsAtInlet(op_inputs, 0);
+  const factor_in_repeats = getOpParamValById(0, op_params);
+
+  if (drafts.length == 0) return true;
+
+  let total_warps: number = 0;
+  const all_warps = drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+  if (factor_in_repeats === 1) total_warps = lcm(all_warps, defaults.lcm_timeout);
+  else total_warps = getMaxWarps(drafts);
+
+  const total_wefts = drafts.reduce((acc, draft) => {
+    return acc + wefts(draft.drawdown);
+  }, 0);
+
+  return (total_warps * total_wefts <= defaults.max_area) ? true : false;
+}
+
+export const join_top: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 
 const name = "random";
@@ -84,8 +85,13 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'random(' + flattenParamVals(param_vals) + ")";
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const ends: number = <number>getOpParamValById(0, param_vals);
+  const pics: number = <number>getOpParamValById(1, param_vals);
+  return (ends * pics <= defaults.max_area) ? true : false;
+}
 
-export const random: Operation = { name, meta, params, inlets, perform, generateName };
+export const random: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

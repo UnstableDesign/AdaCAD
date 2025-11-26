@@ -4,7 +4,6 @@ import { transformationOp } from "../categories";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 
 const name = "clear";
-const old_names: Array<string> = [];
 
 const meta: OpMeta = {
   displayname: 'clear',
@@ -55,5 +54,8 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'clear(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const clear: Operation = { name, meta, params, inlets, perform, generateName };
+export const clear: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

@@ -121,5 +121,22 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'chaos(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const input_drafts = getAllDraftsAtInlet(op_inputs, 0);
+  if (input_drafts.length == 0) return true;
 
-export const chaos: Operation = { name, meta, params, inlets, perform, generateName };
+  const all_warps = input_drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+  const total_warps = lcm(all_warps, defaults.lcm_timeout);
+
+  const all_wefts = input_drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
+  const total_wefts = lcm(all_wefts, defaults.lcm_timeout);
+
+  const warp_rep: number = <number>getOpParamValById(0, op_params);
+  const weft_rep: number = <number>getOpParamValById(1, op_params);
+
+  const area = total_warps * total_wefts * warp_rep * weft_rep;
+  return (area <= defaults.max_area ? true : false);
+
+}
+
+export const chaos: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

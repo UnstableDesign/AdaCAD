@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "..";
 import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "sine";
 
@@ -85,8 +86,13 @@ const generateName = (param_vals: Array<OpParamVal>,): string => {
   return 'sine(' + flattenParamVals(param_vals) + ")";
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const width: number = <number>getOpParamValById(0, param_vals);
+  const amp: number = <number>getOpParamValById(1, param_vals);
+  return (width * amp <= defaults.max_area) ? true : false;
+}
 
-export const sine: Operation = { name, meta, params, inlets, perform, generateName };
+export const sine: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

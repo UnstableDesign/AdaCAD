@@ -4,7 +4,7 @@ import { parseRegex, filterToUniqueValues } from "../../utils";
 import { compoundOp } from "../categories";
 import { getOpParamValById, getAllDraftsAtInlet, parseDraftNames } from "../operations";
 import { StringParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
-
+import { defaults } from "../../utils/defaults";
 const name = "assign_systems";
 
 const meta: OpMeta = {
@@ -144,4 +144,15 @@ const parseWeftSystem = (val: string): Array<number> => {
 }
 
 
-export const assign_systems: Operation = { name, meta, params, inlets, perform, generateName };
+const sizeCheck = (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const system_map = getAllDraftsAtInlet(op_inputs, 0);
+  if (system_map.length == 0) return true;
+
+  const draft = getAllDraftsAtInlet(op_inputs, 1);
+  if (draft.length == 0) return true
+  const ends = warps(draft[0].drawdown) * warps(system_map[0].drawdown);
+  const pics = wefts(draft[0].drawdown) * wefts(system_map[0].drawdown);
+  return (ends * pics) <= defaults.max_area ? true : false;
+}
+
+export const assign_systems: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

@@ -103,5 +103,15 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return "layer(" + name_list + ")";
 }
 
+const sizeCheck = (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const drafts = getAllDraftsAtInlet(op_inputs, 0);
 
-export const layer: Operation = { name, meta, params, inlets, perform, generateName };
+  if (drafts.length == 0) return true;
+
+  const ends = lcm(drafts.map(el => warps(el.drawdown)), defaults.lcm_timeout) * drafts.length;
+  const pics = lcm(drafts.map(el => wefts(el.drawdown)), defaults.lcm_timeout) * drafts.length;
+  return (ends * pics <= defaults.max_area) ? true : false;
+
+}
+
+export const layer: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { structureOp } from "../categories";
 import { getOpParamValById } from "../operations";
 import { NumParam, OpMeta, OpParamVal, Operation, OperationInlet } from "../types";
+import { defaults } from "../../utils";
 
 
 
@@ -22,7 +23,7 @@ const meta: OpMeta = {
 //PARAMS
 const width: NumParam =
 {
-    name: 'width',
+    name: 'ends',
     type: 'number',
     min: 1,
     max: 5000,
@@ -163,5 +164,10 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
     return 'tree' + pcent;
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+    const width: number = <number>getOpParamValById(0, param_vals);
+    const depth: number = <number>getOpParamValById(1, param_vals);
+    return (width * depth <= defaults.max_area) ? true : false;
+}
 
-export const rand_tree: Operation = { name, params, inlets, meta, perform, generateName };
+export const rand_tree: Operation = { name, params, inlets, meta, perform, generateName, sizeCheck };

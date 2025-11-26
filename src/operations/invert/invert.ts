@@ -61,8 +61,11 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const invert: Operation = { name, meta, params, inlets, perform, generateName };
+export const invert: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

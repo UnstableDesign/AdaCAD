@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 import { helperOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "selvedge";
 
@@ -131,6 +132,19 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
     return name_list + "+selvedge";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+    const draft = getAllDraftsAtInlet(op_inputs, 0);
+    const w = <number>getOpParamValById(0, op_params);
 
-export const selvedge: Operation = { name, meta, params, inlets, perform, generateName };
+    if (draft.length == 0) return w * 2 <= defaults.max_area ? true : false;
+
+    const width = warps(draft[0].drawdown) + w * 2;
+    const height = wefts(draft[0].drawdown);
+
+
+    return width * height <= defaults.max_area ? true : false;
+
+}
+
+export const selvedge: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 

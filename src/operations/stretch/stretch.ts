@@ -1,8 +1,9 @@
-import { cellToSequenceVal, initDraftFromDrawdown } from "../../draft";
+import { cellToSequenceVal, initDraftFromDrawdown, warps, wefts } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getInputDraft, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, Operation, OperationInlet, OpInput, OpMeta, OpParamVal } from "../types";
 import { transformationOp } from "../categories";
+import { defaults } from "../../utils";
 
 
 const name = "stretch";
@@ -104,5 +105,19 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'stretch(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
 
-export const stretch: Operation = { name, meta, params, inlets, perform, generateName };
+  const input_draft = getInputDraft(op_inputs);
+  if (input_draft == null) return true;
+
+
+  const warp_rep = <number>getOpParamValById(0, op_params);
+  const weft_rep = <number>getOpParamValById(1, op_params);
+
+  const width = warps(input_draft.drawdown) * warp_rep;
+  const height = wefts(input_draft.drawdown) * weft_rep;
+
+  return (width * height <= defaults.max_area) ? true : false;
+}
+
+export const stretch: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

@@ -110,5 +110,8 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'fill(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const fill: Operation = { name, meta, params, inlets, perform, generateName };
+export const fill: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

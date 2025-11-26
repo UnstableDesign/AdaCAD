@@ -89,8 +89,11 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'slope' + pic_shift + "/" + end_shift;
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const slope: Operation = { name, meta, params, inlets, perform, generateName };
+export const slope: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

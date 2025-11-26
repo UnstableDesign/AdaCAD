@@ -126,5 +126,18 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'drawdown(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const threading = getAllDraftsAtInlet(op_inputs, 0);
+  const lift_plan = getAllDraftsAtInlet(op_inputs, 1);
 
-export const directdrawdown: Operation = { name, meta, params, inlets, perform, generateName };
+
+  if (threading.length == 0 || lift_plan.length == 0) return true;
+
+  const threading_draft = threading[0];
+  const lift_draft = lift_plan[0];
+
+  if (warps(threading_draft.drawdown) * wefts(lift_draft.drawdown) < defaults.max_area) return true;
+  return false;
+}
+
+export const directdrawdown: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

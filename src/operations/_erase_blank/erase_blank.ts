@@ -75,5 +75,8 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'eraseblank(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const erase_blank: Operation = { name, meta, params, inlets, perform, generateName };
+export const erase_blank: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

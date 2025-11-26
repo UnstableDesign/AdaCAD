@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "..";
 import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 
 const name = "waffle";
@@ -139,8 +140,20 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'waffle(' + flattenParamVals(param_vals) + ')';
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  let float: number = <number>getOpParamValById(0, param_vals);
+  const bindings: number = <number>getOpParamValById(1, param_vals);
 
-export const waffle: Operation = { name, meta, params, inlets, perform, generateName };
+  //always make it an odd number 
+  if (float % 2 == 0) float -= 1;
+
+  const max_binding = 1 + (bindings) * 2;
+  const size = float + max_binding * 2;
+
+  return (size * size <= defaults.max_area) ? true : false;
+}
+
+export const waffle: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

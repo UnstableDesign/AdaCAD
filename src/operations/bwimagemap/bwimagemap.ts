@@ -1,6 +1,7 @@
 import { initDraftWithParams, createCell, Cell, wefts, warps, getHeddle, Draft, initDraftFromDrawdown } from "../../draft";
 import { Img, AnalyzedImage } from "../../media";
 import { getOpParamValById } from "../../operations";
+import { defaults } from "../../utils";
 import { structureOp } from "../categories";
 import { FileParam, NumParam, OperationInlet, OpParamVal, OpInput, OpInletValType, DynamicOperation, OpMeta } from "../types";
 
@@ -166,12 +167,13 @@ const onParamChange = (): Array<OpInletValType> => {
   return new_inlets;
 
 
+}
 
-
-
-
-
+const sizeCheck = (op_params: Array<OpParamVal>): boolean => {
+  const res_w: number = <number>getOpParamValById(1, op_params);
+  const res_h: number = <number>getOpParamValById(2, op_params);
+  return (res_w * res_h) <= defaults.max_area ? true : false;
 }
 
 
-export const bwimagemap: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+export const bwimagemap: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange, sizeCheck };

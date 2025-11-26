@@ -135,5 +135,24 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return "join left(" + name_list + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
 
-export const join_left: Operation = { name, meta, params, inlets, perform, generateName };
+  const drafts = getAllDraftsAtInlet(op_inputs, 0);
+  const factor_in_repeats = getOpParamValById(0, op_params);
+
+  if (drafts.length == 0) return true;
+
+  let total_wefts: number = 0;
+
+  const all_wefts = drafts.map(el => wefts(el.drawdown)).filter(el => el > 0);
+  if (factor_in_repeats === 1) total_wefts = lcm(all_wefts, defaults.lcm_timeout);
+  else total_wefts = getMaxWefts(drafts);
+
+  const total_warps = drafts.reduce((acc, draft) => {
+    return acc + warps(draft.drawdown);
+  }, 0);
+
+  return (total_wefts * total_warps <= defaults.max_area) ? true : false;
+}
+
+export const join_left: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

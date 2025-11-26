@@ -119,5 +119,19 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'drawdown(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const threading = getAllDraftsAtInlet(op_inputs, 0);
+  const treadling = getAllDraftsAtInlet(op_inputs, 2);
 
-export const drawdown: Operation = { name, meta, params, inlets, perform, generateName };
+  if (threading.length == 0 || treadling.length == 0) return true;
+
+
+  const threading_draft = threading[0];
+  const treadling_draft = treadling[0];
+
+
+  if (warps(threading_draft.drawdown) * wefts(treadling_draft.drawdown) < defaults.max_area) return true;
+  return false;
+}
+
+export const drawdown: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

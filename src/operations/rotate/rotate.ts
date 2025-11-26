@@ -157,5 +157,8 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'rotate(' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const rotate: Operation = { name, meta, params, inlets, perform, generateName };
+export const rotate: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

@@ -154,6 +154,39 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+
+  const system_map = getAllDraftsAtInlet(op_inputs, 0);
+  if (system_map.length == 0) return true;
+
+  const original_string: string = <string>getOpParamValById(0, op_params);
+  const original_string_split = parseRegex(original_string, pattern.regex);
+  if (original_string_split == null || original_string_split.length == 0) return true;
+
+  const layer_draft_map = original_string_split.map((unit) => {
+
+    const drafts = getAllDraftsAtInletByLabel(op_inputs, unit);
+
+    return {
+      draft: (drafts == null || drafts.length == 0) ? null : drafts[0]
+    }
+  });
+
+
+
+  const ends = lcm(
+    layer_draft_map.filter(el => el.draft !== null)
+      .map(ldm => warps(ldm.draft!.drawdown)), defaults.lcm_timeout) * warps(system_map[0].drawdown);
+
+  const pics = lcm(
+    layer_draft_map.filter(el => el.draft !== null)
+      .map(ldm => wefts(ldm.draft!.drawdown)), defaults.lcm_timeout) * wefts(system_map[0].drawdown);
+
+
+
+  return ends * pics <= defaults.max_area ? true : false;
+}
+
 
 
 
@@ -182,4 +215,4 @@ const parseWeftSystem = (val: string): Array<number> => {
 }
 
 
-export const notation: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+export const notation: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange, sizeCheck };

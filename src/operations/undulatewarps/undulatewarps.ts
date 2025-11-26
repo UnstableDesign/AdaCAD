@@ -99,8 +99,11 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'undulate warps(' + param_vals[0].val + ')';
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const undulatewarps: Operation = { name, meta, params, inlets, perform, generateName };
+export const undulatewarps: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

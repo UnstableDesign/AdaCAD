@@ -79,7 +79,6 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
       }
     });
 
-  console.log("profile draft map", profile_draft_map)
   const pattern = new Sequence.TwoD();
   const warp_systems = new Sequence.OneD();
   const warp_mats = new Sequence.OneD();
@@ -158,6 +157,34 @@ const onParamChange = (param_vals: Array<OpParamVal>, static_inlets: Array<Opera
 
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const original_string = <string>getOpParamValById(0, op_params);
+  const original_string_split = parseRegex(original_string, (<StringParam>op_params[0].param).regex);
+
+  if (original_string_split == null || original_string_split.length == 0) return true;
+  if (op_inputs.length == 0) return true;
+
+  //now just get all the drafts
+  const all_drafts: Array<Draft> = op_inputs
+    .filter(el => el.inlet_id > 0)
+    .reduce((acc: Array<Draft>, el) => {
+      el.drafts.forEach(draft => { acc.push(draft) });
+      return acc;
+    }, []);
+
+  let total_warps: number = 0;
+  const all_warps = all_drafts.map(el => warps(el.drawdown)).filter(el => el > 0);
+  total_warps = lcm(all_warps, defaults.lcm_timeout);
+
+  let total_wefts: number = 0;
+  original_string_split.forEach(string_id => {
+    const qty = parseInt((<string>string_id).substring(1))
+    total_wefts += qty;
+  })
+
+  return (total_warps * total_wefts <= defaults.max_area) ? true : false;
+}
 
 
-export const sample_length: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange };
+
+export const sample_length: DynamicOperation = { name, meta, params, inlets, dynamic_param_id, dynamic_param_type, perform, generateName, onParamChange, sizeCheck };

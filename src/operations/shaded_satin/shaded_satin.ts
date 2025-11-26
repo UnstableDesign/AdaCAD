@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "shaded_satin";
 
@@ -96,8 +97,16 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'shaded satin(' + flattenParamVals(param_vals) + ")";
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const raised: number = <number>getOpParamValById(0, param_vals);
+  const lowered: number = <number>getOpParamValById(1, param_vals);
+  ;
 
-export const shaded_satin: Operation = { name, meta, params, inlets, perform, generateName };
+  const total = raised + lowered;
+  return (total * total <= defaults.max_area) ? true : false;
+}
+
+export const shaded_satin: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

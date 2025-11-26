@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
 import { computeOp } from "../categories";
+import { defaults } from "../../utils";
 
 const name = "atop";
 
@@ -135,5 +136,21 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return 'atop' + parseDraftNames(drafts) + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const input_draft_a = getAllDraftsAtInlet(op_inputs, 0);
+  const input_draft_b = getAllDraftsAtInlet(op_inputs, 1);
+  const shift_ends: number = <number>getOpParamValById(0, op_params);
+  const shift_pics: number = <number>getOpParamValById(1, op_params);
 
-export const atop: Operation = { name, meta, params, inlets, perform, generateName };
+  if (input_draft_a.length == 0 && input_draft_b.length == 0) return true;
+
+  const draft_a = (input_draft_a.length == 0) ? initDraftFromDrawdown([[createCell(null)]]) : input_draft_a[0];
+  const draft_b = (input_draft_b.length == 0) ? initDraftFromDrawdown([[createCell(null)]]) : input_draft_b[0];
+
+  const height = Math.max(wefts(draft_b.drawdown) + shift_pics, wefts(draft_a.drawdown));
+  const width = Math.max(warps(draft_b.drawdown) + shift_ends, warps(draft_a.drawdown));
+
+  return (height * width) <= defaults.max_area ? true : false;
+}
+
+export const atop: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

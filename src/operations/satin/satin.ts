@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
 import { NumParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 
 const name = "satin";
@@ -89,8 +90,12 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'satin(' + flattenParamVals(param_vals) + ")";
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const repeat: number = <number>getOpParamValById(0, param_vals);
+  return (repeat * repeat <= defaults.max_area) ? true : false;
+}
 
-export const satin: Operation = { name, meta, params, inlets, perform, generateName };
+export const satin: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

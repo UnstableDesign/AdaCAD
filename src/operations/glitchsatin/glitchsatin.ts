@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
 import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 
 
@@ -116,7 +117,13 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'glitchsatin(' + flattenParamVals(param_vals) + ")";
 }
 
-export const glitchsatin: Operation = { name, meta, params, inlets, perform, generateName };
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const cols: number = <number>getOpParamValById(0, param_vals);
+  const rows: number = <number>getOpParamValById(1, param_vals);
+  return (cols * rows <= defaults.max_area) ? true : false;
+}
+
+export const glitchsatin: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 function printDraftForVerticalDirection(grid: Array<Array<boolean>>, odds_denom_min: number, odds_denom_max: number, frequency: number): Array<Array<boolean>> {
   const cols = grid.length;

@@ -167,9 +167,11 @@ const parseWeftSystem = (val: string): Array<number> => {
 }
 
 
-/***
- * takes an input draft and a system and returns a draft that only represents that system
- */
-export const analyzesystem: Operation = { name, meta, params, inlets, perform, generateName };
+
+const sizeCheck = (): boolean => {
+  return true;
+}
+
+export const analyzesystem: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 

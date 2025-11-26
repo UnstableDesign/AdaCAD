@@ -2,7 +2,7 @@ import { initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
 import { getOpParamValById } from "../../operations";
 import { StringParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
-import { parseRegex } from "../../utils";
+import { defaults, parseRegex } from "../../utils";
 import { structureOp } from "../categories";
 
 
@@ -98,8 +98,20 @@ const generateName = (): string => {
   return 'shifty';
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const input_string: string = <string>getOpParamValById(0, param_vals);
 
-export const undulating_twill: Operation = { name, meta, params, inlets, perform, generateName };
+  const regex_matches = parseRegex(input_string, shift_pattern.regex)
+  const input_array = regex_matches.filter(el => el !== " ").map(el => parseInt(el))
+
+  const size = input_array.reduce((acc, val) => {
+    return val + acc;
+  }, 0);
+
+  return (size * size <= defaults.max_area) ? true : false;
+}
+
+export const undulating_twill: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

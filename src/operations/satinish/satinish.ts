@@ -3,6 +3,7 @@ import { Sequence } from "../../sequence";
 import { getOpParamValById, flattenParamVals } from "../../operations";
 import { StringParam, NumParam, BoolParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 import { structureOp } from "../categories";
+import { defaults } from "../../utils";
 
 
 const name = "satinish";
@@ -95,8 +96,19 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'satinish(' + flattenParamVals(param_vals) + ")";
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const input_string: string = <string>getOpParamValById(0, param_vals);
 
-export const satinish: Operation = { name, meta, params, inlets, perform, generateName };
+  const input_array: Array<number> = input_string.split(' ').map(el => parseInt(el));
+
+  const size: number = input_array.reduce((acc, val) => {
+    return val + acc;
+  }, 0);
+
+  return (size * size <= defaults.max_area) ? true : false;
+}
+
+export const satinish: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

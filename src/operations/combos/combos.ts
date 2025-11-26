@@ -110,8 +110,11 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return 'all possible(' + flattenParamVals(param_vals) + ')';
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const combos: Operation = { name, meta, params, inlets, perform, generateName };
+export const combos: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

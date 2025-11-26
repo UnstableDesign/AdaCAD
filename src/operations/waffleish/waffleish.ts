@@ -1,5 +1,6 @@
 import { Cell, createCell, getCellValue, setCellValue, initDraftWithParams } from "../../draft";
 import { getOpParamValById } from "../../operations";
+import { defaults } from "../../utils";
 import { structureOp } from "../categories";
 import { NumParam, OperationInlet, OpParamVal, Operation, OpMeta } from "../types";
 
@@ -123,8 +124,13 @@ const generateName = (): string => {
   return 'waffleish';
 }
 
+const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
+  const width: number = <number>getOpParamValById(0, param_vals);
+  const height: number = <number>getOpParamValById(1, param_vals);
+  return (width * height <= defaults.max_area) ? true : false;
+}
 
-export const waffleish: Operation = { name, meta, params, inlets, perform, generateName };
+export const waffleish: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
 
 
 

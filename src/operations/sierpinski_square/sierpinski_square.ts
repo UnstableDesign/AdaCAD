@@ -1,5 +1,6 @@
 import { Cell, initDraftFromDrawdown } from "../../draft";
 import { Sequence } from "../../sequence";
+import { defaults } from "../../utils";
 import { structureOp } from "../categories";
 import { getOpParamValById } from "../operations";
 import { NumParam, BoolParam, OpParamVal, Operation, OperationInlet, OpMeta } from "../types";
@@ -147,5 +148,9 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
     return 'sierpinski square' + amt_x + '/' + amt_y;
 }
 
+const sizeCheck = (op_settings: Array<OpParamVal>): boolean => {
+    const amt_size = <number>getOpParamValById(0, op_settings);
+    return (amt_size * amt_size <= defaults.max_area) ? true : false;
+}
 
-export const sierpinski_square: Operation = { name, meta, params, inlets, perform, generateName };
+export const sierpinski_square: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

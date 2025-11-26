@@ -119,20 +119,12 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 }
 
 const generateName = (): string => {
-  //const drafts = getAllDraftsAtInlet(op_inputs, 0);
 
-  // switch (ndx ){
-  //   case 0: 
-  //   return   "threading_"+parseDraftNames(drafts);
-
-  //   case 1: 
-  //   return   "tie_up_"+parseDraftNames(drafts);
-
-  //   case 2: 
-  //   return   "treadling_"+parseDraftNames(drafts);
-  // }
   return ''
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const floor_loom: Operation = { name, meta, params, inlets, perform, generateName };
+export const floor_loom: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

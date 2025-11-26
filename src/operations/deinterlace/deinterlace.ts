@@ -96,5 +96,8 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return "deinterlaced(" + getDraftName(input_draft) + ")";
 }
 
+const sizeCheck = (): boolean => {
+  return true;
+}
 
-export const deinterlace: Operation = { name, meta, params, inlets, perform, generateName };
+export const deinterlace: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

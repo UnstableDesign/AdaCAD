@@ -181,5 +181,47 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return "spliced(" + name_list + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
 
-export const splice_in_wefts: Operation = { name, meta, params, inlets, perform, generateName };
+  const receiving_drafts = getAllDraftsAtInlet(op_inputs, 0);
+  const splicing_drafts = getAllDraftsAtInlet(op_inputs, 1);
+  const pics_btwn = <number>getOpParamValById(0, op_params);
+  const repeat = <number>getOpParamValById(1, op_params);
+  const style = getOpParamValById(2, op_params);
+
+  const receiving_draft = (receiving_drafts.length == 0) ? null : receiving_drafts[0];
+
+  const splicing_draft = (splicing_drafts.length == 0) ? null : splicing_drafts[0];
+
+  const all_drafts: Array<Draft> = [receiving_draft, splicing_draft].filter((d): d is Draft => d !== null);
+
+  if (all_drafts.length == 0) return true;
+  if (receiving_draft == null || splicing_draft == null) return true;
+
+  let total_wefts: number = 0;
+  if (repeat === 1) {
+    let factors = [];
+    if (style) {
+      factors = [wefts(splicing_draft.drawdown), wefts(splicing_draft.drawdown) * (pics_btwn + wefts(splicing_draft.drawdown))];
+    } else {
+      factors = [wefts(receiving_draft.drawdown), wefts(splicing_draft.drawdown) * (pics_btwn + 1)];
+    }
+    total_wefts = lcm(factors, defaults.lcm_timeout);
+  }
+  else {
+    //sums the wefts from all the drafts
+    total_wefts = all_drafts.reduce((acc, el) => {
+      return acc + wefts((el) ? el.drawdown : []);
+    }, 0);
+  }
+
+  let total_warps: number = 0;
+  const all_warps = all_drafts.map(el => warps((el) ? el.drawdown : [])).filter(el => el > 0);
+  if (repeat === 1) total_warps = lcm(all_warps, defaults.lcm_timeout);
+  else total_warps = getMaxWarps(all_drafts);
+
+  return (total_warps * total_wefts <= defaults.max_area) ? true : false;
+
+}
+
+export const splice_in_wefts: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

@@ -191,5 +191,47 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return "spliced(" + name_list + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const receiving_drafts = getAllDraftsAtInlet(op_inputs, 0);
+  const splicing_drafts = getAllDraftsAtInlet(op_inputs, 1);
+  const ends_btwn = <number>getOpParamValById(0, op_params);
+  const repeat = <number>getOpParamValById(1, op_params);
+  const style = getOpParamValById(2, op_params);
 
-export const splice_in_warps: Operation = { name, meta, params, inlets, perform, generateName };
+  const receiving_draft = (receiving_drafts.length == 0) ? null : receiving_drafts[0];
+  const splicing_draft = (splicing_drafts.length == 0) ? null : splicing_drafts[0];
+
+  const all_drafts: Array<Draft> = [receiving_draft, splicing_draft].filter((d): d is Draft => d !== null);
+
+  if (all_drafts.length == 0) return true;
+  if (receiving_draft == null || splicing_draft == null) return true;
+
+  let total_warps: number = 0;
+  let factors: Array<number> = [];
+  if (repeat === 1) {
+    if (style) {
+      factors = [warps(receiving_draft.drawdown), (warps(splicing_draft.drawdown) * (ends_btwn + warps(splicing_draft.drawdown)))];
+    } else {
+      factors = [warps(receiving_draft.drawdown), warps(splicing_draft.drawdown) * (ends_btwn + 1)];
+    }
+    total_warps = lcm(factors, defaults.lcm_timeout);
+  }
+  else {
+    //sums the warps from all the drafts
+    total_warps = all_drafts.reduce((acc, el) => {
+      return acc + warps((el) ? el.drawdown : []);
+    }, 0);
+  }
+
+  let total_wefts: number = 0;
+  const all_wefts: Array<number> = all_drafts.map(el => wefts((el) ? el.drawdown : [])).filter(el => el !== null);
+
+  if (repeat === 1) total_wefts = lcm(all_wefts, defaults.lcm_timeout);
+  else total_wefts = getMaxWefts(all_drafts);
+
+  return (total_warps * total_wefts <= defaults.max_area) ? true : false;
+
+
+}
+
+export const splice_in_warps: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

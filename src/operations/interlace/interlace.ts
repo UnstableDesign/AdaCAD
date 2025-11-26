@@ -128,5 +128,21 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
   return "interlace(" + name_list + ")";
 }
 
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const drafts = getAllDraftsAtInlet(op_inputs, 0);
+  const repeat = getOpParamValById(0, op_params);
 
-export const interlace: Operation = { name, meta, params, inlets, perform, generateName };
+  if (drafts.length == 0) return true;
+
+  const total_wefts = lcm(drafts.map(el => wefts(el.drawdown)), defaults.lcm_timeout) * drafts.length;
+  let total_warps;
+  if (repeat) {
+    total_warps = lcm(drafts.map(el => warps(el.drawdown)), defaults.lcm_timeout);
+  } else {
+    total_warps = getMaxWarps(drafts);
+  }
+
+  return (total_wefts * total_warps <= defaults.max_area) ? true : false;
+}
+
+export const interlace: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
