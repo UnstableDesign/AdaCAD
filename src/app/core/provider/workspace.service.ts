@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { LoomSettings, setMaxArea } from 'adacad-drafting-lib';
+import { defaults as LibDefaults, LoomSettings, setMaxArea } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
 import { FileMeta } from '../model/datatypes';
 import { defaults } from '../model/defaults';
@@ -24,6 +24,7 @@ export class WorkspaceService {
   ppi: number = defaults.loom_settings.ppi;
   units: 'in' | 'cm' = <'in' | 'cm'>defaults.loom_settings.units;
   oversize_dim_threshold: number = defaults.oversize_dim_threshold;
+  max_draft_input_area: number = LibDefaults.max_area;
 
   show_materials: boolean = defaults.show_materials;
   black_cell_up: boolean = defaults.black_cell_up;
@@ -87,6 +88,7 @@ export class WorkspaceService {
 
   public setCurrentDraftSizeLimit(limit: number) {
     setMaxArea(limit);
+    this.max_draft_input_area = limit;
   }
   public setOversizeRendering(limit: number) {
     this.oversize_dim_threshold = limit;
@@ -119,6 +121,8 @@ export class WorkspaceService {
     this.selected_origin_option = defaults.selected_origin_option;
     this.hide_mixer_drafts = defaults.hide_mixer_drafts;
     this.show_advanced_operations = defaults.show_advanced_operations;
+    this.oversize_dim_threshold = defaults.oversize_dim_threshold;
+    this.max_draft_input_area = LibDefaults.max_area;
 
   }
 
@@ -136,6 +140,14 @@ export class WorkspaceService {
     this.file_favorites = (data.file_favorites === undefined) ? [] : data.file_favorites;
     this.hide_mixer_drafts = (data.hide_mixer_drafts === undefined) ? true : data.hide_mixer_drafts;
     this.show_advanced_operations = (data.show_advanced_operations === undefined) ? false : data.show_advanced_operations;
+    this.max_draft_input_area = (data.max_draft_input_area === undefined) ? LibDefaults.max_area : data.max_draft_input_area;
+    this.oversize_dim_threshold = (data.oversize_dim_threshold === undefined) ? defaults.oversize_dim_threshold : data.oversize_dim_threshold;
+    this.show_advanced_operations = (data.show_advanced_operations === undefined) ? false : data.show_advanced_operations;
+
+
+    if (this.max_draft_input_area !== LibDefaults.max_area) {
+      setMaxArea(this.max_draft_input_area)
+    }
   }
 
 
@@ -196,6 +208,8 @@ export class WorkspaceService {
       file_favorites: this.file_favorites.slice(),
       hide_mixer_drafts: this.hide_mixer_drafts,
       show_advanced_operations: this.show_advanced_operations,
+      oversize_dim_threshold: this.oversize_dim_threshold,
+      max_draft_input_area: this.max_draft_input_area
     }
   }
 

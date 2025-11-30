@@ -1295,6 +1295,17 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.workspace_modal != undefined && this.workspace_modal.componentInstance != null) return;
 
     this.workspace_modal = this.dialog.open(WorkspaceComponent, { data: {} });
+
+    this.workspace_modal.componentInstance.onOversizeRenderingChange.subscribe(event => {
+      this.mixer.redrawAllSubdrafts();
+    })
+
+    this.workspace_modal.componentInstance.onMaxAreaChange.subscribe(event => {
+      this.tree.performTopLevelOps().then(out => {
+        this.mixer.redrawAllSubdrafts()
+      })
+    })
+
     this.workspace_modal.componentInstance.onOptimizeWorkspace.subscribe(event => {
       this.optimizeWorkspace();
     });

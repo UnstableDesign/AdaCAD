@@ -101,16 +101,26 @@
       <button mat-raised-button (click)="forceJacquard()">Convert all Drafts to Jacquard </button>
 
       <mat-form-field class="full-width">
-        <mat-label>Maximum Simulation Area</mat-label>
-        <input matInput [formControl]="maxAreaForm" type="number" [min]="60000" [max]="1000000" step="100">
+        <mat-label>Maximum Draft Area</mat-label>
+        <input matInput [formControl]="maxAreaForm" type="number" [min]="60000" [max]="10000000" step="100">
         <mat-hint>This will be the maximum size for any draft. Keeping this number low as possible will ensure the
-          software runs smoothly. Anything at or under 2500 x 2500 works well</mat-hint>
+          software runs smoothly. Set to 2500 x 2500 (or 6,250,000) by default. Raising this may slow down the
+          interface.</mat-hint>
+
+        @if(maxAreaForm.dirty){
+        <button matButton="filled" color="accent" (click)="updateMaxArea(maxAreaForm.value)">Save</button>
+        }
+
       </mat-form-field>
 
       <mat-form-field class="full-width">
-        <mat-label>Draft Rendering Hidden Threshold</mat-label>
-        <input matInput [formControl]="oversizeDimForm" type="number" [min]="1" [max]="1000000" step="100">
-        <mat-hint>This will be the maximum number of any cells in a draft that will be automatically drawn</mat-hint>
+        <mat-label>Draft Rendering Hidden Area</mat-label>
+        <input matInput [formControl]="oversizeDimForm" type="number" [min]="100" [max]="1000000" step="100">
+        <mat-hint>This will be the maximum number of any cells you can have in a draft that will be automatically
+          drawn. Set to 50 x 50 (or 2,500) by default. Raising this may slow down the interface.</mat-hint>
+        @if( oversizeDimForm.dirty){
+        <button matButton="filled" color="accent" (click)="updateOversizeDim(oversizeDimForm.value)">Save</button>
+        }
       </mat-form-field>
 
 
