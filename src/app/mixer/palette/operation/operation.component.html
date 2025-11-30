@@ -2,6 +2,12 @@
   (mousedown)="mousedown($event)" (click)='toggleSelection($event)' [style.z-index]="zndx"
   (cdkDragMoved)="dragMove($event)" (cdkDragEnded)="dragEnd($event)" (cdkDragStarted)="dragStart($event)">
 
+  @if(hasError){
+  <button class="errorWarning" color='accent' matButton="filled" (click)="clearError()"> <i
+      class="fa fa-exclamation-triangle"></i>
+    {{errorStatement}}</button>
+  }
+
   <!--cdkDragBoundary=".palette"-->
 
 

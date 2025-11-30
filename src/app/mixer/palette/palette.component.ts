@@ -7,6 +7,7 @@ import { Subscription, fromEvent } from 'rxjs';
 import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
+import { ErrorBroadcasterService } from '../../core/provider/error-broadcaster.service';
 import { FirebaseService } from '../../core/provider/firebase.service';
 import { MediaService } from '../../core/provider/media.service';
 import { NotesService } from '../../core/provider/notes.service';
@@ -49,6 +50,7 @@ export class PaletteComponent implements OnInit {
   private ss = inject(StateService);
   private zs = inject(ZoomService);
   private multiselect = inject(MultiselectService);
+  private errorBroadcaster = inject(ErrorBroadcasterService);
 
 
 
@@ -1579,6 +1581,13 @@ export class PaletteComponent implements OnInit {
           let children = this.tree.getNonCxnOutputs(op);
           (<OperationComponent>this.tree.getComponent(op)).updateChildren(children);
         })
+
+        all_ops.forEach(op => {
+          let hasError = this.errorBroadcaster.hasError(op);
+          (<OperationComponent>this.tree.getComponent(op)).updateErrorState(hasError);
+        })
+
+
       })
       .then(() => {
         //a catch here so that changes that ripple up from the parent's of pinned drafts update in time. 

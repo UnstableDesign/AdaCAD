@@ -21,6 +21,7 @@ import { EventsDirective } from './core/events.directive';
 import { Bounds, DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds } from './core/model/helper';
+import { ErrorBroadcasterService } from './core/provider/error-broadcaster.service';
 import { FileService } from './core/provider/file.service';
 import { FirebaseService } from './core/provider/firebase.service';
 import { MaterialsService } from './core/provider/materials.service';
@@ -88,6 +89,7 @@ export class AppComponent implements OnInit, OnDestroy {
   sls = inject(ScreenshotLayoutService);
   private zone = inject(NgZone);
   cdr = inject(ChangeDetectorRef);
+  errorBroadcaster = inject(ErrorBroadcasterService);
   title = 'app';
 
 
@@ -149,6 +151,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   stateSubscriptions: Array<Subscription> = [];
 
+  errorBroadcastSubscription: Subscription;
 
 
   constructor() {
@@ -256,6 +259,11 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
 
+    this.errorBroadcastSubscription = this.errorBroadcaster.errorBroadcast$.subscribe((alert_text) => {
+      this.openSnackBar(alert_text);
+    })
+
+
 
 
 
@@ -311,6 +319,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.stateSubscriptions.forEach(element => element.unsubscribe());
+
+    if (this.errorBroadcastSubscription) {
+      this.errorBroadcastSubscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {

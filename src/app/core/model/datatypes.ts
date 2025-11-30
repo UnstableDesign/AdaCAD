@@ -714,3 +714,13 @@ export type MixerStateRemoveAction = StateAction & {
 export type MixerStatePasteAction = StateAction & {
   obj: SaveObj,
 }
+
+
+
+export type ErrorType = 'SIZE_ERROR' | 'OTHER';
+
+export type ErrorStatement = {
+  id: number,
+  type: ErrorType
+  label: string
+}

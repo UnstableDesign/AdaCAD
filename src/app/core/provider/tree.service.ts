@@ -9,6 +9,7 @@ import { ConnectionComponent } from '../../mixer/palette/connection/connection.c
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
 import { Bounds, DraftNode, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 
@@ -26,6 +27,7 @@ export class TreeService {
   private ops = inject(OperationService);
   private media = inject(MediaService);
   private systemsservice = inject(SystemsService);
+  private errorBroadcaster = inject(ErrorBroadcasterService);
 
 
   nodes: Array<Node> = []; //an unordered list of all the nodes
@@ -1393,6 +1395,7 @@ export class TreeService {
     console.log("OP", op)
     const all_inputs = this.getInputsWithNdx(id);
     console.log("ALL INPUTS", all_inputs)
+    this.errorBroadcaster.clearError(id); //clear before we compute again.
 
     if (op === null || op === undefined) return Promise.reject("Operation is null")
 
@@ -1422,13 +1425,19 @@ export class TreeService {
     const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
 
     let passes_size_check = op.sizeCheck(param_vals, cleaned_inputs);
-    if (!passes_size_check) return Promise.reject({ node_id: id, error: "Operation " + op.name + " size check failed" });
+    if (!passes_size_check) {
+      this.errorBroadcaster.postError(id, 'SIZE_ERROR', "The " + op.name + " is attempting to make a draft that is larger than the maximum allowable value")
+      return Promise.reject({ node_id: id, error: "Operation " + op.name + " size check failed" });
+    }
 
 
     return op.perform(param_vals, cleaned_inputs)
       .then(res => {
         let has_err = res.find(el => el.err !== undefined);
-        if (has_err !== undefined) return Promise.reject(has_err.err);
+        if (has_err !== undefined) {
+          this.errorBroadcaster.postError(id, 'OTHER', has_err.err);
+          return Promise.reject(has_err.err);
+        }
         opnode.dirty = false;
         return this.updateDraftsFromResults(id, res, cleaned_inputs);
       })

@@ -291,6 +291,8 @@ export class DraftContainerComponent implements AfterViewInit {
 
   drawDraft(draft: Draft): Promise<boolean> {
 
+    console.log("DRAW DRAFT CALLED?")
+
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
 

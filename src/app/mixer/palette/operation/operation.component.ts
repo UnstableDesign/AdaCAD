@@ -1,11 +1,12 @@
 import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, inject, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { MatIconButton } from '@angular/material/button';
+import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Img, Interlacement, Operation, OpParamValType } from 'adacad-drafting-lib';
 import { IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
+import { ErrorBroadcasterService } from '../../../core/provider/error-broadcaster.service';
 import { MediaService } from '../../../core/provider/media.service';
 import { OperationService } from '../../../core/provider/operation.service';
 import { StateService } from '../../../core/provider/state.service';
@@ -25,7 +26,7 @@ import { ParameterComponent } from './parameter/parameter.component';
   selector: 'app-operation',
   templateUrl: './operation.component.html',
   styleUrls: ['./operation.component.scss'],
-  imports: [CdkDrag, CdkDragHandle, InletComponent, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, ParameterComponent, DraftContainerComponent]
+  imports: [CdkDrag, CdkDragHandle, MatButtonModule, InletComponent, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, ParameterComponent, DraftContainerComponent]
 })
 export class OperationComponent implements OnInit {
   private operations = inject(OperationService);
@@ -37,8 +38,7 @@ export class OperationComponent implements OnInit {
   zs = inject(ZoomService);
   ss = inject(StateService);
   mediaService = inject(MediaService);
-
-
+  errorBroadcaster = inject(ErrorBroadcasterService)
 
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
   @ViewChildren(InletComponent) inletComps!: QueryList<InletComponent>;
@@ -141,6 +141,9 @@ export class OperationComponent implements OnInit {
 
   previous_topleft: Point = null;
 
+  hasError: boolean = false;
+  errorStatement: string = "";
+
   // @HostListener('window:resize', ['$event'])
   // onResize(event) {
   //   console.log("FORCE TRANSFORM TO ZERO", this.disable_drag);
@@ -149,6 +152,7 @@ export class OperationComponent implements OnInit {
 
 
   constructor() {
+
 
   }
 
@@ -357,10 +361,25 @@ export class OperationComponent implements OnInit {
 
   updateChildren(children: Array<number>) {
     this.children = children;
-    //we don't need to redraw here because redrawing was already called from perform op
-    // this.children.forEach(child => {
-    //   this.tree.broadcastDraftValueChange(child);
-    // });
+  }
+
+  updateErrorState(hasError: boolean) {
+    this.hasError = hasError;
+    if (this.hasError) {
+      const type = this.errorBroadcaster.getErrorType(this.id);
+      switch (type) {
+        case 'SIZE_ERROR':
+          this.errorStatement = "This is trying to create a draft that is larger than the allowable limit. Please adjust the parameters or reset size limits in workspace settings"
+          break;
+        case 'OTHER':
+          break;
+      }
+    }
+  }
+
+  clearError() {
+    this.hasError = false;
+    this.errorStatement = '';
   }
 
   /**
