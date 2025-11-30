@@ -1,8 +1,13 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
-import { Subject, Subscription, fromEvent } from 'rxjs';
+import { Subscription, fromEvent } from 'rxjs';
 import { CanvasList, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { FileService } from '../../provider/file.service';
@@ -21,7 +26,7 @@ import { SelectionComponent } from './selection/selection.component';
   selector: 'app-draft-rendering',
   templateUrl: './draft-rendering.component.html',
   styleUrl: './draft-rendering.component.scss',
-  imports: [SelectionComponent]
+  imports: [SelectionComponent, MatButton, MatProgressSpinner, ReactiveFormsModule, MatInputModule, MatFormFieldModule]
 })
 
 
@@ -65,6 +70,7 @@ export class DraftRenderingComponent implements OnInit {
   rowShuttleMapping: Array<number> = [];
   colSystemMapping: Array<number> = [];
   rowSystemMapping: Array<number> = [];
+
 
 
   before: DraftNodeState;
@@ -115,7 +121,6 @@ export class DraftRenderingComponent implements OnInit {
   //  warpMaterialsCanvas: HTMLCanvasElement;
 
   private tempPattern: Array<Array<Cell>>;
-  private unsubscribe$ = new Subject();
 
 
   private lastPos: Interlacement;
@@ -164,6 +169,8 @@ export class DraftRenderingComponent implements OnInit {
 
   redrawComplete = new EventEmitter();
 
+  isRedrawing: boolean = false;
+
   /// ANGULAR FUNCTIONS
   /**
   * Creates the element reference.
@@ -190,6 +197,11 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    if (this.source == 'viewer') this.ignoreOversize = true;
+
+
+
 
 
   }
@@ -1078,11 +1090,12 @@ export class DraftRenderingComponent implements OnInit {
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, flags: any): Promise<boolean> {
     const startTime = performance.now();
-    const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
-    console.log(`[DRAW] START: Drawing draft ${this.id} (${size})`);
+    this.isRedrawing = true;
+    // const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
+    //  console.log(`[DRAW] START: Drawing draft ${this.id} (${size}) - Stack trace:`, new Error().stack);
 
     let area = warps(draft.drawdown) * wefts(draft.drawdown);
-    if (area > defaults.oversize_dim_threshold) this.oversize = true;
+    if (area >= this.ws.oversize_dim_threshold) this.oversize = true;
     else this.oversize = false;
 
 
@@ -1090,11 +1103,12 @@ export class DraftRenderingComponent implements OnInit {
       const duration = performance.now() - startTime;
       console.log(`[DRAW] RETURN: Draft ${this.id} is too large to redraw (area: ${area}), skipping draw after ${duration.toFixed(2)}ms`);
       this.render.clear(this.canvases);
+      this.isRedrawing = false;
       return Promise.resolve(true);
     }
 
     //cancel the forceLoad after one call
-    if (this.oversize && this.ignoreOversize) this.ignoreOversize = false;
+    //if (this.oversize && this.ignoreOversize) this.ignoreOversize = false;
 
     if (draft == null) {
       const duration = performance.now() - startTime;
@@ -1120,12 +1134,15 @@ export class DraftRenderingComponent implements OnInit {
       show_loom: (flags.show_loom !== undefined && flags.show_loom == true)
     }
 
-    this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
+
+
+    const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
       this.refreshWarpAndWeftSystemNumbering();
       this.refreshOriginMarker();
-
+      this.isRedrawing = false;
       console.log(`[DRAW] COMPLETE: Draft ${this.id} drawn successfully `);
-    });
+    })
+
 
     this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'scale', () => {
       if (this.selection != undefined) this.selection.redraw();

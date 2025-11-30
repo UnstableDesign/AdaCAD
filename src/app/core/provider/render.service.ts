@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Loom, LoomSettings } from 'adacad-drafting-lib';
 import { Draft, getCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { numFrames, numTreadles } from 'adacad-drafting-lib/loom';
+import { Subject } from 'rxjs';
 import { CanvasList, RenderingFlags } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -15,7 +16,7 @@ interface RenderQueueItem {
   loom_settings: LoomSettings;
   canvases: CanvasList;
   rf: RenderingFlags;
-  onComplete: () => void;
+  onComplete: () => void
 }
 
 interface ScaleQueueItem {
@@ -61,10 +62,6 @@ export class RenderService {
 
 
 
-
-
-
-
   constructor() {
     //max values
     this.draft_cell_size = defaults.draft_detail_cell_size;
@@ -79,13 +76,28 @@ export class RenderService {
   }
 
 
-  public addToQueue(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags, type: 'render' | 'scale', onComplete: () => void, scale?: number) {
+  public addToQueue(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags, type: 'render' | 'scale', onComplete: () => void, scale?: number): RenderQueueItem | null {
     if (type == 'render') {
-      this.queue.push({ type: 'render', draft, loom, loom_settings, canvases, rf, onComplete });
+      const subject = new Subject<number>();
+      const queueItem: RenderQueueItem = {
+        type: 'render',
+        draft,
+        loom,
+        loom_settings,
+        canvases,
+        rf,
+        onComplete
+      };
+      this.queue.push(queueItem);
       console.log(`[QUEUE] Added render task for draft ${draft.id} to queue. Queue length: ${this.queue.length}`);
+
+      return queueItem;
+
+
     } else {
       this.queue.push({ type: 'scale', draft, loom, loom_settings, canvases, rf, scale, onComplete });
       console.log(`[QUEUE] Added scale task for draft ${draft.id} to queue. Queue length: ${this.queue.length}`);
+      return null;
     }
   }
 
@@ -128,10 +140,14 @@ export class RenderService {
 
             const duration = performance.now() - startTime;
             console.log(`[QUEUE] Completed ${item.type} task for draft ${item.draft.id} in ${duration.toFixed(2)}ms`);
-            //item.onComplete();
+            if (item.onComplete) {
+              item.onComplete();
+            }
           } catch (error) {
             console.error(`[QUEUE] Error processing ${item.type} task for draft ${item.draft.id}:`, error);
-            // item.onComplete(); // Still call onComplete even on error
+            if (item.onComplete) {
+              item.onComplete(); // Still call onComplete even on error
+            }
           }
         }
 
@@ -953,11 +969,13 @@ export class RenderService {
 
     if (draft.drawdown.length == 0) {
       console.log(`[RENDER] RETURN: Draft ${draft.id} has empty drawdown`);
-      return this.clear(canvases);
+      return this.clear(canvases).then(() => {
+        return Promise.resolve(true);
+      });
     }
 
     if (rf.u_drawdown) {
-      console.log(`[RENDER] Drawing drawdown for draft ${draft.id} - THIS MAY HANG FOR LARGE DRAFTS`);
+      console.log(`[RENDER] Drawing drawdown for draft ${draft.id}`);
       fns = fns.concat(this.drawDrawdown(draft, canvases.drawdown, cell_size, this.pixel_ratio, rf));
     }
 

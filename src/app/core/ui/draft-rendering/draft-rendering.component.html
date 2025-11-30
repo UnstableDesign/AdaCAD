@@ -1,27 +1,50 @@
-@if (oversize && !ignoreOversize) {
-<div class="oversize-warning">
-  <i class="fas fa-exclamation-triangle"></i>
-  <button mat-button (click)="toggleOversize()">Load/Hide this Image</button>
-  This draft is oversize.
-</div>
-}
-
-
-
-
-
 <div class="draft-container {{source}} origin{{ws.selected_origin_option}}"
   id="draft-scale-container-{{source}}-{{id}}">
+
+  @if (isRedrawing) {
+  <div class="loading-overlay">
+    <div class="loading">
+      <img src="assets/img/loading_animation.gif" alt="Loading">
+      <div>
+        <p>Rendering Draft...</p>
+      </div>
+    </div>
+  </div>
+  }
+
+
+
+  @if (oversize && !ignoreOversize) {
+
+
+
+  <div class="oversize-warning {{source}}">
+
+
+
+
+    <p>Drafts over {{ws.oversize_dim_threshold}}x{{ws.oversize_dim_threshold}} cells are hidden by
+      default. You can change this threshold in the <i class="fa fa-cog"></i> workspace settings.
+    </p>
+    <button matButton="filled" (click)="toggleOversize()" color="accent"> <i class="fas fa-exclamation-triangle"></i>
+      Load/Hide this Image</button>
+  </div>
+  }
 
   <div id="highlight-row-{{source}}" class="highlight-row"></div>
   <div id="highlight-col-{{source}}" class="highlight-col"></div>
 
 
-  <app-selection #selection class="app-selection" [id]="id" [source]="source" [scale]="scale"
-    (onSelectionEnd)="onSelectionEnd()" (forceRedraw)="redrawAll()"
+
+
+
+
+  <app-selection #selection class="app-selection {{(oversize && !ignoreOversize) ? 'oversize' : ''}}" [id]="id"
+    [source]="source" [scale]="scale" (onSelectionEnd)="onSelectionEnd()" (forceRedraw)="redrawAll()"
     (saveAction)="afterSelectAction($event)"></app-selection>
 
-  <div class="draft-top {{source}} origin{{ws.selected_origin_option}}">
+  <div
+    class="draft-top {{source}} origin{{ws.selected_origin_option}} {{(oversize && !ignoreOversize) ? 'oversize' : ''}}">
 
 
     <div class="warp-systems-container origin{{ws.selected_origin_option}}">
@@ -92,6 +115,7 @@
   <div class="drawdown-container 
     {{source}}
     origin{{ws.selected_origin_option}} 
+    {{(oversize && !ignoreOversize) ? 'oversize' : ''}}
     editable-{{draft_edit_source}}">
 
     <div class="drawdown-canvas">

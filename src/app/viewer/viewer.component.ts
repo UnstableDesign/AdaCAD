@@ -56,7 +56,6 @@ export class ViewerComponent {
   vis_mode: string = 'color'; //sim, draft, structure, color
   view_expanded: boolean = false;
   view_controls_visible: boolean = false;
-  draft_rendering_visible: boolean = true;
   filename: string = '';
   zoomLevel: FormControl;
   visMode: FormControl;
@@ -175,8 +174,7 @@ export class ViewerComponent {
   private loadDraft(id: number) {
     console.log("LOADING DRAFT, ID: ", id);
 
-    // Hide draft rendering when loading new draft
-    this.draft_rendering_visible = false;
+
 
     const draft = this.tree.getDraft(id);
     if (draft == null) return;
@@ -203,7 +201,6 @@ export class ViewerComponent {
         .catch(console.error);
     } else {
 
-      this.draft_rendering_visible = true; // Show immediately for sim mode
       this.sim.loadNewDraft(id);
     }
   }
@@ -217,10 +214,7 @@ export class ViewerComponent {
    */
   private redraw() {
 
-    // Hide draft rendering when redrawing
-    if (this.vis_mode != 'sim') {
-      this.draft_rendering_visible = false;
-    }
+
 
     const draft = this.tree.getDraft(this.vs.getViewerId());
 
@@ -234,11 +228,10 @@ export class ViewerComponent {
 
     if (this.vis_mode != 'sim') {
       this.drawDraft(this.viewFace.value == 'front').then(() => {
-        this.draft_rendering_visible = true;
+
 
       }).catch(console.error);
     } else {
-      this.draft_rendering_visible = true; // Show immediately for sim mode
       this.sim.loadNewDraft(this.vs.getViewerId());
     }
 
@@ -252,7 +245,6 @@ export class ViewerComponent {
     }
 
     // Hide draft rendering until zoom is calculated
-    this.draft_rendering_visible = false;
 
     // Use a recursive function to wait for elements to be ready
     const attemptCenter = (attempts: number = 0) => {
@@ -270,7 +262,6 @@ export class ViewerComponent {
           }, 100);
         } else {
           // Show draft rendering even if we couldn't calculate zoom
-          this.draft_rendering_visible = true;
         }
         return;
       }
@@ -304,7 +295,6 @@ export class ViewerComponent {
           }, 100);
         } else {
           // Show draft rendering even if we couldn't calculate zoom
-          this.draft_rendering_visible = true;
         }
         return;
       }
@@ -348,11 +338,9 @@ export class ViewerComponent {
         this.zoomChange();
         // Show draft rendering after zoom change is applied
         setTimeout(() => {
-          this.draft_rendering_visible = true;
         }, 50);
       } else {
         // Show draft rendering immediately if zoom didn't change
-        this.draft_rendering_visible = true;
       }
     };
 

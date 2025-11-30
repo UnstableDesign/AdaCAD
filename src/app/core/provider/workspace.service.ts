@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { LoomSettings } from 'adacad-drafting-lib';
+import { LoomSettings, setMaxArea } from 'adacad-drafting-lib';
 import { Subject } from 'rxjs';
 import { FileMeta } from '../model/datatypes';
 import { defaults } from '../model/defaults';
@@ -23,6 +23,7 @@ export class WorkspaceService {
   epi: number = defaults.loom_settings.epi;
   ppi: number = defaults.loom_settings.ppi;
   units: 'in' | 'cm' = <'in' | 'cm'>defaults.loom_settings.units;
+  oversize_dim_threshold: number = defaults.oversize_dim_threshold;
 
   show_materials: boolean = defaults.show_materials;
   black_cell_up: boolean = defaults.black_cell_up;
@@ -84,8 +85,12 @@ export class WorkspaceService {
     this.current_file.desc = desc;
   }
 
-
-
+  public setCurrentDraftSizeLimit(limit: number) {
+    setMaxArea(limit);
+  }
+  public setOversizeRendering(limit: number) {
+    this.oversize_dim_threshold = limit;
+  }
 
 
   getWorkspaceLoomSettings(): LoomSettings {
