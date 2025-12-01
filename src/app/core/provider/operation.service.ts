@@ -96,7 +96,7 @@ export class OperationService {
   getCatColor(name: string): string {
     const cat = this.classification.find(el => el.category_name == name);
     if (cat !== undefined) return cat.color;
-    else return "#000";
+    else return "#000000";
   }
 
 

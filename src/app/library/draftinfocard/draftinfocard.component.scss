@@ -91,11 +91,11 @@
     flex-direction: row;
     justify-content: flex-start;
     background-color: whitesmoke;
+    height: 300px;
 }
 
 .draft-info-card-body-input-list {
     width: 46px;
-    height: 100%;
     overflow-y: scroll;
     display: flex;
     flex-direction: column;
@@ -141,6 +141,8 @@
 .dynamic_input_icon {
     width: 40px;
     height: 40px;
+    font-size: clamp(10px, 18px, 20px);
+    /* Minimum 1rem, preferred 2.5vw, maximum 2.5rem */
     border-radius: 4px;
     font-size: 18px;
     line-height: 40px;
@@ -157,6 +159,7 @@
     border-radius: 2px;
     color: white;
     padding: 2px 0px;
+    background-color: black;
 
 }
 

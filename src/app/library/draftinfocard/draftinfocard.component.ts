@@ -116,7 +116,7 @@ export class DraftinfocardComponent {
     this.oversize = (this.warpnum > appDefaults.oversize_dim_threshold || this.weftnum > appDefaults.oversize_dim_threshold) ? true : false;
     this.inputList = this.getInputListForDraft(this.id);
     this.parent = this.getParentForDraft(this.id);
-    this.draftRendering.redrawAll();
+    if (this.draftRendering) this.draftRendering.redrawAll();
     this.selectedInViewer = this.vs.getViewerId() === this.id;
 
 
@@ -189,17 +189,19 @@ export class DraftinfocardComponent {
         uid: Math.random().toString(36).substring(2, 15),
         op_name: 'n/a',
         type: 'seed',
-        category_color: '#000'
+        category_color: '#000000'
       };
     } else {
       let op_node = this.tree.getOpNode(parent);
       let op_obj = this.ops.getOp(op_node.name);
+      let categories = op_obj.meta.categories;
+      const color = (categories == undefined || categories.length == 0) ? '#000000' : this.ops.getCatColor(categories[0].name);
 
       return {
         uid: Math.random().toString(36).substring(2, 15),
         op_name: op_obj.meta.displayname || op_node.name,
         type: 'operation',
-        category_color: this.ops.getCatColor(this.ops.getOp(op_node.name).meta.categories[0].name) || '#000'
+        category_color: this.ops.getCatColor(this.ops.getOp(op_node.name).meta.categories[0].name) || '#000000'
       };
     }
   }

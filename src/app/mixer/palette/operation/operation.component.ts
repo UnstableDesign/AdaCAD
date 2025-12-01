@@ -192,6 +192,11 @@ export class OperationComponent implements OnInit {
     op_container.style.left = this.topleft.x + "px";
 
 
+    //check for error
+    this.updateErrorState(this.errorBroadcaster.hasError(this.id))
+
+
+
 
     this.onOpLoaded.emit({ id: this.id })
 

@@ -24,7 +24,6 @@ import { FileService } from './../../core/provider/file.service';
 import { ConnectionComponent } from './connection/connection.component';
 import { NoteComponent } from './note/note.component';
 import { OperationComponent } from './operation/operation.component';
-import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
 
 @Component({
@@ -636,34 +635,34 @@ export class PaletteComponent implements OnInit {
    * @param message the message to show on the snack bar
    * @param bounds the bounds of the element that we are showing info aboout
    */
-  startSnackBar(message: string, bounds: Bounds) {
-    this.updateSnackBar(message, bounds);
-    this._snackBar.openFromComponent(SnackbarComponent, {
-      data: {
-        message: this.snack_message,
-        bounds: this.snack_bounds,
-        scale: this.zs.getMixerZoom()
-      }
-    });
-  }
+  // startSnackBar(message: string, bounds: Bounds) {
+  //   this.updateSnackBar(message, bounds);
+  //   this._snackBar.openFromComponent(SnackbarComponent, {
+  //     data: {
+  //       message: this.snack_message,
+  //       bounds: this.snack_bounds,
+  //       scale: this.zs.getMixerZoom()
+  //     }
+  //   });
+  // }
 
   /**
    * updates data shown on the snackbar
    * @param message 
    * @param bounds 
    */
-  updateSnackBar(message: string, bounds: Bounds) {
+  // updateSnackBar(message: string, bounds: Bounds) {
 
-    this.snack_bounds = bounds;
-    this.snack_message = message;
-  }
+  //   this.snack_bounds = bounds;
+  //   this.snack_message = message;
+  // }
 
   /**
    * called to close the snackbar
    */
-  closeSnackBar() {
-    this._snackBar.dismiss();
-  }
+  // closeSnackBar() {
+  //   this._snackBar.dismiss();
+  // }
 
 
   /**
@@ -1375,7 +1374,6 @@ export class PaletteComponent implements OnInit {
       height: this.default_cell_size
     };
 
-    this.startSnackBar("select an input or click an empty space to stop selecting", null);
 
   }
 
@@ -1507,7 +1505,6 @@ export class PaletteComponent implements OnInit {
    * resets the view when a connection event ends
    */
   processConnectionEnd() {
-    this.closeSnackBar();
     this.selecting_connection = false;
     this.setOutletStylingOnConnection(this.tree.getOpenConnectionId(), false);
     const svg = document.getElementById('scratch_svg');
@@ -2330,8 +2327,6 @@ export class PaletteComponent implements OnInit {
    * @returns 
    */
   subdraftDropped(obj: any) {
-
-    this.closeSnackBar();
 
     if (obj === null) return;
     this.updateSelectionPositions(obj.id);

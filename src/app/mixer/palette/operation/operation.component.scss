@@ -51,7 +51,12 @@
     z-index: 100;
     color: white;
     padding: 10px;
-    font-size: var(--scalable-text-heading-size);
+
+
+    button {
+        font-size: var(--scalable-text-heading-size);
+        height: max-content;
+    }
 
 }
 

@@ -5,7 +5,6 @@ import { OperationService } from './provider/operation.service';
 import { PatternfinderService } from './provider/patternfinder.service';
 import { RenderService } from './provider/render.service';
 import { UploadService } from './provider/upload.service';
-import { VaeService } from './provider/vae.service';
 import { ViewadjustService } from './provider/viewadjust.service';
 import { ViewerService } from './provider/viewer.service';
 
@@ -17,7 +16,6 @@ import { ViewerService } from './provider/viewer.service';
 	providers: [
 		UploadService,
 		FileService,
-		VaeService,
 		PatternfinderService,
 		RenderService,
 		ViewerService,
