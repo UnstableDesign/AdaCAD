@@ -22,6 +22,7 @@ export class MediaService {
 
 
   isAlreadyLoaded(id: number): boolean {
+    console.log("IS ALREADY LOADED ", this.current.find(el => el.id == id) !== undefined);
     return this.current.find(el => el.id == id) !== undefined;
   }
 
@@ -32,6 +33,9 @@ export class MediaService {
    * @returns 
    */
   loadMediaFromUpload(to_load: Array<MediaInstance>): Promise<any> {
+
+
+
     const fns = to_load
       .filter(el => el.ref !== '')
       .filter(el => !this.isAlreadyLoaded(el.id))

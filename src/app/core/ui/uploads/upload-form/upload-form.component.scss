@@ -1,7 +1,7 @@
 @use '@angular/material' as mat;
 
 
-.upload-container {
+.upload-container-mixer {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -13,6 +13,27 @@
             container-height: var(--input-container-height),
             filled-label-text-size: var(--floating-label-size),
             filled-with-label-container-padding-top: calc(var(--floating-label-padding))));
+
+
+
+}
+
+
+.upload-container-share {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
+
+    .mat-mdc-form-field {
+        display: flex;
+        width: 100%;
+    }
+
+    @include mat.form-field-overrides((container-text-size: 14px,
+            filled-input-text-color: black,
+            filled-label-text-color: black,
+            filled-label-text-size: 12px));
 
 
 

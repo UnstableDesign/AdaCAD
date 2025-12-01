@@ -1,70 +1,95 @@
-h2{
+h2 {
     color: black;
     font-weight: normal;
     padding-top: 32px;
 }
 
-.owner_setting_line{
+.upload-form-box {
+    margin-top: 16px;
+}
+
+
+.image-preview-box {
+    position: relative;
+    margin-top: 16px;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: scale-down;
+    }
+}
+
+.owner_setting_line {
     display: flex;
     flex-direction: row;
     align-items: center;
     height: 40px;
 }
 
-.share_in_history{
+.share_in_history {
     color: red;
 }
 
-.license_history{
+.license_history {
     height: 40px;
     display: inline-block;
 }
 
-.history_item{
+.history_item {
     display: flex;
     flex-direction: row;
     gap: 11px;
     align-items: center;
 }
 
-.license{
+.license {
     width: 90%;
 }
 
-.share_button{
+.share_button {
     margin: 16px 0px;
 }
-.license-row{
+
+.license-row {
     margin-top: 16px;
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-.replace{
+.replace {
     display: block;
 }
 
-.hide{
+.hide {
     display: none;
 }
 
-.license-left{
+.license-left {
     flex: 1 1 25%;
 }
 
-.license-right{
+.license-right {
     flex: 1 1 75%;
 }
 
-.about{
+.about {
     font-size: small;
 }
 
-.fullwidth{
+.fullwidth {
     width: 100%;
 }
 
-.share_in_history{
+.share_in_history {
     color: red;
 }

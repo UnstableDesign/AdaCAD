@@ -92,7 +92,7 @@
         <div class="license-right">
           <mat-form-field class="fullwidth">
             <mat-label>License</mat-label>
-            <mat-select [(ngModel)]="share_obj.license" (selectionChange)="updateChange()">
+            <mat-select [formControl]="shareForm.get('license')">
               @for (license of licenses; track license) {
               <mat-option [value]="license.value">{{license.viewValue}}
               </mat-option>
@@ -105,30 +105,41 @@
       </div>
       <mat-form-field class="fullwidth">
         <mat-label>Shared File Name</mat-label>
-        <input (change)="updateChange()" [(ngModel)]="share_obj.filename" matInput>
+        <input [formControl]="shareForm.get('filename')" matInput>
       </mat-form-field>
       <mat-form-field class="fullwidth">
         <mat-label>File Description</mat-label>
-        <textarea [(ngModel)]="share_obj.desc" (change)="updateChange()" matInput
+        <textarea [formControl]="shareForm.get('desc')" matInput
           placeholder="you can tell someone a bit more about this file here"></textarea>
       </mat-form-field>
       <mat-form-field class="fullwidth">
         <mat-label>Credit Line</mat-label>
-        <input [(ngModel)]="share_obj.owner_creditline" (change)="updateChange()" matInput>
+        <input [formControl]="shareForm.get('owner_creditline')" matInput>
       </mat-form-field>
       <mat-form-field class="fullwidth">
         <mat-label>URL to Additional Information</mat-label>
-        <input [(ngModel)]="share_obj.owner_url" (change)="updateChange()" matInput>
+        <input [formControl]="shareForm.get('owner_url')" matInput>
       </mat-form-field>
       <section class="example-section">
-        <mat-checkbox (change)="updateChange()" class="example-margin" [(ngModel)]="share_obj.public">Include this in
+        <mat-checkbox class="example-margin" [formControl]="shareForm.get('public')">Include this in
           the examples section of AdaCAD</mat-checkbox>
       </section>
-      <canvas [class.hide]="!has_uploaded_image" id="img_preview"></canvas>
-      <upload-form [class.hide]="has_uploaded_image && !replace_img" type="init" multiple="false"
-        accepts=".jpg,.png,.bmp" type="single_image" (onData)="handleFile($event)" (onError)="handleError($event)"
-        class="upload-form-box">
-      </upload-form>
+
+
+      <div class="image-preview-box">
+        <img [class.hide]="!has_uploaded_image" class="example-img" mat-card-image [ngSrc]="workspaceImg"
+          alt="placeholder" fill />
+      </div>
+
+
+      <!-- <canvas [class.hide]="!has_uploaded_image" id="img_preview"></canvas> -->
+
+      <div class="upload-form-box">
+        <upload-form [class.hide]="has_uploaded_image && !replace_img" source="share" type="init" multiple="false"
+          accepts=".jpg,.png,.bmp" type="single_image" (onData)="handleFile($event)" (onError)="handleError($event)"
+          class="upload-form-box">
+        </upload-form>
+      </div>
       <button class="replace" [class.hide]="!has_uploaded_image || replace_img" mat-raised-button
         (click)="replaceImg()">replace image</button>
       <!-- <div class="filehistory">

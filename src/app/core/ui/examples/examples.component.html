@@ -79,7 +79,7 @@
 
           <div class="img-container">
             @if (exampleImgs[idx] !== ''){
-            <img class="example-img" (click)="loadExample(example.id)" mat-card-image [ngSrc]="exampleImgs[idx]"
+            <img class="example-img" (click)="loadSharedFile(example.id)" mat-card-image [ngSrc]="exampleImgs[idx]"
               alt="Photo of the workspace associated with this example" fill />
 
             } @else {

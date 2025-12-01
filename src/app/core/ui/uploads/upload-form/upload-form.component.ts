@@ -4,7 +4,7 @@ import { MatButton } from '@angular/material/button';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { Upload } from '../../../model/datatypes';
+import { MediaInstance, Upload } from '../../../model/datatypes';
 import { MediaService } from '../../../provider/media.service';
 import { UploadService } from '../../../provider/upload.service';
 
@@ -23,6 +23,7 @@ export class UploadFormComponent implements OnInit {
   @Input() type: string; //'single_image', 'ada', or 'bitmap_collection'
   @Input() multiple: boolean;
   @Input() accepts: string;
+  @Input() source: string = 'mixer'; //'mixer', 'share'
 
 
   progress: number = 0;
@@ -70,9 +71,11 @@ export class UploadFormComponent implements OnInit {
 
   uploadImage(upload: Upload, file: File, type: 'image' | 'indexed_color_image'): Promise<any> {
 
+    console.log("uploading image", upload, file, type);
+
     return this.upSvc.pushUpload(upload).then(snapshot => {
 
-      const media_instance = {
+      const media_instance: MediaInstance = {
         id: -1,
         ref: upload.name,
         type: type,
@@ -88,6 +91,7 @@ export class UploadFormComponent implements OnInit {
       this.selectedFiles = null;
 
     }).catch(e => {
+      console.error("error uploading image", e);
       this.onError.emit(e);
       this.uploading = false;
       this.selectedFiles = null;
