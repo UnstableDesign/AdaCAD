@@ -63,6 +63,8 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   user_files = [];
   userFileSubscription: Subscription;
 
+  public_files = [];
+
   // Separate file lists
   user_files_display: any[] = [];
   shared_files_display: any[] = [];
@@ -91,8 +93,10 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
       this.user_logged_in = (user !== null);
     })
 
+
     this.sharedFileSubscription = this.fb.sharedFilesChangeEvent$.subscribe(curfiles => {
       this.shared_files = (curfiles) ? curfiles.shared : [];
+      this.public_files = (curfiles) ? curfiles.public : [];
       this.combineAndSortFiles();
     })
 
@@ -123,19 +127,25 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
    * Prepares and sorts user and shared files separately
    */
   combineAndSortFiles(): void {
+
+
     // Prepare user files
-    const userFiles = this.user_files.map(file => ({
-      ...file,
-      fileType: 'user',
-      displayName: file.meta.name || 'Unknown',
-      displayDate: file.meta.date,
-      sortDate: new Date(file.meta.date)
-    }));
+    const userFiles = this.user_files
+      .filter(file => (this.shared_files.find(el => el.id == file.id) === undefined))
+      .map(file => ({
+        ...file,
+        fileType: 'user',
+        isShared: (this.shared_files.find(el => el.id == file.id) !== undefined),
+        displayName: file.meta.name || 'Unknown',
+        displayDate: file.meta.date,
+        sortDate: new Date(file.meta.date)
+      }));
 
     // Prepare shared files
     const sharedFiles = this.shared_files.map(file => ({
       ...file,
       fileType: 'shared',
+      isPublic: (this.public_files.find(el => el.id == file.id) !== undefined),
       displayName: file.filename || 'Unknown',
       displayDate: file.date,
       sortDate: new Date(file.date || 0)

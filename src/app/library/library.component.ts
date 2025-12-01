@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatError, MatInput } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
-import { hexToRgb, Material } from 'adacad-drafting-lib';
+import { hexToRgb, Img, Material } from 'adacad-drafting-lib';
 import { Draft } from 'adacad-drafting-lib/draft';
 import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
 import { Subscription } from 'rxjs';
@@ -29,7 +29,7 @@ import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component'
   selector: 'app-library',
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
-  imports: [MatButton, MaterialComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
+  imports: [MatButton, MatIconButton, MaterialComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -58,7 +58,10 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren(DraftinfocardComponent) draftInfocards: QueryList<DraftinfocardComponent>;
 
   draftsData: Array<{ uid: string, id: number }> = [];
-  media: Array<MediaInstance> = [];
+  media: Array<{
+    media: MediaInstance;
+    used_in: Array<{ id: number, name: string, color: string }>;
+  }> = [];
   selectedDraftIds: Set<number> = new Set();
   private draftRenderingsSubscription: Subscription;
 
@@ -71,6 +74,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   time: number;
   owner: string;
   hiddenDrafts: Array<DraftNode> = [];
+  projectOwner: string;
 
   fileMetaChangeUndoSubscription: Subscription;
   savedTimeSubscription: Subscription;
@@ -223,6 +227,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.id = meta.id;
     this.from_share = meta.from_share;
     this.time = meta?.time || -1;
+    this.projectOwner = meta?.share_owner || '';
+
   }
 
   formatTime(timestamp: number): string {
@@ -296,7 +302,33 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadMedia() {
-    this.media = this.mediaService.current.slice(); // Create a copy of the array
+    this.media = this.mediaService.current.slice().map(media => ({
+      media: media,
+      used_in: [] as Array<{ id: number, name: string, color: string }> // Create a copy of the array
+    }));
+
+    let allOps = this.tree.getOpNodes();
+    allOps.forEach(op => {
+      op.params.forEach(param => {
+        if ((<Img>param).id !== undefined) {
+          let media_item = this.media.find(el => el.media.id == +(<Img>param).id);
+          if (media_item !== undefined) {
+            const meta = this.ops.getOp(op.name).meta;
+            const name = meta.displayname;
+            const color = (meta.categories.length > 0) ? this.ops.getCatColor(meta.categories[0].name) : '#000';
+            let used_in: { id: number, name: string, color: string } = { id: op.id, name, color };
+            media_item.used_in.push(used_in);
+          }
+        }
+      });
+    });
+
+
+  }
+
+  deleteMediaItem(mediaItem: MediaInstance) {
+    this.mediaService.removeInstance(mediaItem.id);
+    this.loadMedia();
   }
 
   onFocus(id: number) {
@@ -616,6 +648,51 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   triggerCSVImport() {
     if (this.csvFileInput) {
       this.csvFileInput.nativeElement.click();
+    }
+  }
+
+  /**
+   * Downloads a media item as an image file
+   */
+  async downloadMediaItem(mediaItem: MediaInstance) {
+    try {
+      const imageUrl = mediaItem.img.image.src;
+      const imageName = mediaItem.img.name || 'media_item';
+
+      // Fetch the image
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      // Determine file extension from blob type or default to png
+      let extension = 'png';
+      if (blob.type) {
+        if (blob.type.includes('jpeg') || blob.type.includes('jpg')) {
+          extension = 'jpg';
+        } else if (blob.type.includes('png')) {
+          extension = 'png';
+        } else if (blob.type.includes('gif')) {
+          extension = 'gif';
+        } else if (blob.type.includes('webp')) {
+          extension = 'webp';
+        }
+      }
+
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${imageName}.${extension}`;
+      link.style.visibility = 'hidden';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the URL object
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading media item:', error);
+      alert('Failed to download media item. Please try again.');
     }
   }
 }

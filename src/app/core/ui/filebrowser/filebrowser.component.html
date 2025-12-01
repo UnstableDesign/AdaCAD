@@ -151,8 +151,8 @@
     <!-- Shared Files Tab -->
     <mat-tab label="Shared Files">
       <div class="browser_header">
-        This is a list of files you have shared. After you share a file, you can no longer edit the shared version.
-        Opening the file creates a new copy of the shared file in your workspace.
+        This is a list of files you have shared. You have a local copy of this file in "my files" and this shared
+        version. If you edit this shared version, those edits will be shared as well.
       </div>
       <div class="browser_list">
         <div class="file-header">
@@ -185,7 +185,10 @@
 
         @for (file of shared_files_display; track file.id) {
         <div class="file-item" [class.current]="file.id == currently_open_id">
-          <div class="field-select"></div>
+          <div class="field-select">
+            @if(file.isPublic){ <i class="fa-solid fa-bullhorn"></i>}
+          </div>
+
           <div class="field-shared">
             <button mat-icon-button (click)="copyToClipboard(file.id)" matTooltip="copy link">
               <i class="fa-solid fa-link"></i>

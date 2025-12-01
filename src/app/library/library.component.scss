@@ -255,4 +255,14 @@ h2 {
 .media-dimensions {
   font-size: 0.9em;
   color: #666;
+  margin-bottom: 8px;
+}
+
+.media-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
 }

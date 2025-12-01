@@ -107,7 +107,7 @@ export class ParameterComponent implements OnInit {
         break;
 
       case 'file':
-        this.has_image_uploaded = this.opnode.params[this.paramid].data !== null;
+        this.has_image_uploaded = (<Img>this.opnode.params[this.paramid]).data !== null;
         console.log("FILE PARAM ", this.opnode.params[this.paramid], this.param.value);
         console.log("MEDIA SERVICE CONTAINS ", this.mediaService.current.slice());
         this.fc = new UntypedFormControl(this.opnode.params[this.paramid] ?? this.param.value);
@@ -253,7 +253,7 @@ export class ParameterComponent implements OnInit {
   async openImageEditor() {
 
     const opnode = this.tree.getOpNode(this.opid);
-    let obj: MediaInstance = this.mediaService.getMedia(opnode.params[this.paramid].id);
+    let obj: MediaInstance = this.mediaService.getMedia(+(<Img>opnode.params[this.paramid]).id);
     console.log("MEDIA SERVICE CONTAINS ", obj, this.mediaService.current.slice(), opnode.params[this.paramid]);
 
 
@@ -263,8 +263,8 @@ export class ParameterComponent implements OnInit {
     const dialogRef = this.dialog.open(ImageeditorComponent, { data: { media_id: obj.id, src: this.opnode.name } });
     dialogRef.afterClosed().subscribe(nothing => {
 
-      let updated_media = this.mediaService.getMedia(this.opnode.params[this.paramid].id)
-      this.onParamChange({ id: this.opnode.params[this.paramid].id, data: updated_media.img });
+      let updated_media = this.mediaService.getMedia(+(<Img>this.opnode.params[this.paramid]).id)
+      this.onParamChange({ id: (<Img>this.opnode.params[this.paramid]).id, data: <AnalyzedImage>updated_media.img });
     });
   }
 
@@ -277,7 +277,7 @@ export class ParameterComponent implements OnInit {
 
     const opnode: OpNode = <OpNode>this.tree.getNode(this.opid);
 
-    const img: Img = opnode.params[this.paramid];
+    const img: Img = <Img>opnode.params[this.paramid];
 
     const change: OpStateParamChange = {
       originator: 'OP',
@@ -293,8 +293,8 @@ export class ParameterComponent implements OnInit {
 
     this.has_image_uploaded = false;
 
-    this.mediaService.removeInstance(opnode.params[this.paramid].id)
-    this.opnode.params[this.paramid] = { id: '' };
+    this.mediaService.removeInstance(+img.id)
+    this.opnode.params[this.paramid] = { id: '0', data: null as AnalyzedImage };
     this.onOperationParamChange.emit({ id: this.paramid, value: this.opnode.params[this.paramid], type: this.param.type });
 
   }
@@ -316,7 +316,7 @@ export class ParameterComponent implements OnInit {
     this.filewarning = "";
     let img: AnalyzedImage = <AnalyzedImage>obj[0].img;
 
-    this.opnode.params[this.paramid] = { id: obj[0].id, data: img };
+    this.opnode.params[this.paramid] = { id: obj[0].id.toString(), data: <AnalyzedImage>img };
 
     const change: OpStateParamChange = {
       originator: 'OP',

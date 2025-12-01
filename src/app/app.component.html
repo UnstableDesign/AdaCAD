@@ -61,21 +61,28 @@
 
 
 
-        <button mat-icon-button (click)="openExamples()"><i class="fa-solid fa-lightbulb"></i></button>
 
 
 
 
-        <button mat-icon-button (click)="openWorkspaceSettings()"><i class="fa-solid fa-gear"></i></button>
+        <button mat-icon-button matTooltip="view/change settings" (click)="openWorkspaceSettings()"><i
+            class="fa-solid fa-gear"></i></button>
 
 
 
-        <button mat-icon-button [matMenuTriggerFor]="help"><i class="fa-solid fa-question"></i></button>
+        <button mat-icon-button matTooltip="get help" [matMenuTriggerFor]="help"><i
+            class="fa-solid fa-question"></i></button>
         <mat-menu #help="matMenu">
-          <button mat-menu-item (click)="openHelp()">View our Documentation</button>
-          <button mat-menu-item (click)="openDiscord()">Ask the Community for Support on Discord</button>
-          <button mat-menu-item (click)="openBug()">Report a Bug/Request a Feature via GitHub</button>
+          <button mat-menu-item (click)="openHelp()">Open Documentation</button>
+          <button mat-menu-item (click)="openDiscord()">Ask Questions on Discord</button>
+          <button mat-menu-item (click)="openBug()">Report Issue on GitHub</button>
         </mat-menu>
+
+
+        <button mat-icon-button matTooltip="view examples" (click)="openExamples()"><i
+            class="fa-solid fa-lightbulb"></i></button>
+
+
 
 
       </div>
@@ -85,10 +92,13 @@
         <mat-button-toggle-group name="editingMode" [(ngModel)]="selected_editor_mode" class="toggle"
           aria-label="Editor Style" (change)="toggleEditorMode()">
           @for (mode of editorModes; track mode) {
-          <mat-button-toggle [value]="mode.value"><span [class]="mode.icon"></span></mat-button-toggle>
+          <mat-button-toggle [value]="mode.value" [matTooltip]="mode.value"><span
+              [class]="mode.icon"></span></mat-button-toggle>
           }
         </mat-button-toggle-group>
       </div>
+
+
 
       <div class="topbar-button-group">
         <div class="auth">

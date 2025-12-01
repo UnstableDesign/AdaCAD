@@ -21,15 +21,7 @@
   top: 0px;
 }
 
-.mat-button-toggle-appearance-standard {
-  font-size: 14px;
-  color: white;
-  background-color: #3f51b5;
-}
 
-.toggle {
-  line-height: 10px;
-}
 
 .copypaste {
   display: flex;
@@ -40,6 +32,12 @@
   align-items: center;
   overflow: hidden;
 
+}
+
+.examples {
+  button {
+    color: #3f51b5;
+  }
 }
 
 .library-container {
@@ -148,7 +146,15 @@
   width: 18vw;
 }
 
+.mat-button-toggle-appearance-standard {
+  font-size: 14px;
+  color: #3f51b5;
+  background-color: white;
+}
 
+.toggle {
+  line-height: 10px;
+}
 
 .topbar {
   display: flex;
@@ -156,9 +162,10 @@
   color: white;
   background-color: #3f51b5;
 
-  @include mat.button-toggle-overrides((background-color: #3f51b5,
-      disabled-selected-state-background-color: #3f51b5,
+  @include mat.button-toggle-overrides((background-color: white,
+      selected-state-text-color: #ff4081,
       selected-state-background-color: white,
+      text-color: #3f51b5,
       height: 40px));
 
 

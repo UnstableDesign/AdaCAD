@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AnalyzedImage, Draft, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
+import { AnalyzedImage, Draft, Img, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import normalizeWheel from 'normalize-wheel';
 import { Subscription, fromEvent } from 'rxjs';
@@ -1083,7 +1083,7 @@ export class PaletteComponent implements OnInit {
     op_base.params.forEach((param, ndx) => {
       if (param.type == 'file') {
         //remove the media file associated 
-        this.media.removeInstance(op_node.params[ndx].id)
+        this.media.removeInstance(+(<Img>op_node.params[ndx]).id)
       }
     })
 
@@ -1201,16 +1201,16 @@ export class PaletteComponent implements OnInit {
     //make sure to duplicate any media objects
     operation.params.forEach((param, i) => {
       if (param.type == 'file') {
-        let old_media_id = op.params[i].id;
-        let new_media_item = this.media.duplicateIndexedColorImageInstance(old_media_id);
-        new_params[i] = { id: new_media_item.id, data: new_media_item.img }
+        let old_media_id = (<Img>op.params[i]).id;
+        let new_media_item = this.media.duplicateIndexedColorImageInstance(+old_media_id);
+        new_params[i] = { id: new_media_item.id.toString(), data: <AnalyzedImage>new_media_item.img }
       }
     })
 
 
 
 
-    const id: number = this.duplicateOperation(op.name, new_params, new_tl, op.inlets);
+    const id: number = this.duplicateOperation(op.name, new_params.map(el => +(<Img>el).id), new_tl, op.inlets);
     const new_op = <OperationComponent>this.tree.getComponent(id);
 
     //duplicate the connections as well
@@ -1533,6 +1533,10 @@ export class PaletteComponent implements OnInit {
       x: (container.scrollLeft + container_rect.x) * 1 / this.zs.getMixerZoom(),
       y: (container.scrollTop + container_rect.y) * 1 / this.zs.getMixerZoom(),
     }
+
+    //prevent this from getting hiden
+    if (tl.x < 300) tl.x = 300;
+    if (tl.y < 64) tl.y = 64;
 
     return tl;
 

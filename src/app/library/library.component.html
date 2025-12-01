@@ -62,17 +62,20 @@
 
     @if(from_share) {
     <div class="project-owner">
-      <div class='project-info-field'>Shared from</div>
-      <div class='project-info-value'>Project Owner</div>
+      <div class='project-info-field'>Shared file credit line:</div>
+      <div class='project-info-value'>{{projectOwner}}</div>
     </div>
     }
 
 
 
     <div class="project-info-actions">
+      @if(!from_share){
       <button mat-raised-button matTooltip="share" color="primary" (click)="share()">
         <i class="fa-solid fa-share-nodes"></i> Share
       </button>
+      }
+
 
     </div>
 
@@ -85,21 +88,41 @@
 <section class="media-section">
   <h2>Media</h2>
   <div class="media-grid">
-    @for (mediaItem of media; track mediaItem.id) {
+    @for (mediaItem of media; track mediaItem.media.id) {
     <div class="media-card">
       <div class="media-thumbnail">
-        <img [src]="mediaItem.img.image.src" [alt]="mediaItem.img.name || 'Media item'"
+        <img [src]="mediaItem.media.img.image.src" [alt]="mediaItem.media.img.name || 'Media item'"
           (error)="$event.target.style.display='none'">
       </div>
       <div class="media-info">
-        <div class="media-name">{{ mediaItem.img.name || 'Unnamed Media' }}</div>
+        <div class="media-name">{{ mediaItem.media.img.name || 'Unnamed Media' }}</div>
         <div class="media-type">
-          <mat-chip [color]="mediaItem.type === 'indexed_color_image' ? 'primary' : 'accent'" selected>
-            {{ mediaItem.type === 'indexed_color_image' ? 'Indexed Color' : 'Image' }}
-          </mat-chip>
+          <!-- <mat-chip [color]="mediaItem.media.type === 'indexed_color_image' ? 'primary' : 'accent'" selected>
+            {{ mediaItem.media.type === 'indexed_color_image' ? 'Indexed Color' : 'Image' }}
+          </mat-chip> -->
+
+          @for (used_in of mediaItem.used_in; track used_in.id) {
+          used in:
+          <button mat-button (click)="openDraftInMixer(used_in.id)" [style.background-color]="used_in.color">
+            <i class="fas fa-eye"></i>
+            {{ used_in.name }}
+          </button>
+          }
         </div>
         <div class="media-dimensions">
-          {{ mediaItem.img.width }} × {{ mediaItem.img.height }}px
+          {{ mediaItem.media.img.width }} × {{ mediaItem.media.img.height }}px
+        </div>
+
+        <div class="media-actions">
+          <button mat-icon-button matTooltip="Download media item" (click)="downloadMediaItem(mediaItem.media)"
+            color="primary">
+            <i class="fas fa-download"></i>
+          </button>
+          @if(mediaItem.used_in.length === 0) { <button mat-icon-button matTooltip="delete media item"
+            (click)="deleteMediaItem(mediaItem.media)" color="primary">
+            <i class="fas fa-trash"></i>
+          </button>
+          }
         </div>
       </div>
     </div>

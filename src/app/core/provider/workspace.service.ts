@@ -52,6 +52,7 @@ export class WorkspaceService {
     name: 'no name',
     desc: '',
     from_share: '',
+    share_owner: ''
 
   }
 

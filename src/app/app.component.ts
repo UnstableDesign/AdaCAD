@@ -13,7 +13,7 @@ import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Loom, LoomSettings, generateId, interpolate, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
+import { AnalyzedImage, Img, Loom, LoomSettings, generateId, interpolate, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
 import { convertLoom, copyLoom, copyLoomSettings, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
@@ -335,7 +335,7 @@ export class AppComponent implements OnInit, OnDestroy {
     (window as any).loadAdaFileJson = async (adaSaveObjJson: SaveObj) => {
       this.clearAll();
 
-      const loadResponse = await this.fs.loader.ada(adaSaveObjJson, { name: 'untitled', id: 0, desc: '', from_share: '' }, 'upload');
+      const loadResponse = await this.fs.loader.ada(adaSaveObjJson, { name: 'untitled', id: 0, desc: '', from_share: '', share_owner: '' }, 'upload');
       return this.loadNewFile(loadResponse, 'openFile');
     };
 
@@ -680,7 +680,8 @@ export class AppComponent implements OnInit, OnDestroy {
                   id: generateId(8),
                   name: 'filename not found',
                   desc: '',
-                  from_share: ''
+                  from_share: '',
+                  share_owner: ''
                 }
                 this.ws.setCurrentFile(meta);
                 return this.prepAndLoadFile(ada, meta, 'db');
@@ -721,14 +722,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
           if (param.type == 'file') {
 
-            let from = op.params[ndx];
-            let entry = image_id_map.find(el => el.from == from);
+            let from: Img = <Img>op.params[ndx];
+            let entry = image_id_map.find(el => el.from == +from.id);
 
             if (entry !== undefined) {
-              let img_instance = this.media.getMedia(entry.to);
+              let img_instance: MediaInstance = this.media.getMedia(entry.to);
               //this is just setting it locally, it needs to set the actual operation
               let op_node = this.tree.getOpNode(op.node_id);
-              op_node.params[ndx] = { id: entry.to, data: img_instance.img };
+              op_node.params[ndx] = { id: entry.to.toString(), data: <AnalyzedImage>img_instance.img };
 
             }
           }
@@ -862,18 +863,21 @@ export class AppComponent implements OnInit, OnDestroy {
       id: -1,
       name: '',
       desc: '',
-      from_share: shareid.toString()
+      from_share: shareid.toString(),
+      share_owner: ''
     };
 
     //GET THE SHARED FILE
     return this.fb.getShare(shareid)
       .then(share_obj => {
+        console.log("SHARE OBJ ", share_obj)
         if (share_obj == null) {
           return Promise.reject("NO SHARED FILE EXISTS")
         }
         meta.id = generateId(8);
         meta.name = (<ShareObj>share_obj).filename;
         meta.desc = (<ShareObj>share_obj).desc;
+        meta.share_owner = (<ShareObj>share_obj).owner_creditline;
 
         return this.fb.getFile(shareid)
       }).then(ada => {
@@ -916,7 +920,8 @@ export class AppComponent implements OnInit, OnDestroy {
       id: generateId(8),
       name: 'blank workspace',
       desc: '',
-      from_share: ''
+      from_share: '',
+      share_owner: ''
     }
 
 
@@ -936,7 +941,8 @@ export class AppComponent implements OnInit, OnDestroy {
       id: generateId(8),
       name: 'welcome',
       desc: '',
-      from_share: ''
+      from_share: '',
+      share_owner: ''
     }
     this.ws.setCurrentFile(meta)
 
@@ -985,7 +991,8 @@ export class AppComponent implements OnInit, OnDestroy {
             id: -1,
             name: name,
             desc: '',
-            from_share: ''
+            from_share: '',
+            share_owner: 'AdaCAD Examples'
           }
           return this.fs.loader.ada(<SaveObj>data.body, meta, 'upload')
             .then(loadresponse => {
@@ -1926,6 +1933,7 @@ export class AppComponent implements OnInit, OnDestroy {
       name: this.ws.getCurrentFile().name,
       desc: this.ws.getCurrentFile().desc,
       from_share: this.ws.getCurrentFile().from_share,
+      share_owner: this.ws.getCurrentFile().share_owner,
       time: this.ws.getCurrentFile().time,
     };
     this.ws.getCurrentFile();

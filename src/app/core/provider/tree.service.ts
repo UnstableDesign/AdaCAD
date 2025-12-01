@@ -1,6 +1,6 @@
 import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
+import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Img, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subject } from 'rxjs';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -2475,7 +2475,7 @@ export class TreeService {
         const op = this.ops.getOp(op_node.name);
         let cleaned_params = op.params.map((param_template, ndx) => {
           if (param_template.type == 'file') {
-            return op_node.params[ndx].id;
+            return +(<Img>op_node.params[ndx]).id;
           } else {
             return op_node.params[ndx];
           }

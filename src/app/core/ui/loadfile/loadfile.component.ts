@@ -88,7 +88,8 @@ export class LoadfileComponent {
           id: -1,
           name: e.name,
           desc: '',
-          from_share: ''
+          from_share: '',
+          share_owner: ''
         }
 
         return this.fls.loader.ada(e.data, meta, 'upload')

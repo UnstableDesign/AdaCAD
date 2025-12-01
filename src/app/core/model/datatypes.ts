@@ -1,5 +1,5 @@
 import { ViewRef } from "@angular/core";
-import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, OpParamValType, SingleImage } from "adacad-drafting-lib";
+import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, OpInletValType, OpParamValType, SingleImage } from "adacad-drafting-lib";
 import { Observable, Subject } from "rxjs";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
 import { NoteComponent } from "../../mixer/palette/note/note.component";
@@ -36,8 +36,8 @@ type BaseNode = {
  */
 export type OpNode = BaseNode & {
   name: string,
-  params: Array<any>
-  inlets: Array<any>
+  params: Array<OpParamValType>
+  inlets: Array<OpInletValType>
 }
 
 
@@ -458,7 +458,8 @@ export type FileMeta = {
   name: string,
   desc: string,
   time?: number,
-  from_share: string
+  from_share: string,
+  share_owner: string
 }
 
 export type UserFile = {
@@ -717,7 +718,7 @@ export type MixerStatePasteAction = StateAction & {
 
 
 
-export type ErrorType = 'SIZE_ERROR' | 'OTHER';
+export type ErrorType = 'SIZE_ERROR' | 'FILE_ERROR' | 'OTHER';
 
 export type ErrorStatement = {
   id: number,

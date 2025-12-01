@@ -58,7 +58,7 @@ export class FileService {
     const dloader: Fileloader = {
 
       ada: async (data: SaveObj | any, meta: FileMeta, src: string): Promise<LoadResponse> => {
-        console.log("LOADING FILE", data.materials);
+        console.log("LOADING FILE", data);
         if (meta.desc === undefined) meta.desc = ""
         if (meta.name == undefined) meta.name = 'draft'
         if (meta.from_share == undefined) meta.from_share = ''
@@ -398,7 +398,8 @@ export class FileService {
               id: -1,
               name: 'paste',
               desc: 'a file represeting copied information',
-              from_share: ''
+              from_share: '',
+              share_owner: ''
 
             }
 

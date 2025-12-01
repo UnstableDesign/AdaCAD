@@ -4,7 +4,7 @@ import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { DynamicOperation, Img, Interlacement, Operation, OpParamValType } from 'adacad-drafting-lib';
+import { DynamicOperation, Img, Interlacement, Operation, OpInletValType, OpParamValType } from 'adacad-drafting-lib';
 import { IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { ErrorBroadcasterService } from '../../../core/provider/error-broadcaster.service';
 import { MediaService } from '../../../core/provider/media.service';
@@ -470,7 +470,7 @@ export class OperationComponent implements OnInit {
 
           //update the width and height
           // let image_param = opnode.params[op.dynamic_param_id];
-          let image_param = opnode.params[0];
+          let image_param: Img = <Img>opnode.params[0];
           if (image_param.id != '') {
             opnode.params[1] = image_param.data.width;
             opnode.params[2] = image_param.data.height;
@@ -512,10 +512,10 @@ export class OperationComponent implements OnInit {
 
           const opnode = this.tree.getOpNode(this.id);
 
-          obj.inlets.forEach(hex => {
+          obj.inlets.forEach((hex: string) => {
 
             //add any new colors
-            const ndx = opnode.inlets.findIndex(el => el.value === hex);
+            const ndx = opnode.inlets.findIndex(el => (<OpInletValType>el).valueOf() === hex);
             if (ndx === -1) {
               opnode.inlets.push(hex);
             }
@@ -577,7 +577,7 @@ export class OperationComponent implements OnInit {
 
     operation.params.forEach((param, ndx) => {
       if (param.type === 'file') {
-        const media: Img = opnode.params[ndx];
+        const media: Img = <Img>opnode.params[ndx];
         const media_instance = this.mediaService.getMedia(+media.id);
         change.media.push(media_instance);
       }

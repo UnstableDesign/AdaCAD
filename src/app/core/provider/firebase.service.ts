@@ -4,6 +4,7 @@ import { Database, get, onChildAdded, onChildChanged, onChildRemoved, onValue, o
 import { generateId } from 'adacad-drafting-lib';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { FileMeta, FilesState, SaveObj, ShareObj, UserFile } from '../model/datatypes';
+import { ErrorBroadcasterService } from './error-broadcaster.service';
 
 /**
  * A service to streamline interactions with firebase
@@ -16,6 +17,9 @@ export class FirebaseService implements OnDestroy {
 
   //CONNECTIVITY
   private db = inject(Database);
+  private errorBroadcaster = inject(ErrorBroadcasterService);
+
+
   connectedRef = ref(this.db, ".info/connected");
   private connectionChangeEvent = new BehaviorSubject<boolean>(false);
   connectionChangeEvent$ = this.connectionChangeEvent.asObservable();
@@ -52,6 +56,8 @@ export class FirebaseService implements OnDestroy {
   sharedFilesSucscription: Subscription;
   private sharedFilesChangeEvent = new BehaviorSubject<FilesState>(null);
   sharedFilesChangeEvent$ = this.sharedFilesChangeEvent.asObservable();
+
+
 
 
 
@@ -419,7 +425,8 @@ export class FirebaseService implements OnDestroy {
         if (shareobj.exists()) {
           return Promise.resolve(shareobj.val());
         } else {
-          return Promise.reject("User found but file id not found")
+          this.errorBroadcaster.postError(-1, 'FILE_ERROR', "This Shared File Cannot be Found")
+          return Promise.reject("Shared File Not Found")
         }
       }).catch(e => { console.error(e) });
 
@@ -439,6 +446,7 @@ export class FirebaseService implements OnDestroy {
         if (filedata.exists()) {
           return Promise.resolve(filedata.val().ada);
         } else {
+          this.errorBroadcaster.postError(-1, 'FILE_ERROR', "This File Cannot be Found")
           return Promise.reject("User found but file id not found")
         }
       }).catch(e => { console.error(e) });
@@ -462,7 +470,8 @@ export class FirebaseService implements OnDestroy {
           last_opened: meta.val().last_opened,
           name: meta.val().name,
           timestamp: meta.val().timestamp,
-          from_share: (meta.val().from_share == undefined) ? '' : meta.val().from_share
+          from_share: (meta.val().from_share == undefined) ? '' : meta.val().from_share,
+          share_owner: (meta.val().share_owner == undefined) ? '' : meta.val().share_owner,
         }
         return Promise.resolve(obj);
       } else {
