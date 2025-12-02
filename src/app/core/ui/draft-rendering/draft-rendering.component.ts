@@ -3,7 +3,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isFrame, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
@@ -26,7 +25,7 @@ import { SelectionComponent } from './selection/selection.component';
   selector: 'app-draft-rendering',
   templateUrl: './draft-rendering.component.html',
   styleUrl: './draft-rendering.component.scss',
-  imports: [SelectionComponent, MatButton, MatProgressSpinner, ReactiveFormsModule, MatInputModule, MatFormFieldModule]
+  imports: [SelectionComponent, MatButton, ReactiveFormsModule, MatInputModule, MatFormFieldModule]
 })
 
 
@@ -467,7 +466,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
   @HostListener('mousemove', ['$event'])
-  private movingMouse(event) {
+  public movingMouse(event) {
 
     if (this.view_only) return;
     const draft = this.tree.getDraft(this.id);
@@ -491,7 +490,7 @@ export class DraftRenderingComponent implements OnInit {
   * @returns {void}
   */
   @HostListener('mousedown', ['$event'])
-  private onStart(event) {
+  public onStart(event) {
 
 
     this.before = this.tree.getDraftNodeState(this.id);
@@ -616,7 +615,7 @@ export class DraftRenderingComponent implements OnInit {
   */
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
-  private onEnd(event) {
+  public onEnd(event) {
     if (this.source == 'editor' && event.type == 'mouseleave') this.removeHighlighter();
 
     this.mouse_pressed = false;

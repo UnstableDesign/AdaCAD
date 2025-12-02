@@ -1875,7 +1875,7 @@ export class PaletteComponent implements OnInit {
    * @param event - The wheel event
    */
   @HostListener('wheel', ['$event'])
-  private onWheel(event: WheelEvent) {
+  public onWheel(event: WheelEvent) {
     // Only zoom when Ctrl (Windows/Linux) or Cmd (Mac) is pressed
     if (!event.ctrlKey && !event.metaKey) return;
 
@@ -1951,7 +1951,7 @@ export class PaletteComponent implements OnInit {
    * @param event - The mousedown event
    */
   @HostListener('mousedown', ['$event'])
-  private onStart(event) {
+  public onStart(event) {
 
     if (this.selecting_connection == true) {
       this.processConnectionEnd();
@@ -2005,7 +2005,7 @@ export class PaletteComponent implements OnInit {
 
 
   @HostListener('mousemove', ['$event'])
-  private onMove(event) {
+  public onMove(event) {
 
     const mouse: Point = {
       x: event.clientX,
@@ -2048,7 +2048,7 @@ export class PaletteComponent implements OnInit {
    */
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
-  private onEnd(event) {
+  public onEnd(event) {
 
 
     this.removeSubscription();
