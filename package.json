@@ -42,7 +42,7 @@
     "adacad-drafting-lib": "^1.1.9",
     "core-js": "^3.6.4",
     "dat.gui": "^0.7.9",
-    "firebase": "^10.14.1",
+    "firebase": "^12.6.0",
     "jspdf": "^3.0.4",
     "mathjs": "^12.3.2",
     "normalize-wheel": "^1.0.1",
