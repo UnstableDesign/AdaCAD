@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+Always use Angular's Reactive Forms Module, linking form fields to FormControl elements. 
