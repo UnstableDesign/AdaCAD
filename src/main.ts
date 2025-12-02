@@ -1,4 +1,4 @@
-import { enableProdMode, importProvidersFrom } from '@angular/core';
+import { enableProdMode, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 
 
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -27,7 +27,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
-    importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule),
+    provideZoneChangeDetection(),importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
