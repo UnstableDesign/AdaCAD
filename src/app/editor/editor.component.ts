@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, OnInit, Output, ViewChild } fro
 
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
@@ -33,7 +33,7 @@ import { RepeatsComponent } from './repeats/repeats.component';
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
-  imports: [MatAccordion, MatButton, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, ReactiveFormsModule, LoomComponent, DraftRenderingComponent]
+  imports: [MatAccordion, MatButtonModule, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, ReactiveFormsModule, LoomComponent, DraftRenderingComponent]
 })
 export class EditorComponent implements OnInit {
   private dialog = inject(MatDialog);
@@ -55,13 +55,11 @@ export class EditorComponent implements OnInit {
   @ViewChild(LoomComponent) loom;
 
   @Input() hasFocus: boolean;
-  @Output() closeDrawer: any = new EventEmitter();
   @Output() saveChanges: any = new EventEmitter();
   @Output() updateMixer: any = new EventEmitter();
   @Output() cloneDraft: any = new EventEmitter();
-  @Output() createDraft: any = new EventEmitter();
-  @Output() onFocusView: any = new EventEmitter();
-  @Output() onCollapseView: any = new EventEmitter();
+  @Output() createDraft: any = new EventEmitter();;
+  @Output() onEditMaterials: any = new EventEmitter();
 
   id: number = -1;
 
@@ -87,7 +85,7 @@ export class EditorComponent implements OnInit {
 
   viewer_expanded: boolean = false;
 
-  draw_modes: any = [];
+  draw_modes: Array<{ value: string, viewValue: string, icon: string, id: number, color: string }> = [];
 
   selected_material_id: any = -1;
 
@@ -98,7 +96,7 @@ export class EditorComponent implements OnInit {
   pencil: string;
 
   // Reactive Forms controls
-  editingModeForm: FormControl;
+  editingModeForm: FormControl; //edit from drawdown or loom
   pencilForm: FormControl;
 
   dressing_info: Array<{ label: string, value: string }> = [];
@@ -110,7 +108,6 @@ export class EditorComponent implements OnInit {
 
 
     this.copy = [[createCell(false)]];
-    this.draw_modes = draft_pencil;
 
   }
 
@@ -136,10 +133,25 @@ export class EditorComponent implements OnInit {
     this.pencilForm.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
         this.pencil = value;
+        if (value.startsWith('material_')) {
+          this.selected_material_id = value.split('_')[1];
+        } else {
+          this.selected_material_id = -1;
+        }
         this.selectPencil();
       }
     });
 
+  }
+
+  updatePencils() {
+    this.draw_modes = draft_pencil
+      .filter(mode => mode.value !== 'material')
+      .map(mode => ({ value: mode.value, viewValue: mode.viewValue, icon: mode.icon, id: -1, color: '' }));
+
+    this.ms.materials.forEach(material => {
+      this.draw_modes.push({ value: 'material_' + material.id, viewValue: material.name, icon: "fas fa-paintbrush", id: material.id, color: material.color });
+    });
   }
 
   /**
@@ -156,7 +168,7 @@ export class EditorComponent implements OnInit {
 
   ngAfterViewInit() {
     this.scale = this.zs.getEditorZoom();
-
+    this.updatePencils();
   }
 
 
@@ -175,6 +187,17 @@ export class EditorComponent implements OnInit {
 
   }
 
+
+  selectRegions() {
+    this.weaveRef.unsetSelection();
+    this.dm.selectDraftEditingMode('select');
+    this.weaveRef.setDraftEditMode('select');
+  }
+
+  editMaterials() {
+    //swap editing mode to library and scroll down to materials section
+    this.onEditMaterials.emit();
+  }
 
 
   clearSelection() {
@@ -263,29 +286,6 @@ export class EditorComponent implements OnInit {
   }
 
 
-  //when the drawdown is updated see if it has a parent and if a new draft needs to be created. 
-  /**
-  * 
-  * @param id 
-  * @returns 
-  */
-
-  detailDraftEdited(id: number) {
-    this.saveChanges.emit();
-
-  }
-
-
-  centerView() {
-    if (this.id !== -1) {
-
-      const loom_settings = this.tree.getLoomSettings(this.id);
-      const draft = this.tree.getDraft(this.id);
-      const loom = this.tree.getLoom(this.id);
-      this.weaveRef.computeAndSetScale(draft, loom, loom_settings);
-
-    }
-  }
 
   clearDraft() {
     this.id = -1;
@@ -410,6 +410,7 @@ export class EditorComponent implements OnInit {
 
 
   public drawdownUpdated() {
+    console.log("DRAWDOWN UPDATED", this.id)
     this.vs.updateViewer();
     this.loom.refreshLoom();
     this.updateWeavingInfo();

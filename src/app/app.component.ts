@@ -205,9 +205,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.editor.updateWeavingInfo();
         this.editor.clearSelection();
       }
-      if (this.vs.getViewerId() === (<DraftStateAction>action).id) {
-        this.viewer.renderChange();
-      }
+
 
     })
 
@@ -488,6 +486,14 @@ export class AppComponent implements OnInit, OnDestroy {
     // this.saveFile();
   }
 
+  /** called from the editor when someone asks to adjust materials */
+  onEditMaterials() {
+    this.editor.onClose();
+    this.selected_editor_mode = 'library';
+    this.library.onFocus(-1);
+    this.library.scrollToMaterials();
+  }
+
 
   toggleEditorMode() {
 
@@ -617,7 +623,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   recenterViews() {
 
-    this.editor.centerView();
+    //  this.editor.centerView();
     this.mixer.centerView();
     // this.sim.centerView();
   }
@@ -1439,6 +1445,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
+
   overrideDraftVisibility() {
 
     const dns: Array<DraftNode> = this.tree.getDraftNodes()
@@ -1451,7 +1458,7 @@ export class AppComponent implements OnInit, OnDestroy {
     ops.forEach(op => {
       op.draftContainers.forEach(container => {
         container.draft_visible = !this.ws.hide_mixer_drafts;
-        container.updateDraftRendering();
+        container.updateDraftVisibility();
       })
     })
 

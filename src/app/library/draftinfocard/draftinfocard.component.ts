@@ -89,7 +89,6 @@ export class DraftinfocardComponent {
 
   ngAfterViewInit() {
     this.draftRendering.onNewDraftLoaded(this.id);
-    this.draftRendering.redrawAll();
   }
 
   ngOnDestroy() {
@@ -116,7 +115,6 @@ export class DraftinfocardComponent {
     this.oversize = (this.warpnum > appDefaults.oversize_dim_threshold || this.weftnum > appDefaults.oversize_dim_threshold) ? true : false;
     this.inputList = this.getInputListForDraft(this.id);
     this.parent = this.getParentForDraft(this.id);
-    if (this.draftRendering) this.draftRendering.redrawAll();
     this.selectedInViewer = this.vs.getViewerId() === this.id;
 
 

@@ -7,7 +7,7 @@ import { MatSelect } from '@angular/material/select';
 import { LoomSettings } from 'adacad-drafting-lib';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from 'adacad-drafting-lib/draft';
 import { calcLength, calcWidth, convertLoom, copyLoomSettings, generateDirectTieup, getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
-import { DraftNodeState, DraftStateChange } from '../../core/model/datatypes';
+import { DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange } from '../../core/model/datatypes';
 import { defaults, density_units, loom_types } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { StateService } from '../../core/provider/state.service';
@@ -274,7 +274,14 @@ export class LoomComponent implements OnInit, OnDestroy {
 
       return this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
-          this.tree.setDraftOnly(this.id, draft);
+          const flags: DraftNodeBroadcastFlags = {
+            meta: false,
+            draft: true,
+            loom: true,
+            loom_settings: false,
+            materials: false
+          };
+          this.tree.setDraftOnly(this.id, draft, flags);
           this.loomSettingsUpdated.emit();
           return Promise.resolve(true);
         })

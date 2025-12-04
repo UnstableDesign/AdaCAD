@@ -61,8 +61,10 @@ export type DraftNode = BaseNode & {
   scale: number,
   visible: boolean,
   mark_for_deletion: boolean,
-  onValueChange: Subject<Draft>,
-  valueChange$: Observable<Draft>
+  onValueChange: Subject<DraftNodeBroadcast>, //called anytime a value on this draft is set
+  valueChange$: Observable<DraftNodeBroadcast>,
+  canvases: CanvasList
+
 }
 
 
@@ -70,6 +72,28 @@ export type DraftNode = BaseNode & {
  * Allows one to use Node as shorthand for any of these types of nodes
  */
 export type Node = BaseNode | OpNode | DraftNode;
+
+
+export type DraftNodeBroadcast = {
+  id: number,
+  draft: Draft,
+  loom: Loom,
+  loom_settings: LoomSettings,
+  flags: DraftNodeBroadcastFlags
+}
+
+
+/**used to signal what aspect of this node changed, used for rendering */
+export type DraftNodeBroadcastFlags = {
+  meta: boolean, //name, view settings, etc 
+  draft: boolean, //the drawdown, or system mappings
+  loom: boolean, //the loom itself
+  loom_settings: boolean //the loom settings,
+  materials: boolean //the rowShuttle or colShuttle mappings
+}
+
+
+
 
 
 /***** OBJECTS/TYPES RELATED TO MIXER COMPONENTS ****/
@@ -102,6 +126,7 @@ export type InwardConnectionProxy = {
 
 
 /***** OBJECTS/TYPES RELATED TO SCREEN LAYOUT ****/
+
 
 
 /**

@@ -7,6 +7,7 @@ import { CanvasList, RenderingFlags } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { SystemsService } from '../../core/provider/systems.service';
 import { MaterialsService } from './materials.service';
+import { TreeService } from './tree.service';
 import { WorkspaceService } from './workspace.service';
 
 interface RenderQueueItem {
@@ -41,7 +42,7 @@ export class RenderService {
   private ss = inject(SystemsService);
   private ms = inject(MaterialsService);
   private ws = inject(WorkspaceService);
-
+  private tree = inject(TreeService);
   current_view: string;
 
   view_front: boolean;
@@ -89,14 +90,12 @@ export class RenderService {
         onComplete
       };
       this.queue.push(queueItem);
-      console.log(`[QUEUE] Added render task for draft ${draft.id} to queue. Queue length: ${this.queue.length}`);
 
       return queueItem;
 
 
     } else {
       this.queue.push({ type: 'scale', draft, loom, loom_settings, canvases, rf, scale, onComplete });
-      console.log(`[QUEUE] Added scale task for draft ${draft.id} to queue. Queue length: ${this.queue.length}`);
       return null;
     }
   }
@@ -111,7 +110,6 @@ export class RenderService {
     }
 
     this.queueProcessorRunning = true;
-    console.log('[QUEUE] Starting queue processor');
     this.processQueue();
   }
 
@@ -128,7 +126,6 @@ export class RenderService {
         const item = this.queue.shift();
 
         if (item) {
-          console.log(`[QUEUE] Processing ${item.type} task for draft ${item.draft.id}. Queue remaining: ${this.queue.length}`);
           const startTime = performance.now();
 
           try {
@@ -139,12 +136,10 @@ export class RenderService {
             }
 
             const duration = performance.now() - startTime;
-            console.log(`[QUEUE] Completed ${item.type} task for draft ${item.draft.id} in ${duration.toFixed(2)}ms`);
             if (item.onComplete) {
               item.onComplete();
             }
           } catch (error) {
-            console.error(`[QUEUE] Error processing ${item.type} task for draft ${item.draft.id}:`, error);
             if (item.onComplete) {
               item.onComplete(); // Still call onComplete even on error
             }
@@ -666,7 +661,6 @@ export class RenderService {
   private drawAsDraft(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
     const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
     const totalRows = wefts(draft.drawdown);
-    console.log(`[RENDER] drawAsDraft START: ${totalCells} cells, ${totalRows} rows`);
     const startTime = performance.now();
 
     const unit = cell_size * pixel_ratio;
@@ -674,7 +668,6 @@ export class RenderService {
       // Log progress every 10% for large drafts
       if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
         const progress = ((i / totalRows) * 100).toFixed(0);
-        console.log(`[RENDER] drawAsDraft progress: ${progress}% (row ${i}/${totalRows})`);
       }
 
       for (let j = 0; j < warps(draft.drawdown); j++) {
@@ -698,7 +691,6 @@ export class RenderService {
     }
 
     const duration = performance.now() - startTime;
-    console.log(`[RENDER] drawAsDraft COMPLETE: ${totalCells} cells drawn in ${duration.toFixed(2)}ms`);
     return Promise.resolve('');
 
 
@@ -707,7 +699,6 @@ export class RenderService {
   private drawAsCloth(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
     const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
     const totalRows = wefts(draft.drawdown);
-    console.log(`[RENDER] drawAsCloth START: ${totalCells} cells, ${totalRows} rows`);
     const startTime = performance.now();
 
     const unit = cell_size * pixel_ratio;
@@ -729,7 +720,6 @@ export class RenderService {
       // Log progress every 10% for large drafts
       if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
         const progress = ((i / totalRows) * 100).toFixed(0);
-        console.log(`[RENDER] drawAsCloth progress: ${progress}% (row ${i}/${totalRows})`);
       }
 
       for (let j = 0; j < warps(draft.drawdown); j++) {
@@ -748,14 +738,12 @@ export class RenderService {
     }
 
     const duration = performance.now() - startTime;
-    console.log(`[RENDER] drawAsCloth COMPLETE: ${totalCells} cells drawn in ${duration.toFixed(2)}ms`);
     return Promise.resolve('');
   }
 
   private drawAsFloats(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
     const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
     const totalRows = wefts(draft.drawdown);
-    console.log(`[RENDER] drawAsFloats START: ${totalCells} cells, ${totalRows} rows`);
     const startTime = performance.now();
 
     draft_cx.globalAlpha = 1;
@@ -783,7 +771,6 @@ export class RenderService {
       // Log progress every 10% for large drafts
       if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
         const progress = ((i / totalRows) * 100).toFixed(0);
-        console.log(`[RENDER] drawAsFloats progress: ${progress}% (row ${i}/${totalRows})`);
       }
 
       for (let j = 0; j < warps(draft.drawdown); j++) {
@@ -829,7 +816,6 @@ export class RenderService {
     }
 
     const duration = performance.now() - startTime;
-    console.log(`[RENDER] drawAsFloats COMPLETE: ${totalCells} cells drawn in ${duration.toFixed(2)}ms`);
     return Promise.resolve('');
   }
 
@@ -845,8 +831,10 @@ export class RenderService {
   private drawDrawdownAsCanvas(draft: Draft, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
     const size = `${warps(draft.drawdown)}x${wefts(draft.drawdown)}`;
     const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
-    console.log(`[RENDER] drawDrawdownAsCanvas: Draft ${draft.id} (${size}), ${totalCells} cells`);
     const drawStartTime = performance.now();
+
+
+
 
     /**
      * get draft as image seems to consider the rotation and canvas doesn't. 
@@ -866,24 +854,18 @@ export class RenderService {
     draft_cx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (!rf.use_colors && !rf.use_floats) {
-      console.log(`[RENDER] Calling drawAsDraft for draft ${draft.id} - ${totalCells} cells to draw`);
       return this.drawAsDraft(draft, draft_cx, cell_size, pixel_ratio, rf).then(result => {
         const duration = performance.now() - drawStartTime;
-        console.log(`[RENDER] drawAsDraft completed for draft ${draft.id} in ${duration.toFixed(2)}ms`);
         return result;
       });
     } else if (rf.use_floats == true && rf.use_colors == false) {
-      console.log(`[RENDER] Calling drawAsFloats for draft ${draft.id} - ${totalCells} cells to draw`);
       return this.drawAsFloats(draft, draft_cx, cell_size, pixel_ratio, rf).then(result => {
         const duration = performance.now() - drawStartTime;
-        console.log(`[RENDER] drawAsFloats completed for draft ${draft.id} in ${duration.toFixed(2)}ms`);
         return result;
       });
     } else {
-      console.log(`[RENDER] Calling drawAsCloth for draft ${draft.id} - ${totalCells} cells to draw`);
       return this.drawAsCloth(draft, draft_cx, cell_size, pixel_ratio, rf).then(result => {
         const duration = performance.now() - drawStartTime;
-        console.log(`[RENDER] drawAsCloth completed for draft ${draft.id} in ${duration.toFixed(2)}ms`);
         return result;
       });
     }
@@ -922,7 +904,7 @@ export class RenderService {
   // }
 
 
-  clear(canvases: CanvasList): Promise<boolean> {
+  clear(canvases: CanvasList): Promise<CanvasList> {
 
     let drawdownCx = canvases.drawdown.getContext('2d');
     drawdownCx.clearRect(0, 0, drawdownCx.canvas.width, drawdownCx.canvas.height);
@@ -949,33 +931,92 @@ export class RenderService {
     weftSysCx.clearRect(0, 0, weftSysCx.canvas.width, weftSysCx.canvas.height)
 
 
-    return Promise.resolve(true);
+    return Promise.resolve(canvases);
 
   }
+
+
+  /**
+   * this draw function is inteded to be called from the tree when a draft node value requires recomputation. 
+   * @param draft 
+   * @returns 
+   */
+  async getDraftCanvases(draft: Draft, loom: Loom, loom_settings: LoomSettings, overrideOversize: boolean = false, rf: RenderingFlags): Promise<CanvasList> {
+    const sharedCanvasList: CanvasList = {
+      id: draft.id,
+      drawdown: new HTMLCanvasElement(),
+      threading: new HTMLCanvasElement(),
+      tieup: new HTMLCanvasElement(),
+      treadling: new HTMLCanvasElement(),
+      warp_systems: new HTMLCanvasElement(),
+      warp_mats: new HTMLCanvasElement(),
+      weft_systems: new HTMLCanvasElement(),
+      weft_mats: new HTMLCanvasElement()
+    }
+
+    let cell_size = this.calculateCellSize(draft, 'canvas');
+    let fns = [];
+
+    const area = warps(draft.drawdown) * wefts(draft.drawdown);
+    const oversize = (area > this.ws.oversize_dim_threshold)
+    const sizeError = (area > this.ws.max_draft_input_area)
+    if (draft.drawdown.length == 0 || (oversize && !overrideOversize) || sizeError) {
+      this.clear(sharedCanvasList).then(canvases => {
+        return Promise.resolve(canvases);
+      });
+    }
+
+
+    if (rf.u_drawdown) {
+      fns = fns.concat(this.drawDrawdown(draft, sharedCanvasList.drawdown, cell_size, this.pixel_ratio, rf));
+    }
+
+    if (rf.u_warp_mats || rf.u_warp_sys) {
+      fns = fns.concat(this.drawWarpData(draft, cell_size, this.pixel_ratio, sharedCanvasList.warp_systems, sharedCanvasList.warp_mats));
+    }
+
+    if (rf.u_weft_mats || rf.u_weft_sys) {
+      fns = fns.concat(this.drawWeftData(draft, cell_size, this.pixel_ratio, sharedCanvasList.weft_systems, sharedCanvasList.weft_mats));
+    }
+
+    if (rf.u_threading) {
+      fns = fns.concat(this.drawThreading(loom, loom_settings, sharedCanvasList.threading, cell_size, this.pixel_ratio, rf.show_loom));
+    }
+
+    if (rf.u_treadling) {
+      fns = fns.concat(this.drawTreadling(loom, loom_settings, sharedCanvasList.treadling, cell_size, this.pixel_ratio, rf.show_loom));
+    }
+
+    if (rf.u_tieups) {
+      fns = fns.concat(this.drawTieups(loom, loom_settings, sharedCanvasList.tieup, cell_size, this.pixel_ratio, rf.show_loom));
+    }
+
+    return Promise.all(fns).then(errs => {
+
+      return Promise.resolve(sharedCanvasList);
+    });
+  }
+
 
   /**
    * draw whatever is stored in the draft object to the screen
    * @returns 
    */
   private async drawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
-    console.log(`[RENDER] START: drawDraft for draft ${draft.id} (${warps(draft.drawdown)}x${wefts(draft.drawdown)})`);
     const renderStartTime = performance.now();
 
     let fns = [];
     // set the width and height
     // let pixel_ratio = this.getPixelRatio(canvases.drawdown);
     let cell_size = this.calculateCellSize(draft, 'canvas');
-    console.log(`[RENDER] Cell size: ${cell_size}`);
 
     if (draft.drawdown.length == 0) {
-      console.log(`[RENDER] RETURN: Draft ${draft.id} has empty drawdown`);
-      return this.clear(canvases).then(() => {
+      return this.clear(canvases).then(canvases => {
         return Promise.resolve(true);
       });
     }
 
     if (rf.u_drawdown) {
-      console.log(`[RENDER] Drawing drawdown for draft ${draft.id}`);
       fns = fns.concat(this.drawDrawdown(draft, canvases.drawdown, cell_size, this.pixel_ratio, rf));
     }
 
@@ -1001,7 +1042,6 @@ export class RenderService {
 
     return Promise.all(fns).then(errs => {
       const duration = performance.now() - renderStartTime;
-      console.log(`[RENDER] COMPLETE: drawDraft for draft ${draft.id} finished in ${duration.toFixed(2)}ms`);
 
       errs.forEach(el => {
         if (el !== '') console.error(el);

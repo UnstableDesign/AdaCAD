@@ -9,6 +9,7 @@ import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
+import { DraftNode, RenderingFlags } from '../core/model/datatypes';
 import { FirebaseService } from '../core/provider/firebase.service';
 import { OperationService } from '../core/provider/operation.service';
 import { StateService } from '../core/provider/state.service';
@@ -67,6 +68,7 @@ export class ViewerComponent {
   before_notes: string = '';
   idChangeSubscription: Subscription;
   updateViewerSubscription: Subscription;
+  draftValueChangeSubscription: Subscription;
 
 
   constructor() {
@@ -76,10 +78,11 @@ export class ViewerComponent {
       else this.loadDraft(data);
     })
 
-    this.updateViewerSubscription = this.vs.update_viewer$.subscribe(data => {
-      console.log("VIEWER - call from update viewer$ ", data);
-      this.redraw();
-    })
+    //THIS MAY NO LONGER BE NEEDED
+    // this.updateViewerSubscription = this.vs.update_viewer$.subscribe(data => {
+    //   console.log("VIEWER - call from update viewer$ ", data);
+    //   this.forceRedraw();
+    // })
 
     this.viewFace = new FormControl('front');
     this.zoomLevel = new FormControl(0);
@@ -93,6 +96,8 @@ export class ViewerComponent {
   ngOnDestroy() {
     this.idChangeSubscription.unsubscribe();
     this.updateViewerSubscription.unsubscribe();
+    if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
+
   }
 
   ngOnInit() {
@@ -118,16 +123,19 @@ export class ViewerComponent {
         if (this.vis_mode === 'sim' && this.sim) {
           this.sim.loadNewDraft(this.vs.getViewerId());
         } else {
-          this.redraw();
+          this.forceRedraw();
         }
       }
     });
 
 
+    this.updateDraftData(this.vs.getViewerId());
+
+
   }
 
   swapViewFace(face: string) {
-    this.drawDraft(face == 'front')
+    this.forceRedraw(face == 'front')
       .catch(console.error);
   }
 
@@ -170,12 +178,7 @@ export class ViewerComponent {
 
 
 
-
-  private loadDraft(id: number) {
-    console.log("LOADING DRAFT, ID: ", id);
-
-
-
+  updateDraftData(id: number) {
     const draft = this.tree.getDraft(id);
     if (draft == null) return;
 
@@ -183,18 +186,39 @@ export class ViewerComponent {
     this.before_notes = this.tree.getDraftNotes(id);
     this.draft_name = this.before_name;
     this.draft_notes = this.before_notes;
+    this.warps = warps(draft.drawdown);
+    this.wefts = wefts(draft.drawdown);
+
+  }
+
+
+  private loadDraft(id: number) {
+    console.log("LOADING DRAFT, ID: ", id);
+
+    const draftNode = this.tree.getNode(id) as DraftNode;
+    if (draftNode.type !== 'draft') return;
+
+    if (this.view_rendering !== undefined) {
+      this.view_rendering.clearAll();
+      this.view_rendering.onNewDraftLoaded(id);
+    }
+
+
+
+    this.updateDraftData(id);
+
+    //subscribe to future updates on the draft so the UI can update info about size changes, etc. 
+    if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
+    this.draftValueChangeSubscription = draftNode.valueChange$.subscribe(draftNodeBroadcast => {
+      this.updateDraftData(id);
+    });
+
 
     this.visMode.setValue(this.vis_mode, { emitEvent: false });
 
 
-
-    if (draft !== null) {
-      this.warps = warps(draft.drawdown);
-      this.wefts = wefts(draft.drawdown);
-    }
-
     if (this.vis_mode != 'sim') {
-      this.drawDraft(this.viewFace.value == 'front')
+      this.forceRedraw(this.viewFace.value == 'front')
         .then(() => {
           this.centerScrollbars();
         })
@@ -203,38 +227,6 @@ export class ViewerComponent {
 
       this.sim.loadNewDraft(id);
     }
-  }
-
-  public renderChange() {
-    this.redraw();
-  }
-
-  /**
-   * redraws the current draft, usually following an update from the drawdown
-   */
-  private redraw() {
-
-
-
-    const draft = this.tree.getDraft(this.vs.getViewerId());
-
-
-    this.draft_name = getDraftName(draft);
-
-    if (draft !== null) {
-      this.warps = warps(draft.drawdown);
-      this.wefts = wefts(draft.drawdown);
-    }
-
-    if (this.vis_mode != 'sim') {
-      this.drawDraft(this.viewFace.value == 'front').then(() => {
-
-
-      }).catch(console.error);
-    } else {
-      this.sim.loadNewDraft(this.vs.getViewerId());
-    }
-
   }
 
 
@@ -433,15 +425,12 @@ export class ViewerComponent {
     this.view_rendering.scale = this.scale;
     const out_format = (!this.getVisVariables().floats && !this.getVisVariables().use_colors) ? 'canvas' : 'array_buffer';
     this.view_rendering.rescale(this.scale, out_format);
-    //TO DO re-enable this but figure out where it is being called from
-    //this.drawDraft(this.id);
   }
 
   /**
    * draw whatever is stored in the draft object to the screen
-   * @returns 
    */
-  private drawDraft(front: boolean = true): Promise<any> {
+  private forceRedraw(front: boolean = true): Promise<any> {
 
 
     const draft: Draft = this.tree.getDraft(this.vs.getViewerId());
@@ -452,11 +441,18 @@ export class ViewerComponent {
     }
 
 
-    let flags = {
-      drawdown: true,
-      use_colors: (this.vis_mode == 'color'),
-      use_floats: (this.vis_mode !== 'draft'),
-      show_loom: false
+    let flags: RenderingFlags = {
+      u_drawdown: true,
+      u_threading: true,
+      u_tieups: true,
+      u_treadling: true,
+      u_warp_sys: true,
+      u_warp_mats: true,
+      u_weft_sys: true,
+      u_weft_mats: true,
+      use_floats: (this.vis_mode == 'color'),
+      use_colors: (this.vis_mode != 'draft'),
+      show_loom: (this.vis_mode == 'loom')
     }
 
 

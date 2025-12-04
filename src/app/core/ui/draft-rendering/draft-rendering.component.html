@@ -1,7 +1,9 @@
 <div class="draft-container {{source}} origin{{ws.selected_origin_option}}"
   id="draft-scale-container-{{source}}-{{id}}">
 
-  @if (isRedrawing) {
+
+
+  @if (isRedrawing && (overTimeLimit$ | async)) {
   <div class="loading-overlay">
     <div class="loading">
       <img src="assets/img/loading_animation.gif" alt="Loading">
@@ -40,7 +42,7 @@
 
 
   <app-selection #selection class="app-selection {{(oversize && !ignoreOversize) ? 'oversize' : ''}}" [id]="id"
-    [source]="source" [scale]="scale" (onSelectionEnd)="onSelectionEnd()" (forceRedraw)="redrawAll()"
+    [source]="source" [scale]="scale" (onSelectionEnd)="onSelectionEnd()"
     (saveAction)="afterSelectAction($event)"></app-selection>
 
   <div

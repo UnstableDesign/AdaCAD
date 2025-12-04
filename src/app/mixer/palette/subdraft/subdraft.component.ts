@@ -166,13 +166,6 @@ export class SubdraftComponent implements OnInit {
       this.rescale().catch(e => { /* handle error silently */ })
     }
 
-    //if something new is assigned to the draft value for this subdraft, draw it. 
-    if (changes['draft']) {
-
-      if (this.draftcontainer) {
-        this.draftcontainer.drawDraft(changes['draft'].currentValue);
-      }
-    }
   }
 
 
@@ -405,7 +398,7 @@ export class SubdraftComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
     this.draftcontainer.draft_visible = this.tree.getDraftVisible(this.id);
-    this.draftcontainer.drawDraft(draft);
+    this.draftcontainer.forceDrawDraft(draft);
     this.draftcontainer.draft_name = this.tree.getDraftName(this.id);
 
   }

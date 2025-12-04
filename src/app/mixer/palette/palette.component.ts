@@ -4,7 +4,7 @@ import { AnalyzedImage, Draft, Img, Loom, LoomSettings, Operation, copyDraft, ge
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import normalizeWheel from 'normalize-wheel';
 import { Subscription, fromEvent } from 'rxjs';
-import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
+import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeBroadcastFlags, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { ErrorBroadcasterService } from '../../core/provider/error-broadcaster.service';
@@ -2391,7 +2391,14 @@ export class PaletteComponent implements OnInit {
     dns.forEach((dn, index) => {
       const draftSize = dn.draft ? `${warps(dn.draft.drawdown)}x${wefts(dn.draft.drawdown)}` : 'null';
       console.log(`[REDRAW] ${index + 1}/${dns.length}: Broadcasting draft ${dn.id} (${draftSize})`);
-      this.tree.broadcastDraftValueChange(dn.id);
+      const flags: DraftNodeBroadcastFlags = {
+        meta: false,
+        draft: true,
+        loom: false,
+        loom_settings: false,
+        materials: true
+      };
+      this.tree.broadcastDraftValueChange(dn.id, flags);
     })
 
     const duration = performance.now() - startTime;

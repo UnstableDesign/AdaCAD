@@ -8,10 +8,13 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, DraftNode, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, RenderingFlags, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
+
+
+
 
 
 /**
@@ -82,13 +85,29 @@ export class TreeService {
 
   }
 
-  broadcastDraftValueChange(id: number) {
+  broadcastDraftValueChange(id: number, flags: DraftNodeBroadcastFlags) {
     const node = this.getNode(id);
     if (node.type === 'draft') {
       const draft = (<DraftNode>node).draft;
       const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
       console.log(`[BROADCAST] Draft ${id} (${size})`);
-      (<DraftNode>node).onValueChange.next(draft);
+
+      const rf: RenderingFlags = {
+        u_drawdown: flags.draft,
+        u_threading: true,
+        u_treadling: flags.loom,
+        u_tieups: flags.loom,
+        u_warp_mats: flags.materials,
+        u_warp_sys: flags.draft,
+        u_weft_mats: flags.materials,
+        u_weft_sys: flags.draft,
+        use_floats: false,
+        use_colors: false,
+        show_loom: false
+      };
+
+
+      (<DraftNode>node).onValueChange.next({ id: id, draft: draft, loom: (<DraftNode>node).loom, loom_settings: (<DraftNode>node).loom_settings, flags: flags });
     }
   }
 
@@ -538,7 +557,7 @@ export class TreeService {
   private createDraftNode(ref: ViewRef, component: SubdraftComponent, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, visible: boolean): DraftNode {
 
 
-    const valueChange = new Subject<Draft>();
+    const valueChange = new Subject<DraftNodeBroadcast>();
     const onValueChange$ = valueChange.asObservable();
 
     const node: DraftNode = {
@@ -555,7 +574,8 @@ export class TreeService {
       visible: visible,
       mark_for_deletion: false,
       onValueChange: valueChange,
-      valueChange$: onValueChange$
+      valueChange$: onValueChange$,
+      canvases: null
     }
     return node;
   }
@@ -1236,10 +1256,17 @@ export class TreeService {
         let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
         if (cxn_child.length > 0) {
           outputs[i].draft.gen_name = op.generateName(param_vals, inputs)
-          this.setDraftOnly(cxn_child[0], outputs[i].draft);
-          if (outputs[i].loom !== undefined) this.setLoom(cxn_child[0], outputs[i].loom)
-          if (outputs[i].loom_settings !== undefined) this.setLoomSettings(cxn_child[0], outputs[i].loom_settings)
-          this.broadcastDraftValueChange(cxn_child[0]);
+          if (outputs[i].loom !== undefined) this.setLoom(cxn_child[0], outputs[i].loom, false)
+          if (outputs[i].loom_settings !== undefined) this.setLoomSettings(cxn_child[0], outputs[i].loom_settings, false)
+
+          const flags: DraftNodeBroadcastFlags = {
+            meta: true,
+            draft: true,
+            loom: true,
+            loom_settings: false,
+            materials: true
+          };
+          this.setDraftOnly(cxn_child[0], outputs[i].draft, flags);
           touched.push(cxn_child[0]);
 
         }
@@ -1278,7 +1305,14 @@ export class TreeService {
           let d = this.getDraft(id);
           d.gen_name = op.generateName(param_vals, inputs);
           const dn = <DraftNode>this.getNode(id);
-          this.broadcastDraftValueChange(id);
+          const flags: DraftNodeBroadcastFlags = {
+            meta: true,
+            draft: true,
+            loom: true,
+            loom_settings: true,
+            materials: true
+          };
+          this.setDraftOnly(dn.id, d, flags);
           dn.dirty = true;
         })
 
@@ -1289,6 +1323,21 @@ export class TreeService {
   }
 
 
+  /**
+   * called when there have been edits made to a draft that has outputs to other operations
+   * @param id 
+   */
+  async recomputeDraftChildren(id: number) {
+    const dn = <DraftNode>this.getNode(id);
+    const children = this.getNonCxnOutputs(id);
+    const opList = [];
+    children.forEach(child => {
+      const op = this.getOpNode(child);
+      op.dirty = true;
+      opList.push(op.id);
+    })
+    return this.performGenerationOps(opList);
+  }
 
 
 
@@ -1473,21 +1522,84 @@ export class TreeService {
     return dn.loom;
   }
 
-  setLoom(id: number, loom: Loom) {
+  setLoom(id: number, loom: Loom, broadcast: boolean = true) {
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) dn.loom = (loom === null) ? null : copyLoom(loom);
+    const flags: DraftNodeBroadcastFlags = {
+      meta: false,
+      draft: false,
+      loom: true,
+      loom_settings: false,
+      materials: false
+    };
+    if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
   }
 
-  setLoomAndRecomputeDrawdown(id: number, loom: Loom, loom_settings: LoomSettings): Promise<Draft> {
-    const dn: DraftNode = <DraftNode>this.getNode(id);
-    if (dn !== null && dn !== undefined) dn.loom = copyLoom(loom);
 
-    const utils = getLoomUtilByType(loom_settings.type);
-    return utils.computeDrawdownFromLoom(loom)
-      .then(drawdown => {
-        dn.draft.drawdown = drawdown;
+  recomputeDrawdown(id: number, loom: Loom, loom_settings: LoomSettings, broadcast: boolean = true): Promise<Draft> {
+    const dn: DraftNode = <DraftNode>this.getNode(id);
+    if (dn !== null && dn !== undefined) {
+      if (loom_settings.type == 'jacquard') {
         return Promise.resolve(dn.draft);
-      })
+      } else {
+        const utils = getLoomUtilByType(loom_settings.type);
+
+        return utils.computeDrawdownFromLoom(loom)
+          .then(drawdown => {
+            dn.draft.drawdown = drawdown;
+            const flags: DraftNodeBroadcastFlags = {
+              meta: false,
+              draft: true,
+              loom: true,
+              loom_settings: false,
+              materials: false
+            };
+            if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+            return Promise.resolve(dn.draft);
+          })
+
+
+      }
+
+    }
+  }
+
+  setLoomAndRecomputeDrawdown(id: number, loom: Loom, loom_settings: LoomSettings, broadcast: boolean = true): Promise<Draft> {
+
+    const dn: DraftNode = <DraftNode>this.getNode(id);
+    if (dn !== null && dn !== undefined) {
+      this.setLoom(id, loom, false);
+
+      if (loom_settings.type == 'jacquard') {
+        const flags: DraftNodeBroadcastFlags = {
+          meta: false,
+          draft: false,
+          loom: true,
+          loom_settings: false,
+          materials: false
+        };
+        if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+        return Promise.resolve(dn.draft);
+      } {
+        const utils = getLoomUtilByType(loom_settings.type);
+        return utils.computeDrawdownFromLoom(loom)
+          .then(drawdown => {
+            dn.draft.drawdown = drawdown;
+            const flags: DraftNodeBroadcastFlags = {
+              meta: false,
+              draft: true,
+              loom: true,
+              loom_settings: false,
+              materials: false
+            };
+            if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+            return Promise.resolve(dn.draft);
+          })
+
+
+      }
+
+    }
   }
 
   getLoomSettings(id: number): LoomSettings {
@@ -1497,9 +1609,17 @@ export class TreeService {
     return dn.loom_settings;
   }
 
-  setLoomSettings(id: number, loom_settings: LoomSettings) {
+  setLoomSettings(id: number, loom_settings: LoomSettings, broadcast: boolean = true) {
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) dn.loom_settings = loom_settings;
+    const flags: DraftNodeBroadcastFlags = {
+      meta: false,
+      draft: false,
+      loom: true,
+      loom_settings: true,
+      materials: false
+    };
+    if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
   }
 
 
@@ -2203,6 +2323,15 @@ export class TreeService {
     node.loom = copyLoom(state.loom);
     node.loom_settings = copyLoomSettings(state.loom_settings);
     node.scale = state.scale;
+
+    const flags: DraftNodeBroadcastFlags = {
+      meta: true,
+      draft: true,
+      loom: true,
+      loom_settings: false,
+      materials: true
+    };
+    this.broadcastDraftValueChange(id, flags);
   }
 
   /**
@@ -2384,13 +2513,13 @@ export class TreeService {
   }
 
 
-  setDraftOnly(id: number, draft: Draft) {
+  setDraftOnly(id: number, draft: Draft, flags: DraftNodeBroadcastFlags, broadcast: boolean = true) {
     const dn = <DraftNode>this.getNode(id);
     draft.id = id;
     dn.draft = draft;
     dn.render_colors = (dn.render_colors === undefined) ? true : dn.render_colors;
     if (dn.component !== null) (<SubdraftComponent>dn.component).draft = draft;
-
+    if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
   }
 
   setDraftVisiblity(id: number, visibile: boolean) {
@@ -2404,7 +2533,7 @@ export class TreeService {
    * @param temp the draft to add
    * @param loom_settings  the settings that should govern the loom generated
    */
-  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings): Promise<Loom> {
+  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings, broadcast: boolean = true): Promise<Loom> {
 
     const dn = <DraftNode>this.getNode(id);
     let ud_name = getDraftName(temp);
@@ -2420,25 +2549,53 @@ export class TreeService {
     dn.draft.id = id;
 
     if (loom_settings === null || loom_settings === undefined) {
-
       dn.loom_settings = this.ws.getWorkspaceLoomSettings();
-
     }
     else dn.loom_settings = loom_settings;
 
     dn.dirty = true;
-
-
     if (dn.component !== null) (<SubdraftComponent>dn.component).draft = temp;
 
 
-    if (dn.loom_settings.type == 'jacquard') return Promise.resolve(null)
+    return this.recomputeLoom(id, temp, loom_settings, broadcast);
+
+  }
+
+
+
+  /**
+   * recomputes the loom as per a draft and broadcasts changes to teh loom if neccessary
+   * @param id the node to update
+   * @param temp the draft to add
+   * @param loom_settings  the settings that should govern the loom generated
+   */
+  recomputeLoom(id: number, draft: Draft, loom_settings: LoomSettings, broadcast: boolean = true): Promise<Loom> {
+
+    const dn = <DraftNode>this.getNode(id);
+
+    if (loom_settings === null || loom_settings === undefined) {
+      dn.loom_settings = this.ws.getWorkspaceLoomSettings();
+    }
+    else dn.loom_settings = loom_settings;
+    dn.dirty = true;
+
+
+    if (dn.loom_settings.type == 'jacquard') {
+      return Promise.resolve(null)
+    }
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-
-    return loom_utils.computeLoomFromDrawdown(temp.drawdown, loom_settings)
+    return loom_utils.computeLoomFromDrawdown(draft.drawdown, loom_settings)
       .then(loom => {
         dn.loom = loom;
+        const flags: DraftNodeBroadcastFlags = {
+          meta: false,
+          draft: false,
+          loom: true,
+          loom_settings: false,
+          materials: false
+        };
+        if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
         return Promise.resolve(loom);
       });
 
@@ -2449,12 +2606,19 @@ export class TreeService {
    * sets a new draft
    * @param temp the draft to set this component to
    */
-  setDraftPattern(id: number, pattern: Drawdown) {
-
+  setDraftPattern(id: number, pattern: Drawdown, broadcast: boolean = true) {
     const dn = <DraftNode>this.getNode(id);
     dn.draft.drawdown = pattern.slice();
     (<SubdraftComponent>dn.component).draft = dn.draft;
     dn.dirty = true;
+    const flags: DraftNodeBroadcastFlags = {
+      meta: false,
+      draft: true,
+      loom: false,
+      loom_settings: false,
+      materials: false
+    };
+    if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
   }
 
 

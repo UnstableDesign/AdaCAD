@@ -47,6 +47,19 @@
     background-position-x: center;
 }
 
+.draw_modes_group {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.draw_mode_button {
+    background-color: #f0f0f0;
+    margin: 2px;
+    flex: 1 1 auto;
+}
+
 .new_draft {
     width: 100%;
     background-color: white;
@@ -101,6 +114,18 @@ h1 {
     display: flex;
     flex-direction: row;
     width: 60vw;
+}
+
+.draft_tools {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.draft_tool_button {
+    flex: 1 1 100%;
+    margin: 2px;
+
 }
 
 .design-container {
@@ -179,6 +204,7 @@ h1 {
 .editing-mode-toggle {
     width: 100%;
     padding-bottom: 16px;
+
 }
 
 

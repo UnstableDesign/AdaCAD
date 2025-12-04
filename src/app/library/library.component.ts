@@ -128,6 +128,13 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  scrollToMaterials() {
+    const materialsSection = document.getElementById('materials');
+    if (materialsSection) {
+      materialsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
   share() {
     const fileid = this.ws.getCurrentFile().id;
     const dialogRef = this.dialog.open(ShareComponent, {
@@ -216,7 +223,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
       this.draftRenderings.forEach((rendering) => {
         if (rendering.id !== -1) {
           rendering.onNewDraftLoaded(rendering.id);
-          rendering.redrawAll();
+          rendering.forceRedraw();
         }
       });
     }, 0);

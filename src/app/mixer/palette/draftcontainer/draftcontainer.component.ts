@@ -6,7 +6,7 @@ import { MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft } from 'adacad-drafting-lib';
 import { warps, wefts } from 'adacad-drafting-lib/draft';
-import { DraftNode } from '../../../core/model/datatypes';
+import { DraftNode, RenderingFlags } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { FileService } from '../../../core/provider/file.service';
@@ -92,7 +92,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
   showingIdChangeSubscription: Subscription;
 
-  draftValueChangeSubscription: Subscription;
+  redrawCompleteSubscription: Subscription;
 
 
   constructor() {
@@ -132,14 +132,11 @@ export class DraftContainerComponent implements AfterViewInit {
     });
 
     this.draft_rendering.onNewDraftLoaded(this.id);
-    this.drawDraft(draft);
-    this.localZoomChange(this.local_zoom);
-
-    let node: DraftNode = this.tree.getNode(this.id) as DraftNode;
-    this.draftValueChangeSubscription = node.valueChange$.subscribe(draft => {
-      this.drawDraft(draft);
+    this.redrawCompleteSubscription = this.draft_rendering.redrawComplete.subscribe(el => {
+      this.redrawComplete();
     });
-
+    // this.forceDrawDraft(draft);
+    this.localZoomChange(this.local_zoom);
 
     this.startSizeObserver();
 
@@ -194,13 +191,15 @@ export class DraftContainerComponent implements AfterViewInit {
   ngOnDestroy() {
 
 
+    //unsubscribe from subscriptions
+    if (this.redrawCompleteSubscription) {
+      this.redrawCompleteSubscription.unsubscribe();
+    }
 
     if (this.showingIdChangeSubscription) {
       this.showingIdChangeSubscription.unsubscribe();
     }
-    if (this.draftValueChangeSubscription) {
-      this.draftValueChangeSubscription.unsubscribe();
-    }
+
     this.closeSizeObserver();
   }
 
@@ -233,19 +232,26 @@ export class DraftContainerComponent implements AfterViewInit {
     // console.log("VIS TOGGLED", this.id,  this.draft_visible, this.ws.hide_mixer_drafts)
     this.draft_visible = !this.draft_visible;
     this.tree.setDraftVisiblity(this.id, this.draft_visible);
-    this.updateDraftRendering();
+    this.updateDraftVisibility();
 
 
   }
 
-  updateDraftRendering() {
+  /**
+   * called when visibility changes (hide or show )
+   */
+  updateDraftVisibility() {
     const draft = this.tree.getDraft(this.id);
 
 
     if (this.draft_rendering !== undefined && draft !== undefined && draft !== null && this.draft_visible) {
-      this.draft_rendering.onNewDraftLoaded(this.id);
-      this.drawDraft(draft).then(el => {
+      this.draft_rendering.onNewDraftLoaded(this.id); //this will andle drawing
+      if (this.redrawCompleteSubscription) {
+        this.redrawCompleteSubscription.unsubscribe();
+      }
+      this.redrawCompleteSubscription = this.draft_rendering.redrawComplete.subscribe(el => {
         this.onDraftVisibilityChanged.emit(this.id);
+        this.redrawComplete();
       });
 
     } else {
@@ -289,9 +295,8 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
 
-  drawDraft(draft: Draft): Promise<boolean> {
+  forceDrawDraft(draft: Draft): Promise<boolean> {
 
-    console.log("DRAW DRAFT CALLED?")
 
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
@@ -303,26 +308,31 @@ export class DraftContainerComponent implements AfterViewInit {
     const loom_settings = this.tree.getLoomSettings(this.id);
 
 
-    let flags = {
-      drawdown: true,
-      warp_materials: true,
-      warp_systems: true,
-      weft_materials: true,
-      weft_systems: true
+    let flags: RenderingFlags = {
+      u_drawdown: true,
+      u_threading: true,
+      u_tieups: true,
+      u_treadling: true,
+      u_warp_sys: true,
+      u_warp_mats: true,
+      u_weft_sys: true,
+      u_weft_mats: true,
+      use_floats: (this.current_view == 'color'),
+      use_colors: (this.current_view != 'draft'),
+      show_loom: (this.current_view == 'loom')
     }
 
-
     //pushes to the queue
-    this.draft_rendering.redraw(draft, loom, loom_settings, flags);
-
-
+    this.draft_rendering.redraw(draft, loom, loom_settings, flags).then(el => {
+      this.onDrawdownSizeChanged.emit(this.id);
+    });
 
 
   }
 
   //emits after the queue finishes
-  redrawComplete(draft: Draft) {
-    this.tree.setDraftClean(this.id);
+  redrawComplete() {
+    // this.tree.setDraftClean(this.id);
     this.onDrawdownSizeChanged.emit(this.id);
   }
 
@@ -414,13 +424,6 @@ export class DraftContainerComponent implements AfterViewInit {
     }
   }
 
-
-  toggleDraftRendering() {
-    const dn = <DraftNode>this.tree.getNode(this.id);
-    dn.render_colors = !dn.render_colors;
-    this.use_colors = dn.render_colors;
-    this.drawDraft(this.tree.getDraft(this.id));
-  }
 
 
 

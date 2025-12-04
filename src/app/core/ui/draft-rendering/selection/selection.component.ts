@@ -5,6 +5,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { Drawdown, Interlacement, OpInput, OpParamVal, Operation } from 'adacad-drafting-lib';
 import { createBlankDrawdown, generateMappingFromPattern, getCellValue, initDraftWithParams, isUp, pasteIntoDrawdown, setCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
+import { DraftNodeBroadcastFlags } from '../../../model/datatypes';
 import { defaults, paste_options } from '../../../model/defaults';
 import { DesignmodesService } from '../../../provider/designmodes.service';
 import { MaterialsService } from '../../../provider/materials.service';
@@ -439,7 +440,6 @@ export class SelectionComponent implements OnInit {
             //if you do this when updates come from loom, it will erase those updates
             this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
               .then(loom => {
-                this.tree.setLoom(this.id, loom);
                 this.saveAction.emit(before);
                 this.forceRedraw.emit();
               });
@@ -449,9 +449,7 @@ export class SelectionComponent implements OnInit {
             loom_util.pasteThreading(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
-                this.tree.setDraftOnly(this.id, draft);
                 this.saveAction.emit(before);
-                this.forceRedraw.emit();
               });
             break;
           case 'tieups-' + this.source + "-" + this.id:
@@ -459,22 +457,15 @@ export class SelectionComponent implements OnInit {
             loom_util.pasteTieup(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
-                this.tree.setLoom(this.id, loom);
                 this.saveAction.emit(before);
-                this.forceRedraw.emit();
               });
             break;
           case 'treadling-' + this.source + "-" + this.id:
-            console.log("LOOM AND COPY ", loom, this.copy)
-
             loom_util.pasteTreadling(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
 
             this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
-                this.tree.setLoom(this.id, loom);
                 this.saveAction.emit(before);
-                this.forceRedraw.emit();
-
               });
             break;
 
@@ -495,8 +486,14 @@ export class SelectionComponent implements OnInit {
               }
             });
 
-            this.tree.setDraftOnly(this.id, draft);
-            this.forceRedraw.emit();
+            let flags: DraftNodeBroadcastFlags = {
+              meta: false,
+              draft: true,
+              loom: false,
+              loom_settings: false,
+              materials: false
+            };
+            this.tree.setDraftOnly(this.id, draft, flags);
             this.saveAction.emit(before);
 
 
@@ -518,8 +515,14 @@ export class SelectionComponent implements OnInit {
               }
             });
 
-            this.tree.setDraftOnly(this.id, draft);
-            this.forceRedraw.emit();
+            flags = {
+              meta: false,
+              draft: false,
+              loom: false,
+              loom_settings: false,
+              materials: true
+            };
+            this.tree.setDraftOnly(this.id, draft, flags);
             this.saveAction.emit(before);
 
 
@@ -541,9 +544,14 @@ export class SelectionComponent implements OnInit {
                 return draft.rowSystemMapping[ndx];
               }
             });
-
-            this.tree.setDraftOnly(this.id, draft);
-            this.forceRedraw.emit();
+            flags = {
+              meta: false,
+              draft: true,
+              loom: false,
+              loom_settings: false,
+              materials: false
+            };
+            this.tree.setDraftOnly(this.id, draft, flags);
             this.saveAction.emit(before);
 
 
@@ -565,9 +573,14 @@ export class SelectionComponent implements OnInit {
                 return draft.rowShuttleMapping[ndx];
               }
             });
-
-            this.tree.setDraftOnly(this.id, draft);
-            this.forceRedraw.emit();
+            flags = {
+              meta: false,
+              draft: false,
+              loom: false,
+              loom_settings: false,
+              materials: true
+            };
+            this.tree.setDraftOnly(this.id, draft, flags);
             this.saveAction.emit(before);
 
 

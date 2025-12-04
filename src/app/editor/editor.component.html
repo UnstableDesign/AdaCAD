@@ -1,54 +1,6 @@
 <div class="detail-sidebars" id="detail-sidebar">
 
   <mat-accordion multi>
-    <!--
-    <mat-expansion-panel expanded>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <i class="fas fa-eye"></i>
-          View
-        </mat-panel-title>
-        <mat-panel-description>
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-
-      <button *ngIf="!viewer_expanded" mat-button (click)="focusUIView()">
-        <i  class="fa-solid fa-maximize"></i> Enter Full Screen</button>
-        <button *ngIf="viewer_expanded" mat-button (click)="collapseUIView()">
-          <i  class="fa-solid fa-minimize"></i> Exit Full Screen</button>
-
-          <button
-            mat-icon-button
-            [class.active]="current_view == 'draft'"
-            matTooltip="view draft"
-            (click)="viewChange('draft')">
-            <i class="fa-solid fa-chess-board"></i>
-          </button>
-
-          <button
-            mat-icon-button
-            [class.active]="current_view == 'structure'"
-            matTooltip="view structure"
-            (click)="viewChange('structure')">
-            <i class="fa-solid fa-hashtag"></i>
-          </button>
-
-          <button
-            mat-icon-button
-            [class.active]="current_view == 'color'"
-            matTooltip="view colors"
-            (click)="viewChange('color')">
-            <i class="fa-solid fa-paint-roller">
-            </i></button>
-
-            <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expandViewer()"></i></button>
-
-
-
-
-          </mat-expansion-panel>
-          -->
-
 
 
     <button mat-stroked-button class="new_draft" color="primary" matTooltip="Blank Draft" (click)="createNewDraft()">
@@ -81,14 +33,28 @@
           </mat-button-toggle-group>
         </div>
         }
-        <mat-label>drafting pencil</mat-label>
 
-        <mat-button-toggle-group name="editor mode" [formControl]="pencilForm" aria-label="edit mode">
+        <mat-label>editing tools</mat-label>
 
-          <mat-button-toggle matTooltip="select regions" value="select">
-            <i class="fas fa-expand"></i>
+        <button matButton="filled" matTooltip="select regions" (click)="selectRegions()">
+          <i class="fas fa-expand"></i> Select Regions
+        </button>
+
+        <mat-button-toggle-group class="draw_modes_group" name="editor mode" [formControl]="pencilForm"
+          aria-label="edit mode">
+          @for (mode of draw_modes; track mode) {
+          <mat-button-toggle class="draw_mode_button" [matTooltip]="mode.viewValue" [value]="mode.value">
+            <span [style.color]="mode.color"><i class=" {{mode.icon}}"></i></span>
           </mat-button-toggle>
+          }
 
+
+          <button matButton="filled" matTooltip="edit materials" (click)="editMaterials()">
+            <i class="fas fa-expand"></i> Add/Edit Materials
+          </button>
+
+
+          <!-- 
           @for (mode of draw_modes; track mode) {
           @if (mode.value !== 'material') {
           <mat-button-toggle [matTooltip]="mode.viewValue" [value]="mode.value">
@@ -97,14 +63,14 @@
           }
           }
         </mat-button-toggle-group>
-        <mat-label>materials</mat-label>
+
         <mat-button-toggle-group name="editor mode" (change)="selectPencil()" [(ngModel)]="pencil"
           aria-label="edit mode">
           @for (shuttle of ms.materials; track shuttle) {
           <mat-button-toggle [matTooltip]="shuttle.name" [value]="shuttle.id">
             <span [style.color]="shuttle.color"><i class="fa-solid fa-paintbrush"></i></span>
           </mat-button-toggle>
-          }
+          } -->
 
         </mat-button-toggle-group>
 
