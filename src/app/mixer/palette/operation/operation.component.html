@@ -12,7 +12,7 @@
   <!--cdkDragBoundary=".palette"-->
 
 
-  <div class="operation-container" [style.background-color]="this.color">
+  <div class="operation-container" [style.background-color]="(hasError) ? 'red' : this.color">
     <div class="cxn-row" cdkDragHandle>
       @for (input of opnode.inlets; track input; let i = $index) {
       <div class="input-group">

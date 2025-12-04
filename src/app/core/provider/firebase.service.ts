@@ -360,7 +360,6 @@ export class FirebaseService implements OnDestroy {
 
 
   private writeFileMetaData(meta: FileMeta): Promise<boolean> {
-    console.log("WRITING FILEMETA  DATA FOR ", meta, this.auth.currentUser)
     let user_path = ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + meta.id);
 
 

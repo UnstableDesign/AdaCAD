@@ -20,6 +20,7 @@ export class ErrorBroadcasterService {
 
   originatingNodes: Array<ErrorStatement> = []; // a collection of any tree nodes that are affected by an error. 
 
+
   constructor() {
     this.errorBroadcasterSubject = new Subject<string>();
     this.errorBroadcast$ = this.errorBroadcasterSubject.asObservable();
@@ -29,8 +30,12 @@ export class ErrorBroadcasterService {
 
   }
 
-  postError(node_id: number, type: ErrorType, label: string) {
-    if (!this.hasError(node_id)) this.originatingNodes.push({ id: node_id, type, label });
+  postError(node_id: number, type: ErrorType, label: string, affected_nodes?: Array<number>) {
+    if (!this.hasError(node_id)) {
+      const errorNode: ErrorStatement = { id: node_id, type, label, affected_nodes: affected_nodes ? affected_nodes : undefined };
+      this.originatingNodes.push(errorNode);
+
+    }
     this.errorBroadcasterSubject.next('ERROR: ' + label)
   }
 
@@ -41,6 +46,20 @@ export class ErrorBroadcasterService {
 
   hasError(node_id: number): boolean {
     let node = this.originatingNodes.find(el => el.id == node_id);
+    if (node !== undefined) return true;
+    return false;
+  }
+
+  isErrorAffected(node_id: number): boolean {
+
+    const all_affected: Array<number> = this.originatingNodes.reduce((acc, el) => {
+      if (el.affected_nodes !== undefined) {
+        el.affected_nodes.forEach(node => acc.push(node));
+      }
+      return acc;
+    }, []);
+
+    let node = all_affected.find(el => el == node_id);
     if (node !== undefined) return true;
     return false;
   }

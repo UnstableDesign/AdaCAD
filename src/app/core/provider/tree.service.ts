@@ -25,6 +25,7 @@ import { OperationService } from './operation.service';
 @Injectable({
   providedIn: 'root'
 })
+
 export class TreeService {
   private ws = inject(WorkspaceService);
   private ops = inject(OperationService);
@@ -1475,7 +1476,8 @@ export class TreeService {
 
     let passes_size_check = op.sizeCheck(param_vals, cleaned_inputs);
     if (!passes_size_check) {
-      this.errorBroadcaster.postError(id, 'SIZE_ERROR', "The " + op.name + " is attempting to make a draft that is larger than the maximum allowable value")
+      const errorStatement = "The " + op.name + " operation is attempting to make a draft that is larger than the maximum allowable value"
+      this.errorBroadcaster.postError(id, 'SIZE_ERROR', errorStatement, this.getDownstreamOperations(id))
       return Promise.reject({ node_id: id, error: "Operation " + op.name + " size check failed" });
     }
 
@@ -1484,7 +1486,7 @@ export class TreeService {
       .then(res => {
         let has_err = res.find(el => el.err !== undefined);
         if (has_err !== undefined) {
-          this.errorBroadcaster.postError(id, 'OTHER', has_err.err);
+          this.errorBroadcaster.postError(id, 'OTHER', has_err.err, this.getDownstreamOperations(id));
           return Promise.reject(has_err.err);
         }
         opnode.dirty = false;

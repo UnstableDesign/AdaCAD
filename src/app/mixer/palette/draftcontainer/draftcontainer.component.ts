@@ -5,7 +5,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft } from 'adacad-drafting-lib';
-import { warps, wefts } from 'adacad-drafting-lib/draft';
+import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { DraftNode, RenderingFlags } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
 import { DesignmodesService } from '../../../core/provider/designmodes.service';
@@ -94,6 +94,8 @@ export class DraftContainerComponent implements AfterViewInit {
 
   redrawCompleteSubscription: Subscription;
 
+  draftValueChangeSubscription: Subscription;
+
 
   constructor() {
 
@@ -115,12 +117,10 @@ export class DraftContainerComponent implements AfterViewInit {
   ngAfterViewInit() {
 
 
-    const draft = this.tree.getDraft(this.id);
-    this.warps = warps(draft.drawdown);
-    this.wefts = wefts(draft.drawdown);
+    const dn = this.tree.getNode(this.id) as DraftNode;
+
 
     this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
-    this.draft_name = this.tree.getDraftName(this.id);
     this.local_zoom = this.tree.getDraftScale(this.id);
     this.draft_visible = this.tree.getDraftVisible(this.id);
 
@@ -135,14 +135,28 @@ export class DraftContainerComponent implements AfterViewInit {
     this.redrawCompleteSubscription = this.draft_rendering.redrawComplete.subscribe(el => {
       this.redrawComplete();
     });
+
+
+    this.draftValueChangeSubscription = dn.valueChange$.subscribe(el => {
+      this.updateDraftInfo(el.draft);
+    });
+
+
     // this.forceDrawDraft(draft);
     this.localZoomChange(this.local_zoom);
 
+    this.updateDraftInfo(dn.draft);
     this.startSizeObserver();
 
   }
 
 
+  //update info from a draft after it has been recomputed
+  updateDraftInfo(draft: Draft) {
+    this.warps = warps(draft.drawdown);
+    this.wefts = wefts(draft.drawdown);
+    this.draft_name = getDraftName(draft);
+  }
 
 
   getGlobalZoomUndo(): number {
@@ -191,6 +205,9 @@ export class DraftContainerComponent implements AfterViewInit {
   ngOnDestroy() {
 
 
+    if (this.draftValueChangeSubscription) {
+      this.draftValueChangeSubscription.unsubscribe();
+    }
     //unsubscribe from subscriptions
     if (this.redrawCompleteSubscription) {
       this.redrawCompleteSubscription.unsubscribe();

@@ -1584,8 +1584,7 @@ export class PaletteComponent implements OnInit {
         })
 
         all_ops.forEach(op => {
-          let hasError = this.errorBroadcaster.hasError(op);
-          (<OperationComponent>this.tree.getComponent(op)).updateErrorState(hasError);
+          (<OperationComponent>this.tree.getComponent(op)).updateErrorState();
         })
 
 

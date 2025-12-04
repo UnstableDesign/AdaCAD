@@ -749,4 +749,5 @@ export type ErrorStatement = {
   id: number,
   type: ErrorType
   label: string
+  affected_nodes?: Array<number>
 }

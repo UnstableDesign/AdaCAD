@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Img, Interlacement, Operation, OpInletValType, OpParamValType } from 'adacad-drafting-lib';
+import { Subscription } from 'rxjs';
 import { IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { ErrorBroadcasterService } from '../../../core/provider/error-broadcaster.service';
 import { MediaService } from '../../../core/provider/media.service';
@@ -143,6 +144,7 @@ export class OperationComponent implements OnInit {
 
   hasError: boolean = false;
   errorStatement: string = "";
+  errorSubscription: Subscription;
 
   // @HostListener('window:resize', ['$event'])
   // onResize(event) {
@@ -175,6 +177,9 @@ export class OperationComponent implements OnInit {
 
     this.opnode = <OpNode>this.tree.getNode(this.id);
     //if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
+    this.errorSubscription = this.errorBroadcaster.errorBroadcast$.subscribe((alert_text) => {
+      this.updateErrorState();
+    })
 
   }
 
@@ -192,14 +197,19 @@ export class OperationComponent implements OnInit {
     op_container.style.left = this.topleft.x + "px";
 
 
-    //check for error
-    this.updateErrorState(this.errorBroadcaster.hasError(this.id))
-
+    //check for error on load
+    this.updateErrorState();
 
 
 
     this.onOpLoaded.emit({ id: this.id })
 
+  }
+
+  onNgDestroy() {
+    if (this.errorSubscription) {
+      this.errorSubscription.unsubscribe();
+    }
   }
 
   mousedown(e: any) {
@@ -368,16 +378,16 @@ export class OperationComponent implements OnInit {
     this.children = children;
   }
 
-  updateErrorState(hasError: boolean) {
-    this.hasError = hasError;
+  updateErrorState() {
+    this.hasError = this.errorBroadcaster.hasError(this.id) || this.errorBroadcaster.isErrorAffected(this.id);
+
     if (this.hasError) {
-      const type = this.errorBroadcaster.getErrorType(this.id);
-      switch (type) {
-        case 'SIZE_ERROR':
-          this.errorStatement = "This is trying to create a draft that is larger than the allowable limit. Please adjust the parameters or reset size limits in workspace settings"
-          break;
-        case 'OTHER':
-          break;
+
+      const isOriginator = this.errorBroadcaster.hasError(this.id);
+      if (isOriginator) {
+        this.errorStatement = "This is the originator of the error. Please adjust the parameters or reset size limits in workspace settings"
+      } else {
+        this.errorStatement = "This is affected by the error. Please adjust the parameters or reset size limits in workspace settings"
       }
     }
   }
