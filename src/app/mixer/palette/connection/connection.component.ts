@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
-import { ConnectionExistenceChange, OpNode, Point } from '../../../core/model/datatypes';
+import { Subscription } from 'rxjs';
+import { ConnectionExistenceChange, ConnectionNode, OpNode, Point } from '../../../core/model/datatypes';
 import { OperationService } from '../../../core/provider/operation.service';
 import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
@@ -52,7 +53,30 @@ export class ConnectionComponent implements OnInit {
   show_path_text: boolean = false;
   show_disconnect: boolean = true;
 
+  //styling flags
+  upstream: boolean = false;
+  downstream: boolean = false;
+  recomputing: boolean = false;
+
+  upstreamSubscription: Subscription;
+  downstreamSubscription: Subscription;
+  recomputingSubscription: Subscription;
+
+
+  constructor() {
+
+
+
+
+
+
+  }
+
+
   ngOnInit() {
+
+
+
     const treenode = this.tree.getTreeNode(this.id);
     const from_io = treenode.inputs[0];
     const to_io = treenode.outputs[0];
@@ -65,8 +89,24 @@ export class ConnectionComponent implements OnInit {
 
     this.updatePathText()
 
+    const connectionNode = <ConnectionNode>this.tree.getNode(this.id);
+
+    this.upstreamSubscription = connectionNode.upstreamOfSelected.subscribe((value) => {
+      this.upstream = value;
+      this.updateConnectionStyling();
+    });
+    this.downstreamSubscription = connectionNode.downstreamOfSelected.subscribe((value) => {
+      this.downstream = value;
+      this.updateConnectionStyling();
+    });
+
+
+
+
 
   }
+
+
 
   ngAfterViewInit() {
 
@@ -123,10 +163,20 @@ export class ConnectionComponent implements OnInit {
     this.drawConnection();
 
 
+
+
   }
 
+  onNgDestroy() {
+    this.upstreamSubscription.unsubscribe();
+    this.downstreamSubscription.unsubscribe();
+    this.recomputingSubscription.unsubscribe();
+
+  }
+
+
+
   disconnect() {
-    console.log("REMOVE CONNECTION");
     let to = this.tree.getConnectionOutputWithIndex(this.id);
     let from = this.tree.getConnectionInput(this.id);
 
@@ -282,25 +332,30 @@ export class ConnectionComponent implements OnInit {
   }
 
 
-  updateConnectionStyling(selected: boolean) {
+  updateConnectionStyling() {
+    if (this.path_main === null || this.path_main === undefined) return;
+    if (this.line_stub === null || this.line_stub === undefined) return;
 
-    if (selected) {
-      // this.anim.play();
-      this.path_main.setAttribute("stroke-width", "8"); //2
-      this.line_stub.setAttribute("stroke-width", "8"); //2
-      this.path_main.setAttribute("stroke-dasharray", "20 1"); //4 2 
-      this.line_stub.setAttribute("stroke-dasharray", "20 1"); //4 2 
+
+
+    if (this.upstream || this.downstream) {
+      this.path_main.setAttribute("stroke-width", "16"); //2
+      this.line_stub.setAttribute("stroke-width", "16"); //2
+      this.path_main.setAttribute("stroke-dasharray", "20 20"); //4 2 
+      this.line_stub.setAttribute("stroke-dasharray", "20 20"); //4 2 
 
     } else {
-      //  this.anim.pause();
       this.path_main.style.zIndex = '0'
       this.path_main.setAttribute("stroke-width", "4"); //2
       this.line_stub.setAttribute("stroke-width", "4"); //2
       this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
       this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
+    }
 
-
-
+    if (this.recomputing) {
+      if (this.anim !== null && this.anim !== undefined) this.anim.play();
+    } else {
+      if (this.anim !== null && this.anim !== undefined) this.anim.pause();
     }
   }
 

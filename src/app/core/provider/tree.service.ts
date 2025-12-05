@@ -2,13 +2,13 @@ import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
 import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Img, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, RenderingFlags, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, ConnectionNode, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, RenderingFlags, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
@@ -590,18 +590,26 @@ export class TreeService {
       inlets: inlets,
       dirty: false,
       params: params,
-      name: name
+      name: name,
+      recomputing: new BehaviorSubject<boolean>(false)
     }
     return node;
   }
 
-  private createConnectionNode(ref: ViewRef, component: ConnectionComponent): Node {
-    const node: Node = {
+  private createConnectionNode(ref: ViewRef, component: ConnectionComponent): ConnectionNode {
+
+    const recomputing = new BehaviorSubject<boolean>(false);
+    const upstreamOfSelected = new BehaviorSubject<boolean>(false);
+    const downstreamOfSelected = new BehaviorSubject<boolean>(false);
+
+    const node: ConnectionNode = {
       type: 'cxn',
       ref: ref,
       id: generateId(8),
       component: component,
-      dirty: false
+      dirty: false,
+      upstreamOfSelected: upstreamOfSelected,
+      downstreamOfSelected: downstreamOfSelected
     }
     return node;
   }
@@ -935,6 +943,11 @@ export class TreeService {
     return ops;
   }
 
+  getDownstreamConnections(id: number): Array<number> {
+    let nodes = this.getAllDownstreamNodes(id);
+    return nodes.filter(el => this.getType(el) === 'cxn');
+  }
+
   /**
   * given a node, recusively walks the tree and returns a list of all the nodes that branch from this parent
   * @param id 
@@ -952,6 +965,23 @@ export class TreeService {
       });
     }
     return nodes;
+  }
+
+  getAllUpstreamNodes(id: number): Array<number> {
+    let nodes: Array<number> = [];
+    const tn: TreeNode = this.getTreeNode(id);
+    if (tn.inputs.length > 0) {
+      tn.inputs.forEach(el => {
+        nodes.push(el.tn.node.id);
+        nodes = nodes.concat(this.getAllUpstreamNodes(el.tn.node.id));
+      });
+    }
+    return nodes;
+  }
+
+  getUpstreamConnections(id: number): Array<number> {
+    let nodes = this.getAllUpstreamNodes(id);
+    return nodes.filter(el => this.getType(el) === 'cxn');
   }
 
   /**
@@ -1387,10 +1417,16 @@ export class TreeService {
 
     const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
 
+
     if (needs_computing.length == 0) return Promise.resolve([]);
 
     const op_fn_list = needs_computing.map(el => this.performOp(el));
 
+    needs_computing.forEach(el => {
+      if (el !== undefined) {
+        this.getOpNode(el)?.recomputing?.next(true);
+      }
+    });
     return Promise.all(op_fn_list).then(out => {
 
       return this.getNodesWithDependenciesSatisfied();
@@ -1440,11 +1476,11 @@ export class TreeService {
   async performOp(id: number): Promise<Array<number>> {
 
     const opnode = <OpNode>this.getNode(id);
-    console.log("PERFORMING OP", id, opnode.name)
+    console.log("PERFORMING OP + Publish Recompute", id, opnode.name)
+
+
     const op = this.ops.getOp(opnode.name);
-    console.log("OP", op)
     const all_inputs = this.getInputsWithNdx(id);
-    console.log("ALL INPUTS", all_inputs)
     this.errorBroadcaster.clearError(id); //clear before we compute again.
 
     if (op === null || op === undefined) return Promise.reject("Operation is null")
@@ -1482,17 +1518,26 @@ export class TreeService {
     }
 
 
+
     return op.perform(param_vals, cleaned_inputs)
       .then(res => {
+        opnode.recomputing.next(false);
         let has_err = res.find(el => el.err !== undefined);
         if (has_err !== undefined) {
           this.errorBroadcaster.postError(id, 'OTHER', has_err.err, this.getDownstreamOperations(id));
           return Promise.reject(has_err.err);
         }
         opnode.dirty = false;
+        // output_connections.forEach(el => {
+        //   if (el !== null) {
+        //     console.log("CALLING RECOMPUTING FALSE", el.id)
+        //     el.recomputing.next(false);
+        //   }
+        // });
         return this.updateDraftsFromResults(id, res, cleaned_inputs);
       })
       .catch(err => {
+        opnode.recomputing.next(false);
         console.error("Error performing op", id, err);
         return Promise.reject(err);
       });
@@ -1500,6 +1545,9 @@ export class TreeService {
 
 
 
+  getConnectionNodes(): Array<ConnectionNode> {
+    return this.nodes.filter(el => el.type === 'cxn').map(el => <ConnectionNode>el);
+  }
 
   getDraftNodes(): Array<DraftNode> {
     return this.nodes.filter(el => el.type === 'draft').map(el => <DraftNode>el);
@@ -1653,6 +1701,12 @@ export class TreeService {
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn === null || dn === undefined || dn.draft === null || dn.scale === undefined) return 1;
     return dn.scale;
+  }
+
+  getConnectionNode(id: number): ConnectionNode {
+    const cn: ConnectionNode = <ConnectionNode>this.getNode(id);
+    if (cn === null || cn === undefined) return null;
+    return cn;
   }
 
   getConnections(): Array<ConnectionComponent> {
@@ -2010,6 +2064,35 @@ export class TreeService {
       .filter(node => node.type === 'cxn')
       .map(node => this.getConnectionOutput(node.id))
     return id_list;
+  }
+
+
+  /**
+   * if we are at an operaiton node and we want to get all of the subsequent connections from this operation node to another 
+   * we need to first traverse this operations sudrafts, and then see where those subdrafts go. 
+   * @param op_id 
+   * @returns 
+   */
+  getOperationToOperationConnections(op_id: number): Array<number> {
+    const subdrafts: Array<number> = this.getNonCxnOutputs(op_id);
+    const ops = subdrafts.reduce((acc, el) => {
+      return acc.concat(this.getOutputs(el));
+    }, []);
+    return ops;
+
+  }
+
+  /**
+   * if we are at a draft, it either has no inputs  (e.g. it's a seed draft) or it has a connection between iself and it's parent
+   * operation. 
+   * @param draft_id 
+   * @returns 
+   */
+  getOperationInputConnectionsFromDraft(draft_id: number): Array<number> {
+    const operation: number = this.getSubdraftParent(draft_id);
+    if (operation === -1) return [];
+
+    return this.getInputs(operation);
   }
 
 

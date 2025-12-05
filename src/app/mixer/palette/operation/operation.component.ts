@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, inject, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
@@ -16,7 +16,6 @@ import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
 import { ZoomService } from '../../../core/provider/zoom.service';
 import { MultiselectService } from '../../provider/multiselect.service';
-import { ConnectionComponent } from '../connection/connection.component';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 import { InletComponent } from './inlet/inlet.component';
 import { ParameterComponent } from './parameter/parameter.component';
@@ -32,6 +31,8 @@ import { ParameterComponent } from './parameter/parameter.component';
 export class OperationComponent implements OnInit {
   private operations = inject(OperationService);
   private dialog = inject(MatDialog);
+  private renderer = inject(Renderer2);
+  private elementRef = inject(ElementRef);
   tree = inject(TreeService);
   systems = inject(SystemsService);
   multiselect = inject(MultiselectService);
@@ -146,6 +147,9 @@ export class OperationComponent implements OnInit {
   errorStatement: string = "";
   errorSubscription: Subscription;
 
+  recomputationSubscription: Subscription;
+  recomputing: boolean = false;
+
   // @HostListener('window:resize', ['$event'])
   // onResize(event) {
   //   console.log("FORCE TRANSFORM TO ZERO", this.disable_drag);
@@ -159,6 +163,12 @@ export class OperationComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
+    if (this.recomputationSubscription) {
+      this.recomputationSubscription.unsubscribe();
+    }
+    if (this.errorSubscription) {
+      this.errorSubscription.unsubscribe();
+    }
   }
 
   ngOnInit() {
@@ -180,6 +190,13 @@ export class OperationComponent implements OnInit {
     this.errorSubscription = this.errorBroadcaster.errorBroadcast$.subscribe((alert_text) => {
       this.updateErrorState();
     })
+
+
+    this.recomputationSubscription = this.opnode.recomputing.subscribe((value) => {
+      console.log("RECOMPUTING VALUE RECEIVED", this.id, value);
+      this.triggerFadeToBlack();
+      //this.recomputing = value;
+    });
 
   }
 
@@ -270,36 +287,79 @@ export class OperationComponent implements OnInit {
     this.params_visible = !this.params_visible;
   }
 
+  /**selects this subdraft only, resetting connections as though no other subdrafts are selected */
+  selectOperationOnly() {
 
-  updateConnectionStyling() {
+    let allConnections = this.tree.getConnectionNodes();
+    let upstreamConnections = this.tree.getUpstreamConnections(this.id);
+    let downstreamConnections = this.tree.getDownstreamConnections(this.id);
 
-    //remove the selected class for all connections
-    let cxns = this.tree.getConnections();
-    for (let cxn of cxns) {
-      if (cxn !== null) {
-        cxn.updateConnectionStyling(false);
+    allConnections.forEach(el => {
+      if (upstreamConnections.includes(el.id)) {
+        el.upstreamOfSelected.next(true);
+      } else {
+        el.upstreamOfSelected.next(false);
       }
-    }
 
-    let outputs = [];
-    if (this.children.length > 0) {
-      let child = this.children[0];
-      outputs = outputs.concat(this.tree.getOutputs(child))
-    }
+      if (downstreamConnections.includes(el.id)) {
+        el.downstreamOfSelected.next(true);
+      } else {
+        el.downstreamOfSelected.next(false);
+      }
+    });
 
-    //add the class selected to any of the connections going into and out of this node
-    let ios = outputs.concat(this.tree.getInputs(this.id));
-    for (let io of ios) {
-      let cxn = <ConnectionComponent>this.tree.getComponent(io);
-      if (cxn !== null) cxn.updateConnectionStyling(true)
-    }
 
+  }
+
+  /**just strictly adds connectsion, but does not remove any */
+  selectOperationMulti() {
+    let upstreamConnections = this.tree.getUpstreamConnections(this.id);
+    let downstreamConnections = this.tree.getDownstreamConnections(this.id);
+
+    upstreamConnections.map(el => this.tree.getConnectionNode(el)).forEach(el => {
+      if (el !== null) {
+
+        el.upstreamOfSelected.next(true);
+      }
+    });
+    downstreamConnections.map(el => this.tree.getConnectionNode(el)).forEach(el => {
+      if (el !== null) {
+        el.downstreamOfSelected.next(true);
+      }
+    });
+  }
+
+  /**
+     * the tree is likely to converge as we dravel down so there is a chance that removing 
+     * this subdrafts children will inadventantly remove a different selected subdrafts downstrea. 
+     * As such, we unselect this and then add back any other multiselected element children
+     */
+  unselectOperation() {
+    let upstreamConnections = this.tree.getUpstreamConnections(this.id);
+    let downstreamConnections = this.tree.getDownstreamConnections(this.id);
+
+    upstreamConnections.map(el => this.tree.getConnectionNode(el)).forEach(el => {
+      if (el !== null) {
+
+        el.upstreamOfSelected.next(false);
+      }
+    });
+    downstreamConnections.map(el => this.tree.getConnectionNode(el)).forEach(el => {
+      if (el !== null) {
+        el.downstreamOfSelected.next(false);
+      }
+    });
+
+    this.multiselect.getSelections().forEach(el => {
+      if (el !== this.id) {
+        this.selectOperationMulti();
+      }
+    });
   }
 
 
   toggleSelection(e: any) {
 
-    this.updateConnectionStyling();
 
     if (this.children.length > 0) {
       let child = this.children[0];
@@ -308,8 +368,14 @@ export class OperationComponent implements OnInit {
 
     if (e.shiftKey == true) {
       this.multiselect.toggleSelection(this.id, this.topleft);
+      if (this.multiselect.isSelected(this.id)) {
+        this.selectOperationMulti();
+      } else {
+        this.unselectOperation();
+      }
     } else {
       this.multiselect.clearSelections();
+      this.selectOperationOnly();
     }
 
   }
@@ -385,9 +451,9 @@ export class OperationComponent implements OnInit {
 
       const isOriginator = this.errorBroadcaster.hasError(this.id);
       if (isOriginator) {
-        this.errorStatement = "This is the originator of the error. Please adjust the parameters or reset size limits in workspace settings"
+        this.errorStatement = "This operation is trying to create a draft that is larger than allowed"
       } else {
-        this.errorStatement = "This is affected by the error. Please adjust the parameters or reset size limits in workspace settings"
+        this.errorStatement = "There is an error upstream in the dataflow that is preventing this from computing"
       }
     }
   }
@@ -608,7 +674,7 @@ export class OperationComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
-    this.updateConnectionStyling();
+    this.toggleSelection($event);
 
     this.previous_topleft = this.topleft;
 
@@ -630,8 +696,6 @@ export class OperationComponent implements OnInit {
    * @param $event 
    */
   dragMove($event: CdkDragMove) {
-
-    this.updateConnectionStyling();
 
     //GET THE LOCATION OF THE POINTER RELATIVE TO THE TOP LEFT OF THE NODE
 
@@ -703,9 +767,6 @@ export class OperationComponent implements OnInit {
 
 
 
-    this.updateConnectionStyling();
-
-
     this.multiselect.setRelativePosition(this.topleft);
     this.onOperationMoveEnded.emit({ id: this.id });
 
@@ -726,6 +787,37 @@ export class OperationComponent implements OnInit {
 
 
 
+  }
+
+  /**
+   * Triggers the fadeToBlack animation programmatically.
+   * This method can be called directly from code to animate the background
+   * from black to transparent, independent of the recomputing state.
+   * The animation fades from black (recomputing state) to transparent (stable state).
+   * @param duration Optional duration in milliseconds (default: 500ms to match CSS)
+   */
+  triggerFadeToBlack(duration: number = 500): void {
+    const blackOverlay = this.elementRef.nativeElement.querySelector('.black-overlay');
+    if (!blackOverlay) {
+      console.warn('black-overlay element not found');
+      return;
+    }
+
+    // First, ensure the background is black (recomputing state)
+    this.renderer.addClass(blackOverlay, 'recomputing');
+    this.renderer.removeClass(blackOverlay, 'stable');
+
+    // Use a small timeout to ensure the black state is applied before animation
+    setTimeout(() => {
+      // Remove recomputing and add stable to trigger the fade animation
+      this.renderer.removeClass(blackOverlay, 'recomputing');
+      this.renderer.addClass(blackOverlay, 'stable');
+
+      // Remove stable class after animation completes
+      setTimeout(() => {
+        this.renderer.removeClass(blackOverlay, 'stable');
+      }, duration);
+    }, 10);
   }
 
 

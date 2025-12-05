@@ -1009,6 +1009,8 @@ export class DraftRenderingComponent implements OnInit {
     this.redraw(draft, loom, loom_settings, flags);
   }
 
+
+
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
 

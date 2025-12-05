@@ -1,6 +1,6 @@
 import { ViewRef } from "@angular/core";
 import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, OpInletValType, OpParamValType, SingleImage } from "adacad-drafting-lib";
-import { Observable, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
 import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
@@ -36,8 +36,15 @@ type BaseNode = {
  */
 export type OpNode = BaseNode & {
   name: string,
-  params: Array<OpParamValType>
-  inlets: Array<OpInletValType>
+  params: Array<OpParamValType>,
+  inlets: Array<OpInletValType>,
+  recomputing: BehaviorSubject<boolean>
+}
+
+
+export type ConnectionNode = BaseNode & {
+  upstreamOfSelected: BehaviorSubject<boolean>,
+  downstreamOfSelected: BehaviorSubject<boolean>,
 }
 
 

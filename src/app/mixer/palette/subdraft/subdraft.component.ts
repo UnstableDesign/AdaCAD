@@ -12,7 +12,6 @@ import { ZoomService } from '../../../core/provider/zoom.service';
 import { LayersService } from '../../provider/layers.service';
 import { MultiselectService } from '../../provider/multiselect.service';
 import { ViewportService } from '../../provider/viewport.service';
-import { ConnectionComponent } from '../connection/connection.component';
 import { DraftContainerComponent } from '../draftcontainer/draftcontainer.component';
 
 
@@ -201,41 +200,97 @@ export class SubdraftComponent implements OnInit {
 
   }
 
-  updateConnectionStyling() {
 
-    //remove the selected class for all connections
-    let cxns = this.tree.getConnections();
-    for (let cxn of cxns) {
-      if (cxn !== null) {
-        cxn.updateConnectionStyling(false);
+
+  /**selects this subdraft only, resetting connections as though no other subdrafts are selected */
+  selectSubdraftOnly() {
+
+    let allConnections = this.tree.getConnectionNodes();
+    let upstreamConnections = this.tree.getUpstreamConnections(this.id);
+    let downstreamConnections = this.tree.getDownstreamConnections(this.id);
+
+    allConnections.forEach(el => {
+      if (upstreamConnections.includes(el.id)) {
+        el.upstreamOfSelected.next(true);
+      } else {
+        el.upstreamOfSelected.next(false);
       }
-    }
 
-    const outputs = this.tree.getOutputs(this.id);
+      if (downstreamConnections.includes(el.id)) {
+        el.downstreamOfSelected.next(true);
+      } else {
+        el.downstreamOfSelected.next(false);
+      }
+    });
 
-    //add the class selected to any of the connections going into and out of this node
-    let ios = outputs.concat(this.tree.getInputs(this.id));
-    for (let io of ios) {
-      let cxn = <ConnectionComponent>this.tree.getComponent(io);
-      if (cxn !== null) cxn.updateConnectionStyling(true)
-    }
 
   }
 
+  /**just strictly adds connectsion, but does not remove any */
+  selectSubdraftMulti() {
+    let upstreamConnections = this.tree.getUpstreamConnections(this.id);
+    let downstreamConnections = this.tree.getDownstreamConnections(this.id);
 
+    upstreamConnections.map(el => this.tree.getConnectionNode(el)).forEach(el => {
+      if (el !== null) {
+
+        el.upstreamOfSelected.next(true);
+      }
+    });
+    downstreamConnections.map(el => this.tree.getConnectionNode(el)).forEach(el => {
+      if (el !== null) {
+        el.downstreamOfSelected.next(true);
+      }
+    });
+  }
+
+
+  /**
+   * the tree is likely to converge as we dravel down so there is a chance that removing 
+   * this subdrafts children will inadventantly remove a different selected subdrafts downstrea. 
+   * As such, we unselect this and then add back any other multiselected element children
+   */
+  unselectSubdraft() {
+    let upstreamConnections = this.tree.getUpstreamConnections(this.id);
+    let downstreamConnections = this.tree.getDownstreamConnections(this.id);
+
+    upstreamConnections.map(el => this.tree.getConnectionNode(el)).forEach(el => {
+      if (el !== null) {
+
+        el.upstreamOfSelected.next(false);
+      }
+    });
+    downstreamConnections.map(el => this.tree.getConnectionNode(el)).forEach(el => {
+      if (el !== null) {
+        el.downstreamOfSelected.next(false);
+      }
+    });
+
+    this.multiselect.getSelections().forEach(el => {
+      if (el !== this.id) {
+        this.selectSubdraftMulti();
+      }
+    });
+  }
 
 
   toggleMultiSelection(e: any) {
 
     // this.onFocus.emit(this.id);
-    this.updateConnectionStyling();
+    //this.updateConnectionStyling(true);
     this.vs.setViewer(this.id);
 
 
-    if (e.shiftKey) {
+    if (e.shiftKey == true) {
       this.multiselect.toggleSelection(this.id, this.topleft);
+      if (this.multiselect.isSelected(this.id)) {
+        this.selectSubdraftMulti();
+      } else {
+        this.unselectSubdraft();
+      }
     } else {
       this.multiselect.clearSelections();
+      this.selectSubdraftOnly();
     }
   }
 
