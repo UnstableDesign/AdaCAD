@@ -50,7 +50,7 @@ export class DraftRenderingComponent implements OnInit {
 
   @Input('id') id: number = -1;
   @Input('source') source: 'editor' | 'viewer' | 'mixer' | 'library';
-  @Input('current_view') current_view: string;
+  @Input('current_view') current_view: 'draft' | 'structure' | 'visual' | 'sim' = 'visual';
   @Input('view_only') view_only: boolean;
   @Input('scale') scale: number;
   @Input('oversize') oversize: boolean = false;
@@ -288,16 +288,16 @@ export class DraftRenderingComponent implements OnInit {
         u_warp_mats: draftNodeBroadcast.flags.materials,
         u_weft_sys: draftNodeBroadcast.flags.draft,
         u_weft_mats: draftNodeBroadcast.flags.materials,
-        use_floats: (this.current_view == 'color'),
-        use_colors: (this.current_view != 'draft'),
-        show_loom: (this.current_view == 'loom')
+        use_floats: (this.current_view !== 'draft'),
+        use_colors: (this.current_view == 'visual'),
+        show_loom: (this.source === 'editor')
       };
       this.colShuttleMapping = draft.colShuttleMapping.slice();
       this.colSystemMapping = draft.colSystemMapping.slice();
       this.rowShuttleMapping = draft.rowShuttleMapping.slice();
       this.rowSystemMapping = draft.rowSystemMapping.slice();
 
-      console.log("REDRAWING DRAFT on Subscription", this.id, draft.id, this.source, flags);
+      console.log("REDRAWING DRAFT on Subscription", this.id, draft.id, this.source, this.current_view, flags);
       this.redraw(draft, loom, loom_settings, flags).then(el => {
         this.redrawComplete.emit(draft); // do I need to emit this? 
       });
@@ -1029,9 +1029,9 @@ export class DraftRenderingComponent implements OnInit {
       u_warp_mats: true,
       u_weft_sys: true,
       u_weft_mats: true,
-      use_floats: (this.current_view == 'color'),
-      use_colors: (this.current_view != 'draft'),
-      show_loom: (this.current_view == 'loom')
+      use_floats: (this.current_view !== 'draft'),
+      use_colors: (this.current_view === 'visual'),
+      show_loom: (this.source === 'editor')
     }
     this.redraw(draft, loom, loom_settings, flags);
   }

@@ -53,7 +53,7 @@
 
 
     <div class="viewer-zoom-container">
-      <mat-slider [class.hidden]="vis_mode == 'sim'" min="0" [max]="zs.num_steps" step="1">
+      <mat-slider [class.hidden]="vs.current_view == 'sim'" min="0" [max]="zs.num_steps" step="1">
         <input id='zoomLevel' matSliderThumb [formControl]="zoomLevel" (valueChange)="zoomChange()">
       </mat-slider>
     </div>
@@ -72,7 +72,7 @@
           <mat-button-toggle value="structure" matTooltip="view structure">
             <i class="fa-solid fa-hashtag"></i>
           </mat-button-toggle>
-          <mat-button-toggle value="color" matTooltip="view color pattern">
+          <mat-button-toggle value="visual" matTooltip="view color pattern">
             <i class="fa-solid fa-paint-roller"></i>
           </mat-button-toggle>
         </mat-button-toggle-group>
@@ -122,11 +122,11 @@
     <div class="scale-container" id="viewer-scale-container">
 
 
-      <app-draft-rendering #view_rendering [class.hidden]="vis_mode == 'sim'" source="viewer" [id]="vs.getViewerId()"
-        [view_only]="true" [scale]="scale" current_view="color">
+      <app-draft-rendering #view_rendering [class.hidden]="vs.current_view == 'sim'" source="viewer"
+        [id]="vs.getViewerId()" [view_only]="true" [scale]="scale" [current_view]="vs.current_view">
       </app-draft-rendering>
 
-      <app-simulation [class.hidden]="vis_mode != 'sim'" #sim id="sim_viewer" [id]="vs.getViewerId()">
+      <app-simulation [class.hidden]="vs.current_view != 'sim'" #sim id="sim_viewer" [id]="vs.getViewerId()">
       </app-simulation>
 
 

@@ -1979,9 +1979,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * used to set the default value on the slider
    */
   getActiveZoomIndex(): number {
-    if (this.viewer !== undefined && this.viewer.view_expanded) {
-      return this.zs.zoom_table_ndx_viewer;
-    } else if (this.selected_editor_mode == 'mixer') {
+    if (this.selected_editor_mode == 'mixer') {
       return this.zs.zoom_table_ndx_mixer;
     } else {
       return this.zs.zoom_table_ndx_editor;
@@ -2066,8 +2064,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   updateTextSizing() {
 
-    if (this.viewer.view_expanded) {
-    } else if (this.selected_editor_mode == 'mixer') {
+    if (this.selected_editor_mode == 'mixer') {
       //mixer ranges from about .01 - 2.
       let range = this.zs.num_steps;
       let pcent = 1 - (this.zs.zoom_table_ndx_mixer / range); //get the percent and then invert it

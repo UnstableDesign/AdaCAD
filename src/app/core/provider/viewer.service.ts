@@ -15,6 +15,8 @@ export class ViewerService {
 
   hasPin: boolean = false;
   showing: number = -1;
+  current_view: 'draft' | 'structure' | 'visual' | 'sim' = 'visual';
+  view_face: 'front' | 'back' = 'front';
 
 
   showing_id_change$ = new Subject<any>(); //broadcasts changes to the current draft intended for viewing

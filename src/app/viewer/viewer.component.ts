@@ -54,8 +54,6 @@ export class ViewerComponent {
   draft_notes: string = '';
   draft_cx: any;
   pixel_ratio: number = 1;
-  vis_mode: string = 'color'; //sim, draft, structure, color
-  view_expanded: boolean = false;
   view_controls_visible: boolean = false;
   filename: string = '';
   zoomLevel: FormControl;
@@ -85,9 +83,9 @@ export class ViewerComponent {
     //   this.forceRedraw();
     // })
 
-    this.viewFace = new FormControl('front');
     this.zoomLevel = new FormControl(0);
-    this.visMode = new FormControl('color');
+    this.visMode = new FormControl(this.vs.current_view);
+    this.viewFace = new FormControl(this.vs.view_face);
 
 
 
@@ -105,6 +103,7 @@ export class ViewerComponent {
   ngOnInit() {
 
 
+
     this.viewFace.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
         this.swapViewFace(value);
@@ -119,10 +118,14 @@ export class ViewerComponent {
       }
     });
 
+
     this.visMode.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
-        this.vis_mode = value;
-        if (this.vis_mode === 'sim' && this.sim) {
+        this.vs.current_view = value;
+        if (this.view_rendering !== undefined) {
+          this.view_rendering.current_view = value;
+        }
+        if (this.vs.current_view === 'sim' && this.sim) {
           this.sim.loadNewDraft(this.vs.getViewerId());
         } else {
           this.forceRedraw();
@@ -136,7 +139,8 @@ export class ViewerComponent {
 
   }
 
-  swapViewFace(face: string) {
+  swapViewFace(face: 'front' | 'back') {
+    this.vs.view_face = face;
     this.forceRedraw(face == 'front')
       .catch(console.error);
   }
@@ -147,13 +151,14 @@ export class ViewerComponent {
 
 
   getVisVariables() {
-    switch (this.vis_mode) {
+    switch (this.vs.current_view) {
       case 'sim':
+        return { use_colors: false, floats: false };
       case 'draft':
         return { use_colors: false, floats: false };
       case 'structure':
         return { use_colors: false, floats: true };
-      case 'color':
+      case 'visual':
         return { use_colors: true, floats: true };
     }
   }
@@ -208,10 +213,6 @@ export class ViewerComponent {
       });
     }
 
-
-
-    this.updateDraftData(id);
-
     //subscribe to future updates on the draft so the UI can update info about size changes, etc. 
     if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
     this.draftValueChangeSubscription = draftNode.onValueChange.subscribe(draftNodeBroadcast => {
@@ -219,12 +220,9 @@ export class ViewerComponent {
     });
 
 
-    this.visMode.setValue(this.vis_mode, { emitEvent: false });
-
-
-    if (this.vis_mode != 'sim') {
+    if (this.vs.current_view != 'sim') {
       if (this.viewFace.value == 'back') {
-        this.forceRedraw(this.viewFace.value == 'front')
+        this.forceRedraw(false)
           .catch(console.error);
       }
     } else {
@@ -236,7 +234,7 @@ export class ViewerComponent {
 
   centerScrollbars() {
     // Skip if no draft is selected or in simulation mode
-    if (this.vs.getViewerId() === -1 || this.vis_mode === 'sim') {
+    if (this.vs.getViewerId() === -1 || this.vs.current_view === 'sim') {
       return;
     }
 
@@ -436,7 +434,6 @@ export class ViewerComponent {
    */
   private forceRedraw(front: boolean = true): Promise<any> {
 
-    console.log("FORCE REDRAW CALLED FROM VIEWER", this.vs.getViewerId());
     const draft: Draft = this.tree.getDraft(this.vs.getViewerId());
 
     if (draft == null || draft == undefined) {
@@ -454,9 +451,9 @@ export class ViewerComponent {
       u_warp_mats: true,
       u_weft_sys: true,
       u_weft_mats: true,
-      use_floats: (this.vis_mode == 'color'),
-      use_colors: (this.vis_mode != 'draft'),
-      show_loom: (this.vis_mode == 'loom')
+      use_floats: (this.vs.current_view !== 'draft'),
+      use_colors: (this.vs.current_view == 'visual'),
+      show_loom: false
     }
 
 
