@@ -10,8 +10,8 @@ import { MatLabel } from '@angular/material/form-field';
 import { MatTooltip } from '@angular/material/tooltip';
 import { LoomSettings } from 'adacad-drafting-lib';
 import { createCell, Drawdown, getDraftName } from 'adacad-drafting-lib/draft';
-import { getLoomUtilByType, isFrame } from 'adacad-drafting-lib/loom';
-import { OpNode } from '../core/model/datatypes';
+import { getLoomUtilByType } from 'adacad-drafting-lib/loom';
+import { OpNode, RenderingFlags } from '../core/model/datatypes';
 import { draft_pencil } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -51,7 +51,7 @@ export class EditorComponent implements OnInit {
 
 
 
-  @ViewChild(DraftRenderingComponent, { static: true }) weaveRef;
+  @ViewChild(DraftRenderingComponent, { static: true }) weaveRef: DraftRenderingComponent;
   @ViewChild(LoomComponent) loom;
 
   @Input() hasFocus: boolean;
@@ -365,7 +365,6 @@ export class EditorComponent implements OnInit {
       this.draftname = getDraftName(draft);
       this.weaveRef.onNewDraftLoaded(id);
       this.loom.loadLoom(id);
-      this.redraw();
       this.updateWeavingInfo();
       return Promise.resolve(id);
 
@@ -399,13 +398,11 @@ export class EditorComponent implements OnInit {
 
   }
 
-  public materialChange() {
-    this.vs.updateViewer();
-    this.updateMixer.emit();
-    this.saveChanges.emit();
-    this.redraw()
+  // public materialChange() {
+  //   this.saveChanges.emit();
+  //   this.forceRedraw()
 
-  }
+  // }
 
 
 
@@ -427,8 +424,27 @@ export class EditorComponent implements OnInit {
   // }
 
 
-  public redraw() {
-    this.weaveRef.redrawAll();
+  public forceRedraw() {
+    const draft = this.tree.getDraft(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    const flags: RenderingFlags = {
+      u_drawdown: true,
+      u_threading: true,
+      u_tieups: true,
+      u_treadling: true,
+      u_warp_sys: true,
+      u_warp_mats: true,
+      u_weft_sys: true,
+      u_weft_mats: true,
+      use_colors: false,
+      use_floats: false,
+      show_loom: this.loom.getValue('loomtype') !== 'jacquard'
+    };
+    this.weaveRef.redraw(draft, loom, loom_settings, flags);
+    this.weaveRef.redrawComplete.subscribe(draft => {
+      this.drawdownUpdated();
+    });
   }
 
   public loomSettingsUpdated() {
@@ -447,24 +463,13 @@ export class EditorComponent implements OnInit {
 
     this.loom.type = loom_settings.type;
     this.loom.units = loom_settings.units;
-    this.weaveRef.isFrame = isFrame(loom_settings);
-    this.weaveRef.epi = loom_settings.epi;
-    this.weaveRef.selected_loom_type = loom_settings.type;
-    this.weaveRef.redraw(draft, loom, loom_settings, {
-      drawdown: true,
-      loom: true,
-      warp_systems: true,
-      weft_systems: true,
-      warp_materials: true,
-      weft_materials: true
-    });
 
     if (loom_settings.type === 'jacquard') {
       this.dm.selectDraftEditSource('drawdown');
       this.weaveRef.setDraftEditSource('drawdown');
     }
 
-    this.weaveRef.redrawAll();
+    this.forceRedraw(); //should just be called from the loom update
     this.updateWeavingInfo();
     this.saveChanges.emit();
 
@@ -549,9 +554,9 @@ export class EditorComponent implements OnInit {
   *
   * tranfers on save from header to draft viewer
   */
-  public onSave(e: any) {
-    this.weaveRef.onSave(e);
-  }
+  // public onSave(e: any) {
+  //   this.weaveRef.onSave(e);
+  // }
 
 
 
@@ -606,7 +611,7 @@ export class EditorComponent implements OnInit {
         this.dm.selectDraftEditingMode('draw');
         this.dm.selectPencil('material');
         this.selected_material_id = this.pencil;
-        this.weaveRef.selected_material_id = this.pencil;
+        this.weaveRef.selected_material_id = parseInt(this.pencil);
         this.weaveRef.setPencil('material');
         this.weaveRef.setDraftEditMode('draw');
         break;
@@ -636,11 +641,11 @@ export class EditorComponent implements OnInit {
 
 
 
-  viewChange(name: any) {
-    this.current_view = name;
-    this.weaveRef.viewChange(name);
+  // viewChange(name: any) {
+  //   this.current_view = name;
+  //   this.weaveRef.viewChange(name);
 
-  }
+  // }
 
 
   /**

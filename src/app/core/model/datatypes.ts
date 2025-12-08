@@ -1,6 +1,6 @@
 import { ViewRef } from "@angular/core";
 import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, OpInletValType, OpParamValType, SingleImage } from "adacad-drafting-lib";
-import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
 import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
@@ -38,7 +38,8 @@ export type OpNode = BaseNode & {
   name: string,
   params: Array<OpParamValType>,
   inlets: Array<OpInletValType>,
-  recomputing: BehaviorSubject<boolean>
+  recomputing: BehaviorSubject<boolean>,
+  checkChildren: BehaviorSubject<boolean> //called after a perform when there is a chance new children could have been created
 }
 
 
@@ -68,8 +69,7 @@ export type DraftNode = BaseNode & {
   scale: number,
   visible: boolean,
   mark_for_deletion: boolean,
-  onValueChange: Subject<DraftNodeBroadcast>, //called anytime a value on this draft is set
-  valueChange$: Observable<DraftNodeBroadcast>,
+  onValueChange: BehaviorSubject<DraftNodeBroadcast>, //called anytime a value on this draft is set
   canvases: CanvasList
 
 }

@@ -4,7 +4,7 @@ import { AnalyzedImage, Draft, Img, Loom, LoomSettings, Operation, copyDraft, ge
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import normalizeWheel from 'normalize-wheel';
 import { Subscription, fromEvent } from 'rxjs';
-import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeBroadcastFlags, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
+import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { ErrorBroadcasterService } from '../../core/provider/error-broadcaster.service';
@@ -1569,30 +1569,11 @@ export class PaletteComponent implements OnInit {
    * @param op_id 
    * @returns 
    */
-  performAndUpdateDownstream(op_id: number): Promise<any> {
+  private performAndUpdateDownstream(op_id: number): Promise<any> {
 
 
-    this.tree.getOpNode(op_id).dirty = true;
-    this.tree.getDownstreamOperations(op_id).forEach(el => this.tree.getNode(el).dirty = true);
-    const all_ops = this.tree.getDownstreamOperations(op_id).concat(op_id);
+    return this.tree.performAndUpdateDownstream(op_id)
 
-    return this.tree.performGenerationOps([op_id])
-      .then(draft_ids => {
-        all_ops.forEach(op => {
-          let children = this.tree.getNonCxnOutputs(op);
-          (<OperationComponent>this.tree.getComponent(op)).updateChildren(children);
-        })
-
-        all_ops.forEach(op => {
-          (<OperationComponent>this.tree.getComponent(op)).updateErrorState();
-        })
-
-
-      })
-      .then(() => {
-        //a catch here so that changes that ripple up from the parent's of pinned drafts update in time. 
-        this.vs.updateViewer();
-      })
       .catch(err => {
         console.error("Error performing and updating downstream", err);
         return Promise.reject(err);
@@ -2381,30 +2362,23 @@ export class PaletteComponent implements OnInit {
 
 
 
-  redrawAllSubdrafts() {
-    console.log("[REDRAW] START: Redrawing all subdrafts");
-    const dns = this.tree.getDraftNodes();
-    console.log("[REDRAW] Found", dns.length, "draft nodes to redraw");
+  // redrawAllSubdrafts() {
+  //   const dns = this.tree.getDraftNodes();
 
-    const startTime = performance.now();
-    dns.forEach((dn, index) => {
-      const draftSize = dn.draft ? `${warps(dn.draft.drawdown)}x${wefts(dn.draft.drawdown)}` : 'null';
-      console.log(`[REDRAW] ${index + 1}/${dns.length}: Broadcasting draft ${dn.id} (${draftSize})`);
-      const flags: DraftNodeBroadcastFlags = {
-        meta: false,
-        draft: true,
-        loom: false,
-        loom_settings: false,
-        materials: true
-      };
-      this.tree.broadcastDraftValueChange(dn.id, flags);
-    })
+  //   const startTime = performance.now();
+  //   dns.forEach((dn, index) => {
+  //     const flags: DraftNodeBroadcastFlags = {
+  //       meta: false,
+  //       draft: true,
+  //       loom: false,
+  //       loom_settings: false,
+  //       materials: true
+  //     };
+  //     //SPOOFs the change detector to force a redrew
+  //     this.tree.broadcastDraftNodeValueChange(dn.id, flags);
+  //   })
 
-    const duration = performance.now() - startTime;
-    console.log(`[REDRAW] COMPLETE: All subdrafts broadcast in ${duration.toFixed(2)}ms`);
+  //   this.redrawConnections();
 
-    console.log("[REDRAW] Redrawing connections");
-    this.redrawConnections();
-    console.log("[REDRAW] All redraws complete");
-  }
+  // }
 }

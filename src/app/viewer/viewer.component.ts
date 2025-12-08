@@ -69,6 +69,7 @@ export class ViewerComponent {
   idChangeSubscription: Subscription;
   updateViewerSubscription: Subscription;
   draftValueChangeSubscription: Subscription;
+  redrawCompleteSubscription: Subscription;
 
 
   constructor() {
@@ -94,6 +95,7 @@ export class ViewerComponent {
   }
 
   ngOnDestroy() {
+    if (this.redrawCompleteSubscription) this.redrawCompleteSubscription.unsubscribe();
     this.idChangeSubscription.unsubscribe();
     this.updateViewerSubscription.unsubscribe();
     if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
@@ -200,7 +202,10 @@ export class ViewerComponent {
 
     if (this.view_rendering !== undefined) {
       this.view_rendering.clearAll();
-      this.view_rendering.onNewDraftLoaded(id);
+      this.view_rendering.onNewDraftLoaded(id); //this is going to subscribe and redraw the front view
+      this.redrawCompleteSubscription = this.view_rendering.redrawComplete.subscribe(draft => {
+        this.centerScrollbars();
+      });
     }
 
 
@@ -209,7 +214,7 @@ export class ViewerComponent {
 
     //subscribe to future updates on the draft so the UI can update info about size changes, etc. 
     if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
-    this.draftValueChangeSubscription = draftNode.valueChange$.subscribe(draftNodeBroadcast => {
+    this.draftValueChangeSubscription = draftNode.onValueChange.subscribe(draftNodeBroadcast => {
       this.updateDraftData(id);
     });
 
@@ -218,11 +223,10 @@ export class ViewerComponent {
 
 
     if (this.vis_mode != 'sim') {
-      this.forceRedraw(this.viewFace.value == 'front')
-        .then(() => {
-          this.centerScrollbars();
-        })
-        .catch(console.error);
+      if (this.viewFace.value == 'back') {
+        this.forceRedraw(this.viewFace.value == 'front')
+          .catch(console.error);
+      }
     } else {
 
       this.sim.loadNewDraft(id);
@@ -432,7 +436,7 @@ export class ViewerComponent {
    */
   private forceRedraw(front: boolean = true): Promise<any> {
 
-
+    console.log("FORCE REDRAW CALLED FROM VIEWER", this.vs.getViewerId());
     const draft: Draft = this.tree.getDraft(this.vs.getViewerId());
 
     if (draft == null || draft == undefined) {
@@ -488,7 +492,7 @@ export class ViewerComponent {
       }).then(manipulated_draft => {
         const dd = manipulated_draft[0].draft;
 
-        console.log("VIEWER - REDRAWING DRAFT ", this.vs.getViewerId());
+        console.log("VIEWER - REDRAWING DRAFT (back)", this.vs.getViewerId());
         return this.view_rendering.redraw(dd, null, null, flags).then(el => {
           return Promise.resolve(true);
         })
@@ -497,7 +501,7 @@ export class ViewerComponent {
 
     } else {
       //console.log("REDRAW CALLED FROM VIEW RENDERING")
-      console.log("VIEWER - REDRAWING DRAFT ", this.vs.getViewerId());
+      console.log("VIEWER - REDRAWING DRAFT (front)", this.vs.getViewerId());
 
       return this.view_rendering.redraw(draft, null, null, flags).then(el => {
         return Promise.resolve(true);

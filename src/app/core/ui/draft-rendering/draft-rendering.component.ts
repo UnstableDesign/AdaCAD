@@ -49,7 +49,7 @@ export class DraftRenderingComponent implements OnInit {
   @ViewChild('selection', { read: SelectionComponent, static: true }) selection: SelectionComponent;
 
   @Input('id') id: number = -1;
-  @Input('source') source: string;
+  @Input('source') source: 'editor' | 'viewer' | 'mixer' | 'library';
   @Input('current_view') current_view: string;
   @Input('view_only') view_only: boolean;
   @Input('scale') scale: number;
@@ -182,7 +182,7 @@ export class DraftRenderingComponent implements OnInit {
     }
     if (this.id == -1) return;
 
-    this.onNewDraftLoaded(this.id);
+    // this.onNewDraftLoaded(this.id);
 
 
     this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
@@ -258,8 +258,10 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-  //this is called anytime a new draft object is loaded into this rendering window. 
+  //this is called anytime a new draft object is loaded into this rendering window. Generally, this should only happen in the viewer 
   onNewDraftLoaded(id: number) {
+    console.log("ON NEW DRAFT LOADED", id);
+
 
     this.id = id;
     if (id == -1) return;
@@ -272,7 +274,8 @@ export class DraftRenderingComponent implements OnInit {
     }
 
     if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
-    this.draftValueChangeSubscription = node.valueChange$.subscribe(draftNodeBroadcast => {
+
+    this.draftValueChangeSubscription = node.onValueChange.subscribe(draftNodeBroadcast => {
       const draft = draftNodeBroadcast.draft;
       const loom = draftNodeBroadcast.loom;
       const loom_settings = draftNodeBroadcast.loom_settings;
@@ -293,31 +296,33 @@ export class DraftRenderingComponent implements OnInit {
       this.colSystemMapping = draft.colSystemMapping.slice();
       this.rowShuttleMapping = draft.rowShuttleMapping.slice();
       this.rowSystemMapping = draft.rowSystemMapping.slice();
+
+      console.log("REDRAWING DRAFT on Subscription", this.id, draft.id, this.source, flags);
       this.redraw(draft, loom, loom_settings, flags).then(el => {
         this.redrawComplete.emit(draft); // do I need to emit this? 
       });
     });
 
     //MANUALLY DRAW ON LOAD
-    const draft = this.tree.getDraft(id);
-    const loom = this.tree.getLoom(id);
-    const loom_settings = this.tree.getLoomSettings(id);
-    const flags: RenderingFlags = {
-      u_drawdown: true,
-      u_threading: true,
-      u_tieups: true,
-      u_treadling: true,
-      u_warp_sys: true,
-      u_warp_mats: true,
-      u_weft_sys: true,
-      u_weft_mats: true,
-      use_floats: (this.current_view == 'color'),
-      use_colors: (this.current_view != 'draft'),
-      show_loom: (this.current_view == 'loom')
-    };
-    this.redraw(draft, loom, loom_settings, flags).then(el => {
-      this.redrawComplete.emit(draft); // do I need to emit this? 
-    });
+    // const draft = this.tree.getDraft(id);
+    // const loom = this.tree.getLoom(id);
+    // const loom_settings = this.tree.getLoomSettings(id);
+    // const flags: RenderingFlags = {
+    //   u_drawdown: true,
+    //   u_threading: true,
+    //   u_tieups: true,
+    //   u_treadling: true,
+    //   u_warp_sys: true,
+    //   u_warp_mats: true,
+    //   u_weft_sys: true,
+    //   u_weft_mats: true,
+    //   use_floats: (this.current_view == 'color'),
+    //   use_colors: (this.current_view != 'draft'),
+    //   show_loom: (this.current_view == 'loom')
+    // };
+    // this.redraw(draft, loom, loom_settings, flags).then(el => {
+    //   this.redrawComplete.emit(draft); // do I need to emit this? 
+    // });
 
 
 
@@ -648,7 +653,7 @@ export class DraftRenderingComponent implements OnInit {
     }
   }
 
-  private hasSelection(): boolean {
+  hasSelection(): boolean {
     return this.selection.hasSelection();
   }
 
@@ -682,7 +687,7 @@ export class DraftRenderingComponent implements OnInit {
       loom_settings: false,
       materials: false
     };
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
   }
 
 
@@ -706,7 +711,7 @@ export class DraftRenderingComponent implements OnInit {
       loom_settings: false,
       materials: true
     };
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
 
   }
 
@@ -725,7 +730,7 @@ export class DraftRenderingComponent implements OnInit {
       loom_settings: false,
       materials: false
     };
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
 
 
   }
@@ -749,7 +754,7 @@ export class DraftRenderingComponent implements OnInit {
       loom_settings: false,
       materials: true
     };
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
 
 
   }
@@ -807,7 +812,7 @@ export class DraftRenderingComponent implements OnInit {
         loom_settings: false,
         materials: true
       };
-      this.tree.setDraftOnly(this.id, draft, flags);
+      this.tree.setDraft(this.id, draft, flags);
     }
 
   }
@@ -965,6 +970,28 @@ export class DraftRenderingComponent implements OnInit {
   }
 
 
+  /**cross references the current flats with teh state to see if the required redraws are visible or required.  */
+  public needsRedraw(rf: RenderingFlags): boolean {
+    switch (this.source) {
+      case 'editor':
+        if (rf.u_drawdown == true) return true;
+        if (rf.u_threading == true) return true;
+        if (rf.u_tieups == true) return true;
+        if (rf.u_treadling == true) return true;
+        if (rf.u_warp_sys == true) return true;
+        if (rf.u_warp_mats == true) return true;
+        if (rf.u_weft_sys == true) return true;
+        if (rf.u_weft_mats == true) return true;
+        return false;
+      case 'viewer':
+      case 'mixer':
+      case 'library':
+        if (rf.u_drawdown == true) return true;
+        if (rf.u_warp_mats == true) return rf.use_colors;
+        if (rf.u_weft_mats == true) return rf.use_colors;
+        return false;
+    }
+  }
 
   // public getTextInterval(){
   //   let ls = this.tree.getLoomSettings(this.id);
@@ -1014,7 +1041,7 @@ export class DraftRenderingComponent implements OnInit {
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
 
-    console.log("[REDRAW]", this.id, draft.id, this.source);
+    console.log("[REDRAW]", this.id, draft.id, this.source, rf);
 
     const startTime = performance.now();
     this.isRedrawing = true;
@@ -1032,7 +1059,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
     if (this.oversize && !this.ignoreOversize) {
-      const duration = performance.now() - startTime;
       this.render.clear(this.canvases);
       this.isRedrawing = false;
       return Promise.resolve(true);
@@ -1042,7 +1068,6 @@ export class DraftRenderingComponent implements OnInit {
     //if (this.oversize && this.ignoreOversize) this.ignoreOversize = false;
 
     if (draft == null) {
-      const duration = performance.now() - startTime;
       return;
     }
 
@@ -1050,17 +1075,21 @@ export class DraftRenderingComponent implements OnInit {
     this.rowSystemMapping = draft.rowSystemMapping;
 
 
-    const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
-      this.refreshWarpAndWeftSystemNumbering();
-      this.refreshOriginMarker();
-      this.isRedrawing = false;
-    })
+
+    if (this.needsRedraw(rf)) {
+      console.log("NEEDS REDRAW", this.id);
+      const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
+        this.isRedrawing = false;
+      })
+    }
 
 
     this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'scale', () => {
       if (this.selection != undefined) this.selection.redraw();
     }, this.scale);
 
+    this.refreshWarpAndWeftSystemNumbering();
+    this.refreshOriginMarker();
     return Promise.resolve(true);
 
   }
@@ -1360,7 +1389,7 @@ export class DraftRenderingComponent implements OnInit {
         loom_settings: false,
         materials: true
       };
-      this.tree.setDraftOnly(this.id, draft, flags);
+      this.tree.setDraft(this.id, draft, flags);
 
     }
   }
@@ -1374,7 +1403,7 @@ export class DraftRenderingComponent implements OnInit {
       loom_settings: false,
       materials: true
     };
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
   }
 
   public drawOnWeftMaterials(draft: Draft, currentPos: Interlacement) {
@@ -1386,7 +1415,7 @@ export class DraftRenderingComponent implements OnInit {
       loom_settings: false,
       materials: true
     };
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
   }
 
 
@@ -1401,7 +1430,7 @@ export class DraftRenderingComponent implements OnInit {
       loom_settings: false,
       materials: false
     };
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
 
   }
 
@@ -1416,7 +1445,7 @@ export class DraftRenderingComponent implements OnInit {
       loom_settings: false,
       materials: false
     };
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
 
   }
 
@@ -1432,7 +1461,7 @@ export class DraftRenderingComponent implements OnInit {
       materials: true
     };
 
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
 
 
   }
@@ -1448,7 +1477,7 @@ export class DraftRenderingComponent implements OnInit {
       materials: true
     };
 
-    this.tree.setDraftOnly(this.id, draft, flags);
+    this.tree.setDraft(this.id, draft, flags);
 
 
   }

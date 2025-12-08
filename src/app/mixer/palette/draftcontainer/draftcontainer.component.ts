@@ -67,6 +67,8 @@ export class DraftContainerComponent implements AfterViewInit {
 
   // draft_cell_size: number = 40;
 
+  globalZoomUndo: number = 1;
+
   exceeds_size: boolean = false;
 
   warps: number;
@@ -137,7 +139,7 @@ export class DraftContainerComponent implements AfterViewInit {
     });
 
 
-    this.draftValueChangeSubscription = dn.valueChange$.subscribe(el => {
+    this.draftValueChangeSubscription = dn.onValueChange.subscribe(el => {
       this.updateDraftInfo(el.draft);
     });
 
@@ -147,6 +149,8 @@ export class DraftContainerComponent implements AfterViewInit {
 
     this.updateDraftInfo(dn.draft);
     this.startSizeObserver();
+
+    this.globalZoomUndo = 1 / this.zs.getMixerZoom();
 
   }
 
@@ -159,12 +163,7 @@ export class DraftContainerComponent implements AfterViewInit {
   }
 
 
-  getGlobalZoomUndo(): number {
 
-    let mixer_zoom = this.zs.getMixerZoom();
-    console.log("MIXER ZOOM: ", mixer_zoom);
-    return 1 / mixer_zoom;
-  }
 
   rename(event) {
 

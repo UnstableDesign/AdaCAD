@@ -83,7 +83,7 @@ export class RenameComponent {
       loom_settings: false,
       materials: false
     };
-    this.tree.setDraftOnly(this.id, this.draft, flags);
+    this.tree.setDraft(this.id, this.draft, flags, true, true);
     this.dialogRef.close();
     this.nameForm.markAsPristine();
     this.notesForm.markAsPristine();

@@ -27,6 +27,7 @@ export class MixerSidebarComponent {
   isCollapsed: boolean = false;
 
   onAddDraft() {
+
     this.addDraft.emit();
   }
 

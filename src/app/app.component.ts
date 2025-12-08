@@ -194,13 +194,12 @@ export class AppComponent implements OnInit, OnDestroy {
       this.tree.restoreDraftNodeState((<DraftStateAction>action).id, (<DraftStateAction>action).before);
 
       //redraw and recompute the change in the mixer
-      this.mixer.palette.redrawAllSubdrafts();
       const outs = this.tree.getNonCxnOutputs((<DraftStateAction>action).id);
-      outs.forEach(el => this.mixer.palette.performAndUpdateDownstream(el));
+      outs.forEach(el => this.tree.performAndUpdateDownstream(el));
 
       //redraw the editor if it has this draft loaded
       if (this.editor.id === (<DraftStateAction>action).id) {
-        this.editor.redraw();
+        this.editor.forceRedraw();
         this.editor.updateLoom();
         this.editor.updateWeavingInfo();
         this.editor.clearSelection();
@@ -223,9 +222,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const materialsUpdatedUndoSubscription = this.ss.materialsUpdatedUndo$.subscribe(action => {
       this.ms.overloadShuttles((<MaterialsStateAction>action).before);
-      this.editor.redraw();
+      this.editor.forceRedraw();
       this.vs.updateViewer();
-      this.mixer.palette.redrawAllSubdrafts();
+      this.materialChange();
       this.library.loadMaterials();
       this.saveFile();
 
@@ -813,10 +812,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     })
 
+    this.forceRedraw();
 
-    this.mixer.redrawAllSubdrafts();
+  }
 
 
+  forceRedraw() {
 
   }
 
@@ -1152,7 +1153,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public materialChange() {
 
     this.mixer.materialChange();
-    this.editor.materialChange();
+    this.editor.forceRedraw();
     this.saveFile();
   }
 
@@ -1322,12 +1323,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.workspace_modal = this.dialog.open(WorkspaceComponent, { data: {} });
 
     this.workspace_modal.componentInstance.onOversizeRenderingChange.subscribe(event => {
-      this.mixer.redrawAllSubdrafts();
+      this.forceRedraw();
     })
 
     this.workspace_modal.componentInstance.onMaxAreaChange.subscribe(event => {
       this.tree.performTopLevelOps().then(out => {
-        this.mixer.redrawAllSubdrafts()
+        this.forceRedraw();
       })
     })
 
@@ -1390,7 +1391,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.selected_origin = e.value;
     this.ws.selected_origin_option = this.selected_origin;
     this.mixer.originChange(this.selected_origin); //force a redraw so that the weft/warp system info is up to date
-    this.editor.redraw();
+    this.editor.forceRedraw();
     this.saveFile();
   }
 
@@ -1902,12 +1903,7 @@ export class AppComponent implements OnInit, OnDestroy {
     //redraw?
   }
 
-  /**
-   * this emerges from the detail or simulation when something needs to trigger the mixer to update
-   */
-  updateMixer() {
-    this.mixer.redrawAllSubdrafts();
-  }
+
 
   updateDraftName(id: any) {
 

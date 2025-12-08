@@ -184,8 +184,7 @@
   <div class="scale-container" id="editor-scale-container">
     <app-draft-rendering id="draft_viewer" #weaveRef source="editor" [id]="id" scale="1" [view_only]="false"
       [current_view]="current_view" (onNewSelection)="updateSelection($event)" (onDrawdownUpdated)="drawdownUpdated()"
-      (onLoomSettingsUpdated)="loomSettingsUpdated()" (onMaterialChange)="materialChange()"
-      (onViewerExpanded)="expandViewer()">
+      (onLoomSettingsUpdated)="loomSettingsUpdated()">
     </app-draft-rendering>
   </div>
 </div>

@@ -3,7 +3,7 @@
 
 @if (hasPin()) {
 
-<button mat-mini-fab color="accent" [style.scale]="getGlobalZoomUndo()" class="pin-indicator" (click)="unpinFromView()"
+<button mat-mini-fab color="accent" [style.scale]="globalZoomUndo" class="pin-indicator" (click)="unpinFromView()"
   matTooltip="Pinned in viewer">
   <i class="fa-solid fa-map-pin"></i>
 </button>

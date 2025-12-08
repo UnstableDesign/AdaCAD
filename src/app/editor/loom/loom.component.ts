@@ -281,7 +281,7 @@ export class LoomComponent implements OnInit, OnDestroy {
             loom_settings: false,
             materials: false
           };
-          this.tree.setDraftOnly(this.id, draft, flags);
+          this.tree.setDraft(this.id, draft, flags, true, true);
           this.loomSettingsUpdated.emit();
           return Promise.resolve(true);
         })

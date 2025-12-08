@@ -2,7 +2,7 @@ import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
 import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Img, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { SystemsService } from '../../core/provider/systems.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
@@ -86,7 +86,13 @@ export class TreeService {
 
   }
 
-  broadcastDraftValueChange(id: number, flags: DraftNodeBroadcastFlags) {
+
+  /**
+   * this fires when any part of the draft node changes and sends a message describing the change. 
+   * @param id 
+   * @param flags 
+   */
+  broadcastDraftNodeValueChange(id: number, flags: DraftNodeBroadcastFlags) {
     const node = this.getNode(id);
     if (node.type === 'draft') {
       const draft = (<DraftNode>node).draft;
@@ -106,7 +112,6 @@ export class TreeService {
         use_colors: false,
         show_loom: false
       };
-
 
       (<DraftNode>node).onValueChange.next({ id: id, draft: draft, loom: (<DraftNode>node).loom, loom_settings: (<DraftNode>node).loom_settings, flags: flags });
     }
@@ -281,54 +286,54 @@ export class TreeService {
   loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
-
     if (nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id " + entry.cur_id);
 
-    nodes[0].dirty = true;
+    const draftNode: DraftNode = <DraftNode>nodes[0];
 
+    draftNode.dirty = true;
     draft.id = entry.cur_id;
-    (<DraftNode>nodes[0]).draft = copyDraft(draft);
-
-
+    const flags: DraftNodeBroadcastFlags = {
+      meta: true,
+      draft: true,
+      loom: true,
+      loom_settings: true,
+      materials: true
+    };
 
     if (loom_settings === null || loom_settings == undefined) {
-      (<DraftNode>nodes[0]).loom_settings = {
+      this.setLoomSettings(entry.cur_id, {
         type: this.ws.type,
         epi: this.ws.epi,
         ppi: this.ws.ppi,
         units: this.ws.units,
         frames: this.ws.min_frames,
         treadles: this.ws.min_treadles
-      }
+      }, false);
 
     } else {
-      (<DraftNode>nodes[0]).loom_settings = loom_settings;
-      (<DraftNode>nodes[0]).loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
+      draftNode.loom_settings = loom_settings;
+      draftNode.loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
     }
 
 
     if (loom === null || loom == undefined) {
-      (<DraftNode>nodes[0]).loom = null;
-      //   const loom_utils = getLoomUtilByType( (<DraftNode> nodes[0]).loom_settings.type);
-      //  loom_utils.computeLoomFromDrawdown(draft.drawdown,(<DraftNode> nodes[0]).loom_settings,  this.ws.selected_origin_option).then(loom => {
-      //     (<DraftNode> nodes[0]).loom = loom;
-      //   });
+      this.setLoom(entry.cur_id, null, false);
     } else {
-      (<DraftNode>nodes[0]).loom = copyLoom(loom);
+      this.setLoom(entry.cur_id, copyLoom(loom), false);
     }
 
-    if (render_colors === undefined || render_colors === null) (<DraftNode>nodes[0]).render_colors = false;
-    else (<DraftNode>nodes[0]).render_colors = render_colors;
+    if (render_colors === undefined || render_colors === null) draftNode.render_colors = false;
+    else draftNode.render_colors = render_colors;
 
-    if (scale === undefined || scale === null) (<DraftNode>nodes[0]).scale = 1;
-    else (<DraftNode>nodes[0]).scale = scale;
+    if (scale === undefined || scale === null) draftNode.scale = 1;
+    else draftNode.scale = scale;
 
-    if (draft_visible == undefined || draft_visible == null) (<DraftNode>nodes[0]).visible = true;
-    else (<DraftNode>nodes[0]).visible = draft_visible;
+    if (draft_visible == undefined || draft_visible == null) draftNode.visible = true;
+    else draftNode.visible = draft_visible;
 
-    //console.log("DRAFT NODE LOADED:",_.cloneDeep(<DraftNode>nodes[0]))
-    return Promise.resolve({ dn: <DraftNode>nodes[0], entry });
+    this.setDraft(entry.cur_id, copyDraft(draft), flags, true, false);
 
+    return Promise.resolve({ dn: draftNode, entry });
   }
 
 
@@ -557,9 +562,19 @@ export class TreeService {
 
   private createDraftNode(ref: ViewRef, component: SubdraftComponent, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, visible: boolean): DraftNode {
 
-
-    const valueChange = new Subject<DraftNodeBroadcast>();
-    const onValueChange$ = valueChange.asObservable();
+    const dnb: DraftNodeBroadcast = {
+      id: generateId(8),
+      draft: draft,
+      loom: loom,
+      loom_settings: loom_settings,
+      flags: {
+        meta: true,
+        draft: true,
+        loom: true,
+        loom_settings: true,
+        materials: true
+      }
+    }
 
     const node: DraftNode = {
       type: 'draft',
@@ -574,8 +589,7 @@ export class TreeService {
       scale: scale,
       visible: visible,
       mark_for_deletion: false,
-      onValueChange: valueChange,
-      valueChange$: onValueChange$,
+      onValueChange: new BehaviorSubject<DraftNodeBroadcast>(dnb),
       canvases: null
     }
     return node;
@@ -591,7 +605,8 @@ export class TreeService {
       dirty: false,
       params: params,
       name: name,
-      recomputing: new BehaviorSubject<boolean>(false)
+      recomputing: new BehaviorSubject<boolean>(false),
+      checkChildren: new BehaviorSubject<boolean>(true)
     }
     return node;
   }
@@ -1297,7 +1312,7 @@ export class TreeService {
             loom_settings: false,
             materials: true
           };
-          this.setDraftOnly(cxn_child[0], outputs[i].draft, flags);
+          this.setDraft(cxn_child[0], outputs[i].draft, flags);
           touched.push(cxn_child[0]);
 
         }
@@ -1343,10 +1358,11 @@ export class TreeService {
             loom_settings: true,
             materials: true
           };
-          this.setDraftOnly(dn.id, d, flags);
+          this.setDraft(dn.id, d, flags);
           dn.dirty = true;
         })
 
+        opnode.checkChildren?.next(true);
         return Promise.resolve(touched);
       });
 
@@ -1406,6 +1422,41 @@ export class TreeService {
     });
 
   }
+
+
+
+
+
+  /**
+   * this calls a function for an operation to perform and then subsequently calls all children 
+   * to recalculate. After each calculation, it redraws and or creates any new subdrafts
+   * @param op_id 
+   * @returns 
+   */
+  performAndUpdateDownstream(op_id: number): Promise<any> {
+
+
+    this.getOpNode(op_id).dirty = true;
+    this.getDownstreamOperations(op_id).forEach(el => this.getNode(el).dirty = true);
+    const all_ops = this.getDownstreamOperations(op_id).concat(op_id);
+
+    return this.performGenerationOps([op_id])
+      .then(draft_ids => {
+
+        all_ops.forEach(op => {
+          const comp = this.getComponent(op);
+          if (comp !== null) {
+            (<OperationComponent>comp).updateErrorState();
+          }
+        })
+      })
+      .catch(err => {
+        console.error("Error performing and updating downstream", err);
+        return Promise.reject(err);
+      });
+
+  }
+
 
   /**
    * given a list of operations to perform, recursively performs all on nodes that have dependencies satisified
@@ -1582,7 +1633,7 @@ export class TreeService {
       loom_settings: false,
       materials: false
     };
-    if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+    if (broadcast) this.broadcastDraftNodeValueChange(dn.id, flags);
   }
 
 
@@ -1604,7 +1655,7 @@ export class TreeService {
               loom_settings: false,
               materials: false
             };
-            if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+            this.setDraft(dn.id, dn.draft, flags, broadcast);
             return Promise.resolve(dn.draft);
           })
 
@@ -1628,7 +1679,7 @@ export class TreeService {
           loom_settings: false,
           materials: false
         };
-        if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+        if (broadcast) this.broadcastDraftNodeValueChange(dn.id, flags);
         return Promise.resolve(dn.draft);
       } {
         const utils = getLoomUtilByType(loom_settings.type);
@@ -1642,7 +1693,7 @@ export class TreeService {
               loom_settings: false,
               materials: false
             };
-            if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+            this.setDraft(dn.id, dn.draft, flags, broadcast);
             return Promise.resolve(dn.draft);
           })
 
@@ -1669,7 +1720,7 @@ export class TreeService {
       loom_settings: true,
       materials: false
     };
-    if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+    if (broadcast) this.broadcastDraftNodeValueChange(dn.id, flags);
   }
 
 
@@ -2416,7 +2467,7 @@ export class TreeService {
       loom_settings: false,
       materials: true
     };
-    this.broadcastDraftValueChange(id, flags);
+    this.broadcastDraftNodeValueChange(id, flags);
   }
 
   /**
@@ -2598,14 +2649,39 @@ export class TreeService {
   }
 
 
-  setDraftOnly(id: number, draft: Draft, flags: DraftNodeBroadcastFlags, broadcast: boolean = true) {
+  /**
+   * udpates the draft on the draft node. Broadcasts that a change has been made( which triggers a redraw)
+   * and then checks to see if the children of this draft need to be reperformed. 
+   * there is a possible performance issue here in that recomputation might happen at the speed of mouse interaction
+   * (e.g. if someone is drawing on a drawdown that is connected to lots of operations, it will keep recomputing/redrawing)
+   * @param id 
+   * @param draft 
+   * @param flags 
+   * @param broadcast 
+   */
+  setDraft(id: number, draft: Draft, flags: DraftNodeBroadcastFlags, broadcast: boolean = true, checkRecompute: boolean = true) {
     const dn = <DraftNode>this.getNode(id);
     draft.id = id;
     dn.draft = draft;
     dn.render_colors = (dn.render_colors === undefined) ? true : dn.render_colors;
-    if (dn.component !== null) (<SubdraftComponent>dn.component).draft = draft;
-    if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+    // if (dn.component !== null) (<SubdraftComponent>dn.component).draft = draft;
+    if (broadcast) this.broadcastDraftNodeValueChange(dn.id, flags);
+
+    if (checkRecompute) {
+      const outlets = this.getNonCxnOutputs(id);
+      const performOps = [];
+      outlets.forEach(outlet => {
+        performOps.push(this.performAndUpdateDownstream(outlet));
+      });
+
+      Promise.all(performOps).catch(err => {
+        console.error("Error performing and updating downstream", err);
+        return Promise.reject(err);
+      });
+    }
   }
+
+
 
   setDraftVisiblity(id: number, visibile: boolean) {
     const dn = <DraftNode>this.getNode(id);
@@ -2618,7 +2694,7 @@ export class TreeService {
    * @param temp the draft to add
    * @param loom_settings  the settings that should govern the loom generated
    */
-  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings, broadcast: boolean = true): Promise<Loom> {
+  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings, broadcast: boolean = true, recompute: boolean = true): Promise<Loom> {
 
     const dn = <DraftNode>this.getNode(id);
     let ud_name = getDraftName(temp);
@@ -2631,7 +2707,14 @@ export class TreeService {
       dn.draft = createDraft(temp.drawdown, temp.gen_name, ud_name, temp.rowShuttleMapping, temp.rowSystemMapping, temp.colShuttleMapping, temp.colSystemMapping);
     }
 
-    dn.draft.id = id;
+    const flags: DraftNodeBroadcastFlags = {
+      meta: false,
+      draft: true,
+      loom: false,
+      loom_settings: false,
+      materials: false
+    };
+    this.setDraft(id, temp, flags, broadcast, recompute);
 
     if (loom_settings === null || loom_settings === undefined) {
       dn.loom_settings = this.ws.getWorkspaceLoomSettings();
@@ -2680,7 +2763,7 @@ export class TreeService {
           loom_settings: false,
           materials: false
         };
-        if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+        if (broadcast) this.broadcastDraftNodeValueChange(dn.id, flags);
         return Promise.resolve(loom);
       });
 
@@ -2694,8 +2777,8 @@ export class TreeService {
   setDraftPattern(id: number, pattern: Drawdown, broadcast: boolean = true) {
     const dn = <DraftNode>this.getNode(id);
     dn.draft.drawdown = pattern.slice();
-    (<SubdraftComponent>dn.component).draft = dn.draft;
-    dn.dirty = true;
+    //  (<SubdraftComponent>dn.component).draft = dn.draft;
+    //   dn.dirty = true;
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
       draft: true,
@@ -2703,7 +2786,7 @@ export class TreeService {
       loom_settings: false,
       materials: false
     };
-    if (broadcast) this.broadcastDraftValueChange(dn.id, flags);
+    this.setDraft(id, dn.draft, flags, broadcast);
   }
 
 

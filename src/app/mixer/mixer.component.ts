@@ -17,7 +17,6 @@ import { BlankdraftModal } from '../core/ui/blankdraft/blankdraft.modal';
 import { MixerSidebarComponent } from './mixer-sidebar/mixer-sidebar.component';
 import { NoteComponent } from './palette/note/note.component';
 import { PaletteComponent } from './palette/palette.component';
-import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
 
@@ -124,9 +123,7 @@ export class MixerComponent {
   }
 
 
-  performAndUpdateDownstream(obj_id: number) {
-    this.palette.performAndUpdateDownstream(obj_id);
-  }
+
 
 
   // addOp(event: any) {
@@ -173,6 +170,7 @@ export class MixerComponent {
  */
   createNewDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings): Promise<number> {
 
+    console.log("Creating new draft in mixer.component.ts", draft)
 
     return this.palette.createSubDraft(draft, loom, loom_settings)
       .then(instance => {
@@ -201,13 +199,13 @@ export class MixerComponent {
 
     if (edited_draft_id == -1 || edited_draft_id == null) return;
 
-    const sd: SubdraftComponent = <SubdraftComponent>this.tree.getComponent(edited_draft_id);
-    if (sd !== null && sd !== undefined) sd.redrawExistingDraft();
+    // const sd: SubdraftComponent = <SubdraftComponent>this.tree.getComponent(edited_draft_id);
+    // if (sd !== null && sd !== undefined) sd.redrawExistingDraft();
 
 
-    const outlet_ops_connected = this.tree.getNonCxnOutputs(edited_draft_id);
-    let fns = outlet_ops_connected.map(el => this.performAndUpdateDownstream(el));
-    Promise.all(fns);
+    // const outlet_ops_connected = this.tree.getNonCxnOutputs(edited_draft_id);
+    // let fns = outlet_ops_connected.map(el => this.performAndUpdateDownstream(el));
+    // Promise.all(fns);
 
     //DO TO MAKE SURE USERS CAN TOGGLE ON MIXER DRAFTS
     this.dm.selectDraftEditingMode('draw');
@@ -562,14 +560,14 @@ export class MixerComponent {
    */
   public materialChange() {
 
-    this.palette.redrawAllSubdrafts();
+    // this.palette.redrawAllSubdrafts();
 
 
   }
 
-  public redrawAllSubdrafts() {
-    this.palette.redrawAllSubdrafts();
-  }
+  // public redrawAllSubdrafts() {
+  //   this.palette.redrawAllSubdrafts();
+  // }
 
 
 
@@ -581,7 +579,7 @@ export class MixerComponent {
    */
   originChange(value: number) {
 
-    this.palette.redrawAllSubdrafts(); //force a redraw so that the weft/warp system info is up to date
+    //this.palette.redrawAllSubdrafts(); //force a redraw so that the weft/warp system info is up to date
 
   }
 

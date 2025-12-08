@@ -156,6 +156,8 @@ export class OperationComponent implements OnInit {
   //   this.disable_drag = true;
   // }
 
+  checkChildrenSubscription: Subscription;
+
 
   constructor() {
 
@@ -168,6 +170,9 @@ export class OperationComponent implements OnInit {
     }
     if (this.errorSubscription) {
       this.errorSubscription.unsubscribe();
+    }
+    if (this.checkChildrenSubscription) {
+      this.checkChildrenSubscription.unsubscribe();
     }
   }
 
@@ -196,6 +201,11 @@ export class OperationComponent implements OnInit {
       console.log("RECOMPUTING VALUE RECEIVED", this.id, value);
       this.triggerFadeToBlack();
       //this.recomputing = value;
+    });
+
+    this.checkChildrenSubscription = this.opnode.checkChildren.subscribe((value) => {
+      console.log("CHECK CHILDREN VALUE RECEIVED", this.id, value);
+      this.children = this.tree.getNonCxnOutputs(this.id);
     });
 
   }

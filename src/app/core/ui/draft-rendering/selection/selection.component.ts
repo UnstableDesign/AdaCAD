@@ -493,7 +493,7 @@ export class SelectionComponent implements OnInit {
               loom_settings: false,
               materials: false
             };
-            this.tree.setDraftOnly(this.id, draft, flags);
+            this.tree.setDraft(this.id, draft, flags, true, true);
             this.saveAction.emit(before);
 
 
@@ -522,7 +522,7 @@ export class SelectionComponent implements OnInit {
               loom_settings: false,
               materials: true
             };
-            this.tree.setDraftOnly(this.id, draft, flags);
+            this.tree.setDraft(this.id, draft, flags);
             this.saveAction.emit(before);
 
 
@@ -551,7 +551,7 @@ export class SelectionComponent implements OnInit {
               loom_settings: false,
               materials: false
             };
-            this.tree.setDraftOnly(this.id, draft, flags);
+            this.tree.setDraft(this.id, draft, flags, true, true);
             this.saveAction.emit(before);
 
 
@@ -580,7 +580,7 @@ export class SelectionComponent implements OnInit {
               loom_settings: false,
               materials: true
             };
-            this.tree.setDraftOnly(this.id, draft, flags);
+            this.tree.setDraft(this.id, draft, flags, true, true);
             this.saveAction.emit(before);
 
 
