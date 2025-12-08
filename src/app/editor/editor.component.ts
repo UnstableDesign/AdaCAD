@@ -597,8 +597,10 @@ export class EditorComponent implements OnInit {
       default:
         this.dm.selectDraftEditingMode('draw');
         this.dm.selectPencil('material');
-        this.selected_material_id = this.pencil;
-        this.weaveRef.selected_material_id = parseInt(this.pencil);
+        const split = this.pencil.split('_');
+        const material_id = split[1];
+        this.selected_material_id = parseInt(material_id);
+        this.weaveRef.selected_material_id = parseInt(material_id);
         this.weaveRef.setPencil('material');
         this.weaveRef.setDraftEditMode('draw');
         break;
@@ -607,32 +609,7 @@ export class EditorComponent implements OnInit {
 
   }
 
-  openMaterials() {
 
-
-    //change this to open the library component 
-
-    // const allmaterials = this.ms.getShuttles();
-
-    // const material_modal = this.dialog.open(MaterialModal, { data: {} });
-    // material_modal.componentInstance.onMaterialChange.subscribe(event => {
-
-    //   this.materialChange();
-
-    // });
-
-
-
-  }
-
-
-
-
-  // viewChange(name: any) {
-  //   this.current_view = name;
-  //   this.weaveRef.viewChange(name);
-
-  // }
 
 
   /**
@@ -643,11 +620,7 @@ export class EditorComponent implements OnInit {
     const container: HTMLElement = document.getElementById('editor-scale-container');
     container.style.transform = 'scale(' + this.scale + ')';
     container.style.transformOrigin = 'left top';
-    //this.weaveRef.scale = this.scale
-    //this.weaveRef.setScale(this.scale);
 
-    //we have to redraw for now so that UI div buttons line up with scaled view
-    // this.redraw();
   }
 
 
@@ -692,6 +665,12 @@ export class EditorComponent implements OnInit {
       // Get the container and canvas elements
       const container = document.getElementById('editor-draft-container');
       const rendering = document.getElementById(`editor_draft_rendering`);
+      const drawdownCanvas = document.getElementById(`drawdown-editor-${this.id}`) as HTMLCanvasElement;
+      const threadingCanvas = document.getElementById(`threading-editor-${this.id}`) as HTMLCanvasElement;
+      const treadlingCanvas = document.getElementById(`treadling-editor-${this.id}`) as HTMLCanvasElement;
+
+
+
       if (!container || !rendering) {
         if (attempts < maxAttempts) {
           setTimeout(() => {
@@ -706,10 +685,12 @@ export class EditorComponent implements OnInit {
       const containerWidth = containerRect.width;
       const containerHeight = containerRect.height;
 
+
       // Get the actual canvas dimensions (width and height properties, not CSS dimensions)
       const renderingRect = rendering.getBoundingClientRect();
       const baseDraftWidth = renderingRect.width;
       const baseDraftHeight = renderingRect.height;
+
 
       // Check if dimensions are valid (greater than 0)
       if (containerWidth === 0 || containerHeight === 0 || baseDraftWidth === 0 || baseDraftHeight === 0) {
@@ -721,15 +702,11 @@ export class EditorComponent implements OnInit {
         return;
       }
 
-      console.log("containerWidth", containerWidth);
-      console.log("baseDraftWidth", baseDraftWidth);
-      console.log("scale", this.scale);
       // Calculate zoom factors needed to fit
-      const widthFactor = containerWidth / (baseDraftWidth * 1 / this.scale);
-      const heightFactor = containerHeight / (baseDraftHeight * 1 / this.scale);
+      const widthFactor = containerWidth / (drawdownCanvas.width + treadlingCanvas.width);
+      const heightFactor = containerHeight / (drawdownCanvas.height + threadingCanvas.height);
       const fitZoom = Math.min(widthFactor, heightFactor);
       this.zs.setEditorIndexFromZoomValue(fitZoom);
-      console.log("set To", fitZoom, this.zs.zoom_table_ndx_editor, this.zs.zoom_table[this.zs.zoom_table_ndx_editor]);
       this.renderChange();
     };
 

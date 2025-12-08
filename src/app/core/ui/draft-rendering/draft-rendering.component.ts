@@ -689,7 +689,7 @@ export class DraftRenderingComponent implements OnInit {
     }
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
-      draft: false,
+      draft: true,
       loom: false,
       loom_settings: false,
       materials: true
@@ -732,7 +732,7 @@ export class DraftRenderingComponent implements OnInit {
     }
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
-      draft: false,
+      draft: true,
       loom: false,
       loom_settings: false,
       materials: true
@@ -1024,7 +1024,6 @@ export class DraftRenderingComponent implements OnInit {
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
 
-    console.log("[REDRAW]", this.id, draft.id, this.source, rf);
 
     const startTime = performance.now();
     this.isRedrawing = true;
@@ -1060,7 +1059,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
     if (this.needsRedraw(rf)) {
-      console.log("NEEDS REDRAW", this.id);
+      console.log("[REDRAW]", this.id, draft.id, this.source, rf);
       const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
         this.isRedrawing = false;
       })
@@ -1367,7 +1366,7 @@ export class DraftRenderingComponent implements OnInit {
       if (source == 'warp') draft.colShuttleMapping[index] = this.selected_material_id;
       const flags: DraftNodeBroadcastFlags = {
         meta: false,
-        draft: false,
+        draft: true,
         loom: false,
         loom_settings: false,
         materials: true
@@ -1381,7 +1380,7 @@ export class DraftRenderingComponent implements OnInit {
     draft.colShuttleMapping[currentPos.j] = this.selected_material_id;
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
-      draft: false,
+      draft: true,
       loom: false,
       loom_settings: false,
       materials: true
@@ -1393,7 +1392,7 @@ export class DraftRenderingComponent implements OnInit {
     draft.rowShuttleMapping[currentPos.i] = this.selected_material_id;
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
-      draft: false,
+      draft: true,
       loom: false,
       loom_settings: false,
       materials: true
@@ -1438,7 +1437,7 @@ export class DraftRenderingComponent implements OnInit {
 
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
-      draft: false,
+      draft: true,
       loom: false,
       loom_settings: false,
       materials: true
@@ -1454,7 +1453,7 @@ export class DraftRenderingComponent implements OnInit {
     draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
-      draft: false,
+      draft: true,
       loom: false,
       loom_settings: false,
       materials: true

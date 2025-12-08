@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { Loom, LoomSettings } from 'adacad-drafting-lib';
 import { Draft, getCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { numFrames, numTreadles } from 'adacad-drafting-lib/loom';
-import { Subject } from 'rxjs';
 import { CanvasList, RenderingFlags } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -79,7 +78,6 @@ export class RenderService {
 
   public addToQueue(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags, type: 'render' | 'scale', onComplete: () => void, scale?: number): RenderQueueItem | null {
     if (type == 'render') {
-      const subject = new Subject<number>();
       const queueItem: RenderQueueItem = {
         type: 'render',
         draft,
@@ -628,6 +626,7 @@ export class RenderService {
   private drawDrawdown(draft: Draft, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
 
 
+
     if (canvas == null || canvas == undefined) {
       return Promise.resolve('drawdown canvas was null');
     }
@@ -834,6 +833,7 @@ export class RenderService {
     const drawStartTime = performance.now();
 
 
+    console.log("IN DRAWDOWN AS CANVAS", draft.id, rf);
 
 
     /**
@@ -997,6 +997,16 @@ export class RenderService {
     });
   }
 
+  clearCanvas(canvas: HTMLCanvasElement): Promise<string> {
+    const canvasCx = canvas.getContext('2d');
+    canvasCx.clearRect(0, 0, canvasCx.canvas.width, canvasCx.canvas.height);
+    canvasCx.canvas.width = 0;
+    canvasCx.canvas.height = 0;
+    canvasCx.canvas.style.width = "0px";
+    canvasCx.canvas.style.height = "0px";
+    return Promise.resolve('');
+  }
+
 
   /**
    * draw whatever is stored in the draft object to the screen
@@ -1030,14 +1040,20 @@ export class RenderService {
 
     if (rf.u_threading) {
       fns = fns.concat(this.drawThreading(loom, loom_settings, canvases.threading, cell_size, this.pixel_ratio, rf.show_loom));
+    } else {
+      fns = fns.concat(this.clearCanvas(canvases.threading));
     }
 
     if (rf.u_treadling) {
       fns = fns.concat(this.drawTreadling(loom, loom_settings, canvases.treadling, cell_size, this.pixel_ratio, rf.show_loom));
+    } else {
+      fns = fns.concat(this.clearCanvas(canvases.treadling));
     }
 
     if (rf.u_tieups) {
       fns = fns.concat(this.drawTieups(loom, loom_settings, canvases.tieup, cell_size, this.pixel_ratio, rf.show_loom));
+    } else {
+      fns = fns.concat(this.clearCanvas(canvases.tieup));
     }
 
     return Promise.all(fns).then(errs => {
