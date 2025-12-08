@@ -11,6 +11,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { LoomSettings } from 'adacad-drafting-lib';
 import { createCell, Drawdown, getDraftName } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType } from 'adacad-drafting-lib/loom';
+import { Subscription } from 'rxjs';
 import { OpNode, RenderingFlags } from '../core/model/datatypes';
 import { draft_pencil } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
@@ -101,6 +102,8 @@ export class EditorComponent implements OnInit {
 
   dressing_info: Array<{ label: string, value: string }> = [];
 
+  onRedrawCompleteSubscription: Subscription;
+  onLoad: boolean = false; // a flag used to call teh centering function after the first draw
 
 
   constructor() {
@@ -144,6 +147,18 @@ export class EditorComponent implements OnInit {
 
   }
 
+  ngAfterViewInit() {
+    this.scale = this.zs.getEditorZoom();
+    this.updatePencils();
+    this.onRedrawCompleteSubscription = this.weaveRef.redrawComplete.subscribe(draft => {
+      this.drawdownUpdated();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.onRedrawCompleteSubscription) this.onRedrawCompleteSubscription.unsubscribe();
+  }
+
   updatePencils() {
     this.draw_modes = draft_pencil
       .filter(mode => mode.value !== 'material')
@@ -166,10 +181,6 @@ export class EditorComponent implements OnInit {
     }
   }
 
-  ngAfterViewInit() {
-    this.scale = this.zs.getEditorZoom();
-    this.updatePencils();
-  }
 
 
   updateWeavingInfo() {
@@ -270,12 +281,7 @@ export class EditorComponent implements OnInit {
   */
   onFocus(id: number) {
     console.log("ON FOCUS ", id)
-    if (id !== -1) {
-      this.loadDraft(id).then(id => {
-        this.id = id;
-      }
-      ).catch(console.error)
-    }
+    this.loadDraft(id);
 
 
   }
@@ -308,72 +314,50 @@ export class EditorComponent implements OnInit {
 
   /**
   * given an id, it proceeds to load the draft and loom associated with that id. 
-  * @param id 
-  * @returns 
+  * onLoad, this should default to the settings associated with this draft node. All draft nodes should have 
   */
-  loadDraft(id: number): Promise<any> {
+  loadDraft(id: number) {
 
-    if (id == -1) return Promise.reject("attempting to load a non-existent ID");
+    if (id == -1) return;
 
+    this.id = id;
     const draft = this.tree.getDraft(id);
     const loom = this.tree.getLoom(id);
     let ls = this.tree.getLoomSettings(id);
 
+    this.loom.loadLoom(id); //loads the current loom information into the sidebar
+    this.setParentOp(id);
+    if (this.parentOp !== '') this.weaveRef.view_only = true;
+    else this.weaveRef.view_only = false;
 
+    this.onLoad = true;
+    this.weaveRef.onNewDraftLoaded(id); //this should load and draw everything in the renderer
+
+
+    this.draftname = getDraftName(draft);
+    this.updateWeavingInfo();
 
     const loom_fns = [];
 
-    if (ls == null) {
-      ls = {
-        frames: this.ws.min_frames,
-        treadles: this.ws.min_treadles,
-        epi: this.ws.epi,
-        ppi: this.ws.ppi,
-        units: this.ws.units,
-        type: this.ws.type
-      }
-      this.tree.setLoomSettings(id, ls);
-
-    }
-
-    if (loom == null) {
-      const utils = getLoomUtilByType(ls.type);
-      loom_fns.push((utils.computeLoomFromDrawdown) ? utils.computeLoomFromDrawdown(draft.drawdown, ls) : null);
-    } else {
-      loom_fns.push(loom);
-    }
-
-    return Promise.all(loom_fns).then(looms => {
-
-      this.tree.setLoom(id, looms[0]);
-
-      console.log("LOADING DRAFT in Editor, LoadDraft", draft, looms[0], ls)
-
-      this.setParentOp(id);
-      if (this.parentOp !== '') this.weaveRef.view_only = true;
-      else this.weaveRef.view_only = false;
-
-
-
-      if ((ls.type == 'jacquard') || loom === null) {
+    switch (ls.type) {
+      case 'jacquard':
         this.dm.selectDraftEditSource('drawdown');
         this.weaveRef.setDraftEditSource('drawdown');
-      }
-
-
-
-      this.draftname = getDraftName(draft);
-      this.weaveRef.onNewDraftLoaded(id);
-      this.loom.loadLoom(id);
-      this.updateWeavingInfo();
-      return Promise.resolve(id);
-
-
-
-    })
-
-
-
+        break;
+      case 'direct':
+      case 'frame':
+        this.dm.selectDraftEditSource('loom');
+        this.weaveRef.setDraftEditSource('loom');
+        const utils = getLoomUtilByType(ls.type);
+        utils.computeLoomFromDrawdown(draft.drawdown, ls).then(loom => {
+          this.tree.setLoom(id, loom); //this would trigger a subsequent update. 
+          this.onLoad = true; //reset this flag so the draw updates
+        });
+        break;
+      default:
+        this.dm.selectDraftEditSource('drawdown');
+        this.weaveRef.setDraftEditSource('drawdown');
+    }
 
 
 
@@ -407,10 +391,13 @@ export class EditorComponent implements OnInit {
 
 
   public drawdownUpdated() {
+    if (this.onLoad) {
+      this.zoomToFit();
+      this.onLoad = false;
+      return;
+    }
     console.log("DRAWDOWN UPDATED", this.id)
-    this.vs.updateViewer();
-    this.loom.refreshLoom();
-    this.updateWeavingInfo();
+
   }
 
 
@@ -686,6 +673,72 @@ export class EditorComponent implements OnInit {
       this.weaveRef.setDraftEditSource('drawdown');
     }
 
+  }
+
+  /**
+   * Adjusts the scale of the rendering such that the entire view is visible and as large as possible
+   */
+  zoomToFit() {
+    // Skip if no draft is selected
+    console.log("ZOOMING TO FIT EDITOR", this.id);
+    if (this.id === -1) {
+      return;
+    }
+
+    // Use a recursive function to wait for elements to be ready
+    const attemptZoomToFit = (attempts: number = 0) => {
+      const maxAttempts = 50; // Try for up to 5 seconds (50 * 100ms)
+
+      // Get the container and canvas elements
+      const container = document.getElementById('editor-draft-container');
+      const rendering = document.getElementById(`editor_draft_rendering`);
+      if (!container || !rendering) {
+        if (attempts < maxAttempts) {
+          setTimeout(() => {
+            attemptZoomToFit(attempts + 1);
+          }, 100);
+        }
+        return;
+      }
+
+      // Get container dimensions
+      const containerRect = container.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
+
+      // Get the actual canvas dimensions (width and height properties, not CSS dimensions)
+      const renderingRect = rendering.getBoundingClientRect();
+      const baseDraftWidth = renderingRect.width;
+      const baseDraftHeight = renderingRect.height;
+
+      // Check if dimensions are valid (greater than 0)
+      if (containerWidth === 0 || containerHeight === 0 || baseDraftWidth === 0 || baseDraftHeight === 0) {
+        if (attempts < maxAttempts) {
+          setTimeout(() => {
+            attemptZoomToFit(attempts + 1);
+          }, 100);
+        }
+        return;
+      }
+
+      console.log("containerWidth", containerWidth);
+      console.log("baseDraftWidth", baseDraftWidth);
+      console.log("scale", this.scale);
+      // Calculate zoom factors needed to fit
+      const widthFactor = containerWidth / (baseDraftWidth * 1 / this.scale);
+      const heightFactor = containerHeight / (baseDraftHeight * 1 / this.scale);
+      const fitZoom = Math.min(widthFactor, heightFactor);
+      this.zs.setEditorIndexFromZoomValue(fitZoom);
+      console.log("set To", fitZoom, this.zs.zoom_table_ndx_editor, this.zs.zoom_table[this.zs.zoom_table_ndx_editor]);
+      this.renderChange();
+    };
+
+    // Start the attempt with a small delay to let the DOM update
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        attemptZoomToFit(0);
+      }, 50);
+    });
   }
 
 

@@ -1,7 +1,7 @@
 import { DraftCellColor } from "./datatypes";
 
 export const defaults = {
-  editor: 'mixer',
+  default_mode: 'mixer',
   draft_detail_cell_size: 20,
   draft_name: 'drafty',
   row_shuttle: 1,
@@ -98,9 +98,9 @@ export const origin_option_list: Array<{ value: number, view: string }> =
     { value: 3, view: 'top left' },
   ];
 
-export const editor_modes: Array<{ value: string, view: string, icon: string }> =
+export const editor_modes: Array<{ value: 'editor' | 'mixer' | 'library', view: string, icon: string }> =
   [
-    { value: 'draft', view: 'draft editor', icon: 'fa-solid fa-pen-to-square' },
+    { value: 'editor', view: 'draft editor', icon: 'fa-solid fa-pen-to-square' },
     { value: 'mixer', view: 'workspace', icon: 'fa-solid fa-code-branch' },
     { value: 'library', view: 'library', icon: 'fa-solid fa-book-open' }
   ];

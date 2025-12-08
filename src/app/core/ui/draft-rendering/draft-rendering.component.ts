@@ -124,6 +124,8 @@ export class DraftRenderingComponent implements OnInit {
   //published from the draft node whenever a new draft is set. 
   draftValueChangeSubscription: Subscription;
 
+  //used to determine if this is the first time the subscription is called (onLoad) vs (onUpdate)
+  draftValueChangeCallCount: number = 0;
 
 
 
@@ -258,12 +260,11 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-  //this is called anytime a new draft object is loaded into this rendering window. Generally, this should only happen in the viewer 
+  //this is called anytime a new draft object is loaded into this rendering window. Generally, this should only happen in the viewer and editor
   onNewDraftLoaded(id: number) {
     console.log("ON NEW DRAFT LOADED", id);
-
-
     this.id = id;
+
     if (id == -1) return;
 
     let node = this.tree.getNode(id) as DraftNode;
@@ -273,21 +274,25 @@ export class DraftRenderingComponent implements OnInit {
       return;
     }
 
-    if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
+    if (this.draftValueChangeSubscription) {
+      this.draftValueChangeCallCount = 0;
+      this.draftValueChangeSubscription.unsubscribe();
+    }
+
 
     this.draftValueChangeSubscription = node.onValueChange.subscribe(draftNodeBroadcast => {
       const draft = draftNodeBroadcast.draft;
       const loom = draftNodeBroadcast.loom;
       const loom_settings = draftNodeBroadcast.loom_settings;
       const flags: RenderingFlags = {
-        u_drawdown: draftNodeBroadcast.flags.draft,
-        u_threading: draftNodeBroadcast.flags.loom,
-        u_tieups: draftNodeBroadcast.flags.loom,
-        u_treadling: draftNodeBroadcast.flags.loom,
-        u_warp_sys: draftNodeBroadcast.flags.draft,
-        u_warp_mats: draftNodeBroadcast.flags.materials,
-        u_weft_sys: draftNodeBroadcast.flags.draft,
-        u_weft_mats: draftNodeBroadcast.flags.materials,
+        u_drawdown: draftNodeBroadcast.flags.draft || this.draftValueChangeCallCount === 0,
+        u_threading: draftNodeBroadcast.flags.loom || this.draftValueChangeCallCount === 0,
+        u_tieups: draftNodeBroadcast.flags.loom || this.draftValueChangeCallCount === 0,
+        u_treadling: draftNodeBroadcast.flags.loom || this.draftValueChangeCallCount === 0,
+        u_warp_sys: draftNodeBroadcast.flags.draft || this.draftValueChangeCallCount === 0,
+        u_warp_mats: draftNodeBroadcast.flags.materials || this.draftValueChangeCallCount === 0,
+        u_weft_sys: draftNodeBroadcast.flags.draft || this.draftValueChangeCallCount === 0,
+        u_weft_mats: draftNodeBroadcast.flags.materials || this.draftValueChangeCallCount === 0,
         use_floats: (this.current_view !== 'draft'),
         use_colors: (this.current_view == 'visual'),
         show_loom: (this.source === 'editor')
@@ -297,34 +302,12 @@ export class DraftRenderingComponent implements OnInit {
       this.rowShuttleMapping = draft.rowShuttleMapping.slice();
       this.rowSystemMapping = draft.rowSystemMapping.slice();
 
-      console.log("REDRAWING DRAFT on Subscription", this.id, draft.id, this.source, this.current_view, flags);
+      console.log("REDRAWING DRAFT on Subscription", this.id, this.source, this.draftValueChangeCallCount, flags);
       this.redraw(draft, loom, loom_settings, flags).then(el => {
-        this.redrawComplete.emit(draft); // do I need to emit this? 
+        this.draftValueChangeCallCount++;
+        this.redrawComplete.emit(draft); // I need this so that any resulting functions (e.g. recentering, etc, can call after redrawing)
       });
     });
-
-    //MANUALLY DRAW ON LOAD
-    // const draft = this.tree.getDraft(id);
-    // const loom = this.tree.getLoom(id);
-    // const loom_settings = this.tree.getLoomSettings(id);
-    // const flags: RenderingFlags = {
-    //   u_drawdown: true,
-    //   u_threading: true,
-    //   u_tieups: true,
-    //   u_treadling: true,
-    //   u_warp_sys: true,
-    //   u_warp_mats: true,
-    //   u_weft_sys: true,
-    //   u_weft_mats: true,
-    //   use_floats: (this.current_view == 'color'),
-    //   use_colors: (this.current_view != 'draft'),
-    //   show_loom: (this.current_view == 'loom')
-    // };
-    // this.redraw(draft, loom, loom_settings, flags).then(el => {
-    //   this.redrawComplete.emit(draft); // do I need to emit this? 
-    // });
-
-
 
   }
 

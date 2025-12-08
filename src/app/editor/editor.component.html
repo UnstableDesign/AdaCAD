@@ -171,7 +171,7 @@
 
 </div>
 
-<div class="draft-container">
+<div class="draft-container" id="editor-draft-container">
 
 
   <div [class.hidden]="parentOp == ''" class="locked_draft">
@@ -182,7 +182,7 @@
 
 
   <div class="scale-container" id="editor-scale-container">
-    <app-draft-rendering id="draft_viewer" #weaveRef source="editor" [id]="id" scale="1" [view_only]="false"
+    <app-draft-rendering id="editor_draft_rendering" #weaveRef source="editor" [id]="id" scale="1" [view_only]="false"
       [current_view]="current_view" (onNewSelection)="updateSelection($event)" (onDrawdownUpdated)="drawdownUpdated()"
       (onLoomSettingsUpdated)="loomSettingsUpdated()">
     </app-draft-rendering>

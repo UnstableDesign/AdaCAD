@@ -153,8 +153,8 @@
 
 
 
-      <app-editor id="draftdetail" class="detail-container" #details [class.hide]="selected_editor_mode !== 'draft'"
-        [class.show]="selected_editor_mode === 'draft'" (saveChanges)="saveFile()" (cloneDraft)="cloneDraft($event)"
+      <app-editor id="draftdetail" class="detail-container" [class.hide]="selected_editor_mode !== 'editor'"
+        [class.show]="selected_editor_mode === 'editor'" (saveChanges)="saveFile()" (cloneDraft)="cloneDraft($event)"
         (createDraft)="createDraft($event)" (updateMixer)="forceRedraw()"
         (onEditMaterials)="onEditMaterials()"></app-editor>
 

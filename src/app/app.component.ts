@@ -128,9 +128,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loomOptions: any;
 
-  editorModes: any;
+  editorModes: Array<{ value: string, view: string, icon: string }> = editor_modes;
 
-  selected_editor_mode: any;
+  selected_editor_mode: 'editor' | 'mixer' | 'library';
 
   current_version: string;
 
@@ -152,13 +152,14 @@ export class AppComponent implements OnInit, OnDestroy {
   stateSubscriptions: Array<Subscription> = [];
 
   errorBroadcastSubscription: Subscription;
+  zoomChangeSubscription: Subscription;
 
 
   constructor() {
 
     this.current_version = this.vers.currentVersion();
     this.editorModes = editor_modes;
-    this.selected_editor_mode = defaults.editor;
+    this.selected_editor_mode = <'editor' | 'mixer' | 'library'>(<string>defaults.default_mode);
 
     //subscribe to the connection event to see if we have access to the firebase database (and internet) 
     this.connectionSubscription = this.fb.connectionChangeEvent$.subscribe(data => {
@@ -298,13 +299,27 @@ export class AppComponent implements OnInit, OnDestroy {
     this.zoom_form = new UntypedFormControl(this.getActiveZoomIndex());
     this.zoom_form.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
-        this.zoomChange(value);
+        if (this.selected_editor_mode == 'mixer') {
+          this.zs.setZoomIndexOnMixer(value, false);
+        } else if (this.selected_editor_mode == 'editor') {
+          this.zs.setZoomIndexOnEditor(value, false);
+          this.editor.renderChange();
+        }
       }
+    });
+
+    this.zoomChangeSubscription = this.zs.zoomChange$.subscribe(value => {
+      this.zoomChange(value.source, value.ndx);
     });
 
   }
 
   ngOnDestroy() {
+
+    if (this.zoomChangeSubscription) {
+      this.zoomChangeSubscription.unsubscribe();
+    }
+
     if (this.userAuthSubscription) {
       this.userAuthSubscription.unsubscribe();
     }
@@ -497,7 +512,7 @@ export class AppComponent implements OnInit, OnDestroy {
   toggleEditorMode() {
 
     switch (this.selected_editor_mode) {
-      case 'draft':
+      case 'editor':
 
         this.mixer.onClose();
 
@@ -1043,7 +1058,7 @@ export class AppComponent implements OnInit, OnDestroy {
           if (this.tree.nodes.length > 0) {
             this.selected_editor_mode = 'mixer';
           } else {
-            this.selected_editor_mode = 'draft';
+            this.selected_editor_mode = 'editor';
           }
         } else {
           this.selected_editor_mode = 'mixer'
@@ -1828,7 +1843,7 @@ export class AppComponent implements OnInit, OnDestroy {
   openInEditor(id: number) {
     this.vs.clearPin();
     this.vs.setViewer(id);
-    this.selected_editor_mode = 'draft';
+    this.selected_editor_mode = 'editor';
     this.toggleEditorMode();
   }
 
@@ -1996,14 +2011,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   zoomToFit(useCentering = false, padding = 0) {
-
-    console.log(this.tree.tree);
-
-    const view_window: HTMLElement = document.getElementById('scrollable-container');
-    if (view_window === null || view_window === undefined) return;
-
+    console.log("ZOOMING TO FIT", this.selected_editor_mode);
 
     if (this.selected_editor_mode == 'mixer') {
+      const view_window: HTMLElement = document.getElementById('scrollable-container');
+      if (view_window === null || view_window === undefined) return;
+
 
       let selections = this.multiselect.getSelections();
 
@@ -2056,9 +2069,10 @@ export class AppComponent implements OnInit, OnDestroy {
         behavior: "instant",
       });
 
-    } else {
-      // this.zs.zoomToFitEditor()
-      this.editor.renderChange();
+
+    } else if (this.selected_editor_mode == 'editor') {
+      console.log("ZOOMING TO FIT EDITOR");
+      this.editor.zoomToFit();
     }
   }
 
@@ -2150,16 +2164,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
   }
 
-  zoomChange(ndx: number) {
+  /**called when a change to zoom happens on teh zoom service */
+  zoomChange(source: string, ndx: number) {
     console.log("ZOOM CHANGE ", ndx);
 
     this.updateTextSizing();
 
-    if (this.selected_editor_mode == 'mixer') {
-      this.zs.setZoomIndexOnMixer(ndx);
+    if (this.selected_editor_mode == 'mixer' && source == 'mixer') {
+      this.zoom_form.setValue(ndx, { emitEvent: false });
       this.mixer.renderChange();
-    } else {
-      this.zs.setZoomIndexOnEditor(ndx)
+
+    } else if (this.selected_editor_mode == 'editor' && source == 'editor') {
+      this.zoom_form.setValue(ndx, { emitEvent: false });
       this.editor.renderChange();
     }
   }

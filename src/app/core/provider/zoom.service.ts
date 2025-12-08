@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { Bounds, ZoomProxy } from '../model/datatypes';
 import { defaults } from '../model/defaults';
 
@@ -17,6 +18,9 @@ export class ZoomService {
   zoom_table_ndx_mixer: number = defaults.zoom_ndx_mixer;
   zoom_table_ndx_editor: number = defaults.zoom_ndx_editor;
   zoom_table_ndx_viewer: number = defaults.zoom_ndx_viewer;
+
+  //broadcast chanegs to the main footer zoom
+  zoomChange$ = new BehaviorSubject<{ source: string, ndx: number }>({ source: 'editor', ndx: defaults.zoom_ndx_editor });
 
 
   constructor() {
@@ -86,18 +90,20 @@ export class ZoomService {
   }
 
 
-  zoomInMixer() {
+  zoomInMixer(emitEvent: boolean = true) {
     this.zoom_table_ndx_mixer++;
     if (this.zoom_table_ndx_mixer >= this.zoom_table.length) {
       this.zoom_table_ndx_mixer = this.zoom_table.length;
     }
+    if (emitEvent) this.zoomChange$.next({ source: 'mixer', ndx: this.zoom_table_ndx_mixer });
   }
 
-  zoomInEditor() {
+  zoomInEditor(emitEvent: boolean = true) {
     this.zoom_table_ndx_editor++;
     if (this.zoom_table_ndx_editor >= this.zoom_table.length) {
       this.zoom_table_ndx_editor = this.zoom_table.length;
     }
+    if (emitEvent) this.zoomChange$.next({ source: 'editor', ndx: this.zoom_table_ndx_editor });
   }
 
   zoomInViewer() {
@@ -109,18 +115,20 @@ export class ZoomService {
 
 
 
-  zoomOutMixer() {
+  zoomOutMixer(emitEvent: boolean = true) {
     this.zoom_table_ndx_mixer--;
     if (this.zoom_table_ndx_mixer < 0) {
       this.zoom_table_ndx_mixer = 0;
     }
+    if (emitEvent) this.zoomChange$.next({ source: 'mixer', ndx: this.zoom_table_ndx_mixer });
   }
 
-  zoomOutEditor() {
+  zoomOutEditor(emitEvent: boolean = true) {
     this.zoom_table_ndx_editor--;
     if (this.zoom_table_ndx_editor < 0) {
       this.zoom_table_ndx_editor = 0;
     }
+    if (emitEvent) this.zoomChange$.next({ source: 'editor', ndx: this.zoom_table_ndx_editor });
   }
 
   zoomOutViewer() {
@@ -136,7 +144,7 @@ export class ZoomService {
    * closest value in the predefined sets of values
    * @param val 
    */
-  setEditorIndexFromZoomValue(zoom: number) {
+  setEditorIndexFromZoomValue(zoom: number, emitEvent: boolean = true) {
 
     let closest = this.zoom_table.reduce((acc, val, ndx) => {
       let diff = zoom - val;
@@ -147,10 +155,10 @@ export class ZoomService {
 
 
     this.zoom_table_ndx_editor = closest.ndx;
-
+    if (emitEvent) this.zoomChange$.next({ source: 'editor', ndx: this.zoom_table_ndx_editor });
   }
 
-  setMixerIndexFromZoomValue(zoom: number) {
+  setMixerIndexFromZoomValue(zoom: number, emitEvent: boolean = true) {
     let closest = this.zoom_table.reduce((acc, val, ndx) => {
       let diff = zoom - val;
       if (diff >= 0 && diff < acc.min) return { min: diff, ndx: ndx }
@@ -159,21 +167,24 @@ export class ZoomService {
     }, { min: 1000000, ndx: 0 })
 
     this.zoom_table_ndx_mixer = closest.ndx;
+    if (emitEvent) this.zoomChange$.next({ source: 'mixer', ndx: this.zoom_table_ndx_mixer });
     // console.log("SET TO ", this.zoom_table_ndx_mixer, this.zoom_table[this.zoom_table_ndx_mixer])
 
   }
 
-  setZoomIndexOnMixer(ndx: number) {
+  setZoomIndexOnMixer(ndx: number, emitEvent: boolean = true) {
     if (ndx >= 0 && ndx < this.zoom_table.length)
       this.zoom_table_ndx_mixer = ndx;
+    if (emitEvent) this.zoomChange$.next({ source: 'mixer', ndx: this.zoom_table_ndx_mixer });
   }
 
-  setZoomIndexOnEditor(ndx: number) {
+  setZoomIndexOnEditor(ndx: number, emitEvent: boolean = true) {
     if (ndx >= 0 && ndx < this.zoom_table.length)
       this.zoom_table_ndx_editor = ndx;
+    if (emitEvent) this.zoomChange$.next({ source: 'editor', ndx: this.zoom_table_ndx_editor });
   }
 
-  setZoomIndexOnViewer(ndx: number) {
+  setZoomIndexOnViewer(ndx: number, emitEvent: boolean = true) {
     if (ndx >= 0 && ndx < this.zoom_table.length)
       this.zoom_table_ndx_viewer = ndx;
   }
