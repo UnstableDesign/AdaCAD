@@ -201,8 +201,7 @@ export class AppComponent implements OnInit, OnDestroy {
       //redraw the editor if it has this draft loaded
       if (this.editor.id === (<DraftStateAction>action).id) {
         this.editor.forceRedraw();
-        this.editor.updateLoom();
-        this.editor.updateWeavingInfo();
+        this.editor.loadDraft((<DraftStateAction>action).id);
         this.editor.clearSelection();
       }
 
@@ -1430,11 +1429,7 @@ export class AppComponent implements OnInit, OnDestroy {
       for (let i = 0; i < outs.length; i++) {
         this.tree.setLoom(dns[i].id, outs[i]);
         this.tree.setLoomSettings(dns[i].id, settings[i]);
-
       }
-
-      //call this to update the editor (if, by chance, the loom is showing)
-      this.editor.loomSettingsUpdated();
     }).catch(err => {
       //given that we've stripped any undefined loom settings, this should nevercall, but just in case. 
       console.error(err);
@@ -1452,12 +1447,8 @@ export class AppComponent implements OnInit, OnDestroy {
       .filter(el => el.loom_settings !== null && el.loom_settings !== undefined);
     dns.forEach(dn => {
       dn.loom_settings.units = this.ws.units;
+      this.tree.setLoomSettings(dn.id, dn.loom_settings, false);
     });
-
-    //call this to update the editor (if, by chance, the loom is showing)
-    this.editor.loomSettingsUpdated();
-
-
   }
 
 

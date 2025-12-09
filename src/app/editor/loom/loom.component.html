@@ -139,10 +139,10 @@
 
     <span matTextSuffix>
       @if (loomForm.get('units')?.value === 'in') {
-      epi
+      ppi
       }
       @if (loomForm.get('units')?.value === 'cm') {
-      ends / 10cm
+      picks / 10cm
       }
 
     </span>
@@ -186,14 +186,15 @@
     }
 
   </mat-form-field>
+  @if (loomForm.get('loomtype')?.value !== 'jacquard') {
 
-  @if (loomForm.get('type')?.value != 'jacquard') {
   <mat-form-field class="fullwidth">
     <mat-label>Number of Frames</mat-label>
-    <input [disabled]="!enabled" matInput formControlName="frames" step="1" type="number" min="2" max="1000">
+
+    <input matInput formControlName="frames" step="1" type="number" min="2" max="1000">
     <span matTextSuffix>frames</span>
-    @if (loomForm.get('frames')?.invalid && loomForm.get('frames')?.touched) {
-    <mat-error>
+
+    @if ((loomForm.get('frames')?.invalid && loomForm.get('frames')?.touched) ) { <mat-error>
       @if (loomForm.get('frames')?.errors?.['required']) {
       Number of frames is required
       }
@@ -206,24 +207,45 @@
     </mat-error>
     }
   </mat-form-field>
-  <mat-form-field class="fullwidth">
-    <mat-label>Number of Treadles</mat-label>
-    <input [disabled]="!enabled" matInput formControlName="treadles" step="1" type="number" min="2" max="1000">
-    <span matTextSuffix>treadles</span>
-    @if (loomForm.get('treadles')?.invalid && loomForm.get('treadles')?.touched) {
-    <mat-error>
-      @if (loomForm.get('treadles')?.errors?.['required']) {
-      Number of treadles is required
-      }
-      @if (loomForm.get('treadles')?.errors?.['min']) {
-      Number of treadles must be at least 2
-      }
-      @if (loomForm.get('treadles')?.errors?.['max']) {
-      Number of treadles cannot exceed 1000
-      }
-    </mat-error>
+
+  @if (loomForm.get('frames')?.value < required_frames) { <div class="frame-comment">This number
+    represents the
+    amount of frames you
+    have available on your loom. Your design requires {{required_frames}} frames.
+    </div>
     }
-  </mat-form-field>
-  }
+    }
+
+
+
+
+
+    @if(loomForm.get('loomtype')?.value == 'frame') {
+    <mat-form-field class="fullwidth">
+      <mat-label>Number of Treadles</mat-label>
+      <input [disabled]="!enabled" matInput formControlName="treadles" step="1" type="number" min="2" max="1000">
+      <span matTextSuffix>treadles</span>
+      @if (loomForm.get('treadles')?.invalid && loomForm.get('treadles')?.touched ) {
+      <mat-error>
+        @if (loomForm.get('treadles')?.errors?.['required']) {
+        Number of treadles is required
+        }
+        @if (loomForm.get('treadles')?.errors?.['min']) {
+        Number of treadles must be at least 2
+        }
+        @if (loomForm.get('treadles')?.errors?.['max']) {
+        Number of treadles cannot exceed 1000
+        }
+      </mat-error>
+      }
+    </mat-form-field>
+
+    @if (loomForm.get('treadles')?.value < required_treadles) { <div class="treadle-comment">This number represents the
+      amount of treadles you
+      have available on your loom. Your design requires {{required_treadles}} treadles.
+      </div>}
+      }
+
+
 
 </form>

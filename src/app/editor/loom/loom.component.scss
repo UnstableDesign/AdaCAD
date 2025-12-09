@@ -1,5 +1,19 @@
-form{
+form {
     display: flex;
     flex-direction: column;
     padding: 8px;
+}
+
+.frame-comment {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 0px;
+    padding: 0px;
+}
+
+.treadle-comment {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 0px;
+    padding: 0px;
 }

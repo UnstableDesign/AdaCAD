@@ -325,25 +325,25 @@ export class RenderService {
    */
   private drawLoomCell(loom: Loom, loom_settings: LoomSettings, cell_size: number, cx: any, i: number, j: number, type: string) {
 
-    var is_up = false;
 
+    let outofbounds = false;
     switch (type) {
 
       case 'threading':
         var frame = loom.threading[j];
-        is_up = (frame == i);
-
+        outofbounds = (frame >= loom_settings.frames);
         break;
       case 'tieup':
-        is_up = (loom.tieup[i][j]);
+        outofbounds = (i >= loom_settings.frames) || j >= loom_settings.treadles;
         break;
       case 'treadling':
-        is_up = (loom.treadling[i].find(el => el == j)) !== undefined;
+        outofbounds = (j >= loom_settings.treadles);
         break;
 
     }
 
-    cx.fillStyle = "#333333";
+    //mark out of bounds cells red
+    cx.fillStyle = (outofbounds) ? "#FF0000" : "#333333";
     cx.fillRect(j * cell_size, i * cell_size, cell_size, cell_size);
 
     cx.font = cell_size / 2 + "px Arial";
@@ -504,6 +504,8 @@ export class RenderService {
 
 
   public drawThreading(loom: Loom, loom_settings: LoomSettings, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, show_loom: boolean): Promise<string> {
+
+    console.log("DRAWING THREADING", loom, loom_settings, canvas);
 
     if (canvas == null || canvas == undefined) {
       return Promise.resolve('canvas null in drawThreading')
@@ -678,7 +680,7 @@ export class RenderService {
             draft_cx.fillStyle = "white";
             break;
           default:
-            draft_cx.fillStyle = "transparent";
+            draft_cx.fillStyle = "white";
             break;
         }
 
@@ -686,6 +688,18 @@ export class RenderService {
         draft_cx.lineWidth = 1;
         draft_cx.strokeRect(j * unit, i * unit, unit, unit);
         draft_cx.fillRect(j * unit, i * unit, unit, unit);
+
+        if (getCellValue(draft.drawdown[i][j]) == null) {
+          draft_cx.strokeStyle = "#333333";
+          draft_cx.lineWidth = 1;
+          draft_cx.moveTo(j * unit, i * unit);
+          draft_cx.lineTo(j * unit + unit, i * unit + unit);
+          draft_cx.stroke();
+
+          draft_cx.moveTo(j * unit, i * unit + unit);
+          draft_cx.lineTo(j * unit + unit, i * unit);
+          draft_cx.stroke();
+        }
       }
     }
 
@@ -831,9 +845,6 @@ export class RenderService {
     const size = `${warps(draft.drawdown)}x${wefts(draft.drawdown)}`;
     const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
     const drawStartTime = performance.now();
-
-
-    console.log("IN DRAWDOWN AS CANVAS", draft.id, rf);
 
 
     /**
@@ -1038,22 +1049,23 @@ export class RenderService {
       fns = fns.concat(this.drawWeftData(draft, cell_size, this.pixel_ratio, canvases.weft_systems, canvases.weft_mats));
     }
 
+    console.log("DRAWING THREADING", rf.u_threading);
     if (rf.u_threading) {
       fns = fns.concat(this.drawThreading(loom, loom_settings, canvases.threading, cell_size, this.pixel_ratio, rf.show_loom));
     } else {
-      fns = fns.concat(this.clearCanvas(canvases.threading));
+      if (loom_settings.type === 'jacquard') fns = fns.concat(this.clearCanvas(canvases.threading));
     }
 
     if (rf.u_treadling) {
       fns = fns.concat(this.drawTreadling(loom, loom_settings, canvases.treadling, cell_size, this.pixel_ratio, rf.show_loom));
     } else {
-      fns = fns.concat(this.clearCanvas(canvases.treadling));
+      if (loom_settings.type === 'jacquard') { fns = fns.concat(this.clearCanvas(canvases.treadling)); }
     }
 
     if (rf.u_tieups) {
       fns = fns.concat(this.drawTieups(loom, loom_settings, canvases.tieup, cell_size, this.pixel_ratio, rf.show_loom));
     } else {
-      fns = fns.concat(this.clearCanvas(canvases.tieup));
+      if (loom_settings.type === 'jacquard') fns = fns.concat(this.clearCanvas(canvases.tieup));
     }
 
     return Promise.all(fns).then(errs => {

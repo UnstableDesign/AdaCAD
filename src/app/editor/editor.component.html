@@ -143,8 +143,7 @@
 
       </mat-expansion-panel-header>
 
-      <app-loom #loom (unsetSelection)='unsetSelection()' (drawdownUpdated)='drawdownUpdated()'
-        (loomSettingsUpdated)="loomSettingsUpdated()"></app-loom>
+      <app-loom #loom (unsetSelection)='unsetSelection()' (drawdownUpdated)='drawdownUpdated()'></app-loom>
     </mat-expansion-panel>
 
 
@@ -183,8 +182,7 @@
 
   <div class="scale-container" id="editor-scale-container">
     <app-draft-rendering id="editor_draft_rendering" #weaveRef source="editor" [id]="id" scale="1" [view_only]="false"
-      [current_view]="current_view" (onNewSelection)="updateSelection($event)" (onDrawdownUpdated)="drawdownUpdated()"
-      (onLoomSettingsUpdated)="loomSettingsUpdated()">
+      [current_view]="current_view" (onNewSelection)="updateSelection($event)" (onDrawdownUpdated)="drawdownUpdated()">
     </app-draft-rendering>
   </div>
 </div>

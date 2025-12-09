@@ -301,6 +301,7 @@ export class DraftRenderingComponent implements OnInit {
       this.colSystemMapping = draft.colSystemMapping.slice();
       this.rowShuttleMapping = draft.rowShuttleMapping.slice();
       this.rowSystemMapping = draft.rowSystemMapping.slice();
+      this.selected_loom_type = loom_settings.type;
 
       console.log("REDRAWING DRAFT on Subscription", this.id, this.source, this.draftValueChangeCallCount, flags);
       this.redraw(draft, loom, loom_settings, flags).then(el => {
@@ -1025,15 +1026,13 @@ export class DraftRenderingComponent implements OnInit {
   public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
 
 
-    const startTime = performance.now();
     this.isRedrawing = true;
 
     this.overTimeLimit$ = of(false);
     setTimeout(() => {
       this.overTimeLimit$ = of(true);
     }, 100);
-    // const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
-    //  console.log(`[DRAW] START: Drawing draft ${this.id} (${size}) - Stack trace:`, new Error().stack);
+
 
     let area = warps(draft.drawdown) * wefts(draft.drawdown);
     if (area >= this.ws.oversize_dim_threshold) this.oversize = true;
@@ -1050,6 +1049,7 @@ export class DraftRenderingComponent implements OnInit {
     //if (this.oversize && this.ignoreOversize) this.ignoreOversize = false;
 
     if (draft == null) {
+      console.error("DRAFT IS NULL", this.id);
       return;
     }
 
@@ -1063,6 +1063,8 @@ export class DraftRenderingComponent implements OnInit {
       const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
         this.isRedrawing = false;
       })
+    } else {
+      this.isRedrawing = false;
     }
 
 

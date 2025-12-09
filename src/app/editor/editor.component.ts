@@ -9,10 +9,10 @@ import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionP
 import { MatLabel } from '@angular/material/form-field';
 import { MatTooltip } from '@angular/material/tooltip';
 import { LoomSettings } from 'adacad-drafting-lib';
-import { createCell, Drawdown, getDraftName } from 'adacad-drafting-lib/draft';
+import { createCell, Drawdown, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { Subscription } from 'rxjs';
-import { OpNode, RenderingFlags } from '../core/model/datatypes';
+import { DraftNode, OpNode, RenderingFlags } from '../core/model/datatypes';
 import { draft_pencil } from '../core/model/defaults';
 import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
@@ -51,9 +51,8 @@ export class EditorComponent implements OnInit {
   private zs = inject(ZoomService);
 
 
-
+  @ViewChild(LoomComponent) loom: LoomComponent;
   @ViewChild(DraftRenderingComponent, { static: true }) weaveRef: DraftRenderingComponent;
-  @ViewChild(LoomComponent) loom;
 
   @Input() hasFocus: boolean;
   @Output() saveChanges: any = new EventEmitter();
@@ -82,10 +81,6 @@ export class EditorComponent implements OnInit {
 
   scrollingSubscription: any;
 
-  warp_locked: boolean = false;
-
-  viewer_expanded: boolean = false;
-
   draw_modes: Array<{ value: string, viewValue: string, icon: string, id: number, color: string }> = [];
 
   selected_material_id: any = -1;
@@ -105,6 +100,8 @@ export class EditorComponent implements OnInit {
   onRedrawCompleteSubscription: Subscription;
   onLoad: boolean = false; // a flag used to call teh centering function after the first draw
 
+
+  onDraftValueChangeSubscription: Subscription;
 
   constructor() {
 
@@ -157,6 +154,7 @@ export class EditorComponent implements OnInit {
 
   ngOnDestroy() {
     if (this.onRedrawCompleteSubscription) this.onRedrawCompleteSubscription.unsubscribe();
+    if (this.onDraftValueChangeSubscription) this.onDraftValueChangeSubscription.unsubscribe();
   }
 
   updatePencils() {
@@ -179,6 +177,7 @@ export class EditorComponent implements OnInit {
     if (this.pencilForm) {
       this.pencilForm.setValue(this.pencil, { emitEvent: false });
     }
+    this.updateWeavingInfo();
   }
 
 
@@ -225,13 +224,10 @@ export class EditorComponent implements OnInit {
   }
 
 
-  expandViewer() {
-    this.viewer_expanded = !this.viewer_expanded;
-  }
+
 
   enableEdits() {
     this.createDraftCopy(this.id);
-    this.loom.redrawPanel();
   }
 
   /**
@@ -239,15 +235,17 @@ export class EditorComponent implements OnInit {
    */
   createNewDraft() {
     //copy over the loom settings
+    const loom_settings = this.tree.getLoomSettings(this.id);
+    const draft = this.tree.getDraft(this.id);
     const obj = {
-      type: this.loom.getValue('loomtype'),
-      epi: this.loom.getValue('epi'),
-      ppi: this.loom.getValue('ppi'),
-      units: this.loom.getValue('units'),
-      frames: this.loom.getValue('frames'),
-      treadles: this.loom.getValue('treadles'),
-      warps: this.loom.getValue('warps'),
-      wefts: this.loom.getValue('wefts'),
+      type: loom_settings.type,
+      epi: loom_settings.epi,
+      ppi: loom_settings.ppi,
+      units: loom_settings.units,
+      frames: loom_settings.frames,
+      treadles: loom_settings.treadles,
+      warps: warps(draft.drawdown),
+      wefts: wefts(draft.drawdown),
       origin: 'newdraft'
     }
 
@@ -322,54 +320,49 @@ export class EditorComponent implements OnInit {
 
     this.id = id;
     const draft = this.tree.getDraft(id);
-    const loom = this.tree.getLoom(id);
+    const draftNode = this.tree.getNode(id) as DraftNode;
     let ls = this.tree.getLoomSettings(id);
 
-    this.loom.loadLoom(id); //loads the current loom information into the sidebar
     this.setParentOp(id);
     if (this.parentOp !== '') this.weaveRef.view_only = true;
     else this.weaveRef.view_only = false;
 
     this.onLoad = true;
     this.weaveRef.onNewDraftLoaded(id); //this should load and draw everything in the renderer
+    this.loom.loadLoom(id); //loads the current loom information into the sidebar
 
 
     this.draftname = getDraftName(draft);
-    this.updateWeavingInfo();
 
-    const loom_fns = [];
+    if (this.onDraftValueChangeSubscription) this.onDraftValueChangeSubscription.unsubscribe();
+    this.onDraftValueChangeSubscription = draftNode.onValueChange.subscribe(el => {
+      this.updateFormControls();
+    });
 
-    switch (ls.type) {
-      case 'jacquard':
-        this.dm.selectDraftEditSource('drawdown');
-        this.weaveRef.setDraftEditSource('drawdown');
-        break;
-      case 'direct':
-      case 'frame':
-        this.dm.selectDraftEditSource('loom');
-        this.weaveRef.setDraftEditSource('loom');
-        const utils = getLoomUtilByType(ls.type);
-        utils.computeLoomFromDrawdown(draft.drawdown, ls).then(loom => {
-          this.tree.setLoom(id, loom); //this would trigger a subsequent update. 
-          this.onLoad = true; //reset this flag so the draw updates
-        });
-        break;
-      default:
-        this.dm.selectDraftEditSource('drawdown');
-        this.weaveRef.setDraftEditSource('drawdown');
-    }
+    // switch (ls.type) {
+    //   case 'jacquard':
+    //     this.dm.selectDraftEditSource('drawdown');
+    //     this.weaveRef.setDraftEditSource('drawdown');
+    //     break;
+    //   case 'direct':
+    //   case 'frame':
+    //     this.dm.selectDraftEditSource('loom');
+    //     this.weaveRef.setDraftEditSource('loom');
+    //     const utils = getLoomUtilByType(ls.type);
+    //     utils.computeLoomFromDrawdown(draft.drawdown, ls).then(loom => {
+    //       this.tree.setLoom(id, loom); //this would trigger a subsequent update. 
+    //       this.onLoad = true; //reset this flag so the draw updates
+    //     });
+    //     break;
+    //   default:
+    //     this.dm.selectDraftEditSource('drawdown');
+    //     this.weaveRef.setDraftEditSource('drawdown');
+    // }
 
 
 
 
   }
-
-  updateLoom() {
-    this.loom.refreshLoom();
-  }
-
-
-
 
 
   public onCloseDrawer() {
@@ -382,13 +375,6 @@ export class EditorComponent implements OnInit {
 
   }
 
-  // public materialChange() {
-  //   this.saveChanges.emit();
-  //   this.forceRedraw()
-
-  // }
-
-
 
   public drawdownUpdated() {
     if (this.onLoad) {
@@ -400,15 +386,6 @@ export class EditorComponent implements OnInit {
 
   }
 
-
-
-  // addTimelineState(){
-
-  //   this.fs.saver.ada()
-  //   .then(so => {
-  //     this.state.addMixerHistoryState(so);
-  //   });
-  // }
 
 
   public forceRedraw() {
@@ -426,43 +403,13 @@ export class EditorComponent implements OnInit {
       u_weft_mats: true,
       use_colors: false,
       use_floats: false,
-      show_loom: this.loom.getValue('loomtype') !== 'jacquard'
+      show_loom: loom_settings.type !== 'jacquard'
     };
     this.weaveRef.redraw(draft, loom, loom_settings, flags);
     this.weaveRef.redrawComplete.subscribe(draft => {
       this.drawdownUpdated();
     });
   }
-
-  public loomSettingsUpdated() {
-
-
-    if (this.id == -1) return;
-
-
-
-    const draft = this.tree.getDraft(this.id);
-    const loom = this.tree.getLoom(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
-
-    console.log("LOOM SETTINGS UPDATED", loom_settings.units)
-
-
-    this.loom.type = loom_settings.type;
-    this.loom.units = loom_settings.units;
-
-    if (loom_settings.type === 'jacquard') {
-      this.dm.selectDraftEditSource('drawdown');
-      this.weaveRef.setDraftEditSource('drawdown');
-    }
-
-    this.forceRedraw(); //should just be called from the loom update
-    this.updateWeavingInfo();
-    this.saveChanges.emit();
-
-  }
-
-
 
 
   unsetSelection() {
@@ -553,28 +500,8 @@ export class EditorComponent implements OnInit {
   //   this.weaveRef.unsetSelection();
   // }
 
-  openActions() {
-    if (this.actions_modal != undefined && this.actions_modal.componentInstance != null) return;
-
-    this.actions_modal = this.dialog.open(RepeatsComponent,
-      {
-        disableClose: true,
-        maxWidth: 350,
-        hasBackdrop: false,
-        data: { id: this.id }
-      });
-
-
-    this.actions_modal.componentInstance.onUpdateWarpShuttles.subscribe(event => { if (this.id !== -1) this.weaveRef.updateWarpShuttles(event) });
-    this.actions_modal.componentInstance.onUpdateWarpSystems.subscribe(event => { if (this.id !== -1) this.weaveRef.updateWarpSystems(event) });
-    this.actions_modal.componentInstance.onUpdateWeftShuttles.subscribe(event => { if (this.id !== -1) this.weaveRef.updateWeftShuttles(event) });
-    this.actions_modal.componentInstance.onUpdateWeftSystems.subscribe(event => { if (this.id !== -1) this.weaveRef.updateWeftSystems(event) });
-
-
-  }
 
   selectPencil() {
-    console.log("SELECT PENCIL CALLED", this.pencil)
     this.weaveRef.unsetSelection();
 
     switch (this.pencil) {
@@ -630,8 +557,10 @@ export class EditorComponent implements OnInit {
   swapEditingStyleClicked() {
     if (this.id == -1) return;
 
-    console.log("SWAP EDITING STYLE CLICKED", this.loom.getValue('loomtype'), this.dm.cur_draft_edit_source)
-    if (this.loom.getValue('loomtype') !== 'jacquard') {
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
+    console.log("SWAP EDITING STYLE CLICKED", loom_settings.type, this.dm.cur_draft_edit_source)
+    if (loom_settings.type !== 'jacquard') {
 
       if (this.dm.cur_draft_edit_source == 'drawdown') {
         console.log("SELECTING DRAWDOWN")
