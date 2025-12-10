@@ -1,7 +1,10 @@
-.selection-parent {
+.selection-parent,
+.copy-parent {
     display: flex;
     flex-direction: column;
 }
+
+
 
 .noSelection {
     display: none;
@@ -13,32 +16,14 @@
     padding: 2px 6px 2px 6px;
 }
 
-.action-row {
-    pointer-events: all;
-}
 
-.selection-actions {
-    display: flex;
-    flex-direction: row;
-    width: fit-content;
-    background: white;
-    opacity: 0.8;
-    pointer-events: all;
-}
+
 
 .selection {
     display: block;
     border: dashed #ff4081 4px;
-
-    &.hasCopy {
-        border: solid #ff4081 4px;
-    }
 }
 
-.copy {
-    display: block;
-    border: solid #ff4081 2px;
-}
 
 
 
@@ -55,15 +40,18 @@
 
 .copy-container-div {
     display: none;
-    min-width: 128px;
+    background-color: #ff408133;
+    background-blend-mode: multiply;
     pointer-events: none;
     z-index: 4;
     position: absolute;
+
+    &.hasCopy {
+        display: flex;
+    }
 }
 
-.copy-container-div.hasCopy {
-    display: flex;
-}
+
 
 .selection-container-div.hasSelection {
     display: flex;

@@ -38,14 +38,15 @@
 
 .detail-sidebars {
     padding: 16px;
-    flex: 0 0 330px;
+    flex: 0 0 275px;
     display: flex;
-    overflow: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
     flex-direction: column;
-
-    @include mat.button-toggle-overrides((background-color: whitesmoke,
-            disabled-selected-state-background-color: red,
-        ));
+    position: relative;
+    transition: flex 0.3s ease;
+    height: 100%;
+    max-height: 100vh;
 }
 
 .draft-edit-mode-drawdown {
@@ -180,7 +181,9 @@ h1 {
     flex-direction: column;
     overflow: scroll;
     width: 100%;
-    height: 100%;
+    max-height: 100vh;
+
+
 }
 
 .locked_draft {

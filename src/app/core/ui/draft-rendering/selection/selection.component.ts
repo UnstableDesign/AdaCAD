@@ -190,9 +190,11 @@ export class SelectionComponent implements OnInit {
    */
   public copyArea() {
 
+    this.target.parentNode.appendChild(this.copyContainerEl);
+    var style = window.getComputedStyle(this.target.parentElement);
+    this.copyContainerEl.style.margin = style.margin;
+
     this.has_copy = true;
-    this.copyWidth = w;
-    this.copyHeight = h;
     this.copyStart = { i: this.start.i, j: this.start.j };
     this.copyEnd = { i: this.end.i, j: this.end.j };
 
@@ -204,7 +206,8 @@ export class SelectionComponent implements OnInit {
 
     var w = this.getWidth();
     var h = this.getHeight();
-
+    this.copyWidth = w;
+    this.copyHeight = h;
 
 
     // const copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[createCell(false)]]}).drawdown;
@@ -312,7 +315,6 @@ export class SelectionComponent implements OnInit {
    */
   public applyManipulation(op_name): Promise<Drawdown> {
 
-    console.log("APPLY MANIPULATION", op_name);
 
     const copy_draft = initDraftWithParams({ warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy });
 
@@ -425,12 +427,7 @@ export class SelectionComponent implements OnInit {
 
   }
 
-  /**
-   * Tells weave reference to paste copied pattern.
-   * @extends WeaveComponent
-   * @param {Event} e - paste event from design component.
-   * @returns {void}
-   */
+
   public onPaste(type: string) {
     const before = this.tree.getDraftNodeState(this.id);
 
@@ -744,6 +741,7 @@ export class SelectionComponent implements OnInit {
 
     this.target.parentNode.appendChild(this.selectionContainerEl);
 
+
     //pad the selection container to match the padding of the parent. 
     var style = window.getComputedStyle(this.target.parentElement);
     var matrix = new WebKitCSSMatrix(style.transform);
@@ -976,28 +974,24 @@ export class SelectionComponent implements OnInit {
 
 
   redraw() {
-    console.log("REDRAW", this.hasCopy(), this.hasSelection());
 
-    if (this.hasCopy()) {
+    let top_ndx = Math.min(this.copyStart.i, this.copyEnd.i);
+    let left_ndx = Math.min(this.copyStart.j, this.copyEnd.j);
 
-      let top_ndx = Math.min(this.copyStart.i, this.copyEnd.i);
-      let left_ndx = Math.min(this.copyStart.j, this.copyEnd.j);
+    //this needs to take the transform of the current element into account
+    let in_div_top: number = top_ndx * this.cell_size * this.scale;
+    let in_div_left: number = left_ndx * this.cell_size * this.scale;
 
-      //this needs to take the transform of the current element into account
-      let in_div_top: number = top_ndx * this.cell_size * this.scale;
-      let in_div_left: number = left_ndx * this.cell_size * this.scale;
 
-      console.log("IN DIV TOP", in_div_top, "IN DIV LEFT", in_div_left);
-      console.log("Containers", this.copyContainerEl, this.copyEl);
+    if (this.copyContainerEl !== null && this.copyEl !== null) {
 
-      if (this.copyContainerEl !== null && this.copyEl !== null) {
+      this.copyContainerEl.style.top = in_div_top + "px"
+      this.copyContainerEl.style.left = in_div_left + "px";
+      this.copyContainerEl.style.width = this.copyWidth * this.cell_size * this.scale + "px";
+      this.copyContainerEl.style.height = this.copyHeight * this.cell_size * this.scale + "px";
 
-        this.copyContainerEl.style.top = in_div_top + "px"
-        this.copyContainerEl.style.left = in_div_left + "px";
-        this.copyEl.style.width = this.copyWidth * this.scale - 5 + "px";
-        this.copyEl.style.height = this.copyHeight * this.scale - 5 + "px";
-      }
     }
+
 
 
     if (this.hasSelection()) {
