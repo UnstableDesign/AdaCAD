@@ -14,9 +14,31 @@
     transform-origin: left top;
 }
 
+.current_copy {
+    width: 100%;
+    display: flex;
+    max-height: 200px;
+    overflow: scroll;
+    flex-direction: column;
+    gap: 8px;
+    display: none;
+
+    &.hasCopy {
+        display: flex;
+    }
+}
+
+
+.select {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 .detail-sidebars {
     padding: 16px;
-    flex: 0 0 275px;
+    flex: 0 0 330px;
     display: flex;
     overflow: scroll;
     flex-direction: column;

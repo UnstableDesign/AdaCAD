@@ -8,7 +8,6 @@ import { Draft } from 'adacad-drafting-lib';
 import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { DraftNode, RenderingFlags } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
-import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { FileService } from '../../../core/provider/file.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
 import { RenderService } from '../../../core/provider/render.service';
@@ -34,7 +33,6 @@ import { ZoomService } from '../../../core/provider/zoom.service';
 })
 export class DraftContainerComponent implements AfterViewInit {
   private dialog = inject(MatDialog);
-  private dm = inject(DesignmodesService);
   private ms = inject(MaterialsService);
   private fs = inject(FileService);
   tree = inject(TreeService);

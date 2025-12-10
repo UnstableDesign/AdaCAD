@@ -1,24 +1,23 @@
-
-
-.selection-parent{
+.selection-parent {
     display: flex;
     flex-direction: column;
 }
-.noSelection{
+
+.noSelection {
     display: none;
 }
 
-.size-row{
+.size-row {
     pointer-events: none;
     font-size: 20px;
     padding: 2px 6px 2px 6px;
 }
 
-.action-row{
+.action-row {
     pointer-events: all;
 }
 
-.selection-actions{
+.selection-actions {
     display: flex;
     flex-direction: row;
     width: fit-content;
@@ -27,13 +26,23 @@
     pointer-events: all;
 }
 
-.selection{
+.selection {
     display: block;
     border: dashed #ff4081 4px;
+
+    &.hasCopy {
+        border: solid #ff4081 4px;
+    }
+}
+
+.copy {
+    display: block;
+    border: solid #ff4081 2px;
 }
 
 
-.selection-container-div{
+
+.selection-container-div {
     display: none;
     min-width: 128px;
     pointer-events: none;
@@ -41,31 +50,35 @@
     z-index: 4;
     position: absolute;
     color: #ff4081;
+
 }
 
-.selection-container-div.hasSelection{
+.copy-container-div {
+    display: none;
+    min-width: 128px;
+    pointer-events: none;
+    z-index: 4;
+    position: absolute;
+}
+
+.copy-container-div.hasCopy {
+    display: flex;
+}
+
+.selection-container-div.hasSelection {
     display: flex;
 }
 
 
 
-  span{
-      padding-left: 8px;
-  }
+span {
+    padding-left: 8px;
+}
 
 
-  .meta{
-    display: flex;
-    pointer-events: all;
-    flex-direction: row;
-    justify-content: space-between;
+.meta {
+    width: fit-content;
+    pointer-events: none;
+    font-weight: bold;
     background-color: #ffffffaa;
-  }
-
-  
-  .menu-button{
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-  }
-  
+}

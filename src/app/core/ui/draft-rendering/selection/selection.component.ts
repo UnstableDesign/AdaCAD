@@ -5,9 +5,9 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { Drawdown, Interlacement, OpInput, OpParamVal, Operation } from 'adacad-drafting-lib';
 import { createBlankDrawdown, generateMappingFromPattern, getCellValue, initDraftWithParams, isUp, pasteIntoDrawdown, setCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
+import { BehaviorSubject } from 'rxjs';
 import { DraftNodeBroadcastFlags } from '../../../model/datatypes';
 import { defaults, paste_options } from '../../../model/defaults';
-import { DesignmodesService } from '../../../provider/designmodes.service';
 import { MaterialsService } from '../../../provider/materials.service';
 import { OperationService } from '../../../provider/operation.service';
 import { RenderService } from '../../../provider/render.service';
@@ -22,7 +22,6 @@ import { ZoomService } from '../../../provider/zoom.service';
   imports: [MatFabButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem]
 })
 export class SelectionComponent implements OnInit {
-  dm = inject(DesignmodesService);
   ms = inject(MaterialsService);
   ss = inject(SystemsService);
   ops = inject(OperationService);
@@ -34,6 +33,7 @@ export class SelectionComponent implements OnInit {
   @Input('id') id: number;
   @Input('source') source: string;
   @Input('scale') scale: number;
+  @Input('draft_edit_source') draft_edit_source: string = 'drawdown';
   @Output() onSelectionEnd: any = new EventEmitter();
   @Output() forceRedraw: any = new EventEmitter();
   @Output() saveAction: any = new EventEmitter();
@@ -66,6 +66,14 @@ export class SelectionComponent implements OnInit {
   selectionMeta: HTMLElement = null;
   selectionContainerEl: HTMLElement = null;
 
+
+  copyEl: HTMLElement = null;
+  copyContainerEl: HTMLElement = null;
+  copyWidth: number = 0;
+  copyHeight: number = 0;
+  copyStart: Interlacement = { i: 0, j: 0 };
+  copyEnd: Interlacement = { i: 0, j: 0 };
+
   size_row: HTMLElement = null;
   action_row: HTMLElement = null;
 
@@ -74,6 +82,8 @@ export class SelectionComponent implements OnInit {
   */
   parent: HTMLElement;
 
+
+  selectionEventSubject: BehaviorSubject<'none' | 'started' | 'dragging' | 'stopped' | 'copy'> = new BehaviorSubject<'none' | 'started' | 'dragging' | 'stopped' | 'copy'>('none');
 
 
   constructor() {
@@ -100,6 +110,9 @@ export class SelectionComponent implements OnInit {
     this.selectionEl = document.getElementById("selection-" + this.id);
     this.selectionContainerEl = document.getElementById("selection-container-" + this.id);
     this.selectionMeta = document.getElementById("selection-meta");
+
+    this.copyEl = document.getElementById("copied-pattern-" + this.id);
+    this.copyContainerEl = document.getElementById("copied-container-" + this.id);
 
     this.size_row = document.getElementById('size-row-id-' + this.id);
     this.action_row = document.getElementById('action-row-id-' + this.id);
@@ -178,6 +191,10 @@ export class SelectionComponent implements OnInit {
   public copyArea() {
 
     this.has_copy = true;
+    this.copyWidth = w;
+    this.copyHeight = h;
+    this.copyStart = { i: this.start.i, j: this.start.j };
+    this.copyEnd = { i: this.end.i, j: this.end.j };
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
@@ -187,6 +204,7 @@ export class SelectionComponent implements OnInit {
 
     var w = this.getWidth();
     var h = this.getHeight();
+
 
 
     // const copy = initDraftWithParams({wefts: h, warps: w, drawdown: [[createCell(false)]]}).drawdown;
@@ -281,6 +299,8 @@ export class SelectionComponent implements OnInit {
     })
 
     this.copy = initDraftWithParams({ warps: warps(temp_dd), wefts: wefts(temp_dd), drawdown: temp_dd }).drawdown;
+    this.redraw();
+    this.selectionEventSubject.next('copy');
 
   }
 
@@ -291,6 +311,8 @@ export class SelectionComponent implements OnInit {
    * @returns a promise for a drawdown
    */
   public applyManipulation(op_name): Promise<Drawdown> {
+
+    console.log("APPLY MANIPULATION", op_name);
 
     const copy_draft = initDraftWithParams({ warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy });
 
@@ -420,10 +442,13 @@ export class SelectionComponent implements OnInit {
     let pattern: Array<number> = [];
     let mapping: Array<number> = [];
 
+    console.log("ON PASTE", type);
+
     //manipulate the copy in any way required 
     this.applyManipulation(type)
       .then(manipulated_copy => {
         this.copy = manipulated_copy;
+        this.selectionEventSubject.next('copy');
 
 
         switch (this.getTargetId()) {
@@ -441,7 +466,6 @@ export class SelectionComponent implements OnInit {
             this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
               .then(loom => {
                 this.saveAction.emit(before);
-                this.forceRedraw.emit();
               });
             break;
 
@@ -629,20 +653,20 @@ export class SelectionComponent implements OnInit {
     // console.log("CHECK IF SOURCE IS ENABLED for SElect", this.source, this.target)
 
 
-    const editing_mode = this.dm.cur_draft_edit_source;
+    const editing_mode = this.draft_edit_source;
     const loom_settings = this.tree.getLoomSettings(this.id);
     switch (target) {
       case 'treadling-' + this.source + "-" + this.id:
       case 'threading-' + this.source + "-" + this.id:
-        if (this.dm.cur_draft_edit_source === "drawdown") return false;
+        if (this.draft_edit_source === "drawdown") return false;
         break;
       case 'tieups-' + this.source + "-" + this.id:
-        if (this.dm.cur_draft_edit_source === "drawdown") return false;
+        if (this.draft_edit_source === "drawdown") return false;
         if (loom_settings.type === "direct") return false;
         break;
 
       case 'drawdown' + this.source + "-" + this.id:
-        if (this.dm.cur_draft_edit_source === "loom") return false;
+        if (this.draft_edit_source === "loom") return false;
         break;
     }
 
@@ -704,6 +728,7 @@ export class SelectionComponent implements OnInit {
   onSelectStart(target: HTMLElement, start: Interlacement) {
     if (!target) return;
 
+    this.selectionEventSubject.next('started');
     this.hide_actions = true;
     const draft = this.tree.getDraft(this.id);
     this.cell_size = this.render.calculateCellSize(draft, 'canvas');
@@ -786,6 +811,7 @@ export class SelectionComponent implements OnInit {
   */
   onSelectDrag(pos: Interlacement): boolean {
 
+
     if (this.target === undefined) return;
     if (this.target !== null && !this.isTargetEnabled(this.target.id)) return;
 
@@ -795,6 +821,7 @@ export class SelectionComponent implements OnInit {
     //   return false
     // } 
 
+    this.selectionEventSubject.next('dragging');
 
     this.end = pos;
 
@@ -825,15 +852,20 @@ export class SelectionComponent implements OnInit {
   /**
   * triggers view changes when the selection event ends OR mouse leaves valid view
   */
-  onSelectStop() {
+  onSelectStop(leave: boolean = false) {
 
+    console.log("ON SELECT STOP", leave);
     if (this.target === undefined) return;
     if (this.target !== null && !this.isTargetEnabled(this.target.id)) return;
     this.hide_actions = false;
+    this.selectionEventSubject.next('stopped');
     this.onSelectionEnd.emit();
   }
 
   onSelectCancel() {
+    this.selectionEventSubject.next('none');
+    this.has_copy = false;
+    this.copy = [];
     this.unsetParameters();
   }
 
@@ -900,6 +932,7 @@ export class SelectionComponent implements OnInit {
 
   unsetParameters() {
     if (this.target !== null && this.target !== undefined) {
+      this.selectionEventSubject.next('none');
       let parent = this.selectionContainerEl.parentNode;
       if (parent !== null && parent !== undefined) parent.removeChild(this.selectionContainerEl)
     }
@@ -913,6 +946,10 @@ export class SelectionComponent implements OnInit {
 
   hasSelection() {
     return (this.width > 0 && this.height > 0 && this.has_selection);
+  }
+
+  hasCopy() {
+    return this.copy.length > 0 && this.has_copy;
   }
 
   getTop() {
@@ -939,6 +976,29 @@ export class SelectionComponent implements OnInit {
 
 
   redraw() {
+    console.log("REDRAW", this.hasCopy(), this.hasSelection());
+
+    if (this.hasCopy()) {
+
+      let top_ndx = Math.min(this.copyStart.i, this.copyEnd.i);
+      let left_ndx = Math.min(this.copyStart.j, this.copyEnd.j);
+
+      //this needs to take the transform of the current element into account
+      let in_div_top: number = top_ndx * this.cell_size * this.scale;
+      let in_div_left: number = left_ndx * this.cell_size * this.scale;
+
+      console.log("IN DIV TOP", in_div_top, "IN DIV LEFT", in_div_left);
+      console.log("Containers", this.copyContainerEl, this.copyEl);
+
+      if (this.copyContainerEl !== null && this.copyEl !== null) {
+
+        this.copyContainerEl.style.top = in_div_top + "px"
+        this.copyContainerEl.style.left = in_div_left + "px";
+        this.copyEl.style.width = this.copyWidth * this.scale - 5 + "px";
+        this.copyEl.style.height = this.copyHeight * this.scale - 5 + "px";
+      }
+    }
+
 
     if (this.hasSelection()) {
 

@@ -6,7 +6,6 @@ import normalizeWheel from 'normalize-wheel';
 import { Subscription, fromEvent } from 'rxjs';
 import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
-import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { ErrorBroadcasterService } from '../../core/provider/error-broadcaster.service';
 import { FirebaseService } from '../../core/provider/firebase.service';
 import { MediaService } from '../../core/provider/media.service';
@@ -34,7 +33,6 @@ import { SubdraftComponent } from './subdraft/subdraft.component';
 
 
 export class PaletteComponent implements OnInit {
-  dm = inject(DesignmodesService);
   private ops = inject(OperationService);
   private media = inject(MediaService);
   private tree = inject(TreeService);
@@ -51,7 +49,8 @@ export class PaletteComponent implements OnInit {
   private multiselect = inject(MultiselectService);
   private errorBroadcaster = inject(ErrorBroadcasterService);
 
-
+  // Local mixer editing mode tracking
+  cur_mixer_mode: string = defaults.mixer_mode;
 
   // @Output() onDesignModeChange: any = new EventEmitter();  
   @Output() onOpenInEditor: any = new EventEmitter();
@@ -1115,12 +1114,29 @@ export class PaletteComponent implements OnInit {
 
 
   /**
+   * Sets the mixer editing mode
+   * @param mode - The mixer editing mode ('pan', 'move', 'select', etc.)
+   */
+  public setMixerEditingMode(mode: string): void {
+    this.cur_mixer_mode = mode;
+  }
+
+  /**
+   * Checks if a specific mixer editing mode is currently selected
+   * @param value - The mode to check
+   * @returns true if the mode is selected
+   */
+  public isSelectedMixerEditingMode(value: string): boolean {
+    return this.cur_mixer_mode === value;
+  }
+
+  /**
    * Called from mixer when it receives a change from the design mode tool or keyboard press
    * triggers view mode changes required for this mode
    */
   public designModeChanged() {
 
-    if (this.dm.isSelectedMixerEditingMode('move')) {
+    if (this.isSelectedMixerEditingMode('move')) {
       this.unfreezePaletteObjects();
 
     } else {
@@ -1274,7 +1290,7 @@ export class PaletteComponent implements OnInit {
   subdraftStarted(obj: any) {
     if (obj === null) return;
 
-    if (this.dm.isSelectedMixerEditingMode("move")) {
+    if (this.isSelectedMixerEditingMode("move")) {
 
       //get the reference to the draft that's moving
       const moving = <SubdraftComponent>this.tree.getComponent(obj.id);
@@ -1960,7 +1976,7 @@ export class PaletteComponent implements OnInit {
     this.removeSubscription();
 
     // Enable panning with Shift+left-click, Space+left-click, or middle-click
-    const isPanMode = this.dm.isSelectedMixerEditingMode("pan");
+    const isPanMode = this.isSelectedMixerEditingMode("pan");
     const isShiftClick = event.shiftKey && event.button === 0;
     const isSpaceClick = this.space_held && event.button === 0;
     const isMiddleClick = event.button === 1;
@@ -1978,7 +1994,7 @@ export class PaletteComponent implements OnInit {
       return;
     }
 
-    if (this.dm.isSelectedMixerEditingMode("move")) {
+    if (this.isSelectedMixerEditingMode("move")) {
       this.multiselect.clearSelections();
     }
   }

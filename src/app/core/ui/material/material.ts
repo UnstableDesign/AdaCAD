@@ -8,7 +8,6 @@ import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { hexToRgb, Material, updateMaterialIds } from 'adacad-drafting-lib';
 import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
 import { DraftNode, MaterialsStateChange } from '../../model/datatypes';
-import { DesignmodesService } from '../../provider/designmodes.service';
 import { MaterialMap, MaterialsService } from '../../provider/materials.service';
 import { StateService } from '../../provider/state.service';
 import { TreeService } from '../../provider/tree.service';
@@ -24,7 +23,6 @@ import { ViewerService } from '../../provider/viewer.service';
 
 
 export class MaterialComponent {
-  private dm = inject(DesignmodesService);
   ms = inject(MaterialsService);
   private tree = inject(TreeService);
   private fb = inject(FormBuilder);

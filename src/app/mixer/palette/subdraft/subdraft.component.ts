@@ -3,7 +3,6 @@ import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChil
 import { Draft, Interlacement, LoomSettings } from 'adacad-drafting-lib';
 import { isUp, warps, wefts } from 'adacad-drafting-lib/draft';
 import { DraftNode, DraftStateMove, Point } from '../../../core/model/datatypes';
-import { DesignmodesService } from '../../../core/provider/designmodes.service';
 import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
@@ -25,7 +24,6 @@ import { DraftContainerComponent } from '../draftcontainer/draftcontainer.compon
 
 
 export class SubdraftComponent implements OnInit {
-  private dm = inject(DesignmodesService);
   private layer = inject(LayersService);
   tree = inject(TreeService);
   private viewport = inject(ViewportService);

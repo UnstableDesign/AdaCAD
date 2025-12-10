@@ -10,10 +10,10 @@ import { calcLength, calcWidth, convertLoom, copyLoomSettings, generateDirectTie
 import { Subscription } from 'rxjs';
 import { DraftNode, DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange } from '../../core/model/datatypes';
 import { defaults, density_units, loom_types } from '../../core/model/defaults';
-import { DesignmodesService } from '../../core/provider/designmodes.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { WorkspaceService } from '../../core/provider/workspace.service';
+import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-rendering.component';
 
 @Component({
   selector: 'app-loom',
@@ -24,11 +24,11 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 export class LoomComponent implements OnInit, OnDestroy {
   private tree = inject(TreeService);
   private fb = inject(FormBuilder);
-  dm = inject(DesignmodesService);
   ws = inject(WorkspaceService);
   ss = inject(StateService);
 
   @Input('id') id;
+  @Input('draftRendering') draftRendering: DraftRenderingComponent;
 
   @Output() unsetSelection: any = new EventEmitter();
   // @Output() drawdownUpdated: any = new EventEmitter();
@@ -205,7 +205,7 @@ export class LoomComponent implements OnInit, OnDestroy {
 
     }
 
-    if (this.dm.isSelectedDraftEditSource('drawdown')) {
+    if (this.draftRendering && this.draftRendering.isSelectedDraftEditSource('drawdown')) {
       return this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           return Promise.resolve(true);
@@ -300,7 +300,7 @@ export class LoomComponent implements OnInit, OnDestroy {
 
     }
 
-    if (this.dm.isSelectedDraftEditSource('drawdown')) {
+    if (this.draftRendering && this.draftRendering.isSelectedDraftEditSource('drawdown')) {
 
       return this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
         .then(loom => {

@@ -42,7 +42,7 @@
 
 
   <app-selection #selection class="app-selection {{(oversize && !ignoreOversize) ? 'oversize' : ''}}" [id]="id"
-    [source]="source" [scale]="scale" (onSelectionEnd)="onSelectionEnd()"
+    [source]="source" [scale]="scale" [draft_edit_source]="draft_edit_source" (onSelectionEnd)="onSelectionEnd()"
     (saveAction)="afterSelectAction($event)"></app-selection>
 
   <div

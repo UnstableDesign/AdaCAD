@@ -5,16 +5,17 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatDivider } from '@angular/material/divider';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { MatLabel } from '@angular/material/form-field';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
 import { LoomSettings } from 'adacad-drafting-lib';
 import { createCell, Drawdown, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { Subscription } from 'rxjs';
-import { DraftNode, OpNode, RenderingFlags } from '../core/model/datatypes';
-import { draft_pencil } from '../core/model/defaults';
-import { DesignmodesService } from '../core/provider/designmodes.service';
+import { DraftNode, DraftNodeBroadcast, OpNode, RenderingFlags } from '../core/model/datatypes';
+import { draft_pencil, paste_options } from '../core/model/defaults';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
 import { RenderService } from '../core/provider/render.service';
@@ -28,18 +29,15 @@ import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-render
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
 
-
-
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
-  imports: [MatAccordion, MatButtonModule, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, ReactiveFormsModule, LoomComponent, DraftRenderingComponent]
+  imports: [MatAccordion, MatTabsModule, MatButtonModule, MatDivider, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, ReactiveFormsModule, LoomComponent, DraftRenderingComponent]
 })
 export class EditorComponent implements OnInit {
   private dialog = inject(MatDialog);
   private fs = inject(FileService);
-  dm = inject(DesignmodesService);
   scroll = inject(ScrollDispatcher);
   ms = inject(MaterialsService);
   private ss = inject(SystemsService);
@@ -90,10 +88,19 @@ export class EditorComponent implements OnInit {
   scale: number = 0;
 
   pencil: string;
+  designActions: Array<any> = [];
 
   // Reactive Forms controls
   editingModeForm: FormControl; //edit from drawdown or loom
   pencilForm: FormControl;
+  selectRegionsForm: FormControl;
+
+
+
+  pencilMode: 'select' | 'draw' | 'material' = 'select';
+  pencilModeForm: FormControl;
+  selectedPencilMode: string = 'select';
+
 
   dressing_info: Array<{ label: string, value: string }> = [];
 
@@ -103,28 +110,43 @@ export class EditorComponent implements OnInit {
 
   onDraftValueChangeSubscription: Subscription;
 
+  onSelectionEventSubscription: Subscription;
+  hasSelection: boolean = false;
+  hasCopy: boolean = false;
+
+
   constructor() {
 
 
 
     this.copy = [[createCell(false)]];
-
+    this.designActions = paste_options;
   }
 
 
   ngOnInit() {
 
     this.pencil = "toggle";
-    this.dm.cur_draft_edit_source = 'drawdown';
+    // Initialize draft-rendering component with default values (will be set in ngAfterViewInit or loadDraft)
+    const defaultEditSource = 'drawdown';
 
     // Initialize form controls
-    this.editingModeForm = new FormControl(this.dm.cur_draft_edit_source);
+    this.editingModeForm = new FormControl(defaultEditSource);
     this.pencilForm = new FormControl(this.pencil);
+
+
+    this.pencilModeForm = new FormControl(this.selectedPencilMode);
+    this.pencilModeForm.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.selectedPencilMode = value;
+        this.selectPencil();
+      }
+    });
 
     // Subscribe to editing mode changes
     this.editingModeForm.valueChanges.subscribe(value => {
-      if (value !== null && value !== undefined) {
-        this.dm.cur_draft_edit_source = value;
+      if (value !== null && value !== undefined && this.weaveRef) {
+        this.weaveRef.setDraftEditSource(value);
         this.swapEditingStyleClicked();
       }
     });
@@ -142,6 +164,9 @@ export class EditorComponent implements OnInit {
       }
     });
 
+    this.selectRegionsForm = new FormControl('null');
+
+
   }
 
   ngAfterViewInit() {
@@ -150,11 +175,15 @@ export class EditorComponent implements OnInit {
     this.onRedrawCompleteSubscription = this.weaveRef.redrawComplete.subscribe(draft => {
       this.drawdownUpdated();
     });
+    this.onSelectionEventSubscription = this.weaveRef.selection.selectionEventSubject.subscribe(event => {
+      this.processSelectionEvent(event);
+    });
   }
 
   ngOnDestroy() {
     if (this.onRedrawCompleteSubscription) this.onRedrawCompleteSubscription.unsubscribe();
     if (this.onDraftValueChangeSubscription) this.onDraftValueChangeSubscription.unsubscribe();
+    if (this.onSelectionEventSubscription) this.onSelectionEventSubscription.unsubscribe();
   }
 
   updatePencils() {
@@ -167,16 +196,60 @@ export class EditorComponent implements OnInit {
     });
   }
 
+
+  /**
+   * emitted from the selection component. 
+   * @param event 
+   */
+  processSelectionEvent(event: 'none' | 'started' | 'dragging' | 'stopped' | 'copy') {
+    switch (event) {
+      case 'started':
+      case 'dragging':
+      case 'stopped':
+        this.hasSelection = true;
+        break;
+      case 'none':
+        this.hasSelection = false;
+        this.hasCopy = this.weaveRef.selection.has_copy;
+        break;
+      case 'copy':
+        this.hasCopy = true;
+        break;
+    }
+
+  }
+
+  designActionChange(action: string) {
+    console.log("DESIGN ACTION CHANGE", action);
+    this.weaveRef.selection.designActionChange(action);
+  }
+
+
+  copySelection() {
+    if (this.hasSelection) this.weaveRef.selection.copyArea();
+  }
+
+  pasteSelection() {
+    if (this.hasSelection && this.weaveRef.selection.has_copy) this.weaveRef.selection.onPaste('original');
+  }
+
   /**
    * Updates the form controls when values change programmatically
    */
-  updateFormControls(): void {
-    if (this.editingModeForm) {
-      this.editingModeForm.setValue(this.dm.cur_draft_edit_source, { emitEvent: false });
+  updateFormControls(update: DraftNodeBroadcast): void {
+
+    const type = update.loom_settings.type;
+
+    switch (type) {
+      case 'jacquard':
+        this.editingModeForm.setValue('drawdown');
+        this.editingModeForm.get('loom')?.disable({ emitEvent: false });
+        break;
+      default:
+        this.editingModeForm.get('loom')?.enable({ emitEvent: false });
+        break;
     }
-    if (this.pencilForm) {
-      this.pencilForm.setValue(this.pencil, { emitEvent: false });
-    }
+
     this.updateWeavingInfo();
   }
 
@@ -198,11 +271,10 @@ export class EditorComponent implements OnInit {
   }
 
 
-  selectRegions() {
-    this.weaveRef.unsetSelection();
-    this.dm.selectDraftEditingMode('select');
-    this.weaveRef.setDraftEditMode('select');
-  }
+
+
+
+
 
   editMaterials() {
     //swap editing mode to library and scroll down to materials section
@@ -329,14 +401,18 @@ export class EditorComponent implements OnInit {
 
     this.onLoad = true;
     this.weaveRef.onNewDraftLoaded(id); //this should load and draw everything in the renderer
+    // Initialize design modes on the draft-rendering component
+    this.weaveRef.setDraftEditMode('draw');
+    this.weaveRef.setDraftEditSource('drawdown');
+    this.weaveRef.setPencil('toggle');
     this.loom.loadLoom(id); //loads the current loom information into the sidebar
 
 
     this.draftname = getDraftName(draft);
 
     if (this.onDraftValueChangeSubscription) this.onDraftValueChangeSubscription.unsubscribe();
-    this.onDraftValueChangeSubscription = draftNode.onValueChange.subscribe(el => {
-      this.updateFormControls();
+    this.onDraftValueChangeSubscription = draftNode.onValueChange.subscribe(broadcast => {
+      this.updateFormControls(broadcast);
     });
 
     // switch (ls.type) {
@@ -500,6 +576,22 @@ export class EditorComponent implements OnInit {
   //   this.weaveRef.unsetSelection();
   // }
 
+  toggleSelectRegions(value: string) {
+
+    //if there was a selection, we sholud deselect
+    if (this.pencil == 'select') {
+      this.pencil = 'toggle'
+      this.selectRegionsForm.setValue('none', { emitEvent: false });
+      this.pencilForm.setValue('toggle');
+    } else {
+      this.pencil = 'select'
+      this.selectRegionsForm.setValue('select', { emitEvent: false });
+      this.pencilForm.setValue('select');
+    }
+
+
+  }
+
 
   selectPencil() {
     this.weaveRef.unsetSelection();
@@ -507,23 +599,23 @@ export class EditorComponent implements OnInit {
     switch (this.pencil) {
 
       case 'select':
-        this.dm.selectDraftEditingMode('select');
         this.weaveRef.setDraftEditMode('select');
+        this.pencilForm.setValue('select', { emitEvent: false });
         break;
 
       case 'up':
       case 'down':
       case 'toggle':
       case 'unset':
-        this.dm.selectDraftEditingMode('draw');
-        this.dm.selectPencil(this.pencil);
         this.weaveRef.setDraftEditMode('draw');
         this.weaveRef.setPencil(this.pencil);
+        this.selectRegionsForm.setValue('none', { emitEvent: false });
+
         break;
 
       default:
-        this.dm.selectDraftEditingMode('draw');
-        this.dm.selectPencil('material');
+        this.selectRegionsForm.setValue('none', { emitEvent: false });
+
         const split = this.pencil.split('_');
         const material_id = split[1];
         this.selected_material_id = parseInt(material_id);
@@ -535,6 +627,8 @@ export class EditorComponent implements OnInit {
     }
 
   }
+
+
 
 
 
@@ -559,10 +653,10 @@ export class EditorComponent implements OnInit {
 
     const loom_settings = this.tree.getLoomSettings(this.id);
 
-    console.log("SWAP EDITING STYLE CLICKED", loom_settings.type, this.dm.cur_draft_edit_source)
+    console.log("SWAP EDITING STYLE CLICKED", loom_settings.type, this.weaveRef.draft_edit_source)
     if (loom_settings.type !== 'jacquard') {
 
-      if (this.dm.cur_draft_edit_source == 'drawdown') {
+      if (this.weaveRef.isSelectedDraftEditSource('drawdown')) {
         console.log("SELECTING DRAWDOWN")
         this.weaveRef.setDraftEditSource('drawdown');
       } else {
@@ -571,7 +665,6 @@ export class EditorComponent implements OnInit {
       }
 
     } else {
-      this.dm.selectDraftEditSource('drawdown');
       this.weaveRef.setDraftEditSource('drawdown');
     }
 

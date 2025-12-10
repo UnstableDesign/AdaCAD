@@ -1,5 +1,4 @@
 import { Directive, EventEmitter, HostListener, Output, inject } from '@angular/core';
-import { DesignmodesService } from './provider/designmodes.service';
 import { FileService } from './provider/file.service';
 import { FirebaseService } from './provider/firebase.service';
 import { StateService } from './provider/state.service';
@@ -10,7 +9,6 @@ import { WorkspaceService } from './provider/workspace.service';
 export class EventsDirective {
   private fs = inject(FileService);
   private ss = inject(StateService);
-  private dm = inject(DesignmodesService);
   private vas = inject(ViewadjustService);
   private fb = inject(FirebaseService)
   private ws = inject(WorkspaceService)
@@ -106,20 +104,6 @@ export class EventsDirective {
         })
         .catch(err => console.error(err));
       e.preventDefault();
-    }
-
-
-    /**
-    * TOGGLE DRAW / SELECT MODE
-    */
-    if (e.key == "d" && e.metaKey) {
-
-      if (this.dm.cur_draft_edit_mode == 'select') {
-        this.onDrawModeChange.emit('toggle')
-      } else if (this.dm.cur_draft_edit_mode == 'draw') {
-        this.dm.selectDraftEditingMode('select');
-      }
-      e.preventDefault()
     }
 
 

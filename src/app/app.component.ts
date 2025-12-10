@@ -1173,20 +1173,27 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   onCopySelections() {
-    this.mixer.onCopySelections();
+    if (this.selected_editor_mode == 'mixer') this.mixer.onCopySelections();
+    else if (this.selected_editor_mode == 'editor') this.editor.copySelection();
   }
 
 
   onPasteSelections() {
 
-    //check to make sure something has been copied
-    if (this.multiselect.copy == undefined) return;
+    if (this.selected_editor_mode == 'mixer') {
+      //check to make sure something has been copied
+      if (this.multiselect.copy == undefined) return;
 
-    return this.fs.loader.paste(this.multiselect.copy).then(lr => {
-      this.insertPasteFile(lr, true);
+      return this.fs.loader.paste(this.multiselect.copy).then(lr => {
+        this.insertPasteFile(lr, true);
 
 
-    });
+      });
+    }
+
+    if (this.selected_editor_mode == 'editor') {
+      this.editor.pasteSelection();
+    }
 
   }
 
@@ -1427,8 +1434,8 @@ export class AppComponent implements OnInit, OnDestroy {
     Promise.all(fns).then(outs => {
 
       for (let i = 0; i < outs.length; i++) {
-        this.tree.setLoom(dns[i].id, outs[i]);
-        this.tree.setLoomSettings(dns[i].id, settings[i]);
+        this.tree.setLoom(dns[i].id, outs[i], false);
+        this.tree.setLoomSettings(dns[i].id, settings[i], true);
       }
     }).catch(err => {
       //given that we've stripped any undefined loom settings, this should nevercall, but just in case. 

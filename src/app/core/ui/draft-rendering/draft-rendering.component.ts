@@ -143,12 +143,40 @@ export class DraftRenderingComponent implements OnInit {
   setPencil(pencil: string) {
     this.pencil = pencil;
   }
+
   setDraftEditSource(draft_edit_source: string) {
     this.draft_edit_source = draft_edit_source;
   }
 
   setDraftEditMode(draft_edit_mode: string) {
     this.draft_edit_mode = draft_edit_mode;
+  }
+
+  /**
+   * Checks if a specific draft editing mode is currently selected
+   * @param value - The mode to check ('draw' or 'select')
+   * @returns true if the mode is selected
+   */
+  isSelectedDraftEditingMode(value: string): boolean {
+    return this.draft_edit_mode === value;
+  }
+
+  /**
+   * Checks if a specific draft edit source is currently selected
+   * @param value - The source to check ('drawdown' or 'loom')
+   * @returns true if the source is selected
+   */
+  isSelectedDraftEditSource(value: string): boolean {
+    return this.draft_edit_source === value;
+  }
+
+  /**
+   * Checks if a specific pencil mode is currently selected
+   * @param value - The pencil mode to check
+   * @returns true if the pencil mode is selected
+   */
+  isSelectedPencil(value: string): boolean {
+    return this.pencil === value;
   }
 
   ngOnInit() {
@@ -184,7 +212,6 @@ export class DraftRenderingComponent implements OnInit {
     }
     if (this.id == -1) return;
 
-    // this.onNewDraftLoaded(this.id);
 
 
     this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
@@ -217,45 +244,6 @@ export class DraftRenderingComponent implements OnInit {
     }
   }
 
-
-  /**
-  * called when a new draft is loaded. updates the zoom such that the draft content fills the window. 
-  * @param draft 
-  * @param loom 
-  * @param loom_settings 
-  */
-  computeAndSetScale(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
-
-    // let adj = 1;
-    // let margin = 160;
-
-    // let div_draftviewer = document.getElementById('draft_viewer');
-    // let rect_draftviewer = div_draftviewer.getBoundingClientRect();
-    // let cell_size = this.render.calculateCellSize(draft);
-
-    // let weft_num = wefts(draft.drawdown);
-    // let warp_num = warps(draft.drawdown);
-    // let treadles = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
-    // let frames = (isFrame(loom_settings)) ? numTreadles(loom) : 0;
-    // let draft_width = (isFrame(loom_settings)) ? (warp_num + treadles) * cell_size : (warp_num)  * cell_size; 
-    // let draft_height = (isFrame(loom_settings)) ? (weft_num + frames)* cell_size : (weft_num)  * cell_size; 
-
-    // //add 100 to make space for the warp and weft selectors
-    // draft_width += margin;
-    // draft_height += margin;
-
-
-    // //get the ration of the view to the item
-    // let width_adj = rect_draftviewer.width / draft_width;
-    // let height_adj = rect_draftviewer.height /draft_height;
-
-    // //make the zoom the smaller of the width or height
-    // adj = Math.min(width_adj, height_adj);
-
-    // if(adj !== 0) this.zs.setEditorIndexFromZoomValue(adj);
-
-
-  }
 
 
 
@@ -433,8 +421,11 @@ export class DraftRenderingComponent implements OnInit {
       case 'select':
       case 'copy':
 
-        this.selection.onSelectDrag(currentPos);
-
+        if (this.selection.hasSelection() && event.type == 'mousemove') {
+          this.selection.onSelectDrag(currentPos);
+        } else {
+          this.selection.onSelectStart(<HTMLElement>event.target as HTMLElement, currentPos);
+        }
         break;
       case 'invert':
       default:
@@ -597,12 +588,13 @@ export class DraftRenderingComponent implements OnInit {
       this.flag_recompute = false;
     }
 
-
-
     // remove subscription unless it is leave event with select.
     if (!(event.type === 'mouseleave' && (this.draft_edit_mode == 'select'))) {
       this.removeMoveSubscription();
-      this.selection.onSelectStop();
+    }
+
+    if (event.type == 'mouseleave' && this.draft_edit_mode == 'select') {
+      this.selection.onSelectStop(true);
     }
 
     if (event.type == 'mouseup') {
@@ -1052,11 +1044,6 @@ export class DraftRenderingComponent implements OnInit {
       console.error("DRAFT IS NULL", this.id);
       return;
     }
-
-    this.colSystemMapping = draft.colSystemMapping;
-    this.rowSystemMapping = draft.rowSystemMapping;
-
-
 
     if (this.needsRedraw(rf)) {
       console.log("[REDRAW]", this.id, draft.id, this.source, rf);

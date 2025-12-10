@@ -4,7 +4,6 @@ import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/
 import { Draft, initDraftWithParams, initLoom, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { DraftExistenceChange, DraftNode, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, OpNode, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
-import { DesignmodesService } from '../core/provider/designmodes.service';
 import { FileService } from '../core/provider/file.service';
 import { NotesService } from '../core/provider/notes.service';
 import { OperationService } from '../core/provider/operation.service';
@@ -45,7 +44,6 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   imports: [PaletteComponent, MixerSidebarComponent]
 })
 export class MixerComponent {
-  dm = inject(DesignmodesService);
   private tree = inject(TreeService);
   private fs = inject(FileService);
   ws = inject(WorkspaceService);
@@ -208,9 +206,10 @@ export class MixerComponent {
     // Promise.all(fns);
 
     //DO TO MAKE SURE USERS CAN TOGGLE ON MIXER DRAFTS
-    this.dm.selectDraftEditingMode('draw');
-    this.dm.selectDraftEditSource('drawdown');
-    this.dm.selectPencil('toggle');
+    // Design modes are now managed by the draft-rendering component in the editor
+
+
+
 
   }
 
@@ -357,21 +356,21 @@ export class MixerComponent {
 
 
   togglePanMode() {
-    if (this.dm.isSelectedMixerEditingMode('pan')) {
-      this.dm.selectMixerEditingMode('move');
+    if (this.palette.isSelectedMixerEditingMode('pan')) {
+      this.palette.setMixerEditingMode('move');
     } else {
-      this.dm.selectMixerEditingMode('pan');
+      this.palette.setMixerEditingMode('pan');
     }
     this.palette.designModeChanged();
 
   }
 
   toggleSelectMode() {
-    if (this.dm.isSelectedMixerEditingMode('marquee')) {
-      this.dm.selectMixerEditingMode('move');
+    if (this.palette.isSelectedMixerEditingMode('marquee')) {
+      this.palette.setMixerEditingMode('move');
 
     } else {
-      this.dm.selectMixerEditingMode('marquee');
+      this.palette.setMixerEditingMode('marquee');
 
     }
     this.palette.designModeChanged();
