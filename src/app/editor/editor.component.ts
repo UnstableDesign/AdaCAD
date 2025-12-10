@@ -81,13 +81,10 @@ export class EditorComponent implements OnInit {
 
   draw_modes: Array<{ value: string, viewValue: string, icon: string, id: number, color: string }> = [];
 
-  selected_material_id: any = -1;
-
   current_view = 'draft';
 
   scale: number = 0;
 
-  pencil: string;
   designActions: Array<any> = [];
 
   // Reactive Forms controls
@@ -97,9 +94,8 @@ export class EditorComponent implements OnInit {
 
 
 
-  pencilMode: 'select' | 'draw' | 'material' = 'select';
+  pencilMode: 'select' | 'draw' = 'select';
   pencilModeForm: FormControl;
-  selectedPencilMode: string = 'select';
 
 
   dressing_info: Array<{ label: string, value: string }> = [];
@@ -115,6 +111,11 @@ export class EditorComponent implements OnInit {
   hasCopy: boolean = false;
 
 
+  //subscribes to mouse events on the redering
+  //this can be used to trigger mode. 
+  draftRenderingEventSubscription: Subscription;
+
+
   constructor() {
 
 
@@ -126,20 +127,23 @@ export class EditorComponent implements OnInit {
 
   ngOnInit() {
 
-    this.pencil = "toggle";
-    // Initialize draft-rendering component with default values (will be set in ngAfterViewInit or loadDraft)
-    const defaultEditSource = 'drawdown';
+    if (this.weaveRef != null) {
+      this.weaveRef.setDraftEditSource('drawdown');
+      this.weaveRef.setPencil('toggle');
+    }
 
     // Initialize form controls
-    this.editingModeForm = new FormControl(defaultEditSource);
-    this.pencilForm = new FormControl(this.pencil);
+    this.editingModeForm = new FormControl('drawdown');
+    this.pencilForm = new FormControl('toggle');
 
 
-    this.pencilModeForm = new FormControl(this.selectedPencilMode);
+    /**
+     * controls switching between the modes for reacting to UI via the sidebar
+     */
+    this.pencilModeForm = new FormControl('draw');
     this.pencilModeForm.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
-        this.selectedPencilMode = value;
-        this.selectPencil();
+        this.selectPencilMode(value);
       }
     });
 
@@ -154,17 +158,10 @@ export class EditorComponent implements OnInit {
     // Subscribe to pencil changes
     this.pencilForm.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
-        this.pencil = value;
-        if (value.startsWith('material_')) {
-          this.selected_material_id = value.split('_')[1];
-        } else {
-          this.selected_material_id = -1;
-        }
-        this.selectPencil();
+        this.selectPencil(value);
       }
     });
 
-    this.selectRegionsForm = new FormControl('null');
 
 
   }
@@ -381,7 +378,6 @@ export class EditorComponent implements OnInit {
 
 
 
-
   /**
   * given an id, it proceeds to load the draft and loom associated with that id. 
   * onLoad, this should default to the settings associated with this draft node. All draft nodes should have 
@@ -402,11 +398,7 @@ export class EditorComponent implements OnInit {
     this.onLoad = true;
     this.weaveRef.onNewDraftLoaded(id); //this should load and draw everything in the renderer
     // Initialize design modes on the draft-rendering component
-    this.weaveRef.setDraftEditMode('draw');
-    this.weaveRef.setDraftEditSource('drawdown');
-    this.weaveRef.setPencil('toggle');
     this.loom.loadLoom(id); //loads the current loom information into the sidebar
-
 
     this.draftname = getDraftName(draft);
 
@@ -415,25 +407,6 @@ export class EditorComponent implements OnInit {
       this.updateFormControls(broadcast);
     });
 
-    // switch (ls.type) {
-    //   case 'jacquard':
-    //     this.dm.selectDraftEditSource('drawdown');
-    //     this.weaveRef.setDraftEditSource('drawdown');
-    //     break;
-    //   case 'direct':
-    //   case 'frame':
-    //     this.dm.selectDraftEditSource('loom');
-    //     this.weaveRef.setDraftEditSource('loom');
-    //     const utils = getLoomUtilByType(ls.type);
-    //     utils.computeLoomFromDrawdown(draft.drawdown, ls).then(loom => {
-    //       this.tree.setLoom(id, loom); //this would trigger a subsequent update. 
-    //       this.onLoad = true; //reset this flag so the draw updates
-    //     });
-    //     break;
-    //   default:
-    //     this.dm.selectDraftEditSource('drawdown');
-    //     this.weaveRef.setDraftEditSource('drawdown');
-    // }
 
 
 
@@ -576,55 +549,61 @@ export class EditorComponent implements OnInit {
   //   this.weaveRef.unsetSelection();
   // }
 
-  toggleSelectRegions(value: string) {
 
-    //if there was a selection, we sholud deselect
-    if (this.pencil == 'select') {
-      this.pencil = 'toggle'
-      this.selectRegionsForm.setValue('none', { emitEvent: false });
-      this.pencilForm.setValue('toggle');
-    } else {
-      this.pencil = 'select'
-      this.selectRegionsForm.setValue('select', { emitEvent: false });
-      this.pencilForm.setValue('select');
+
+  /**
+   * triggered VIA UI button click or key code, 
+   * this is only a categorization used in the editor
+   * @param mode 
+   */
+  selectPencilMode(mode: string) {
+
+
+    switch (mode) {
+      case 'select':
+        this.pencilModeForm.setValue('select', { emitEvent: false });
+        this.selectPencil('select');
+        break;
+      case 'draw':
+        this.pencilModeForm.setValue('draw', { emitEvent: false });
+        this.selectPencil('draw');
+        break;
     }
-
 
   }
 
 
-  selectPencil() {
-    this.weaveRef.unsetSelection();
 
-    switch (this.pencil) {
+
+  selectPencil(pencil: string) {
+
+    switch (pencil) {
 
       case 'select':
-        this.weaveRef.setDraftEditMode('select');
+        this.weaveRef.setPencil('select');
         this.pencilForm.setValue('select', { emitEvent: false });
+        this.pencilModeForm.setValue('select', { emitEvent: false });
         break;
 
       case 'up':
       case 'down':
       case 'toggle':
       case 'unset':
-        this.weaveRef.setDraftEditMode('draw');
-        this.weaveRef.setPencil(this.pencil);
-        this.selectRegionsForm.setValue('none', { emitEvent: false });
-
+        this.weaveRef.setPencil(pencil);
+        this.pencilForm.setValue(pencil, { emitEvent: false });
+        this.pencilModeForm.setValue('draw', { emitEvent: false });
         break;
 
       default:
-        this.selectRegionsForm.setValue('none', { emitEvent: false });
-
-        const split = this.pencil.split('_');
+        const split = pencil.split('_');
         const material_id = split[1];
-        this.selected_material_id = parseInt(material_id);
-        this.weaveRef.selected_material_id = parseInt(material_id);
-        this.weaveRef.setPencil('material');
-        this.weaveRef.setDraftEditMode('draw');
+        this.weaveRef.setPencil('material', parseInt(material_id));
+        this.pencilForm.setValue('material_' + material_id, { emitEvent: false });
+        this.pencilModeForm.setValue('draw', { emitEvent: false });
         break;
 
     }
+
 
   }
 

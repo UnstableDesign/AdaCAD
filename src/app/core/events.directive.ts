@@ -85,7 +85,7 @@ export class EventsDirective {
     /**
 *  ZOOM OUT 
 */
-    if (e.key == "b" && e.metaKey) {
+    if (e.key == "b" && (e.metaKey || e.ctrlKey)) {
 
       this.onBump.emit();
       return false;
@@ -97,7 +97,7 @@ export class EventsDirective {
     /**
     * SAVE
     */
-    if (e.key == "s" && e.metaKey) {
+    if (e.key == "s" && (e.metaKey || e.ctrlKey)) {
       this.fs.saver.ada()
         .then(so => {
           return this.fb.updateFile(so.file, this.ws.getCurrentFile());
@@ -111,14 +111,14 @@ export class EventsDirective {
     /**
     * UNDO
     */
-    if (e.key == "z" && e.metaKey) {
+    if (e.key == "z" && (e.metaKey || e.ctrlKey)) {
       this.onUndo.emit();
     }
 
     /**
     * REDO
     */
-    if (e.key == "y" && e.metaKey) {
+    if (e.key == "y" && (e.metaKey || e.ctrlKey)) {
       this.onRedo.emit();
     }
 
@@ -126,14 +126,14 @@ export class EventsDirective {
     /**
     * Copy
     */
-    if (e.key == "c" && e.metaKey) {
+    if (e.key == "c" && (e.metaKey || e.ctrlKey)) {
       this.onCopySelections.emit();
     }
 
     /**
     * PASTE
     */
-    if (e.key == "v" && e.metaKey) {
+    if (e.key == "v" && (e.metaKey || e.ctrlKey)) {
       this.onPasteSelections.emit();
     }
 
@@ -141,7 +141,7 @@ export class EventsDirective {
     /**
     * Explode (move every top left position by a factor of 10 (a hack to work with older files))
     */
-    if (e.key == "e" && e.metaKey) {
+    if (e.key == "e" && (e.metaKey || e.ctrlKey)) {
       this.onExplode.emit();
     }
 

@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { Drawdown, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange } from 'adacad-drafting-lib/loom';
-import { Observable, Subscription, fromEvent, of } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, fromEvent, of } from 'rxjs';
 import { CanvasList, DraftNode, DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { FileService } from '../../provider/file.service';
@@ -93,14 +93,6 @@ export class DraftRenderingComponent implements OnInit {
 
   system_codes: Array<string> = [];
 
-  //for drawing
-  /**
-* flag defining if there needs to be a recomputation of the draft on Mouse Up
-*/
-  flag_recompute: boolean;
-
-  flag_history: boolean;
-
   //use this to set the current width of the warp text. This will change with the warp canvas changes
   warp_text_div_width: string = '1000px';
 
@@ -109,7 +101,6 @@ export class DraftRenderingComponent implements OnInit {
 
   pencil = 'toggle'; //toggle, up, down, unset, material
   draft_edit_source = 'drawdown'; //drawdown, loom
-  draft_edit_mode = 'draw'; //draw, select
   selected_material_id: number = 0; //if material is set an pencil
 
   ignoreOversize: boolean = false;
@@ -128,38 +119,39 @@ export class DraftRenderingComponent implements OnInit {
   draftValueChangeCallCount: number = 0;
 
 
+  draftRenderingEvent$: BehaviorSubject<string>;
+
+
+  pencilChange$: BehaviorSubject<string>;
+
+  eventTargetSet$: BehaviorSubject<HTMLElement>;
+
 
 
   constructor() {
 
-
-
-    this.flag_recompute = false;
-    this.flag_history = false;
     this.system_codes = defaults.weft_system_codes;
+    this.pencilChange$ = new BehaviorSubject<string>('toggle');
+    this.eventTargetSet$ = new BehaviorSubject<HTMLElement>(null);
 
   }
 
-  setPencil(pencil: string) {
+  setPencil(pencil: string, material_id?: number) {
     this.pencil = pencil;
+    this.pencilChange$.next(pencil);
+    if (material_id) {
+      this.selected_material_id = material_id;
+    }
+    if (this.pencil !== 'select') {
+      this.unsetSelection();
+    }
   }
 
   setDraftEditSource(draft_edit_source: string) {
     this.draft_edit_source = draft_edit_source;
   }
 
-  setDraftEditMode(draft_edit_mode: string) {
-    this.draft_edit_mode = draft_edit_mode;
-  }
 
-  /**
-   * Checks if a specific draft editing mode is currently selected
-   * @param value - The mode to check ('draw' or 'select')
-   * @returns true if the mode is selected
-   */
-  isSelectedDraftEditingMode(value: string): boolean {
-    return this.draft_edit_mode === value;
-  }
 
   /**
    * Checks if a specific draft edit source is currently selected
@@ -246,6 +238,40 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
+  setDefaultEditingMode(source: 'editor' | 'viewer' | 'library' | 'mixer') {
+    switch (source) {
+      case 'editor':
+        this.view_only = false;
+        this.setPencil('toggle');
+
+        if (this.selected_loom_type === 'jacquard') {
+          this.setDraftEditSource('drawdown');
+        } else {
+          this.setDraftEditSource('loom');
+        }
+        break;
+      case 'viewer':
+      case 'library':
+        this.view_only = true;
+        this.setPencil('select');
+        this.setDraftEditSource('drawdown');
+        break;
+      case 'mixer':
+
+        if (this.tree.hasParent(this.id)) {
+          this.view_only = true;
+          this.setPencil('select');
+          this.setDraftEditSource('drawdown');
+          break;
+        } else {
+          this.view_only = false;
+          this.setPencil('toggle');
+          this.setDraftEditSource('drawdown');
+          break;
+        }
+    }
+  }
+
 
 
   //this is called anytime a new draft object is loaded into this rendering window. Generally, this should only happen in the viewer and editor
@@ -257,6 +283,12 @@ export class DraftRenderingComponent implements OnInit {
 
     let node = this.tree.getNode(id) as DraftNode;
     this.selected_loom_type = this.tree.getLoomSettings(this.id).type;
+
+
+    this.setDefaultEditingMode(this.source);
+
+
+
 
     if (node.type !== 'draft') {
       return;
@@ -307,7 +339,11 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.removeMoveSubscription();
+
+
+    if (this.moveSubscription) {
+      this.moveSubscription.unsubscribe();
+    }
     if (this.draftValueChangeSubscription) {
       this.draftValueChangeSubscription.unsubscribe();
     }
@@ -392,114 +428,155 @@ export class DraftRenderingComponent implements OnInit {
       if (editing_style == "drawdown" || (this.source == 'mixer' && !this.tree.hasParent(this.id))) this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
     }
 
-    this.flag_history = true;
   }
 
-  handleMouseEvent(event: MouseEvent, currentPos: Interlacement) {
-
-    switch (this.draft_edit_mode) {
-      case 'draw':
-        switch (this.pencil) {
-          case 'up':
-          case 'down':
-          case 'unset':
-          case 'material':
-          case 'toggle':
-
-            this.setPosAndDraw(<HTMLElement>event.target, event.shiftKey, currentPos);
-            this.flag_recompute = true;
 
 
+  handleStartEvent(event: MouseEvent, currentPos: Interlacement) {
 
-            break;
-        }
+    if (!event.target) return;
+
+    this.eventTargetSet$.next(event.target as HTMLElement);
+
+    //remove any prior move subscriptions. 
+    if (this.moveSubscription) {
+      this.moveSubscription.unsubscribe();
+    }
+
+
+    //if shift drag happens at any time, move into select (but how to switch out)
+    if ((event.metaKey || event.ctrlKey) && this.pencil !== 'select') {
+      this.setPencil('select');
+    }
+
+    switch (this.pencil) {
+      case 'up':
+      case 'down':
+      case 'unset':
+      case 'material':
+      case 'toggle':
+        this.setPosAndDraw(<HTMLElement>event.target, event.shiftKey, currentPos);
+        this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onDrawMove(e));
 
         break;
+    }
 
-
-
+    switch (this.pencil) {
       case 'select':
-      case 'copy':
+        this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onSelectMove(e));
+        this.selection.onSelectStart(<HTMLElement>event.target as HTMLElement, currentPos);
+        break;
+    }
+  }
 
-        if (this.selection.hasSelection() && event.type == 'mousemove') {
-          this.selection.onSelectDrag(currentPos);
-        } else {
-          this.selection.onSelectStart(<HTMLElement>event.target as HTMLElement, currentPos);
+  private onSelectMove(event) {
+    const currentPos = this.getEventPosition(event);
+    this.selection.onSelectDrag(currentPos);
+  }
+
+
+  private onDrawMove(event) {
+
+    const currentPos = this.getEventPosition(event);
+    //don't call unless you've moved to a new spot
+    if (this.isSame(currentPos, this.lastPos)) return;
+    this.setPosAndDraw(<HTMLElement>event.target, event.shiftKey, currentPos);
+    this.lastPos = {
+      i: currentPos.i, //row
+      j: currentPos.j //col
+    };
+  }
+
+
+  handleLeaveEvent(event: MouseEvent) {
+
+    if (this.moveSubscription) this.moveSubscription.unsubscribe();
+
+    switch (this.pencil) {
+      case 'select':
+        this.selection.onSelectStop(true);
+        break;
+      case 'up':
+      case 'down':
+      case 'unset':
+      case 'material':
+      case 'toggle':
+        this.addStateChange(this.before);
+        this.updateConnectedDraftComponents(this.tree.getDraft(this.id), this.tree.getLoom(this.id), this.tree.getLoomSettings(this.id));
+        break;
+    }
+
+
+  }
+
+  handleEndEvent(event: MouseEvent) {
+    if (this.moveSubscription) this.moveSubscription.unsubscribe();
+
+    switch (this.pencil) {
+      case 'select':
+        this.selection.onSelectStop(false);
+        break;
+      case 'up':
+      case 'down':
+      case 'unset':
+      case 'material':
+      case 'toggle':
+
+        this.mouse_pressed = false;
+        this.addStateChange(this.before);
+        this.updateConnectedDraftComponents(this.tree.getDraft(this.id), this.tree.getLoom(this.id), this.tree.getLoomSettings(this.id));
+        break;
+    }
+  }
+
+
+  handleMouseEvent(event: MouseEvent, stage: 'start' | 'move' | 'leave' | 'end', currentPos: Interlacement) {
+
+
+    switch (stage) {
+      case 'start':
+        this.mouse_pressed = true;
+        this.before = this.tree.getDraftNodeState(this.id);
+        this.handleStartEvent(event, currentPos);
+
+        break;
+      case 'move':
+        //handeled by onDrawMoveSubscription or onSelectMoveSubscription
+
+        break;
+      case 'leave':
+        this.mouse_pressed = false;
+        this.handleLeaveEvent(event);
+        this.lastPos = {
+          i: -1,
+          j: -1
         }
+
+
         break;
-      case 'invert':
-      default:
+      case 'end':
+        this.handleEndEvent(event);
         break;
     }
+
+
   }
 
 
-  @HostListener('mousemove', ['$event'])
-  public movingMouse(event) {
 
-    if (this.view_only) return;
+
+
+  private getEventPosition(event: MouseEvent): Interlacement {
     const draft = this.tree.getDraft(this.id);
     let cell_size = this.render.calculateCellSize(draft, 'canvas');
-
     var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
     var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
-
-    const currentPos: Interlacement = {
-      i: screen_row, //row
-      j: screen_col, //col
+    return {
+      i: screen_row,
+      j: screen_col
     };
-
-    if (this.source == 'editor') this.highlightRowsAndCols(draft, event, currentPos);
   }
 
-
-  @HostListener('mousedown', ['$event'])
-  public onStart(event) {
-
-
-    this.before = this.tree.getDraftNodeState(this.id);
-
-
-    //show this in the viewer
-    this.vs.setViewer(this.id);
-
-    if (this.id == -1 || this.view_only) return;
-
-    this.mouse_pressed = true;
-
-    const draft = this.tree.getDraft(this.id);
-    let cell_size = this.render.calculateCellSize(draft, 'canvas');
-
-    var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
-    var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
-
-    const currentPos: Interlacement = {
-      i: screen_row, //row
-      j: screen_col, //col
-    };
-
-    this.handleMouseEvent(event, currentPos);
-    if (event.target.localName === 'canvas') {
-
-      this.removeMoveSubscription();
-
-      this.moveSubscription =
-        fromEvent(event.target, 'mousemove').subscribe(e => this.onMove(e));
-
-
-
-      if (!event.target) return;
-
-
-      // Save temp pattern
-      this.tempPattern = draft.drawdown.slice();
-      this.lastPos = {
-        i: currentPos.i, //row
-        j: currentPos.j //col
-      };
-
-    }
-  }
 
   private isSame(p1: Interlacement, p2: Interlacement) {
     if (p1 === undefined || p2 === undefined) return false
@@ -507,37 +584,90 @@ export class DraftRenderingComponent implements OnInit {
 
   }
 
+  /**
+   * update the row/column visualizer
+   * @param event 
+   * @returns 
+   */
+  @HostListener('mousemove', ['$event'])
+  public movingMouse(event) {
 
-  private onMove(event) {
-
+    if (this.view_only) return;
     const draft = this.tree.getDraft(this.id);
-    let cell_size = this.render.calculateCellSize(draft, 'canvas');
-
-
-    // set up the point based on touched square.
-    // this takes the transform into account so offset is always correct to the data 
-    var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
-    var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
-
-
-    const currentPos: Interlacement = {
-      i: screen_row,
-      j: screen_col
-    };
-
-
-
-
-    //don't call unless you've moved to a new spot
-    if (this.isSame(currentPos, this.lastPos)) return;
-
-    this.handleMouseEvent(event, currentPos);
-
-    this.lastPos = {
-      i: currentPos.i, //row
-      j: currentPos.j //col
-    };
+    const currentPos = this.getEventPosition(event);
+    if (this.source == 'editor') this.highlightRowsAndCols(draft, event, currentPos);
   }
+
+
+  @HostListener('mousedown', ['$event'])
+  public onStart(event) {
+
+    this.before = this.tree.getDraftNodeState(this.id);
+    this.vs.setViewer(this.id);
+    if (this.id == -1 || this.view_only) return;
+    const currentPos = this.getEventPosition(event);
+    this.handleMouseEvent(event, 'start', currentPos);
+  }
+
+
+  @HostListener('mouseleave', ['$event'])
+  public onLeave(event) {
+    if (this.source == 'editor') this.removeHighlighter();
+    const currentPos = this.getEventPosition(event);
+    this.handleMouseEvent(event, 'leave', currentPos);
+  }
+
+
+
+
+  @HostListener('mouseup', ['$event'])
+  public onEnd(event) {
+
+    if (this.id == -1 || this.view_only) return;
+    const currentPos = this.getEventPosition(event);
+    this.handleMouseEvent(event, 'end', currentPos);
+
+  }
+
+  /**
+  * This is emitted from the selection
+  */
+  onSelectionEnd() {
+
+    if (!this.selection.hasSelection()) return;
+
+    //if(!this.hold_copy_for_paste) this.copyArea();
+
+    this.onNewSelection.emit(
+      {
+        id: this.id,
+        start: { i: this.selection.getStartingRowIndex(), j: this.selection.getStartingColIndex() },
+        end: { i: this.selection.getEndingRowIndex(), j: this.selection.getEndingColIndex() }
+      })
+  }
+
+
+
+
+  hasSelection(): boolean {
+    return this.selection.hasSelection();
+  }
+
+  private addStateChange(before: DraftNodeState) {
+    const after = this.tree.getDraftNodeState(this.id);
+    const change: DraftStateChange = {
+      originator: 'DRAFT',
+      type: 'VALUE_CHANGE',
+      id: this.id,
+      before: before,
+      after: after
+    }
+    this.before = after;
+    this.state.addStateChange(change);
+  }
+
+
+
 
   /**
    * to enable a streamlined workflow, if someone is drawing, we refrain from computing connected components (e.g. looms if the target is drawdown, or drawdown if the target is loom)
@@ -562,92 +692,6 @@ export class DraftRenderingComponent implements OnInit {
         })
     }
   }
-
-
-  @HostListener('mouseleave', ['$event'])
-  @HostListener('mouseup', ['$event'])
-  public onEnd(event) {
-    if (this.source == 'editor' && event.type == 'mouseleave') this.removeHighlighter();
-
-    this.mouse_pressed = false;
-    if (this.id == -1 || this.view_only) return;
-
-
-    this.lastPos = {
-      i: -1,
-      j: -1
-    }
-
-    if (this.flag_history && event.type == 'mouseup') {
-      // this.onDrawdownUpdated.emit(draft);
-      this.flag_history = false;
-    }
-
-
-    if (this.flag_recompute && event.type == 'mouseup') {
-      this.flag_recompute = false;
-    }
-
-    // remove subscription unless it is leave event with select.
-    if (!(event.type === 'mouseleave' && (this.draft_edit_mode == 'select'))) {
-      this.removeMoveSubscription();
-    }
-
-    if (event.type == 'mouseleave' && this.draft_edit_mode == 'select') {
-      this.selection.onSelectStop(true);
-    }
-
-    if (event.type == 'mouseup') {
-      this.addStateChange(this.before);
-      this.updateConnectedDraftComponents(this.tree.getDraft(this.id), this.tree.getLoom(this.id), this.tree.getLoomSettings(this.id));
-    }
-
-
-  }
-
-  /**
-  * This is emitted from the selection
-  */
-  onSelectionEnd() {
-
-    if (!this.selection.hasSelection()) return;
-
-    //if(!this.hold_copy_for_paste) this.copyArea();
-
-    this.onNewSelection.emit(
-      {
-        id: this.id,
-        start: { i: this.selection.getStartingRowIndex(), j: this.selection.getStartingColIndex() },
-        end: { i: this.selection.getEndingRowIndex(), j: this.selection.getEndingColIndex() }
-      })
-  }
-
-
-  private removeMoveSubscription() {
-    if (this.moveSubscription) {
-      this.moveSubscription.unsubscribe();
-    }
-  }
-
-  hasSelection(): boolean {
-    return this.selection.hasSelection();
-  }
-
-  private addStateChange(before: DraftNodeState) {
-    const after = this.tree.getDraftNodeState(this.id);
-    const change: DraftStateChange = {
-      originator: 'DRAFT',
-      type: 'VALUE_CHANGE',
-      id: this.id,
-      before: before,
-      after: after
-    }
-    this.before = after;
-    this.state.addStateChange(change);
-  }
-
-
-
 
 
 

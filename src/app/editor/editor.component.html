@@ -21,58 +21,15 @@
       <div class="draft_tools">
 
         <mat-label>Pen Mode</mat-label>
-
-        <!-- <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-          <mat-tab label="Select">
-
-          </mat-tab>
-          <mat-tab label="Draft">
-            <i class="fas fa-pencil"></i> Draw
-          </mat-tab>
-          <mat-tab label="Colors">
-            <i class="fas fa-paintbrush"></i> Material
-          </mat-tab>
-        </mat-tab-group> -->
-
-        <mat-label>Pen Mode</mat-label>
-        <mat-button-toggle-group name="editor mode" [formControl]="pencilForm" aria-label="edit mode">
+        <mat-button-toggle-group name="pencilModeForm" [formControl]="pencilModeForm" aria-label="edit mode">
           <mat-button-toggle value="select" matTooltip="select regions"><i class="fas fa-expand"></i> Select
             Regions</mat-button-toggle>
           <mat-button-toggle value="draw" matTooltip="draw"><i class="fas fa-pencil"></i> Draw</mat-button-toggle>
-          <mat-button-toggle value="material" matTooltip="material"><i class="fas fa-paintbrush"></i>
-            Material</mat-button-toggle>
         </mat-button-toggle-group>
 
 
 
         <mat-divider></mat-divider>
-
-
-
-
-
-
-        <div class="select">
-          <mat-label>Copy/Paste/Transform Regions</mat-label>
-          <mat-button-toggle-group name="select regions" aria-label="select regions" [formControl]="selectRegionsForm">
-            <mat-button-toggle (click)="toggleSelectRegions('select')" name="select" value="select"
-              matTooltip="select regions">
-              <i class="fas fa-expand"></i>
-              Select
-              Regions</mat-button-toggle>
-          </mat-button-toggle-group>
-
-
-
-
-          @for (action of designActions; track action) {
-          <button [disabled]="!hasSelection" matButton="filled" color="accent" matTooltip="action.viewValue"
-            (click)="designActionChange(action.value)">
-            <i class="fas fa-{{action.icon}}"></i> {{action.viewValue}}
-          </button>
-          }
-
-        </div>
 
         <div class="draw">
           <mat-button-toggle-group class="draw_modes_group" name="editor mode" [formControl]="pencilForm"
@@ -91,12 +48,47 @@
           </button>
         </div>
 
+
+
+
+        <div class="select">
+
+          <div class="selection_status">
+
+            @if(!hasSelection && pencilModeForm?.value == 'select') {
+            <span>Select a region on the draft by dragging to enable the design actions</span>
+            }
+
+            @if(hasSelection && pencilModeForm?.value == 'select') {
+            <button matButton="filled" matTooltip="edit materials" (click)="editMaterials()">Clear Selection</button>
+            }
+          </div>
+
+
+          @for (action of designActions; track action) {
+          <button [disabled]="!hasSelection" matButton="filled" color="accent" matTooltip="action.viewValue"
+            (click)="designActionChange(action.value)">
+            <i class="fas fa-{{action.icon}}"></i> {{action.viewValue}}
+          </button>
+          }
+
+
+        </div>
+
+
+
         <mat-divider></mat-divider>
 
 
 
         @if (loom.type !== 'jacquard') {
-        <mat-label>Drafting Style</mat-label>
+
+        <mat-label>
+          Drafting Style
+          <button matIconButton matTooltip="More Information" (click)="openMoreInformation()"><i
+              class="fas fa-info-circle"></i></button>
+        </mat-label>
+
         <div class="editing-mode-toggle">
           <mat-button-toggle-group [formControl]="editingModeForm" name="design source" aria-label="edit mode">
             <mat-button-toggle name="loom" matTooltip="threading-first" class="draft-edit-mode-loom"
