@@ -112,8 +112,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loading: boolean = false;
 
-  selected_origin: number;
-
   ui = {
     main: 'mixer',
     fullscreen: false,
@@ -833,6 +831,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
   forceRedraw() {
 
+    let dns = this.tree.getDraftNodes();
+    dns.forEach(dn => {
+      this.tree.broadcastDraftNodeValueChange(dn.id, {
+        meta: true,
+        draft: true,
+        loom: true,
+        loom_settings: true,
+        materials: true
+      });
+    })
+
+
   }
 
 
@@ -1375,6 +1385,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.workspace_modal.componentInstance.onOperationSettingsChange.subscribe(event => {
       this.mixer.refreshOperations();
     });
+    this.workspace_modal.componentInstance.onOriginChange.subscribe(event => {
+      this.originChange();
+    });
 
   }
 
@@ -1408,11 +1421,11 @@ export class AppComponent implements OnInit, OnDestroy {
  * when the global settings change, the data itself does NOT need to change, only the rendering
  * @param e 
  */
-  originChange(e: any) {
-    this.selected_origin = e.value;
-    this.ws.selected_origin_option = this.selected_origin;
-    this.mixer.originChange(this.selected_origin); //force a redraw so that the weft/warp system info is up to date
-    this.editor.forceRedraw();
+  originChange() {
+
+
+    //what if I just sent a redraw 
+    this.forceRedraw();
     this.saveFile();
   }
 
@@ -1734,7 +1747,6 @@ export class AppComponent implements OnInit, OnDestroy {
         console.log("[LOAD] STEP 12: Starting final render - THIS MAY HANG ON LARGE FILES");
         const renderStartTime = performance.now();
 
-        this.updateOrigin(this.ws.selected_origin_option);
 
         console.log("[LOAD] STEP 12a: Refreshing operations");
         //make sure the sidebar settings for operations are set
@@ -1895,11 +1907,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   }
 
-  selectOriginOption(value: number) {
-    this.ws.selected_origin_option = value;
-    this.mixer.originChange(value);
+  // selectOriginOption(value: number) {
+  //   this.ws.selected_origin_option = value;
+  //   this.mixer.originChange(value);
 
-  }
+  // }
 
   selectLoom(value: string) {
     this.ws.type = value;
@@ -1975,14 +1987,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
 
-  /**
-   * the origin must be updated after the file has been loaded. 
-   * @param selection 
-   */
-  updateOrigin(selection: number) {
-    this.selected_origin = selection
 
-  }
 
   updateMixerView(event: any) {
     this.mixer.renderChange();

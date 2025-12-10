@@ -139,6 +139,7 @@ export class DraftRenderingComponent implements OnInit {
   setPencil(pencil: string, material_id?: number) {
     this.pencil = pencil;
     this.pencilChange$.next(pencil);
+    console.log("SET PENCIL", pencil);
     if (material_id) {
       this.selected_material_id = material_id;
     }
@@ -532,6 +533,8 @@ export class DraftRenderingComponent implements OnInit {
 
   handleMouseEvent(event: MouseEvent, stage: 'start' | 'move' | 'leave' | 'end', currentPos: Interlacement) {
 
+    //make sure the mouse is down before calling any of these, 
+
 
     switch (stage) {
       case 'start':
@@ -545,6 +548,8 @@ export class DraftRenderingComponent implements OnInit {
 
         break;
       case 'leave':
+        if (!this.mouse_pressed) return;
+
         this.mouse_pressed = false;
         this.handleLeaveEvent(event);
         this.lastPos = {
@@ -555,6 +560,9 @@ export class DraftRenderingComponent implements OnInit {
 
         break;
       case 'end':
+        if (!this.mouse_pressed) return;
+
+        this.mouse_pressed = false;
         this.handleEndEvent(event);
         break;
     }
@@ -613,6 +621,7 @@ export class DraftRenderingComponent implements OnInit {
   @HostListener('mouseleave', ['$event'])
   public onLeave(event) {
     if (this.source == 'editor') this.removeHighlighter();
+
     const currentPos = this.getEventPosition(event);
     this.handleMouseEvent(event, 'leave', currentPos);
   }
@@ -1021,6 +1030,8 @@ export class DraftRenderingComponent implements OnInit {
 
 
   public unsetSelection() {
+
+    console.log("UNSET SELECTION", this.selection);
     this.selection.unsetParameters();
   }
 

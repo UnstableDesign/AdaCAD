@@ -564,10 +564,6 @@ export class MixerComponent {
 
   }
 
-  // public redrawAllSubdrafts() {
-  //   this.palette.redrawAllSubdrafts();
-  // }
-
 
 
   /**

@@ -8,7 +8,7 @@
     <div>
       <p>This setting allows you to specify the orientation of your draft and structures.</p>
       <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group"
-        [(ngModel)]="this.ws.selected_origin_option">
+        [formControl]="originOptionForm">
         @for (opt of originOptions; track opt) {
         <mat-radio-button class="example-radio-button" [value]="opt.value">{{opt.view}}</mat-radio-button>
 
@@ -26,7 +26,7 @@
       this type. </p>
     <div>
       <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group"
-        [(ngModel)]="this.ws.type">
+        [formControl]="loomTypeForm">
         @for (loom of loomOptions; track loom) {
         <mat-radio-button class="example-radio-button" [value]="loom.value">{{loom.viewValue}}</mat-radio-button>
 
@@ -45,7 +45,7 @@
     <div>
       <p>This allows you to set the unit of measurement for the warp density</p>
       <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group"
-        [(ngModel)]="this.ws.units" (change)="overrideDensityUnits()">
+        [formControl]="unitsForm">
         @for (unit of unitOptions; track unit) {
         <mat-radio-button class="example-radio-button" [value]="unit.value">{{unit.viewValue}}</mat-radio-button>
 
@@ -63,7 +63,7 @@
     <p>This controls if if you would like to see the outcome of each operation as a draft, or just the operation
       information (which can be helpful to save space). Turn this to "On" if you are experiencing slowdowns.</p>
     <div>
-      <mat-slide-toggle (change)="setDraftsViewable()" [(ngModel)]="this.ws.hide_mixer_drafts">
+      <mat-slide-toggle [formControl]="hideMixerDraftsForm">
         Hide Drafts
         <!-- <span *ngIf="this.ws.hide_mixer_drafts">On (Drafts Hidden)</span>
         <span *ngIf="!this.ws.hide_mixer_drafts">Off (Drafts Shown)</span> -->
@@ -80,7 +80,7 @@
 
     <div>
       <p>This controls which operations are shown in the interface.</p>
-      <mat-slide-toggle (change)="operationSettingsChange()" [(ngModel)]="this.ws.show_advanced_operations">Show
+      <mat-slide-toggle [formControl]="showAdvancedOperationsForm">Show
         Advanced Operations </mat-slide-toggle>
 
 

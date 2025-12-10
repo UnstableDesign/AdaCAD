@@ -114,8 +114,7 @@ export class SelectionComponent implements OnInit {
     this.copyEl = document.getElementById("copied-pattern-" + this.id);
     this.copyContainerEl = document.getElementById("copied-container-" + this.id);
 
-    this.size_row = document.getElementById('size-row-id-' + this.id);
-    this.action_row = document.getElementById('action-row-id-' + this.id);
+    this.size_row = document.getElementById('selection-size-row');
 
 
   }
@@ -192,7 +191,7 @@ export class SelectionComponent implements OnInit {
 
     this.target.parentNode.appendChild(this.copyContainerEl);
     var style = window.getComputedStyle(this.target.parentElement);
-    this.copyContainerEl.style.margin = style.margin;
+    this.copyContainerEl.style.margin = style.padding;
 
     this.has_copy = true;
     this.copyStart = { i: this.start.i, j: this.start.j };
@@ -745,13 +744,15 @@ export class SelectionComponent implements OnInit {
     //pad the selection container to match the padding of the parent. 
     var style = window.getComputedStyle(this.target.parentElement);
     var matrix = new WebKitCSSMatrix(style.transform);
+    console.log("MATRIX IS ", matrix);
+
+    console.log("Size Row", this.size_row);
+    this.size_row.style.transform = 'matrix(' + matrix.a + ',' + matrix.b + ',' + matrix.c + ',' + matrix.d + ',' + matrix.e + ',' + matrix.f + ')';
 
 
     //make sure the transform is applied to correct the origination of the text and action icons
     this.selectionContainerEl.style.padding = style.padding;
 
-    if (this.size_row !== null) this.size_row.style.transform = 'matrix(' + matrix.a + ',' + matrix.b + ',' + matrix.c + ',' + matrix.d + ',' + matrix.e + ',' + matrix.f + ')';
-    if (this.action_row !== null) this.action_row.style.transform = 'matrix(' + matrix.a + ',' + matrix.b + ',' + matrix.c + ',' + matrix.d + ',' + matrix.e + ',' + matrix.f + ')';
 
 
 
@@ -929,6 +930,7 @@ export class SelectionComponent implements OnInit {
 
 
   unsetParameters() {
+    console.log("UNSET PARAMETERS", this.target);
     if (this.target !== null && this.target !== undefined) {
       this.selectionEventSubject.next('none');
       let parent = this.selectionContainerEl.parentNode;

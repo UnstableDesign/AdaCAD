@@ -66,8 +66,8 @@
 
 
           @for (action of designActions; track action) {
-          <button [disabled]="!hasSelection" matButton="filled" color="accent" matTooltip="action.viewValue"
-            (click)="designActionChange(action.value)">
+          <button [disabled]="!hasSelection || !action.enabled" matButton="filled" color="accent"
+            matTooltip="action.viewValue" (click)="designActionChange(action.value)">
             <i class="fas fa-{{action.icon}}"></i> {{action.viewValue}}
           </button>
           }

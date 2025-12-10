@@ -116,12 +116,15 @@ export class EditorComponent implements OnInit {
   draftRenderingEventSubscription: Subscription;
 
 
+  eventTargetSetSubscription: Subscription;
+  pencilChangeSubscription: Subscription;
+
   constructor() {
 
 
 
     this.copy = [[createCell(false)]];
-    this.designActions = paste_options;
+    this.designActions = paste_options.map(opt => ({ value: opt.value, viewValue: opt.viewValue, icon: opt.icon, enabled: true }));
   }
 
 
@@ -157,8 +160,9 @@ export class EditorComponent implements OnInit {
 
     // Subscribe to pencil changes
     this.pencilForm.valueChanges.subscribe(value => {
+      console.log("PENCIL FORM VALUE CHANGES", value);
       if (value !== null && value !== undefined) {
-        this.selectPencil(value);
+        this.selectPencil(value, 'ui');
       }
     });
 
@@ -175,12 +179,23 @@ export class EditorComponent implements OnInit {
     this.onSelectionEventSubscription = this.weaveRef.selection.selectionEventSubject.subscribe(event => {
       this.processSelectionEvent(event);
     });
+
+    this.eventTargetSetSubscription = this.weaveRef.eventTargetSet$.subscribe(target => {
+
+      this.eventTargetSet(target);
+    });
+
+    this.pencilChangeSubscription = this.weaveRef.pencilChange$.subscribe(pencil => {
+      this.selectPencil(pencil, 'rendering');
+    });
   }
 
   ngOnDestroy() {
     if (this.onRedrawCompleteSubscription) this.onRedrawCompleteSubscription.unsubscribe();
     if (this.onDraftValueChangeSubscription) this.onDraftValueChangeSubscription.unsubscribe();
     if (this.onSelectionEventSubscription) this.onSelectionEventSubscription.unsubscribe();
+    if (this.eventTargetSetSubscription) this.eventTargetSetSubscription.unsubscribe();
+    if (this.pencilChangeSubscription) this.pencilChangeSubscription.unsubscribe();
   }
 
   updatePencils() {
@@ -191,6 +206,71 @@ export class EditorComponent implements OnInit {
     this.ms.materials.forEach(material => {
       this.draw_modes.push({ value: 'material_' + material.id, viewValue: material.name, icon: "fas fa-paintbrush", id: material.id, color: material.color });
     });
+  }
+
+  eventTargetSet(target: HTMLElement) {
+    if (target == null) return;
+    if (target.id == null) return;
+    const sourceArr = target.id.split('-');
+    if (sourceArr.length == 0) return;
+    const source = sourceArr[0];
+
+    const loom_settings = this.tree.getLoomSettings(this.id);
+
+    switch (source) {
+      case 'drawdown':
+        this.designActions.forEach(action => {
+          action.enabled = true;
+        });
+        break;
+      case 'threading':
+        this.designActions.forEach(action => {
+
+          if (action.value == 'invert') action.enabled = false;
+          else action.enabled = true;
+        });
+        break;
+
+      case 'tieups':
+        this.designActions.forEach(action => {
+          action.enabled = true;
+        });
+        break;
+      case 'treadling':
+
+        switch (loom_settings.type) {
+          case 'direct':
+            this.designActions.forEach(action => {
+              action.enabled = true;
+            });
+            break;
+          default:
+            this.designActions.forEach(action => {
+              if (action.value == 'invert') action.enabled = false;
+              else action.enabled = true;
+            });
+            break;
+        }
+        break;
+
+      case 'warp':
+        this.designActions.forEach(action => {
+          if (action.value == 'shift_up' || action.value == 'flip_x' || action.value == "invert") action.enabled = false;
+          else action.enabled = true;
+        });
+
+        break;
+      case 'weft':
+        this.designActions.forEach(action => {
+          if (action.value == 'shift_left' || action.value == 'flip_y' || action.value == "invert") action.enabled = false;
+          else action.enabled = true;
+        });
+
+        break;
+    }
+
+
+
   }
 
 
@@ -438,6 +518,7 @@ export class EditorComponent implements OnInit {
 
 
   public forceRedraw() {
+    console.log("FORCE REDRAW", this.id);
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -454,10 +535,14 @@ export class EditorComponent implements OnInit {
       use_floats: false,
       show_loom: loom_settings.type !== 'jacquard'
     };
-    this.weaveRef.redraw(draft, loom, loom_settings, flags);
-    this.weaveRef.redrawComplete.subscribe(draft => {
-      this.drawdownUpdated();
-    });
+
+    //set a small timeout for the CSS to update
+    setTimeout(() => {
+      this.weaveRef.redraw(draft, loom, loom_settings, flags);
+      this.weaveRef.redrawComplete.subscribe(draft => {
+        this.drawdownUpdated();
+      });
+    }, 1000);
   }
 
 
@@ -562,11 +647,11 @@ export class EditorComponent implements OnInit {
     switch (mode) {
       case 'select':
         this.pencilModeForm.setValue('select', { emitEvent: false });
-        this.selectPencil('select');
+        this.selectPencil('select', 'ui');
         break;
       case 'draw':
         this.pencilModeForm.setValue('draw', { emitEvent: false });
-        this.selectPencil('draw');
+        this.selectPencil('toggle', 'ui');
         break;
     }
 
@@ -575,12 +660,12 @@ export class EditorComponent implements OnInit {
 
 
 
-  selectPencil(pencil: string) {
+  selectPencil(pencil: string, origin: string = 'ui') {
 
     switch (pencil) {
 
       case 'select':
-        this.weaveRef.setPencil('select');
+        if (origin == 'ui') this.weaveRef.setPencil('select');
         this.pencilForm.setValue('select', { emitEvent: false });
         this.pencilModeForm.setValue('select', { emitEvent: false });
         break;
@@ -589,7 +674,7 @@ export class EditorComponent implements OnInit {
       case 'down':
       case 'toggle':
       case 'unset':
-        this.weaveRef.setPencil(pencil);
+        if (origin == 'ui') this.weaveRef.setPencil(pencil);
         this.pencilForm.setValue(pencil, { emitEvent: false });
         this.pencilModeForm.setValue('draw', { emitEvent: false });
         break;
@@ -597,7 +682,7 @@ export class EditorComponent implements OnInit {
       default:
         const split = pencil.split('_');
         const material_id = split[1];
-        this.weaveRef.setPencil('material', parseInt(material_id));
+        if (origin == 'ui') this.weaveRef.setPencil('material', parseInt(material_id));
         this.pencilForm.setValue('material_' + material_id, { emitEvent: false });
         this.pencilModeForm.setValue('draw', { emitEvent: false });
         break;
