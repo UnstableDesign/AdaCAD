@@ -491,6 +491,8 @@ export class EditorComponent implements OnInit {
 
 
 
+
+
   }
 
 
@@ -552,87 +554,21 @@ export class EditorComponent implements OnInit {
 
 
 
-  // public redrawSimulation(){
-  //   this.redrawViewer.emit();
-
-  // }
-
-
-
 
 
 
   public onScroll() {
   }
 
-  /**
-  * Weave reference masks pattern over selected area.
-  * @extends WeaveComponent
-  * @param {Event} e - mask event from design component.
-  * @returns {void}
-  */
-  public onMask(e) {
-    // console.log(e);
-    // var p = this.draft.patterns[e.id].pattern;
-    // this.weaveRef.maskArea(p);
-    // this.redraw();
-  }
-
-
-
-
-
-
-
-  /// PUBLIC FUNCTIONS
-  /**
-  * 
-  * @extends WeaveComponent
-  * @returns {void}
-  */
-  public print(e) {
-    console.log(e);
-  }
-
-
-
-
-
-  // }
 
 
 
   public updateSelection(e: any) {
     if (!this.weaveRef.hasSelection()) return;
     if (e.copy !== undefined) this.copy = e;
-    // if(e.id !== undefined) this.simRef.updateSelection(e.start, e.end);
   }
 
 
-
-
-
-
-  public toggleCollapsed() {
-    this.collapsed = !this.collapsed;
-  }
-
-
-  /**
-  *
-  * tranfers on save from header to draft viewer
-  */
-  // public onSave(e: any) {
-  //   this.weaveRef.onSave(e);
-  // }
-
-
-
-  // drawModeChange(name: string) {
-  //   this.dm.selectDraftEditingMode('draw');
-  //   this.dm.selectPencil(name);
-  //   this.weaveRef.unsetSelection();
-  // }
 
 
 
@@ -717,14 +653,11 @@ export class EditorComponent implements OnInit {
 
     const loom_settings = this.tree.getLoomSettings(this.id);
 
-    console.log("SWAP EDITING STYLE CLICKED", loom_settings.type, this.weaveRef.draft_edit_source)
     if (loom_settings.type !== 'jacquard') {
 
       if (this.weaveRef.isSelectedDraftEditSource('drawdown')) {
-        console.log("SELECTING DRAWDOWN")
         this.weaveRef.setDraftEditSource('drawdown');
       } else {
-        console.log("SELECTING LOOM")
         this.weaveRef.setDraftEditSource('loom');
       }
 

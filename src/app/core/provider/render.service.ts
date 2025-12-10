@@ -233,11 +233,11 @@ export class RenderService {
         weft_systems_cx.fillStyle = "#666666";
 
         weft_systems_cx.save();
-        weft_systems_cx.translate(10, (j + 1) * cell_size * pixel_ratio - 10);
+        weft_systems_cx.translate(defaults.draft_detail_cell_size * pixel_ratio / 2, j * cell_size * pixel_ratio + (cell_size / 2 * pixel_ratio));
         let tx = this.getTransform('weft-systems');
         weft_systems_cx.transform(tx[0], tx[1], tx[2], tx[3], tx[4], tx[5]);
         weft_systems_cx.textAlign = "center";
-        weft_systems_cx.fillText(system, 0, 0);
+        weft_systems_cx.fillText(system, 0, cell_size / 4 * pixel_ratio);
         weft_systems_cx.restore();
 
 
@@ -293,7 +293,7 @@ export class RenderService {
         warp_systems_cx.fillStyle = "#666666";
 
         warp_systems_cx.save();
-        warp_systems_cx.translate(j * cell_size * pixel_ratio + 10, defaults.draft_detail_cell_size * pixel_ratio - 5);
+        warp_systems_cx.translate(j * cell_size * pixel_ratio + (cell_size / 2), defaults.draft_detail_cell_size * pixel_ratio - 5);
         let tx = this.getTransform('warp-systems');
         warp_systems_cx.transform(tx[0], tx[1], tx[2], tx[3], tx[4], tx[5]);
         warp_systems_cx.textAlign = "center";
@@ -505,7 +505,6 @@ export class RenderService {
 
   public drawThreading(loom: Loom, loom_settings: LoomSettings, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, show_loom: boolean): Promise<string> {
 
-    console.log("DRAWING THREADING", loom, loom_settings, canvas);
 
     if (canvas == null || canvas == undefined) {
       return Promise.resolve('canvas null in drawThreading')
@@ -1049,7 +1048,6 @@ export class RenderService {
       fns = fns.concat(this.drawWeftData(draft, cell_size, this.pixel_ratio, canvases.weft_systems, canvases.weft_mats));
     }
 
-    console.log("DRAWING THREADING", rf.u_threading);
     if (rf.u_threading) {
       fns = fns.concat(this.drawThreading(loom, loom_settings, canvases.threading, cell_size, this.pixel_ratio, rf.show_loom));
     } else {

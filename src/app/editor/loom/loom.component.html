@@ -18,7 +18,10 @@
   </mat-form-field>
 
 
-  <!-- TO DO DISABLE THESE IF EDITS ARE NOT ENABLED-->
+
+  <mat-divider></mat-divider>
+  <mat-label>Warp Settings</mat-label>
+
   <mat-form-field>
     <mat-label>Warp Ends</mat-label>
 
@@ -39,42 +42,6 @@
     </mat-error>
     }
 
-  </mat-form-field>
-
-  <mat-form-field>
-    <mat-label>Weft Picks</mat-label>
-
-    <input matInput formControlName="wefts" [disabled]="!enabled" type="number" min="1" [max]="100000"
-      placeholder="Weft Picks">
-
-    @if (loomForm.get('wefts')?.invalid && loomForm.get('wefts')?.touched) {
-    <mat-error>
-      @if (loomForm.get('wefts')?.errors?.['required']) {
-      Weft picks is required
-      }
-      @if (loomForm.get('wefts')?.errors?.['min']) {
-      Weft picks must be at least 1
-      }
-      @if (loomForm.get('wefts')?.errors?.['max']) {
-      Weft picks cannot exceed 100,000
-      }
-    </mat-error>
-    }
-
-  </mat-form-field>
-
-  <mat-form-field class="fullwidth">
-    <mat-label>Density Units</mat-label>
-    <mat-select formControlName="units">
-      @for (unit of density_units; track unit) {
-      <mat-option [value]="unit.value">
-        {{unit.viewValue}}
-      </mat-option>
-      }
-    </mat-select>
-    @if (loomForm.get('units')?.invalid && loomForm.get('units')?.touched) {
-    <mat-error>Please select density units</mat-error>
-    }
   </mat-form-field>
 
   <mat-form-field class="fullwidth">
@@ -104,8 +71,6 @@
 
   </mat-form-field>
 
-
-
   <mat-form-field class="fullwidth">
     <mat-label>Width</mat-label>
     <input matInput [disabled]="!enabled" formControlName="width" step="0.125" type="number" min="0.25" max="2000"
@@ -132,6 +97,36 @@
     }
 
   </mat-form-field>
+
+
+  <mat-divider></mat-divider>
+  <mat-label>Weft Settings</mat-label>
+
+  <mat-form-field>
+    <mat-label>Weft Picks</mat-label>
+
+    <input matInput formControlName="wefts" [disabled]="!enabled" type="number" min="1" [max]="100000"
+      placeholder="Weft Picks">
+
+    @if (loomForm.get('wefts')?.invalid && loomForm.get('wefts')?.touched) {
+    <mat-error>
+      @if (loomForm.get('wefts')?.errors?.['required']) {
+      Weft picks is required
+      }
+      @if (loomForm.get('wefts')?.errors?.['min']) {
+      Weft picks must be at least 1
+      }
+      @if (loomForm.get('wefts')?.errors?.['max']) {
+      Weft picks cannot exceed 100,000
+      }
+    </mat-error>
+    }
+
+  </mat-form-field>
+
+
+
+
 
   <mat-form-field class="fullwidth">
     <mat-label>Weft Density</mat-label>
@@ -186,7 +181,12 @@
     }
 
   </mat-form-field>
+
+
+
   @if (loomForm.get('loomtype')?.value !== 'jacquard') {
+
+
 
   <mat-form-field class="fullwidth">
     <mat-label>Number of Frames</mat-label>
@@ -245,6 +245,22 @@
       have available on your loom. Your design requires {{required_treadles}} treadles.
       </div>}
       }
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Density Units</mat-label>
+        <mat-select formControlName="units">
+          @for (unit of density_units; track unit) {
+          <mat-option [value]="unit.value">
+            {{unit.viewValue}}
+          </mat-option>
+          }
+        </mat-select>
+        @if (loomForm.get('units')?.invalid && loomForm.get('units')?.touched) {
+        <mat-error>Please select density units</mat-error>
+        }
+      </mat-form-field>
+
+
 
 
 

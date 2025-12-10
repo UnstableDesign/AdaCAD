@@ -1,6 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
+import { MatDivider } from '@angular/material/divider';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
@@ -19,7 +20,7 @@ import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-ren
   selector: 'app-loom',
   templateUrl: './loom.component.html',
   styleUrls: ['./loom.component.scss'],
-  imports: [ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix]
+  imports: [ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix, MatDivider]
 })
 export class LoomComponent implements OnInit, OnDestroy {
   private tree = inject(TreeService);
@@ -182,7 +183,7 @@ export class LoomComponent implements OnInit, OnDestroy {
 
         let ndx = warps(draft.drawdown);
         const utils = getLoomUtilByType(loom_settings.type);
-        loom = utils.insertIntoThreading(loom, ndx, -1);
+        loom = (utils.insertIntoThreading != null) ? utils.insertIntoThreading(loom, ndx, -1) : loom;
 
         draft.drawdown = insertDrawdownCol(draft.drawdown, ndx, null);
         draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, ndx, 0);
@@ -196,7 +197,7 @@ export class LoomComponent implements OnInit, OnDestroy {
         let ndx = warps(draft.drawdown) - 1;
 
         const utils = getLoomUtilByType(loom_settings.type);
-        loom = utils.deleteFromThreading(loom, ndx);
+        loom = (utils.deleteFromThreading != null) ? utils.deleteFromThreading(loom, ndx) : loom;
         draft.drawdown = deleteDrawdownCol(draft.drawdown, ndx);
         draft.colShuttleMapping = deleteMappingCol(draft.colShuttleMapping, ndx);
         draft.colSystemMapping = deleteMappingCol(draft.colSystemMapping, ndx);
@@ -283,7 +284,7 @@ export class LoomComponent implements OnInit, OnDestroy {
         draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, ndx, 1)
         draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, ndx, 0);
         const utils = getLoomUtilByType(loom_settings.type);
-        loom = utils.insertIntoTreadling(loom, ndx, []);
+        loom = (utils.insertIntoTreadling != null) ? utils.insertIntoTreadling(loom, ndx, []) : loom;
       }
     } else {
 
@@ -294,7 +295,7 @@ export class LoomComponent implements OnInit, OnDestroy {
         draft.rowShuttleMapping = deleteMappingRow(draft.rowShuttleMapping, ndx)
         draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping, ndx)
         const utils = getLoomUtilByType(loom_settings.type);
-        loom = utils.deleteFromTreadling(loom, ndx);
+        loom = (utils.deleteFromTreadling != null) ? utils.deleteFromTreadling(loom, ndx) : loom;
 
       }
 
@@ -447,6 +448,7 @@ export class LoomComponent implements OnInit, OnDestroy {
 * recomputes warps and epi if the width of the loom is changed
 */
   private onWidthChange(value: number) {
+    console.log("value", value);
     const loom_settings = this.tree.getLoomSettings(this.id);
 
     if (!value || value < 0.25) {
@@ -461,11 +463,10 @@ export class LoomComponent implements OnInit, OnDestroy {
       ? Math.ceil(value * epi) :
       Math.ceil((10 * currentWarps / value));
 
+    console.log("new_warps", new_warps);
     this.warpNumChange(new_warps).then(out => {
       this.loomForm?.get('warps')?.setValue(new_warps, { emitEvent: false });
     });
-
-    // Update warps in form
 
     this.addStateChange();
 
