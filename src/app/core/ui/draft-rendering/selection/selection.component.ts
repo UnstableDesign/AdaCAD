@@ -3,7 +3,7 @@ import { MatFabButton } from '@angular/material/button';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Drawdown, Interlacement, OpInput, OpParamVal, Operation } from 'adacad-drafting-lib';
-import { createBlankDrawdown, generateMappingFromPattern, getCellValue, initDraftWithParams, isUp, pasteIntoDrawdown, setCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
+import { createBlankDrawdown, createCell, generateMappingFromPattern, getCellValue, initDraftWithParams, isUp, pasteIntoDrawdown, setCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { BehaviorSubject } from 'rxjs';
 import { DraftNodeBroadcastFlags } from '../../../model/datatypes';
@@ -164,9 +164,19 @@ export class SelectionComponent implements OnInit {
         this.onPaste('shift_left');
         break;
 
+      case 'shift_right':
+        this.copyArea();
+        this.onPaste('shift_right');
+        break;
+
       case 'shift_up':
         this.copyArea();
         this.onPaste('shift_up');
+        break;
+
+      case 'shift_down':
+        this.copyArea();
+        this.onPaste('shift_down');
         break;
 
     }
@@ -326,10 +336,17 @@ export class SelectionComponent implements OnInit {
         return Promise.resolve(this.copy);
         break;
       case 'erase':
-        op = this.ops.getOp('clear');
-        params = [];
+        op = this.ops.getOp('rectangle');
+        params = [{
+          param: op.params[1],
+          val: warps(this.copy)
+        },
+        {
+          param: op.params[0],
+          val: wefts(this.copy)
+        }];
         drafts = [{
-          drafts: [copy_draft],
+          drafts: [initDraftWithParams({ warps: warps(this.copy), wefts: wefts(this.copy), drawdown: [[createCell(false)]] })],
           inlet_id: 0,
           inlet_params: []
         }];
@@ -381,7 +398,7 @@ export class SelectionComponent implements OnInit {
         op = this.ops.getOp('shift');
         params = [{
           param: op.params[0],
-          val: 1
+          val: -1
         },
         {
           param: op.params[1],
@@ -408,6 +425,40 @@ export class SelectionComponent implements OnInit {
           inlet_id: 0,
           inlet_params: []
         }]
+        break;
+      case 'shift_right':
+        op = this.ops.getOp('shift');
+        params = [{
+          param: op.params[0],
+          val: 1
+        },
+        {
+          param: op.params[1],
+          val: 0
+        },];
+        drafts = [{
+          drafts: [copy_draft],
+          inlet_id: 0,
+          inlet_params: []
+        }]
+        break;
+      case 'shift_down':
+        op = this.ops.getOp('shift');
+        params = [{
+          param: op.params[0],
+          val: 0
+        },
+        {
+          param: op.params[1],
+          val: -1
+        },];
+        drafts = [{
+          drafts: [copy_draft],
+          inlet_id: 0,
+          inlet_params: []
+        }]
+        break;
+      default:
         break;
     }
     return op.perform(params, drafts)

@@ -5,7 +5,6 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { MatDivider } from '@angular/material/divider';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { MatLabel } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -26,6 +25,7 @@ import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
+import { LoadfileComponent } from '../core/ui/loadfile/loadfile.component';
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
 
@@ -33,7 +33,7 @@ import { RepeatsComponent } from './repeats/repeats.component';
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
-  imports: [MatAccordion, MatTabsModule, MatButtonModule, MatDivider, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, ReactiveFormsModule, LoomComponent, DraftRenderingComponent]
+  imports: [MatAccordion, MatTabsModule, MatButtonModule, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, ReactiveFormsModule, LoomComponent, DraftRenderingComponent]
 })
 export class EditorComponent implements OnInit {
   private dialog = inject(MatDialog);
@@ -51,6 +51,8 @@ export class EditorComponent implements OnInit {
 
   @ViewChild(LoomComponent) loom: LoomComponent;
   @ViewChild(DraftRenderingComponent, { static: true }) weaveRef: DraftRenderingComponent;
+  @ViewChild('drawToolsPanel') drawToolsPanel: MatExpansionPanel;
+  @ViewChild('selectToolsPanel') selectToolsPanel: MatExpansionPanel;
 
   @Input() hasFocus: boolean;
   @Output() saveChanges: any = new EventEmitter();
@@ -118,6 +120,10 @@ export class EditorComponent implements OnInit {
 
   eventTargetSetSubscription: Subscription;
   pencilChangeSubscription: Subscription;
+
+
+  drawToolsPanelSubscription: Subscription;
+  selectToolsPanelSubscription: Subscription;
 
   constructor() {
 
@@ -187,6 +193,21 @@ export class EditorComponent implements OnInit {
     this.pencilChangeSubscription = this.weaveRef.pencilChange$.subscribe(pencil => {
       this.selectPencil(pencil, 'rendering');
     });
+
+    this.drawToolsPanelSubscription = this.drawToolsPanel.expandedChange.subscribe(expanded => {
+      if (expanded) {
+        this.selectPencilMode('draw');
+      }
+    });
+
+    this.selectToolsPanelSubscription = this.selectToolsPanel.expandedChange.subscribe(expanded => {
+      if (expanded) {
+        this.selectPencilMode('select');
+      }
+    });
+
+    this.drawToolsPanel.open();
+    this.selectToolsPanel.close();
   }
 
   ngOnDestroy() {
@@ -195,6 +216,12 @@ export class EditorComponent implements OnInit {
     if (this.onSelectionEventSubscription) this.onSelectionEventSubscription.unsubscribe();
     if (this.eventTargetSetSubscription) this.eventTargetSetSubscription.unsubscribe();
     if (this.pencilChangeSubscription) this.pencilChangeSubscription.unsubscribe();
+    if (this.drawToolsPanelSubscription) this.drawToolsPanelSubscription.unsubscribe();
+    if (this.selectToolsPanelSubscription) this.selectToolsPanelSubscription.unsubscribe();
+  }
+
+  openMoreInformation() {
+    window.open('https://docs.adacad.org/docs/reference/interface/draft_editor#b-editing-tools', '_blank');
   }
 
   updatePencils() {
@@ -333,6 +360,9 @@ export class EditorComponent implements OnInit {
   updateWeavingInfo() {
 
 
+    console.log("UPDATE WEAVING INFO");
+
+
     const loom = this.tree.getLoom(this.id);
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -341,6 +371,8 @@ export class EditorComponent implements OnInit {
 
     let utils = getLoomUtilByType(loom_settings.type);
     this.dressing_info = utils.getDressingInfo(draft.drawdown, loom, loom_settings);
+
+
 
 
   }
@@ -469,13 +501,22 @@ export class EditorComponent implements OnInit {
     let ls = this.tree.getLoomSettings(id);
 
     this.setParentOp(id);
-    if (this.parentOp !== '') this.weaveRef.view_only = true;
-    else this.weaveRef.view_only = false;
+
 
     this.onLoad = true;
     this.weaveRef.onNewDraftLoaded(id); //this should load and draw everything in the renderer
+    console.log("THIS PARENT OP  ", this.parentOp);
+    if (this.parentOp !== '') {
+      this.weaveRef.view_only = true;
+    } else {
+      this.weaveRef.view_only = false;
+    }
+
+
+
+
     // Initialize design modes on the draft-rendering component
-    this.loom.loadLoom(id); //loads the current loom information into the sidebar
+    this.loom.loadLoom(id, this.weaveRef.view_only); //loads the current loom information into the sidebar
 
     this.draftname = getDraftName(draft);
 
@@ -491,6 +532,7 @@ export class EditorComponent implements OnInit {
 
 
   }
+
 
 
   public onCloseDrawer() {
@@ -574,15 +616,20 @@ export class EditorComponent implements OnInit {
    */
   selectPencilMode(mode: string) {
 
+    console.log('selectPencilMode', mode);
 
     switch (mode) {
       case 'select':
         this.pencilModeForm.setValue('select', { emitEvent: false });
         this.selectPencil('select', 'ui');
+        this.selectToolsPanel.open();
+        this.drawToolsPanel.close();
         break;
       case 'draw':
         this.pencilModeForm.setValue('draw', { emitEvent: false });
         this.selectPencil('toggle', 'ui');
+        this.selectToolsPanel.close();
+        this.drawToolsPanel.open();
         break;
     }
 
@@ -732,6 +779,23 @@ export class EditorComponent implements OnInit {
   }
 
 
+
+  import(source: string) {
+    //the loadfile component will upload and call the file service to process, then the results will be emitted to teh 
+    //parent app, where a new 
+    this.dialog.open(LoadfileComponent, {
+      data: {
+        type: source,
+        title: 'Import a draft from a ' + source,
+        accepts: source === 'bitmap' ? '.bmp .png .jpg .jpeg .gif .webp' : '.wif'
+      }
+    }).afterClosed().subscribe(result => {
+      if (result !== undefined && result !== null) {
+        console.log("IMPORT RESULT", result);
+        //this needs to call a function to load this into the app.
+      }
+    });
+  }
 
 
 }

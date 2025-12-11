@@ -1,6 +1,6 @@
-<form [formGroup]="loomForm" novalidate>
+<form class="loom-form" [formGroup]="loomForm" novalidate>
 
-
+  {{view_only}}
 
   <mat-form-field class="fullwidth">
 
@@ -16,173 +16,6 @@
     <mat-error>Please select a loom type</mat-error>
     }
   </mat-form-field>
-
-
-
-  <mat-divider></mat-divider>
-  <mat-label>Warp Settings</mat-label>
-
-  <mat-form-field>
-    <mat-label>Warp Ends</mat-label>
-
-    <input matInput formControlName="warps" [disabled]="!enabled" type="number" [min]="1" [max]="100000"
-      placeholder="Warp Ends">
-
-    @if (loomForm.get('warps')?.invalid && loomForm.get('warps')?.touched) {
-    <mat-error>
-      @if (loomForm.get('warps')?.errors?.['required']) {
-      Warp ends is required
-      }
-      @if (loomForm.get('warps')?.errors?.['min']) {
-      Warp ends must be at least 1
-      }
-      @if (loomForm.get('warps')?.errors?.['max']) {
-      Warp ends cannot exceed 100,000
-      }
-    </mat-error>
-    }
-
-  </mat-form-field>
-
-  <mat-form-field class="fullwidth">
-    <mat-label>Warp Density</mat-label>
-    <input matInput formControlName="epi" type="number" min="0">
-
-    <span matTextSuffix>
-      @if (loomForm.get('units')?.value === 'in') {
-      epi
-      }
-      @if (loomForm.get('units')?.value === 'cm') {
-      ends / 10cm
-      }
-
-    </span>
-
-    @if (loomForm.get('epi')?.invalid && loomForm.get('epi')?.touched) {
-    <mat-error>
-      @if (loomForm.get('epi')?.errors?.['required']) {
-      Density is required
-      }
-      @if (loomForm.get('epi')?.errors?.['min']) {
-      Density must be at least 0
-      }
-    </mat-error>
-    }
-
-  </mat-form-field>
-
-  <mat-form-field class="fullwidth">
-    <mat-label>Width</mat-label>
-    <input matInput [disabled]="!enabled" formControlName="width" step="0.125" type="number" min="0.25" max="2000"
-      placeholder="Width">
-    <span matTextSuffix>
-      @if (loomForm.get('units')?.value === 'in') {
-      inches
-      }
-      @if (loomForm.get('units')?.value === 'cm') {
-      cm
-      }
-
-    </span>
-
-    @if (loomForm.get('width')?.invalid && loomForm.get('width')?.touched) {
-    <mat-error>
-      @if (loomForm.get('width')?.errors?.['min']) {
-      Width must be at least 0.25
-      }
-      @if (loomForm.get('width')?.errors?.['max']) {
-      Width cannot exceed 60
-      }
-    </mat-error>
-    }
-
-  </mat-form-field>
-
-
-  <mat-divider></mat-divider>
-  <mat-label>Weft Settings</mat-label>
-
-  <mat-form-field>
-    <mat-label>Weft Picks</mat-label>
-
-    <input matInput formControlName="wefts" [disabled]="!enabled" type="number" min="1" [max]="100000"
-      placeholder="Weft Picks">
-
-    @if (loomForm.get('wefts')?.invalid && loomForm.get('wefts')?.touched) {
-    <mat-error>
-      @if (loomForm.get('wefts')?.errors?.['required']) {
-      Weft picks is required
-      }
-      @if (loomForm.get('wefts')?.errors?.['min']) {
-      Weft picks must be at least 1
-      }
-      @if (loomForm.get('wefts')?.errors?.['max']) {
-      Weft picks cannot exceed 100,000
-      }
-    </mat-error>
-    }
-
-  </mat-form-field>
-
-
-
-
-
-  <mat-form-field class="fullwidth">
-    <mat-label>Weft Density</mat-label>
-    <input matInput formControlName="ppi" type="number" min="0">
-
-    <span matTextSuffix>
-      @if (loomForm.get('units')?.value === 'in') {
-      ppi
-      }
-      @if (loomForm.get('units')?.value === 'cm') {
-      picks / 10cm
-      }
-
-    </span>
-
-    @if (loomForm.get('ppi')?.invalid && loomForm.get('ppi')?.touched) {
-    <mat-error>
-      @if (loomForm.get('ppi')?.errors?.['required']) {
-      Weft Density is required
-      }
-      @if (loomForm.get('ppi')?.errors?.['min']) {
-      Weft Density must be at least 0
-      }
-    </mat-error>
-    }
-
-  </mat-form-field>
-
-  <mat-form-field class="fullwidth">
-    <mat-label>Length</mat-label>
-    <input matInput [disabled]="!enabled" formControlName="length" step="0.125" type="number" min="0.25" max="2000"
-      placeholder="Width">
-    <span matTextSuffix>
-      @if (loomForm.get('units')?.value === 'in') {
-      inches
-      }
-      @if (loomForm.get('units')?.value === 'cm') {
-      cm
-      }
-
-    </span>
-
-    @if (loomForm.get('length')?.invalid && loomForm.get('length')?.touched) {
-    <mat-error>
-      @if (loomForm.get('length')?.errors?.['min']) {
-      Width must be at least 0.25
-      }
-      @if (loomForm.get('length')?.errors?.['max']) {
-      Width cannot exceed 2000
-      }
-    </mat-error>
-    }
-
-  </mat-form-field>
-
-
 
   @if (loomForm.get('loomtype')?.value !== 'jacquard') {
 
@@ -245,6 +78,175 @@
       have available on your loom. Your design requires {{required_treadles}} treadles.
       </div>}
       }
+
+
+
+      <mat-divider></mat-divider>
+      <mat-label class="section-title">Warp</mat-label>
+
+      <mat-form-field>
+        <mat-label>Warp Ends</mat-label>
+
+        <input matInput formControlName="warps" type="number" [min]="1" [max]="100000" placeholder="Warp Ends">
+
+        @if (loomForm.get('warps')?.invalid && loomForm.get('warps')?.touched) {
+        <mat-error>
+          @if (loomForm.get('warps')?.errors?.['required']) {
+          Warp ends is required
+          }
+          @if (loomForm.get('warps')?.errors?.['min']) {
+          Warp ends must be at least 1
+          }
+          @if (loomForm.get('warps')?.errors?.['max']) {
+          Warp ends cannot exceed 100,000
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Warp Density</mat-label>
+        <input matInput formControlName="epi" type="number" min="0">
+
+        <span matTextSuffix>
+          @if (loomForm.get('units')?.value === 'in') {
+          epi
+          }
+          @if (loomForm.get('units')?.value === 'cm') {
+          ends / 10cm
+          }
+
+        </span>
+
+        @if (loomForm.get('epi')?.invalid && loomForm.get('epi')?.touched) {
+        <mat-error>
+          @if (loomForm.get('epi')?.errors?.['required']) {
+          Density is required
+          }
+          @if (loomForm.get('epi')?.errors?.['min']) {
+          Density must be at least 0
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Width</mat-label>
+        <input matInput [disabled]="!enabled || view_only" formControlName="width" step="0.125" type="number" min="0.25"
+          max="2000" placeholder="Width">
+        <span matTextSuffix>
+          @if (loomForm.get('units')?.value === 'in') {
+          inches
+          }
+          @if (loomForm.get('units')?.value === 'cm') {
+          cm
+          }
+
+        </span>
+
+        @if (loomForm.get('width')?.invalid && loomForm.get('width')?.touched) {
+        <mat-error>
+          @if (loomForm.get('width')?.errors?.['min']) {
+          Width must be at least 0.25
+          }
+          @if (loomForm.get('width')?.errors?.['max']) {
+          Width cannot exceed 60
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+
+      <mat-divider></mat-divider>
+      <mat-label class="section-title">Weft</mat-label>
+
+      <mat-form-field>
+        <mat-label>Weft Picks</mat-label>
+
+        <input matInput formControlName="wefts" [disabled]="!enabled || view_only" type="number" min="1" [max]="100000"
+          placeholder="Weft Picks">
+
+        @if (loomForm.get('wefts')?.invalid && loomForm.get('wefts')?.touched) {
+        <mat-error>
+          @if (loomForm.get('wefts')?.errors?.['required']) {
+          Weft picks is required
+          }
+          @if (loomForm.get('wefts')?.errors?.['min']) {
+          Weft picks must be at least 1
+          }
+          @if (loomForm.get('wefts')?.errors?.['max']) {
+          Weft picks cannot exceed 100,000
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Weft Density</mat-label>
+        <input matInput formControlName="ppi" type="number" min="0">
+
+        <span matTextSuffix>
+          @if (loomForm.get('units')?.value === 'in') {
+          ppi
+          }
+          @if (loomForm.get('units')?.value === 'cm') {
+          picks / 10cm
+          }
+
+        </span>
+
+        @if (loomForm.get('ppi')?.invalid && loomForm.get('ppi')?.touched) {
+        <mat-error>
+          @if (loomForm.get('ppi')?.errors?.['required']) {
+          Weft Density is required
+          }
+          @if (loomForm.get('ppi')?.errors?.['min']) {
+          Weft Density must be at least 0
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Length</mat-label>
+        <input matInput [disabled]="!enabled || view_only" formControlName="length" step="0.125" type="number"
+          min="0.25" max="2000" placeholder="Width">
+        <span matTextSuffix>
+          @if (loomForm.get('units')?.value === 'in') {
+          inches
+          }
+          @if (loomForm.get('units')?.value === 'cm') {
+          cm
+          }
+
+        </span>
+
+        @if (loomForm.get('length')?.invalid && loomForm.get('length')?.touched) {
+        <mat-error>
+          @if (loomForm.get('length')?.errors?.['min']) {
+          Width must be at least 0.25
+          }
+          @if (loomForm.get('length')?.errors?.['max']) {
+          Width cannot exceed 2000
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+
+      <mat-divider></mat-divider>
+
+      <mat-label class="section-title">General</mat-label>
+
+
 
       <mat-form-field class="fullwidth">
         <mat-label>Density Units</mat-label>

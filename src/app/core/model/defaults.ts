@@ -148,14 +148,16 @@ export const mixer_edit_mode = [
 ]
 
 export const paste_options = [
+  { value: 'copy', viewValue: 'Copy (cmd+c)', icon: "fa fa-clone", drawdown: true, threading: true, treadling: true, tieups: true, materials: true, systems: true },
+  { value: 'paste', viewValue: 'Paste  (cmd+v)', icon: "fa fa-paste", drawdown: true, threading: true, treadling: true, tieups: true, materials: true, systems: true },
   { value: 'erase', viewValue: 'Erase', icon: "fa-solid fa-eraser", drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false },
   { value: 'invert', viewValue: 'Invert', icon: "fas fa-adjust", drawdown: true, threading: false, treadling: true, tieups: true, materials: false, systems: false },
   { value: 'flip_x', viewValue: 'Flip', icon: "fas fa-arrows-alt-v", drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false },
   { value: 'flip_y', viewValue: 'Flip', icon: "fas fa-arrows-alt-h", drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false },
   { value: 'shift_left', viewValue: 'Shift', icon: "fas fa-arrow-left", drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false },
+  { value: 'shift_right', viewValue: 'Shift', icon: "fas fa-arrow-right", drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false },
   { value: 'shift_up', viewValue: 'Shift', icon: "fas fa-arrow-up", drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false },
-  { value: 'copy', viewValue: 'Copy (cmd+c)', icon: "fa fa-clone", drawdown: true, threading: true, treadling: true, tieups: true, materials: true, systems: true },
-  { value: 'paste', viewValue: 'Paste  (cmd+v)', icon: "fa fa-paste", drawdown: true, threading: true, treadling: true, tieups: true, materials: true, systems: true }
+  { value: 'shift_down', viewValue: 'Shift', icon: "fas fa-arrow-down", drawdown: true, threading: true, treadling: true, tieups: true, materials: false, systems: false },
 ];
 
 export const licenses = [

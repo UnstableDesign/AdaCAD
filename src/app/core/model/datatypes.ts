@@ -323,7 +323,7 @@ export interface SaveObj {
   version: string,
   workspace: any,
   zoom: ZoomProxy,
-  type: 'mixer' | 'partial',
+  type: 'mixer' | 'partial' | 'wif',
   nodes: Array<NodeComponentProxy>,
   tree: Array<TreeNodeProxy>,
   draft_nodes: Array<DraftNodeProxy>,
@@ -363,7 +363,8 @@ export interface LoadResponse {
 export interface Fileloader {
   ada: (data: SaveObj, meta: FileMeta, src: string) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
-  //wif: (filename: string, data: any) => Promise<LoadResponse>,
+  wif: (filename: string, data: any) => Promise<LoadResponse>,
+  bitmap: (filename: string, data: any) => Promise<LoadResponse>,
 }
 
 export interface FileSaver {

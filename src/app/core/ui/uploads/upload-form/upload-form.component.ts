@@ -5,6 +5,7 @@ import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MediaInstance, Upload } from '../../../model/datatypes';
+import { ImporttodraftService } from '../../../provider/importtodraft.service';
 import { MediaService } from '../../../provider/media.service';
 import { UploadService } from '../../../provider/upload.service';
 
@@ -18,7 +19,7 @@ export class UploadFormComponent implements OnInit {
   private upSvc = inject(UploadService);
   private httpClient = inject(HttpClient);
   private mediaSvc = inject(MediaService);
-
+  private importtodraftSvc = inject(ImporttodraftService);
 
   @Input() type: string; //'single_image', 'ada', or 'bitmap_collection'
   @Input() multiple: boolean;
@@ -36,6 +37,8 @@ export class UploadFormComponent implements OnInit {
 
   @Output() onData: any = new EventEmitter();
   @Output() onError: any = new EventEmitter();
+
+
 
   detectFiles(event) {
     this.selectedFiles = event.target.files;
@@ -69,6 +72,8 @@ export class UploadFormComponent implements OnInit {
   }
 
 
+
+
   uploadImage(upload: Upload, file: File, type: 'image' | 'indexed_color_image'): Promise<any> {
 
     console.log("uploading image", upload, file, type);
@@ -98,18 +103,6 @@ export class UploadFormComponent implements OnInit {
     });
   }
 
-
-  //TEMP DISABLE
-  //   uploadBitmap(upload: Upload, file: File) : Promise<any> {
-
-  //     return this.upSvc.pushUpload(upload).then(snapshot => {
-  //      return  this.mediaSvc.loadMedia([{id: upload.name, data: null}]);
-  //    }).catch(e => {
-  //       this.onError.emit(e);
-  //       this.uploading = false;
-  //       this.selectedFiles = null;
-  //    }); 
-  //  }
 
 
 
@@ -148,6 +141,32 @@ export class UploadFormComponent implements OnInit {
 
       case 'bitmap_collection':
         this.uploadBitmaps();
+        break;
+
+      case 'wif':
+        this.importtodraftSvc.uploadWif(upload, file).then(
+          res => {
+            this.onData.emit();
+            this.uploading = false;
+            this.selectedFiles = null;
+          }).catch(e => {
+            this.onError.emit(e);
+            this.uploading = false;
+            this.selectedFiles = null;
+          });
+        break;
+
+      case 'bmp': case 'png': case 'jpg': case 'jpeg': case 'gif': case 'webp':
+        this.importtodraftSvc.uploadBitmap(upload, file).then(
+          res => {
+            this.onData.emit(res);
+            this.uploading = false;
+            this.selectedFiles = null;
+          }).catch(e => {
+            this.onError.emit(e);
+            this.uploading = false;
+            this.selectedFiles = null;
+          });
         break;
 
 

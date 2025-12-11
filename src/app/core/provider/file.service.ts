@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { defaults, generateId, Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
-import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
-import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
-import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
+import { Draft, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
+import { getLoomUtilByType, initLoom, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
+import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
 import { loadDraftFromFile, loadLoomFromFile } from '../model/helper';
+import { getBool, getColorTable, getInt, getString, getSubstringAfter, getThreading, getTieups, getTreadling } from '../model/wif';
 import { MaterialsService } from './materials.service';
 import { MediaService } from './media.service';
 import { NotesService } from './notes.service';
@@ -412,95 +413,122 @@ export class FileService {
 
 
 
+      },
+
+      wif: async (filename: string, data: any): Promise<LoadResponse> => {
+
+
+        var stringWithoutMetadata = getSubstringAfter("CONTENTS", data);
+        const warps: number = getInt("Threads", getSubstringAfter("WARP]", stringWithoutMetadata));
+        const wefts: number = getInt("Threads", getSubstringAfter("WEFT]", stringWithoutMetadata));
+        const pattern: Array<Array<boolean>> = [];
+
+
+
+        const draft = initDraftWithParams({ warps, wefts });
+        //draft.drawdown = drawdownFromPattern(pattern, {warps, wefts});
+        draft.gen_name = data.name;
+
+        let frames = getInt("Shafts", data);
+        let treadles = getInt("Treadles", data);
+
+        const loom_settings: LoomSettings = {
+          type: 'frame',
+          frames,
+          treadles,
+          units: 'in',
+          epi: 100,
+          ppi: 100
+        }
+        const loom = initLoom(warps, wefts, frames, treadles);
+
+
+        if (getBool("TREADLING", stringWithoutMetadata)) {
+          loom.treadling = getTreadling(stringWithoutMetadata, draft);
+        }
+        if (getBool("THREADING", stringWithoutMetadata)) {
+          loom.threading = getThreading(stringWithoutMetadata, draft);
+        }
+        if (getBool("TIEUP", data)) {
+          loom.tieup = getTieups(stringWithoutMetadata, draft);
+
+        }
+        if (getBool("COLOR TABLE", data)) {
+          if (getString("Form", data) === "RGB") {
+            let color_table: Array<Material> = getColorTable(data);
+            var shuttles = color_table;
+
+            /** TODO: Update this to add, not overwrite, shuttles */
+
+            //add the shuttles to the existing
+
+
+            this.ms.overloadShuttles(shuttles);
+            // draft.overloadRowShuttleMapping(utilInstance.getRowToShuttleMapping(data, draft));
+            // draft.overloadColShuttleMapping(utilInstance.getColToShuttleMapping(data, draft));
+          }
+        }
+
+
+        let ncp: NodeComponentProxy = {
+          node_id: generateId(8),
+          type: 'draft',
+          topleft: { x: 0, y: 0 }
+        }
+
+
+        let dnp: DraftNodeProxy = {
+          node_id: ncp.node_id,
+          draft_id: draft.id,
+          ud_name: 'imported wif',
+          gen_name: '',
+          notes: 'imported from wif',
+          draft: draft,
+          compressed_draft: null,
+          draft_visible: true,
+          loom: loom,
+          loom_settings: loom_settings,
+          render_colors: true,
+          scale: 1
+        }
+
+        const envt: SaveObj = {
+          version: '0.0.0',
+          workspace: null,
+          zoom: null,
+          type: 'wif',
+          nodes: [ncp],
+          tree: null,
+          draft_nodes: [dnp],
+          notes: [],
+          ops: [],
+          materials: [],
+          indexed_image_data: []
+        }
+
+        const meta = {
+          id: -1,
+          name: 'wif import',
+          desc: 'a file represeting imported wif information',
+          from_share: '',
+          share_owner: ''
+
+        }
+
+        return Promise.resolve({ data: envt, meta, status: 0 });
+
+
+
+
+
+      },
+      bitmap: async (filename: string, data: any): Promise<LoadResponse> => {
+
+
+
+
+        return Promise.resolve({ data: null, meta: null, status: 0 });
       }
-
-      // wif: async (filename: string, data: any) : Promise<LoadResponse> => {
-      //   this.clearAll();
-
-
-      //   let drafts: Array<Draft> = [];
-      //   let looms: Array<Loom> = [];
-      //   let version = '0.0.0';
-
-      //   var stringWithoutMetadata = utilInstance.getSubstringAfter("CONTENTS", data);
-      //   const warps:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WARP]",stringWithoutMetadata));
-      //   const wefts:number = utilInstance.getInt("Threads",utilInstance.getSubstringAfter("WEFT]",stringWithoutMetadata));
-      //   const pattern: Array<Array<Cell>> = [];
-
-
-      //   for (var i = 0; i < wefts; i++) {
-      //     pattern.push([]);
-      //     for (var j = 0; j < warps; j++) {
-      //       pattern[i].push(new Cell(null));
-      //       pattern[i][j].setHeddle(false);
-      //     }
-      //   }
-
-      //   const draft = initDraft();
-      //   draft.drawdown = generateDrawdownWithPattern(pattern, warps, wefts);
-      //   drafts.push(draft);
-      //   draft.gen_name = data.name;
-
-      // let frames = utilInstance.getInt("Shafts", data);
-      // let treadles = utilInstance.getInt("Treadles", data);
-
-      // const loom:Loom = new Loom(draft, 'frame', frames, treadles);
-      // looms.push(loom);
-
-      // // draft.loom.tieup = []
-
-      // // for (var i = 0; i < frames; i++) {
-      // //   draft.loom.tieup.push([]);
-      // //   for (var j = 0; j < treadles; j++) {
-      // //     draft.loom.tieup[i].push(false);
-      // //   }
-      // // }
-
-      // if (utilInstance.getBool("TREADLING", stringWithoutMetadata)) {
-      //   var treadling = utilInstance.getTreadling(stringWithoutMetadata, draft);
-      //   loom.overloadTreadling(treadling, version, pattern.length);
-      // }
-      // if (utilInstance.getBool("THREADING", stringWithoutMetadata)) {
-      //   var threading = utilInstance.getThreading(stringWithoutMetadata, draft);
-      //   loom.overloadThreading(threading);
-      // }
-      // if (utilInstance.getBool("TIEUP", data)) {
-      //   var tieups = utilInstance.getTieups(stringWithoutMetadata, draft);
-      //   loom.overloadTieup(tieups);
-
-      // }
-      // if (utilInstance.getBool("COLOR TABLE",data)) {
-      //   if (utilInstance.getString("Form", data) === "RGB") {
-      //     let color_table: Array<Material>  = utilInstance.getColorTable(data);
-      //     var shuttles = color_table;
-
-      //     /** TODO: Update this to add, not overwrite, shuttles */
-      //     this.ms.overloadShuttles(shuttles);
-      //     draft.overloadRowShuttleMapping(utilInstance.getRowToShuttleMapping(data, draft));
-      //     draft.overloadColShuttleMapping(utilInstance.getColToShuttleMapping(data, draft));
-      //   }
-      // }
-
-      // draft.recalculateDraft(tieups, treadling, threading);
-
-
-      // const proxies = this.tree.getNewDraftProxies(draft, []);
-
-
-      // const f: FileObj = {
-      //   version: 'na',
-      //   filename: filename,
-      //   drafts: drafts,
-      //   looms: looms,
-      //   nodes: [proxies.node], 
-      //   treenodes: [proxies.treenode],
-      //   ops: [],
-      //   scale: 5
-      // }
-
-
-      // return Promise.resolve({data: f ,status: 0});
-      // },
 
     }
 

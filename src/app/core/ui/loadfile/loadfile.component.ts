@@ -29,6 +29,8 @@ export class LoadfileComponent {
   connection_state = false;
   private connectionSubscription: Subscription;
 
+
+
   constructor() {
     const data = this.data;
 
@@ -43,6 +45,8 @@ export class LoadfileComponent {
     this.connectionSubscription = this.fb.connectionChangeEvent$.subscribe(data => {
       this.connection_state = data;
     });
+
+
 
 
   }
@@ -66,16 +70,12 @@ export class LoadfileComponent {
    */
   async handleFile(e: any): Promise<any> {
     this.errorstring = '';
+    if (e === undefined || e === null) {
+      this.dialogRef.close();
+      return;
+    }
+    console.log(e);
     switch (e.type) {
-      // case 'image': 
-      // return this.fls.loader.bmp(e.name, e.data).then(
-      //   res => this.dialogRef.close(res)
-      // );
-      // case 'wif': 
-      //   return this.fls.loader.wif(e.name, e.data)
-      //   .then(
-      //     res => this.dialogRef.close(res)
-      //   );
 
       case 'bitmap_collection':
         this.dialogRef.close(e.drafts)

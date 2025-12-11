@@ -1,11 +1,52 @@
 @use '@angular/material' as mat;
 
-
 .mat-button-toggle-group {
     display: flex;
     flex-direction: row;
     width: 100%;
     flex-wrap: wrap;
+}
+
+
+.new-draft-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.draft_tools {
+
+    .mat-expansion-panel-header {
+        padding: 8px 8px 8px 12px;
+        line-height: 12px;
+        background-color: #333333;
+        color: #ffffff;
+        line-height: 36px;
+
+    }
+
+    ::ng-deep .mat-expansion-panel-body {
+        padding: 12px;
+    }
+
+    @include mat.expansion-overrides((header-focus-state-layer-color: #ff4081,
+            header-hover-state-layer-color: #333333,
+            container-background-color: white,
+            header-text-color:white,
+            header-expanded-state-height: 24px,
+            header-collapsed-state-height: 36px));
+
+
+
+}
+
+.detail-sidebars {
+
+
+    // @include mat.expansion-overrides((actions-divider-color: orange,
+    //         container-background-color: red,
+    //     ));
 }
 
 
@@ -168,6 +209,10 @@ h1 {
 
 }
 
+.draft-style-info-button {
+    font-size: 12px;
+}
+
 #draft_viewer {
     display: flex;
     flex: 0 1 100%;
@@ -225,10 +270,73 @@ h1 {
     }
 }
 
+.is-active {
+    font-weight: bold;
+    color: #ff4081;
+}
+
+.draw {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+
+
+    .add-materials-button {
+        color: grey;
+        font-size: 12px;
+
+    }
+
+}
+
+.design-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 5px;
+
+
+    .paste {
+        margin-right: 100px;
+    }
+}
+
+.selection_status {
+    background-color: #ff4081;
+    border-radius: 4px;
+    color: white;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.select {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.select-button {
+    width: 100%;
+}
 
 .editing-mode-toggle {
     width: 100%;
     padding-bottom: 16px;
+
+
+
+    // Customize the entire app. Change :root to your selector if you want to scope the styles.
+
+    @include mat.button-toggle-overrides((state-layer-color: whitesmoke,
+            selected-state-background-color: #ff4081,
+            selected-state-text-color: white,
+        ));
+
 
 }
 

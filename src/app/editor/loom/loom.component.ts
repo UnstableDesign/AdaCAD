@@ -43,6 +43,7 @@ export class LoomComponent implements OnInit, OnDestroy {
   required_treadles: number = defaults.loom_settings.treadles;
 
   draftValueChangeSubscription: Subscription;
+  view_only: boolean = false;
 
 
 
@@ -89,8 +90,9 @@ export class LoomComponent implements OnInit, OnDestroy {
 
   }
 
-  loadLoom(id: number) {
+  loadLoom(id: number, view_only: boolean) {
     this.id = id;
+    this.view_only = view_only;
     let draftNode = this.tree.getNode(this.id) as DraftNode;
     this.before = this.tree.getDraftNodeState(this.id);
 
@@ -98,6 +100,8 @@ export class LoomComponent implements OnInit, OnDestroy {
     this.draftValueChangeSubscription = draftNode.onValueChange.subscribe(el => {
       this.updateFormValues(el.draft, el.loom, el.loom_settings);
     });
+
+    this.updateFormValues();
   }
 
 
@@ -160,6 +164,20 @@ export class LoomComponent implements OnInit, OnDestroy {
         this.loomForm.get('frames')?.enable({ emitEvent: false });
         this.loomForm.get('treadles')?.enable({ emitEvent: false });
       }
+
+      if (this.view_only) {
+        this.loomForm.get('warps')?.disable({ emitEvent: false });
+        this.loomForm.get('wefts')?.disable({ emitEvent: false });
+        this.loomForm.get('width')?.disable({ emitEvent: false });
+        this.loomForm.get('length')?.disable({ emitEvent: false });
+      }
+      else {
+        this.loomForm.get('warps')?.enable({ emitEvent: false });
+        this.loomForm.get('wefts')?.enable({ emitEvent: false });
+        this.loomForm.get('width')?.enable({ emitEvent: false });
+        this.loomForm.get('length')?.enable({ emitEvent: false });
+      }
+
 
     }
 

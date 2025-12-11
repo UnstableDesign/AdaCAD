@@ -24,6 +24,7 @@ import { mergeBounds } from './core/model/helper';
 import { ErrorBroadcasterService } from './core/provider/error-broadcaster.service';
 import { FileService } from './core/provider/file.service';
 import { FirebaseService } from './core/provider/firebase.service';
+import { ImporttodraftService } from './core/provider/importtodraft.service';
 import { MaterialsService } from './core/provider/materials.service';
 import { MediaService } from './core/provider/media.service';
 import { NotesService } from './core/provider/notes.service';
@@ -90,6 +91,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   cdr = inject(ChangeDetectorRef);
   errorBroadcaster = inject(ErrorBroadcasterService);
+  private importtodraftSvc = inject(ImporttodraftService);
   title = 'app';
 
 
@@ -152,6 +154,9 @@ export class AppComponent implements OnInit, OnDestroy {
   errorBroadcastSubscription: Subscription;
   zoomChangeSubscription: Subscription;
 
+
+  wifImportedSubscription: Subscription;
+  bitmapImportedSubscription: Subscription;
 
   constructor() {
 
@@ -259,7 +264,19 @@ export class AppComponent implements OnInit, OnDestroy {
     })
 
 
+    this.wifImportedSubscription = this.importtodraftSvc.wifImported$.subscribe(data => {
+      console.log("WIF IMPORTED", data);
+      this.fs.loader.wif(data.name, data.data).then(res => {
+        this.draftImported(res);
+      });
+    });
 
+    this.bitmapImportedSubscription = this.importtodraftSvc.bitmapImported$.subscribe(data => {
+      console.log("BITMAP IMPORTED", data);
+      this.fs.loader.bitmap(data.name, data.data).then(res => {
+        this.draftImported(res);
+      });
+    });
 
 
     this.stateSubscriptions.push(draftStateChangeSubscription);
@@ -331,6 +348,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (this.errorBroadcastSubscription) {
       this.errorBroadcastSubscription.unsubscribe();
+    }
+
+    if (this.wifImportedSubscription) {
+      this.wifImportedSubscription.unsubscribe();
+    }
+    if (this.bitmapImportedSubscription) {
+      this.bitmapImportedSubscription.unsubscribe();
     }
   }
 
@@ -552,6 +576,23 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Update the zoom FormControl to reflect the current zoom level for the new mode
     this.updateZoomFormControl();
+
+  }
+
+  draftImported(lr: LoadResponse) {
+    let draft_id = -1;
+    console.log("DRAFT IMPORTED", lr);
+    lr.data.draft_nodes.forEach(dn => {
+      this.createNewDraftOnMixer(dn.draft, dn.loom, dn.loom_settings).then(id => {
+        draft_id = id;
+        this.saveFile();
+      });
+    });
+
+    if (this.selected_editor_mode == 'editor') {
+      this.editor.loadDraft(draft_id);
+    }
+
 
   }
 
