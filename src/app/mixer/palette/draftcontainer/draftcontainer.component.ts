@@ -226,7 +226,6 @@ export class DraftContainerComponent implements AfterViewInit {
       for (const mutation of mutationList) {
         //changed this to only listen on height because it was triggering for too many attributes
         if (mutation.type === "attributes" && mutation.attributeName === "height") {
-          console.log(`The ${mutation.attributeName} attribute was modified.`);
           this.onDrawdownSizeChanged.emit(this.id);
         }
       }

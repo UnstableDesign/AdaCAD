@@ -329,7 +329,6 @@ export class LoomComponent implements OnInit, OnDestroy {
 
   private onLoomTypeChange(type: string) {
 
-    console.log("LOOM TYPE CHANGED to", type);
     if (this.id == -1) return;
 
     const draft = this.tree.getDraft(this.id);
@@ -448,7 +447,6 @@ export class LoomComponent implements OnInit, OnDestroy {
 * recomputes warps and epi if the width of the loom is changed
 */
   private onWidthChange(value: number) {
-    console.log("value", value);
     const loom_settings = this.tree.getLoomSettings(this.id);
 
     if (!value || value < 0.25) {
@@ -463,7 +461,6 @@ export class LoomComponent implements OnInit, OnDestroy {
       ? Math.ceil(value * epi) :
       Math.ceil((10 * currentWarps / value));
 
-    console.log("new_warps", new_warps);
     this.warpNumChange(new_warps).then(out => {
       this.loomForm?.get('warps')?.setValue(new_warps, { emitEvent: false });
     });

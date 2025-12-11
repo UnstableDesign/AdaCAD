@@ -198,13 +198,11 @@ export class OperationComponent implements OnInit {
 
 
     this.recomputationSubscription = this.opnode.recomputing.subscribe((value) => {
-      console.log("RECOMPUTING VALUE RECEIVED", this.id, value);
       this.triggerFadeToBlack();
       //this.recomputing = value;
     });
 
     this.checkChildrenSubscription = this.opnode.checkChildren.subscribe((value) => {
-      console.log("CHECK CHILDREN VALUE RECEIVED", this.id, value);
       this.children = this.tree.getNonCxnOutputs(this.id);
     });
 

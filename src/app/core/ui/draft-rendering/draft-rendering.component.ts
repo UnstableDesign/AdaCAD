@@ -139,7 +139,6 @@ export class DraftRenderingComponent implements OnInit {
   setPencil(pencil: string, material_id?: number) {
     this.pencil = pencil;
     this.pencilChange$.next(pencil);
-    console.log("SET PENCIL", pencil);
     if (material_id) {
       this.selected_material_id = material_id;
     }
@@ -277,7 +276,6 @@ export class DraftRenderingComponent implements OnInit {
 
   //this is called anytime a new draft object is loaded into this rendering window. Generally, this should only happen in the viewer and editor
   onNewDraftLoaded(id: number) {
-    console.log("ON NEW DRAFT LOADED", id);
     this.id = id;
 
     if (id == -1) return;
@@ -540,7 +538,6 @@ export class DraftRenderingComponent implements OnInit {
 
     //make sure the mouse is down before calling any of these, 
 
-    console.log("HANDLE MOUSE EVENT", stage, currentPos.i, currentPos.j);
     if (!this.isValidTarget(event.target as HTMLElement)) return;
 
     switch (stage) {
@@ -1046,7 +1043,6 @@ export class DraftRenderingComponent implements OnInit {
 
   public unsetSelection() {
 
-    console.log("UNSET SELECTION", this.selection);
     this.selection.unsetParameters();
   }
 
@@ -1116,7 +1112,6 @@ export class DraftRenderingComponent implements OnInit {
     }
 
     if (this.needsRedraw(rf)) {
-      console.log("[REDRAW]", this.id, draft.id, this.source, rf);
       const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
         this.isRedrawing = false;
         this.refreshOriginMarker();
@@ -1198,7 +1193,6 @@ export class DraftRenderingComponent implements OnInit {
           s += 'o'
         }
       }
-      console.log(s);
     }
   }
 

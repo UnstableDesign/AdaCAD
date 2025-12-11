@@ -160,7 +160,6 @@ export class EditorComponent implements OnInit {
 
     // Subscribe to pencil changes
     this.pencilForm.valueChanges.subscribe(value => {
-      console.log("PENCIL FORM VALUE CHANGES", value);
       if (value !== null && value !== undefined) {
         this.selectPencil(value, 'ui');
       }
@@ -297,7 +296,6 @@ export class EditorComponent implements OnInit {
   }
 
   designActionChange(action: string) {
-    console.log("DESIGN ACTION CHANGE", action);
     this.weaveRef.selection.designActionChange(action);
   }
 
@@ -427,7 +425,6 @@ export class EditorComponent implements OnInit {
   * placholder for any code we need to run when we focus on this view
   */
   onFocus(id: number) {
-    console.log("ON FOCUS ", id)
     this.loadDraft(id);
 
 
@@ -513,14 +510,12 @@ export class EditorComponent implements OnInit {
       this.onLoad = false;
       return;
     }
-    console.log("DRAWDOWN UPDATED", this.id)
 
   }
 
 
 
   public forceRedraw() {
-    console.log("FORCE REDRAW", this.id);
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -672,7 +667,6 @@ export class EditorComponent implements OnInit {
    */
   zoomToFit() {
     // Skip if no draft is selected
-    console.log("ZOOMING TO FIT EDITOR", this.id);
     if (this.id === -1) {
       return;
     }

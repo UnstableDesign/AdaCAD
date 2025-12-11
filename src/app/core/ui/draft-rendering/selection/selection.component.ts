@@ -438,7 +438,6 @@ export class SelectionComponent implements OnInit {
     let pattern: Array<number> = [];
     let mapping: Array<number> = [];
 
-    console.log("ON PASTE", type);
 
     //manipulate the copy in any way required 
     this.applyManipulation(type)
@@ -744,9 +743,6 @@ export class SelectionComponent implements OnInit {
     //pad the selection container to match the padding of the parent. 
     var style = window.getComputedStyle(this.target.parentElement);
     var matrix = new WebKitCSSMatrix(style.transform);
-    console.log("MATRIX IS ", matrix);
-
-    console.log("Size Row", this.size_row);
     this.size_row.style.transform = 'matrix(' + matrix.a + ',' + matrix.b + ',' + matrix.c + ',' + matrix.d + ',' + matrix.e + ',' + matrix.f + ')';
 
 
@@ -784,7 +780,6 @@ export class SelectionComponent implements OnInit {
         break;
 
       case 'drawdown-' + this.source + "-" + this.id:
-        console.log("LINKED WITH CASE " + 'drawdown-' + this.source + "-" + this.id)
         break;
       case 'tieups-' + this.source + "-" + this.id:
         break;
@@ -853,7 +848,6 @@ export class SelectionComponent implements OnInit {
   */
   onSelectStop(leave: boolean = false) {
 
-    console.log("ON SELECT STOP", leave);
     if (this.target === undefined) return;
     if (this.target !== null && !this.isTargetEnabled(this.target.id)) return;
     this.hide_actions = false;
@@ -930,7 +924,6 @@ export class SelectionComponent implements OnInit {
 
 
   unsetParameters() {
-    console.log("UNSET PARAMETERS", this.target);
     if (this.target !== null && this.target !== undefined) {
       this.selectionEventSubject.next('none');
       let parent = this.selectionContainerEl.parentNode;

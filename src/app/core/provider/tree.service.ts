@@ -97,7 +97,6 @@ export class TreeService {
     if (node.type === 'draft') {
       const draft = (<DraftNode>node).draft;
       const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
-      console.log(`[BROADCAST] Draft ${id} (${size})`);
 
       const rf: RenderingFlags = {
         u_drawdown: flags.draft,
@@ -483,7 +482,6 @@ export class TreeService {
   setOpenConnection(id: number): boolean {
     if (this.getType(id) !== 'draft') return false;
     this.open_connection = id;
-    console.log("set open connection", id)
     return true;
   }
 
@@ -1402,19 +1400,16 @@ export class TreeService {
       if (el.type === "op") el.dirty = true;
     })
 
-    console.log("[OPS] START: Performing top level operations");
     const top_level_nodes =
       this.nodes
         .filter(el => el.type === 'op')
         .filter(el => this.getUpstreamOperations(el.id).length === 0)
         .map(el => el.id);
 
-    console.log("[OPS] Found", top_level_nodes.length, "top level operations");
     const startTime = performance.now();
 
     return this.performGenerationOps(top_level_nodes).then(result => {
       const duration = performance.now() - startTime;
-      console.log(`[OPS] COMPLETE: All operations performed in ${duration.toFixed(2)}ms`);
       return result;
     }).catch(err => {
       console.error("Error performing top level ops", err);
@@ -1487,7 +1482,6 @@ export class TreeService {
       if (needs_performing.length === 0) return [];
       return this.performGenerationOps(fns);
     }).catch(err => {
-      console.log("ERROR", err);
       //if one of the performs fails, see if we can remove it and call again
       if (err.node_id !== undefined) {
         const offending_op = err.node_id;
@@ -1527,7 +1521,6 @@ export class TreeService {
   async performOp(id: number): Promise<Array<number>> {
 
     const opnode = <OpNode>this.getNode(id);
-    console.log("PERFORMING OP + Publish Recompute", id, opnode.name)
 
 
     const op = this.ops.getOp(opnode.name);
@@ -1899,10 +1892,8 @@ export class TreeService {
 
     const sd_node: TreeNode = this.getTreeNode(sd_id);
     if (sd_node.outputs.length == 0) {
-      console.log("Error: subdraft node did not have outputs");
       return null;
     } else if (sd_node.outputs.length > 1) {
-      console.log("Error: subdraft node had more than one output");
       return null;
     }
 
@@ -2277,7 +2268,6 @@ export class TreeService {
   getConnectionInput(node_id: number): number {
     const tn = this.getTreeNode(node_id);
     const input_ids: Array<number> = tn.inputs.map(child => child.tn.node.id);
-    if (input_ids.length > 1) console.log("Error: more than one input");
     return input_ids[0];
   }
 
@@ -2292,7 +2282,6 @@ export class TreeService {
   getConnectionOutput(node_id: number): number {
     const tn = this.getTreeNode(node_id);
     const output_ids: Array<number> = tn.outputs.map(child => child.tn.node.id);
-    if (output_ids.length > 1) console.log("Error: more than one output");
     return output_ids.pop();
   }
 
@@ -2382,14 +2371,11 @@ export class TreeService {
   print() {
     const gens: Array<Array<number>> = this.convertTreeToGenerations();
     gens.forEach((el, ndx) => {
-      console.log("****  geneation ", ndx, "****");
       el.forEach(subel => {
         const type = this.getType(subel);
-        console.log("(", subel, ',', type, ')');
       });
     });
 
-    console.log("tree: ", this.tree);
 
 
   }

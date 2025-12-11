@@ -140,21 +140,17 @@ export class MaterialComponent {
 
 
   onNameChange(id: number, name: string) {
-    console.log("ON NAME CHANGE", id, name);
     const material = this.ms.getShuttle(id);
     material.name = name;
     this.ms.setMaterial(id, material);
-    console.log("ON NAME CHANGE 2", this.ms.getShuttles());
   }
 
 
 
   diameterChange(id: number, diameter: number) {
-    console.log("ON DIAM CHANGE", id, diameter);
     const material = this.ms.getShuttle(id);
     material.diameter = diameter;
     this.ms.setMaterial(id, material);
-    console.log("ON DIAM CHANGE 2", this.ms.getShuttles());
     this.vs.updateViewer();
 
   }
@@ -250,7 +246,6 @@ export class MaterialComponent {
 
   save() {
 
-    console.log("ON SAVE", this.ms.getShuttles());
     // Sync form changes back to the materials service
 
     //this.syncFormToMaterials();

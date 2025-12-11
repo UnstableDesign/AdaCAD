@@ -297,7 +297,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.zoom_form.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
         if (this.selected_editor_mode == 'mixer') {
-          this.zs.setZoomIndexOnMixer(value, false);
+          this.zs.setZoomIndexOnMixer(value, true);
         } else if (this.selected_editor_mode == 'editor') {
           this.zs.setZoomIndexOnEditor(value, false);
           this.editor.renderChange();
@@ -394,7 +394,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   initConnection(connection: boolean) {
-    console.log("INIT CONNECTION", connection);
 
   }
 
@@ -403,7 +402,6 @@ export class AppComponent implements OnInit, OnDestroy {
  * @param user 
  */
   initLoginLogoutSequence(user: User) {
-    console.log("IN LOGIN/LOGOUT ", user);
     const workspace_has_content = this.ss.hasTimeline();
 
 
@@ -515,7 +513,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
         //nothing is selected
         if (this.vs.getViewerId() == -1) {
-          console.log("NO VIEWER SELECTED, GENERATING BLANK DRAFT");
           let obj = {
             warps: defaults.warps,
             wefts: defaults.wefts,
@@ -587,7 +584,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * @returns the new draft id
    */
   generateBlankDraftAndPlaceInMixer(obj: any): Promise<number> {
-    console.log("GENERATING DRAFT FOR MIXER  ", obj);
 
     //if it has a parent and it does not yet have a view ref. 
     //this.tree.setSubdraftParent(id, -1)
@@ -666,7 +662,6 @@ export class AppComponent implements OnInit, OnDestroy {
       .then(data => {
         this.mixer.changeDesignMode('move')
         this.clearAll();
-        console.log("imported new file", result, result.data)
       })
       .catch(console.error);
 
@@ -675,21 +670,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loadMostRecent(): Promise<any> {
 
-    console.log("LOADING MOST RECENT FILE");
-
     return this.fb.getMostRecentFileIdFromUser()
       .then(fileid => {
 
-        console.log("GOT FILE ID ", fileid);
         if (fileid !== null) {
 
           let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
           return Promise.all(fns)
             .then(res => {
-              console.log("GOT FILE ", res);
               const ada = <SaveObj>res[0];
               const meta = <FileMeta>res[1];
-              console.log("GOT FILE META ", meta);
               if (ada === undefined) {
                 return Promise.reject("no ada file found at specified file id")
               } else if (meta === undefined) {
@@ -901,7 +891,6 @@ export class AppComponent implements OnInit, OnDestroy {
     //GET THE SHARED FILE
     return this.fb.getShare(shareid)
       .then(share_obj => {
-        console.log("SHARE OBJ ", share_obj)
         if (share_obj == null) {
           return Promise.reject("NO SHARED FILE EXISTS")
         }
@@ -912,7 +901,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
         return this.fb.getFile(shareid)
       }).then(ada => {
-        console.log("GOT FILE ", shareid, ada)
         return this.prepAndLoadFile(ada, meta, 'db')
       }).then(file_objs => {
         this.ws.setCurrentFile(meta);
@@ -926,7 +914,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   //must be online
   loadFromDB(fileid: number): Promise<any> {
-    console.log("Load from DB", fileid)
     let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
     return Promise.all(fns)
       .then(res => {
@@ -997,7 +984,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   handleError() {
-    console.log("ERROR!")
   }
 
 
@@ -1015,7 +1001,6 @@ export class AppComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: data => {
-          console.log('Data received:', data);
           this.openSnackBar('opening example ' + name)
           this.clearAll();
           const meta = {
@@ -1054,7 +1039,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * this gets called when a new file is started from the topbar or a new file is reload via undo/redo
    */
   loadNewFile(result: LoadResponse, source: string): Promise<any> {
-    console.log("SOURCE ", source)
     this.ws.setCurrentFile(result.meta)
     this.filename_form.setValue(result.meta.name)
 
@@ -1508,9 +1492,7 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   async processFileData(data: SaveObj, name: string): Promise<Array<{ prev_id: number, cur_id: number }>> {
 
-    console.log("PROCESSING FILE DATA", data);
     let entry_mapping: Array<{ prev_id: number, cur_id: number }> = [];
-    console.log("[LOAD] START: Processing file data", name);
     this.openLoadingAnimation(name)
 
 
@@ -1554,25 +1536,21 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
-      console.log("[LOAD] STEP 1: Media loaded");
       //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
       // console.log("REPLACE OUTDATED OPS")
       return this.tree.replaceOutdatedOps(data.ops);
     })
       .then(correctedOps => {
-        console.log("[LOAD] STEP 2: Operations corrected");
         data.ops = correctedOps;
         //console.log(" LOAD NODES")
         return this.loadNodes(data.nodes)
       })
       .then(id_map => {
-        console.log("[LOAD] STEP 3: Nodes loaded, ID map created", id_map.length, "nodes");
         entry_mapping = id_map;
         // console.log(" LOADED TREE Nodes ", this.tree.nodes, id_map)
         return this.loadTreeNodes(id_map, data.tree);
       })
       .then(treenodes => {
-        console.log("[LOAD] STEP 4: Tree nodes loaded", treenodes.length, "tree nodes");
         const seednodes: Array<{ prev_id: number, cur_id: number }> = treenodes
           .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
           .map(tn => tn.entry);
@@ -1595,13 +1573,11 @@ export class AppComponent implements OnInit, OnDestroy {
             }
 
 
-            console.log("Looking for draft node", draft_node.node_id, "in", data.draft_nodes)
             const located_draft: DraftNodeProxy = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
 
             //if this happens it means that there is a node that is marked as a seed draft (probably an error) that does not have any 
             //associated draft data. 
             if (located_draft === undefined) {
-              console.log("Looking for ", draft_node.node_id, "in", data.draft_nodes.map(el => el.draft_id))
               console.error("could not find draft with id in draft list");
               const d = initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
               d.id = sn.cur_id;
@@ -1636,7 +1612,6 @@ export class AppComponent implements OnInit, OnDestroy {
           });
 
         const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom, seed.loom_settings, seed.render_colors, seed.scale, seed.draft_visible));
-        console.log("[LOAD] STEP 5: Creating", seed_fns.length, "seed drafts and", data.ops.length, "operations");
 
         const op_fns = data.ops.map(op => {
           const entry = entry_mapping.find(el => el.prev_id == op.node_id);
@@ -1647,20 +1622,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
       })
       .then(el => {
-        console.log("[LOAD] STEP 6: Validating nodes");
         return this.tree.validateNodes();
       })
       .then(el => {
-        console.log("[LOAD] STEP 7: Performing top level operations - THIS MAY TAKE TIME FOR LARGE FILES");
         const startTime = performance.now();
         return this.tree.performTopLevelOps().then(result => {
           const duration = performance.now() - startTime;
-          console.log(`[LOAD] STEP 7 COMPLETE: Top level ops performed in ${duration.toFixed(2)}ms`);
           return result;
         });
       })
       .then(el => {
-        console.log("[LOAD] STEP 8: Cleaning up null drafts");
         //delete any nodes that no longer need to exist
 
         this.tree.getDraftNodes()
@@ -1675,7 +1646,6 @@ export class AppComponent implements OnInit, OnDestroy {
           })
       })
       .then(el => {
-        console.log("[LOAD] STEP 9: Loading UI components");
 
         return this.tree.nodes.forEach(node => {
 
@@ -1705,7 +1675,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
       })
       .then(el => {
-        console.log("[LOAD] STEP 10: Setting draft node properties");
 
         //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
         data.draft_nodes
@@ -1731,7 +1700,6 @@ export class AppComponent implements OnInit, OnDestroy {
           })
 
         //this is breaking on large files, disable because I also don't think it's needed anymore
-        console.log("[LOAD] STEP 11: Updating operation children -- verify if we need this");
         this.tree.getOpNodes().forEach(op => {
           (<OperationComponent>op.component).updateChildren(this.tree.getNonCxnOutputs(op.id));
         })
@@ -1744,23 +1712,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
       })
       .then(res => {
-        console.log("[LOAD] STEP 12: Starting final render - THIS MAY HANG ON LARGE FILES");
         const renderStartTime = performance.now();
 
 
-        console.log("[LOAD] STEP 12a: Refreshing operations");
         //make sure the sidebar settings for operations are set
         this.mixer.refreshOperations();
 
-        console.log("[LOAD] STEP 12b: Rendering mixer change");
         //set scale 
         this.mixer.renderChange();
 
-        console.log("[LOAD] STEP 12c: Rendering editor change");
         this.editor.renderChange();
 
         const renderDuration = performance.now() - renderStartTime;
-        console.log(`[LOAD] COMPLETE: All rendering finished in ${renderDuration.toFixed(2)}ms`);
         this.closeLoadingAnimation();
 
         return Promise.resolve(entry_mapping)
@@ -1801,30 +1764,25 @@ export class AppComponent implements OnInit, OnDestroy {
 
     treenode.forEach(tn => {
       if (tn === undefined) {
-        console.log("Undefined Node", tn);
         return;
       }
 
       if (tn.inputs === undefined) {
-        console.log("Undefined Inputs", tn);
         return;
       }
 
       if (tn.outputs === undefined) {
-        console.log("Undefined Outputs", tn);
         return;
       }
 
       switch (tn.node.type) {
         case 'cxn':
           if (tn.inputs.length !== 1 || tn.outputs.length !== 1)
-            console.log("Invalid Number of Inputs/Outputs on Connection", tn);
-          break;
+            break;
 
         case 'draft':
           if (tn.inputs.length > 1)
-            console.log("Invalid Number of Inputs/Outputs on Draft", tn);
-          break;
+            break;
       }
 
 
@@ -1838,7 +1796,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fs.saver.ada()
       .then(so => {
         const nullppi = this.tree.getDraftNodes().filter(el => el.loom_settings.ppi === undefined);
-        console.log("SAVING FILE ", nullppi);
         return this.fb.updateFile(so.file, this.ws.getCurrentFile());
       })
       .catch(err => console.error(err));
@@ -1951,7 +1908,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   renameWorkspace(name: string) {
 
-    console.log("RENAMING WORKSPACE TO ", name);
 
     this.filename_form.markAsPristine();
 
@@ -2014,7 +1970,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   zoomToFit(useCentering = false, padding = 0) {
-    console.log("ZOOMING TO FIT", this.selected_editor_mode);
 
     if (this.selected_editor_mode == 'mixer') {
       const view_window: HTMLElement = document.getElementById('scrollable-container');
@@ -2074,7 +2029,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
     } else if (this.selected_editor_mode == 'editor') {
-      console.log("ZOOMING TO FIT EDITOR");
       this.editor.zoomToFit();
     }
   }
@@ -2169,7 +2123,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   /**called when a change to zoom happens on teh zoom service */
   zoomChange(source: string, ndx: number) {
-    console.log("ZOOM CHANGE ", ndx);
 
     this.updateTextSizing();
 

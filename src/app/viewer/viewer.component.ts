@@ -166,7 +166,6 @@ export class ViewerComponent {
 
 
   updateDraftNameFromMixerEvent(name: string) {
-    console.log("UPDATING DRAFT NAME FROM MIXER EVENT: ", name, this.tree.getDraftName(this.vs.getViewerId()));
     this.draft_name = name;
     this.before_name = name;
 
@@ -200,7 +199,6 @@ export class ViewerComponent {
 
 
   private loadDraft(id: number) {
-    console.log("LOADING DRAFT, ID: ", id);
 
     const draftNode = this.tree.getNode(id) as DraftNode;
     if (draftNode.type !== 'draft') return;
@@ -489,7 +487,6 @@ export class ViewerComponent {
       }).then(manipulated_draft => {
         const dd = manipulated_draft[0].draft;
 
-        console.log("VIEWER - REDRAWING DRAFT (back)", this.vs.getViewerId());
         return this.view_rendering.redraw(dd, null, null, flags).then(el => {
           return Promise.resolve(true);
         })
@@ -498,7 +495,6 @@ export class ViewerComponent {
 
     } else {
       //console.log("REDRAW CALLED FROM VIEW RENDERING")
-      console.log("VIEWER - REDRAWING DRAFT (front)", this.vs.getViewerId());
 
       return this.view_rendering.redraw(draft, null, null, flags).then(el => {
         return Promise.resolve(true);

@@ -136,9 +136,6 @@ export class MixerComponent {
     const dialogRef = this.dialog.open(BlankdraftModal);
 
     dialogRef.componentInstance.onNewDraftCreated.subscribe(obj => {
-      console.log("Dialog Ref Component Listerned creating draft", this.tree.nodes.slice());
-
-      console.log("OBJ", obj)
       if (obj == null || obj == undefined) return;
 
 
@@ -168,7 +165,6 @@ export class MixerComponent {
  */
   createNewDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings): Promise<number> {
 
-    console.log("Creating new draft in mixer.component.ts", draft)
 
     return this.palette.createSubDraft(draft, loom, loom_settings)
       .then(instance => {
@@ -449,7 +445,6 @@ export class MixerComponent {
   }
 
   public notesChanged(e: any) {
-    console.log(e);
   }
 
 
@@ -503,7 +498,6 @@ export class MixerComponent {
    */
   setZoomAndCenter(id: number) {
 
-    console.log("SET ZOOM AND CENTER", id);
 
     let node: OpNode | DraftNode;
     if (this.tree.hasParent(id)) {

@@ -257,7 +257,6 @@ export class PaletteComponent implements OnInit {
     });
 
     const noteUpdatedUndoSubscription = this.ss.noteUpdatedUndo$.subscribe(action => {
-      console.log("NOTE UPDATED UNDO SUBSCRIPTION ", action);
       const note = this.notes.get(action.id);
       note.component.updateValues(action.before);
     });
@@ -468,9 +467,7 @@ export class PaletteComponent implements OnInit {
 
     const visible_drafts: Array<SubdraftComponent> = this.tree.getDraftNodes().filter(el => el.visible).map(el => <SubdraftComponent>el.component);
     const functions: Array<Promise<any>> = visible_drafts.map(el => el.draftcontainer.saveAsBmp());
-    return Promise.all(functions).then(el =>
-      console.log("Downloaded " + functions.length + " files")
-    );
+    return Promise.all(functions);
 
   }
 
