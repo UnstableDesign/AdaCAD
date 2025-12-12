@@ -41,7 +41,6 @@ import { ZoomService } from './core/provider/zoom.service';
 import { DownloadComponent } from './core/ui/download/download.component';
 import { ExamplesComponent } from './core/ui/examples/examples.component';
 import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.component';
-import { HistoryComponent } from './core/ui/history/history.component';
 import { LoadfileComponent } from './core/ui/loadfile/loadfile.component';
 import { LoadingComponent } from './core/ui/loading/loading.component';
 import { LoginComponent } from './core/ui/login/login.component';
@@ -1838,6 +1837,12 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  editorModeChange(mode: string) {
+    if (this.selected_editor_mode == 'editor') {
+      this.editor.selectPencilMode(mode, 'rendering');
+    }
+    this.toggleEditorMode();
+  }
 
 
   saveFile() {
@@ -1879,34 +1884,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   undo() {
 
-    const history = this.dialog.open(HistoryComponent, {
-      width: '800px',
-    });
+    // const history = this.dialog.open(HistoryComponent, {
+    //   width: '800px',
+    // });
 
 
-    // this.fs.saver.ada()
-    //   .then(current_state => {
-
-    //     let so: SaveObj = this.ss.restorePreviousMixerHistoryState();
-    //     console.log(this.ss.compareState(so, current_state.file))
-    //     if (so === null || so === undefined) return;
-
-    //   });
-
-
-    // this.mixer.clearView();
-    // this.editor.clearAll();
-    // this.viewer.clearView();
-    // this.tree.clear();
-
-
-    // this.fs.loader.ada(
-    //   so,
-    //   this.ws.current_file,
-    //   'undo'
-    // ).then(lr => {
-    //   this.loadNewFile(lr, 'statechange');
-    // }
+    this.ss.undo();
 
 
 

@@ -585,14 +585,14 @@ export class SelectionComponent implements OnInit {
               }
             });
 
-            flags = {
+            const warp_materials_flags: DraftNodeBroadcastFlags = {
               meta: false,
               draft: false,
               loom: false,
               loom_settings: false,
               materials: true
             };
-            this.tree.setDraft(this.id, draft, flags);
+            this.tree.setDraft(this.id, draft, warp_materials_flags);
             this.saveAction.emit(before);
 
 
@@ -614,14 +614,14 @@ export class SelectionComponent implements OnInit {
                 return draft.rowSystemMapping[ndx];
               }
             });
-            flags = {
+            const weft_systems_flags: DraftNodeBroadcastFlags = {
               meta: false,
               draft: true,
               loom: false,
               loom_settings: false,
               materials: false
             };
-            this.tree.setDraft(this.id, draft, flags, true, true);
+            this.tree.setDraft(this.id, draft, weft_systems_flags, true, true);
             this.saveAction.emit(before);
 
 
@@ -643,14 +643,14 @@ export class SelectionComponent implements OnInit {
                 return draft.rowShuttleMapping[ndx];
               }
             });
-            flags = {
+            const weft_materials_flags: DraftNodeBroadcastFlags = {
               meta: false,
               draft: false,
               loom: false,
               loom_settings: false,
               materials: true
             };
-            this.tree.setDraft(this.id, draft, flags, true, true);
+            this.tree.setDraft(this.id, draft, weft_materials_flags, true, true);
             this.saveAction.emit(before);
 
 
@@ -686,37 +686,6 @@ export class SelectionComponent implements OnInit {
   // }
 
   clearEvent(b: boolean) {
-  }
-
-
-
-
-  /**
-  * given the target of a mouse event, check if it is currently enabled (as indicated by the drawdown editing style)
-  */
-  isTargetEnabled(target: string): boolean {
-
-    // console.log("CHECK IF SOURCE IS ENABLED for SElect", this.source, this.target)
-
-
-    const editing_mode = this.draft_edit_source;
-    const loom_settings = this.tree.getLoomSettings(this.id);
-    switch (target) {
-      case 'treadling-' + this.source + "-" + this.id:
-      case 'threading-' + this.source + "-" + this.id:
-        if (this.draft_edit_source === "drawdown") return false;
-        break;
-      case 'tieups-' + this.source + "-" + this.id:
-        if (this.draft_edit_source === "drawdown") return false;
-        if (loom_settings.type === "direct") return false;
-        break;
-
-      case 'drawdown' + this.source + "-" + this.id:
-        if (this.draft_edit_source === "loom") return false;
-        break;
-    }
-
-    return true;
   }
 
 
@@ -783,8 +752,6 @@ export class SelectionComponent implements OnInit {
     this.unsetParameters();
 
     this.target = target;
-    if (!this.isTargetEnabled(target.id)) return;
-
     this.updateActions(this.target.id);
 
 
@@ -849,6 +816,9 @@ export class SelectionComponent implements OnInit {
 
   }
 
+
+
+
   /**
   * updates selectiono parameters when the user drags the selected area
   * @param pos the mouse position
@@ -858,13 +828,15 @@ export class SelectionComponent implements OnInit {
 
 
     if (this.target === undefined) return;
-    if (this.target !== null && !this.isTargetEnabled(this.target.id)) return;
 
 
     // if(pos.si > this.render.visibleRows.length){
     //   pos.si = this.render.visibleRows.length;
     //   return false
     // } 
+
+
+
 
     this.selectionEventSubject.next('dragging');
 
@@ -900,7 +872,6 @@ export class SelectionComponent implements OnInit {
   onSelectStop(leave: boolean = false) {
 
     if (this.target === undefined) return;
-    if (this.target !== null && !this.isTargetEnabled(this.target.id)) return;
     this.hide_actions = false;
     this.selectionEventSubject.next('stopped');
     this.onSelectionEnd.emit();
@@ -974,6 +945,16 @@ export class SelectionComponent implements OnInit {
 
 
 
+  removeCopy() {
+    this.copy = [];
+    this.copyWidth = 0;
+    this.copyHeight = 0;
+    this.copyStart = { i: 0, j: 0 };
+    this.copyEnd = { i: 0, j: 0 };
+    this.copyContainerEl.style.display = 'none';
+    this.copyEl.style.display = 'none';
+  }
+
   unsetParameters() {
     if (this.target !== null && this.target !== undefined) {
       this.selectionEventSubject.next('none');
@@ -1031,6 +1012,8 @@ export class SelectionComponent implements OnInit {
 
     if (this.copyContainerEl !== null && this.copyEl !== null) {
 
+      this.copyContainerEl.style.display = 'flex';
+      this.copyEl.style.display = 'block';
       this.copyContainerEl.style.top = in_div_top + "px"
       this.copyContainerEl.style.left = in_div_left + "px";
       this.copyContainerEl.style.width = this.copyWidth * this.cell_size * this.scale + "px";

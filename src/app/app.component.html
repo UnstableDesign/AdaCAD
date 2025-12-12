@@ -2,7 +2,7 @@
   (updateMixerView)="updateMixerView($event)" (updateDetailView)="detailViewChange()"
   (onCopySelections)="onCopySelections()" (onPasteSelections)="onPasteSelections()"
   (onDrawModeChange)="drawModeChange($event)" (onExplode)="onExplode()" (onWindowResize)="updateViewAdjustBar()"
-  (onPan)="panMixer($event)">
+  (onPan)="panMixer($event)" (onEditorModeChange)="editorModeChange($event)">
 </appKeycodes>
 
 
@@ -207,6 +207,7 @@
     </div>
 
 
+    @if(selected_editor_mode === 'mixer') {
 
     @if (multiselect.selected.length > 0) {
     <div class="copypaste">
@@ -221,6 +222,7 @@
     <div class="copypaste">
       hold shift and click to select multiple drafts and operators
     </div>
+    }
     }
 
 

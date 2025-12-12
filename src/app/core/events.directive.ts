@@ -29,7 +29,7 @@ export class EventsDirective {
   @Output() onExplode: any = new EventEmitter();
   @Output() onWindowResize: any = new EventEmitter();
   @Output() onPan: any = new EventEmitter();
-
+  @Output() onEditorModeChange: any = new EventEmitter();
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
@@ -115,12 +115,35 @@ export class EventsDirective {
       this.onUndo.emit();
     }
 
+
+
     /**
-    * REDO
+    * Toggle Design Mode to SElect Regions if in Editor Mode
     */
+    if (e.key == "r" && (e.metaKey || e.ctrlKey)) {
+      this.onEditorModeChange.emit('select');
+    }
+
+
+
+    /**
+    * Toggle Design Mode to SElect Regions if in Editor Mode
+    */
+    if (e.key == "d" && (e.metaKey || e.ctrlKey)) {
+      this.onEditorModeChange.emit('draw');
+      e.preventDefault();
+    }
+
+
+    /**
+* REDO
+*/
     if (e.key == "y" && (e.metaKey || e.ctrlKey)) {
       this.onRedo.emit();
     }
+
+
+
 
 
     /**

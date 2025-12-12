@@ -73,7 +73,7 @@
           <mat-expansion-panel #selectToolsPanel>
             <mat-expansion-panel-header>
               <mat-panel-title [class.is-active]="pencilForm?.value === 'select'">
-                <i class="fas fa-expand"></i> Select Regions
+                <i class="fas fa-expand"></i> Select (shift + drag)
               </mat-panel-title>
             </mat-expansion-panel-header>
             <div class="select">
@@ -82,7 +82,7 @@
 
               @if(!hasSelection && pencilModeForm?.value == 'select') {
               <div class="selection_status">
-                <span>Click + Drag to select a region on the draft</span>
+                <span>Shift + Drag to select a region on the draft</span>
               </div>
               }
               @if(hasSelection && pencilModeForm?.value == 'select') {

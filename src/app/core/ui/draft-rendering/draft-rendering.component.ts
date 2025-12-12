@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { Drawdown, createCell, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getCellValue, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
-import { getLoomUtilByType, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange } from 'adacad-drafting-lib/loom';
+import { getLoomUtilByType, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { BehaviorSubject, Observable, Subscription, fromEvent, of } from 'rxjs';
 import { CanvasList, DraftNode, DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
@@ -334,6 +334,7 @@ export class DraftRenderingComponent implements OnInit {
 
   clearSelection() {
     this.selection.unsetParameters();
+    this.selection.removeCopy();
     // d3.select(this.svgSelectCol).style('display', 'none');
     // d3.select(this.svgSelectRow).style('display', 'none');
   }
@@ -445,8 +446,12 @@ export class DraftRenderingComponent implements OnInit {
 
 
     //if shift drag happens at any time, move into select (but how to switch out)
-    if ((event.metaKey || event.ctrlKey) && this.pencil !== 'select') {
+    if ((event.metaKey || event.ctrlKey || event.shiftKey) && this.pencil !== 'select') {
+
       this.setPencil('select');
+    } else if (!(event.metaKey || event.ctrlKey || event.shiftKey) && this.pencil == 'select' && !this.selection.hasCopy()) {
+      this.selection.unsetParameters();
+      this.setPencil('toggle');
     }
 
     switch (this.pencil) {
@@ -471,7 +476,13 @@ export class DraftRenderingComponent implements OnInit {
 
   private onSelectMove(event) {
     const currentPos = this.getEventPosition(event);
+    if (this.isSame(currentPos, this.lastPos)) return;
+    if (!this.inBounds(currentPos, event.target as HTMLElement)) return;
     this.selection.onSelectDrag(currentPos);
+    this.lastPos = {
+      i: currentPos.i, //row
+      j: currentPos.j //col
+    };
   }
 
 
@@ -480,6 +491,7 @@ export class DraftRenderingComponent implements OnInit {
     const currentPos = this.getEventPosition(event);
     //don't call unless you've moved to a new spot
     if (this.isSame(currentPos, this.lastPos)) return;
+    if (!this.inBounds(currentPos, event.target as HTMLElement)) return;
     this.setPosAndDraw(<HTMLElement>event.target, event.shiftKey, currentPos);
     this.lastPos = {
       i: currentPos.i, //row
@@ -530,15 +542,81 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   isValidTarget(target: HTMLElement): boolean {
-    return target.tagName === 'CANVAS';
+
+
+    if (target.tagName !== 'CANVAS') return false;
+
+    let loom_type = this.tree.getLoomSettings(this.id)?.type || 'jacquard';
+
+    switch (this.draft_edit_source) {
+      case 'drawdown':
+        if (target.id.startsWith('drawdown-')) return true;
+        if (target.id.startsWith('treadling-')) return false;
+        if (target.id.startsWith('tieups-')) return false;
+        if (target.id.startsWith('threading-')) return false;
+        if (target.id.startsWith('warp-')) return true;
+        if (target.id.startsWith('weft-')) return true;
+      case 'loom':
+        if (target.id.startsWith('drawdown-')) return false;
+        if (target.id.startsWith('treadling-')) return true;
+        if (target.id.startsWith('tieups-')) return loom_type == 'frame';
+        if (target.id.startsWith('threading-')) return true;
+        if (target.id.startsWith('warp-')) return true;
+        if (target.id.startsWith('weft-')) return true;
+      default:
+        return false;
+    }
+
+  }
+
+  inBounds(pos: Interlacement, target: HTMLElement): boolean {
+
+    const ls = this.tree.getLoomSettings(this.id);
+    const loom = this.tree.getLoom(this.id);
+    const draft = this.tree.getDraft(this.id);
+
+
+    const frames = Math.max(numFrames(loom), ls.frames);
+    const treadles = Math.max(numTreadles(loom), ls.treadles);
+    const warps_count: number = warps(draft.drawdown);
+    const wefts_count: number = wefts(draft.drawdown);
+
+
+    const targetNameArray = target.id.split('-');
+    const targetName = (targetNameArray.length > 0) ? targetNameArray[0] : null;
+
+    switch (targetName) {
+      case 'drawdown':
+        return pos.j >= 0 && pos.j < warps_count && pos.i >= 0 && pos.i < wefts_count;
+      case 'treadling':
+        return pos.j >= 0 && pos.j < treadles && pos.i >= 0 && pos.i < wefts_count;
+      case 'tieups':
+        return pos.j >= 0 && pos.j < treadles && pos.i >= 0 && pos.i < frames;
+      case 'threading':
+        return pos.i >= 0 && pos.i < frames && pos.j >= 0 && pos.j < warps_count;
+      case 'warp':
+        return pos.i == 0 && pos.j >= 0 && pos.j < warps_count;
+      case 'weft':
+        return pos.j == 0 && pos.i >= 0 && pos.i < wefts_count;
+      default:
+        return false;
+    }
+
+
+
+
   }
 
 
   handleMouseEvent(event: MouseEvent, stage: 'start' | 'move' | 'leave' | 'end', currentPos: Interlacement) {
 
     //make sure the mouse is down before calling any of these, 
+    if (!this.isValidTarget(event.target as HTMLElement)) {
+      return;
+    }
 
-    if (!this.isValidTarget(event.target as HTMLElement)) return;
+    if (!this.inBounds(currentPos, event.target as HTMLElement)) return;
+
 
     switch (stage) {
       case 'start':

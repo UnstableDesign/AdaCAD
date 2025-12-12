@@ -151,17 +151,28 @@
 }
 
 
-.draft-top.origin3,
+
 .draft-top.origin0 {
   flex-direction: column;
-
+  align-items: flex-start;
 }
 
-.draft-top.origin1,
+
+.draft-top.origin3 {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.draft-top.origin1 {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+}
+
 .draft-top.origin2 {
   flex-direction: column-reverse;
-
+  align-items: flex-end;
 }
+
 
 .warp-data-and-threading {
   display: flex;
@@ -335,6 +346,7 @@
 
 
 .threading-canvas,
+.treadling-canvas,
 .tieups-canvas,
 .drawdown-canvas,
 .weft-materials-canvas,
@@ -357,9 +369,8 @@
 .warp-systems-canvas.origin0,
 .warp-materials-canvas.origin0 {
 
-  canvas {
-    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
+  transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
 }
 
 .threading-tieup-container.origin0 {
@@ -389,9 +400,9 @@
 
 .warp-systems-canvas.origin1,
 .warp-materials-canvas.origin1 {
-  canvas {
-    transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
+
+  transform: matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
 }
 
 .threading-tieup-container.origin1 {
@@ -408,9 +419,9 @@
 .weft-systems-canvas.origin1,
 .weft-materials-canvas.origin1 {
 
-  canvas {
-    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
+
+  transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
 }
 
 .drawdown-container.origin1 {
@@ -429,9 +440,9 @@
 .warp-systems-canvas.origin2,
 .warp-materials-canvas.origin2 {
 
-  canvas {
-    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
+
+  transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
 }
 
 .threading-tieup-container.origin2 {
@@ -450,9 +461,9 @@
 .weft-systems-canvas.origin2,
 .weft-materials-canvas.origin2 {
 
-  canvas {
-    transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
+
+  transform: matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
 }
 
 .drawdown-container.origin2 {
@@ -473,9 +484,9 @@
 .warp-systems-canvas.origin3,
 .warp-materials-canvas.origin3 {
 
-  canvas {
-    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
+
+  transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
 }
 
 
@@ -502,6 +513,7 @@
 }
 
 .drawdown-container.editable-loom {
+
   .treadling-editor {
     opacity: 1;
     cursor: pointer;

@@ -152,7 +152,7 @@ export class EditorComponent implements OnInit {
     this.pencilModeForm = new FormControl('draw');
     this.pencilModeForm.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
-        this.selectPencilMode(value);
+        this.selectPencilMode(value, 'ui');
       }
     });
 
@@ -186,23 +186,28 @@ export class EditorComponent implements OnInit {
     });
 
     this.eventTargetSetSubscription = this.weaveRef.eventTargetSet$.subscribe(target => {
-
       this.eventTargetSet(target);
     });
 
     this.pencilChangeSubscription = this.weaveRef.pencilChange$.subscribe(pencil => {
-      this.selectPencil(pencil, 'rendering');
+      console.log("PENCIL CHANGE", pencil);
+      if (pencil == 'select') {
+        this.selectPencilMode('select', 'rendering');
+      } else {
+        this.selectPencilMode('draw', 'rendering');
+      }
+      //this.selectPencil(pencil, 'rendering'); this is handled by pencil mode
     });
 
     this.drawToolsPanelSubscription = this.drawToolsPanel.expandedChange.subscribe(expanded => {
       if (expanded) {
-        this.selectPencilMode('draw');
+        this.selectPencilMode('draw', 'ui');
       }
     });
 
     this.selectToolsPanelSubscription = this.selectToolsPanel.expandedChange.subscribe(expanded => {
       if (expanded) {
-        this.selectPencilMode('select');
+        this.selectPencilMode('select', 'ui');
       }
     });
 
@@ -281,14 +286,14 @@ export class EditorComponent implements OnInit {
 
       case 'warp':
         this.designActions.forEach(action => {
-          if (action.value == 'shift_up' || action.value == 'flip_x' || action.value == "invert") action.enabled = false;
+          if (action.value == 'shift_up' || action.value == 'shift_down' || action.value == 'flip_x' || action.value == "invert") action.enabled = false;
           else action.enabled = true;
         });
 
         break;
       case 'weft':
         this.designActions.forEach(action => {
-          if (action.value == 'shift_left' || action.value == 'flip_y' || action.value == "invert") action.enabled = false;
+          if (action.value == 'shift_left' || action.value == 'shift_right' || action.value == 'flip_y' || action.value == "invert") action.enabled = false;
           else action.enabled = true;
         });
 
@@ -390,7 +395,10 @@ export class EditorComponent implements OnInit {
 
 
   clearSelection() {
+    console.log("CLEAR SELECTION");
     this.weaveRef.unsetSelection();
+    this.weaveRef.selection.removeCopy();
+    console.log("COPY", this.weaveRef.selection.copy);
   }
 
 
@@ -513,6 +521,13 @@ export class EditorComponent implements OnInit {
     }
 
 
+    if (ls.type === 'jacquard') {
+      this.weaveRef.setDraftEditSource('drawdown');
+    } else {
+      this.weaveRef.setDraftEditSource('loom');
+    }
+    this.editingModeForm.setValue(this.weaveRef.draft_edit_source, { emitEvent: false });
+
 
 
     // Initialize design modes on the draft-rendering component
@@ -524,12 +539,6 @@ export class EditorComponent implements OnInit {
     this.onDraftValueChangeSubscription = draftNode.onValueChange.subscribe(broadcast => {
       this.updateFormControls(broadcast);
     });
-
-
-
-
-
-
 
   }
 
@@ -614,20 +623,20 @@ export class EditorComponent implements OnInit {
    * this is only a categorization used in the editor
    * @param mode 
    */
-  selectPencilMode(mode: string) {
+  selectPencilMode(mode: string, origin: string) {
 
     console.log('selectPencilMode', mode);
 
     switch (mode) {
       case 'select':
         this.pencilModeForm.setValue('select', { emitEvent: false });
-        this.selectPencil('select', 'ui');
+        this.selectPencil('select', origin);
         this.selectToolsPanel.open();
         this.drawToolsPanel.close();
         break;
       case 'draw':
         this.pencilModeForm.setValue('draw', { emitEvent: false });
-        this.selectPencil('toggle', 'ui');
+        this.selectPencil('toggle', origin);
         this.selectToolsPanel.close();
         this.drawToolsPanel.open();
         break;
