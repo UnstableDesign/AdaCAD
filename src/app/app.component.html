@@ -36,10 +36,12 @@
           <button mat-menu-item [disabled]="!connection_state || !user_auth_state" (click)="openAdaFiles('load')">Manage
             Saved Files</button>
           <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button>
-          <!-- <button mat-menu-item (click)="redo()" >Import Bitmaps</button> -->
+          <button mat-menu-item [disabled]="!connection_state" (click)="import('bitmap')">Import Draft(s) from
+            Bitmap(s)</button>
+          <button mat-menu-item [disabled]="!connection_state" (click)="import('wif')">Import a WIF File</button>
           <app-download origin="menu" [ids]="(vs.showing === -1 ? [] : [vs.showing])"
             [workspaceName]="filename_form.value"></app-download>
-          <button mat-menu-item (click)="saveFile()">Save</button>
+          <button mat-menu-item [disabled]="!connection_state || !user_auth_state" (click)="saveFile()">Save</button>
           <button mat-menu-item (click)="openAboutDialog()">About</button>
 
         </mat-menu>
@@ -142,7 +144,8 @@
       <app-library class="library-container" [class.hide]="selected_editor_mode !== 'library'"
         [class.show]="selected_editor_mode === 'library'" #library id="library" cdkScrollable
         (onOpenInEditor)="openInEditor($event)" (onOpenInMixer)="openInMixer($event)"
-        (onDraftNameChange)="updateDraftName($event)" (onWorkspaceRename)="renameWorkspaceFromLibrary($event)">
+        (onDraftNameChange)="updateDraftName($event)" (onWorkspaceRename)="renameWorkspaceFromLibrary($event)"
+        (onImportCalled)="import($event)">
       </app-library>
 
 
@@ -155,8 +158,8 @@
 
       <app-editor id="draftdetail" class="detail-container" [class.hide]="selected_editor_mode !== 'editor'"
         [class.show]="selected_editor_mode === 'editor'" (saveChanges)="saveFile()" (cloneDraft)="cloneDraft($event)"
-        (createDraft)="createDraft($event)" (updateMixer)="forceRedraw()"
-        (onEditMaterials)="onEditMaterials()"></app-editor>
+        (createDraft)="createDraft($event)" (updateMixer)="forceRedraw()" (onEditMaterials)="onEditMaterials()"
+        (onImportCalled)="import($event)"></app-editor>
 
 
 

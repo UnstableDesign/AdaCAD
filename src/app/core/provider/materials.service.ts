@@ -114,9 +114,10 @@ export class MaterialsService {
    * adds a new material to the end of the list and updates the id.
    * @param s 
    */
-  addShuttle(s: Material) {
+  addShuttle(s: Material): number {
     s.id = this.materials.length;
     this.materials.push(s);
+    return s.id;
   }
 
 
@@ -177,6 +178,17 @@ export class MaterialsService {
       return null;
     }
     return this.materials[0];
+  }
+
+  getShuttleByRGB(r: number, g: number, b: number): number {
+
+    this.materials.forEach(el => {
+      if (el.rgb.r === r && el.rgb.g === g && el.rgb.b === b) {
+        return el.id;
+      }
+    });
+    return -1;
+
   }
 
   /**

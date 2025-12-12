@@ -1,4 +1,4 @@
-import { createMaterial, Draft, Material, setMaterialID, warps, wefts } from "adacad-drafting-lib";
+import { createMaterial, interpolate, Material } from "adacad-drafting-lib";
 
 
 export const getInt = (val: string, e: string) => {
@@ -17,13 +17,30 @@ export const getInt = (val: string, e: string) => {
     }
 }
 
+export const checkBoolLabel = (val: string) => {
+    switch ((val as string).toLowerCase().trim()) {
+        case "yes":
+        case "true":
+        case "1":
+        case "on":
+            return true;
+        case "no":
+        case "false":
+        case "0":
+        case "off":
+            return false;
+        default:
+            return false;
+    }
+}
+
 export const getBool = (val: string, e: string) => {
     var index = e.search(val);
     if (index != -1) {
         var substring = e.substring(index, e.length);
         var endOfLineChar = '\n';
         var endIndex = substring.indexOf(endOfLineChar);
-        if (endIndex != -1 && substring.substring(val.length + 1, endIndex) === "yes") {
+        if (endIndex != -1 && checkBoolLabel(substring.substring(val.length + 1, endIndex))) {
             return true;
         } else {
             return false;
@@ -59,12 +76,42 @@ export const getSubstringAfter = (val: string, e: string) => {
     }
 }
 
+export const getLiftPlan = (e: string, wefts: number): Array<Array<number>> => {
+    const treadling: Array<Array<number>> = [];
+    for (let i = 0; i < wefts; i++) {
+        treadling.push([]);
+    }
+
+    var indexOfLabel = e.search("LIFTPLAN]");
+    var startIndex = indexOfLabel + "LIFTPLAN]".length + 1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar) + startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+        var weft = +(line.match(/[0-9]*/));
+        var all_treadles = (line.match(/=[0-9]*/)[0].substring(1));
+        var treadle_list = all_treadles.split(',');
+        for (let i = 0; i < treadle_list.length; i++) {
+            if (+(treadle_list[i]) > 0) {
+                treadling[weft - 1].push(+(treadle_list[i]) - 1);
+            }
+        }
+        startIndex = endIndex + 1;
+        endIndex = e.substring(startIndex).indexOf(endOfLineChar) + startIndex;
+        line = e.substring(startIndex, endIndex);
+    }
+
+    return treadling;
+}
+
+
 //**UPATE THIS */
-export const getTreadling = (e: string, draft: Draft): Array<Array<number>> => {
+export const getTreadling = (e: string, wefts: number): Array<Array<number>> => {
     const treadling: Array<Array<number>> = [];
     const treadles = getInt("Treadles", e);
-
-    for (let i = 0; i < wefts(draft.drawdown); i++) {
+    console.log("TREADLES", treadles);
+    for (let i = 0; i < wefts; i++) {
         treadling.push([]);
     }
 
@@ -76,8 +123,13 @@ export const getTreadling = (e: string, draft: Draft): Array<Array<number>> => {
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
         var weft = +(line.match(/[0-9]*/));
-        var treadle = +(line.match(/=[0-9]*/)[0].substring(1));
-        treadling[weft - 1] = [treadle - 1];
+        var all_treadles = (line.match(/=[0-9]*/)[0].substring(1));
+        var treadle_list = all_treadles.split(',');
+        for (let i = 0; i < treadle_list.length; i++) {
+            if (+(treadle_list[i]) > 0) {
+                treadling[weft - 1].push(+(treadle_list[i]) - 1);
+            }
+        }
         startIndex = endIndex + 1;
         endIndex = e.substring(startIndex).indexOf(endOfLineChar) + startIndex;
         line = e.substring(startIndex, endIndex);
@@ -86,9 +138,10 @@ export const getTreadling = (e: string, draft: Draft): Array<Array<number>> => {
     return treadling;
 }
 
-export const getThreading = (e: string, draft: Draft): Array<number> => {
+export const getThreading = (e: string, warps: number): Array<number> => {
+    console.log("GETTING THREADING");
     const threading: Array<number> = [];
-    for (let i = 0; i < warps(draft.drawdown); i++) {
+    for (let i = 0; i < warps; i++) {
         threading.push(-1);
     }
 
@@ -96,12 +149,15 @@ export const getThreading = (e: string, draft: Draft): Array<number> => {
     var startIndex = indexOfLabel + "THREADING]".length + 1;
     var endOfLineChar = '\n';
     var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar) + startIndex;
-    var line = e.substring(startIndex, endIndex);
+    console.log("INDEX OF LABEL", startIndex, endIndex);
 
+    var line = e.substring(startIndex, endIndex);
+    console.log("LINE", line);
     while (line.match(/[0-9]*=[0-9]*/) != null) {
         var warp = +(line.match(/[0-9]*/));
         var frame = +(line.match(/=[0-9]*/)[0].substring(1));
-        threading[warps(draft.drawdown) - warp] = frame - 1;
+        console.log("GET THREADING value", warp, frame);
+        threading[warps - warp] = frame - 1;
         startIndex = endIndex + 1;
         endIndex = e.substring(startIndex).indexOf(endOfLineChar) + startIndex;
         line = e.substring(startIndex, endIndex);
@@ -110,10 +166,8 @@ export const getThreading = (e: string, draft: Draft): Array<number> => {
     return threading;
 }
 
-export const getTieups = (e: string, draft: Draft): Array<Array<boolean>> => {
+export const getTieups = (e: string, frames: number, treadles: number): Array<Array<boolean>> => {
     const tieups: Array<Array<boolean>> = [];
-    const frames = getInt("Shafts", e);
-    const treadles = getInt("Treadles", e);
 
     for (let i = 0; i < frames; i++) {
         tieups.push(Array(treadles).fill(false));
@@ -144,15 +198,12 @@ export const getTieups = (e: string, draft: Draft): Array<Array<boolean>> => {
     return tieups;
 }
 
-//can likely simplify this as it is mostlyy like the function above but with different variable names for the respective applications
-export const getColorTable = (e: string): Array<Material> => {
+export const getColorTable = (e: string, min: number, max: number): Array<Material> => {
     const color_table: Array<Material> = [];
     var originalShuttle = createMaterial({
         color: "#3d3d3d",
         id: 0
     });
-    originalShuttle.color = "#3d3d3d";
-    setMaterialID(originalShuttle, 0);
     color_table.push(originalShuttle);
 
     var indexOfLabel = e.search("COLOR TABLE]");
@@ -160,16 +211,22 @@ export const getColorTable = (e: string): Array<Material> => {
     var endOfLineChar = '\n';
     var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar) + startIndex;
     var line = e.substring(startIndex, endIndex);
-    var id = 1;
 
     while (line.match(/[0-9]*=[0-9]*,[0-9]*,[0-9]*/) != null) {
-        // var index = +(line.match(/[0-9]*/));
+        var id = +(line.match(/[0-9]*/));
         var redNum = +(line.match(/=[0-9]*/)[0].substring(1));
         var greenAndBlue = line.match(/,[0-9]*/g);
         var greenNum = +(greenAndBlue[0].substring(1));
         var blueNum = +(greenAndBlue[1].substring(1));
 
         var hex = "#";
+
+
+
+        redNum = Math.round(interpolate((redNum - min) / (max - min), { min: 0, max: 255 }));
+        greenNum = Math.round(interpolate((greenNum - min) / (max - min), { min: 0, max: 255 }));
+        blueNum = Math.round(interpolate((blueNum - min) / (max - min), { min: 0, max: 255 }));
+
         var hexr = redNum.toString(16);
         if (hexr.length == 1) {
             hex += "0" + hexr;
@@ -194,9 +251,6 @@ export const getColorTable = (e: string): Array<Material> => {
             color: hex,
             id: id
         });
-        shuttle.color = hex;
-        setMaterialID(shuttle, id);
-        id++;
 
         color_table.push(shuttle);
 
@@ -205,4 +259,61 @@ export const getColorTable = (e: string): Array<Material> => {
         line = e.substring(startIndex, endIndex);
     }
     return color_table;
+}
+
+
+
+export const getColToShuttleMapping = (e: string, warps: number): Array<number> => {
+    var colToShuttleMapping = [];
+
+    for (var i = 0; i < warps; i++) {
+        colToShuttleMapping.push(0);
+    }
+
+    var indexOfLabel = e.search("WARP COLORS]");
+    var startIndex = indexOfLabel + "WARP COLORS]".length + 1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar) + startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+        var warp = +(line.match(/[0-9]*/));
+        var color = +(line.match(/=[0-9]*/)[0].substring(1));
+        colToShuttleMapping[warp - 1] = color;
+        startIndex = endIndex + 1;
+        endIndex = e.substring(startIndex).indexOf(endOfLineChar) + startIndex;
+        line = e.substring(startIndex, endIndex);
+    }
+
+    var reversedMapping = [];
+    for (var i = colToShuttleMapping.length - 1; i >= 0; i--) {
+        reversedMapping.push(colToShuttleMapping[i]);
+    }
+
+    return reversedMapping;
+}
+
+export const getRowToShuttleMapping = (e: string, wefts: number): Array<number> => {
+    var rowToShuttleMapping = [];
+
+    for (var i = 0; i < wefts; i++) {
+        rowToShuttleMapping.push(0);
+    }
+
+    var indexOfLabel = e.search("WEFT COLORS]");
+    var startIndex = indexOfLabel + "WEFT COLORS]".length + 1;
+    var endOfLineChar = '\n';
+    var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar) + startIndex;
+    var line = e.substring(startIndex, endIndex);
+
+    while (line.match(/[0-9]*=[0-9]*/) != null) {
+        var weft = +(line.match(/[0-9]*/));
+        var color = +(line.match(/=[0-9]*/)[0].substring(1));
+        rowToShuttleMapping[weft - 1] = color;
+        startIndex = endIndex + 1;
+        endIndex = e.substring(startIndex).indexOf(endOfLineChar) + startIndex;
+        line = e.substring(startIndex, endIndex);
+    }
+
+    return rowToShuttleMapping;
 }

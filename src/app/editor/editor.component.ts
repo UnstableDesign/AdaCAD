@@ -25,7 +25,6 @@ import { ViewerService } from '../core/provider/viewer.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
-import { LoadfileComponent } from '../core/ui/loadfile/loadfile.component';
 import { LoomComponent } from './loom/loom.component';
 import { RepeatsComponent } from './repeats/repeats.component';
 
@@ -60,6 +59,7 @@ export class EditorComponent implements OnInit {
   @Output() cloneDraft: any = new EventEmitter();
   @Output() createDraft: any = new EventEmitter();;
   @Output() onEditMaterials: any = new EventEmitter();
+  @Output() onImportCalled: any = new EventEmitter();
 
   id: number = -1;
 
@@ -780,21 +780,10 @@ export class EditorComponent implements OnInit {
 
 
 
+
   import(source: string) {
-    //the loadfile component will upload and call the file service to process, then the results will be emitted to teh 
-    //parent app, where a new 
-    this.dialog.open(LoadfileComponent, {
-      data: {
-        type: source,
-        title: 'Import a draft from a ' + source,
-        accepts: source === 'bitmap' ? '.bmp .png .jpg .jpeg .gif .webp' : '.wif'
-      }
-    }).afterClosed().subscribe(result => {
-      if (result !== undefined && result !== null) {
-        console.log("IMPORT RESULT", result);
-        //this needs to call a function to load this into the app.
-      }
-    });
+    console.log("IMPORT CALLED", source);
+    this.onImportCalled.emit(source);
   }
 
 

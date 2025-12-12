@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { defaults, generateId, Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
-import { Draft, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
+import { Draft, initDraftFromDrawdown, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, initLoom, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
-import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, NodeComponentProxy, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
+import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
 import { loadDraftFromFile, loadLoomFromFile } from '../model/helper';
-import { getBool, getColorTable, getInt, getString, getSubstringAfter, getThreading, getTieups, getTreadling } from '../model/wif';
+import { getBool, getColorTable, getColToShuttleMapping, getInt, getLiftPlan, getRowToShuttleMapping, getString, getSubstringAfter, getThreading, getTieups, getTreadling } from '../model/wif';
 import { MaterialsService } from './materials.service';
 import { MediaService } from './media.service';
 import { NotesService } from './notes.service';
@@ -418,104 +418,192 @@ export class FileService {
       wif: async (filename: string, data: any): Promise<LoadResponse> => {
 
 
+        //normalize the data to use only \n as the line ending
+        data = data.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+
         var stringWithoutMetadata = getSubstringAfter("CONTENTS", data);
-        const warps: number = getInt("Threads", getSubstringAfter("WARP]", stringWithoutMetadata));
-        const wefts: number = getInt("Threads", getSubstringAfter("WEFT]", stringWithoutMetadata));
-        const pattern: Array<Array<boolean>> = [];
+        let warps: number = getInt("Threads", getSubstringAfter("WARP]", stringWithoutMetadata));
+        let wefts: number = getInt("Threads", getSubstringAfter("WEFT]", stringWithoutMetadata));
+        let epi: number = getInt("Spacing", getSubstringAfter("WARP]", stringWithoutMetadata));
+        let ppi: number = getInt("Spacing", getSubstringAfter("WEFT]", stringWithoutMetadata));
+        let units: string = getString("Units", getSubstringAfter("WARP]", stringWithoutMetadata));
+        let frames = getInt("Shafts", stringWithoutMetadata);
+        let treadles = getInt("Treadles", stringWithoutMetadata);
 
 
 
-        const draft = initDraftWithParams({ warps, wefts });
-        //draft.drawdown = drawdownFromPattern(pattern, {warps, wefts});
-        draft.gen_name = data.name;
+        if (warps == -1 || wefts == -1) {
+          console.error("no warp or weft number found");
+          return Promise.reject("no warp or weft number found");
+        }
+        if (warps === -1) warps = defaults.warps;
+        if (wefts === -1) wefts = defaults.wefts;
+        if (epi === -1) epi = defaults.loom_settings.epi;
+        if (ppi === -1) ppi = defaults.loom_settings.ppi;
+        if (units === undefined) units = defaults.loom_settings.units;
+        if (frames === -1) frames = defaults.loom_settings.frames;
+        if (treadles === -1) treadles = defaults.loom_settings.treadles;
 
-        let frames = getInt("Shafts", data);
-        let treadles = getInt("Treadles", data);
+        //;({"Decipoints","Inches","Centimeters"})
+        let formattedUnits: 'in' | 'cm' = 'in';
+        switch (units) {
+          case "Decipoints":
+            formattedUnits = "in";
+            break;
+          case "Inches":
+            formattedUnits = "cm";
+            break;
+          case "Centimeters":
+            formattedUnits = "cm";
+            break;
+          default:
+            formattedUnits = <'in' | 'cm'>defaults.loom_settings.units;
+            break;
+        }
 
         const loom_settings: LoomSettings = {
           type: 'frame',
           frames,
           treadles,
-          units: 'in',
-          epi: 100,
-          ppi: 100
+          units: formattedUnits,
+          epi,
+          ppi,
         }
-        const loom = initLoom(warps, wefts, frames, treadles);
+        console.log("LOOM SETTINGS", loom_settings);
 
+        const loom = initLoom(warps, wefts, frames, treadles);;
 
-        if (getBool("TREADLING", stringWithoutMetadata)) {
-          loom.treadling = getTreadling(stringWithoutMetadata, draft);
+        const hasThreading = getBool("THREADING", stringWithoutMetadata);
+        const hasTreadling = getBool("TREADLING", stringWithoutMetadata);
+        const hasTieup = getBool("TIEUP", stringWithoutMetadata);
+        const hasLiftPlan = getBool("LIFTPLAN", stringWithoutMetadata);
+
+        console.log("HAS THREADING", hasThreading);
+        console.log("HAS TREADLING", hasTreadling);
+        console.log("HAS TIEUP", hasTieup);
+        console.log("HAS LIFT PLAN", hasLiftPlan);
+
+        if (hasTreadling) {
+          loom.treadling = getTreadling(stringWithoutMetadata, wefts);
+        } else if (hasLiftPlan) {
+          loom_settings.type = 'direct';
+          loom.treadling = getLiftPlan(stringWithoutMetadata, wefts);
         }
-        if (getBool("THREADING", stringWithoutMetadata)) {
-          loom.threading = getThreading(stringWithoutMetadata, draft);
+
+        if (hasThreading) {
+          loom.threading = getThreading(stringWithoutMetadata, warps);
         }
-        if (getBool("TIEUP", data)) {
-          loom.tieup = getTieups(stringWithoutMetadata, draft);
 
+        if (hasTieup) {
+          loom.tieup = getTieups(stringWithoutMetadata, frames, treadles);
         }
-        if (getBool("COLOR TABLE", data)) {
-          if (getString("Form", data) === "RGB") {
-            let color_table: Array<Material> = getColorTable(data);
-            var shuttles = color_table;
-
-            /** TODO: Update this to add, not overwrite, shuttles */
-
-            //add the shuttles to the existing
 
 
-            this.ms.overloadShuttles(shuttles);
-            // draft.overloadRowShuttleMapping(utilInstance.getRowToShuttleMapping(data, draft));
-            // draft.overloadColShuttleMapping(utilInstance.getColToShuttleMapping(data, draft));
+
+        const utils = getLoomUtilByType(loom_settings.type);
+        return utils.computeDrawdownFromLoom(loom).then(drawdown => {
+
+
+          const draft = initDraftFromDrawdown(drawdown);
+
+          if (getBool("COLOR TABLE", data)) {
+
+            const hasRange = getString("Range", data) !== undefined;
+            const hasForm = getString("Form", data) !== undefined;
+
+
+            console.log("HAS FORM", hasForm);
+            console.log("HAS RANGE", hasRange);
+            if (hasForm || hasRange) {
+
+              let min = (hasRange) ? getString("Range", data).split(",")[0] : 0;
+              let max = (hasRange) ? getString("Range", data).split(",")[1] : 255;
+
+              let color_table: Array<Material> = getColorTable(data, +min, +max);
+
+              let material_map: { old_id: number, new_id: number }[] = [];
+              for (let i = 0; i < color_table.length; i++) {
+                let matching_id = this.ms.getShuttleByRGB(color_table[i].rgb.r, color_table[i].rgb.g, color_table[i].rgb.b);
+                var id_copy = color_table[i].id;
+                if (matching_id === -1) {
+                  var new_id = this.ms.addShuttle(color_table[i]);
+                  material_map.push({ old_id: id_copy, new_id });
+                } else {
+                  material_map.push({ old_id: id_copy, new_id: matching_id });
+                }
+              }
+
+              const originalRowShuttleMapping = getRowToShuttleMapping(data, wefts);
+              const originalColShuttleMapping = getColToShuttleMapping(data, warps);
+
+              console.log("COLOR TABLE", color_table);
+              console.log("ORIGINAL ROW SHUTTLE MAPPING", originalRowShuttleMapping);
+              console.log("ORIGINAL COL SHUTTLE MAPPING", originalColShuttleMapping);
+              console.log("MATERIAL MAP", material_map);
+
+              draft.rowShuttleMapping = originalRowShuttleMapping.map(el => material_map.find(m => m.old_id == el)?.new_id ?? 0);
+              draft.colShuttleMapping = originalColShuttleMapping.map(el => material_map.find(m => m.old_id == el)?.new_id ?? 0);
+
+            }
           }
-        }
 
 
-        let ncp: NodeComponentProxy = {
-          node_id: generateId(8),
-          type: 'draft',
-          topleft: { x: 0, y: 0 }
-        }
 
 
-        let dnp: DraftNodeProxy = {
-          node_id: ncp.node_id,
-          draft_id: draft.id,
-          ud_name: 'imported wif',
-          gen_name: '',
-          notes: 'imported from wif',
-          draft: draft,
-          compressed_draft: null,
-          draft_visible: true,
-          loom: loom,
-          loom_settings: loom_settings,
-          render_colors: true,
-          scale: 1
-        }
+          let dnp: DraftNodeProxy = {
+            node_id: -1,
+            draft_id: draft.id,
+            ud_name: 'imported wif',
+            gen_name: 'imported wif',
+            notes: 'imported from wif',
+            draft: draft,
+            compressed_draft: null,
+            draft_visible: true,
+            loom: loom,
+            loom_settings: loom_settings,
+            render_colors: true,
+            scale: 1
+          }
 
-        const envt: SaveObj = {
-          version: '0.0.0',
-          workspace: null,
-          zoom: null,
-          type: 'wif',
-          nodes: [ncp],
-          tree: null,
-          draft_nodes: [dnp],
-          notes: [],
-          ops: [],
-          materials: [],
-          indexed_image_data: []
-        }
+          const envt: SaveObj = {
+            version: '0.0.0',
+            workspace: null,
+            zoom: null,
+            type: 'wif',
+            nodes: [],
+            tree: null,
+            draft_nodes: [dnp],
+            notes: [],
+            ops: [],
+            materials: [],
+            indexed_image_data: []
+          }
 
-        const meta = {
-          id: -1,
-          name: 'wif import',
-          desc: 'a file represeting imported wif information',
-          from_share: '',
-          share_owner: ''
+          const meta = {
+            id: -1,
+            name: data.name + ' (wif import)',
+            desc: 'a file representing imported wif information from ' + data.name,
+            from_share: '',
+            share_owner: ''
 
-        }
+          }
 
-        return Promise.resolve({ data: envt, meta, status: 0 });
+          return Promise.resolve({ data: envt, meta, status: 0 });
+
+
+
+
+
+        }).catch(error => {
+          console.error("error computing drawdown", error);
+          return Promise.reject("error computing drawdown");
+        });
+
+
+
+
+
 
 
 

@@ -265,9 +265,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
     this.wifImportedSubscription = this.importtodraftSvc.wifImported$.subscribe(data => {
-      console.log("WIF IMPORTED", data);
       this.fs.loader.wif(data.name, data.data).then(res => {
         this.draftImported(res);
+      }).catch(error => {
+        this.openSnackBar("ERROR Loading WIF file: " + error);
       });
     });
 
@@ -275,6 +276,8 @@ export class AppComponent implements OnInit, OnDestroy {
       console.log("BITMAP IMPORTED", data);
       this.fs.loader.bitmap(data.name, data.data).then(res => {
         this.draftImported(res);
+      }).catch(error => {
+        this.openSnackBar("ERROR Loading Bitmap file: " + error);
       });
     });
 
@@ -586,12 +589,17 @@ export class AppComponent implements OnInit, OnDestroy {
       this.createNewDraftOnMixer(dn.draft, dn.loom, dn.loom_settings).then(id => {
         draft_id = id;
         this.saveFile();
+
+        if (this.selected_editor_mode == 'editor') {
+          this.vs.setViewer(draft_id);
+          this.editor.loadDraft(draft_id);
+        }
+      }).catch(err => {
+        console.error(err);
       });
     });
 
-    if (this.selected_editor_mode == 'editor') {
-      this.editor.loadDraft(draft_id);
-    }
+
 
 
   }
@@ -2185,6 +2193,19 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.zoom_form) {
       this.zoom_form.setValue(this.getActiveZoomIndex(), { emitEvent: false });
     }
+  }
+
+
+  import(source: string) {
+    //the loadfile component will upload and call the file service to process, then the results will be emitted to teh 
+    //parent app, where a new 
+    this.dialog.open(LoadfileComponent, {
+      data: {
+        type: source,
+        title: 'Import a draft from a ' + source,
+        accepts: source === 'bitmap' ? '.bmp .png .jpg .jpeg .gif .webp' : '.wif'
+      }
+    })
   }
 
 
