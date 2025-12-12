@@ -59,6 +59,7 @@ export class SubdraftComponent implements OnInit {
 
 
 
+  isNew: boolean = false;
 
 
   parent_id: number = -1;
@@ -442,6 +443,8 @@ export class SubdraftComponent implements OnInit {
 
   onDoubleClick() {
     this.draftcontainer.onDoubleClick();
+    this.isNew = false;
+
   }
 
 
@@ -489,6 +492,7 @@ export class SubdraftComponent implements OnInit {
  * @param e 
  */
   mousedown(e: any) {
+    this.isNew = false;
     this.vs.setViewer(this.id);
     e.stopPropagation();
   }
@@ -501,6 +505,8 @@ export class SubdraftComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
+    this.isNew = false;
+
     this.previous_topleft = { x: this.topleft.x, y: this.topleft.y };
 
     this.moving = true;

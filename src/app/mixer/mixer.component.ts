@@ -145,6 +145,8 @@ export class MixerComponent {
       const loom = loom_settings.type === 'jacquard' ? null : initLoom(obj.warps, obj.wefts, this.ws.min_frames, this.ws.min_treadles);
 
       this.palette.createSubDraft(draft, loom, loom_settings).then(instance => {
+        instance.isNew = true;
+
         const change: DraftExistenceChange = {
           originator: 'DRAFT',
           type: 'CREATED',
@@ -168,6 +170,8 @@ export class MixerComponent {
 
     return this.palette.createSubDraft(draft, loom, loom_settings)
       .then(instance => {
+        console.log("CREATED NEW DRAFT", instance);
+        instance.isNew = true;
         const change: DraftExistenceChange = {
           originator: 'DRAFT',
           type: 'CREATED',

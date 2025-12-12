@@ -1547,13 +1547,87 @@ export class PaletteComponent implements OnInit {
       y: (container.scrollTop + container_rect.y) * 1 / this.zs.getMixerZoom(),
     }
 
-    //prevent this from getting hiden
+    //prevent this from getting hidden
     if (tl.x < 300) tl.x = 300;
     if (tl.y < 64) tl.y = 64;
 
+    // Try to find a non-overlapping position
+    const padding = 20; // minimum spacing between components
+    const stepSize = 50; // how far to move when checking next position
+    const maxAttempts = 100; // prevent infinite loops
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      if (!this.isOverlapping(tl, padding)) {
+        return tl;
+      }
+
+      // Try positions in a spiral pattern
+      const angle = attempt * 0.5; // radians
+      const radius = Math.floor(attempt / 4) * stepSize;
+      tl = {
+        x: tl.x + Math.cos(angle) * radius,
+        y: tl.y + Math.sin(angle) * radius
+      };
+
+      // Keep within bounds
+      if (tl.x < 300) tl.x = 300;
+      if (tl.y < 64) tl.y = 64;
+    }
+
+    // If we couldn't find a non-overlapping position, return the original
     return tl;
 
 
+  }
+
+
+  /**
+   * Check if a position overlaps with any existing component
+   * @param position The position to check
+   * @param padding Minimum spacing required
+   * @returns true if overlapping, false otherwise
+   */
+  private isOverlapping(position: Point, padding: number): boolean {
+    // Get all components (drafts and operations)
+    const allComponents = [
+      ...this.tree.getDraftNodes().map(dn => dn.component),
+      ...this.tree.getOperations(),
+      ...this.notes.getComponents()
+    ].filter(comp => comp !== null && comp !== undefined);
+
+    for (const comp of allComponents) {
+      if (!comp.topleft) continue;
+
+      const compDom = document.getElementById('scale-' + comp.id);
+      if (!compDom) continue;
+
+      const compRect = compDom.getBoundingClientRect();
+      const compWidth = compRect.width / this.zs.getMixerZoom();
+      const compHeight = compRect.height / this.zs.getMixerZoom();
+
+      // Check if rectangles overlap (with padding)
+      const compRight = comp.topleft.x + compWidth + padding;
+      const compBottom = comp.topleft.y + compHeight + padding;
+      const compLeft = comp.topleft.x - padding;
+      const compTop = comp.topleft.y - padding;
+
+      // For now, we'll assume new components have a default size
+      // You may want to pass the expected size as a parameter
+      const newWidth = 200; // default width, adjust as needed
+      const newHeight = 200; // default height, adjust as needed
+
+      const newRight = position.x + newWidth + padding;
+      const newBottom = position.y + newHeight + padding;
+      const newLeft = position.x - padding;
+      const newTop = position.y - padding;
+
+      // Check for overlap
+      if (!(newRight < compLeft || newLeft > compRight || newBottom < compTop || newTop > compBottom)) {
+        return true; // Overlapping
+      }
+    }
+
+    return false; // No overlap found
   }
 
   /**
