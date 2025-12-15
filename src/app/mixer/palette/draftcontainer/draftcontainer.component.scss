@@ -7,7 +7,7 @@
 	opacity: .7;
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
+	justify-content: flex-start;
 	width: 100%;
 	font-size: var(--form-field-entry-size);
 	height: var(--inlet-outlet-height);
@@ -58,7 +58,8 @@
 	color: black;
 	flex-direction: column;
 	justify-content: flex-start;
-	max-width: 1000px;
+	width: 100%;
+	padding-left: 8px;
 }
 
 .name {

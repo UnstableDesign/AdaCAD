@@ -773,6 +773,7 @@ export class PaletteComponent implements OnInit {
    */
   createSubDraft(d: Draft, loom: Loom, loom_settings: LoomSettings): Promise<SubdraftComponent> {
 
+    console.log("CREATING SUBDRAFT", d);
     const subdraft = this.vc.createComponent(SubdraftComponent);
     const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
     this.setSubdraftSubscriptions(subdraft.instance);

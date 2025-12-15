@@ -1,22 +1,24 @@
-<h2 mat-dialog-title>{{title}}</h2>
+<div class="loadfile_container">
+  <h2 mat-dialog-title>{{title}}</h2>
 
-<mat-dialog-content>
+  <mat-dialog-content>
 
-  @if (connection_state){
-  <upload-form type="init" [multiple]="multiple" [type]="type" [accepts]="accepts" (onData)="handleFile($event)"
-    (onError)="handleError($event)" class="button"></upload-form>
+    @if (connection_state){
+    <upload-form type="init" source="import" [multiple]="multiple" [type]="type" [accepts]="accepts"
+      (onData)="handleFile($event)" (onError)="handleError($event)" class="button"></upload-form>
 
-  <div class='err'>{{errorstring}}</div>
+    <div class='err'>{{errorstring}}</div>
 
-  }
+    }
 
-  @else{
+    @else{
 
-  <div> You must be connected to the internet to upload files. </div>
+    <div> You must be connected to the internet to upload files. </div>
 
-  }
-</mat-dialog-content>
+    }
+  </mat-dialog-content>
 
-<mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="true">Close (and don't upload)</button>
-</mat-dialog-actions>
+  <mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="true">Close (and don't upload)</button>
+  </mat-dialog-actions>
+</div>

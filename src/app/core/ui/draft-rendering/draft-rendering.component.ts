@@ -461,6 +461,7 @@ export class DraftRenderingComponent implements OnInit {
       case 'material':
       case 'toggle':
         this.setPosAndDraw(<HTMLElement>event.target, event.shiftKey, currentPos);
+        if (this.moveSubscription) this.moveSubscription.unsubscribe();
         this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onDrawMove(e));
 
         break;
@@ -468,6 +469,7 @@ export class DraftRenderingComponent implements OnInit {
 
     switch (this.pencil) {
       case 'select':
+        if (this.moveSubscription) this.moveSubscription.unsubscribe();
         this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onSelectMove(e));
         this.selection.onSelectStart(<HTMLElement>event.target as HTMLElement, currentPos);
         break;
@@ -477,7 +479,12 @@ export class DraftRenderingComponent implements OnInit {
   private onSelectMove(event) {
     const currentPos = this.getEventPosition(event);
     if (this.isSame(currentPos, this.lastPos)) return;
-    if (!this.inBounds(currentPos, event.target as HTMLElement)) return;
+
+    if (!this.inBounds(currentPos, event.target as HTMLElement) || !this.mouse_pressed) {
+      this.handleMouseEvent(event, 'end', currentPos);
+      return;
+    }
+
     this.selection.onSelectDrag(currentPos);
     this.lastPos = {
       i: currentPos.i, //row
@@ -491,7 +498,13 @@ export class DraftRenderingComponent implements OnInit {
     const currentPos = this.getEventPosition(event);
     //don't call unless you've moved to a new spot
     if (this.isSame(currentPos, this.lastPos)) return;
-    if (!this.inBounds(currentPos, event.target as HTMLElement)) return;
+    if (!this.inBounds(currentPos, event.target as HTMLElement) || !this.mouse_pressed) {
+      this.handleMouseEvent(event, 'end', currentPos);
+      return;
+    }
+
+
+
     this.setPosAndDraw(<HTMLElement>event.target, event.shiftKey, currentPos);
     this.lastPos = {
       i: currentPos.i, //row
@@ -522,6 +535,7 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   handleEndEvent(event: MouseEvent) {
+    console.log("HANDLE END EVENT", event, this.mouse_pressed, this.moveSubscription);
     if (this.moveSubscription) this.moveSubscription.unsubscribe();
 
     switch (this.pencil) {
@@ -534,7 +548,6 @@ export class DraftRenderingComponent implements OnInit {
       case 'material':
       case 'toggle':
 
-        this.mouse_pressed = false;
         this.addStateChange(this.before);
         this.updateConnectedDraftComponents(this.tree.getDraft(this.id), this.tree.getLoom(this.id), this.tree.getLoomSettings(this.id));
         break;
@@ -611,17 +624,17 @@ export class DraftRenderingComponent implements OnInit {
   handleMouseEvent(event: MouseEvent, stage: 'start' | 'move' | 'leave' | 'end', currentPos: Interlacement) {
 
     //make sure the mouse is down before calling any of these, 
-    if (!this.isValidTarget(event.target as HTMLElement)) {
-      return;
-    }
-
-    if (!this.inBounds(currentPos, event.target as HTMLElement)) return;
 
 
     switch (stage) {
       case 'start':
+        if (!this.isValidTarget(event.target as HTMLElement)) {
+          return;
+        }
 
-        this.mouse_pressed = true;
+        if (!this.inBounds(currentPos, event.target as HTMLElement)) return;
+
+
         this.before = this.tree.getDraftNodeState(this.id);
         this.handleStartEvent(event, currentPos);
         this.lastPos = {
@@ -636,8 +649,6 @@ export class DraftRenderingComponent implements OnInit {
         break;
       case 'leave':
         if (!this.mouse_pressed) return;
-
-        this.mouse_pressed = false;
         this.handleLeaveEvent(event);
         this.lastPos = {
           i: -1,
@@ -647,9 +658,6 @@ export class DraftRenderingComponent implements OnInit {
 
         break;
       case 'end':
-        if (!this.mouse_pressed) return;
-
-        this.mouse_pressed = false;
         this.handleEndEvent(event);
         break;
     }
@@ -697,6 +705,7 @@ export class DraftRenderingComponent implements OnInit {
   @HostListener('mousedown', ['$event'])
   public onStart(event) {
 
+    this.mouse_pressed = true;
     this.before = this.tree.getDraftNodeState(this.id);
     this.vs.setViewer(this.id);
 
@@ -722,6 +731,7 @@ export class DraftRenderingComponent implements OnInit {
   @HostListener('mouseup', ['$event'])
   public onEnd(event) {
 
+    this.mouse_pressed = false;
     if (this.id == -1 || this.view_only) return;
     const currentPos = this.getEventPosition(event);
     this.handleMouseEvent(event, 'end', currentPos);

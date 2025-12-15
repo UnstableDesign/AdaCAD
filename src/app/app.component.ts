@@ -18,7 +18,7 @@ import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps,
 import { convertLoom, copyLoom, copyLoomSettings, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { Bounds, DraftNode, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Bounds, DraftNode, DraftNodeBroadcastFlags, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { mergeBounds } from './core/model/helper';
 import { ErrorBroadcasterService } from './core/provider/error-broadcaster.service';
@@ -273,7 +273,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.bitmapImportedSubscription = this.importtodraftSvc.bitmapImported$.subscribe(data => {
       console.log("BITMAP IMPORTED", data);
-      this.fs.loader.bitmap(data.name, data.data).then(res => {
+      this.fs.loader.bitmap(data.name, data).then(res => {
         this.draftImported(res);
       }).catch(error => {
         this.openSnackBar("ERROR Loading Bitmap file: " + error);
@@ -490,7 +490,7 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   createNewDraftOnMixer(draft: Draft, loom: Loom | null, loom_settings: LoomSettings): Promise<number> {
 
-    return this.mixer.createNewDraft(draft, loom, loom_settings);
+    return this.mixer.createNewDraft(copyDraft(draft), loom, loom_settings);
 
   }
 
@@ -585,9 +585,26 @@ export class AppComponent implements OnInit, OnDestroy {
     let draft_id = -1;
     console.log("DRAFT IMPORTED", lr);
     lr.data.draft_nodes.forEach(dn => {
+      console.log("GOT DRAFT NODE ", dn, dn.draft, dn.loom, dn.loom_settings);
       this.createNewDraftOnMixer(dn.draft, dn.loom, dn.loom_settings).then(id => {
         draft_id = id;
+
+        const flags: DraftNodeBroadcastFlags = {
+          meta: true,
+          draft: false,
+          loom: false,
+          loom_settings: false,
+          materials: false
+        }
+
+        const draft = this.tree.getDraft(id);
+        draft.gen_name = lr.meta.name;
+        this.tree.setDraft(id, draft, flags)
+
+
         this.saveFile();
+        this.library.refreshDrafts();
+
 
         if (this.selected_editor_mode == 'editor') {
           this.vs.setViewer(draft_id);
@@ -2185,8 +2202,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.dialog.open(LoadfileComponent, {
       data: {
         type: source,
-        title: 'Import a draft from a ' + source,
-        accepts: source === 'bitmap' ? '.bmp .png .jpg .jpeg .gif .webp' : '.wif'
+        title: 'Import draft(s) from ' + source + ' file(s)',
+        accepts: source === 'bitmap' ? '.bmp .png .jpg .jpeg .gif .webp' : '.wif',
+        multiple: true
       }
     })
   }

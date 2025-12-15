@@ -19,6 +19,17 @@ export class UploadService {
   uploadProgress: Observable<number>;
   progress: number;
   imageToShow: any;
+  uploads: Array<Upload> = []; //hold a list of all the uploads so we can delete at end. 
+
+
+
+  ngOnDestroy() {
+    this.uploads.forEach(upload => {
+      this.deleteUpload(upload.name);
+    });
+  }
+
+
 
   createImageFromBlob(image: Blob) {
     let reader = new FileReader();
@@ -65,6 +76,8 @@ export class UploadService {
 
   uploadData(id: string, upload: Upload, metadata: UploadMetadata) {
     console.log("IN UPLOAD DATA")
+    this.uploads.push(upload);
+
     const storage = getStorage();
     const storageRef = ref(storage, 'uploads/' + id);
     const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
@@ -247,12 +260,12 @@ export class UploadService {
   }
 
 
-  deleteUpload(upload: Upload) {
+  deleteUpload(name: string) {
 
     const storage = getStorage();
 
     // Create a reference to the file to delete
-    const desertRef = ref(storage, 'uploads/' + upload.name);
+    const desertRef = ref(storage, 'uploads/' + name);
 
     // Delete the file
     deleteObject(desertRef).then(() => {

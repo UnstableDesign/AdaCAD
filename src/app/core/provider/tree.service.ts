@@ -284,6 +284,7 @@ export class TreeService {
    */
   loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
 
+    console.log("LOADING DRAFT DATA", entry, draft, loom, loom_settings, render_colors, scale, draft_visible);
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
     if (nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id " + entry.cur_id);
 
@@ -291,6 +292,10 @@ export class TreeService {
 
     draftNode.dirty = true;
     draft.id = entry.cur_id;
+    draft.gen_name = draft.gen_name ?? 'drafty';
+    draft.ud_name = draft.ud_name ?? '';
+    draft.notes = draft.notes ?? '';
+
     const flags: DraftNodeBroadcastFlags = {
       meta: true,
       draft: true,

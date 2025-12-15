@@ -5,6 +5,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatError, MatInput } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { hexToRgb, Img, Material } from 'adacad-drafting-lib';
 import { Draft } from 'adacad-drafting-lib/draft';
@@ -21,6 +22,7 @@ import { StateService } from '../core/provider/state.service';
 import { TreeService } from '../core/provider/tree.service';
 import { WorkspaceService } from '../core/provider/workspace.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
+import { LoadfileComponent } from '../core/ui/loadfile/loadfile.component';
 import { MaterialComponent } from '../core/ui/material/material';
 import { ShareComponent } from '../core/ui/share/share.component';
 import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component';
@@ -29,7 +31,7 @@ import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component'
   selector: 'app-library',
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
-  imports: [MatButton, MatIconButton, MaterialComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
+  imports: [MatButton, MatMenuModule, MatIconButton, MaterialComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -79,9 +81,18 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   fileMetaChangeUndoSubscription: Subscription;
   savedTimeSubscription: Subscription;
 
+  connection_state = false;
+  private connectionSubscription: Subscription;
+
+
+
   constructor() {
 
     this.draftsData = [];
+
+    this.connectionSubscription = this.fb.connectionChangeEvent$.subscribe(data => {
+      this.connection_state = data;
+    })
   }
 
   ngOnInit() {
@@ -116,6 +127,10 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+
+    if (this.connectionSubscription) {
+      this.connectionSubscription.unsubscribe();
+    }
 
     if (this.savedTimeSubscription) {
       this.savedTimeSubscription.unsubscribe();
@@ -152,6 +167,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   openDraftInMixer(id: number) {
     this.onOpenInMixer.emit(id);
   }
+
 
 
   //called from library when the workspace name is changed in the library. 
@@ -252,6 +268,11 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
       second: '2-digit',
       hour12: false
     });
+  }
+
+
+  refreshDrafts() {
+    this.loadDrafts()
   }
 
 
@@ -382,6 +403,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async downloadAllDraftsAsBitmaps() {
+    console.log("DOWNLAOD ALL CALLED");
+
     if (!this.hiddenCanvas) {
       console.error('Canvas element not found');
       return;
@@ -390,8 +413,14 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     const canvas = this.hiddenCanvas.nativeElement;
 
 
+    let downloadList = [];
+    if (this.selectedDraftIds.size == 0) downloadList = this.draftsData.map(el => el.id);
+    else downloadList = Array.from(this.selectedDraftIds);
+
+
+
     // Download each draft sequentially to avoid browser blocking multiple downloads
-    for (const draftId of this.selectedDraftIds.values()) {
+    for (const draftId of downloadList) {
       try {
         await saveAsBmp(
           canvas,
@@ -702,5 +731,22 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
       alert('Failed to download media item. Please try again.');
     }
   }
+
+
+  importFrom(source: string) {
+    //the loadfile component will upload and call the file service to process, then the results will be emitted to teh 
+    //parent app, where a new 
+    this.dialog.open(LoadfileComponent, {
+      data: {
+        type: source,
+        title: 'Import draft(s) from ' + source + ' file(s)',
+        accepts: source === 'bitmap' ? '.bmp .png .jpg .jpeg .gif .webp' : '.wif',
+        multiple: true
+      }
+    })
+  }
 }
+
+
+
 

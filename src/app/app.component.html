@@ -31,19 +31,26 @@
 
         <button mat-icon-button [matMenuTriggerFor]="file"><i class="fa-solid fa-house"></i></button>
 
+
+        <!-- to do - add download all  -->
+
         <mat-menu #file="matMenu">
           <button mat-menu-item (click)="loadBlankFile()">New Workspace</button>
           <button mat-menu-item [disabled]="!connection_state || !user_auth_state" (click)="openAdaFiles('load')">Manage
             Saved Files</button>
-          <button mat-menu-item [matMenuTriggerFor]="openFile">Open File</button>
-          <button mat-menu-item [disabled]="!connection_state" (click)="import('bitmap')">Import Draft(s) from
-            Bitmap(s)</button>
-          <button mat-menu-item [disabled]="!connection_state" (click)="import('wif')">Import a WIF File</button>
+          <button mat-menu-item [disabled]="!connection_state" [matMenuTriggerFor]="openFile">Open .Ada
+            Workspace</button>
+          <button mat-menu-item [disabled]="!connection_state" [matMenuTriggerFor]="importFile">Import Draft(s)</button>
           <app-download origin="menu" [ids]="(vs.showing === -1 ? [] : [vs.showing])"
             [workspaceName]="filename_form.value"></app-download>
           <button mat-menu-item [disabled]="!connection_state || !user_auth_state" (click)="saveFile()">Save</button>
           <button mat-menu-item (click)="openAboutDialog()">About</button>
 
+        </mat-menu>
+
+        <mat-menu #importFile="matMenu">
+          <button mat-menu-item (click)="import('bitmap')">...from Bitmap(s)</button>
+          <button mat-menu-item (click)="import('wif')">...from .WIF File(s)</button>
         </mat-menu>
 
         <mat-menu #openFile="matMenu">

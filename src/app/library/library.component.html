@@ -166,10 +166,20 @@
     </button>
     }
 
-    <button mat-raised-button>
-      <i class="fas fa-upload"></i>
-      Import Bitmaps
-    </button>
+    <div class="draft_import">
+
+      <button [disabled]="!connection_state" [matMenuTriggerFor]="importFile" mat-raised-button>
+        <i class="fas fa-upload"></i>
+        Import Drafts
+      </button>
+
+
+      <mat-menu #importFile="matMenu">
+        <button mat-menu-item (click)="importFrom('bitmap')">...from Bitmap(s)</button>
+        <button mat-menu-item (click)="importFrom('wif')">...from .WIF File(s)</button>
+      </mat-menu>
+
+    </div>
   </div>
 
 

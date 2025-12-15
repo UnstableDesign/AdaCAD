@@ -59,7 +59,7 @@ export class UploadFormComponent implements OnInit {
           this.onData.emit(obj);
           this.uploading = false;
           this.selectedFiles = null;
-          this.upSvc.deleteUpload(upload);
+          this.upSvc.deleteUpload(upload.name);
 
         })
 
@@ -111,137 +111,81 @@ export class UploadFormComponent implements OnInit {
 
     this.uploading = true;
 
-    let file: File = this.selectedFiles.item(0)
-    let fileType = file.name.split(".").pop();
-    let fileName = file.name.split(".")[0];
+    console.log("uploading", this.selectedFiles, this.type);
 
-    const upload: Upload = {
-      $key: '',
-      file: file,
-      name: fileName,
-      url: '',
-      progress: 0,
-      createdAt: new Date()
-    };
-
-
-    switch (this.type) {
-      case 'ada':
-        this.uploadAda(upload, file);
-        break;
-
-      case 'indexed_color_image':
-        this.uploadImage(upload, file, 'indexed_color_image')
-
-        break;
-
-      case 'single_image':
-        this.uploadImage(upload, file, 'image')
-        break;
-
-      case 'bitmap_collection':
-        this.uploadBitmaps();
-        break;
-
-      case 'wif':
-        this.importtodraftSvc.uploadWif(upload, file).then(
-          res => {
-            this.onData.emit();
-            this.uploading = false;
-            this.selectedFiles = null;
-          }).catch(e => {
-            this.onError.emit(e);
-            this.uploading = false;
-            this.selectedFiles = null;
-          });
-        break;
-
-      case 'bmp': case 'png': case 'jpg': case 'jpeg': case 'gif': case 'webp':
-        this.importtodraftSvc.uploadBitmap(upload, file).then(
-          res => {
-            this.onData.emit(res);
-            this.uploading = false;
-            this.selectedFiles = null;
-          }).catch(e => {
-            this.onError.emit(e);
-            this.uploading = false;
-            this.selectedFiles = null;
-          });
-        break;
-
-
-      default:
-        break;
+    let uploadList = [];
+    if (this.multiple) {
+      for (let i = 0; i < this.selectedFiles.length; i++) {
+        let file: File = this.selectedFiles.item(i);
+        let fileType = file.name.split(".").pop();
+        let fileName = file.name.split(".")[0];
+        uploadList.push({ file: file, fileName: fileName, fileType: fileType });
+      }
+    } else {
+      uploadList.push({ file: this.selectedFiles.item(0), fileName: this.selectedFiles.item(0).name.split(".")[0], fileType: this.selectedFiles.item(0).name.split(".").pop() });
     }
 
 
+    for (let uploadObj of uploadList) {
+      const upload: Upload = {
+        $key: '',
+        file: uploadObj.file,
+        name: uploadObj.fileName,
+        fileType: uploadObj.fileType,
+        url: '',
+        progress: 0,
+        createdAt: new Date()
+      };
 
-  }
 
-  /**
-   * used when handling the upload of multiple images (bitmaps) that should be converted into a drfat
-   * TEMP DIABLED
-   */
-  uploadBitmaps() {
 
-    // this.uploading = true;
 
-    //   const uploads= [];
-    //   const fns = [];
-    //   for(let i = 0; i < this.selectedFiles.length; i++){
 
-    //     let file:File = this.selectedFiles.item(i)
-    //     let fileName = file.name.split(".")[0];
+      switch (this.type) {
+        case 'ada':
+          this.uploadAda(upload, uploadObj.file);
+          break;
 
-    //     const upload:Upload = {
-    //       $key: '',
-    //       file:file,
-    //       name:fileName,
-    //       url:'',
-    //       progress:0,
-    //       createdAt: new Date()
-    //   };
-    //   uploads.push(upload);
-    //   fns.push(this.uploadBitmap(upload, file));
+        case 'indexed_color_image':
+          this.uploadImage(upload, uploadObj.file, 'indexed_color_image')
 
-    //   }
+          break;
 
-    //  Promise.all(fns).then(res => {
-    //   let drafts = [];
-    //   res.forEach(upload_arr => {
+        case 'single_image':
+          this.uploadImage(upload, uploadObj.file, 'image')
+          break;
 
-    //     let upload = upload_arr[0];
+        case 'wif':
+          this.importtodraftSvc.uploadWif(upload, uploadObj.file).then(
+            res => {
+              this.onData.emit();
+              this.uploading = false;
+              this.selectedFiles = null;
+            }).catch(e => {
+              this.onError.emit(e);
+              this.uploading = false;
+              this.selectedFiles = null;
+            });
+          break;
 
-    //     const twod: Sequence.TwoD = new Sequence.TwoD();
-    //     let bw_ndx = upload.colors_to_bw.map(el => el.black);
+        case 'bitmap':
+          this.importtodraftSvc.uploadBitmap(upload, uploadObj.file, uploadObj.fileType).then(
+            res => {
+              this.onData.emit(res);
+              this.uploading = false;
+              this.selectedFiles = null;
+            }).catch(e => {
+              this.onError.emit(e);
+              this.uploading = false;
+              this.selectedFiles = null;
+            });
+          break;
 
-    //     for(let i = 0; i < upload.height; i++){
-    //       const oned: Sequence.OneD = new Sequence.OneD();
-    //       for(let j = 0; j < upload.width; j++){
-    //         const ndx = upload.image_map[i][j];
-    //         let val:boolean = (ndx < bw_ndx.length) ? bw_ndx[ndx] : null;
-    //         oned.push(val);
-    //       }
-    //       twod.pushWeftSequence(oned.val());
-    //     }
-    //     const d: Draft = initDraftFromDrawdown(twod.export());
-    //     d.gen_name = upload.name;
-    //     drafts.push(d);
-    //   })
 
-    //   this.onData.emit({type: this.type, drafts: drafts});
-    //   this.uploading = false;
-    //   this.selectedFiles = null;
-    //   return [];
-    //  }).then(res => {
-    //     let functions = uploads.map(el => this.upSvc.deleteUpload(el));
-    //     return Promise.all(functions);
-    //  }).catch(e => {
-
-    //   this.onError.emit('one of the files you uploaded was not a bitmap (and had more than 100 colors, so it could not be converted to black and white), please try again');
-    //   this.uploading = false;
-    //   this.selectedFiles = null;
-    //  });
+        default:
+          break;
+      }
+    }
 
 
 

@@ -400,7 +400,7 @@ export interface Upload {
   url: string,
   progress: number,
   createdAt: Date,
-
+  fileType: string,
 }
 
 

@@ -1,10 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { defaults, generateId, Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
-import { Draft, initDraftFromDrawdown, warps, wefts } from 'adacad-drafting-lib/draft';
+import { createCell, Draft, Drawdown, initDraftFromDrawdown, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, initLoom, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
 import { loadDraftFromFile, loadLoomFromFile } from '../model/helper';
 import { getBool, getColorTable, getColToShuttleMapping, getInt, getLiftPlan, getRowToShuttleMapping, getString, getSubstringAfter, getThreading, getTieups, getTreadling } from '../model/wif';
+import { ImporttodraftService } from './importtodraft.service';
 import { MaterialsService } from './materials.service';
 import { MediaService } from './media.service';
 import { NotesService } from './notes.service';
@@ -36,7 +37,7 @@ export class FileService {
   private ws = inject(WorkspaceService);
   private zs = inject(ZoomService);
   private media = inject(MediaService);
-
+  private importtodraftSvc = inject(ImporttodraftService);
 
 
   status: Array<StatusMessage> = [];
@@ -445,6 +446,8 @@ export class FileService {
         if (frames === -1) frames = defaults.loom_settings.frames;
         if (treadles === -1) treadles = defaults.loom_settings.treadles;
 
+        if (warps * wefts > this.ws.max_draft_input_area) return Promise.reject('image size error');
+
         //;({"Decipoints","Inches","Centimeters"})
         let formattedUnits: 'in' | 'cm' = 'in';
         switch (units) {
@@ -513,8 +516,7 @@ export class FileService {
             const hasForm = getString("Form", data) !== undefined;
 
 
-            console.log("HAS FORM", hasForm);
-            console.log("HAS RANGE", hasRange);
+
             if (hasForm || hasRange) {
 
               let min = (hasRange) ? getString("Range", data).split(",")[0] : 0;
@@ -537,10 +539,7 @@ export class FileService {
               const originalRowShuttleMapping = getRowToShuttleMapping(data, wefts);
               const originalColShuttleMapping = getColToShuttleMapping(data, warps);
 
-              console.log("COLOR TABLE", color_table);
-              console.log("ORIGINAL ROW SHUTTLE MAPPING", originalRowShuttleMapping);
-              console.log("ORIGINAL COL SHUTTLE MAPPING", originalColShuttleMapping);
-              console.log("MATERIAL MAP", material_map);
+
 
               draft.rowShuttleMapping = originalRowShuttleMapping.map(el => material_map.find(m => m.old_id == el)?.new_id ?? 0);
               draft.colShuttleMapping = originalColShuttleMapping.map(el => material_map.find(m => m.old_id == el)?.new_id ?? 0);
@@ -589,6 +588,7 @@ export class FileService {
 
           }
 
+          this.importtodraftSvc.uploadComplete(data.ref);
           return Promise.resolve({ data: envt, meta, status: 0 });
 
 
@@ -596,6 +596,7 @@ export class FileService {
 
 
         }).catch(error => {
+          this.importtodraftSvc.uploadComplete(data.ref);
           console.error("error computing drawdown", error);
           return Promise.reject("error computing drawdown");
         });
@@ -612,13 +613,98 @@ export class FileService {
       },
       bitmap: async (filename: string, data: any): Promise<LoadResponse> => {
 
+        console.log("LOADING BITMAP", filename, data);
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        var image = new Image();
+        image.src = data.url;
+        image.crossOrigin = "Anonymous";
 
 
+        return image.decode().then(() => {
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
 
-        return Promise.resolve({ data: null, meta: null, status: 0 });
+
+          if (image.naturalWidth * image.naturalHeight > this.ws.max_draft_input_area) return Promise.reject('image size error');
+
+
+          const drawdown: Drawdown = [];
+          for (let i = 0; i < canvas.height; i++) {
+            drawdown.push([]);
+            for (let j = 0; j < canvas.width; j++) {
+              drawdown[i][j] = createCell(false);
+            }
+          }
+          ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+          var imgdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+          const pixels = imgdata.data;
+          for (let i = 0; i < pixels.length; i += 4) {
+            let i_ndx = Math.floor((i / 4) / image.naturalWidth);
+            let j_ndx = Math.floor(((i / 4) % image.naturalWidth));
+            let r = pixels[i];
+            let g = pixels[i + 1];
+            let b = pixels[i + 2];
+            let a = pixels[i + 3];
+            const is_black: boolean = ((r + g + b / 3) < (255 / 2))
+            drawdown[i_ndx][j_ndx] = createCell(is_black);
+          }
+
+          const draft = initDraftFromDrawdown(drawdown);
+
+
+          let dnp: DraftNodeProxy = {
+            node_id: -1,
+            draft_id: draft.id,
+            ud_name: data.name,
+            gen_name: data.name,
+            notes: 'imported from bitmap: ' + data.name,
+            draft: draft,
+            compressed_draft: null,
+            draft_visible: true,
+            loom: null,
+            loom_settings: defaults.loom_settings as LoomSettings,
+            render_colors: true,
+            scale: 1
+          }
+
+          const envt: SaveObj = {
+            version: '0.0.0',
+            workspace: null,
+            zoom: null,
+            type: 'wif',
+            nodes: [],
+            tree: null,
+            draft_nodes: [dnp],
+            notes: [],
+            ops: [],
+            materials: [],
+            indexed_image_data: []
+          }
+
+          const meta = {
+            id: -1,
+            name: data.name + ' (bitmap import)',
+            desc: 'a file representing imported bitmap information from ' + data.name,
+            from_share: '',
+            share_owner: ''
+
+          }
+
+          this.importtodraftSvc.uploadComplete(data.ref);
+          return Promise.resolve({ data: envt, meta, status: 0 });
+
+
+        }).catch(error => {
+          console.error("error loading bitmap", error);
+          this.importtodraftSvc.uploadComplete(data.ref);
+          return Promise.reject("error loading bitmap");
+        });
       }
-
     }
+
+
 
 
 

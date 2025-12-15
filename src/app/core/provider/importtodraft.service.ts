@@ -46,9 +46,9 @@ export class ImporttodraftService {
             name: file.name.split(".")[0],
             data: data,
             type: 'wif',
+            ref: upload.name
           }
           this.wifImportedEvent.next(obj);
-          this.upSvc.deleteUpload(upload);
         })
     });
   }
@@ -59,29 +59,39 @@ export class ImporttodraftService {
  * @param upload 
  * @param file 
  */
-  async uploadBitmap(upload: Upload, file: File) {
+  async uploadBitmap(upload: Upload, file: File, fileType: string) {
 
     await this.upSvc.pushUpload(upload).then(snapshot => {
       return this.upSvc.getDownloadData(upload.name)
     }).then(url => {
       console.log("got download", url)
-      this.httpClient.get(url, { responseType: 'arraybuffer' })
+      this.httpClient.get(url, { responseType: 'blob' })
         .subscribe(data => {
           var obj = {
             name: file.name.split(".")[0],
             data: data,
-            type: 'bitmap'
+            type: 'bitmap',
+            fileType: fileType,
+            url: url,
+            ref: upload.name
           }
 
           this.bitmapImportedEvent.next(obj);
-          this.upSvc.deleteUpload(upload);
         })
     });
 
 
 
 
+
+
   }
+
+  async uploadComplete(ref: string) {
+    this.upSvc.deleteUpload(ref);
+  }
+
+
 
 
 

@@ -167,7 +167,7 @@ export class MixerComponent {
  */
   createNewDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings): Promise<number> {
 
-
+    console.log("CREATING NEW DRAFT", draft, loom, loom_settings);
     return this.palette.createSubDraft(draft, loom, loom_settings)
       .then(instance => {
         console.log("CREATED NEW DRAFT", instance);

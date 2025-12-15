@@ -74,13 +74,7 @@ export class LoadfileComponent {
       this.dialogRef.close();
       return;
     }
-    console.log(e);
     switch (e.type) {
-
-      case 'bitmap_collection':
-        this.dialogRef.close(e.drafts)
-        break;
-
 
       case 'ada':
 
