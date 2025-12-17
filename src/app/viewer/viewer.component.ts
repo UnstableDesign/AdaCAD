@@ -1,15 +1,19 @@
 import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatIconButton, MatMiniFabButton } from '@angular/material/button';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
+import { skip } from 'rxjs/operators';
 import { DraftNode, RenderingFlags } from '../core/model/datatypes';
+import { defaults } from '../core/model/defaults';
 import { FirebaseService } from '../core/provider/firebase.service';
 import { OperationService } from '../core/provider/operation.service';
 import { StateService } from '../core/provider/state.service';
@@ -21,11 +25,12 @@ import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { RenameComponent } from '../core/ui/rename/rename.component';
 import { SimulationComponent } from './simulation/simulation.component';
+
 @Component({
   selector: 'app-viewer',
   templateUrl: './viewer.component.html',
   styleUrls: ['./viewer.component.scss'],
-  imports: [ReactiveFormsModule, MatIconButton, MatButtonToggleModule, MatExpansionModule, MatFormFieldModule, MatTooltip, DraftRenderingComponent, SimulationComponent, MatSlider, MatSliderThumb, MatMiniFabButton]
+  imports: [ReactiveFormsModule, MatIconButton, MatButtonModule, MatSlideToggleModule, MatButtonToggleModule, MatExpansionModule, MatFormFieldModule, MatInputModule, MatTooltip, DraftRenderingComponent, SimulationComponent, MatSlider, MatSliderThumb, MatMiniFabButton]
 })
 export class ViewerComponent {
   private tree = inject(TreeService);
@@ -69,6 +74,16 @@ export class ViewerComponent {
   draftValueChangeSubscription: Subscription;
   redrawCompleteSubscription: Subscription;
 
+  simControlsVisible: boolean = false;
+  //Sim Controls
+  // weftsAsWrittenForm: FormControl;
+  // liftLimitForm: FormControl;
+  // packForm: FormControl;
+  // massForm: FormControl;
+  // maxThetaForm: FormControl;
+
+  simControls: FormGroup;
+  epiUnits: string = "ends / 10cm";
 
   constructor() {
 
@@ -77,15 +92,22 @@ export class ViewerComponent {
       else this.loadDraft(data);
     })
 
-    //THIS MAY NO LONGER BE NEEDED
-    // this.updateViewerSubscription = this.vs.update_viewer$.subscribe(data => {
-    //   console.log("VIEWER - call from update viewer$ ", data);
-    //   this.forceRedraw();
-    // })
+
+
+
 
     this.zoomLevel = new FormControl(0);
     this.visMode = new FormControl(this.vs.current_view);
     this.viewFace = new FormControl(this.vs.view_face);
+
+    this.simControls = new FormGroup({
+      weftsAsWritten: new FormControl(defaults.wefts_as_written ? "true" : "false"),
+      liftLimit: new FormControl(4, [Validators.required, Validators.min(1), Validators.max(50)]),
+      pack: new FormControl(defaults.pack, [Validators.required, Validators.min(0.001), Validators.max(1)]),
+      mass: new FormControl(150, [Validators.required, Validators.min(0), Validators.max(1000)]),
+      maxTheta: new FormControl(45, [Validators.required, Validators.min(0), Validators.max(90)]), //in degrees
+      warpSpacing: new FormControl(12, [Validators.required, Validators.min(0.25), Validators.max(120)]), //measured in epi
+    });
 
 
 
@@ -100,7 +122,17 @@ export class ViewerComponent {
 
   }
 
+
+
+
+
+
   ngOnInit() {
+
+    this.simControls.valueChanges.subscribe(value => {
+      this.sim.updateSimParameters(value);
+    });
+
 
 
 
@@ -137,6 +169,11 @@ export class ViewerComponent {
     this.updateDraftData(this.vs.getViewerId());
 
 
+  }
+
+
+  toggleSimControls() {
+    this.simControlsVisible = !this.simControlsVisible;
   }
 
   swapViewFace(face: 'front' | 'back') {
@@ -194,11 +231,19 @@ export class ViewerComponent {
     this.draft_notes = this.before_notes;
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
+    this.epiUnits = this.tree.getLoomSettings(id).units === 'in' ? 'ends / inch' : 'ends / 10cm';
+
+    this.simControls.patchValue({
+      warpSpacing: this.tree.getLoomSettings(id).epi || 12,
+    }, { emitEvent: false });
 
   }
 
 
   private loadDraft(id: number) {
+
+    console.log("LOADING DRAFT ", id);
+
 
     const draftNode = this.tree.getNode(id) as DraftNode;
     if (draftNode.type !== 'draft') return;
@@ -213,19 +258,21 @@ export class ViewerComponent {
 
     //subscribe to future updates on the draft so the UI can update info about size changes, etc. 
     if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
-    this.draftValueChangeSubscription = draftNode.onValueChange.subscribe(draftNodeBroadcast => {
+    this.draftValueChangeSubscription = draftNode.onValueChange.pipe(skip(1)).subscribe(draftNodeBroadcast => {
       this.updateDraftData(id);
+      if (this.vs.current_view == 'sim') {
+        this.sim.loadNewDraft(id);
+      }
     });
 
-
-    if (this.vs.current_view != 'sim') {
+    // Load the draft immediately if in sim mode (skip the initial BehaviorSubject emission)
+    if (this.vs.current_view == 'sim' && this.sim) {
+      this.sim.loadNewDraft(id);
+    } else if (this.vs.current_view != 'sim') {
       if (this.viewFace.value == 'back') {
         this.forceRedraw(false)
           .catch(console.error);
       }
-    } else {
-
-      this.sim.loadNewDraft(id);
     }
   }
 

@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { Drawdown, createCell, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getCellValue, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
-import { BehaviorSubject, Observable, Subscription, fromEvent, of } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, fromEvent, of, skip } from 'rxjs';
 import { CanvasList, DraftNode, DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { FileService } from '../../provider/file.service';
@@ -118,6 +118,8 @@ export class DraftRenderingComponent implements OnInit {
   //used to determine if this is the first time the subscription is called (onLoad) vs (onUpdate)
   draftValueChangeCallCount: number = 0;
 
+  materialColorChangeSubscription: Subscription;
+
 
   draftRenderingEvent$: BehaviorSubject<string>;
 
@@ -175,6 +177,10 @@ export class DraftRenderingComponent implements OnInit {
 
     if (this.source == 'viewer' || this.source == 'editor') this.ignoreOversize = true;
 
+    this.materialColorChangeSubscription = this.ms.materialColorChange.pipe(skip(1)).subscribe(id => {
+      console.log("MATERIAL COLOR CHANGE ", id);
+      this.forceRedraw();
+    });
   }
 
   ngAfterViewInit() {

@@ -1,7 +1,7 @@
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { User } from '@angular/fire/auth';
 import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -460,6 +460,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
+  @HostListener('window:resize', ['$event'])
+  getScreenWidth(event?: Event) {
+    this.updateViewAdjustBar();
+  }
+
+  updateViewAdjustBar() {
+    this.vas.updateFromWindowResize(window.innerWidth);
+  }
 
 
 
@@ -688,9 +696,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
-  updateViewAdjustBar() {
-    this.viewadjust.updatePosition();
-  }
 
 
   recenterViews() {

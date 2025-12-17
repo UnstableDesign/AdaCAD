@@ -1,7 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
-import { Draft, LoomSettings, SimulationData, convertEPItoMM, warps, wefts } from 'adacad-drafting-lib';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormField } from '@angular/material/form-field';
+import { MatInput, MatLabel } from '@angular/material/input';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSlider, MatSliderThumb } from '@angular/material/slider';
+import { Draft, LoomSettings, SimulationData, convertEPItoMM, copyLoomSettings, warps, wefts } from 'adacad-drafting-lib';
 import { SimulationVars } from 'adacad-drafting-lib/simulation';
-import { GUI } from 'dat.gui';
+import { Subscription } from 'rxjs';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Bounds } from '../../core/model/datatypes';
@@ -9,15 +15,19 @@ import { defaults } from '../../core/model/defaults';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SimulationService } from '../../core/provider/simulation.service';
 import { TreeService } from '../../core/provider/tree.service';
+import { ViewadjustService } from '../../core/provider/viewadjust.service';
 @Component({
   selector: 'app-simulation',
   templateUrl: './simulation.component.html',
-  styleUrls: ['./simulation.component.scss']
+  styleUrls: ['./simulation.component.scss'],
+  imports: [ReactiveFormsModule, MatSidenavModule, MatSlideToggleModule, MatSlider, MatSliderThumb, MatFormField, MatInput, MatLabel]
 })
-export class SimulationComponent implements OnInit {
+export class SimulationComponent implements OnInit, OnDestroy {
   private tree = inject(TreeService);
   ms = inject(MaterialsService);
   sim = inject(SimulationService);
+  vas = inject(ViewadjustService);
+
 
 
   @Input('id') id;
@@ -40,6 +50,12 @@ export class SimulationComponent implements OnInit {
   dirty: boolean; //flags the need to recompute 
   selection_bounds: Bounds = null;
   render_size_error: boolean = false;
+
+  viewadjustSubscription: Subscription;
+  materialColorChangeSubscription: Subscription;
+  materialDiameterChangeSubscription: Subscription;
+
+
 
   constructor(
   ) {
@@ -66,6 +82,25 @@ export class SimulationComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.viewadjustSubscription = this.vas.viewAdjustChange.subscribe(x => {
+      this.updateRendererSize();
+    });
+
+    this.materialColorChangeSubscription = this.ms.materialColorChange.subscribe(id => {
+      this.redrawCurrentSim();
+    });
+
+
+    this.materialDiameterChangeSubscription = this.ms.materialDiameterChange.subscribe(id => {
+
+      this.simVars.ms = this.ms.getShuttles();
+      if (this.simData) this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
+        this.simData = simdata;
+        this.redrawCurrentSim();
+      })
+    });
+
+
 
 
   }
@@ -74,82 +109,78 @@ export class SimulationComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    const controls_div = document.getElementById('simulation_controls');
     const rendering_div = document.getElementById('simulation_rendering');
-    const width = 1000;
-    const height = 1000;
+    if (!rendering_div) {
+      console.error('simulation_rendering element not found');
+      return;
+    }
+
+    const rect = rendering_div.getBoundingClientRect();
+    console.log("RENDERING DIV RECT ", rect);
+    const width = rect.width || 400;
+    const height = rect.height || 400;
 
 
-    this.gui = new GUI({ autoPlace: false });
-    controls_div.appendChild(this.gui.domElement)
+    // this.gui = new GUI({ autoPlace: false });
+    // controls_div.appendChild(this.gui.domElement)
 
 
-    const simulate = this.gui.add(this.simVars, 'simulate').name('Relax');
-    simulate.onChange((value) => {
-      this.handleSimulateChange(value);
-    });
+    // const simulate = this.gui.add(this.simVars, 'simulate').name('Relax');
+    // simulate.onChange((value) => {
+    //   this.handleSimulateChange(value);
+    // });
 
-    const weft_change = this.gui.add(this.simVars, 'wefts_as_written').name('Actual Paths');
-    weft_change.onChange((value) => {
-      this.handleWeftAsWrittenChange(value);
-    });
+    // const weft_change = this.gui.add(this.simVars, 'wefts_as_written').name('Actual Paths');
+    // weft_change.onChange((value) => {
+    //   this.handleWeftAsWrittenChange(value);
+    // });
 
-    const layers = this.gui.add(this.simVars, 'use_layers').name('Locate Layers');
-    layers.onChange((value) => {
-      this.handleLayersChange(value);
-    });
+    // const layers = this.gui.add(this.simVars, 'use_layers').name('Locate Layers');
+    // layers.onChange((value) => {
+    //   this.handleLayersChange(value);
+    // });
 
-    const smoothing = this.gui.add(this.simVars, 'use_smoothing').name('Smoothing');
-    smoothing.onChange((value) => {
-      this.handleSmoothingChange(value);
-    });
+    // const smoothing = this.gui.add(this.simVars, 'use_smoothing').name('Smoothing');
+    // smoothing.onChange((value) => {
+    //   this.handleSmoothingChange(value);
+    // });
 
-    const lift_limit = this.gui.add(this.simVars, 'lift_limit', 0, 50, 1).name('Lift Limit');
-    lift_limit.onChange((value) => {
-      this.handleLiftLimitChange(value);
-    });
-
-
-    const pack = this.gui.add(this.simVars, 'pack', 0.001, 1, .001).name('Pack');
-    pack.onChange((value) => {
-      this.handlePackChange(value);
-    });
-
-    const time = this.gui.add(this.simVars, 'time', .0001, 1, .001).name('Time');
-    time.onChange((value) => {
-      this.handleTimeChange(value);
-    });
-
-    const mass = this.gui.add(this.simVars, 'mass', 100, 1000, 10).name('Mass');
-    mass.onChange((value) => {
-      this.handleMassChange(value);
-    });
-
-    const max_theta = this.gui.add(this.simVars, 'max_theta', 0, Math.PI / 2).name('Max Theta');
-    max_theta.onChange((value) => {
-      this.handleMaxThetaChange(value);
-    });
+    // const lift_limit = this.gui.add(this.simVars, 'lift_limit', 0, 50, 1).name('Lift Limit');
+    // lift_limit.onChange((value) => {
+    //   this.handleLiftLimitChange(value);
+    // });
 
 
-    const warp_spacing_change = this.gui.add(this.simVars, 'warp_spacing', .25, 25, .25).name("Warp-Density");
-    warp_spacing_change.onChange((value) => {
-      this.handleWarpSpacingChange(value);
-    });
+    // const pack = this.gui.add(this.simVars, 'pack', 0.001, 1, .001).name('Pack');
+    // pack.onChange((value) => {
+    //   this.handlePackChange(value);
+    // });
 
-    const layer_spacing_change = this.gui.add(this.simVars, 'layer_spacing', 0, 50, 1).name("Layer-Size");
-    layer_spacing_change.onChange((value) => {
-      this.handleLayerSpacingChange(value);
-    });
+    // const time = this.gui.add(this.simVars, 'time', .0001, 1, .001).name('Time');
+    // time.onChange((value) => {
+    //   this.handleTimeChange(value);
+    // });
+
+    // const mass = this.gui.add(this.simVars, 'mass', 100, 1000, 10).name('Mass');
+    // mass.onChange((value) => {
+    //   this.handleMassChange(value);
+    // });
+
+    // const max_theta = this.gui.add(this.simVars, 'max_theta', 0, Math.PI / 2).name('Max Theta');
+    // max_theta.onChange((value) => {
+    //   this.handleMaxThetaChange(value);
+    // });
 
 
-    // this.renderer = new THREE.WebGLRenderer();
-    // this.renderer.setSize(width, height);
-    // div.appendChild(this.renderer.domElement);
+    // const warp_spacing_change = this.gui.add(this.simVars, 'warp_spacing', .25, 25, .25).name("Warp-Density");
+    // warp_spacing_change.onChange((value) => {
+    //   this.handleWarpSpacingChange(value);
+    // });
 
-
-    // this.scene = new THREE.Scene();
-    // this.scene.background = new THREE.Color(0xf0f0f0);
-
+    // const layer_spacing_change = this.gui.add(this.simVars, 'layer_spacing', 0, 50, 1).name("Layer-Size");
+    // layer_spacing_change.onChange((value) => {
+    //   this.handleLayerSpacingChange(value);
+    //  });
 
     /////
 
@@ -168,68 +199,64 @@ export class SimulationComponent implements OnInit {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.tanFOV = Math.tan(((Math.PI / 180) * this.camera.fov / 2));
+    this.originalHeight = height;
 
     this.renderer.setAnimationLoop(() => {
       this.controls.update();
       this.renderer.render(this.scene, this.camera);
     });
 
+
   }
 
 
+
+
   handleSimulateChange(value) {
+
+
+
     this.redrawCurrentSim();
 
   }
 
-  handleLayersChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
-
-
-  handleLiftLimitChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
 
 
 
 
-  handlePackChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
 
-  handleSmoothingChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
+  updateSimParameters(formValues: any) {
 
-  handleMaxThetaChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
 
-  handleTimeChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
+    if (this.id === -1) return;
 
-  handleMassChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
+
+    let flag_needs_new_topo = false;
+    if (formValues.wefts_as_written !== undefined && formValues.weftsAsWritten !== this.simVars.wefts_as_written) {
+      this.simVars.wefts_as_written = formValues.weftsAsWritten === "true";
+    }
+    if (formValues.lift_limit !== undefined && formValues.liftLimit !== this.simVars.lift_limit) {
+      this.simVars.lift_limit = formValues.liftLimit;
+      flag_needs_new_topo = true;
+    }
+    if (formValues.pack !== undefined && formValues.pack !== this.simVars.pack) {
+      this.simVars.pack = formValues.pack / 100;
+    }
+    if (formValues.mass !== undefined && formValues.mass !== this.simVars.mass) {
+      this.simVars.mass = formValues.mass;
+    }
+    if (formValues.max_theta !== undefined && formValues.maxTheta !== this.simVars.max_theta) {
+      this.simVars.max_theta = formValues.maxTheta * Math.PI / 180;
+    }
+    if (formValues.warp_spacing !== undefined && formValues.warpSpacing !== this.simVars.warp_spacing) {
+      let loom_settings = copyLoomSettings(this.tree.getLoomSettings(this.id));
+      loom_settings.epi = formValues.warpSpacing;
+      this.simVars.warp_spacing = convertEPItoMM(loom_settings);
+    }
+
+
+
+    if (this.simData) this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
       this.simData = simdata;
       this.redrawCurrentSim();
     })
@@ -237,27 +264,8 @@ export class SimulationComponent implements OnInit {
 
 
 
-  handleWeftAsWrittenChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
-
-  handleLayerSpacingChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
 
 
-  handleWarpSpacingChange(value) {
-    this.sim.computeSimulationData(this.simData.draft, this.simVars, this.simData.topo).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
-  }
 
 
 
@@ -284,7 +292,7 @@ export class SimulationComponent implements OnInit {
   }
 
 
-  public resetSimVars(d: Draft, ls: LoomSettings) {
+  public resetSimVars(ls: LoomSettings) {
 
     this.simVars.warp_spacing = convertEPItoMM(ls);
     this.simVars.layer_spacing = defaults.layer_spacing;
@@ -292,65 +300,24 @@ export class SimulationComponent implements OnInit {
 
 
   loadNewDraft(id): Promise<any> {
-    console.log("LOADING NEW DRAFT ", id)
+    console.log("LOADING NEW DRAFT Sim ", id);
 
+
+
+    this.id = id;
     const draft = this.tree.getDraft(id);
     const loom_settings = this.tree.getLoomSettings(id);
 
     //reset the sim vars 
-    this.resetSimVars(draft, loom_settings);
+    this.resetSimVars(loom_settings);
 
-    //this.layer_spacing = this.calcDefaultLayerSpacing(draft);
-    //this.resetSelectionBounds(draft);
+    // Update renderer size on draft load
+    this.updateRendererSize();
+
     this.recalcAndRenderSimData(draft, this.selection_bounds);
     return Promise.resolve('done')
 
   }
-
-  /**
-   * this passes new information to a current rendering, updating which portion of the data we are visualizing. 
-   * @param draft 
-   * @param loom_settings 
-   * @param start 
-   * @param end 
-   */
-  // updateSelection(start: Interlacement, end: Interlacement) {
-
-  //   let width = end.j - start.j;
-  //   if (width <= 0) return;
-
-  //   let height = end.i - start.i;
-  //   if (height <= 0) return;
-
-
-
-  //   //recalc if this was currently too large to render or if we are making a new selection within an existing  
-  //   if (this.simData == null || this.render_size_error) {
-
-  //     let draft = this.tree.getDraft(this.id);
-  //     let loom_settings = this.tree.getLoomSettings(this.id);
-  //     let crop = cropDraft(draft, start.i, start.j, width, height);
-
-  //     //since we trimmed the draft, the selection is now the entire trimmed draft
-  //     this.selection_bounds = {
-  //       topleft: { x: 0, y: 0 },
-  //       width, height
-  //     }
-  //     this.recalcAndRenderSimData(crop, this.selection_bounds);
-
-  //   } else {
-
-  //     this.selection_bounds = {
-  //       topleft: { x: start.j, y: start.i },
-  //       width, height
-  //     }
-
-  //     console.log("RENDERING UPDATED DATA ", this.selection_bounds)
-  //     this.sim.redraw(this.selection_bounds, this.simData, this.simVars);
-
-  //   }
-
-  // }
 
 
   resetSelectionBounds(draft: Draft) {
@@ -371,65 +338,26 @@ export class SimulationComponent implements OnInit {
     //this.sim.redraw(this.selection_bounds, this.simData, this.simVars);
   }
 
-  /**
-   * call this when the simulation needs to be updated due to a structural change. 
-   * This will recalculate all the simulation data and then redraw it to screen. 
-   * @param draft 
-   * @param loom_settings 
-   */
-  // updateSimulation(draft: Draft, loom_settings: LoomSettings, sim: SimulationVars) {
 
-
-  //   if (!this.dirty) return; //only recalc and redraw when there is a change that requires it. 
-  //   this.recalcAndRenderSimData(draft, this.selection_bounds);
-
-  // }
-
-  // changeLayerThreshold(){
-  //   this.recalcAndRenderSimData();
-  // }
 
   snapToX() {
     this.sim.snapToX(this.controls);
   }
-
-  // toggleWefts(){
-  //   if(!this.showing_wefts) this.simulation.showWefts();
-  //   else this.simulation.hideWefts();
-  // }
-
-  // toggleDraft(){
-  //   if(!this.showing_draft) this.simulation.showDraft();
-  //   else this.simulation.hideDraft();
-  // }
-
-  // toggleWarps(){
-  //   if(!this.showing_warps) this.simulation.showWarps();
-  //   else this.simulation.hideWarps();
-  // }
-
-
-  // toggleTopo(){
-  //   if(!this.showing_topo) this.simulation.showTopo();
-  //   else this.simulation.hideTopo();
-  // }
-
-  // toggleWeftLayerView(){
-  //   if(!this.showing_weft_layer_map) this.simulation.showWeftLayerMap();
-  //   else this.simulation.hideWeftLayerMap();
-  // }
-
-  // toggleWarpLayerView(){
-  //   if(!this.sim.showing_warp_layer_map) this.simulation.showWarpLayerMap();
-  //   else this.simulation.hideWarpLayerMap();
-  // }
-
 
 
 
 
   //redraws whatever is stored at this.simData. 
   redrawCurrentSim() {
+
+
+    if (this.simData == null) return;
+    if (this.simData.draft == null) return;
+    if (this.simData.topo == null) return;
+    if (this.simData.wefts == null) return;
+    if (this.simData.warps == null) return;
+
+    this.simVars.ms = this.ms.getShuttles(); //add this to capture color changes
     this.sim.redraw(this.selection_bounds, this.simData, this.simVars, this.scene).then(
       scene => {
         this.scene = scene;
@@ -488,54 +416,6 @@ export class SimulationComponent implements OnInit {
   }
 
 
-
-
-  // changeILaceWidth(){
-  //   this.recalcAndRenderSimData();
-  // }
-
-  // changeILaceHeight(){
-  //   this.recalcAndRenderSimData(draft);
-
-  // }
-
-
-  // pageClose() {
-  //   this.sim.endSimulation(this.scene);
-  // }
-
-  // expandSimulation() {
-
-  //   this.onExpanded.emit();
-  //   this.sim_expanded = !this.sim_expanded;
-  //   this.onWindowResize();
-
-  // }
-
-  /**
-   * this gets called even if its not open!
-   */
-  // onWindowResize() {
-  //   let width;
-
-  //   if (this.sim_expanded) width = 2 * window.innerWidth / 3;
-  //   else width = window.innerWidth / 3;
-
-  //   let height = window.innerHeight;
-
-  //   this.camera.aspect = width / height;
-
-  //   // adjust the FOV
-  //   this.camera.fov = (360 / Math.PI) * Math.atan(this.tanFOV * (height / this.originalHeight));
-
-  //   this.camera.updateProjectionMatrix();
-  //   // this.camera.lookAt( this.scene.position );
-
-  //   this.renderer.setSize(width, height);
-  //   this.renderer.render(this.scene, this.camera);
-
-  // }
-
   /**
    * Resets the camera to center and frame the simulation scene
    */
@@ -581,6 +461,43 @@ export class SimulationComponent implements OnInit {
 
     // Render the scene with the new camera position
     this.renderer.render(this.scene, this.camera);
+  }
+
+
+
+  /**
+   * Updates the renderer and camera to match the current container size
+   */
+  updateRendererSize() {
+    if (!this.renderer || !this.camera) return;
+
+    const rendering_div = document.getElementById('simulation_rendering');
+    if (!rendering_div) return;
+
+    const rect = rendering_div.getBoundingClientRect();
+    const width = window.innerWidth - this.vas.left;
+    const height = rect.height;
+
+    if (width === 0 || height === 0) return;
+
+    // Update camera aspect ratio
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+
+    // Update renderer size
+    this.renderer.setSize(width, height);
+
+    // Render the scene with updated size
+    if (this.scene) {
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.viewadjustSubscription) this.viewadjustSubscription.unsubscribe();
+    if (this.materialColorChangeSubscription) this.materialColorChangeSubscription.unsubscribe();
+    if (this.materialDiameterChangeSubscription) this.materialDiameterChangeSubscription.unsubscribe();
+
   }
 
 

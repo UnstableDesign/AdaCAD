@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Material } from 'adacad-drafting-lib';
 import { createMaterial, setMaterialID } from 'adacad-drafting-lib/material';
+import { BehaviorSubject } from 'rxjs';
 
 
 export interface MaterialMap {
@@ -18,7 +19,8 @@ export class MaterialsService {
 
   /** array ndx should be the same as shuttle id */
   materials: Array<Material> = [];
-
+  materialColorChange: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  materialDiameterChange: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
 
   constructor() {
@@ -31,7 +33,6 @@ export class MaterialsService {
 
 
   reset() {
-    console.log("RESET MATERIALS", this.materials);
     this.materials = [
       createMaterial({ id: 0, name: 'black', insert: true, visible: true, color: "#333333", thickness: 100, diameter: 1, type: 0, notes: "" }),
       createMaterial({ id: 1, name: 'white', insert: true, visible: true, color: "#f9f8f3", thickness: 100, diameter: 1, type: 0, notes: "" }),
@@ -132,21 +133,40 @@ export class MaterialsService {
 
   }
 
+
+  copyMaterial(material: Material): Material {
+    return {
+      ...material,
+    };
+  }
+
+
   getShuttle(id: number): Material {
     const ndx: number = this.materials.findIndex(el => el.id === id);
-    if (ndx != -1) return this.materials[ndx];
+    if (ndx != -1) return this.copyMaterial(this.materials[ndx]);
     return null;
   }
+
+
 
   setMaterial(id: number, material: Material) {
     const ndx: number = this.materials.findIndex(el => el.id === id);
     if (ndx != -1) {
+      let flagColor = false;
+      let flagDiameter = false;
+      if (this.materials[ndx].color != material.color) flagColor = true;
+      if (this.materials[ndx].diameter != material.diameter) flagDiameter = true;
       this.materials[ndx].name = material.name;
       this.materials[ndx].color = material.color;
       this.materials[ndx].diameter = material.diameter;
       this.materials[ndx].notes = material.notes;
       this.materials[ndx].rgb = material.rgb;
+
+      if (flagColor) this.materialColorChange.next(id);
+      if (flagDiameter) this.materialDiameterChange.next(id);
+
     }
+
   }
 
 

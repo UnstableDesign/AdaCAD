@@ -7,15 +7,6 @@
 
 
 
-  <!-- <div class="draft-data">
-
-    <div class="dims">draft size: {{warps}} ends x {{wefts}} pics</div>
-
-  </div> -->
-
-
-
-
 
   @if (view_controls_visible) {
 
@@ -50,16 +41,116 @@
 
   <div class="viewer-controls" [class.hidden]="vs.getViewerId() === -1">
 
+    <form class="sim-controls-form" [formGroup]="simControls"
+      [class.hidden]="vs.current_view != 'sim' || !simControlsVisible">
 
 
-    <div class="viewer-zoom-container">
-      <mat-slider [class.hidden]="vs.current_view == 'sim'" min="0" [max]="zs.num_steps" step="1">
-        <input id='zoomLevel' matSliderThumb [formControl]="zoomLevel" (valueChange)="zoomChange()">
-      </mat-slider>
-    </div>
+
+      <div class="sim-slider-container" [class.active]="simControls.get('liftLimit').touched">
+
+        <div class="sim-slider-label">
+          <mat-label for="liftLimit">Lift Limit</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="1" max="50" step="1" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="liftLimit" />
+          </mat-slider>
+          <span class="sim-slider-value">{{simControls.value.liftLimit}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+        <!-- <input id="liftLimit" matInput formControlName="liftLimit" type="number" min="0" max="50" step="1" /> -->
+      </div>
+
+      <div class="sim-slider-container" [class.active]="simControls.get('pack').touched">
+
+        <div class="sim-slider-label">
+          <mat-label for="pack">Pack (%)</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="0" max="100" step="1" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="pack" />
+          </mat-slider>
+          <span class="sim-slider-value">{{simControls.value.pack}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
+
+      <div class="sim-slider-container" [class.active]="simControls.get('mass').touched">
+
+        <div class="sim-slider-label">
+          <mat-label for="mass">Mass (g)</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="0" max="1000" step="100" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="mass" />
+          </mat-slider>
+          <span class="sim-slider-value">{{simControls.value.mass}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
+
+      <div class="sim-slider-container" [class.active]="simControls.get('maxTheta').touched">
+
+        <div class="sim-slider-label">
+          <mat-label for="maxTheta">Yarn Drooping (°)</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="0" max="90" step="1" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="maxTheta" />
+          </mat-slider>
+          <span class="sim-slider-value">{{simControls.value.maxTheta}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
+
+      <div class="sim-slider-container" [class.active]="simControls.get('warpSpacing').touched">
+
+        <div class="sim-slider-label">
+          <mat-label for="warpSpacing">Warp-Density ({{epiUnits}})</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="1" max="100" step="1" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="warpSpacing" />
+          </mat-slider>
+          <span class="sim-slider-value">{{simControls.value.warpSpacing}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
 
 
-    <div class="viewer-extra-controls">
+      <div class="sim-slider-container" [class.active]="simControls.get('weftsAsWritten').touched">
+        <div class="toggle-group-wrapper">
+          <mat-button-toggle-group hideSingleSelectionIndicator formControlName="weftsAsWritten" appearance="standard"
+            class="collapsible-toggle-group">
+            <mat-button-toggle value="true">
+              no selvedge
+            </mat-button-toggle>
+            <mat-button-toggle value="false">
+              assume selvedge
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+      </div>
+
+    </form>
+
+
+    <div class="static-controls">
+      <div class="viewer-zoom-container" [class.hidden]="vs.current_view == 'sim'">
+        <mat-slider [class.hidden]="vs.current_view == 'sim'" min="0" [max]="zs.num_steps" step="1">
+          <input id='zoomLevel' matSliderThumb [formControl]="zoomLevel" (valueChange)="zoomChange()">
+        </mat-slider>
+      </div>
+
+
+
+      <button [class.hidden]="vs.current_view != 'sim'" matButton="filled"
+        [color]="simControlsVisible ? 'accent' : 'primary'" (click)="toggleSimControls()"><i
+          class="fa-solid fa-sliders"></i> Adjust Simulation
+      </button>
+
+
+
       <div class="toggle-group-wrapper">
         <mat-button-toggle-group hideSingleSelectionIndicator [formControl]="visMode" appearance="standard"
           class="collapsible-toggle-group">
@@ -80,7 +171,8 @@
 
 
 
-      <div class="toggle-group-wrapper">
+
+      <div class="toggle-group-wrapper" [class.hidden]="vs.current_view == 'sim'">
         <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
           [formControl]="viewFace" appearance="standard" class="collapsible-toggle-group">
           <mat-button-toggle value="front">
@@ -96,17 +188,18 @@
 
 
 
+
       <button matIconButton="filled" [color]="view_controls_visible ? 'accent' : 'primary'"
         (click)="toggleViewControls()"><i class="fa-solid fa-circle-info"></i>
       </button>
     </div>
-
-
-
-
-
-
   </div>
+
+
+
+
+
+
 
 
   <div class="pin-container" [class.hidden]="vs.getViewerId() === -1">
