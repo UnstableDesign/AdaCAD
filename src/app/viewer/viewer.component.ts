@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,7 +13,6 @@ import { Draft, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { DraftNode, RenderingFlags } from '../core/model/datatypes';
-import { defaults } from '../core/model/defaults';
 import { FirebaseService } from '../core/provider/firebase.service';
 import { OperationService } from '../core/provider/operation.service';
 import { StateService } from '../core/provider/state.service';
@@ -49,7 +48,7 @@ export class ViewerComponent {
   @Output() onSave: any = new EventEmitter();
   @Output() onForceFocus: any = new EventEmitter();
 
-  @ViewChild(SimulationComponent) sim;
+  @ViewChild(SimulationComponent) sim: SimulationComponent;
   @ViewChild('view_rendering') view_rendering: DraftRenderingComponent;
 
   // Reactive form for viewer controls
@@ -82,7 +81,6 @@ export class ViewerComponent {
   // massForm: FormControl;
   // maxThetaForm: FormControl;
 
-  simControls: FormGroup;
   epiUnits: string = "ends / 10cm";
 
   constructor() {
@@ -100,14 +98,6 @@ export class ViewerComponent {
     this.visMode = new FormControl(this.vs.current_view);
     this.viewFace = new FormControl(this.vs.view_face);
 
-    this.simControls = new FormGroup({
-      weftsAsWritten: new FormControl(defaults.wefts_as_written ? "true" : "false"),
-      liftLimit: new FormControl(4, [Validators.required, Validators.min(1), Validators.max(50)]),
-      pack: new FormControl(defaults.pack, [Validators.required, Validators.min(0.001), Validators.max(1)]),
-      mass: new FormControl(150, [Validators.required, Validators.min(0), Validators.max(1000)]),
-      maxTheta: new FormControl(45, [Validators.required, Validators.min(0), Validators.max(90)]), //in degrees
-      warpSpacing: new FormControl(12, [Validators.required, Validators.min(0.25), Validators.max(120)]), //measured in epi
-    });
 
 
 
@@ -128,11 +118,6 @@ export class ViewerComponent {
 
 
   ngOnInit() {
-
-    this.simControls.valueChanges.subscribe(value => {
-      this.sim.updateSimParameters(value);
-    });
-
 
 
 
@@ -157,9 +142,10 @@ export class ViewerComponent {
         if (this.view_rendering !== undefined) {
           this.view_rendering.current_view = value;
         }
-        if (this.vs.current_view === 'sim' && this.sim) {
-          this.sim.loadNewDraft(this.vs.getViewerId());
+        if (this.vs.current_view === 'sim') {
+          this.sim.onFocus(this.vs.getViewerId());
         } else {
+          if (this.sim.hasFocus) this.sim.onFocusOut()
           this.forceRedraw();
         }
       }
@@ -233,9 +219,7 @@ export class ViewerComponent {
     this.wefts = wefts(draft.drawdown);
     this.epiUnits = this.tree.getLoomSettings(id).units === 'in' ? 'ends / inch' : 'ends / 10cm';
 
-    this.simControls.patchValue({
-      warpSpacing: this.tree.getLoomSettings(id).epi || 12,
-    }, { emitEvent: false });
+
 
   }
 
@@ -260,19 +244,11 @@ export class ViewerComponent {
     if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
     this.draftValueChangeSubscription = draftNode.onValueChange.pipe(skip(1)).subscribe(draftNodeBroadcast => {
       this.updateDraftData(id);
-      if (this.vs.current_view == 'sim') {
-        this.sim.loadNewDraft(id);
-      }
     });
 
     // Load the draft immediately if in sim mode (skip the initial BehaviorSubject emission)
-    if (this.vs.current_view == 'sim' && this.sim) {
-      this.sim.loadNewDraft(id);
-    } else if (this.vs.current_view != 'sim') {
-      if (this.viewFace.value == 'back') {
-        this.forceRedraw(false)
-          .catch(console.error);
-      }
+    if (this.vs.current_view == 'sim') {
+      this.sim.onNewDraftLoaded(id);
     }
   }
 

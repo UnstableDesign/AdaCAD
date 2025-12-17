@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput, MatLabel } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -10,7 +10,7 @@ import { SimulationVars } from 'adacad-drafting-lib/simulation';
 import { Subscription } from 'rxjs';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Bounds } from '../../core/model/datatypes';
+import { Bounds, DraftNode } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { MaterialsService } from '../../core/provider/materials.service';
 import { SimulationService } from '../../core/provider/simulation.service';
@@ -40,10 +40,11 @@ export class SimulationComponent implements OnInit, OnDestroy {
   controls;
   gui;
   sim_expanded: boolean = false;
+  hasFocus: boolean = false;
 
   simVars: SimulationVars = null;
   simData: SimulationData = null;
-
+  public simControls: FormGroup = null;
 
   tanFOV: number = 0;
   originalHeight: number = 0;
@@ -54,12 +55,13 @@ export class SimulationComponent implements OnInit, OnDestroy {
   viewadjustSubscription: Subscription;
   materialColorChangeSubscription: Subscription;
   materialDiameterChangeSubscription: Subscription;
-
+  draftChangeSubscription: Subscription;
 
 
   constructor(
   ) {
 
+    //set up default sim vars
     this.simVars = {
       pack: defaults.pack,
       warp_spacing: 10,
@@ -77,23 +79,53 @@ export class SimulationComponent implements OnInit, OnDestroy {
     }
 
 
+    this.initSimControls();
+
+  }
+
+  /**
+   * called when something internally needs to cause the sim form to change.
+   * shows present value of simVars 
+   * @param formValues 
+   */
+  updateSimFormValues() {
+    const ls = this.tree.getLoomSettings(this.id);
+    this.simControls.patchValue({
+      warpSpacing: ls.epi,
+      liftLimit: this.simVars.lift_limit,
+      pack: this.simVars.pack,
+      mass: this.simVars.mass,
+      maxTheta: this.simVars.max_theta * 180 / Math.PI,
+      weftsAsWritten: (this.simVars.wefts_as_written) ? "true" : "false",
+    }, { emitEvent: false });
   }
 
 
   ngOnInit(): void {
 
+    this.simControls.valueChanges.subscribe(value => {
+      console.log("SIM CONTROLS VALUE CHANGED ", value);
+      this.updateSimParameters(value);
+    });
+
     this.viewadjustSubscription = this.vas.viewAdjustChange.subscribe(x => {
+      if (!this.hasFocus) return;
       this.updateRendererSize();
     });
 
     this.materialColorChangeSubscription = this.ms.materialColorChange.subscribe(id => {
+      if (!this.hasFocus) return;
+      console.log("MATERIAL COLOR CHANGE Sim ", id);
+      this.simVars.ms = this.ms.getShuttles();
       this.redrawCurrentSim();
     });
 
 
     this.materialDiameterChangeSubscription = this.ms.materialDiameterChange.subscribe(id => {
+      if (!this.hasFocus) return;
 
       this.simVars.ms = this.ms.getShuttles();
+      console.log("MATERIAL DIAMETER CHANGE Sim ", id);
       if (this.simData) this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
         this.simData = simdata;
         this.redrawCurrentSim();
@@ -209,6 +241,17 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
   }
 
+  initSimControls() {
+    this.simControls = new FormGroup({
+      weftsAsWritten: new FormControl(defaults.wefts_as_written ? "true" : "false"),
+      liftLimit: new FormControl(4, [Validators.required, Validators.min(1), Validators.max(50)]),
+      pack: new FormControl(defaults.pack, [Validators.required, Validators.min(0.001), Validators.max(1)]),
+      mass: new FormControl(150, [Validators.required, Validators.min(0), Validators.max(1000)]),
+      maxTheta: new FormControl(45, [Validators.required, Validators.min(0), Validators.max(90)]), //in degrees
+      warpSpacing: new FormControl(12, [Validators.required, Validators.min(0.25), Validators.max(120)]), //measured in epi
+    });
+  }
+
 
 
 
@@ -228,33 +271,34 @@ export class SimulationComponent implements OnInit, OnDestroy {
   updateSimParameters(formValues: any) {
 
 
-    if (this.id === -1) return;
 
+    if (this.id === -1 || this.hasFocus === false) return;
 
     let flag_needs_new_topo = false;
-    if (formValues.wefts_as_written !== undefined && formValues.weftsAsWritten !== this.simVars.wefts_as_written) {
+    if (formValues.weftsAsWritten !== undefined && formValues.weftsAsWritten !== this.simVars.wefts_as_written) {
       this.simVars.wefts_as_written = formValues.weftsAsWritten === "true";
     }
-    if (formValues.lift_limit !== undefined && formValues.liftLimit !== this.simVars.lift_limit) {
+    if (formValues.liftLimit !== undefined && formValues.liftLimit !== this.simVars.lift_limit) {
       this.simVars.lift_limit = formValues.liftLimit;
       flag_needs_new_topo = true;
     }
     if (formValues.pack !== undefined && formValues.pack !== this.simVars.pack) {
-      this.simVars.pack = formValues.pack / 100;
+      this.simVars.pack = formValues.pack;
     }
     if (formValues.mass !== undefined && formValues.mass !== this.simVars.mass) {
       this.simVars.mass = formValues.mass;
     }
-    if (formValues.max_theta !== undefined && formValues.maxTheta !== this.simVars.max_theta) {
+    if (formValues.maxTheta !== undefined && formValues.maxTheta !== this.simVars.max_theta) {
       this.simVars.max_theta = formValues.maxTheta * Math.PI / 180;
     }
-    if (formValues.warp_spacing !== undefined && formValues.warpSpacing !== this.simVars.warp_spacing) {
+    if (formValues.warpSpacing !== undefined && formValues.warpSpacing !== this.simVars.warp_spacing) {
       let loom_settings = copyLoomSettings(this.tree.getLoomSettings(this.id));
       loom_settings.epi = formValues.warpSpacing;
       this.simVars.warp_spacing = convertEPItoMM(loom_settings);
     }
 
 
+    this.simVars.ms = this.ms.getShuttles();
 
     if (this.simData) this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
       this.simData = simdata;
@@ -282,8 +326,8 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
 
     // document.body.removeChild(this.renderer.domElement);
-    this.scene.clear();
-    this.scene.children.forEach(childMesh => {
+    if (this.scene) this.scene.clear();
+    if (this.scene && this.scene.children) this.scene.children.forEach(childMesh => {
       if (childMesh.geometry !== undefined) childMesh.geometry.dispose();
       if (childMesh.texture !== undefined) childMesh.texture.dispose();
       if (childMesh.material !== undefined) childMesh.material.dispose();
@@ -299,24 +343,42 @@ export class SimulationComponent implements OnInit, OnDestroy {
   }
 
 
-  loadNewDraft(id): Promise<any> {
-    console.log("LOADING NEW DRAFT Sim ", id);
+  subscribeToDraftUpdates(id: number) {
+    if (id === -1) return;
+    const draftNode = this.tree.getNode(id) as DraftNode;
+    if (draftNode.type !== 'draft') return;
 
 
+    if (this.draftChangeSubscription) this.draftChangeSubscription.unsubscribe();
 
+    this.draftChangeSubscription = draftNode.onValueChange.subscribe(draftNodeBroadcast => {
+      console.log("DRAFT Change subscription called");
+      this.simVars.warp_spacing = convertEPItoMM(draftNodeBroadcast.loom_settings);
+      this.updateSimFormValues();
+      this.recalcAndRenderSimData(draftNodeBroadcast.draft);
+    });
+  }
+
+
+  /** if we switch into the view from another view */
+  onFocus(id: number) {
+    console.log("ON FOCUS Sim ", id);
     this.id = id;
-    const draft = this.tree.getDraft(id);
-    const loom_settings = this.tree.getLoomSettings(id);
+    this.hasFocus = true;
+    this.subscribeToDraftUpdates(id);
+  }
 
-    //reset the sim vars 
-    this.resetSimVars(loom_settings);
+  onFocusOut() {
+    this.hasFocus = false;
+    this.id = -1;
+  }
 
-    // Update renderer size on draft load
-    this.updateRendererSize();
 
-    this.recalcAndRenderSimData(draft, this.selection_bounds);
-    return Promise.resolve('done')
-
+  /** if we are in the sim mode, and the viewer id changes */
+  onNewDraftLoaded(id: number): Promise<any> {
+    if (id === -1) return;
+    console.log("LOADING NEW DRAFT Sim ", id);
+    this.subscribeToDraftUpdates(id);
   }
 
 
@@ -356,6 +418,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (this.simData.topo == null) return;
     if (this.simData.wefts == null) return;
     if (this.simData.warps == null) return;
+    this.resetSelectionBounds(this.simData.draft);
 
     this.simVars.ms = this.ms.getShuttles(); //add this to capture color changes
     this.sim.redraw(this.selection_bounds, this.simData, this.simVars, this.scene).then(
@@ -367,11 +430,8 @@ export class SimulationComponent implements OnInit, OnDestroy {
     );
   }
 
-  redrawSimColors() {
-    let draft = this.tree.getDraft(this.id);
-    this.sim.redrawSimColors(draft, this.simVars)
 
-  }
+
 
   /**
    * recomputes the topology and verticies of the simulation data for a given draft and selection (e.g. if will only compute the selection if there is one). Loom settings is passed to speak for the EPI. 
@@ -379,15 +439,13 @@ export class SimulationComponent implements OnInit, OnDestroy {
    * @param loom_settings 
    * @param selection the bounds of the selection or null if no selection has been made. 
    */
-  recalcAndRenderSimData(draft: Draft, selection: Bounds) {
+  recalcAndRenderSimData(draft: Draft) {
 
 
-    if (selection == null) selection = {
-      topleft: { x: 0, y: 0 },
-      width: warps(draft.drawdown),
-      height: wefts(draft.drawdown)
-    };
-    this.selection_bounds = selection;
+    this.simVars.ms = this.ms.getShuttles();
+
+    this.resetSelectionBounds(draft);
+
 
     this.sim.recalcSimData(draft, this.simVars)
       .then(simdata => {
@@ -397,7 +455,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
         // document.getElementById('sizeerror').style.display = "none"
         // document.getElementById('simulation_container').style.display = "flex";
         // this.render_size_error = false;
-        this.sim.redraw(selection, this.simData, this.simVars, this.scene).then(
+        this.sim.redraw(this.selection_bounds, this.simData, this.simVars, this.scene).then(
           scene => {
             this.scene = scene;
             this.renderer.render(this.scene, this.camera);
@@ -497,6 +555,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (this.viewadjustSubscription) this.viewadjustSubscription.unsubscribe();
     if (this.materialColorChangeSubscription) this.materialColorChangeSubscription.unsubscribe();
     if (this.materialDiameterChangeSubscription) this.materialDiameterChangeSubscription.unsubscribe();
+    if (this.draftChangeSubscription) this.draftChangeSubscription.unsubscribe();
 
   }
 
