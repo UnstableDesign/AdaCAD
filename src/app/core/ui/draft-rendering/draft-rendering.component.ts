@@ -178,7 +178,6 @@ export class DraftRenderingComponent implements OnInit {
     if (this.source == 'viewer' || this.source == 'editor') this.ignoreOversize = true;
 
     this.materialColorChangeSubscription = this.ms.materialColorChange.pipe(skip(1)).subscribe(id => {
-      console.log("MATERIAL COLOR CHANGE ", id);
       this.forceRedraw();
     });
   }
@@ -452,8 +451,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
     //if shift drag happens at any time, move into select (but how to switch out)
-    if ((event.metaKey || event.ctrlKey || event.shiftKey) && this.pencil !== 'select') {
-
+    if (this.source == 'editor' && (event.metaKey || event.ctrlKey || event.shiftKey) && this.pencil !== 'select') {
       this.setPencil('select');
     } else if (!(event.metaKey || event.ctrlKey || event.shiftKey) && this.pencil == 'select' && !this.selection.hasCopy()) {
       this.selection.unsetParameters();

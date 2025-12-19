@@ -366,25 +366,40 @@ export class OperationComponent implements OnInit {
   }
 
 
-  toggleSelection(e: any) {
+  toggleSelection(e: any, source: string) {
 
 
-    if (this.children.length > 0) {
-      let child = this.children[0];
-      this.vs.setViewer(child);
-    }
+    if (source == 'click') {
 
-    if (e.shiftKey == true) {
-      this.multiselect.toggleSelection(this.id, this.topleft);
-      if (this.multiselect.isSelected(this.id)) {
-        this.selectOperationMulti();
+      if (e.shiftKey == true) {
+        console.log("SHIFT PRESSED ");
+        this.multiselect.toggleSelection(this.id, this.topleft);
+        if (this.multiselect.isSelected(this.id)) {
+          this.selectOperationMulti();
+          if (this.children.length > 0) {
+            let child = this.children[0];
+            this.vs.setViewer(child);
+          }
+        } else {
+          this.unselectOperation();
+          this.vs.clearViewer();
+        }
       } else {
-        this.unselectOperation();
+        console.log("CLEAR SELECTIONS: operation.component.ts - click without shift key");
+        this.multiselect.clearSelections();
+        this.vs.clearViewer();
       }
-    } else {
-      this.multiselect.clearSelections();
-      this.selectOperationOnly();
+
+    } else if (source == 'drag') {
+
+      if (this.multiselect.isSelected(this.id)) {
+        this.multiselect.setRelativePosition(this.topleft);
+        this.multiselect.dragStart(this.id);
+        this.selectOperationMulti();
+
+      }
     }
+
 
   }
 
@@ -682,19 +697,12 @@ export class OperationComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
-    this.toggleSelection($event);
+    this.toggleSelection($event, "drag");
 
     this.previous_topleft = this.topleft;
-
-
     this.offset = null;
 
-    if (this.multiselect.isSelected(this.id)) {
-      this.multiselect.setRelativePosition(this.topleft);
-      this.multiselect.dragStart(this.id);
-    } else {
-      this.multiselect.clearSelections();
-    }
+
   }
 
 

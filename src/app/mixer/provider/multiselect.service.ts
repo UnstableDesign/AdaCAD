@@ -109,7 +109,7 @@ export class MultiselectService {
 
       this.selected.push({ id, topleft });
       container = <HTMLElement>document.getElementById("scale-" + id);
-      container.classList.add('multiselected');
+      if (container !== null) container.classList.add('multiselected');
       //remove the children as well 
       if (type == 'op') {
         // const cxn_outs = this.tree.getOutputs(id);
@@ -146,9 +146,11 @@ export class MultiselectService {
 
 
   clearSelections() {
+    console.log("CLEAR SELECTIONS: multiselect.service.ts - clearing", this.selected.length, "selections");
     //clear all styles
     this.clearAllStyles();
     this.selected = [];
+    this.copy = null;
   }
 
   isSelected(id: number): boolean {

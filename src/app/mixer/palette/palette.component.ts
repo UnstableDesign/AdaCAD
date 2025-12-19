@@ -2053,12 +2053,18 @@ export class PaletteComponent implements OnInit {
     const isSpaceClick = this.space_held && event.button === 0;
     const isMiddleClick = event.button === 1;
 
+    // Check if the click is on a draggable element (subdraft, operation, or note)
+    // If so, don't start panning - let the click event propagate to the element
+    const target = event.target as HTMLElement;
+    const isOnDraggable = target.closest('.subdraft-parent-container, .operation-parent, .note-container') !== null;
+
     if (isMiddleClick) {
       // set to true so we can show grabby hand cursor
       this.middle_mouse_held = true;
     }
 
-    if (isPanMode || isShiftClick || isSpaceClick || isMiddleClick) {
+    // Don't start panning if clicking on a draggable element (allow click event to fire)
+    if ((isPanMode || isShiftClick || isSpaceClick || isMiddleClick) && !isOnDraggable) {
       event.preventDefault(); // Prevent middle-click scroll behavior and space scrolling
       this.panStarted({ x: event.clientX, y: event.clientY });
       this.moveSubscription =
@@ -2066,9 +2072,10 @@ export class PaletteComponent implements OnInit {
       return;
     }
 
-    if (this.isSelectedMixerEditingMode("move")) {
-      this.multiselect.clearSelections();
-    }
+    // if (this.isSelectedMixerEditingMode("move") && !isShiftClick) {
+    //   console.log("CLEAR SELECTIONS: palette.component.ts - move mode on mousedown");
+    //   this.multiselect.clearSelections();
+    // }
   }
 
 
@@ -2327,6 +2334,7 @@ export class PaletteComponent implements OnInit {
    */
   moveAllSelections(moving_id: number) {
     const selections = this.multiselect.getSelections();
+    console.log("MOVE ALL SELECTIONS", selections);
     if (selections.length == 0) return;
 
     const rel_pos = this.multiselect.getRelativePosition();

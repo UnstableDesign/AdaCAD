@@ -1,8 +1,8 @@
 @if (tree.getDraft(id) !== null) {
 <div id="scale-{{id}}" class="subdraft-parent-container selectable-{{!disable_drag}}"
-  [class.is_selected]="selected_draft_id == id" cdkDrag (click)="toggleMultiSelection($event)" [style.z-index]="zndx"
-  [class.no-pointer]="disable_drag" [cdkDragDisabled]="disable_drag" (cdkDragMoved)="dragMove($event)"
-  (cdkDragEnded)="dragEnd($event)" (cdkDragStarted)="dragStart($event)">
+  [class.is_selected]="selected_draft_id == id" cdkDrag (click)="toggleMultiSelection($event, 'click')"
+  [style.z-index]="zndx" [class.no-pointer]="disable_drag" [cdkDragDisabled]="disable_drag"
+  (cdkDragMoved)="dragMove($event)" (cdkDragEnded)="dragEnd($event)" (cdkDragStarted)="dragStart($event)">
   <div class="topbar" (dblclick)="onDoubleClick()" [class.is_new]="isNew" cdkDragHandle>
     @if (ss.showComponentIds) {
     <div class="debug-id">ID: {{id}}</div>

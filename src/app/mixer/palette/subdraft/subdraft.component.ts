@@ -273,23 +273,32 @@ export class SubdraftComponent implements OnInit {
   }
 
 
-  toggleMultiSelection(e: any) {
+  toggleMultiSelection(e: any, source: string) {
 
+    console.log("toggle multi on subdraft", e, source)
     // this.onFocus.emit(this.id);
     //this.updateConnectionStyling(true);
     this.vs.setViewer(this.id);
 
-
-    if (e.shiftKey == true) {
-      this.multiselect.toggleSelection(this.id, this.topleft);
-      if (this.multiselect.isSelected(this.id)) {
-        this.selectSubdraftMulti();
-      } else {
-        this.unselectSubdraft();
+    if (source == 'click') {
+      console.log("toggle multi on subdraft click")
+      if (e.shiftKey == true) {
+        this.multiselect.toggleSelection(this.id, this.topleft);
+        console.log("current selections", this.multiselect.selected.map(el => el.id));
+        if (this.multiselect.isSelected(this.id)) {
+          this.selectSubdraftMulti();
+        } else {
+          this.unselectSubdraft();
+        }
+        e.preventDefault();
       }
-    } else {
-      this.multiselect.clearSelections();
-      this.selectSubdraftOnly();
+    } else if (source == 'drag') {
+      console.log("ON DRAG")
+      if (this.multiselect.isSelected(this.id)) {
+        this.multiselect.setRelativePosition(this.topleft);
+        this.multiselect.dragStart(this.id);
+        this.selectSubdraftMulti();
+      }
     }
   }
 
@@ -505,6 +514,8 @@ export class SubdraftComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
+    console.log("drag start on subdraft", $event);
+    this.toggleMultiSelection($event, 'drag');
     this.isNew = false;
 
     this.previous_topleft = { x: this.topleft.x, y: this.topleft.y };
@@ -513,12 +524,7 @@ export class SubdraftComponent implements OnInit {
     this.offset = null;
     this.counter = 0;
     //set the relative position of this operation if its the one that's dragging
-    if (this.multiselect.isSelected(this.id)) {
-      this.multiselect.setRelativePosition(this.topleft);
-      this.multiselect.dragStart(this.id);
-    } else {
-      this.multiselect.clearSelections();
-    }
+
     this.onSubdraftStart.emit({ id: this.id });
 
 

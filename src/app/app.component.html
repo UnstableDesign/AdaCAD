@@ -218,10 +218,13 @@
 
     @if (multiselect.selected.length > 0) {
     <div class="copypaste">
-      <button mat-raised-button color="accent" (click)="onCopySelections()">Copy (ctrl-c)</button>
-      <button mat-raised-button color="accent" [disabled]="multiselect.copy === undefined"
-        (click)="onPasteSelections()">Paste (ctrl-v)</button>
-      <button mat-raised-button color="accent" (click)="deleteSelections()">Delete</button>
+      <button mat-raised-button color="primary" (click)="clearSelections()">Deselect</button>
+      <button mat-raised-button color="primary" (click)="onCopySelections()"><i class="fa-solid fa-copy"></i>
+        copy</button>
+      <button mat-raised-button color="primary" [disabled]="multiselect.copy === undefined || multiselect.copy === null"
+        (click)="onPasteSelections()"><i class="fa-solid fa-paste"></i> paste</button>
+      <button mat-raised-button color="accent" (click)="deleteSelections()"><i class="fa-solid fa-trash"></i>
+        delete</button>
     </div>
     }
 

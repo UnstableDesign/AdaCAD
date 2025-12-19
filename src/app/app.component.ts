@@ -821,6 +821,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
         this.ss.addStateChange(change);
       }
+
       this.saveFile();
     }
     ).catch(console.error);
@@ -845,6 +846,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       })
       this.saveFile();
+      console.log("CLEAR SELECTIONS: app.component.ts - after deleting selected items");
       this.multiselect.clearSelections();
 
     })
@@ -1235,6 +1237,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.saveFile();
   }
 
+
+  clearSelections() {
+    this.multiselect.clearSelections();
+  }
 
   onCopySelections() {
     if (this.selected_editor_mode == 'mixer') this.mixer.onCopySelections();
