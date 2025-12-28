@@ -272,7 +272,6 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     this.bitmapImportedSubscription = this.importtodraftSvc.bitmapImported$.subscribe(data => {
-      console.log("BITMAP IMPORTED", data);
       this.fs.loader.bitmap(data.name, data).then(res => {
         this.draftImported(res);
       }).catch(error => {
@@ -591,9 +590,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   draftImported(lr: LoadResponse) {
     let draft_id = -1;
-    console.log("DRAFT IMPORTED", lr);
     lr.data.draft_nodes.forEach(dn => {
-      console.log("GOT DRAFT NODE ", dn, dn.draft, dn.loom, dn.loom_settings);
       this.createNewDraftOnMixer(dn.draft, dn.loom, dn.loom_settings).then(id => {
         draft_id = id;
 
@@ -661,7 +658,13 @@ export class AppComponent implements OnInit, OnDestroy {
     //if it has a parent and it does not yet have a view ref. 
     //this.tree.setSubdraftParent(id, -1)
     const draft = initDraftWithParams({ warps: obj.warps, wefts: obj.wefts });
+    console.log('[generateBlankDraftAndPlaceInMixer] Instantiating loom with parameters:', { warps: obj.warps, wefts: obj.wefts, frames: obj.frames, treadles: obj.treadles });
     const loom = initLoom(obj.warps, obj.wefts, obj.frames, obj.treadles);
+    console.log('[generateBlankDraftAndPlaceInMixer] Loom instantiated:', {
+      threading: loom.threading,
+      treadling: loom.treadling,
+      tieup: loom.tieup
+    });
     //use the local loom settings
     const loom_settings: LoomSettings = {
       type: obj.type,
@@ -846,7 +849,6 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       })
       this.saveFile();
-      console.log("CLEAR SELECTIONS: app.component.ts - after deleting selected items");
       this.multiselect.clearSelections();
 
     })
@@ -1559,6 +1561,34 @@ export class AppComponent implements OnInit, OnDestroy {
   prepAndLoadFile(ada: SaveObj, meta: FileMeta, src: string): Promise<any> {
     this.clearAll();
     return this.fs.loader.ada(ada, meta, src).then(lr => {
+      console.log('[prepAndLoadFile] LoadResponse received:', lr);
+      console.log('[prepAndLoadFile] Draft nodes count:', lr.data.draft_nodes?.length || 0);
+      console.log('[prepAndLoadFile] Draft nodes data:', lr.data.draft_nodes);
+      if (lr.data.draft_nodes && lr.data.draft_nodes.length > 0) {
+        lr.data.draft_nodes.forEach((draftNode, index) => {
+          console.log(`[prepAndLoadFile] Draft node ${index}:`, {
+            draft_id: draftNode.draft_id,
+            draft: draftNode.draft,
+            loom: draftNode.loom,
+            loom_settings: draftNode.loom_settings,
+            render_colors: draftNode.render_colors,
+            scale: draftNode.scale,
+            draft_visible: draftNode.draft_visible
+          });
+        });
+      }
+      console.log('[prepAndLoadFile] Operations count:', lr.data.ops?.length || 0);
+      console.log('[prepAndLoadFile] Operations data:', lr.data.ops);
+      if (lr.data.ops && lr.data.ops.length > 0) {
+        lr.data.ops.forEach((op, index) => {
+          console.log(`[prepAndLoadFile] Operation ${index}:`, {
+            node_id: op.node_id,
+            name: op.name,
+            params: op.params,
+            inlets: op.inlets
+          });
+        });
+      }
       return this.loadNewFile(lr, 'prepAndLoad');
     }).catch(console.error);
   }
@@ -1672,7 +1702,39 @@ export class AppComponent implements OnInit, OnDestroy {
               const d = (located_draft.draft) ? copyDraft(located_draft.draft) : initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
               d.id = (sn.cur_id);
 
-              const loom = (located_draft.loom) ? copyLoom(located_draft.loom) : initLoom(warps(d.drawdown), wefts(d.drawdown), ls.frames, ls.treadles);
+              let loom;
+              if (located_draft.loom) {
+                console.log('[processFileData] Copying loom from located draft, draft_id:', located_draft.draft_id);
+                console.log('[processFileData] Source loom:', {
+                  threading: located_draft.loom.threading,
+                  treadling: located_draft.loom.treadling,
+                  tieup: located_draft.loom.tieup
+                });
+                if (located_draft.loom_settings.type !== "jacquard") {
+                  loom = copyLoom(located_draft.loom);
+                } else {
+                  loom = null;
+                }
+              } else {
+                console.log('[processFileData] No loom found in located draft, instantiating new loom');
+                console.log('[processFileData] Loom parameters:', {
+                  warps: warps(d.drawdown),
+                  wefts: wefts(d.drawdown),
+                  frames: ls.frames,
+                  treadles: ls.treadles
+                });
+                if (ls.type !== "jacquard") {
+                  loom = initLoom(warps(d.drawdown), wefts(d.drawdown), ls.frames, ls.treadles);
+                  console.log('[processFileData] Instantiated new loom:', {
+                    threading: loom.threading,
+                    treadling: loom.treadling,
+                    tieup: loom.tieup
+                  });
+                } else {
+                  loom = null;
+                }
+
+              }
 
               return {
                 entry: sn,
@@ -1687,7 +1749,27 @@ export class AppComponent implements OnInit, OnDestroy {
             }
           });
 
-        const seed_fns = seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom, seed.loom_settings, seed.render_colors, seed.scale, seed.draft_visible));
+        // Validate seed draft sizes before loading
+        const valid_seeds: Array<{ entry, id, draft, loom, loom_settings, render_colors, scale, draft_visible }> = [];
+        const invalid_seeds: Array<{ entry, id, draft }> = [];
+
+        seeds.forEach(seed => {
+          const area = warps(seed.draft.drawdown) * wefts(seed.draft.drawdown);
+          if (area > this.ws.max_draft_input_area) {
+            console.error(`[processFileData] Seed draft ${seed.id} (prev_id: ${seed.entry.prev_id}) is too large: ${area} > ${this.ws.max_draft_input_area}`);
+            invalid_seeds.push({ entry: seed.entry, id: seed.id, draft: seed.draft });
+          } else {
+            valid_seeds.push(seed);
+          }
+        });
+
+        if (invalid_seeds.length > 0) {
+          const errorMessage = `Cannot load file: ${invalid_seeds.length} seed draft(s) exceed maximum size (${this.ws.max_draft_input_area}). Draft IDs: ${invalid_seeds.map(s => s.id).join(', ')}`;
+          console.error('[processFileData]', errorMessage);
+          return Promise.reject(errorMessage);
+        }
+
+        const seed_fns = valid_seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom, seed.loom_settings, seed.render_colors, seed.scale, seed.draft_visible));
 
         const op_fns = data.ops.map(op => {
           const entry = entry_mapping.find(el => el.prev_id == op.node_id);

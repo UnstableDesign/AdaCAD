@@ -284,7 +284,13 @@ export class TreeService {
    */
   loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
 
-    console.log("LOADING DRAFT DATA", entry, draft, loom, loom_settings, render_colors, scale, draft_visible);
+    console.log("[loadDraftData] LOADING DRAFT DATA", entry, draft, loom, loom_settings, render_colors, scale, draft_visible);
+    console.log("[loadDraftData] Loom being loaded:", loom ? {
+      threading: loom.threading,
+      treadling: loom.treadling,
+      tieup: loom.tieup
+    } : null);
+    console.log("[loadDraftData] Loom settings being loaded:", loom_settings);
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
     if (nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id " + entry.cur_id);
 
@@ -305,6 +311,7 @@ export class TreeService {
     };
 
     if (loom_settings === null || loom_settings == undefined) {
+      console.log("[loadDraftData] Loom settings are null/undefined, using workspace defaults");
       this.setLoomSettings(entry.cur_id, {
         type: this.ws.type,
         epi: this.ws.epi,
@@ -315,14 +322,17 @@ export class TreeService {
       }, false);
 
     } else {
+      console.log("[loadDraftData] Setting loom settings from loaded data:", loom_settings);
       draftNode.loom_settings = loom_settings;
       draftNode.loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
     }
 
 
-    if (loom === null || loom == undefined) {
+    if (loom === null || loom == undefined || loom_settings.type === "jacquard") {
+      console.log("[loadDraftData] Loom is null/undefined, setting null loom");
       this.setLoom(entry.cur_id, null, false);
     } else {
+      console.log("[loadDraftData] Setting loom from loaded data");
       this.setLoom(entry.cur_id, copyLoom(loom), false);
     }
 
@@ -593,7 +603,8 @@ export class TreeService {
       visible: visible,
       mark_for_deletion: false,
       onValueChange: new BehaviorSubject<DraftNodeBroadcast>(dnb),
-      canvases: null
+      canvases: null,
+      positionChange: new BehaviorSubject<Point>(null)
     }
     return node;
   }
@@ -609,7 +620,8 @@ export class TreeService {
       params: params,
       name: name,
       recomputing: new BehaviorSubject<boolean>(false),
-      checkChildren: new BehaviorSubject<boolean>(true)
+      checkChildren: new BehaviorSubject<boolean>(true),
+      positionChange: new BehaviorSubject<Point>(null)
     }
     return node;
   }
@@ -1464,29 +1476,57 @@ export class TreeService {
    * @param op_fn_list 
    * @returns //need a way to get this to return any drafts that it touched along the way
    */
-  performGenerationOps(op_node_list: Array<number>): Promise<any> {
+  async performGenerationOps(op_node_list: Array<number>): Promise<any> {
 
     const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
 
-
     if (needs_computing.length == 0) return Promise.resolve([]);
 
-    const op_fn_list = needs_computing.map(el => this.performOp(el));
+    console.log(`[performGenerationOps] Starting computation of ${needs_computing.length} operation(s) at this level`);
 
+    // Mark all operations as recomputing
     needs_computing.forEach(el => {
       if (el !== undefined) {
         this.getOpNode(el)?.recomputing?.next(true);
       }
     });
-    return Promise.all(op_fn_list).then(out => {
 
-      return this.getNodesWithDependenciesSatisfied();
+    // Process operations sequentially using async/await
+    for (let i = 0; i < needs_computing.length; i++) {
+      const opId = needs_computing[i];
+      const opNode = this.getOpNode(opId);
+      const opName = opNode?.name || 'unknown';
 
-    }).then(needs_performing => {
+      console.log(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Starting computation of operation: ${opName} (id: ${opId})`);
+      const startTime = performance.now();
+
+      try {
+        await this.performOp(opId);
+        const duration = performance.now() - startTime;
+        console.log(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Finished computation of operation: ${opName} (id: ${opId}) in ${duration.toFixed(2)}ms`);
+      } catch (err) {
+        const duration = performance.now() - startTime;
+        // If one operation fails, log it but continue with others
+        console.error(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Error performing operation ${opName} (id: ${opId}) after ${duration.toFixed(2)}ms:`, err);
+        // If it's a node_id error, we can skip it and continue
+        if (err.node_id === undefined) {
+          throw err; // Re-throw non-node_id errors to stop the chain
+        }
+        // Otherwise, continue with next operation
+      }
+    }
+
+    try {
+      console.log(`[performGenerationOps] Completed all ${needs_computing.length} operation(s) at this level, checking for downstream operations`);
+      const needs_performing = await this.getNodesWithDependenciesSatisfied();
       const fns = needs_performing.filter(el => el.dirty).map(el => el.id);
-      if (needs_performing.length === 0) return [];
+      if (needs_performing.length === 0) {
+        console.log(`[performGenerationOps] No more operations to compute, computation chain complete`);
+        return [];
+      }
+      console.log(`[performGenerationOps] Found ${fns.length} downstream operation(s) to compute, proceeding to next generation`);
       return this.performGenerationOps(fns);
-    }).catch(err => {
+    } catch (err) {
       //if one of the performs fails, see if we can remove it and call again
       if (err.node_id !== undefined) {
         const offending_op = err.node_id;
@@ -1494,13 +1534,9 @@ export class TreeService {
         return this.performGenerationOps(needs_computing.filter(el => el !== offending_op));
       } else {
         console.error("Error performing generation ops", err);
-        return Promise.reject(err);
+        throw err;
       }
-
-
-    });
-
-
+    }
   }
 
 
@@ -1622,8 +1658,19 @@ export class TreeService {
   }
 
   setLoom(id: number, loom: Loom, broadcast: boolean = true) {
+    console.log('[setLoom] Setting loom on draft node, id:', id, 'broadcast:', broadcast);
+    console.log('[setLoom] Loom data:', loom ? {
+      threading: loom.threading,
+      treadling: loom.treadling,
+      tieup: loom.tieup,
+    } : null);
     const dn: DraftNode = <DraftNode>this.getNode(id);
-    if (dn !== null && dn !== undefined) dn.loom = (loom === null) ? null : copyLoom(loom);
+    if (dn !== null && dn !== undefined) {
+      dn.loom = (loom === null) ? null : copyLoom(loom);
+      console.log('[setLoom] Loom set on draft node:', dn.id, 'loom is null:', dn.loom === null);
+    } else {
+      console.error('[setLoom] Draft node not found for id:', id);
+    }
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
       draft: false,
@@ -1631,7 +1678,10 @@ export class TreeService {
       loom_settings: false,
       materials: false
     };
-    if (broadcast) this.broadcastDraftNodeValueChange(dn.id, flags);
+    if (broadcast) {
+      console.log('[setLoom] Broadcasting loom change for node:', dn.id);
+      this.broadcastDraftNodeValueChange(dn.id, flags);
+    }
   }
 
 
@@ -2413,10 +2463,22 @@ export class TreeService {
     const objs: Array<any> = [];
 
     this.nodes.forEach(node => {
+
+      let tl: Point = { x: 0, y: 0 };
+      switch (node.type) {
+        case 'op':
+          if ((<OperationComponent>node.component) !== null) tl = (<OperationComponent>node.component).getPosition();
+          break;
+        case 'draft':
+          if ((<SubdraftComponent>node.component) !== null) tl = (<SubdraftComponent>node.component).getPosition();
+          break;
+      }
+
+
       const savable: NodeComponentProxy = {
         node_id: node.id,
         type: node.type,
-        topleft: (node.component !== null) ? node.component.topleft : { x: 0, y: 0 },
+        topleft: tl
       }
       objs.push(savable);
 

@@ -49,6 +49,7 @@ export class PaletteComponent implements OnInit {
   private multiselect = inject(MultiselectService);
   private errorBroadcaster = inject(ErrorBroadcasterService);
 
+
   // Local mixer editing mode tracking
   cur_mixer_mode: string = defaults.mixer_mode;
 
@@ -130,6 +131,9 @@ export class PaletteComponent implements OnInit {
 
   visible_op_inlet: number = -1;
 
+  multi_select_bounds: Bounds;
+  hasMultiSelectBounds: boolean = false;
+
 
   constructor() {
     this.pointer_events = true;
@@ -142,6 +146,7 @@ export class PaletteComponent implements OnInit {
    */
   ngOnInit() {
 
+    this.multi_select_bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
 
     // subscribe to all the possible undo trigger events
     const draftCreatedUndoSubscription = this.ss.draftCreatedUndo$.subscribe(action => {
@@ -189,9 +194,6 @@ export class PaletteComponent implements OnInit {
     const opMoveUndoSubscription = this.ss.opMoveUndo$.subscribe(action => {
       const op = this.tree.getOpNode((<MoveAction>action).id);
       if (op && op.component) (<OperationComponent>op.component).setPosition((<MoveAction>action).before);
-      this.operationMoved({ id: (<MoveAction>action).id });
-      this.operationMoveEnded({ id: (<MoveAction>action).id });
-
     });
 
 
@@ -296,6 +298,7 @@ export class PaletteComponent implements OnInit {
    * Gets references to view items and adds to them after the view is initialized
    */
   ngAfterViewInit() {
+
 
   }
 
@@ -519,7 +522,9 @@ export class PaletteComponent implements OnInit {
     const new_node = <OpNode>this.tree.getNode(opcomp.id);
     new_node.inlets = opnode.inlets.slice();
     new_node.params = opnode.params.slice();
-    new_node.component.topleft = { x: opnode.component.topleft.x + 100, y: opnode.component.topleft.y + 100 };
+    const topleft = (<OperationComponent>new_node.component).getPosition();
+    const newpos = { x: topleft.x + 100, y: topleft.y + 100 };
+    (<OperationComponent>new_node.component).setPosition(newpos, true);
 
 
     return this.performAndUpdateDownstream(opcomp.id).then(el => {
@@ -610,18 +615,8 @@ export class PaletteComponent implements OnInit {
 
     let cxn: Array<ConnectionComponent> = this.tree.getConnections().filter(el => el !== null);
     cxn.forEach(el => {
-      el.updateFromPosition();
-      let to = this.tree.getConnectionOutputWithIndex(el.id)
-      el.updateToPosition(to.inlet, to.arr);
-    })
-
-
-
-
-    // const ops = this.tree.getOperations();
-    // ops.forEach(el => {
-    //   this.updateAttachedComponents(el.id, false);
-    // })
+      el.refreshConnection();
+    });
 
   }
 
@@ -676,7 +671,6 @@ export class PaletteComponent implements OnInit {
     this.subdraftSubscriptions.push(sd.onSubdraftViewChange.subscribe(this.onSubdraftViewChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onNameChange.subscribe(this.onNameChange.bind(this)));
     this.subdraftSubscriptions.push(sd.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
-    this.subdraftSubscriptions.push(sd.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
   }
 
   openInEditor(id: number) {
@@ -773,23 +767,21 @@ export class PaletteComponent implements OnInit {
    */
   createSubDraft(d: Draft, loom: Loom, loom_settings: LoomSettings): Promise<SubdraftComponent> {
 
-    console.log("CREATING SUBDRAFT", d);
-    const subdraft = this.vc.createComponent(SubdraftComponent);
-    const id = this.tree.createNode('draft', subdraft.instance, subdraft.hostView);
-    this.setSubdraftSubscriptions(subdraft.instance);
+    const component = this.vc.createComponent(SubdraftComponent);
+    const id = this.tree.createNode('draft', component.instance, component.hostView);
+    const subdraft: SubdraftComponent = component.instance;
+    this.setSubdraftSubscriptions(subdraft);
 
-
-    subdraft.instance.id = id;
-    subdraft.instance.draft = d;
-    subdraft.instance.scale = this.zs.getMixerZoom();
-    subdraft.instance.setPosition(this.calculateInitialLocation());
-
+    subdraft.id = id;
+    subdraft.draft = d;
+    subdraft.dn = <DraftNode>this.tree.getNode(id);
+    subdraft.scale = this.zs.getMixerZoom();
+    subdraft.setPosition(this.calculateInitialLocation(), true);
 
     return this.tree.loadDraftData({ prev_id: -1, cur_id: id }, d, loom, loom_settings, true, 1, true)
       .then(d => {
-        return Promise.resolve(subdraft.instance);
-      }
-      )
+        return Promise.resolve(subdraft);
+      })
   }
 
   createSubDraftFromEditedDetail(id: number): Promise<SubdraftComponent> {
@@ -801,6 +793,7 @@ export class PaletteComponent implements OnInit {
     node.ref = subdraft.hostView;
 
     subdraft.instance.id = id;
+    subdraft.instance.dn = <DraftNode>this.tree.getNode(id);
     subdraft.instance.draft = this.tree.getDraft(id);
     subdraft.instance.scale = this.zs.getMixerZoom();
 
@@ -811,32 +804,32 @@ export class PaletteComponent implements OnInit {
 
 
 
-  /**
-   * loads a subdraft component from data
-   * @param id the node id assigned to this element on load
-   * @param d the draft object to load into this subdraft
-   * @param nodep the component proxy used to define
-   * TODO, this likely is not positioning correctly
-   */
+
   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy) {
-    const subdraft = this.vc.createComponent(SubdraftComponent);
+    const component = this.vc.createComponent(SubdraftComponent);
     const node = this.tree.getNode(id)
-    node.component = subdraft.instance;
-    node.ref = subdraft.hostView;
-    this.setSubdraftSubscriptions(subdraft.instance);
-    subdraft.instance.id = id;
-    subdraft.instance.scale = this.zs.getMixerZoom();
-    subdraft.instance.use_colors = true;
-    subdraft.instance.draft = d;
-    subdraft.instance.parent_id = this.tree.getSubdraftParent(id);
+    node.component = component.instance;
+    node.ref = component.hostView;
+    const subdraft: SubdraftComponent = component.instance;
+    this.setSubdraftSubscriptions(subdraft);
+
+
+
+
+
+    subdraft.id = id;
+    subdraft.dn = <DraftNode>this.tree.getNode(id);
+    subdraft.scale = this.zs.getMixerZoom();
+    subdraft.use_colors = true;
+    subdraft.draft = d;
+    subdraft.parent_id = this.tree.getSubdraftParent(id);
 
     if (nodep !== null && nodep.topleft !== null) {
       const adj_topleft: Point = { x: nodep.topleft.x, y: nodep.topleft.y };
-
-      subdraft.instance.topleft = adj_topleft;
+      subdraft.setPosition(adj_topleft, true);
 
       if (draftp !== null && draftp !== undefined && draftp.render_colors !== undefined) {
-        subdraft.instance.use_colors = draftp.render_colors;
+        subdraft.use_colors = draftp.render_colors;
       }
     }
 
@@ -852,8 +845,6 @@ export class PaletteComponent implements OnInit {
    * @param op 
    */
   setOperationSubscriptions(op: OperationComponent) {
-    this.operationSubscriptions.push(op.onOperationMove.subscribe(this.operationMoved.bind(this)));
-    this.operationSubscriptions.push(op.onOperationMoveEnded.subscribe(this.operationMoveEnded.bind(this)));
     this.operationSubscriptions.push(op.onOperationParamChange.subscribe(this.operationParamChanged.bind(this)));
     this.operationSubscriptions.push(op.deleteOp.subscribe(this.onDeleteOperationCalled.bind(this)));
     this.operationSubscriptions.push(op.duplicateOp.subscribe(this.onDuplicateOpCalled.bind(this)));
@@ -864,7 +855,6 @@ export class PaletteComponent implements OnInit {
     this.operationSubscriptions.push(op.onInletLoaded.subscribe(this.inletLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
-    this.operationSubscriptions.push(op.onRedrawOutboundConnections.subscribe(this.redrawOutboundConnections.bind(this)));
     this.operationSubscriptions.push(op.onNameChanged.subscribe(this.onNameChange.bind(this)));
 
   }
@@ -886,12 +876,13 @@ export class PaletteComponent implements OnInit {
     this.setOperationSubscriptions(op.instance);
 
     op.instance.name = name;
+    op.instance.opnode = <OpNode>this.tree.getNode(id);
     op.instance.id = id;
     op.instance.zndx = this.layers.createLayer();
     op.instance.default_cell = this.default_cell_size;
 
     let tr = this.calculateInitialLocation();
-    op.instance.topleft = { x: tr.x, y: tr.y };
+    (<OperationComponent>op.instance).setPosition({ x: tr.x, y: tr.y }, true);
 
 
 
@@ -907,20 +898,23 @@ export class PaletteComponent implements OnInit {
   */
   loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft: Point) {
 
-    const op = this.vc.createComponent(OperationComponent);
-    const node = this.tree.getNode(id)
-    node.component = op.instance;
-    node.ref = op.hostView;
+    const component = this.vc.createComponent<OperationComponent>(OperationComponent);
+    const node: OpNode = <OpNode>this.tree.getNode(id)
+    node.component = component.instance;
+    node.ref = component.hostView;
 
-    this.setOperationSubscriptions(op.instance);
+    const op: OperationComponent = component.instance;
 
-    op.instance.name = name;
-    op.instance.id = id;
-    op.instance.zndx = this.layers.createLayer();
-    op.instance.default_cell = this.default_cell_size;
-    op.instance.loaded_inputs = params;
-    op.instance.topleft = { x: topleft.x, y: topleft.y };
-    op.instance.loaded = true;
+    this.setOperationSubscriptions(op);
+
+    op.name = name;
+    op.id = id;
+    op.zndx = this.layers.createLayer();
+    op.default_cell = this.default_cell_size;
+    op.loaded_inputs = params;
+    op.opnode = node;
+    op.setPosition({ x: topleft.x, y: topleft.y }, true);
+    op.loaded = true;
 
 
   }
@@ -945,7 +939,7 @@ export class PaletteComponent implements OnInit {
 
     this.tree.setOpParams(op.id, params.slice(), inlets.slice());
     op.loaded_inputs = params.slice();
-    op.topleft = { x: topleft.x, y: topleft.y };
+    (<OperationComponent>op).setPosition({ x: topleft.x, y: topleft.y }, true);
     op.duplicated = true;
 
 
@@ -1031,7 +1025,7 @@ export class PaletteComponent implements OnInit {
 
     return this.createSubDraft(d, l, ls).then(sd => {
       let tr = this.calculateInitialLocation();
-      sd.topleft = { x: tr.x, y: tr.y };
+      sd.setPosition({ x: tr.x, y: tr.y }, true);
       return Promise.resolve(sd.id);
     });
 
@@ -1203,12 +1197,12 @@ export class PaletteComponent implements OnInit {
 
     let new_tl: Point = null;
 
-
+    const op_topleft = op_comp.getPosition();
     if (this.tree.hasSingleChild(obj.id)) {
-      new_tl = { x: op_comp.topleft.x + 200, y: op_comp.topleft.y }
+      new_tl = { x: op_topleft.x + 200, y: op_topleft.y }
     } else {
       let container = document.getElementById('scale-' + obj.id);
-      new_tl = { x: op_comp.topleft.x + 10 + container.offsetWidth * this.zs.getMixerZoom() / this.default_cell_size, y: op_comp.topleft.y }
+      new_tl = { x: op_topleft.x + 10 + container.offsetWidth * this.zs.getMixerZoom() / this.default_cell_size, y: op_topleft.y }
     }
 
     let new_params = op.params.slice();
@@ -1273,7 +1267,7 @@ export class PaletteComponent implements OnInit {
 
         const orig_size = document.getElementById('scale-' + obj.id);
         let tr = this.calculateInitialLocation();
-        new_sd.topleft = { x: tr.x, y: tr.y };
+        new_sd.setPosition({ x: tr.x, y: tr.y }, true);
 
 
       }).catch(console.error);
@@ -1441,7 +1435,8 @@ export class PaletteComponent implements OnInit {
    */
   onSubdraftViewChange(id: number) {
 
-    this.updateAttachedComponents(id, false);
+    /** TODO need a force redraw here. */
+    // this.updateAttachedComponents(id, false);
 
   }
 
@@ -1503,9 +1498,12 @@ export class PaletteComponent implements OnInit {
     svg.style.top = (this.active_connection.topleft.y) + "px";
     svg.style.left = (this.active_connection.topleft.x) + "px"
 
-    svg.innerHTML = ' <path d="M 0 0 C 0 50,'
+    const cpOffset = 400;
+
+
+    svg.innerHTML = ' <path d="M 0 0 C 0 ' + cpOffset + ','
       + (this.active_connection.width) + ' '
-      + (this.active_connection.height - 50) + ', '
+      + (this.active_connection.height - cpOffset) + ', '
       + (this.active_connection.width) + ' '
       + (this.active_connection.height)
       + '" fill="transparent" stroke="#ff4081"  stroke-dasharray="20 1"  stroke-width="8"/> ';
@@ -1597,7 +1595,8 @@ export class PaletteComponent implements OnInit {
     ].filter(comp => comp !== null && comp !== undefined);
 
     for (const comp of allComponents) {
-      if (!comp.topleft) continue;
+      const topleft = (<SubdraftComponent | OperationComponent>comp).getPosition();
+      if (!topleft) continue;
 
       const compDom = document.getElementById('scale-' + comp.id);
       if (!compDom) continue;
@@ -1607,10 +1606,10 @@ export class PaletteComponent implements OnInit {
       const compHeight = compRect.height / this.zs.getMixerZoom();
 
       // Check if rectangles overlap (with padding)
-      const compRight = comp.topleft.x + compWidth + padding;
-      const compBottom = comp.topleft.y + compHeight + padding;
-      const compLeft = comp.topleft.x - padding;
-      const compTop = comp.topleft.y - padding;
+      const compRight = topleft.x + compWidth + padding;
+      const compBottom = topleft.y + compHeight + padding;
+      const compLeft = topleft.x - padding;
+      const compTop = topleft.y - padding;
 
       // For now, we'll assume new components have a default size
       // You may want to pass the expected size as a parameter
@@ -1636,18 +1635,18 @@ export class PaletteComponent implements OnInit {
    * it properly displays the from position on the connection
    * @param sd_id : the subdraft id associated with the change
    */
-  redrawOutboundConnections(sd_id: number) {
-    let connections = this.tree.getOutputs(sd_id);
+  // redrawOutboundConnections(sd_id: number) {
+  //   let connections = this.tree.getOutputs(sd_id);
 
 
-    connections.forEach(cxn => {
-      let comp = this.tree.getComponent(cxn);
-      if (comp !== null) {
-        (<ConnectionComponent>comp).updateFromPosition();
-      }
-    })
+  //   connections.forEach(cxn => {
+  //     let comp = this.tree.getComponent(cxn);
+  //     if (comp !== null) {
+  //       (<ConnectionComponent>comp).updateFromPosition();
+  //     }
+  //   })
 
-  }
+  // }
 
 
 
@@ -2021,26 +2020,27 @@ export class PaletteComponent implements OnInit {
   @HostListener('mousedown', ['$event'])
   public onStart(event) {
 
+
     if (this.selecting_connection == true) {
       this.processConnectionEnd();
     }
 
-    if (this.needs_init) {
-      //this is a hack to update the screen posiitons because not all inforamtion is ready when onload and onview init completes
-      let ops = this.tree.getOpNodes();
-      ops.forEach(op => {
-        this.opCompLoaded(op);
+    // if (this.needs_init) {
+    //   //this is a hack to update the screen posiitons because not all inforamtion is ready when onload and onview init completes
+    //   let ops = this.tree.getOpNodes();
+    //   ops.forEach(op => {
+    //     this.opCompLoaded(op);
 
-        // let drafts = this.tree.getDraftOutputs(op.id);
-        // drafts.forEach((draft, ndx) => {
-        //   let draftcomp = <SubdraftComponent> this.tree.getComponent(draft);
-        //   draftcomp.updatePositionFromParent(<OperationComponent>op.component, ndx)
-        // })
+    //     // let drafts = this.tree.getDraftOutputs(op.id);
+    //     // drafts.forEach((draft, ndx) => {
+    //     //   let draftcomp = <SubdraftComponent> this.tree.getComponent(draft);
+    //     //   draftcomp.updatePositionFromParent(<OperationComponent>op.component, ndx)
+    //     // })
 
-      }
-      );
-      this.needs_init = false;
-    }
+    //   }
+    //   );
+    //   this.needs_init = false;
+    // }
 
 
 
@@ -2064,7 +2064,7 @@ export class PaletteComponent implements OnInit {
     }
 
     // Don't start panning if clicking on a draggable element (allow click event to fire)
-    if ((isPanMode || isShiftClick || isSpaceClick || isMiddleClick) && !isOnDraggable) {
+    if ((isPanMode || isSpaceClick || isMiddleClick) && !isOnDraggable) {
       event.preventDefault(); // Prevent middle-click scroll behavior and space scrolling
       this.panStarted({ x: event.clientX, y: event.clientY });
       this.moveSubscription =
@@ -2072,10 +2072,23 @@ export class PaletteComponent implements OnInit {
       return;
     }
 
-    // if (this.isSelectedMixerEditingMode("move") && !isShiftClick) {
-    //   console.log("CLEAR SELECTIONS: palette.component.ts - move mode on mousedown");
-    //   this.multiselect.clearSelections();
-    // }
+    //handle clicks on the palette
+
+    if (this.isSelectedMixerEditingMode("move") && !isOnDraggable) {
+
+
+      if (isShiftClick) {
+        this.hasMultiSelectBounds = true;
+        this.multi_select_bounds.topleft = { x: event.clientX, y: event.clientY };
+        this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onMultiSelectDrag(e));
+
+      } else {
+        this.multiselect.clearSelections();
+      }
+
+
+
+    }
   }
 
 
@@ -2091,6 +2104,24 @@ export class PaletteComponent implements OnInit {
       this.connectionDragged(mouse);
     }
   }
+
+  onMultiSelectDrag(event) {
+    const mouse: Point = { x: event.clientX, y: event.clientY };
+
+
+    if (mouse.x < this.multi_select_bounds.topleft.x) {
+      this.multi_select_bounds.topleft.x = mouse.x;
+    }
+    if (mouse.y < this.multi_select_bounds.topleft.y) {
+      this.multi_select_bounds.topleft.y = mouse.y;
+    }
+
+    this.multi_select_bounds.width = Math.abs(mouse.x - this.multi_select_bounds.topleft.x);
+    this.multi_select_bounds.height = Math.abs(mouse.y - this.multi_select_bounds.topleft.y);
+
+  }
+
+
 
 
   /**
@@ -2144,6 +2175,12 @@ export class PaletteComponent implements OnInit {
       this.unfreezePaletteObjects();
     }
 
+    // if (this.hasMultiSelectBounds) {
+    //   this.hasMultiSelectBounds = false;
+    //   this.multi_select_bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
+    //   this.multiselect.clearSelections();
+    // }
+
     //unset vars that would have been created on press
     this.last_point = undefined;
   }
@@ -2170,57 +2207,7 @@ export class PaletteComponent implements OnInit {
     }
   }
 
-  /**
-   * this function will update any components that should move when the compoment passed by obj moves
-   * moves all compoments returned from tree.getNodesToUpdate(). All changes to what updates should be
-   * handled by getNodesToUpdateOnMove
-   * @param obj
-   */
-  updateAttachedComponents(id: number, follow: boolean) {
 
-    //start by moving the original object than ripple out;
-    const moving: any = this.tree.getComponent(id);
-
-    this.tree.getInputs(id).forEach(cxn => {
-      const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-      if (comp !== null) {
-        const tuple = this.tree.getConnectionOutputWithIndex(cxn);
-        comp.updateToPosition(tuple.inlet, tuple.arr);
-      }
-    });
-
-    this.tree.getOutputs(id).forEach(cxn => {
-      const comp: ConnectionComponent = <ConnectionComponent>this.tree.getComponent(cxn);
-      if (comp !== null) comp.updateFromPosition();
-    });
-
-    if (!follow) return;
-
-    const outs: Array<number> = this.tree.getNonCxnOutputs(id);
-
-    //if this an operation with one child, move the child. 
-    if (this.tree.getType(moving.id) === "op") {
-
-      outs.forEach((out, ndx) => {
-        //const out_comp = <SubdraftComponent> this.tree.getComponent(out);
-        // if(this.tree.getType(out_comp.id) === 'draft') out_comp.updatePositionFromParent(moving, ndx);
-        this.updateAttachedComponents(out, false);
-      })
-
-
-    }
-
-    const ins = this.tree.getNonCxnInputs(id);
-    //if this is a draft with a parent, move the parent as well 
-    if (this.tree.getType(moving.id) === "draft" && !this.tree.isSibling(moving.id)) {
-      ins.forEach(input => {
-        // in_comp.updatePositionFromChild(moving);
-        this.updateAttachedComponents(input, false);
-      });
-    }
-
-
-  }
 
 
   /**
@@ -2266,15 +2253,6 @@ export class PaletteComponent implements OnInit {
         viewRefs.forEach(el => {
           this.removeFromViewContainer(el)
         });
-
-        //update the to positions coming out of this 
-        let inputs = this.tree.getInputs(obj.id);
-
-        inputs.forEach(input_cxn => {
-          let comp = this.tree.getComponent(input_cxn);
-          const tuple = this.tree.getConnectionOutputWithIndex(input_cxn);
-          if (comp !== null) (<ConnectionComponent>comp).updateToPosition(tuple.inlet, tuple.arr);
-        })
       })
       .catch(error => {
         this.postOperationErrorMessage(obj.id, error);
@@ -2286,80 +2264,12 @@ export class PaletteComponent implements OnInit {
 
 
 
-  /**
-   * called from an operation component when it is dragged
-   * @param obj (id, point of toplleft)
-   */
-  operationMoved(obj: any) {
-    if (obj === null) return;
-
-    this.updateAttachedComponents(obj.id, true);
-    this.moveAllSelections(obj.id);
-
-
-  }
-
-  /**
-  * called from an operation component when it is done moving 
-  * this allows us to not write postioin continuously, but just once on end
-  * @param obj (id, point of toplleft)
-  */
-  operationMoveEnded(obj: any) {
-    if (obj === null) return;
-
-    this.updateSelectionPositions(obj.id);
-  }
-
-
-  /**
-   * 
-   * @param moving_id 
-   */
-  updateSelectionPositions(moving_id: number) {
-    const selections = this.multiselect.getSelections();
-    selections.forEach(sel => {
-      if (this.tree.getType(sel) != 'cxn' && sel !== moving_id) {
-        const comp = this.tree.getComponent(sel);
-        this.multiselect.setPosition(sel, comp.topleft)
-      }
-    })
-  }
-
-  /**
-   * this is called when a multi-selected block of items is moved. 
-   * Sometimes its called if you paste one set of items to a new space, in which case the nodes do
-   * not yet exist. 
-   * @param moving_id 
-   * @returns 
-   */
-  moveAllSelections(moving_id: number) {
-    const selections = this.multiselect.getSelections();
-    console.log("MOVE ALL SELECTIONS", selections);
-    if (selections.length == 0) return;
-
-    const rel_pos = this.multiselect.getRelativePosition();
-    const cur_pos = this.tree.getComponent(moving_id).topleft;
-    const diff: Point = { x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y };
-
-    selections.forEach(sel => {
-      if (this.tree.getNode(sel) == null) return;
-
-      if (this.tree.getType(sel) == 'op' && sel !== moving_id) {
-        const comp = this.tree.getComponent(sel);
-        (<OperationComponent>comp).setPosition(this.multiselect.getNewPosition(sel, diff))
-        this.updateAttachedComponents(sel, true);
-      }
-      if (this.tree.getType(sel) == 'draft' && sel !== moving_id) {
-        const comp = <SubdraftComponent>this.tree.getComponent(sel);
-        if (comp.parent_id == -1) comp.setPosition(this.multiselect.getNewPosition(sel, diff));
-      }
-    });
-  }
 
   moveSelectionsFromUndo(moving_id: number, selections: Array<{ id: number, topleft: Point }>, rel_pos: Point) {
     if (selections.length == 0) return;
 
-    const cur_pos = this.tree.getComponent(moving_id).topleft;
+    const comp = <SubdraftComponent | OperationComponent>this.tree.getComponent(moving_id);
+    const cur_pos = comp.getPosition();
     const diff: Point = { x: cur_pos.x - rel_pos.x, y: cur_pos.y - rel_pos.y };
 
     selections.forEach(sel => {
@@ -2367,14 +2277,15 @@ export class PaletteComponent implements OnInit {
 
       if (this.tree.getType(sel.id) == 'op') {
         const comp = this.tree.getComponent(sel.id) as OperationComponent;
-        const new_pos: Point = { x: (comp.topleft.x - diff.x), y: (comp.topleft.y - diff.y) }
-        comp.setPosition(new_pos)
-        this.updateAttachedComponents(sel.id, true);
+        const comp_topleft = comp.getPosition();
+        const new_pos: Point = { x: (comp_topleft.x - diff.x), y: (comp_topleft.y - diff.y) }
+        comp.setPosition(new_pos, true)
       }
       if (this.tree.getType(sel.id) == 'draft') {
         const comp = <SubdraftComponent>this.tree.getComponent(sel.id);
-        const new_pos: Point = { x: (comp.topleft.x - diff.x), y: (comp.topleft.y - diff.y) }
-        if (comp.parent_id == -1) comp.setPosition(new_pos)
+        const comp_topleft = comp.getPosition();
+        const new_pos: Point = { x: (comp_topleft.x - diff.x), y: (comp_topleft.y - diff.y) }
+        if (comp.parent_id == -1) comp.setPosition(new_pos, true)
       }
     });
   }
@@ -2388,15 +2299,6 @@ export class PaletteComponent implements OnInit {
    */
   subdraftMoved(obj: any) {
 
-    if (obj === null) return;
-
-    //get the reference to the draft that's moving
-    const moving = <SubdraftComponent>this.tree.getComponent(obj.id);
-
-    if (moving === null) return;
-
-    this.moveAllSelections(obj.id);
-    this.updateAttachedComponents(moving.id, true);
 
   }
 
@@ -2408,8 +2310,6 @@ export class PaletteComponent implements OnInit {
    */
   subdraftDropped(obj: any) {
 
-    if (obj === null) return;
-    this.updateSelectionPositions(obj.id);
 
   }
 
@@ -2425,9 +2325,9 @@ export class PaletteComponent implements OnInit {
       .filter(el => el.dom !== undefined && el.dom !== null);
 
     rect_list.forEach(el => {
-      let comp = this.tree.getComponent(el.id);
-      let topleft = comp.topleft;
-      (<SubdraftComponent | OperationComponent>comp).setPosition({ x: topleft.x * 3, y: topleft.y * 3 });
+      let comp = <SubdraftComponent | OperationComponent>this.tree.getComponent(el.id);
+      let topleft = comp.getPosition();
+      comp.setPosition({ x: topleft.x * 3, y: topleft.y * 3 });
     })
 
 

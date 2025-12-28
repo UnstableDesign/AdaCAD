@@ -104,7 +104,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this.simControls.valueChanges.subscribe(value => {
-      console.log("SIM CONTROLS VALUE CHANGED ", value);
       this.updateSimParameters(value);
     });
 
@@ -115,7 +114,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
     this.materialColorChangeSubscription = this.ms.materialColorChange.subscribe(id => {
       if (!this.hasFocus) return;
-      console.log("MATERIAL COLOR CHANGE Sim ", id);
       this.simVars.ms = this.ms.getShuttles();
       this.redrawCurrentSim();
     });
@@ -125,7 +123,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
       if (!this.hasFocus) return;
 
       this.simVars.ms = this.ms.getShuttles();
-      console.log("MATERIAL DIAMETER CHANGE Sim ", id);
       if (this.simData) this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
         this.simData = simdata;
         this.redrawCurrentSim();
@@ -148,7 +145,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
     }
 
     const rect = rendering_div.getBoundingClientRect();
-    console.log("RENDERING DIV RECT ", rect);
     const width = rect.width || 400;
     const height = rect.height || 400;
 
@@ -352,7 +348,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (this.draftChangeSubscription) this.draftChangeSubscription.unsubscribe();
 
     this.draftChangeSubscription = draftNode.onValueChange.subscribe(draftNodeBroadcast => {
-      console.log("DRAFT Change subscription called");
       this.simVars.warp_spacing = convertEPItoMM(draftNodeBroadcast.loom_settings);
       this.updateSimFormValues();
       this.recalcAndRenderSimData(draftNodeBroadcast.draft);
@@ -362,7 +357,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
   /** if we switch into the view from another view */
   onFocus(id: number) {
-    console.log("ON FOCUS Sim ", id);
     this.id = id;
     this.hasFocus = true;
     this.subscribeToDraftUpdates(id);
@@ -377,7 +371,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
   /** if we are in the sim mode, and the viewer id changes */
   onNewDraftLoaded(id: number): Promise<any> {
     if (id === -1) return;
-    console.log("LOADING NEW DRAFT Sim ", id);
     this.subscribeToDraftUpdates(id);
   }
 

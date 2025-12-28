@@ -88,10 +88,16 @@ export const loadDraftFromFile = (data: any, version: string, src: string): Prom
 * @param data 
 */
 export const loadLoomFromFile = (loom: any, version: string, id: number): Promise<{ loom: Loom, id: number }> => {
+    console.log('[loadLoomFromFile] Loading loom from file, id:', id, 'version:', version);
+    console.log('[loadLoomFromFile] Raw loom data:', loom);
 
-    if (loom == null) return Promise.resolve(null);
+    if (loom == null) {
+        console.log('[loadLoomFromFile] Loom is null, returning null');
+        return Promise.resolve(null);
+    }
 
     if (!sameOrNewerVersion(version, '3.4.5')) {
+        console.log('[loadLoomFromFile] Version < 3.4.5, converting old treadling style');
         //tranfer the old treadling style on looms to the new style updated in 3.4.5
         loom.treadling = loom.treadling.map(treadle_id => {
             if (treadle_id == -1) return [];
@@ -100,11 +106,19 @@ export const loadLoomFromFile = (loom: any, version: string, id: number): Promis
 
     } else {
         //handle case where firebase does not save empty treadles
-        //console.log("IN LOAD LOOM", loom.treadling);
+        console.log('[loadLoomFromFile] Processing treadling for version >= 3.4.5, original treadling:', loom.treadling);
         for (let i = 0; i < loom.treadling.length; i++) {
             if (loom.treadling[i].length == 1 && loom.treadling[i][0] == -1) loom.treadling[i] = [];
         }
+        console.log('[loadLoomFromFile] Processed treadling:', loom.treadling);
     }
+
+    console.log('[loadLoomFromFile] Loaded loom successfully:', {
+        id: id,
+        threading: loom.threading,
+        treadling: loom.treadling,
+        tieup: loom.tieup
+    });
 
     return Promise.resolve({ loom, id });
 

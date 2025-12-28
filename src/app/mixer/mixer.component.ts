@@ -15,7 +15,9 @@ import { ZoomService } from '../core/provider/zoom.service';
 import { BlankdraftModal } from '../core/ui/blankdraft/blankdraft.modal';
 import { MixerSidebarComponent } from './mixer-sidebar/mixer-sidebar.component';
 import { NoteComponent } from './palette/note/note.component';
+import { OperationComponent } from './palette/operation/operation.component';
 import { PaletteComponent } from './palette/palette.component';
+import { SubdraftComponent } from './palette/subdraft/subdraft.component';
 import { MultiselectService } from './provider/multiselect.service';
 import { ViewportService } from './provider/viewport.service';
 
@@ -228,15 +230,17 @@ export class MixerComponent {
     let notes = this.notes.getComponents().filter(el => el !== null);;
 
     ops.forEach(op => {
-      op.topleft.x += offset;
-      op.topleft.y += offset;
-      op.setPosition(op.topleft)
+      const topleft = (<OperationComponent>op).getPosition();
+      topleft.x += offset;
+      topleft.y += offset;
+      (<OperationComponent>op).setPosition(topleft)
     });
 
     drafts.forEach(draft => {
-      draft.topleft.x += offset;
-      draft.topleft.y += offset;
-      draft.setPosition(draft.topleft)
+      const topleft = draft.getPosition();
+      topleft.x += offset;
+      topleft.y += offset;
+      draft.setPosition(topleft)
     });
 
 
@@ -512,7 +516,8 @@ export class MixerComponent {
     }
 
     if (node.component === undefined) console.error("NODE COMPONENT UNDEFINED", node);
-    const centerPoint = node.component.topleft;
+    const comp = <SubdraftComponent | OperationComponent>node.component;
+    const centerPoint = comp.getPosition();
 
 
     const view_window: HTMLElement = document.getElementById('scrollable-container');

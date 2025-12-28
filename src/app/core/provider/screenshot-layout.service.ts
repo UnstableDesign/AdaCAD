@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { TreeService } from './tree.service';
 import { TreeNode } from '../model/datatypes';
+import { TreeService } from './tree.service';
 
 
 // Internal types used for modeling the tree as a simple graph and passing around position data
@@ -157,9 +157,7 @@ export class ScreenshotLayoutService {
   private _redrawConnections() {
     let cxn = this.tree.getConnections().filter(el => el !== null);
     cxn.forEach(el => {
-      el.updateFromPosition();
-      let to = this.tree.getConnectionOutputWithIndex(el.id)
-      el.updateToPosition(to.inlet, to.arr);
+      el.refreshConnection();
     });
   }
 

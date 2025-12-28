@@ -6,7 +6,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Img, Interlacement, Operation, OpInletValType, OpParamValType } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
-import { IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
+import { DraftNode, IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { ErrorBroadcasterService } from '../../../core/provider/error-broadcaster.service';
 import { MediaService } from '../../../core/provider/media.service';
 import { OperationService } from '../../../core/provider/operation.service';
@@ -109,7 +109,7 @@ export class OperationComponent implements OnInit {
 
   disable_drag: boolean = false;
 
-  topleft: Point = { x: 0, y: 0 };
+  private topleft: Point = { x: 0, y: 0 };
 
   op: Operation | DynamicOperation;
 
@@ -150,6 +150,9 @@ export class OperationComponent implements OnInit {
   recomputationSubscription: Subscription;
   recomputing: boolean = false;
 
+  // Add a property to track if we just finished dragging
+  private wasDragged: boolean = false;
+
   // @HostListener('window:resize', ['$event'])
   // onResize(event) {
   //   console.log("FORCE TRANSFORM TO ZERO", this.disable_drag);
@@ -157,9 +160,13 @@ export class OperationComponent implements OnInit {
   // }
 
   checkChildrenSubscription: Subscription;
+  multiSelectListChangeSubscription: Subscription;
+  multiSelectMoveElementsSubscription: Subscription;
 
 
   constructor() {
+
+
 
 
   }
@@ -174,11 +181,20 @@ export class OperationComponent implements OnInit {
     if (this.checkChildrenSubscription) {
       this.checkChildrenSubscription.unsubscribe();
     }
+
+    if (this.multiSelectListChangeSubscription) {
+      this.multiSelectListChangeSubscription.unsubscribe();
+    }
+
+    if (this.multiSelectMoveElementsSubscription) {
+      this.multiSelectMoveElementsSubscription.unsubscribe();
+    }
   }
 
   ngOnInit() {
 
     this.op = this.operations.getOp(this.name);
+    this.opnode = <OpNode>this.tree.getNode(this.id);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
     this.description = this.op.meta.desc ?? '';
     this.displayname = this.op.meta.displayname ?? this.name;
@@ -190,7 +206,6 @@ export class OperationComponent implements OnInit {
 
 
 
-    this.opnode = <OpNode>this.tree.getNode(this.id);
     //if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
     this.errorSubscription = this.errorBroadcaster.errorBroadcast$.subscribe((alert_text) => {
       this.updateErrorState();
@@ -216,14 +231,44 @@ export class OperationComponent implements OnInit {
     this.viewInit = true;
     this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
 
-    let op_container = document.getElementById('scale-' + this.id);
-    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    op_container.style.top = this.topleft.y + "px";
-    op_container.style.left = this.topleft.x + "px";
-
+    this.setPosition(this.topleft, true);
 
     //check for error on load
     this.updateErrorState();
+
+
+    this.multiSelectListChangeSubscription = this.multiselect.multiSelectListChange$.subscribe(list => {
+      let op_container = document.getElementById('scale-' + this.id);
+      if (op_container == null) return;
+      if (list.includes(this.id)) {
+        op_container.classList.add('multiselected');
+
+
+
+        if (this.multiSelectMoveElementsSubscription) this.multiSelectMoveElementsSubscription.unsubscribe();
+
+        //subscribe to this elements behavior subject
+        let ms_item = this.multiselect.selected.find(el => el.id == this.id);
+        if (ms_item !== undefined) {
+          this.multiSelectMoveElementsSubscription = ms_item.positionUpdate.subscribe(pos => {
+            this.setPosition(pos, true);
+          });
+        }
+
+
+        //subscribe to drag events
+
+      } else {
+        op_container.classList.remove('multiselected');
+        if (this.multiSelectMoveElementsSubscription) {
+          this.multiSelectMoveElementsSubscription.unsubscribe();
+        }
+      }
+
+
+
+
+    });
 
 
 
@@ -250,10 +295,25 @@ export class OperationComponent implements OnInit {
     this.paramsComps.get(paramid).setValueFromStateEvent(value);
   }
 
+  getPosition(): Point {
+    return this.topleft;
+  }
 
-  setPosition(pos: Point) {
+
+  setPosition(pos: Point, emit: boolean = true) {
     this.topleft = { x: pos.x, y: pos.y };
+
+    if (emit) {
+      this.opnode.positionChange.next(this.topleft);
+      const children = this.tree.getNonCxnOutputs(this.id);
+      children.forEach(child => {
+        const childNode = <DraftNode | OpNode>this.tree.getNode(child);
+        childNode.positionChange.next(this.topleft);
+      });
+    }
+
     let op_container = document.getElementById('scale-' + this.id);
+    if (op_container == null) return;
     op_container.style.transform = 'none'; //negate angulars default positioning mechanism
     op_container.style.top = this.topleft.y + "px";
     op_container.style.left = this.topleft.x + "px";
@@ -366,40 +426,29 @@ export class OperationComponent implements OnInit {
   }
 
 
-  toggleSelection(e: any, source: string) {
+  /*
+  called on click
+  */
+  toggleSelection(e: any) {
 
+    if (this.wasDragged) return;
 
-    if (source == 'click') {
-
-      if (e.shiftKey == true) {
-        console.log("SHIFT PRESSED ");
-        this.multiselect.toggleSelection(this.id, this.topleft);
-        if (this.multiselect.isSelected(this.id)) {
-          this.selectOperationMulti();
-          if (this.children.length > 0) {
-            let child = this.children[0];
-            this.vs.setViewer(child);
-          }
-        } else {
-          this.unselectOperation();
-          this.vs.clearViewer();
-        }
-      } else {
-        console.log("CLEAR SELECTIONS: operation.component.ts - click without shift key");
-        this.multiselect.clearSelections();
-        this.vs.clearViewer();
-      }
-
-    } else if (source == 'drag') {
-
-      if (this.multiselect.isSelected(this.id)) {
-        this.multiselect.setRelativePosition(this.topleft);
-        this.multiselect.dragStart(this.id);
-        this.selectOperationMulti();
-
-      }
+    if (this.children.length > 0) {
+      let child = this.children[0];
+      this.vs.setViewer(child);
     }
 
+    if (e.shiftKey == true) {
+      this.multiselect.toggleSelection(this.id, this.topleft);
+      if (this.multiselect.isSelected(this.id)) {
+        this.selectOperationMulti();
+      } else {
+        this.unselectOperation();
+      }
+    } else {
+      this.multiselect.clearSelections();
+      this.selectOperationOnly();
+    }
 
   }
 
@@ -697,7 +746,12 @@ export class OperationComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
-    this.toggleSelection($event, "drag");
+    this.wasDragged = false; // Reset flag at start
+
+    if (this.multiselect.isSelected(this.id)) {
+      this.multiselect.setRelativePosition(this.topleft);
+      this.multiselect.dragStart(this.id);
+    }
 
     this.previous_topleft = this.topleft;
     this.offset = null;
@@ -750,12 +804,11 @@ export class OperationComponent implements OnInit {
 
     }
 
-    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    op_container.style.top = this.topleft.y + "px";
-    op_container.style.left = this.topleft.x + "px";
+    this.setPosition(this.topleft, true);
+    if (this.multiselect.isSelected(this.id)) this.multiselect.dragMove(this.topleft);
 
-
-    this.onOperationMove.emit({ id: this.id, point: this.topleft });
+    // Mark that we're actually dragging (position is changing)
+    this.wasDragged = true;
 
 
   }
@@ -776,15 +829,9 @@ export class OperationComponent implements OnInit {
       y: (op_container.offsetTop < 0) ? 0 : this.topleft.y,
 
     }
-
-    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    op_container.style.top = this.topleft.y + "px";
-    op_container.style.left = this.topleft.x + "px";
-
-
+    this.setPosition(this.topleft, true);
 
     this.multiselect.setRelativePosition(this.topleft);
-    this.onOperationMoveEnded.emit({ id: this.id });
 
     if (this.multiselect.moving_id == this.id) {
       this.multiselect.dragEnd();
@@ -801,7 +848,10 @@ export class OperationComponent implements OnInit {
       this.ss.addStateChange(change);
     }
 
-
+    // Use setTimeout to allow the click event to be processed first, then reset
+    setTimeout(() => {
+      this.wasDragged = false;
+    }, 0);
 
   }
 

@@ -1,14 +1,40 @@
 .connection-container {
     position: absolute;
     z-index: 0;
+
+    button {
+        position: absolute;
+        pointer-events: all;
+        width: 60px;
+        height: 60px;
+        font-size: var(--form-field-entry-size);
+        background-color: whitesmoke;
+        color: black;
+    }
+
+    button:hover {
+        background-color: #ff4081;
+    }
+
+
+
+
     //pointer-events:none;
 }
 
-button {
-    position: absolute;
-    font-size: .5em;
-    color: black;
-    pointer-events: all;
+// button {
+//     position: absolute;
+//     font-size: var(--form-field-entry-size);
+//     color: black;
+//     pointer-events: all;
+//     background-color: whitesmoke;
+//     border-radius: 50%;
+//     padding: 4px;
+//     border: 1px solid black;
+// }
+
+button:hover {
+    color: #ff4081;
 }
 
 .hidden {

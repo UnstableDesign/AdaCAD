@@ -1,5 +1,5 @@
 <div id='scale-{{id}}' class="operation-parent no-text-select selectable-{{!disable_drag}}" cdkDrag
-  (mousedown)="mousedown($event)" (click)='toggleSelection($event, "click")' [style.z-index]="zndx"
+  (mousedown)="mousedown($event)" (click)='toggleSelection($event)' [style.z-index]="zndx"
   (cdkDragMoved)="dragMove($event)" (cdkDragEnded)="dragEnd($event)" (cdkDragStarted)="dragStart($event)">
 
 

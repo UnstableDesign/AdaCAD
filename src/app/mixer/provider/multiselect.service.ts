@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { MixerStateMove, Node, Point, SaveObj } from '../../core/model/datatypes';
+import { BehaviorSubject } from 'rxjs';
+import { Bounds, MixerStateMove, MultiSelectElement, Node, Point, SaveObj } from '../../core/model/datatypes';
 import { FileService } from '../../core/provider/file.service';
 import { StateService } from '../../core/provider/state.service';
 import { TreeService } from '../../core/provider/tree.service';
@@ -8,13 +9,20 @@ import { ZoomService } from '../../core/provider/zoom.service';
 @Injectable({
   providedIn: 'root'
 })
+
+
+
+/**
+ * shift + click on any subdraft or operaiton adds/removes that cponent from the selected list
+ * shift + drag on teh palette enables selection of all elements within the bounds
+ */
 export class MultiselectService {
   private tree = inject(TreeService);
   private fs = inject(FileService);
   private zs = inject(ZoomService);
   private ss = inject(StateService);
 
-  selected: Array<{ id: number, topleft: Point }> = [];
+  selected: Array<MultiSelectElement> = [];
   relative_position: Point = { x: 0, y: 0 };
   relative_position_before: Point = { x: 0, y: 0 };
   copy: SaveObj;
@@ -22,7 +30,21 @@ export class MultiselectService {
 
 
 
+
+  multi_select_bounds: Bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
+  hasMultiSelectBounds: boolean = false;
+
+
+
+  /**
+   * publish the event when something changes in the select list. 
+   */
+  multiSelectListChange$: BehaviorSubject<Array<number>> = new BehaviorSubject([]);
+  multiSelectMoveElements$: BehaviorSubject<Array<{ id: number, topleft: Point }>> = new BehaviorSubject([]);
+
+
   private selected_before: Array<{ id: number, topleft: Point }> = [];
+
 
   /**
    * when drag starts, we need to store a copy of the current state so we can undo it later
@@ -35,6 +57,25 @@ export class MultiselectService {
       this.selected_before.push({ id: el.id, topleft: { x: el.topleft.x, y: el.topleft.y } });
     });
     this.relative_position_before = { x: this.relative_position.x, y: this.relative_position.y };
+  }
+
+  /**
+   * the position of the moving element
+   * @param cur_pos 
+   */
+  dragMove(cur_pos: Point) {
+
+    const diff: Point = { x: cur_pos.x - this.relative_position.x, y: cur_pos.y - this.relative_position.y };
+
+
+    this.selected.forEach(sel => {
+
+      if (sel.id !== this.moving_id) {
+        let updatedPos = this.getNewPosition(sel.id, diff);
+        sel.positionUpdate.next(updatedPos)
+      }
+    });
+
   }
 
   /**
@@ -56,9 +97,7 @@ export class MultiselectService {
     this.relative_position = { x: 0, y: 0 };
   }
 
-  updateSelectedStyles(comp_id: number) {
 
-  }
 
   setRelativePosition(point: Point) {
     this.relative_position = point;
@@ -82,74 +121,64 @@ export class MultiselectService {
    */
   toggleSelection(id: number, topleft: Point): boolean {
 
-    const type = this.tree.getType(id);
-    let container: HTMLElement;
-
     if (this.selected.find(el => el.id == id) !== undefined) {
 
       this.selected = this.selected.filter(el => el.id != id);
-
-      container = <HTMLElement>document.getElementById("scale-" + id);
-      container.classList.remove('multiselected');
+      this.multiSelectListChange$.next(this.selected.map(el => el.id));
+      // container = <HTMLElement>document.getElementById("scale-" + id);
+      // container.classList.remove('multiselected');
 
       //remove the children as well 
-      if (type === 'op') {
-        const cxn_outs = this.tree.getOutputs(id);
-        cxn_outs.forEach(o => {
-          this.selected = this.selected.filter(el => el.id != o);
-          const child = this.tree.getConnectionOutput(o);
-          container = <HTMLElement>document.getElementById("scale-" + child);
-          if (container !== null) container.classList.remove('multiselected');
-          this.selected = this.selected.filter(el => el.id != child);
-        });
-      }
+      // if (type === 'op') {
+      //   const cxn_outs = this.tree.getOutputs(id);
+      //   cxn_outs.forEach(o => {
+      //     this.selected = this.selected.filter(el => el.id != o);
+      //     const child = this.tree.getConnectionOutput(o);
+      //     container = <HTMLElement>document.getElementById("scale-" + child);
+      //     if (container !== null) container.classList.remove('multiselected');
+      //     this.selected = this.selected.filter(el => el.id != child);
+      //   });
+      // }
 
       return false;
     } else {
 
-      this.selected.push({ id, topleft });
-      container = <HTMLElement>document.getElementById("scale-" + id);
-      if (container !== null) container.classList.add('multiselected');
+      this.selected.push({ id, topleft, positionUpdate: new BehaviorSubject<Point>(topleft) });
+      this.multiSelectListChange$.next(this.selected.map(el => el.id));
+      // container = <HTMLElement>document.getElementById("scale-" + id);
+      // if (container !== null) container.classList.add('multiselected');
       //remove the children as well 
-      if (type == 'op') {
-        // const cxn_outs = this.tree.getOutputs(id);
-        // cxn_outs.forEach(o => {
-        // let tl = this.tree.getComponent(o).topleft;
-        // this.selected.push({id: o, topleft: tl });
-        // const child = this.tree.getConnectionOutput(o);
-        // tl = this.tree.getComponent(child).topleft;
-        // this.selected.push({id: child, topleft: tl });
-        // container = <HTMLElement> document.getElementById("scale-"+child);
-        // if(container !== null)  container.classList.add('multiselected');
-        // } );
-      } else if (type == 'draft') {
-        const parent = this.tree.getSubdraftParent(id);
-        if (parent !== -1) {
-          let tl = this.tree.getComponent(parent).topleft;
-          this.selected.push({ id: parent, topleft: tl });
-          container = <HTMLElement>document.getElementById("scale-" + parent);
-          if (container !== null) container.classList.add('multiselected');
+      //  if (type == 'op') {
+      // const cxn_outs = this.tree.getOutputs(id);
+      // cxn_outs.forEach(o => {
+      // let tl = this.tree.getComponent(o).topleft;
+      // this.selected.push({id: o, topleft: tl });
+      // const child = this.tree.getConnectionOutput(o);
+      // tl = this.tree.getComponent(child).topleft;
+      // this.selected.push({id: child, topleft: tl });
+      // container = <HTMLElement> document.getElementById("scale-"+child);
+      // if(container !== null)  container.classList.add('multiselected');
+      // } );
+      //} else if (type == 'draft') {
+      //  const parent = this.tree.getSubdraftParent(id);
+      // if (parent !== -1) {
+      //   let tl = this.tree.getComponent(parent).topleft;
+      //   this.selected.push({ id: parent, topleft: tl });
+      //   container = <HTMLElement>document.getElementById("scale-" + parent);
+      //   if (container !== null) container.classList.add('multiselected');
 
-        }
-      }
+      // }
+      //}
       return true;
     }
-  }
-
-  clearAllStyles() {
-    this.selected.forEach(sel => {
-      const container = <HTMLElement>document.getElementById("scale-" + sel.id);
-      if (container !== null) container.classList.remove('multiselected');
-    })
   }
 
 
 
   clearSelections() {
-    console.log("CLEAR SELECTIONS: multiselect.service.ts - clearing", this.selected.length, "selections");
     //clear all styles
-    this.clearAllStyles();
     this.selected = [];
+    this.multiSelectListChange$.next([]);
     this.copy = null;
   }
 

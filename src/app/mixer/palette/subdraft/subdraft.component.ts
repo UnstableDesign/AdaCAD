@@ -2,6 +2,7 @@ import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { Draft, Interlacement, LoomSettings } from 'adacad-drafting-lib';
 import { isUp, warps, wefts } from 'adacad-drafting-lib/draft';
+import { Subscription } from 'rxjs';
 import { DraftNode, DraftStateMove, Point } from '../../../core/model/datatypes';
 import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
@@ -39,7 +40,6 @@ export class SubdraftComponent implements OnInit {
   @Input() id: number;
   @Input() scale: number;
   @Input() draft: Draft;
-  @Input() topleft: Point;
 
 
   @Output() onSubdraftMove = new EventEmitter<any>();
@@ -60,6 +60,8 @@ export class SubdraftComponent implements OnInit {
 
 
   isNew: boolean = false;
+  dn: DraftNode;
+  private topleft: Point = { x: 0, y: 0 };
 
 
   parent_id: number = -1;
@@ -109,14 +111,14 @@ export class SubdraftComponent implements OnInit {
 
   previous_topleft: Point = { x: 0, y: 0 };
 
+  multiSelectListChangeSubscription: Subscription;
+  multiSelectMoveElementsSubscription: Subscription;
+
+  wasDragged: boolean = false;
+
   constructor() {
     const layer = this.layer;
-
-
     this.zndx = layer.createLayer();
-
-
-
   }
 
 
@@ -131,8 +133,8 @@ export class SubdraftComponent implements OnInit {
     if (!this.is_preview) this.viewport.addObj(this.id, this.interlacement);
 
 
-    const dn: DraftNode = <DraftNode>this.tree.getNode(this.id);
-    this.use_colors = dn.render_colors;
+    this.dn = <DraftNode>this.tree.getNode(this.id);
+    this.use_colors = this.dn.render_colors;
 
 
 
@@ -148,12 +150,34 @@ export class SubdraftComponent implements OnInit {
 
 
     let sd_container = document.getElementById('scale-' + this.id);
-    sd_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    sd_container.style.top = this.topleft.y + "px";
-    sd_container.style.left = this.topleft.x + "px";
-    this.onRedrawOutboundConnections.emit(this.id);
+    this.setPosition(this.topleft, true);
+
+    this.multiSelectListChangeSubscription = this.multiselect.multiSelectListChange$.subscribe(list => {
+      let sd_container = document.getElementById('scale-' + this.id);
+      if (sd_container == null) return;
+      if (list.includes(this.id)) {
+        sd_container.classList.add('multiselected');
+        if (this.multiSelectMoveElementsSubscription) this.multiSelectMoveElementsSubscription.unsubscribe();
+
+        let ms_item = this.multiselect.selected.find(el => el.id == this.id);
+        if (ms_item !== undefined) {
+          this.multiSelectMoveElementsSubscription = ms_item.positionUpdate.subscribe(pos => {
+            this.setPosition(pos, true);
+          });
+        }
+
+      } else {
+        sd_container.classList.remove('multiselected');
+        if (this.multiSelectMoveElementsSubscription) this.multiSelectMoveElementsSubscription.unsubscribe();
+      }
+    });
 
 
+  }
+
+  ngOnDestroy() {
+    if (this.multiSelectListChangeSubscription) this.multiSelectListChangeSubscription.unsubscribe();
+    if (this.multiSelectMoveElementsSubscription) this.multiSelectMoveElementsSubscription.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -170,9 +194,9 @@ export class SubdraftComponent implements OnInit {
   /**
    * this is called when the draft container displaying this draft has had a size change 
    */
-  updateOutboundConnections() {
-    this.onRedrawOutboundConnections.emit(this.id);
-  }
+  // updateOutboundConnections() {
+  //   this.onRedrawOutboundConnections.emit(this.id);
+  // }
 
 
 
@@ -273,33 +297,25 @@ export class SubdraftComponent implements OnInit {
   }
 
 
-  toggleMultiSelection(e: any, source: string) {
+  toggleMultiSelection(e: any) {
 
-    console.log("toggle multi on subdraft", e, source)
+    if (this.wasDragged) return;
     // this.onFocus.emit(this.id);
     //this.updateConnectionStyling(true);
     this.vs.setViewer(this.id);
 
-    if (source == 'click') {
-      console.log("toggle multi on subdraft click")
-      if (e.shiftKey == true) {
-        this.multiselect.toggleSelection(this.id, this.topleft);
-        console.log("current selections", this.multiselect.selected.map(el => el.id));
-        if (this.multiselect.isSelected(this.id)) {
-          this.selectSubdraftMulti();
-        } else {
-          this.unselectSubdraft();
-        }
-        e.preventDefault();
-      }
-    } else if (source == 'drag') {
-      console.log("ON DRAG")
+    if (e.shiftKey == true) {
+      this.multiselect.toggleSelection(this.id, this.topleft);
       if (this.multiselect.isSelected(this.id)) {
-        this.multiselect.setRelativePosition(this.topleft);
-        this.multiselect.dragStart(this.id);
         this.selectSubdraftMulti();
+      } else {
+        this.unselectSubdraft();
       }
+    } else {
+      this.multiselect.clearSelections();
+      this.selectSubdraftOnly();
     }
+
   }
 
 
@@ -343,8 +359,9 @@ export class SubdraftComponent implements OnInit {
    * called on create to position the element on screen
    * @param pos 
    */
-  setPosition(pos: Point) {
+  setPosition(pos: Point, emit: boolean = true) {
     this.topleft = { x: pos.x, y: pos.y };
+    if (emit) this.dn.positionChange.next(this.topleft);
 
     let sd_container = document.getElementById('scale-' + this.id);
     if (sd_container == null) return;
@@ -352,6 +369,10 @@ export class SubdraftComponent implements OnInit {
     sd_container.style.top = this.topleft.y + "px";
     sd_container.style.left = this.topleft.x + "px";
     this.updateViewport(this.topleft);
+  }
+
+  getPosition(): Point {
+    return this.topleft;
   }
 
 
@@ -514,9 +535,13 @@ export class SubdraftComponent implements OnInit {
 
 
   dragStart($event: CdkDragStart) {
-    console.log("drag start on subdraft", $event);
-    this.toggleMultiSelection($event, 'drag');
     this.isNew = false;
+    this.wasDragged = false;
+
+    if (this.multiselect.isSelected(this.id)) {
+      this.multiselect.setRelativePosition(this.topleft);
+      this.multiselect.dragStart(this.id);
+    }
 
     this.previous_topleft = { x: this.topleft.x, y: this.topleft.y };
 
@@ -538,6 +563,7 @@ export class SubdraftComponent implements OnInit {
    */
   dragMove($event: CdkDragMove) {
 
+    this.wasDragged = true;
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-' + this.id);
     let rect_palette = parent.getBoundingClientRect();
@@ -575,11 +601,9 @@ export class SubdraftComponent implements OnInit {
       y: scaled_pointer.y - this.offset.y
 
     }
-    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    op_container.style.top = this.topleft.y + "px";
-    op_container.style.left = this.topleft.x + "px";
 
-
+    this.setPosition(this.topleft, true);
+    if (this.multiselect.isSelected(this.id)) this.multiselect.dragMove(this.topleft);
 
     this.onSubdraftMove.emit({ id: this.id, point: this.topleft });
 
@@ -599,12 +623,7 @@ export class SubdraftComponent implements OnInit {
 
     }
 
-    op_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    op_container.style.top = this.topleft.y + "px";
-    op_container.style.left = this.topleft.x + "px";
-
-
-
+    this.setPosition(this.topleft, true);
 
 
 
@@ -627,6 +646,10 @@ export class SubdraftComponent implements OnInit {
 
       this.ss.addStateChange(change);
     }
+
+    setTimeout(() => {
+      this.wasDragged = false;
+    }, 0);
 
 
   }

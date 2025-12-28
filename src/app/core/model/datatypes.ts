@@ -39,7 +39,8 @@ export type OpNode = BaseNode & {
   params: Array<OpParamValType>,
   inlets: Array<OpInletValType>,
   recomputing: BehaviorSubject<boolean>,
-  checkChildren: BehaviorSubject<boolean> //called after a perform when there is a chance new children could have been created
+  checkChildren: BehaviorSubject<boolean>, //called after a perform when there is a chance new children could have been created
+  positionChange: BehaviorSubject<Point>
 }
 
 
@@ -70,7 +71,8 @@ export type DraftNode = BaseNode & {
   visible: boolean,
   mark_for_deletion: boolean,
   onValueChange: BehaviorSubject<DraftNodeBroadcast>, //called anytime a value on this draft is set
-  canvases: CanvasList
+  canvases: CanvasList,
+  positionChange: BehaviorSubject<Point>
 
 }
 
@@ -155,6 +157,13 @@ export interface Bounds {
   topleft: Point;  //row on draft
   width: number;  //column on draft 
   height: number; //corresponding screen row
+}
+
+
+export interface MultiSelectElement {
+  id: number,
+  topleft: Point,
+  positionUpdate: BehaviorSubject<Point>
 }
 
 

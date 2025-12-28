@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
-import { MatIconButton } from '@angular/material/button';
+import { MatMiniFabButton } from '@angular/material/button';
 import { Subscription } from 'rxjs';
-import { ConnectionExistenceChange, ConnectionNode, OpNode, Point } from '../../../core/model/datatypes';
+import { ConnectionExistenceChange, ConnectionNode, DraftNode, OpNode, Point } from '../../../core/model/datatypes';
 import { OperationService } from '../../../core/provider/operation.service';
 import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
@@ -11,7 +11,7 @@ import { ZoomService } from '../../../core/provider/zoom.service';
   selector: 'app-connection',
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.scss'],
-  imports: [MatIconButton]
+  imports: [MatMiniFabButton]
 })
 export class ConnectionComponent implements OnInit {
   tree = inject(TreeService);
@@ -26,10 +26,16 @@ export class ConnectionComponent implements OnInit {
   @Output() onConnectionRemoved = new EventEmitter<any>();
 
 
+  /** the id of the node that this connection goes from */
   from: number;
+  fromPositionChange: Subscription;
+
+  /** the id of the node that this connection goes to */
   to: number;
-  b_from: Point;
-  b_to: Point;
+  toPositionChange: Subscription;
+
+  private b_from: Point;
+  private b_to: Point;
 
 
   disable_drag: boolean = true;
@@ -42,7 +48,6 @@ export class ConnectionComponent implements OnInit {
 
   svg: SVGSVGElement;
   path_main: SVGPathElement;
-  line_stub: SVGLineElement;
   connector: HTMLElement;
   anim: any;
 
@@ -60,6 +65,9 @@ export class ConnectionComponent implements OnInit {
 
   upstreamSubscription: Subscription;
   downstreamSubscription: Subscription;
+  fromDraftChangeSubscription: Subscription;
+
+
   recomputingSubscription: Subscription;
 
 
@@ -84,6 +92,7 @@ export class ConnectionComponent implements OnInit {
     this.from = from_io.tn.node.id;
     this.to = to_io.tn.node.id;
 
+
     this.no_draw = this.tree.getType(this.from) === 'op' && this.tree.hasSingleChild(this.from);
     this.show_disconnect = !(this.tree.getType(this.from) === 'op' && !(this.tree.hasSingleChild(this.from)));
 
@@ -104,6 +113,8 @@ export class ConnectionComponent implements OnInit {
 
 
 
+
+
   }
 
 
@@ -114,9 +125,7 @@ export class ConnectionComponent implements OnInit {
     const ns = "http://www.w3.org/2000/svg";
     this.svg = document.createElementNS(ns, "svg");
     this.path_main = document.createElementNS(ns, "path");
-    this.line_stub = document.createElementNS(ns, "line");
     this.svg.appendChild(this.path_main);
-    this.svg.appendChild(this.line_stub);
     document.getElementById("scale-" + this.id).appendChild(this.svg);
 
 
@@ -144,13 +153,6 @@ export class ConnectionComponent implements OnInit {
     this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
     this.path_main.setAttribute("stroke-dashoffset", "0");
 
-    this.line_stub.setAttribute("fill", "none");
-    this.line_stub.setAttribute("stroke", color);
-    this.line_stub.setAttribute("stroke-width", "4"); //2
-    this.line_stub.setAttribute("stroke-linecap", "round");
-    this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
-    this.line_stub.setAttribute("stroke-dashoffset", "0");
-
 
 
     let to_withdata = this.tree.getConnectionOutputWithIndex(this.id);
@@ -158,9 +160,49 @@ export class ConnectionComponent implements OnInit {
     this.from = this.tree.getConnectionInput(this.id);
 
 
-    this.updateFromPosition();
-    this.updateToPosition(to_withdata.inlet, to_withdata.arr);
-    this.drawConnection();
+    // Use double requestAnimationFrame to wait for child components to render
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.updateFromPosition();
+        this.updateToPosition(to_withdata.inlet, to_withdata.arr);
+        this.drawConnection();
+      });
+    });
+
+
+    const fromNode = <DraftNode>this.tree.getNode(this.from);
+    this.fromPositionChange = fromNode.positionChange.subscribe((pos) => {
+      if (pos === null) return;
+      // Defer DOM read until after browser has updated
+      requestAnimationFrame(() => {
+        this.updateFromPosition();
+        this.calculateBounds();
+        this.drawConnection();
+      });
+    });
+
+    const toNode = <OpNode>this.tree.getNode(this.to);
+    this.toPositionChange = toNode.positionChange.subscribe((pos) => {
+      if (pos === null) return;
+      let to_withdata = this.tree.getConnectionOutputWithIndex(this.id);
+
+      // Defer DOM read until after browser has updated
+      requestAnimationFrame(() => {
+        this.updateToPosition(to_withdata.inlet, to_withdata.arr);
+        this.calculateBounds();
+        this.drawConnection();
+      });
+    });
+
+
+    this.fromDraftChangeSubscription = fromNode.onValueChange.subscribe((el) => {
+      requestAnimationFrame(() => {
+        this.updateFromPosition();
+        this.calculateBounds();
+        this.drawConnection();
+      });
+    });
+
 
 
 
@@ -171,6 +213,9 @@ export class ConnectionComponent implements OnInit {
     this.upstreamSubscription.unsubscribe();
     this.downstreamSubscription.unsubscribe();
     this.recomputingSubscription.unsubscribe();
+    this.fromPositionChange.unsubscribe();
+    this.toPositionChange.unsubscribe();
+    this.fromDraftChangeSubscription.unsubscribe();
 
   }
 
@@ -228,13 +273,10 @@ export class ConnectionComponent implements OnInit {
    * unless the to node is a dynamic operation, in which case we must move to an inlet. 
    * @param to the id of the component this connection goes to
    */
-  updateToPosition(inlet_id: number, arr_id: number) {
+  private updateToPosition(inlet_id: number, arr_id: number) {
 
     let parent = document.getElementById('scrollable-container');
-
     let parent_rect = parent.getBoundingClientRect();
-
-
     let to_container = document.getElementById("inlet" + this.to + "-" + inlet_id + "-" + arr_id);
 
     if (to_container == null || to_container == undefined) return;
@@ -264,11 +306,22 @@ export class ConnectionComponent implements OnInit {
   }
 
 
+  /*this enambes force calling to redraw outside of subscriptions (e.g. like when a rescale changes)
+  */
+  refreshConnection() {
+    this.updateFromPosition();
+    let to = this.tree.getConnectionOutputWithIndex(this.id)
+    this.updateToPosition(to.inlet, to.arr);
+    this.calculateBounds();
+    this.drawConnection();
+  }
+
+
   /**
    * connections can come from a subdraft or an operation component 
    * @param from the id of the component this connection goes to
    */
-  updateFromPosition() {
+  private updateFromPosition() {
     let parent = document.getElementById('scrollable-container');
     let parent_rect = parent.getBoundingClientRect();
     let sd_element = document.getElementById(this.from + '-out');
@@ -290,9 +343,11 @@ export class ConnectionComponent implements OnInit {
 
     //draw from the center of the icon
     this.b_from = {
-      x: scaledX + sd_container.width / 2,
-      y: scaledY + sd_container.height / 2
+      x: scaledX + (sd_container.width / 2) * zoom_factor,
+      y: scaledY + sd_container.height * zoom_factor
     }
+
+
 
     this.calculateBounds();
     this.drawConnection();
@@ -301,7 +356,7 @@ export class ConnectionComponent implements OnInit {
 
 
 
-  calculateBounds() {
+  private calculateBounds() {
 
     let p1: Point = this.b_from;
     let p2: Point = this.b_to;
@@ -332,24 +387,39 @@ export class ConnectionComponent implements OnInit {
   }
 
 
+  onMouseOver() {
+    if (this.path_main === null || this.path_main === undefined) return;
+    this.path_main.style.stroke = '#ff4081';
+    this.path_main.style.zIndex = '1000';
+
+    this.path_main.setAttribute("stroke-width", "16"); //2
+    this.path_main.setAttribute("stroke-dasharray", "20 20"); //4 2 
+
+  }
+
+  onMouseOut() {
+    if (this.path_main === null || this.path_main === undefined) return;
+    this.path_main.style.stroke = '#000000';
+
+    this.updateConnectionStyling();
+
+  }
+
+
   updateConnectionStyling() {
     if (this.path_main === null || this.path_main === undefined) return;
-    if (this.line_stub === null || this.line_stub === undefined) return;
 
 
 
     if (this.upstream || this.downstream) {
+      this.path_main.style.zIndex = '1000';
       this.path_main.setAttribute("stroke-width", "16"); //2
-      this.line_stub.setAttribute("stroke-width", "16"); //2
       this.path_main.setAttribute("stroke-dasharray", "20 20"); //4 2 
-      this.line_stub.setAttribute("stroke-dasharray", "20 20"); //4 2 
 
     } else {
       this.path_main.style.zIndex = '0'
       this.path_main.setAttribute("stroke-width", "4"); //2
-      this.line_stub.setAttribute("stroke-width", "4"); //2
       this.path_main.setAttribute("stroke-dasharray", "10 10"); //4 2 
-      this.line_stub.setAttribute("stroke-dasharray", "10 10"); //4 2 
     }
 
     if (this.recomputing) {
@@ -368,90 +438,50 @@ export class ConnectionComponent implements OnInit {
     if (this.no_draw) return;
     if (this.svg === null || this.svg == undefined) return;
 
+    const stublength = 100; // Length of straight segments
+    const yOffset = -40;
+    const xOffset = -28;
 
-    const stublength = 40;
-    const connector_opening = 40;
-    const connector_font_size = 2;
-    const button_margin_left = -24;
-    const button_margin_top = -8;
+    if (this.b_to === undefined || this.b_to === null) return;
+    if (this.b_from === undefined || this.b_from === null) return;
+    if (this.topleft === undefined || this.topleft === null) return;
+    // Calculate relative positions within the connection container
+    const startX = this.b_from.x - this.topleft.x;
+    const startY = this.b_from.y - this.topleft.y;
+    const endX = this.b_to.x - this.topleft.x;
+    const endY = this.b_to.y - this.topleft.y;
 
-    if (this.orientation_x && this.orientation_y) {
+    // Point 100px down from outlet
+    const downPointX = startX;
+    const downPointY = startY + (stublength * 2);
 
-      this.path_main.setAttribute("d", "M 0 0 C 0 50, " + this.width + " " + (this.height - 70) + "," + this.width + " " + (this.height - (stublength + connector_opening)));
+    // Point 100px above inlet
+    const aboveInletX = endX;
+    const aboveInletY = endY - (stublength * 4);
 
-      this.line_stub.setAttribute("x1", this.width + "");
-      this.line_stub.setAttribute("y1", (this.height - (stublength)) + "");
-      this.line_stub.setAttribute("x2", this.width + "");
-      this.line_stub.setAttribute("y2", this.height + "");
+    // Point where the path ends (before the connector opening)
+    const pathEndX = endX;
+    const pathEndY = endY - stublength;
 
-
-      this.connector.style.top = (this.height - (stublength + connector_opening) + button_margin_top) + 'px';
-      this.connector.style.left = (this.width + button_margin_left) + 'px';
-      this.connector.style.fontSize = connector_font_size + "em";
-
-
-
-    } else if (!this.orientation_x && !this.orientation_y) {
-
-      this.path_main.setAttribute("d", "M 0 " + -(stublength + connector_opening) + "c 0 -50, " + this.width + " " + (this.height + 100) + ", " + this.width + " " + (this.height + (stublength + connector_opening)));
-
-
-      this.line_stub.setAttribute("x1", "0");
-      this.line_stub.setAttribute("y1", -(stublength) + "");
-      this.line_stub.setAttribute("x2", "0");
-      this.line_stub.setAttribute("y2", "0");
-
-      this.connector.style.top = -(stublength + connector_opening) + (button_margin_top) + 'px';
-      this.connector.style.left = (button_margin_left) + 'px';
-      this.connector.style.fontSize = connector_font_size + "em";
+    const path_start = `M ${startX} ${startY}`;
+    const path_curve = `C ${downPointX} ${downPointY}, ${aboveInletX} ${aboveInletY}, ${pathEndX} ${pathEndY}`;
+    const path_end = `L ${endX} ${endY}`;
+    const path = `${path_start} ${path_curve} ${path_end}`;
 
 
 
-    } else if (!this.orientation_x && this.orientation_y) {
+    this.path_main.setAttribute("d", path);
 
+    // Draw the stub line from path end to the actual inlet
+    // this.line_stub.setAttribute("x1", pathEndX + "");
+    // this.line_stub.setAttribute("y1", pathEndY + "");
+    // this.line_stub.setAttribute("x2", endX + "");
+    // this.line_stub.setAttribute("y2", endY + "");
 
-      this.path_main.setAttribute("d", "M  0 " + (this.height - (stublength + connector_opening)) + " C 0 " + (this.height - (stublength + connector_opening) - 50) + ", " + this.width + " 50, " + this.width + " 0");
-
-      this.line_stub.setAttribute("x1", "0");
-      this.line_stub.setAttribute("y1", (this.height - (stublength)) + "");
-      this.line_stub.setAttribute("x2", "0");
-      this.line_stub.setAttribute("y2", this.height + "");
-
-
-
-
-      this.connector.style.top = (this.height - (stublength + connector_opening) + button_margin_top) + 'px';
-      this.connector.style.left = (button_margin_left) + 'px';
-      this.connector.style.fontSize = connector_font_size + "em";
-
-
-
-
-    } else {
-
-
-
-      this.path_main.setAttribute("d", "M 0 " + this.height + "C 0 " + (this.height + 50) + ", " + this.width + " -50, " + this.width + " " + -(stublength + connector_opening));
-
-
-      // this.svg.innerHTML = ' <path id="path-'+this.id+'" d="M 0 '+this.height+' C 0 '+(this.height+50)+', '+this.width+' -50, '+this.width+''+-(stublength+connector_opening)+'" fill="transparent" stroke="'+color+'"  stroke-dasharray="4 2"  stroke-width="'+stroke_width+'"/>' ;
-
-
-      this.line_stub.setAttribute("x1", this.width + "");
-      this.line_stub.setAttribute("y1", -(stublength) + "");
-      this.line_stub.setAttribute("x2", this.width + "");
-      this.line_stub.setAttribute("y2", "0");
-
-
-
-      this.connector.style.top = -(stublength + connector_opening) + (button_margin_top) + 'px';
-      this.connector.style.left = (this.width + button_margin_left) + 'px';
-      this.connector.style.fontSize = connector_font_size + "em";
-
-
-    }
-
-
+    // Position connector button at the inlet (in the opening)
+    // this.connector.style.display = 'block';
+    this.connector.style.top = (pathEndY + yOffset) + 'px';
+    this.connector.style.left = (pathEndX + xOffset) + 'px';
   }
 
   drawForPrint(canvas, cx, scale: number) {

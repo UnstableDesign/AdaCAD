@@ -225,10 +225,23 @@ export class FileService {
             return Promise.all(loom_fns)
           })
           .then(res => {
-
-            res.forEach(result => {
+            console.log('[file.service] All looms loaded from file, count:', res.length);
+            res.forEach((result, index) => {
+              console.log(`[file.service] Processing loaded loom ${index}:`, {
+                id: result.id,
+                loom: result.loom ? {
+                  threading: result.loom.threading,
+                  treadling: result.loom.treadling,
+                  tieup: result.loom.tieup
+                } : null
+              });
               let draft_ndx = draft_nodes.findIndex(el => el.draft_id == result.id);
-              if (draft_ndx !== -1) draft_nodes[draft_ndx].loom = result.loom;
+              if (draft_ndx !== -1) {
+                draft_nodes[draft_ndx].loom = result.loom;
+                console.log(`[file.service] Loom assigned to draft node at index ${draft_ndx}, draft_id: ${draft_nodes[draft_ndx].draft_id}`);
+              } else {
+                console.warn(`[file.service] Could not find draft node for loom id: ${result.id}`);
+              }
             })
 
 
@@ -475,7 +488,13 @@ export class FileService {
         }
         console.log("LOOM SETTINGS", loom_settings);
 
-        const loom = initLoom(warps, wefts, frames, treadles);;
+        console.log('[file.service WIF] Instantiating loom with parameters:', { warps, wefts, frames, treadles });
+        const loom = initLoom(warps, wefts, frames, treadles);
+        console.log('[file.service WIF] Loom instantiated:', {
+          threading: loom.threading,
+          treadling: loom.treadling,
+          tieup: loom.tieup
+        });
 
         const hasThreading = getBool("THREADING", stringWithoutMetadata);
         const hasTreadling = getBool("TREADLING", stringWithoutMetadata);

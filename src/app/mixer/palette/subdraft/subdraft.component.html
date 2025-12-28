@@ -11,8 +11,6 @@
   <app-draftcontainer #draftcontainer class="from_subdraft" [id]="id" [dirty]="false" [hasParent]="false"
     (connectionSelected)="connectionStarted($event)" (onOpenInEditor)="openInEditor($event)"
     (onDuplicateCalled)="designAction($event)" (onDeleteCalled)="designAction($event)"
-    (onRecomputeChildren)="designAction($event)" (onDrawdownSizeChanged)="updateOutboundConnections()"
-    (onDraftVisibilityChanged)="updateOutboundConnections($event)"
-    (onNameChanged)="nameChange($event)"></app-draftcontainer>
+    (onRecomputeChildren)="designAction($event)" (onNameChanged)="nameChange($event)"></app-draftcontainer>
 </div>
 }

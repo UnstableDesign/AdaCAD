@@ -226,9 +226,6 @@ export class ViewerComponent {
 
   private loadDraft(id: number) {
 
-    console.log("LOADING DRAFT ", id);
-
-
     const draftNode = this.tree.getNode(id) as DraftNode;
     if (draftNode.type !== 'draft') return;
 
