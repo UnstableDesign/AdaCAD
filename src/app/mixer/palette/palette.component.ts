@@ -1596,7 +1596,7 @@ export class PaletteComponent implements OnInit {
     ].filter(comp => comp !== null && comp !== undefined);
 
     for (const comp of allComponents) {
-      const topleft = (<SubdraftComponent | OperationComponent>comp).getPosition();
+      const topleft = (<SubdraftComponent | OperationComponent | NoteComponent>comp).getPosition();
       if (!topleft) continue;
 
       const compDom = document.getElementById('scale-' + comp.id);

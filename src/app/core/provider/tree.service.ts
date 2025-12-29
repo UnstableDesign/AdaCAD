@@ -1536,7 +1536,6 @@ export class TreeService {
    * @returns 
    */
   async performAndUpdateDownstream(op_ids: Array<number>): Promise<any> {
-    console.log("PERFORMING AND UPDATING DOWNSTREAM", op_ids);
     const schedule = await this.createSchedule(op_ids);
     for (const op_id of schedule) {
       try {
@@ -1547,100 +1546,7 @@ export class TreeService {
       }
     }
 
-
-
-    console.log("Performed and updated downstream", schedule);
-
-    // this.getOpNode(op_id).dirty = true;
-    // this.getDownstreamOperations(op_id).forEach(el => this.getNode(el).dirty = true);
-    // const all_ops = this.getDownstreamOperations(op_id).concat(op_id);
-
-    // return this.performGenerationOps([op_id])
-    //   .then(draft_ids => {
-
-    //     all_ops.forEach(op => {
-    //       const comp = this.getComponent(op);
-    //       if (comp !== null) {
-    //         (<OperationComponent>comp).updateErrorState();
-    //       }
-    //     })
-    //   })
-    //   .catch(err => {
-    //     console.error("Error performing and updating downstream", err);
-    //     return Promise.reject(err);
-    //   });
-
   }
-
-
-  /**
-   * given a list of operations to perform, recursively performs all on nodes that have dependencies satisified
-   * only after entire generation has been calculated
-   * @param op_fn_list 
-   * @returns //need a way to get this to return any drafts that it touched along the way
-   */
-  // async performGenerationOps(op_node_list: Array<number>): Promise<any> {
-
-  //   const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
-
-  //   if (needs_computing.length == 0) return Promise.resolve([]);
-
-  //   console.log(`[performGenerationOps] Starting computation of ${needs_computing.length} operation(s) at this level`);
-
-  //   // Mark all operations as recomputing
-  //   needs_computing.forEach(el => {
-  //     if (el !== undefined) {
-  //       this.getOpNode(el)?.recomputing?.next(true);
-  //     }
-  //   });
-
-  //   // Process operations sequentially using async/await
-  //   for (let i = 0; i < needs_computing.length; i++) {
-  //     const opId = needs_computing[i];
-  //     const opNode = this.getOpNode(opId);
-  //     const opName = opNode?.name || 'unknown';
-
-  //     console.log(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Starting computation of operation: ${opName} (id: ${opId})`);
-  //     const startTime = performance.now();
-
-  //     try {
-  //       await this.performOp(opId);
-  //       const duration = performance.now() - startTime;
-  //       console.log(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Finished computation of operation: ${opName} (id: ${opId}) in ${duration.toFixed(2)}ms`);
-  //     } catch (err) {
-  //       const duration = performance.now() - startTime;
-  //       // If one operation fails, log it but continue with others
-  //       console.error(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Error performing operation ${opName} (id: ${opId}) after ${duration.toFixed(2)}ms:`, err);
-  //       // If it's a node_id error, we can skip it and continue
-  //       if (err.node_id === undefined) {
-  //         throw err; // Re-throw non-node_id errors to stop the chain
-  //       }
-  //       // Otherwise, continue with next operation
-  //     }
-  //   }
-
-  //   try {
-  //     console.log(`[performGenerationOps] Completed all ${needs_computing.length} operation(s) at this level, checking for downstream operations`);
-  //     const needs_performing = await this.getNodesWithDependenciesSatisfied();
-  //     const fns = needs_performing.filter(el => el.dirty).map(el => el.id);
-  //     if (needs_performing.length === 0) {
-  //       console.log(`[performGenerationOps] No more operations to compute, computation chain complete`);
-  //       return [];
-  //     }
-  //     console.log(`[performGenerationOps] Found ${fns.length} downstream operation(s) to compute, proceeding to next generation`);
-  //     return await this.performGenerationOps(fns);
-  //   } catch (err) {
-  //     //if one of the performs fails, see if we can remove it and call again
-  //     if (err.node_id !== undefined) {
-  //       const offending_op = err.node_id;
-  //       //this.removeOperationNode(offending_op);
-  //       return await this.performGenerationOps(needs_computing.filter(el => el !== offending_op));
-  //     } else {
-  //       console.error("Error performing generation ops", err);
-  //       throw err;
-  //     }
-  //   }
-  // }
 
 
 

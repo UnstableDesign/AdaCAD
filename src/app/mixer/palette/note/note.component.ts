@@ -79,6 +79,10 @@ export class NoteComponent implements OnInit {
 
   }
 
+  getPosition(): Point {
+    return this.topleft;
+  }
+
   setPosition(topleft: Point) {
     this.topleft = { x: topleft.x, y: topleft.y };
     this.canvas = <HTMLCanvasElement>document.getElementById("notecanvas-" + this.note.id.toString());
