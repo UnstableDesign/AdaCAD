@@ -33,7 +33,6 @@ export class TreeService {
   private systemsservice = inject(SystemsService);
   private errorBroadcaster = inject(ErrorBroadcasterService);
 
-
   nodes: Array<Node> = []; //an unordered list of all the nodes
   tree: Array<TreeNode> = []; //a representation of the node relationships
   private open_connection: number = -1;
@@ -1241,29 +1240,29 @@ export class TreeService {
 
 
 
-  /**
-   * searches within the downstream ops for all opnodes and when a "dirty" node has all possible inputs fulfilled
-   * @returns return a list of those nodes
-   */
-  getNodesWithDependenciesSatisfied(): Array<OpNode> {
+  // /**
+  //  * searches within the downstream ops for all opnodes and when a "dirty" node has all possible inputs fulfilled
+  //  * @returns return a list of those nodes
+  //  */
+  // getNodesWithDependenciesSatisfied(): Array<OpNode> {
 
-    const dependency_nodes: Array<OpNode> = this.nodes
-      .filter(el => el.dirty && el.type === "op")
-      .map(el => <OpNode>el);
+  //   const dependency_nodes: Array<OpNode> = this.nodes
+  //     .filter(el => el.dirty && el.type === "op")
+  //     .map(el => <OpNode>el);
 
-    // const dependency_nodes: Array<OpNode> = ds
-    // .map(el => <OpNode> this.getNode(el))
-    // .filter(el => el.dirty);
+  //   // const dependency_nodes: Array<OpNode> = ds
+  //   // .map(el => <OpNode> this.getNode(el))
+  //   // .filter(el => el.dirty);
 
-    const ready: Array<OpNode> = dependency_nodes.filter((el, ndx) => {
-      const depends_on: Array<number> = this.getUpstreamOperations(el.id);
-      const needs = depends_on.map(id => this.getNode(id).dirty);
-      const find_true = needs.findIndex(el => el === true);
-      if (find_true === -1) return el;
-    });
+  //   const ready: Array<OpNode> = dependency_nodes.filter((el, ndx) => {
+  //     const depends_on: Array<number> = this.getUpstreamOperations(el.id);
+  //     const needs = depends_on.map(id => this.getNode(id).dirty);
+  //     const find_true = needs.findIndex(el => el === true);
+  //     if (find_true === -1) return el;
+  //   });
 
-    return ready;
-  }
+  //   return ready;
+  // }
 
 
   //if an operation results in an empty draft, then it is reset here
@@ -1290,7 +1289,7 @@ export class TreeService {
      * @returns a list of the draft nodes touched. 
      */
   async updateDraftsFromResults(parent: number, outputs: Array<OpOutput>, inputs: Array<OpInput>): Promise<Array<number>> {
-
+    console.log("UPDATING DRAFTS FROM RESULTS", parent, outputs, inputs);
     const out = this.getNonCxnOutputs(parent);
     const op_outlets = this.getOutputsWithNdx(parent);
 
@@ -1327,7 +1326,8 @@ export class TreeService {
             loom_settings: false,
             materials: true
           };
-          this.setDraft(cxn_child[0], outputs[i].draft, flags);
+          console.log("SETTING DRAFT a", cxn_child[0], outputs[i].draft, flags);
+          this.setDraft(cxn_child[0], outputs[i].draft, flags, true, false);
           touched.push(cxn_child[0]);
 
         }
@@ -1361,6 +1361,7 @@ export class TreeService {
     return Promise.all(new_draft_fns)
       .then(drafts_loaded => {
 
+        console.log("DRAFTS LOADED", drafts_loaded);
         const ids = drafts_loaded.map(el => el.entry.cur_id);
         ids.forEach((id, ndx) => {
           let d = this.getDraft(id);
@@ -1373,7 +1374,7 @@ export class TreeService {
             loom_settings: true,
             materials: true
           };
-          this.setDraft(dn.id, d, flags);
+          this.setDraft(dn.id, d, flags, true, false);
           dn.dirty = true;
         })
 
@@ -1398,45 +1399,134 @@ export class TreeService {
       op.dirty = true;
       opList.push(op.id);
     })
-    return this.performGenerationOps(opList);
+    console.log("RECOMPUTE DRAFT CHILDREN CALLED ON ", id)
+    return this.performAndUpdateDownstream(opList);
   }
 
+
+
+
+  // /**
+  //  * deteremines which ops are "top level" meaning there is no op above them 
+  //  * @returns 
+  //  */
+  // async performTopLevelOps(): Promise<any> {
+
+  //   console.log("[performTopLevelOps] Starting top level ops");
+
+
+
+
+
+  //   //mark all ops as dirty to start
+  //   this.nodes.forEach(el => {
+  //     if (el.type === "op") el.dirty = true;
+  //   })
+
+  //   const top_level_nodes =
+  //     this.nodes
+  //       .filter(el => el.type === 'op')
+  //       .filter(el => this.getUpstreamOperations(el.id).length === 0)
+  //       .map(el => el.id);
+
+  //   const startTime = performance.now();
+
+  //   return await this.performGenerationOps(top_level_nodes).then(result => {
+  //     const duration = performance.now() - startTime;
+  //     return result;
+  //   }).catch(err => {
+  //     console.error("Error performing top level ops", err);
+  //     return Promise.reject(err);
+  //   });
+
+  // }
+
+
+
+  public getNextGeneration(parents: Array<{ op_id: number, start_time: number, generation: number }>, generation: number, lineage: Array<{ op_id: number, start_time: number, generation: number }>): { next_generation: Array<{ op_id: number, start_time: number, generation: number }>, lineage: Array<{ op_id: number, start_time: number, generation: number }> } {
+
+
+    const next_generation = [];
+    parents.forEach(parent => {
+      const drafts = this.getNonCxnOutputs(parent.op_id);
+      drafts.forEach(draft => {
+        const children = this.getNonCxnOutputs(draft);
+        children.forEach(child => {
+          let already_in_lineage = lineage.find(el => el.op_id === child);
+          if (already_in_lineage !== undefined) {
+            already_in_lineage.generation = generation + 1;
+          } else {
+            next_generation.push({ op_id: child, start_time: performance.now(), generation: generation + 1 });
+          }
+        });
+      });
+
+    });
+    return { next_generation: next_generation, lineage: lineage };
+
+
+  }
 
 
 
   /**
-   * deteremines which ops are "top level" meaning there is no op above them 
+   * creates an ordered list of operations to perform based on the dependencies of the operations
+   * @param op_id 
    * @returns 
    */
-  async performTopLevelOps(): Promise<any> {
+  public createSchedule(op_ids?: Array<number> | null): Promise<Array<number>> {
 
 
 
-    //mark all ops as dirty to start
-    this.nodes.forEach(el => {
-      if (el.type === "op") el.dirty = true;
-    })
+    let lineage = [];
 
-    const top_level_nodes =
-      this.nodes
-        .filter(el => el.type === 'op')
-        .filter(el => this.getUpstreamOperations(el.id).length === 0)
-        .map(el => el.id);
+    if (op_ids !== undefined && op_ids !== null && op_ids.length > 0) {
+      op_ids.forEach(op_id => {
+        lineage.push({ op_id: op_id, start_time: performance.now(), generation: 0 });
+      });
 
-    const startTime = performance.now();
+    } else {
+      const toplevel_ops = this.getTopLevelOps().map(op_id => {
+        console.log("TOP LEVEL OP IS", op_id);
+        return { op_id: op_id, start_time: performance.now(), generation: 0 };
+      });
+      lineage.push(...toplevel_ops);
+    }
 
-    return this.performGenerationOps(top_level_nodes).then(result => {
-      const duration = performance.now() - startTime;
-      return result;
-    }).catch(err => {
-      console.error("Error performing top level ops", err);
-      return Promise.reject(err);
-    });
+    let res = this.getNextGeneration(lineage, 0, lineage);
+    while (res.next_generation.length > 0) {
+      const cur_generation = res.next_generation[0].generation;
+      lineage = res.lineage;
+      lineage.push(...res.next_generation);
+      res = this.getNextGeneration(res.next_generation, cur_generation, lineage);
+    }
+    lineage = res.lineage;
+
+
+
+    console.log("LINEAGE IS", lineage);
+
+    //sort by generation. 
+    lineage.sort((a, b) => a.generation - b.generation);
+    return Promise.resolve(lineage.map(el => el.op_id));
+
 
   }
 
 
 
+  // async performTopLevelOps() {
+
+  //   console.log("[performTopLevelOps] Starting top level ops (CORRECTED)");
+  //   const schedule = await this.createSchedule()
+
+  //   schedule.forEach(async op_id => {
+  //     await this.performOp(op_id);
+  //   });
+
+
+
+  // }
 
 
   /**
@@ -1445,27 +1535,40 @@ export class TreeService {
    * @param op_id 
    * @returns 
    */
-  performAndUpdateDownstream(op_id: number): Promise<any> {
-
-
-    this.getOpNode(op_id).dirty = true;
-    this.getDownstreamOperations(op_id).forEach(el => this.getNode(el).dirty = true);
-    const all_ops = this.getDownstreamOperations(op_id).concat(op_id);
-
-    return this.performGenerationOps([op_id])
-      .then(draft_ids => {
-
-        all_ops.forEach(op => {
-          const comp = this.getComponent(op);
-          if (comp !== null) {
-            (<OperationComponent>comp).updateErrorState();
-          }
-        })
-      })
-      .catch(err => {
+  async performAndUpdateDownstream(op_ids: Array<number>): Promise<any> {
+    console.log("PERFORMING AND UPDATING DOWNSTREAM", op_ids);
+    const schedule = await this.createSchedule(op_ids);
+    for (const op_id of schedule) {
+      try {
+        await this.performOp(op_id);
+      } catch (err) {
         console.error("Error performing and updating downstream", err);
         return Promise.reject(err);
-      });
+      }
+    }
+
+
+
+    console.log("Performed and updated downstream", schedule);
+
+    // this.getOpNode(op_id).dirty = true;
+    // this.getDownstreamOperations(op_id).forEach(el => this.getNode(el).dirty = true);
+    // const all_ops = this.getDownstreamOperations(op_id).concat(op_id);
+
+    // return this.performGenerationOps([op_id])
+    //   .then(draft_ids => {
+
+    //     all_ops.forEach(op => {
+    //       const comp = this.getComponent(op);
+    //       if (comp !== null) {
+    //         (<OperationComponent>comp).updateErrorState();
+    //       }
+    //     })
+    //   })
+    //   .catch(err => {
+    //     console.error("Error performing and updating downstream", err);
+    //     return Promise.reject(err);
+    //   });
 
   }
 
@@ -1476,68 +1579,68 @@ export class TreeService {
    * @param op_fn_list 
    * @returns //need a way to get this to return any drafts that it touched along the way
    */
-  async performGenerationOps(op_node_list: Array<number>): Promise<any> {
+  // async performGenerationOps(op_node_list: Array<number>): Promise<any> {
 
-    const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
+  //   const needs_computing = op_node_list.filter(el => this.getOpNode(el).dirty);
 
-    if (needs_computing.length == 0) return Promise.resolve([]);
+  //   if (needs_computing.length == 0) return Promise.resolve([]);
 
-    console.log(`[performGenerationOps] Starting computation of ${needs_computing.length} operation(s) at this level`);
+  //   console.log(`[performGenerationOps] Starting computation of ${needs_computing.length} operation(s) at this level`);
 
-    // Mark all operations as recomputing
-    needs_computing.forEach(el => {
-      if (el !== undefined) {
-        this.getOpNode(el)?.recomputing?.next(true);
-      }
-    });
+  //   // Mark all operations as recomputing
+  //   needs_computing.forEach(el => {
+  //     if (el !== undefined) {
+  //       this.getOpNode(el)?.recomputing?.next(true);
+  //     }
+  //   });
 
-    // Process operations sequentially using async/await
-    for (let i = 0; i < needs_computing.length; i++) {
-      const opId = needs_computing[i];
-      const opNode = this.getOpNode(opId);
-      const opName = opNode?.name || 'unknown';
+  //   // Process operations sequentially using async/await
+  //   for (let i = 0; i < needs_computing.length; i++) {
+  //     const opId = needs_computing[i];
+  //     const opNode = this.getOpNode(opId);
+  //     const opName = opNode?.name || 'unknown';
 
-      console.log(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Starting computation of operation: ${opName} (id: ${opId})`);
-      const startTime = performance.now();
+  //     console.log(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Starting computation of operation: ${opName} (id: ${opId})`);
+  //     const startTime = performance.now();
 
-      try {
-        await this.performOp(opId);
-        const duration = performance.now() - startTime;
-        console.log(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Finished computation of operation: ${opName} (id: ${opId}) in ${duration.toFixed(2)}ms`);
-      } catch (err) {
-        const duration = performance.now() - startTime;
-        // If one operation fails, log it but continue with others
-        console.error(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Error performing operation ${opName} (id: ${opId}) after ${duration.toFixed(2)}ms:`, err);
-        // If it's a node_id error, we can skip it and continue
-        if (err.node_id === undefined) {
-          throw err; // Re-throw non-node_id errors to stop the chain
-        }
-        // Otherwise, continue with next operation
-      }
-    }
+  //     try {
+  //       await this.performOp(opId);
+  //       const duration = performance.now() - startTime;
+  //       console.log(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Finished computation of operation: ${opName} (id: ${opId}) in ${duration.toFixed(2)}ms`);
+  //     } catch (err) {
+  //       const duration = performance.now() - startTime;
+  //       // If one operation fails, log it but continue with others
+  //       console.error(`[performGenerationOps] [${i + 1}/${needs_computing.length}] Error performing operation ${opName} (id: ${opId}) after ${duration.toFixed(2)}ms:`, err);
+  //       // If it's a node_id error, we can skip it and continue
+  //       if (err.node_id === undefined) {
+  //         throw err; // Re-throw non-node_id errors to stop the chain
+  //       }
+  //       // Otherwise, continue with next operation
+  //     }
+  //   }
 
-    try {
-      console.log(`[performGenerationOps] Completed all ${needs_computing.length} operation(s) at this level, checking for downstream operations`);
-      const needs_performing = await this.getNodesWithDependenciesSatisfied();
-      const fns = needs_performing.filter(el => el.dirty).map(el => el.id);
-      if (needs_performing.length === 0) {
-        console.log(`[performGenerationOps] No more operations to compute, computation chain complete`);
-        return [];
-      }
-      console.log(`[performGenerationOps] Found ${fns.length} downstream operation(s) to compute, proceeding to next generation`);
-      return this.performGenerationOps(fns);
-    } catch (err) {
-      //if one of the performs fails, see if we can remove it and call again
-      if (err.node_id !== undefined) {
-        const offending_op = err.node_id;
-        //this.removeOperationNode(offending_op);
-        return this.performGenerationOps(needs_computing.filter(el => el !== offending_op));
-      } else {
-        console.error("Error performing generation ops", err);
-        throw err;
-      }
-    }
-  }
+  //   try {
+  //     console.log(`[performGenerationOps] Completed all ${needs_computing.length} operation(s) at this level, checking for downstream operations`);
+  //     const needs_performing = await this.getNodesWithDependenciesSatisfied();
+  //     const fns = needs_performing.filter(el => el.dirty).map(el => el.id);
+  //     if (needs_performing.length === 0) {
+  //       console.log(`[performGenerationOps] No more operations to compute, computation chain complete`);
+  //       return [];
+  //     }
+  //     console.log(`[performGenerationOps] Found ${fns.length} downstream operation(s) to compute, proceeding to next generation`);
+  //     return await this.performGenerationOps(fns);
+  //   } catch (err) {
+  //     //if one of the performs fails, see if we can remove it and call again
+  //     if (err.node_id !== undefined) {
+  //       const offending_op = err.node_id;
+  //       //this.removeOperationNode(offending_op);
+  //       return await this.performGenerationOps(needs_computing.filter(el => el !== offending_op));
+  //     } else {
+  //       console.error("Error performing generation ops", err);
+  //       throw err;
+  //     }
+  //   }
+  // }
 
 
 
@@ -1560,7 +1663,7 @@ export class TreeService {
    * @param op_id the operation triggering this series of update
    */
   async performOp(id: number): Promise<Array<number>> {
-
+    console.log("PERFORMING OP", id);
     const opnode = <OpNode>this.getNode(id);
 
 
@@ -1604,28 +1707,29 @@ export class TreeService {
 
 
 
-    return op.perform(param_vals, cleaned_inputs)
-      .then(res => {
-        opnode.recomputing.next(false);
-        let has_err = res.find(el => el.err !== undefined);
-        if (has_err !== undefined) {
-          this.errorBroadcaster.postError(id, 'OTHER', has_err.err, this.getDownstreamOperations(id));
-          return Promise.reject(has_err.err);
-        }
-        opnode.dirty = false;
-        // output_connections.forEach(el => {
-        //   if (el !== null) {
-        //     console.log("CALLING RECOMPUTING FALSE", el.id)
-        //     el.recomputing.next(false);
-        //   }
-        // });
-        return this.updateDraftsFromResults(id, res, cleaned_inputs);
-      })
-      .catch(err => {
-        opnode.recomputing.next(false);
-        console.error("Error performing op", id, err);
-        return Promise.reject(err);
-      });
+    try {
+      console.log("PERFORMING OP", opnode.name, "WITH PARAM VALUES", param_vals, "AND CLEANED INPUTS", cleaned_inputs);
+
+      const res = await op.perform(param_vals, cleaned_inputs);
+      opnode.recomputing.next(false);
+      let has_err = res.find(el => el.err !== undefined);
+      if (has_err !== undefined) {
+        this.errorBroadcaster.postError(id, 'OTHER', has_err.err, this.getDownstreamOperations(id));
+        return Promise.reject(has_err.err);
+      }
+      opnode.dirty = false;
+      // output_connections.forEach(el => {
+      //   if (el !== null) {
+      //     console.log("CALLING RECOMPUTING FALSE", el.id)
+      //     el.recomputing.next(false);
+      //   }
+      // });
+      return await this.updateDraftsFromResults(id, res, cleaned_inputs);
+    } catch (err) {
+      console.error("Error performing op", id, err);
+      return Promise.reject(err);
+    }
+
   }
 
 
@@ -2724,7 +2828,7 @@ export class TreeService {
       const outlets = this.getNonCxnOutputs(id);
       const performOps = [];
       outlets.forEach(outlet => {
-        performOps.push(this.performAndUpdateDownstream(outlet));
+        performOps.push(this.performAndUpdateDownstream([outlet]));
       });
 
       Promise.all(performOps).catch(err => {

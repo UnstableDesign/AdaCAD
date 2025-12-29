@@ -305,6 +305,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
     this.draftValueChangeSubscription = node.onValueChange.subscribe(draftNodeBroadcast => {
+      console.log("DRAFT VALUE CHANGE SUBSCRIPTION CALLED", draftNodeBroadcast);
       const draft = draftNodeBroadcast.draft;
       const loom = draftNodeBroadcast.loom;
       const loom_settings = draftNodeBroadcast.loom_settings;
@@ -321,18 +322,20 @@ export class DraftRenderingComponent implements OnInit {
         use_colors: (this.current_view == 'visual'),
         show_loom: (this.source === 'editor')
       };
-      this.colShuttleMapping = draft.colShuttleMapping.slice();
-      this.colSystemMapping = draft.colSystemMapping.slice();
-      this.rowShuttleMapping = draft.rowShuttleMapping.slice();
-      this.rowSystemMapping = draft.rowSystemMapping.slice();
+      this.colShuttleMapping = draft !== null ? draft.colShuttleMapping.slice() : [];
+      this.colSystemMapping = draft !== null ? draft.colSystemMapping.slice() : [];
+      this.rowShuttleMapping = draft !== null ? draft.rowShuttleMapping.slice() : [];
+      this.rowSystemMapping = draft !== null ? draft.rowSystemMapping.slice() : [];
       this.selected_loom_type = (loom_settings != null) ? loom_settings.type : 'jacquard';
 
-      this.redraw(draft, loom, loom_settings, flags).then(el => {
-        this.draftValueChangeCallCount++;
-        this.refreshOriginMarker();
-        this.refreshWarpAndWeftSystemNumbering();
-        this.redrawComplete.emit(draft); // I need this so that any resulting functions (e.g. recentering, etc, can call after redrawing)
-      });
+      if (draft !== null) {
+        this.redraw(draft, loom, loom_settings, flags).then(el => {
+          this.draftValueChangeCallCount++;
+          this.refreshOriginMarker();
+          this.refreshWarpAndWeftSystemNumbering();
+          this.redrawComplete.emit(draft); // I need this so that any resulting functions (e.g. recentering, etc, can call after redrawing)
+        });
+      }
     });
 
   }

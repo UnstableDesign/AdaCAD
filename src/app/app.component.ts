@@ -198,7 +198,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
       //redraw and recompute the change in the mixer
       const outs = this.tree.getNonCxnOutputs((<DraftStateAction>action).id);
-      outs.forEach(el => this.tree.performAndUpdateDownstream(el));
+      outs.forEach(el => this.tree.performAndUpdateDownstream([el]));
 
       //redraw the editor if it has this draft loaded
       if (this.editor.id === (<DraftStateAction>action).id) {
@@ -1420,7 +1420,7 @@ export class AppComponent implements OnInit, OnDestroy {
     })
 
     this.workspace_modal.componentInstance.onMaxAreaChange.subscribe(event => {
-      this.tree.performTopLevelOps().then(out => {
+      this.tree.performAndUpdateDownstream([]).then(out => {
         this.forceRedraw();
       })
     })
@@ -1784,7 +1784,7 @@ export class AppComponent implements OnInit, OnDestroy {
       })
       .then(el => {
         const startTime = performance.now();
-        return this.tree.performTopLevelOps().then(result => {
+        return this.tree.performAndUpdateDownstream([]).then(result => {
           const duration = performance.now() - startTime;
           return result;
         });

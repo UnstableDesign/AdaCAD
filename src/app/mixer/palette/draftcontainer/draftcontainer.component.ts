@@ -155,6 +155,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
   //update info from a draft after it has been recomputed
   updateDraftInfo(draft: Draft) {
+    if (draft === null) return;
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
     this.draft_name = getDraftName(draft);

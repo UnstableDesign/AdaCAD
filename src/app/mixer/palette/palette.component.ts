@@ -498,6 +498,7 @@ export class PaletteComponent implements OnInit {
   //  */
   addOperation(name: string): number {
 
+    console.log("****************ADDING OPERATION", name);
     const opcomp: OperationComponent = this.createOperation(name);
 
     this.performAndUpdateDownstream(opcomp.id).then(el => {
@@ -1658,8 +1659,8 @@ export class PaletteComponent implements OnInit {
    */
   private performAndUpdateDownstream(op_id: number): Promise<any> {
 
-
-    return this.tree.performAndUpdateDownstream(op_id)
+    console.log("Perform and update downstream from palette", op_id);
+    return this.tree.performAndUpdateDownstream([op_id])
 
       .catch(err => {
         console.error("Error performing and updating downstream", err);
@@ -2239,6 +2240,7 @@ export class PaletteComponent implements OnInit {
   async operationParamChanged(obj: { id: number, prior_inlet_vals: Array<any> }) {
     if (obj === null) return;
 
+    console.log("Operation param changed", obj.id);
     return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)
       .then(viewRefs => {
         viewRefs.forEach(el => {
