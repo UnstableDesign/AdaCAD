@@ -100,7 +100,6 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
 const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
   const raised: number = <number>getOpParamValById(0, param_vals);
   const lowered: number = <number>getOpParamValById(1, param_vals);
-  ;
 
   const total = raised + lowered;
   return (total * total <= defaults.max_area) ? true : false;

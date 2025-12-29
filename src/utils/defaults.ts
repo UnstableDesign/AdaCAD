@@ -144,3 +144,8 @@ export const licenses = [
 export const setLCMTimeout = (timeout: number) => {
   defaults.lcm_timeout = timeout;
 }
+
+//add this one function so we can set this globally from the UI if need be
+export const setMaxArea = (max_area: number) => {
+  defaults.max_area = max_area;
+}

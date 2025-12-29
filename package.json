@@ -1,6 +1,6 @@
 {
   "name": "adacad-drafting-lib",
-  "version": "1.2.50",
+  "version": "1.2.52",
   "description": "a library for creating and manipulating weaving drafts",
   "main": "dist/index.js",
   "files": [
@@ -54,6 +54,7 @@
   "dependencies": {
     "@babel/preset-env": "^7.28.3",
     "@mdx-js/mdx": "^3.1.1",
-    "babel-jest": "^30.1.2"
+    "babel-jest": "^30.1.2",
+    "mathjs": "^15.1.0"
   }
 }

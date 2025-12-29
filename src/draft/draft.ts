@@ -746,37 +746,37 @@ export const exportDrawdownToBitArray = (drawdown: Drawdown): Uint8ClampedArray 
 }
 
 
-// export const unpackDrawdownFromBitArray = (arr: Uint8ClampedArray, warps: number, wefts: number): Drawdown => {
+export const unpackDrawdownFromBitArray = (arr: Uint8ClampedArray, warps: number, wefts: number): Drawdown => {
 
-//   const drawdown: Drawdown = createBlankDrawdown(wefts, warps);
-//   const selector: Array<number> = [192, 48, 12, 3]; //11000000, 00110000, 00001100, 00000011
-//   for (let i = 0; i < arr.length; i++) {
-//     const ddi = i * 4;
-//     for (let j = 0; j < 4; j++) {
-//       const ndx_i = Math.floor((ddi + j) / warps);
-//       const ndx_j = (ddi + j) % warps;
+  const drawdown: Drawdown = createBlankDrawdown(wefts, warps);
+  const selector: Array<number> = [192, 48, 12, 3]; //11000000, 00110000, 00001100, 00000011
+  for (let i = 0; i < arr.length; i++) {
+    const ddi = i * 4;
+    for (let j = 0; j < 4; j++) {
+      const ndx_i = Math.floor((ddi + j) / warps);
+      const ndx_j = (ddi + j) % warps;
 
-//       if (ndx_i < wefts && ndx_j < warps) {
-//         const val = (arr[i] & selector[j]) >> (6 - (j * 2)); // & to isolate the region, >> to make it only read as a 2 bit value
-//         switch (val) {
-//           case 0:
-//             drawdown[ndx_i][ndx_j] = createCell(null);
-//             break;
-//           case 1:
-//             drawdown[ndx_i][ndx_j] = createCell(null);
-//             break;
-//           case 2:
-//             drawdown[ndx_i][ndx_j] = createCell(false);
-//             break;
-//           default:
-//             drawdown[ndx_i][ndx_j] = createCell(true);
-//             break;
-//         }
-//       }
-//     }
-//   }
-//   return drawdown;
-// }
+      if (ndx_i < wefts && ndx_j < warps) {
+        const val = (arr[i] & selector[j]) >> (6 - (j * 2)); // & to isolate the region, >> to make it only read as a 2 bit value
+        switch (val) {
+          case 0:
+            drawdown[ndx_i][ndx_j] = createCell(null);
+            break;
+          case 1:
+            drawdown[ndx_i][ndx_j] = createCell(null);
+            break;
+          case 2:
+            drawdown[ndx_i][ndx_j] = createCell(false);
+            break;
+          default:
+            drawdown[ndx_i][ndx_j] = createCell(true);
+            break;
+        }
+      }
+    }
+  }
+  return drawdown;
+}
 
 /**
  * used ot create compressed draft format for saving. Switched back to explore as flat array of numbers 
