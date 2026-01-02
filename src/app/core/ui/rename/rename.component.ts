@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, Ma
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { Draft } from 'adacad-drafting-lib/draft';
-import { DraftNodeBroadcastFlags, DraftStateNameChange } from '../../model/datatypes';
+import { DraftNodeBroadcastFlags, DraftStateNameOrNotesChange } from '../../model/datatypes';
 import { StateService } from '../../provider/state.service';
 import { TreeService } from '../../provider/tree.service';
 
@@ -64,9 +64,14 @@ export class RenameComponent {
     let beforeName = this.tree.getDraftName(this.id);
     let beforeNotes = this.tree.getDraftNotes(this.id);
 
-    this.state.addStateChange(<DraftStateNameChange>{
+    this.tree.getDraft(this.id).ud_name = this.nameForm.value;
+    this.tree.getDraft(this.id).notes = this.notesForm.value;
+
+
+
+    this.state.addStateChange(<DraftStateNameOrNotesChange>{
       originator: 'DRAFT',
-      type: 'NAME_CHANGE',
+      type: 'NAME_OR_NOTES_CHANGE',
       id: this.id,
       before: { name: beforeName, notes: beforeNotes },
       after: { name: this.nameForm.value, notes: this.notesForm.value }
@@ -84,6 +89,7 @@ export class RenameComponent {
       materials: false
     };
     this.tree.setDraft(this.id, this.draft, flags, true, true);
+
     this.dialogRef.close();
     this.nameForm.markAsPristine();
     this.notesForm.markAsPristine();

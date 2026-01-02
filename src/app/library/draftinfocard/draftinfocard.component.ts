@@ -7,7 +7,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { getDraftName, defaults as libDefaults, warps, wefts } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
-import { DraftNode, DraftStateNameChange } from '../../core/model/datatypes';
+import { DraftNode, DraftStateNameOrNotesChange } from '../../core/model/datatypes';
 import { defaults as appDefaults } from '../../core/model/defaults';
 import { OperationService } from '../../core/provider/operation.service';
 import { StateService } from '../../core/provider/state.service';
@@ -225,16 +225,15 @@ export class DraftinfocardComponent {
     const before_notes = this.tree.getDraftNotes(this.id);
 
 
-    this.ss.addStateChange(<DraftStateNameChange>{
+    this.ss.addStateChange(<DraftStateNameOrNotesChange>{
       originator: 'DRAFT',
-      type: 'NAME_CHANGE',
+      type: 'NAME_OR_NOTES_CHANGE',
       id: this.id,
       before: { name: before_name, notes: before_notes },
       after: { name: this.nameForm.value, notes: before_notes }
     });
 
     this.tree.getDraft(this.id).ud_name = this.nameForm.value;
-
     this.onDraftRename.emit(this.id);
     this.nameForm.markAsPristine();
 

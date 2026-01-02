@@ -1844,6 +1844,7 @@ export class AppComponent implements OnInit, OnDestroy {
               if (node !== undefined) {
                 (<DraftNode>node).draft.gen_name = np.gen_name ?? 'drafty';
                 (<DraftNode>node).draft.ud_name = np.ud_name ?? '';
+                (<DraftNode>node).draft.notes = np.notes ?? '';
                 (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;
                 (<DraftNode>node).loom = (np.loom) ? copyLoom(np.loom) : null;
                 (<DraftNode>node).render_colors = np.render_colors ?? true;

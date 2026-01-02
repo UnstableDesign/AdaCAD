@@ -641,13 +641,19 @@ export type OpStateConnectionChange = OpStateEvent & ConnectionChangeEvent;
 
 
 export type DraftStateEvent = StateChangeEvent & {
-  type: 'MOVE' | 'VALUE_CHANGE' | 'NAME_CHANGE' | 'CREATED' | 'REMOVED'
+  type: 'MOVE' | 'VALUE_CHANGE' | 'NAME_OR_NOTES_CHANGE' | 'CREATED' | 'REMOVED'
 }
 
 export type DraftStateMove = DraftStateEvent & MoveEvent;
 export type DraftStateChange = DraftStateEvent & DraftChangedEvent;
 export type DraftExistenceChange = DraftStateEvent & NodeEvent;
 export type DraftStateNameChange = DraftStateEvent & {
+  id: number,
+  before: { name: string, notes: string },
+  after: { name: string, notes: string }
+};
+
+export type DraftStateNameOrNotesChange = DraftStateEvent & {
   id: number,
   before: { name: string, notes: string },
   after: { name: string, notes: string }
