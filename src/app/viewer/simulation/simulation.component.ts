@@ -1,10 +1,8 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormField } from '@angular/material/form-field';
-import { MatInput, MatLabel } from '@angular/material/input';
+import { MatLabel } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { Draft, LoomSettings, SimulationData, convertEPItoMM, copyLoomSettings, warps, wefts } from 'adacad-drafting-lib';
 import { SimulationVars } from 'adacad-drafting-lib/simulation';
 import { Subscription } from 'rxjs';
@@ -20,7 +18,7 @@ import { ViewadjustService } from '../../core/provider/viewadjust.service';
   selector: 'app-simulation',
   templateUrl: './simulation.component.html',
   styleUrls: ['./simulation.component.scss'],
-  imports: [ReactiveFormsModule, MatSidenavModule, MatSlideToggleModule, MatSlider, MatSliderThumb, MatFormField, MatInput, MatLabel]
+  imports: [ReactiveFormsModule, MatSidenavModule, MatSlideToggleModule, MatLabel]
 })
 export class SimulationComponent implements OnInit, OnDestroy {
   private tree = inject(TreeService);

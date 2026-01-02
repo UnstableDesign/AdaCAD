@@ -1,7 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
-import { MatFabButton } from '@angular/material/button';
-import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
-import { MatTooltip } from '@angular/material/tooltip';
 import { Drawdown, Interlacement, OpInput, OpParamVal, Operation } from 'adacad-drafting-lib';
 import { createBlankDrawdown, createCell, generateMappingFromPattern, getCellValue, initDraftWithParams, isUp, pasteIntoDrawdown, setCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
@@ -19,7 +16,7 @@ import { ZoomService } from '../../../provider/zoom.service';
   selector: 'app-selection',
   templateUrl: './selection.component.html',
   styleUrls: ['./selection.component.scss'],
-  imports: [MatFabButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem]
+  imports: []
 })
 export class SelectionComponent implements OnInit {
   ms = inject(MaterialsService);
