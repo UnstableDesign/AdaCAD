@@ -126,9 +126,6 @@
   display: flex;
   justify-content: flex-end;
 
-  &.library {
-    display: none;
-  }
 
   &.oversize {
     display: none;
@@ -136,6 +133,10 @@
 
   &.viewer {
     display: none;
+  }
+
+  &.library {
+    padding-bottom: var(--cell-width);
   }
 }
 
@@ -227,6 +228,7 @@
 }
 
 .draft-container.library {
+  --cell-width: 10px;
   padding: 0px;
 
 }
@@ -278,6 +280,8 @@
 .drawdown-canvas {
   padding: 0px var(--cell-width);
 }
+
+
 
 
 .threading-tieup-container.loomtype-frame,
