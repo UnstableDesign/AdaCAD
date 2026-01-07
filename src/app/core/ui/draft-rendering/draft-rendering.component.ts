@@ -141,7 +141,7 @@ export class DraftRenderingComponent implements OnInit {
   setPencil(pencil: string, material_id?: number) {
     this.pencil = pencil;
     this.pencilChange$.next(pencil);
-    if (material_id) {
+    if (material_id !== undefined) {
       this.selected_material_id = material_id;
     }
     if (this.pencil !== 'select') {
@@ -305,7 +305,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
     this.draftValueChangeSubscription = node.onValueChange.subscribe(draftNodeBroadcast => {
-      console.log("DRAFT VALUE CHANGE SUBSCRIPTION CALLED", draftNodeBroadcast);
+      // console.log("DRAFT VALUE CHANGE SUBSCRIPTION CALLED", draftNodeBroadcast);
       const draft = draftNodeBroadcast.draft;
       const loom = draftNodeBroadcast.loom;
       const loom_settings = draftNodeBroadcast.loom_settings;
@@ -408,7 +408,7 @@ export class DraftRenderingComponent implements OnInit {
     const loom_settings = this.tree.getLoomSettings(this.id);
 
 
-    const editing_style = this.draft_edit_source
+    const editing_style = this.draft_edit_source;
 
     if (target && target.id == 'warp-materials-' + this.source + '-' + this.id) {
       if (this.pencil == 'material') this.drawOnWarpMaterials(draft, currentPos);
@@ -542,7 +542,6 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   handleEndEvent(event: MouseEvent) {
-    console.log("HANDLE END EVENT", event, this.mouse_pressed, this.moveSubscription);
     if (this.moveSubscription) this.moveSubscription.unsubscribe();
 
     switch (this.pencil) {
@@ -714,7 +713,7 @@ export class DraftRenderingComponent implements OnInit {
 
     this.mouse_pressed = true;
     this.before = this.tree.getDraftNodeState(this.id);
-    this.vs.setViewer(this.id);
+    //this.vs.setViewer(this.id);
 
 
 
@@ -905,7 +904,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
   private drawOnDrawdown(draft: Draft, loom_settings: LoomSettings, currentPos: Interlacement, shift: boolean) {
-
     var val = false;
 
     if (this.canvases.drawdown == null || !currentPos) { return; }

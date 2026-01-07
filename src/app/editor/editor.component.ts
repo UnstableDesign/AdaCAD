@@ -513,7 +513,6 @@ export class EditorComponent implements OnInit {
 
     this.onLoad = true;
     this.weaveRef.onNewDraftLoaded(id); //this should load and draw everything in the renderer
-    console.log("THIS PARENT OP  ", this.parentOp);
     if (this.parentOp !== '') {
       this.weaveRef.view_only = true;
     } else {
@@ -648,6 +647,7 @@ export class EditorComponent implements OnInit {
 
 
   selectPencil(pencil: string, origin: string = 'ui') {
+
 
     switch (pencil) {
 
