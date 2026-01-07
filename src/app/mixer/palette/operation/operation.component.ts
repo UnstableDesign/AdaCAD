@@ -291,6 +291,7 @@ export class OperationComponent implements OnInit {
     this.trigger.openMenu();
   }
 
+
   setParamFromStateEvent(paramid: number, value: OpParamValType) {
     this.paramsComps.get(paramid).setValueFromStateEvent(value);
   }
@@ -429,13 +430,15 @@ export class OperationComponent implements OnInit {
   /*
   called on click
   */
-  toggleSelection(e: any) {
+  toggleSelection(e: any, child_id?: number) {
 
     if (this.wasDragged) return;
 
-    if (this.children.length > 0) {
+    if (child_id == undefined && this.children.length > 0) {
       let child = this.children[0];
       this.vs.setViewer(child);
+    } else {
+      this.vs.setViewer(child_id);
     }
 
     if (e.shiftKey == true) {
@@ -449,6 +452,8 @@ export class OperationComponent implements OnInit {
       this.multiselect.clearSelections();
       this.selectOperationOnly();
     }
+
+    e.stopPropagation();
 
   }
 
