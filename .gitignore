@@ -5,7 +5,8 @@
 
 firebase.json
 upload_to_4.1
-
+database.rules.json
+storage.rules
 
 # System Files
 .DS_Store
