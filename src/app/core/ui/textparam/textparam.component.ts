@@ -1,15 +1,16 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, inject } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { StringParam } from 'adacad-drafting-lib';
 
 @Component({
   selector: 'app-textparam',
-  imports: [ReactiveFormsModule, MatDialogTitle, MatInputModule, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, MatHint, MatLabel, MatFormField],
+  imports: [ReactiveFormsModule, MatDialogModule, DragDropModule, MatInputModule, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, MatHint, MatLabel, MatFormField],
   templateUrl: './textparam.component.html',
   styleUrl: './textparam.component.scss'
 })
@@ -17,26 +18,34 @@ export class TextparamComponent {
 
   private dialogRef = inject<MatDialogRef<TextparamComponent>>(MatDialogRef);
   private data = inject(MAT_DIALOG_DATA);
+  @Output() onUpdate = new EventEmitter<string>();
 
   stringparam: StringParam;
-  value: String;
+  value: string;
   fc: FormControl;
   original: String;
 
   constructor() {
     this.stringparam = <StringParam>this.data.param;
-    this.value = <String>this.data.val;
+    this.value = <string>this.data.val;
     this.original = this.value;
-    console.log("STRING PARAM ", this.data)
     this.fc = new FormControl(this.value, [Validators.required, Validators.pattern(this.stringparam.regex)]);
   }
 
-  save() {
-    this.dialogRef.close(this.value);
+  ngOnInit(): void {
+    this.fc.valueChanges.subscribe(val => {
+      this.value = val ? val.replace(/[\r\n]/g, '') : val;
+      this.fc.setValue(this.value, { emitEvent: false });
+    });
   }
 
+  save() {
+    this.onUpdate.emit(this.value);
+  }
+
+
   close() {
-    this.dialogRef.close(this.original);
+    this.dialogRef.close(this.value);
   }
 
   onFileSelected(event: Event): void {
@@ -65,16 +74,16 @@ export class TextparamComponent {
             if (line.includes(',')) {
               const firstColumn = line.split(',')[0].trim();
               // Remove quotes if present
-              if ((firstColumn.startsWith('"') && firstColumn.endsWith('"')) || 
-                  (firstColumn.startsWith("'") && firstColumn.endsWith("'"))) {
+              if ((firstColumn.startsWith('"') && firstColumn.endsWith('"')) ||
+                (firstColumn.startsWith("'") && firstColumn.endsWith("'"))) {
                 return firstColumn.slice(1, -1);
               }
               return firstColumn;
             }
             // No commas, treat whole line as value
             const trimmed = line.trim();
-            if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || 
-                (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+            if ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+              (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
               return trimmed.slice(1, -1);
             }
             return trimmed;
@@ -94,7 +103,7 @@ export class TextparamComponent {
     };
 
     reader.readAsText(file);
-    
+
     // Reset the input so the same file can be selected again
     input.value = '';
   }

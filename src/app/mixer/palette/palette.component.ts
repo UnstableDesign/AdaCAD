@@ -1226,11 +1226,6 @@ export class PaletteComponent implements OnInit {
     });
 
 
-
-
-    //this.operationParamChanged({ id: id, prior_inlet_vals: [] });
-
-
   }
 
 

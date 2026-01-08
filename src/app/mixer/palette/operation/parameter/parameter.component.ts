@@ -244,6 +244,11 @@ export class ParameterComponent implements OnInit {
     const opnode = this.tree.getOpNode(this.opid);
 
     const dialogRef = this.dialog.open(TextparamComponent, { data: { val: opnode.params[this.paramid], param: this.param } });
+
+    dialogRef.componentInstance.onUpdate.subscribe(text => {
+      this.onParamChange(text);
+    });
+
     dialogRef.afterClosed().subscribe(text => {
       this.onParamChange(text);
     });
