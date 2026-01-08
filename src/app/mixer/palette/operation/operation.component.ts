@@ -4,7 +4,7 @@ import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { DynamicOperation, Img, Interlacement, Operation, OpInletValType, OpParamValType } from 'adacad-drafting-lib';
+import { DynamicOperation, Img, Operation, OpInletValType, OpParamValType } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
 import { DraftNode, IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { ErrorBroadcasterService } from '../../../core/provider/error-broadcaster.service';
@@ -86,20 +86,11 @@ export class OperationComponent implements OnInit {
 
 
   params_visible: boolean = true;
-  /**
-  * reference to top, left positioin as absolute interlacement
-  */
-  interlacement: Interlacement;
 
   /**
   * flag to tell if this is being from a loaded from a saved file
   */
   loaded: boolean = false;
-
-  /**
-    * flag to tell if this has been duplicated from another operation
-    */
-  duplicated: boolean = false;
 
   description: string;
 
@@ -114,9 +105,6 @@ export class OperationComponent implements OnInit {
   op: Operation | DynamicOperation;
 
   opnode: OpNode;
-
-  //for input params form control
-  loaded_inputs: Array<number> = [];
 
   // has_connections_in: boolean = false;
   subdraft_visible: boolean = true;

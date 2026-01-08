@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AnalyzedImage, Draft, Img, Loom, LoomSettings, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
+import { AnalyzedImage, Draft, Img, Loom, LoomSettings, OpParamValType, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import normalizeWheel from 'normalize-wheel';
 import { Subscription, fromEvent } from 'rxjs';
@@ -912,7 +912,6 @@ export class PaletteComponent implements OnInit {
     op.id = id;
     op.zndx = this.layers.createLayer();
     op.default_cell = this.default_cell_size;
-    op.loaded_inputs = params;
     op.opnode = node;
     op.setPosition({ x: topleft.x, y: topleft.y }, true);
     op.loaded = true;
@@ -928,24 +927,15 @@ export class PaletteComponent implements OnInit {
    * @params params the input data to be used in this operation
    * @returns the id of the node this has been assigned to
    */
-  duplicateOperation(name: string, params: Array<number>, topleft: Point, inlets: Array<any>): number {
+  duplicateOperation(name: string, params: Array<OpParamValType>, topleft: Point, inlets: Array<any>): number {
 
 
+
+    console.log("DUPLICATING OPERATION ", name, params, topleft, inlets);
 
     const op: OperationComponent = this.createOperation(name);
-
-
-
-
-
     this.tree.setOpParams(op.id, params.slice(), inlets.slice());
-    op.loaded_inputs = params.slice();
     (<OperationComponent>op).setPosition({ x: topleft.x, y: topleft.y }, true);
-    op.duplicated = true;
-
-
-
-
     return op.id;
   }
 
@@ -1206,7 +1196,7 @@ export class PaletteComponent implements OnInit {
       new_tl = { x: op_topleft.x + 10 + container.offsetWidth * this.zs.getMixerZoom() / this.default_cell_size, y: op_topleft.y }
     }
 
-    let new_params = op.params.slice();
+    let new_params: Array<OpParamValType> = op.params.slice();
     //make sure to duplicate any media objects
     operation.params.forEach((param, i) => {
       if (param.type == 'file') {
@@ -1219,7 +1209,7 @@ export class PaletteComponent implements OnInit {
 
 
 
-    const id: number = this.duplicateOperation(op.name, new_params.map(el => +(<Img>el).id), new_tl, op.inlets);
+    const id: number = this.duplicateOperation(op.name, new_params, new_tl, op.inlets);
     const new_op = <OperationComponent>this.tree.getComponent(id);
 
     //duplicate the connections as well
@@ -1231,10 +1221,14 @@ export class PaletteComponent implements OnInit {
       }
     })
 
+    this.performAndUpdateDownstream(id).catch(err => {
+      this.postOperationErrorMessage(id, err);
+    });
 
 
 
-    this.operationParamChanged({ id: id, prior_inlet_vals: [] });
+
+    //this.operationParamChanged({ id: id, prior_inlet_vals: [] });
 
 
   }

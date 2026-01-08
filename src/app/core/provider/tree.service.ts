@@ -1,6 +1,6 @@
 import { Point } from '@angular/cdk/drag-drop';
 import { inject, Injectable, ViewRef } from '@angular/core';
-import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Img, Loom, LoomSettings, Operation, OpInput, OpOutput, OpParamVal } from 'adacad-drafting-lib';
+import { copyLoom, copyLoomSettings, defaults, DynamicOperation, generateId, getLoomUtilByType, Img, Loom, LoomSettings, Operation, OpInletValType, OpInput, OpOutput, OpParamVal, OpParamValType } from 'adacad-drafting-lib';
 import { compressDraft, copyDraft, createDraft, Draft, Drawdown, getDraftName, initDraft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { BehaviorSubject } from 'rxjs';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -116,7 +116,7 @@ export class TreeService {
   }
 
 
-  setOpParams(id: number, params: Array<any>, inlets: Array<any>) {
+  setOpParams(id: number, params: Array<OpParamValType>, inlets: Array<OpInletValType>) {
     this.getOpNode(id).params = params.slice();
     this.getOpNode(id).inlets = inlets.slice();
   }
