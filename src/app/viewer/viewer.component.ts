@@ -63,6 +63,7 @@ export class ViewerComponent {
   zoomLevel: FormControl;
   visMode: FormControl;
   viewFace: FormControl;
+  useSizes: FormControl;
   warps: number = 0;
   wefts: number = 0;
   scale: number = 0;
@@ -93,14 +94,10 @@ export class ViewerComponent {
 
 
 
-
     this.zoomLevel = new FormControl(0);
     this.visMode = new FormControl(this.vs.current_view);
     this.viewFace = new FormControl(this.vs.view_face);
-
-
-
-
+    this.useSizes = new FormControl(this.vs.use_sizes);
 
   }
 
@@ -119,6 +116,15 @@ export class ViewerComponent {
 
   ngOnInit() {
 
+
+    this.useSizes.valueChanges.subscribe(value => {
+      console.log("USE SIZES VALUE CHANGED", value);
+      if (value !== null && value !== undefined) {
+        this.vs.use_sizes = value as 'actual' | 'standard';
+        if (this.view_rendering !== undefined) this.view_rendering.use_sizes = value === 'actual';
+        this.forceRedraw();
+      }
+    });
 
 
     this.viewFace.valueChanges.subscribe(value => {
@@ -155,6 +161,10 @@ export class ViewerComponent {
     this.updateDraftData(this.vs.getViewerId());
 
 
+  }
+
+  ngAfterViewInit() {
+    this.view_rendering.use_sizes = this.vs.use_sizes === 'actual';
   }
 
 
@@ -450,9 +460,11 @@ export class ViewerComponent {
   /**
    * draw whatever is stored in the draft object to the screen
    */
-  private forceRedraw(front: boolean = true): Promise<any> {
+  public forceRedraw(front: boolean = true): Promise<any> {
 
     const draft: Draft = this.tree.getDraft(this.vs.getViewerId());
+    const loom = this.tree.getLoom(this.vs.getViewerId());
+    const loom_settings = this.tree.getLoomSettings(this.vs.getViewerId());
 
     if (draft == null || draft == undefined) {
       this.clearView();
@@ -471,7 +483,8 @@ export class ViewerComponent {
       u_weft_mats: true,
       use_floats: (this.vs.current_view !== 'draft'),
       use_colors: (this.vs.current_view == 'visual'),
-      show_loom: false
+      show_loom: false,
+      use_sizes: this.vs.use_sizes === 'actual'
     }
 
 
@@ -507,16 +520,16 @@ export class ViewerComponent {
       }).then(manipulated_draft => {
         const dd = manipulated_draft[0].draft;
 
-        return this.view_rendering.redraw(dd, null, null, flags).then(el => {
+        return this.view_rendering.redraw(dd, null, loom_settings, flags).then(el => {
           return Promise.resolve(true);
         })
       });
 
 
     } else {
-      //console.log("REDRAW CALLED FROM VIEW RENDERING")
+      console.log("REDRAW CALLED FROM VIEW RENDERING")
 
-      return this.view_rendering.redraw(draft, null, null, flags).then(el => {
+      return this.view_rendering.redraw(draft, loom, loom_settings, flags).then(el => {
         return Promise.resolve(true);
       })
     }

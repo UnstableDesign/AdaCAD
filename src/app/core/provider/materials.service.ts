@@ -48,6 +48,19 @@ export class MaterialsService {
   }
 
 
+  getMaxDiameter(): number {
+    let max_diameter = 0;
+    this.materials.forEach(s => {
+      let diameter = s.diameter;
+      if (diameter > max_diameter) {
+        max_diameter = diameter;
+      }
+    });
+
+    if (max_diameter == 0) return 1;
+    return max_diameter;
+  }
+
 
   /**
    * overload shuttles with uploaded data. 

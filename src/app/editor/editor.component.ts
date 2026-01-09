@@ -9,12 +9,12 @@ import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionP
 import { MatLabel } from '@angular/material/form-field';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
-import { LoomSettings } from 'adacad-drafting-lib';
+import { interpolate, LoomSettings } from 'adacad-drafting-lib';
 import { createCell, Drawdown, getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType } from 'adacad-drafting-lib/loom';
 import { Subscription } from 'rxjs';
 import { DraftNode, DraftNodeBroadcast, OpNode, RenderingFlags } from '../core/model/datatypes';
-import { draft_pencil, paste_options } from '../core/model/defaults';
+import { defaults, draft_pencil, paste_options } from '../core/model/defaults';
 import { FileService } from '../core/provider/file.service';
 import { MaterialsService } from '../core/provider/materials.service';
 import { RenderService } from '../core/provider/render.service';
@@ -81,7 +81,7 @@ export class EditorComponent implements OnInit {
 
   scrollingSubscription: any;
 
-  draw_modes: Array<{ value: string, viewValue: string, icon: string, id: number, color: string }> = [];
+  draw_modes: Array<{ value: string, viewValue: string, icon: string, id: number, color: string, size: number }> = [];
 
   current_view = 'draft';
 
@@ -190,7 +190,6 @@ export class EditorComponent implements OnInit {
     });
 
     this.pencilChangeSubscription = this.weaveRef.pencilChange$.subscribe(pencil => {
-      console.log("PENCIL CHANGE", pencil);
       if (pencil == 'select') {
         this.selectPencilMode('select', 'rendering');
       } else {
@@ -232,10 +231,11 @@ export class EditorComponent implements OnInit {
   updatePencils() {
     this.draw_modes = draft_pencil
       .filter(mode => mode.value !== 'material')
-      .map(mode => ({ value: mode.value, viewValue: mode.viewValue, icon: mode.icon, id: -1, color: '' }));
+      .map(mode => ({ value: mode.value, viewValue: mode.viewValue, icon: mode.icon, id: -1, color: '', size: 1 }));
 
+    const max_diam = this.ms.getMaxDiameter();
     this.ms.materials.forEach(material => {
-      this.draw_modes.push({ value: 'material_' + material.id, viewValue: material.name, icon: "fas fa-paintbrush", id: material.id, color: material.color });
+      this.draw_modes.push({ value: 'material_' + material.id, viewValue: material.name, icon: "fa-solid fa-circle", id: material.id, color: material.color, size: interpolate(material.diameter / max_diam, { min: defaults.min_material_icon_size, max: 1 }) });
     });
   }
 
@@ -364,10 +364,6 @@ export class EditorComponent implements OnInit {
 
   updateWeavingInfo() {
 
-
-    console.log("UPDATE WEAVING INFO");
-
-
     const loom = this.tree.getLoom(this.id);
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -395,10 +391,8 @@ export class EditorComponent implements OnInit {
 
 
   clearSelection() {
-    console.log("CLEAR SELECTION");
     this.weaveRef.unsetSelection();
     this.weaveRef.selection.removeCopy();
-    console.log("COPY", this.weaveRef.selection.copy);
   }
 
 
@@ -509,6 +503,7 @@ export class EditorComponent implements OnInit {
     let ls = this.tree.getLoomSettings(id);
 
     this.setParentOp(id);
+    this.updatePencils();
 
 
     this.onLoad = true;
@@ -580,7 +575,8 @@ export class EditorComponent implements OnInit {
       u_weft_mats: true,
       use_colors: false,
       use_floats: false,
-      show_loom: loom_settings.type !== 'jacquard'
+      show_loom: loom_settings.type !== 'jacquard',
+      use_sizes: false
     };
 
     //set a small timeout for the CSS to update

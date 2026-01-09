@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
-import { Loom, LoomSettings } from 'adacad-drafting-lib';
+import { inject, Injectable } from '@angular/core';
+import { interpolate, Loom, LoomSettings } from 'adacad-drafting-lib';
 import { Draft, getCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
-import { numFrames, numTreadles } from 'adacad-drafting-lib/loom';
+import { convertEPItoMM, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { CanvasList, RenderingFlags } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { SystemsService } from '../../core/provider/systems.service';
@@ -162,6 +162,9 @@ export class RenderService {
   */
   calculateCellSize(draft: Draft, out_format: string): number {
 
+    if (draft == null) {
+      return defaults.draft_detail_cell_size;
+    }
     let max_bound = Math.max(wefts(draft.drawdown), warps(draft.drawdown));
     let area = wefts(draft.drawdown) * warps(draft.drawdown);
     let ratio_square = Math.pow(this.pixel_ratio, 2);
@@ -190,7 +193,35 @@ export class RenderService {
 
   }
 
+  calculatePixelsPerMM(draft, out_format: string, loom_settings: LoomSettings, height: number): number {
 
+
+    let pixels_per_mm = defaults.draft_detail_cell_size;
+    let width = warps(draft.drawdown) * convertEPItoMM(loom_settings);
+    let max_bound = Math.max(width, height);
+    let area = width * height;
+    let ratio_square = Math.pow(this.pixel_ratio, 2);
+    let num_array_values = area * Math.pow(defaults.draft_detail_cell_size, 2) * 4 * ratio_square;
+
+    if (out_format == 'canvas') {
+      if (width * pixels_per_mm < defaults.canvas_width) {
+        return Math.floor(pixels_per_mm);
+
+      } else {
+        return Math.floor(defaults.canvas_width / max_bound);
+      }
+    } else {
+      //the limiting factor is the array buffer
+      if (num_array_values <= defaults.array_buffer_size) {
+        return Math.floor(pixels_per_mm);
+      } else {
+        let modified_cell_size = Math.sqrt(defaults.array_buffer_size / (area * 4 * ratio_square));
+        return Math.floor(modified_cell_size);
+      }
+
+    }
+
+  }
 
 
   private drawWeftData(draft: Draft, cell_size: number, pixel_ratio: number, weft_systems_canvas: HTMLCanvasElement, weft_mats_canvas: HTMLCanvasElement): Promise<string> {
@@ -200,6 +231,7 @@ export class RenderService {
     }
     const weft_systems_cx = weft_systems_canvas.getContext("2d");
     const weft_mats_cx = weft_mats_canvas.getContext("2d");
+    let max_diam = this.ms.getMaxDiameter();
 
     if (draft == null) {
       return Promise.resolve('draft null in drawWeftData')
@@ -221,13 +253,22 @@ export class RenderService {
       let system = null;
 
       for (let j = 0; j < draft.rowShuttleMapping.length; j++) {
+        let diam = this.ms.getDiameter(draft.rowShuttleMapping[j]);
+        // let relative_diam = (diam / max_diam) * (cell_size - 1) * pixel_ratio;
+
+        //use the relative diameter to scale the icon size
+        let relative_diam = interpolate(diam / max_diam, { min: defaults.min_material_icon_size, max: 1 });
+        relative_diam *= ((cell_size - 1) * pixel_ratio);
 
         system = this.ss.getWeftSystemCode(draft.rowSystemMapping[j]);
         let color = this.ms.getColor(draft.rowShuttleMapping[j]);
         weft_mats_cx.fillStyle = color;
         weft_mats_cx.strokeStyle = "#666666";
-        weft_mats_cx.fillRect(1, j * cell_size * pixel_ratio + 1, defaults.draft_detail_cell_size * pixel_ratio - 2, cell_size * pixel_ratio - 2);
-        weft_mats_cx.strokeRect(1, j * cell_size * pixel_ratio + 1, defaults.draft_detail_cell_size * pixel_ratio - 2, cell_size * pixel_ratio - 2);
+        weft_mats_cx.beginPath();
+        weft_mats_cx.arc((cell_size / 2 * pixel_ratio), j * cell_size * pixel_ratio + (cell_size / 2 * pixel_ratio), relative_diam / 2, 0, 2 * Math.PI);
+        weft_mats_cx.fill();
+        weft_mats_cx.stroke();
+        weft_mats_cx.closePath();
 
         weft_systems_cx.font = 1.5 * cell_size + "px Arial";
         weft_systems_cx.fillStyle = "#666666";
@@ -256,6 +297,9 @@ export class RenderService {
       return Promise.resolve('warp materials or systems canvas was null')
     }
 
+
+    let max_diam = this.ms.getMaxDiameter();
+
     const warp_mats_cx = warp_mats_canvas.getContext("2d");
     const warp_systems_cx = warp_sys_canvas.getContext("2d");
 
@@ -281,13 +325,22 @@ export class RenderService {
 
       for (let j = 0; j < draft.colShuttleMapping.length; j++) {
         let color = this.ms.getColor(draft.colShuttleMapping[j]);
+        let diam = this.ms.getDiameter(draft.colShuttleMapping[j]);
+
+        let relative_diam = interpolate(diam / max_diam, { min: defaults.min_material_icon_size, max: 1 });
+        relative_diam *= ((cell_size - 1) * pixel_ratio);
+        console.log('relative_diam', diam, max_diam, relative_diam, cell_size, pixel_ratio);
+
         system = this.ss.getWarpSystemCode(draft.colSystemMapping[j]);
 
         //cell_size *= this.pixel_ratio
         warp_mats_cx.fillStyle = color;
         warp_mats_cx.strokeStyle = "#666666";
-        warp_mats_cx.fillRect(j * cell_size * pixel_ratio + 1, 1, cell_size * pixel_ratio - 2, defaults.draft_detail_cell_size * pixel_ratio - 2);
-        warp_mats_cx.strokeRect(j * cell_size * pixel_ratio + 1, 1, cell_size * pixel_ratio - 2, defaults.draft_detail_cell_size * pixel_ratio - 2);
+        warp_mats_cx.beginPath();
+        warp_mats_cx.arc(j * cell_size * pixel_ratio + (cell_size / 2 * pixel_ratio), cell_size / 2 * pixel_ratio, relative_diam / 2, 0, 2 * Math.PI);
+        warp_mats_cx.fill();
+        warp_mats_cx.stroke();
+        warp_mats_cx.closePath();
         //need to flip this on certain origins. 
         warp_systems_cx.font = 1.5 * cell_size + "px Arial";
         warp_systems_cx.fillStyle = "#666666";
@@ -626,7 +679,7 @@ export class RenderService {
 
   }
 
-  private drawDrawdown(draft: Draft, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+  private drawDrawdown(draft: Draft, loom_settings: LoomSettings, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
 
 
 
@@ -635,7 +688,7 @@ export class RenderService {
     }
 
     //a workaround that goes back to the canvas to render, since it's better for drawing
-    return this.drawDrawdownAsCanvas(draft, canvas, cell_size, pixel_ratio, rf);
+    return this.drawDrawdownAsCanvas(draft, loom_settings, canvas, cell_size, pixel_ratio, rf);
 
 
     // const draft_cx: any = canvas.getContext("2d");
@@ -660,17 +713,23 @@ export class RenderService {
     // }
   }
 
-  private drawAsDraft(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+  private drawAsDraft(draft: Draft, loom_settings: LoomSettings, height: number, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
     const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
     const totalRows = wefts(draft.drawdown);
     const startTime = performance.now();
 
     const unit = cell_size * pixel_ratio;
+
+    let warp_spacing_mm = convertEPItoMM(loom_settings);
+    const pixels_per_mm = unit / warp_spacing_mm;
+
+
+
+
+    let fell = 0;
     for (let i = 0; i < wefts(draft.drawdown); i++) {
-      // Log progress every 10% for large drafts
-      if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
-        const progress = ((i / totalRows) * 100).toFixed(0);
-      }
+      let diam_adj = this.ms.getDiameter(draft.rowShuttleMapping[i]) * pixels_per_mm;
+
 
       for (let j = 0; j < warps(draft.drawdown); j++) {
         switch (getCellValue(draft.drawdown[i][j])) {
@@ -687,8 +746,14 @@ export class RenderService {
 
         draft_cx.strokeStyle = "#333333";
         draft_cx.lineWidth = 1;
-        draft_cx.strokeRect(j * unit, i * unit, unit, unit);
-        draft_cx.fillRect(j * unit, i * unit, unit, unit);
+
+        if (rf.use_sizes) {
+          draft_cx.strokeRect(j * unit, fell, unit, diam_adj);
+          draft_cx.fillRect(j * unit, fell, unit, diam_adj);
+        } else {
+          draft_cx.strokeRect(j * unit, fell, unit, unit);
+          draft_cx.fillRect(j * unit, fell, unit, unit);
+        }
 
         if (getCellValue(draft.drawdown[i][j]) == null) {
           draft_cx.strokeStyle = "#333333";
@@ -702,6 +767,12 @@ export class RenderService {
           draft_cx.stroke();
         }
       }
+
+      if (rf.use_sizes) {
+        fell += (diam_adj);
+      } else {
+        fell += (unit);
+      }
     }
 
     const duration = performance.now() - startTime;
@@ -710,50 +781,154 @@ export class RenderService {
 
   }
 
-  private drawAsCloth(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
-    const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
-    const totalRows = wefts(draft.drawdown);
-    const startTime = performance.now();
+  /**
+   * assume mm. 
+   * @param draft 
+   * @param draft_cx 
+   * @param cell_size 
+   * @param pixel_ratio 
+   * @param rf 
+   */
+  private drawAsCloth(draft: Draft, loom_settings: LoomSettings, height: number, weft_margin: number, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
 
-    const unit = cell_size * pixel_ratio;
-    let margin = 2;
-    if (unit <= 4) {
-      margin = 1;
-    } else if (unit <= 2) {
+    // cell size should map to the mm between warps and all other measures should be proportional to this warp size. 
+
+    let warp_spacing_mm = convertEPItoMM(loom_settings);
+    const warp_unit = cell_size * pixel_ratio;
+
+    const pixels_per_mm = warp_unit / warp_spacing_mm;
+    console.log('warp_unit', warp_unit);
+    console.log('warp_spacing_mm', warp_spacing_mm);
+    console.log('pixels_per_mm', pixels_per_mm);
+
+
+
+
+    let margin = 1;
+    if (warp_unit <= 4) {
+      margin = .5;
+    } else if (warp_unit <= 2) {
       margin = 0;
     }
-    let yarn = unit - (2 * margin)
-    //draw warps as a base color
+    let yarn = warp_unit - (2 * margin)
+
+
+    //create a one inch marker.
+
+    // let one_inch = 25.4 / warp_spacing_mm * warp_unit;
+    // draft_cx.fillStyle = "#000000";
+    // draft_cx.fillRect(0, 0, one_inch, warp_unit);
+
+
     for (let j = 0; j < warps(draft.drawdown); j++) {
       let color = this.ms.getColor(draft.colShuttleMapping[j]);
+      let diameter = this.ms.getDiameter(draft.colShuttleMapping[j]);
+      let diam_adj = diameter / warp_spacing_mm * warp_unit;
       draft_cx.fillStyle = color;
-      draft_cx.fillRect(j * unit + margin, 0, yarn, unit * wefts(draft.drawdown));
+
+      //calc position to center the material
+      let left = j * warp_unit;
+      left += warp_unit / 2; //move to the center
+      left -= diam_adj / 2; //account for the material width
+
+      if (rf.use_sizes) {
+        draft_cx.fillRect(left, 0, diam_adj, height * pixel_ratio);
+      } else {
+        draft_cx.fillRect(j * warp_unit + margin, 0, yarn, height * pixel_ratio);
+      }
     }
 
+    let fell = 0;
     for (let i = 0; i < wefts(draft.drawdown); i++) {
-      // Log progress every 10% for large drafts
-      if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
-        const progress = ((i / totalRows) * 100).toFixed(0);
-      }
+      let color = this.ms.getColor(draft.rowShuttleMapping[i]);
+      let diameter = this.ms.getDiameter(draft.rowShuttleMapping[i]);
+      let diam_adj = diameter * pixels_per_mm;
 
       for (let j = 0; j < warps(draft.drawdown); j++) {
         let cell_val = getCellValue(draft.drawdown[i][j]);
-        let color = this.ms.getColor(draft.rowShuttleMapping[i]);
         draft_cx.fillStyle = color;
         if (cell_val == true) {
-          //add the traces of the weft to the left and right
-          draft_cx.fillRect(j * unit, i * unit + margin, margin, yarn);
-          draft_cx.fillRect(j * unit + (margin + yarn), i * unit + margin, margin, yarn);
 
+          let warp_diameter = this.ms.getDiameter(draft.colShuttleMapping[j]);
+
+
+          //the warp travels over the weft, but we should see little pieces of the weft to the left and right
+
+          if (rf.use_sizes) {
+            let warp_diam_adj = warp_diameter / warp_spacing_mm * warp_unit;
+            let segment_width = (warp_unit / 2) - (warp_diam_adj / 2);
+            let right_start = j * warp_unit + (warp_unit / 2) + (warp_diam_adj / 2);
+
+            draft_cx.fillRect(j * warp_unit, fell, segment_width, diam_adj);
+            draft_cx.fillRect(right_start, fell, segment_width, diam_adj);
+          } else {
+            draft_cx.fillRect(j * warp_unit, fell + margin, margin, yarn);
+            draft_cx.fillRect(j * warp_unit + (warp_unit - margin), fell + margin, margin, yarn);
+          }
         } else if (cell_val == false) {
-          draft_cx.fillRect(j * unit - margin, i * unit + margin, unit + margin * 2, yarn);
+          if (rf.use_sizes) {
+            draft_cx.fillRect(j * warp_unit, fell, warp_unit, diam_adj);
+          } else {
+            draft_cx.fillRect(j * warp_unit, fell + margin, warp_unit, yarn);
+          }
         }
       }
+
+      if (rf.use_sizes) {
+        fell += (diam_adj + (weft_margin * pixel_ratio));
+      } else {
+        fell += (warp_unit);
+      }
+
     }
 
-    const duration = performance.now() - startTime;
     return Promise.resolve('');
   }
+
+  // private drawAsCloth(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
+  //   const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
+  //   const totalRows = wefts(draft.drawdown);
+  //   const startTime = performance.now();
+
+  //   const unit = cell_size * pixel_ratio;
+  //   let margin = 2;
+  //   if (unit <= 4) {
+  //     margin = 1;
+  //   } else if (unit <= 2) {
+  //     margin = 0;
+  //   }
+  //   let yarn = unit - (2 * margin)
+  //   //draw warps as a base color
+  //   for (let j = 0; j < warps(draft.drawdown); j++) {
+  //     let color = this.ms.getColor(draft.colShuttleMapping[j]);
+  //     draft_cx.fillStyle = color;
+  //     draft_cx.fillRect(j * unit + margin, 0, yarn, unit * wefts(draft.drawdown));
+  //   }
+
+  //   for (let i = 0; i < wefts(draft.drawdown); i++) {
+  //     // Log progress every 10% for large drafts
+  //     if (totalRows > 100 && i % Math.floor(totalRows / 10) === 0) {
+  //       const progress = ((i / totalRows) * 100).toFixed(0);
+  //     }
+
+  //     for (let j = 0; j < warps(draft.drawdown); j++) {
+  //       let cell_val = getCellValue(draft.drawdown[i][j]);
+  //       let color = this.ms.getColor(draft.rowShuttleMapping[i]);
+  //       draft_cx.fillStyle = color;
+  //       if (cell_val == true) {
+  //         //add the traces of the weft to the left and right
+  //         draft_cx.fillRect(j * unit, i * unit + margin, margin, yarn);
+  //         draft_cx.fillRect(j * unit + (margin + yarn), i * unit + margin, margin, yarn);
+
+  //       } else if (cell_val == false) {
+  //         draft_cx.fillRect(j * unit - margin, i * unit + margin, unit + margin * 2, yarn);
+  //       }
+  //     }
+  //   }
+
+  //   const duration = performance.now() - startTime;
+  //   return Promise.resolve('');
+  // }
 
   private drawAsFloats(draft: Draft, draft_cx: any, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
     const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
@@ -842,9 +1017,7 @@ export class RenderService {
    * @param rf 
    * @returns 
    */
-  private drawDrawdownAsCanvas(draft: Draft, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
-    const size = `${warps(draft.drawdown)}x${wefts(draft.drawdown)}`;
-    const totalCells = warps(draft.drawdown) * wefts(draft.drawdown);
+  private drawDrawdownAsCanvas(draft: Draft, loom_settings: LoomSettings, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, rf: RenderingFlags): Promise<string> {
     const drawStartTime = performance.now();
 
 
@@ -857,16 +1030,38 @@ export class RenderService {
     }
 
     cell_size = cell_size / pixel_ratio;
+
+
     const draft_cx: any = canvas.getContext("2d");
-    canvas.width = warps(draft.drawdown) * cell_size * pixel_ratio;
-    canvas.height = wefts(draft.drawdown) * cell_size * pixel_ratio;
-    canvas.style.width = (warps(draft.drawdown) * cell_size) + "px";
-    canvas.style.height = (wefts(draft.drawdown) * cell_size) + "px";
+    const width = warps(draft.drawdown) * cell_size;
+
+
+    let warp_spacing_mm = convertEPItoMM(loom_settings);
+    const pixels_per_mm = cell_size / warp_spacing_mm;
+    const weft_margin = 2;
+
+    let height = 0;
+    for (let i = 0; i < wefts(draft.drawdown); i++) {
+      if (rf.use_sizes) {
+        let size = this.ms.getDiameter(draft.rowShuttleMapping[i]) * pixels_per_mm;
+        height += (size + weft_margin);
+      } else {
+        height += (cell_size);
+      }
+    }
+
+
+    canvas.width = width * pixel_ratio;
+    canvas.height = height * pixel_ratio;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+
+
     draft_cx.fillStyle = "#F5F5F5";
     draft_cx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (!rf.use_colors && !rf.use_floats) {
-      return this.drawAsDraft(draft, draft_cx, cell_size, pixel_ratio, rf).then(result => {
+      return this.drawAsDraft(draft, loom_settings, height, draft_cx, cell_size, pixel_ratio, rf).then(result => {
         const duration = performance.now() - drawStartTime;
         return result;
       });
@@ -876,10 +1071,12 @@ export class RenderService {
         return result;
       });
     } else {
-      return this.drawAsCloth(draft, draft_cx, cell_size, pixel_ratio, rf).then(result => {
+
+      return this.drawAsCloth(draft, loom_settings, height, weft_margin, draft_cx, cell_size, pixel_ratio, rf).then(result => {
         const duration = performance.now() - drawStartTime;
         return result;
       });
+
     }
 
 
@@ -980,7 +1177,7 @@ export class RenderService {
 
 
     if (rf.u_drawdown) {
-      fns = fns.concat(this.drawDrawdown(draft, sharedCanvasList.drawdown, cell_size, this.pixel_ratio, rf));
+      fns = fns.concat(this.drawDrawdown(draft, loom_settings, sharedCanvasList.drawdown, cell_size, this.pixel_ratio, rf));
     }
 
     if (rf.u_warp_mats || rf.u_warp_sys) {
@@ -1039,7 +1236,7 @@ export class RenderService {
     }
 
     if (rf.u_drawdown) {
-      fns = fns.concat(this.drawDrawdown(draft, canvases.drawdown, cell_size, this.pixel_ratio, rf));
+      fns = fns.concat(this.drawDrawdown(draft, loom_settings, canvases.drawdown, cell_size, this.pixel_ratio, rf));
     }
 
     if (rf.u_warp_mats || rf.u_warp_sys) {

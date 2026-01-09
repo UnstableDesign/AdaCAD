@@ -52,6 +52,10 @@ export const defaults = {
   layer_spacing: 10,
   pack: 1,
 
+  //material icon rendering sizes
+  min_material_icon_size: .5,
+  max_material_icon_size: 2,
+
 
 
 }
@@ -133,9 +137,8 @@ export const draft_pencil = [
   { value: 'up', viewValue: 'Set Heddle Up', icon: "fa-solid fa-square-caret-up" },
   { value: 'down', viewValue: 'Set Heddle Down', icon: "fa-regular fa-square-caret-down" },
   { value: 'unset', viewValue: 'Unset Heddle', icon: "fa-solid fa-square-xmark" },
-  { value: 'material', viewValue: 'Draw Material', icon: "fas fa-pen" }
+  { value: 'material', viewValue: 'Draw Material', icon: "fa-solid fa-circle" }
 ]
-
 export const draft_edit_mode = [
   { value: 'draw', viewValue: 'Draw', icon: "fas fa-pen" },
   { value: 'select', viewValue: 'Select', icon: "fas fa-expand" }

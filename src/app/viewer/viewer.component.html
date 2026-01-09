@@ -177,6 +177,17 @@
 
 
 
+      <div class="toggle-group-wrapper" [class.hidden]="vs.current_view == 'sim'">
+        <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
+          [formControl]="useSizes" appearance="standard" class="collapsible-toggle-group">
+          <mat-button-toggle value="actual">
+            actual
+          </mat-button-toggle>
+          <mat-button-toggle value="standard">
+            standard
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
 
 
 

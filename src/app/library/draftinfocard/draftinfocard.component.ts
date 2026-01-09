@@ -218,6 +218,10 @@ export class DraftinfocardComponent {
 
   }
 
+  focusDraft() {
+    this.vs.setViewer(this.id);
+  }
+
 
 
   saveName() {

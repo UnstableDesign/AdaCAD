@@ -333,7 +333,8 @@ export class DraftContainerComponent implements AfterViewInit {
       u_weft_mats: true,
       use_floats: (this.current_view == 'color'),
       use_colors: (this.current_view != 'draft'),
-      show_loom: (this.current_view == 'loom')
+      show_loom: (this.current_view == 'loom'),
+      use_sizes: false
     }
 
     //pushes to the queue

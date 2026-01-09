@@ -101,6 +101,7 @@ export class DraftRenderingComponent implements OnInit {
 
   pencil = 'toggle'; //toggle, up, down, unset, material
   draft_edit_source = 'drawdown'; //drawdown, loom
+  use_sizes: boolean = false;
   selected_material_id: number = 0; //if material is set an pencil
 
   ignoreOversize: boolean = false;
@@ -119,6 +120,7 @@ export class DraftRenderingComponent implements OnInit {
   draftValueChangeCallCount: number = 0;
 
   materialColorChangeSubscription: Subscription;
+  materialDiameterChangeSubscription: Subscription;
 
 
   draftRenderingEvent$: BehaviorSubject<string>;
@@ -180,6 +182,10 @@ export class DraftRenderingComponent implements OnInit {
     this.materialColorChangeSubscription = this.ms.materialColorChange.pipe(skip(1)).subscribe(id => {
       this.forceRedraw();
     });
+
+    this.materialDiameterChangeSubscription = this.ms.materialDiameterChange.pipe(skip(1)).subscribe(id => {
+      this.forceRedraw();
+    });
   }
 
   ngAfterViewInit() {
@@ -218,7 +224,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
   }
-
 
 
   /**
@@ -305,10 +310,10 @@ export class DraftRenderingComponent implements OnInit {
 
 
     this.draftValueChangeSubscription = node.onValueChange.subscribe(draftNodeBroadcast => {
-      // console.log("DRAFT VALUE CHANGE SUBSCRIPTION CALLED", draftNodeBroadcast);
+      console.log("DRAFT VALUE CHANGE SUBSCRIPTION CALLED", draftNodeBroadcast, this.use_sizes);
       const draft = draftNodeBroadcast.draft;
       const loom = draftNodeBroadcast.loom;
-      const loom_settings = draftNodeBroadcast.loom_settings;
+      const loom_settings = (draftNodeBroadcast.loom_settings != null) ? draftNodeBroadcast.loom_settings : defaults.loom_settings;
       const flags: RenderingFlags = {
         u_drawdown: draftNodeBroadcast.flags.draft || this.draftValueChangeCallCount === 0,
         u_threading: draftNodeBroadcast.flags.loom || this.draftValueChangeCallCount === 0,
@@ -320,7 +325,8 @@ export class DraftRenderingComponent implements OnInit {
         u_weft_mats: draftNodeBroadcast.flags.materials || this.draftValueChangeCallCount === 0,
         use_floats: (this.current_view !== 'draft'),
         use_colors: (this.current_view == 'visual'),
-        show_loom: (this.source === 'editor')
+        show_loom: (this.source === 'editor'),
+        use_sizes: this.use_sizes
       };
       this.colShuttleMapping = draft !== null ? draft.colShuttleMapping.slice() : [];
       this.colSystemMapping = draft !== null ? draft.colSystemMapping.slice() : [];
@@ -349,7 +355,12 @@ export class DraftRenderingComponent implements OnInit {
 
   ngOnDestroy() {
 
-
+    if (this.materialColorChangeSubscription) {
+      this.materialColorChangeSubscription.unsubscribe();
+    }
+    if (this.materialDiameterChangeSubscription) {
+      this.materialDiameterChangeSubscription.unsubscribe();
+    }
     if (this.moveSubscription) {
       this.moveSubscription.unsubscribe();
     }
@@ -1166,7 +1177,8 @@ export class DraftRenderingComponent implements OnInit {
       u_weft_mats: true,
       use_floats: (this.current_view !== 'draft'),
       use_colors: (this.current_view === 'visual'),
-      show_loom: (this.source === 'editor')
+      show_loom: (this.source === 'editor'),
+      use_sizes: this.use_sizes
     }
     this.redraw(draft, loom, loom_settings, flags);
   }

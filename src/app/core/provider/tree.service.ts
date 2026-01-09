@@ -8,7 +8,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, ConnectionNode, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, RenderingFlags, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, ConnectionNode, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
@@ -97,19 +97,6 @@ export class TreeService {
       const draft = (<DraftNode>node).draft;
       const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
 
-      const rf: RenderingFlags = {
-        u_drawdown: flags.draft,
-        u_threading: true,
-        u_treadling: flags.loom,
-        u_tieups: flags.loom,
-        u_warp_mats: flags.materials,
-        u_warp_sys: flags.draft,
-        u_weft_mats: flags.materials,
-        u_weft_sys: flags.draft,
-        use_floats: false,
-        use_colors: false,
-        show_loom: false
-      };
 
       (<DraftNode>node).onValueChange.next({ id: id, draft: draft, loom: (<DraftNode>node).loom, loom_settings: (<DraftNode>node).loom_settings, flags: flags });
     }

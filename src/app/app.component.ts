@@ -533,7 +533,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.editor.onClose();
     this.selected_editor_mode = 'library';
     this.library.onFocus(-1);
-    this.library.scrollToMaterials();
+    // Wait for the view to be visible before scrolling
+    // Use setTimeout to allow Angular's change detection to update the DOM
+    setTimeout(() => {
+      this.library.scrollToMaterials();
+    }, 100);
   }
 
 

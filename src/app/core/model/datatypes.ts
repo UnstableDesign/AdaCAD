@@ -491,7 +491,8 @@ export type RenderingFlags = {
   u_weft_mats: boolean,
   use_colors: boolean,
   use_floats: boolean,
-  show_loom: boolean
+  show_loom: boolean,
+  use_sizes: boolean
 }
 
 

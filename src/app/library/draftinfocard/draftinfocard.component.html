@@ -1,4 +1,4 @@
-<div class="draft-info-card-container" [class.selected]="selectedInViewer">
+<div class="draft-info-card-container" (click)="focusDraft()" [class.selected]="selectedInViewer">
 
     <div class="draft-info-card-header">
         <div class="draft-info-card-header-name">

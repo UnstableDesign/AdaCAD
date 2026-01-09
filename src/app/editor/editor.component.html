@@ -52,7 +52,8 @@
 
                 @for (mode of draw_modes; track mode) {
                 <mat-button-toggle class="draw_mode_button" [matTooltip]="mode.viewValue" [value]="mode.value">
-                  <span [style.color]="mode.color"><i class=" {{mode.icon}}"></i></span>
+                  <span [style.color]="mode.color"><i class=" {{mode.icon}}"
+                      [style.font-size]="mode.size + 'em'"></i></span>
                 </mat-button-toggle>
                 }
               </mat-button-toggle-group>
