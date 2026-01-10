@@ -116,6 +116,7 @@ export class DraftRenderingComponent implements OnInit {
   //published from the draft node whenever a new draft is set. 
   draftValueChangeSubscription: Subscription;
 
+
   //used to determine if this is the first time the subscription is called (onLoad) vs (onUpdate)
   draftValueChangeCallCount: number = 0;
 
@@ -124,7 +125,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
   draftRenderingEvent$: BehaviorSubject<string>;
-
 
   pencilChange$: BehaviorSubject<string>;
 
@@ -335,6 +335,8 @@ export class DraftRenderingComponent implements OnInit {
       this.selected_loom_type = (loom_settings != null) ? loom_settings.type : 'jacquard';
 
       if (draft !== null) {
+
+
         this.redraw(draft, loom, loom_settings, flags).then(el => {
           this.draftValueChangeCallCount++;
           this.refreshOriginMarker();
@@ -377,7 +379,8 @@ export class DraftRenderingComponent implements OnInit {
     const highlightRow = document.getElementById('highlight-row-editor');
     const highlightCol = document.getElementById('highlight-col-editor');
 
-    const cell_size = this.render.calculateCellSize(draft, 'canvas');
+    let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
+    cell_size = cell_size / this.render.pixel_ratio;
     const parentContainer = highlightRow.parentElement;
     const rect = parentContainer.getBoundingClientRect();
     //event page X is the mouse in absolute terms, rect left is the corner of the parent container
@@ -688,7 +691,8 @@ export class DraftRenderingComponent implements OnInit {
 
   private getEventPosition(event: MouseEvent): Interlacement {
     const draft = this.tree.getDraft(this.id);
-    let cell_size = this.render.calculateCellSize(draft, 'canvas');
+    let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
+    cell_size = cell_size / this.render.pixel_ratio;
     var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
     var screen_col = Math.floor(event.offsetX / (cell_size * this.scale));
     return {
@@ -1217,6 +1221,7 @@ export class DraftRenderingComponent implements OnInit {
     }
 
     if (this.needsRedraw(rf)) {
+
       const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
         this.isRedrawing = false;
         this.refreshOriginMarker();

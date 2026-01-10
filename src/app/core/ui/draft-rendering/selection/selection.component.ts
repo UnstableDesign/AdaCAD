@@ -743,7 +743,7 @@ export class SelectionComponent implements OnInit {
     this.selectionEventSubject.next('started');
     this.hide_actions = true;
     const draft = this.tree.getDraft(this.id);
-    this.cell_size = this.render.calculateCellSize(draft, 'canvas');
+    this.cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
 
     //clear existing params
     this.unsetParameters();

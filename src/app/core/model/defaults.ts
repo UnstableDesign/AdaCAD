@@ -2,7 +2,7 @@ import { DraftCellColor } from "./datatypes";
 
 export const defaults = {
   default_mode: 'mixer',
-  draft_detail_cell_size: 20,
+  draft_detail_cell_size: 40,
   draft_name: 'drafty',
   row_shuttle: 1,
   row_system: 0,
