@@ -1,0 +1,51 @@
+.form-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+button{
+    padding: 8px;
+}
+
+.dialog-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+
+.mat-mdc-dialog-actions {
+    justify-content: space-between;
+}
+
+.error{
+    color: red;
+    font: 0.8em;
+}
+
+.left, .right{
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.email_input{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.mat-mdc-form-field{
+    min-width: 100%;
+}
+
+.email_input button{
+    margin: 0px 5px;
+}
+
+.mat-mdc-raised-button {
+    display: block;
+    margin: 8px;
+}

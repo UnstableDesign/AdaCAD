@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/ui/welcome/welcome.component.scss"],
+  "sourcesContent": [".container{\n    display: flex;\n    flex-direction: row;\n}\n\nbutton{\n    margin-top: 1em;\n}\n\n.left,\n.right{\n    padding: 12px;\n}"],
+  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,kBAAA;;AAGJ;AACI,cAAA;;AAGJ,CAAA;AAAA,CAAA;AAEI,WAAA;;",
+  "names": []
+}

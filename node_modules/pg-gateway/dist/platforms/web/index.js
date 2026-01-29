@@ -1,0 +1,2 @@
+import{w as n}from"../../chunk-PGRRI4HM.js";async function c(e,r){let t=await o(e);return new n(t,r)}async function o(e){let{readable:r,writable:t}=await e.opened;return{readable:a(r,new Error("WebSocketStream must contain binary data for a PostgresConnection, found text")),writable:t}}function a(e,r){return ReadableStream.from(i(e,r))}async function*i(e,r){for await(let t of e){if(typeof t=="string")throw r;yield t}}export{o as duplexFromWebSocketStream,c as fromWebSocketStream};
+//# sourceMappingURL=index.js.map

@@ -1,0 +1,33 @@
+
+
+.connection-container{
+    position: absolute;
+    z-index: 0;
+    //pointer-events:none;
+}
+
+button{
+    position: absolute;
+    font-size: .5em;
+    color: black;
+    pointer-events:all;
+}
+
+.hidden{
+    display: none;
+}
+
+.moving-dash {
+stroke: #bbbdbf;
+stroke-linecap: round;
+stroke-dasharray: 10 10; /* dash length + gap */
+animation: dash-slide 1s linear infinite;
+}
+
+@keyframes dash-slide {
+to {
+    stroke-dashoffset: -20; /* negative makes dashes move forward */
+}
+}
+
+

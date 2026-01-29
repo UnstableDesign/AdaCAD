@@ -1,0 +1,60 @@
+{
+  "name": "adacad-drafting-lib",
+  "version": "1.3.0",
+  "description": "a library for creating and manipulating weaving drafts",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "copyfiles -f ./src/**/*.md ./src/**/*.png ./src/**/*.jpg dist/markdown && tsc",
+    "test": "jest --verbose",
+    "lint": "eslint src/ --ext .ts",
+    "docs": "npx typedoc"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*",
+    "./draft": "./dist/draft/index.js",
+    "./loom": "./dist/loom/index.js",
+    "./material": "./dist/material/index.js",
+    "./media": "./dist/media/index.js",
+    "./operations": "./dist/operations/index.js",
+    "./sequence": "./dist/sequence/index.js",
+    "./simulation": "./dist/simulation/index.js",
+    "./utils": "./dist/utils/index.js",
+    "./package.json": "./package.json"
+  },
+  "keywords": [
+    "weaving",
+    "drafting",
+    "textiles",
+    "design"
+  ],
+  "author": "Unstable Design Lab",
+  "license": "LGPL-3.0-or-later",
+  "devDependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/preset-react": "^7.27.1",
+    "@eslint/js": "^9.34.0",
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "babel-loader": "^10.0.0",
+    "eslint": "^9.34.0",
+    "jest": "^30.1.3",
+    "ts-jest": "^29.4.1",
+    "ts-loader": "^9.5.4",
+    "typedoc": "^0.28.12",
+    "typedoc-plugin-markdown": "^4.8.1",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.42.0"
+  },
+  "dependencies": {
+    "@babel/preset-env": "^7.28.3",
+    "@mdx-js/mdx": "^3.1.1",
+    "babel-jest": "^30.1.2",
+    "mathjs": "^15.1.0"
+  }
+}

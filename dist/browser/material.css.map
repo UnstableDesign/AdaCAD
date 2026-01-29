@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/ui/material/material.scss"],
+  "sourcesContent": [".material-list-container {\n    width: 100%;\n    overflow: scroll;\n}\n\n\n// .colorpicker{\n//     outline: grey;\n//     width: 40px;\n//     height: 40px;\n//     margin: 2px 8px 0px 0px;\n// }\n\n.okbutton {\n    color: blue\n}\n\ni {\n    padding-right: 8px;\n    margin: 4px 0px 0px 0px;\n}\n\n.delete_material {\n    display: flex;\n    flex-direction: row;\n    font-size: .8em;\n\n    button {\n        width: 66%;\n\n    }\n\n    /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */\n    mat-select {\n        width: 33%;\n        overflow: hidden;\n    }\n}\n\n\n.material-actions {\n    display: flex;\n    flex-direction: row;\n    justify-content: space-between;\n}\n\n.toprow {\n    display: flex;\n    flex-direction: row;\n    line-height: 1em;\n}"],
+  "mappings": ";AAAA,CAAA;AACI,SAAA;AACA,YAAA;;AAWJ,CAAA;AACI,SAAA;;AAGJ;AACI,iBAAA;AACA,UAAA,IAAA,IAAA,IAAA;;AAGJ,CAAA;AACI,WAAA;AACA,kBAAA;AACA,aAAA;;AAEA,CALJ,gBAKI;AACI,SAAA;;AANR,CAAA;;AAWI,CAXJ,gBAWI;AACI,SAAA;AACA,YAAA;;AAKR,CAAA;AACI,WAAA;AACA,kBAAA;AACA,mBAAA;;AAGJ,CAAA;AACI,WAAA;AACA,kBAAA;AACA,eAAA;;",
+  "names": []
+}

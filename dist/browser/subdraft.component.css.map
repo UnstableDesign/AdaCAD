@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/mixer/palette/subdraft/subdraft.component.scss"],
+  "sourcesContent": [".subdraft-parent-container {\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\tmin-width: 300px;\n\twidth: fit-content;\n\n\n}\n\n\n\n.topbar {\n\twidth: 100%;\n\theight: 40px;\n\tbackground-color: black;\n\n\t&.is_new {\n\t\tbackground-color: #ff4081;\n\t\tcolor: white;\n\t}\n}\n\n.multiselected {\n\n\t.from_subdraft {\n\t\tborder: var(--floating-label-size) solid #ff4081;\n\t}\n}\n\n\n.from_subdraft {\n\tdisplay: flex;\n\tflex-direction: column;\n\tbackground-color: white;\n\tborder-radius: 8px;\n\tpadding-top: 20px;\n}"],
+  "mappings": ";AAAA,CAAA;AACC,YAAA;AACA,OAAA;AACA,QAAA;AACA,aAAA;AACA,SAAA;;AAOD,CAAA;AACC,SAAA;AACA,UAAA;AACA,oBAAA;;AAEA,CALD,MAKC,CAAA;AACC,oBAAA;AACA,SAAA;;AAMD,CAAA,cAAA,CAAA;AACC,UAAA,IAAA,uBAAA,MAAA;;AAKF,CANC;AAOA,WAAA;AACA,kBAAA;AACA,oBAAA;AACA,iBAAA;AACA,eAAA;;",
+  "names": []
+}

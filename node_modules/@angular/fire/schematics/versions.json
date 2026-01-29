@@ -1,0 +1,12 @@
+{
+  "peerDependencies": {},
+  "firebaseFunctionsDependencies": {
+    "firebase-admin": {
+      "dev": false
+    },
+    "firebase-functions": {
+      "dev": false,
+      "version": "^6.1.0"
+    }
+  }
+}

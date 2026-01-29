@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/ui/workspace/workspace.component.scss"],
+  "sourcesContent": [".workspace {\n    width: 600px;\n}\n\n.full-width {\n    width: 100%;\n    padding: 30px 0px\n}"],
+  "mappings": ";AAAA,CAAA;AACI,SAAA;;AAGJ,CAAA;AACI,SAAA;AACA,WAAA,KAAA;;",
+  "names": []
+}

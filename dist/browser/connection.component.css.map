@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/mixer/palette/connection/connection.component.scss"],
+  "sourcesContent": [".connection-container {\n    position: absolute;\n    z-index: 0;\n\n    button {\n        position: absolute;\n        pointer-events: all;\n        width: 60px;\n        height: 60px;\n        font-size: var(--form-field-entry-size);\n        background-color: whitesmoke;\n        color: black;\n    }\n\n    button:hover {\n        background-color: #ff4081;\n    }\n\n\n\n\n    //pointer-events:none;\n}\n\n// button {\n//     position: absolute;\n//     font-size: var(--form-field-entry-size);\n//     color: black;\n//     pointer-events: all;\n//     background-color: whitesmoke;\n//     border-radius: 50%;\n//     padding: 4px;\n//     border: 1px solid black;\n// }\n\nbutton:hover {\n    color: #ff4081;\n}\n\n.hidden {\n    display: none;\n}\n\n.moving-dash {\n    stroke: #bbbdbf;\n    stroke-linecap: round;\n    stroke-dasharray: 20 20;\n    /* dash length + gap */\n    animation: dash-slide 1s linear infinite;\n}\n\n@keyframes dash-slide {\n    to {\n        stroke-dashoffset: -40;\n        /* negative makes dashes move forward */\n    }\n}"],
+  "mappings": ";AAAA,CAAA;AACI,YAAA;AACA,WAAA;;AAEA,CAJJ,qBAII;AACI,YAAA;AACA,kBAAA;AACA,SAAA;AACA,UAAA;AACA,aAAA,IAAA;AACA,oBAAA;AACA,SAAA;;AAGJ,CAdJ,qBAcI,MAAA;AACI,oBAAA;;AAoBR,MAAA;AACI,SAAA;;AAGJ,CAAA;AACI,WAAA;;AAGJ,CAAA;AACI,UAAA;AACA,kBAAA;AACA,oBAAA,GAAA;AAEA,aAAA,WAAA,GAAA,OAAA;;AAGJ,WAHI;AAIA;AACI,uBAAA;;;",
+  "names": []
+}
