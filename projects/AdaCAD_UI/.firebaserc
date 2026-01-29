@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "adacad-weaver"
+  },
+  "targets": {
+    "adacad-weaver": {
+      "hosting": {
+        "adacad-weaver": [
+          "adacad-weaver"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "codelyzer",
+  "version": "0.0.28",
+  "description": "A set of linters for Angular 2 applications, following https:/angular.io/styleguide.",
+  "main": "index.js",
+  "scripts": {
+    "typings": "typings",
+    "release": "rimraf dist && tsc && npm t && cp package.json README.md dist/src && ts-node build/links.ts --src ./dist/src",
+    "test": "rimraf dist && tsc && mocha --compilers ts:ts-node/register",
+    "test:watch": "npm run test -- -w",
+    "tsc": "tsc",
+    "tscw": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mgechev/codelyzer.git"
+  },
+  "keywords": [
+    "Angular",
+    "2",
+    "style",
+    "guide",
+    "ng2lint",
+    "lint",
+    "tslint"
+  ],
+  "author": {
+    "name": "Minko Gechev",
+    "email": "mgechev@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mgechev/codelyzer/issues"
+  },
+  "homepage": "https://github.com/mgechev/codelyzer#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-spies": "^0.7.1",
+    "minimalist": "1.0.0",
+    "mocha": "3.0.2",
+    "rimraf": "^2.5.2",
+    "ts-node": "1.2.2",
+    "tslint": "3.14.0",
+    "typings": "1.3.2"
+  },
+  "peerDependencies": {
+    "tslint": "^3.9.0"
+  },
+  "dependencies": {
+    "sprintf-js": "^1.0.3"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/viewer/simulation/simulation.component.scss"],
+  "sourcesContent": ["canvas {\n    border: thin solid red;\n}\n\n\n\n.dg.main {\n    position: fixed;\n}\n\n#sim_viewer {\n    display: flex;\n    flex-direction: row;\n}\n\n#sizeerror {\n    margin: auto 10%;\n    display: none;\n}\n\n#simulation_container {\n    overflow: scroll;\n\n\n\n}\n\n#simulation_rendering {\n    width: 100%;\n    height: 100%;\n}\n\n#simulation_controls {\n    position: fixed;\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n}\n\n.simulation_controls_container {\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n}\n\n\n\n.toggle {\n    display: flex;\n    flex-direction: row;\n}\n\n.cameracontrols {\n    position: absolute;\n    width: 75%;\n    text-align: center;\n    top: 90vh;\n    font-size: 0.8em;\n    left: 40px;\n}\n\n.controls {\n    position: absolute;\n    width: 25%;\n    display: flex;\n    flex-direction: column;\n    top: 3%;\n    font-size: 0.8em;\n    left: 3%;\n}"],
+  "mappings": ";AAAA;AACI,UAAA,KAAA,MAAA;;AAKJ,CAAA,EAAA,CAAA;AACI,YAAA;;AAGJ,CAAA;AACI,WAAA;AACA,kBAAA;;AAGJ,CAAA;AACI,UAAA,KAAA;AACA,WAAA;;AAGJ,CAAA;AACI,YAAA;;AAMJ,CAAA;AACI,SAAA;AACA,UAAA;;AAGJ,CAAA;AACI,YAAA;AACA,WAAA;AACA,kBAAA;AACA,OAAA;;AAGJ,CAAA;AACI,WAAA;AACA,kBAAA;AACA,OAAA;;AAKJ,CAAA;AACI,WAAA;AACA,kBAAA;;AAGJ,CAAA;AACI,YAAA;AACA,SAAA;AACA,cAAA;AACA,OAAA;AACA,aAAA;AACA,QAAA;;AAGJ,CAAA;AACI,YAAA;AACA,SAAA;AACA,WAAA;AACA,kBAAA;AACA,OAAA;AACA,aAAA;AACA,QAAA;;",
+  "names": []
+}

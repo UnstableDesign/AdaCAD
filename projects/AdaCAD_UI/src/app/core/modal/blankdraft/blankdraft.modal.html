@@ -1,0 +1,28 @@
+
+<h2 mat-dialog-title>Make Blank Draft</h2>
+
+<mat-dialog-content>
+
+  <form #initForm="ngForm">
+
+
+      <mat-form-field appearance="fill">
+        <mat-label>Warps</mat-label>
+      <input matInput  type="number" placeholder="Number of Warp Ends" value="20" name="warps" min="2" step="1" [(ngModel)]="warps">
+      </mat-form-field>
+     <mat-form-field appearance="fill">
+      <mat-label>Wefts</mat-label>
+
+      <input matInput  type="number" placeholder="Number of Weft Picks" value ="20" name="wefts" min="2" step="1" [(ngModel)]="wefts" >
+      </mat-form-field>
+
+
+
+</form>
+
+</mat-dialog-content>    
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Close</button>
+  <button mat-button mat-dialog-close cdkFocusInitial  (click)="save(initForm)">Ok</button>
+</mat-dialog-actions>

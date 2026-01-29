@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/ui/loading/loading.component.scss"],
+  "sourcesContent": [".loading {\n\n\n    display: flex;\n    flex-direction: row;\n    width: 25vw;\n    gap: 16px;\n\n}\n\nimg {\n    display: flex;\n    width: 30%;\n}\n\np {\n    text-align: center;\n    opacity: 1;\n    font-size: larger\n}"],
+  "mappings": ";AAAA,CAAA;AAGI,WAAA;AACA,kBAAA;AACA,SAAA;AACA,OAAA;;AAIJ;AACI,WAAA;AACA,SAAA;;AAGJ;AACI,cAAA;AACA,WAAA;AACA,aAAA;;",
+  "names": []
+}

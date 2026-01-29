@@ -1,0 +1,17 @@
+/dist
+/node_modules
+/e2e
+/src/environments/
+
+firebase.json
+upload_to_4.1
+
+
+# System Files
+.DS_Store
+Thumbs.db
+
+
+.angular/
+.firebase/
+.vscode/

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/mixer/palette/palette.component.scss"],
+  "sourcesContent": ["#palette-scale-container {\n    width: 100%;\n    height: 100%;\n}\n\n.palette_base {\n    width: 64000px;\n    height: 64000px;\n}\n\nsvg {\n    position: absolute;\n}\n\n\n.multi_select_bounds_overlay {\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    border: 4px dashed #ff4081;\n    z-index: 1000;\n}"],
+  "mappings": ";AAAA,CAAA;AACI,SAAA;AACA,UAAA;;AAGJ,CAAA;AACI,SAAA;AACA,UAAA;;AAGJ;AACI,YAAA;;AAIJ,CAAA;AACI,YAAA;AACA,OAAA;AACA,QAAA;AACA,SAAA;AACA,UAAA;AACA,UAAA,IAAA,OAAA;AACA,WAAA;;",
+  "names": []
+}

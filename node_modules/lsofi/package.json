@@ -1,0 +1,41 @@
+{
+  "name": "lsofi",
+  "version": "1.0.0",
+  "description": "Find processes occupying a given port",
+  "files": ["index.js"],
+  "scripts": {
+    "deps": "dependency-check . && dependency-check . --extra --no-dev",
+    "lint": "standard",
+    "start": "ava --watch",
+    "test": "standard && npm run deps && ava"
+  },
+  "standard": {
+    "parser": "babel-eslint"
+  },
+  "keywords": [
+    "tool",
+    "cli",
+    "ports",
+    "lsof",
+    "netstat"
+  ],
+  "author": "Mario Nebl <hello@mario-nebl.de>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/marionebl/lsofi.git"
+  },
+  "dependencies": {
+    "is-number": "^2.1.0",
+    "through2": "^2.0.1"
+  },
+  "devDependencies": {
+    "ava": "^0.16.0",
+    "babel-eslint": "^6.1.2",
+    "dependency-check": "^2.6.0",
+    "get-port": "^2.1.0",
+    "get-server-port": "^1.0.0",
+    "standard": "^8.0.0",
+    "unexpected": "^10.17.0"
+  }
+}

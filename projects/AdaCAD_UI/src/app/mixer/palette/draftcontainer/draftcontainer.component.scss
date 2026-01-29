@@ -1,0 +1,221 @@
+button.output{
+	font-size: 28px;
+	color: "#33333";
+	background-color: transparent;
+	border: none;
+}
+
+.on_view{
+    border: 8px dotted #FFFFFF;
+}
+
+.has_pin{
+    border: 8px solid #FFFFFF;
+}
+
+
+.output_meta{
+	display: flex;
+    font-size: 1.5em;
+    color: black;
+    padding: 0px 8px;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+
+
+.name_and_dims{
+	height: 60px;
+	display: flex;
+	flex-direction: row;
+}
+
+.text{
+	margin: 6px 0px;
+
+}
+
+
+
+.show_draft{
+	margin: 0px 16px;
+    color: black;
+    font-size: 14px;
+}
+
+.mat-mdc-icon-button{
+    font-size: 14px;
+}
+
+
+
+.outlet{
+	font-size: 1.2em;
+	
+}
+
+.outlet_row{
+    position: relative;
+    top: 3px;
+    height: 14px;
+    /* left: 23px; */
+    display: flex;
+    color: white;
+}
+
+
+.outlet_connected{
+	background-color: black;
+	color: white;
+}
+
+.active{
+	background-color: #ff3860;
+	color: white;
+}
+
+
+.subdraft-container{
+	display: flex;
+	flex-direction: column;
+	min-width: 300px;
+	height: fit-content;
+	align-items: center;
+	margin: 8px;
+	padding: 8px;
+	background-color: rgba($color: white, $alpha: .5);
+	border-radius: 8px;
+}
+
+.multiselected{
+	border: thin solid #ff3860;
+}
+
+
+
+.datarow{
+	// display: flex;
+	// flex-direction: row;
+	// justify-content: space-between;
+	// color: white;
+    // font-size: 1.5em;
+	// padding: 0px 4px;
+
+}
+
+.options{
+	display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+	align-items: center;
+}
+
+
+
+h3{
+	font-weight: 800;
+}
+
+.cloak button{
+	width: 30px;
+}
+
+
+
+.is_preview{
+	z-index: 10;
+}
+
+
+
+
+
+.error{
+	color: #ff3860;
+  }
+
+.dropdown{
+	display: flex;
+	flex-direction: column;
+}
+
+.local_zoom{
+	display: flex;
+}
+
+.cloak{
+	display: none;
+	flex-direction: column;
+	width: 30px;
+}
+
+.align-top{
+	display: flex;
+	flex-direction: column;
+}
+
+.header-container{
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	width: 100%;
+}
+
+.rendering-view-opts{
+	display: flex;
+	flex-direction: row;
+	height: max-content;
+}
+
+
+.subdraft-contents{
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	transform-origin: center;
+	background-color: transparent;
+}
+	
+
+
+svg{
+	display: block;
+	color: black;
+}
+
+#bitmapImage{
+	display: none;
+	pointer-events: none;
+}
+
+.maindraft{
+	display: block;
+	overflow:hidden;
+}
+
+.hidden {
+	display: none;
+}
+
+.no-pointer{
+	pointer-events: none;
+}
+
+
+.hide{
+	display:none;
+}
+
+.connectable{
+	color:  #ff4081;
+	background: black;
+}
+
+
+
+  

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 200 200">
+  <!-- Generator: Adobe Illustrator 28.7.1, SVG Export Plug-In . SVG Version: 1.2.0 Build 142)  -->
+  <g>
+    <g id="Layer_1">
+      <rect width="46" height="46"/>
+      <rect y="50" width="46" height="150"/>
+      <rect x="50" width="150" height="46"/>
+      <path d="M199,51v148H51V51h148M200,50H50v150h150V50h0Z"/>
+    </g>
+  </g>
+</svg>

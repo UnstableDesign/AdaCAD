@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/ui/login/login.component.scss"],
+  "sourcesContent": [".form-container{\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n}\n\nbutton{\n    padding: 8px;\n}\n\n.dialog-header{\n    display: flex;\n    flex-direction: row;\n    justify-content: space-between;\n}\n\n\n.mat-mdc-dialog-actions {\n    justify-content: space-between;\n}\n\n.error{\n    color: red;\n    font: 0.8em;\n}\n\n.left, .right{\n    width: 45%;\n    display: flex;\n    flex-direction: column;\n    margin: 10px;\n}\n\n.email_input{\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-end;\n}\n\n.mat-mdc-form-field{\n    min-width: 100%;\n}\n\n.email_input button{\n    margin: 0px 5px;\n}\n\n.mat-mdc-raised-button {\n    display: block;\n    margin: 8px;\n}"],
+  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,eAAA;;AAGJ;AACI,WAAA;;AAGJ,CAAA;AACI,WAAA;AACA,kBAAA;AACA,mBAAA;;AAIJ,CAAA;AACI,mBAAA;;AAGJ,CAAA;AACI,SAAA;AACA,QAAA;;AAGJ,CAAA;AAAA,CAAA;AACI,SAAA;AACA,WAAA;AACA,kBAAA;AACA,UAAA;;AAGJ,CAAA;AACI,WAAA;AACA,kBAAA;AACA,mBAAA;;AAGJ,CAAA;AACI,aAAA;;AAGJ,CAVA,YAUA;AACI,UAAA,IAAA;;AAGJ,CAAA;AACI,WAAA;AACA,UAAA;;",
+  "names": []
+}

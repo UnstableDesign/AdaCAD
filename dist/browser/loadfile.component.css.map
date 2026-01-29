@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/ui/loadfile/loadfile.component.scss"],
+  "sourcesContent": [".loadfile-container {\n    width: 30vw;\n}"],
+  "mappings": ";AAAA,CAAA;AACI,SAAA;;",
+  "names": []
+}

@@ -1,0 +1,94 @@
+.mat-mdc-dialog-content{
+    display: flex;
+    flex-direction: row;
+    gap: 8px
+}
+
+.image_preview{
+    border: thin solid black;
+    overflow: scroll;
+}
+
+
+.content_left{
+    display: flex;
+    flex-direction: column;
+    width: 66%;
+    height: 100%;
+}
+
+.content_right{
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+}
+
+.header{
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    font-size: 12px;
+    line-height: 14px;
+    justify-content: space-between;
+    padding: 8px 0px;
+
+    span{
+        display: inline-block;
+        width: 100px;
+    }
+
+}
+
+.swatch{
+    display: flex;
+    width: 40px;
+    height: 55px;
+    border: thin solid black;
+    align-items: center;
+    justify-content: center;
+
+
+}
+
+.data{
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.results{
+    display: flex;
+    flex-direction: row;
+    width: 40%;
+    flex-wrap: wrap;
+    gap: 8px;
+    height: min-content;
+}
+
+
+.mappings{
+    display: flex;
+    width: 60%;
+    flex-direction: column;
+}
+.centered_id{
+    display: flex;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    color: black;
+    font-size: 12px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: thin solid black;
+
+}
+
+.data_row{
+    display: flex;
+    flex-direction: row;
+    align-items: top;
+    gap: 8px;
+}
