@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/mixer/operation-search/operation-search.modal.scss"],
-  "sourcesContent": ["mat-dialog-content {\n  min-width: 400px;\n  max-width: 600px;\n  max-height: 70vh;\n  overflow-y: auto;\n}"],
-  "mappings": ";AAAA;AACE,aAAA;AACA,aAAA;AACA,cAAA;AACA,cAAA;;",
-  "names": []
-}

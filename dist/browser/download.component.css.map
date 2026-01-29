@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/ui/download/download.component.scss"],
-  "sourcesContent": [".library {\n    font-size: 12px;\n}"],
-  "mappings": ";AAAA,CAAA;AACI,aAAA;;",
-  "names": []
-}

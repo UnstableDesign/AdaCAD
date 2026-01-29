@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/editor/loom/loom.component.scss"],
-  "sourcesContent": [".loom-form {\n    display: flex;\n    flex-direction: column;\n    padding: 8px;\n}\n\n.frame-comment {\n    color: red;\n    font-size: 0.8em;\n    margin-top: 0px;\n    padding: 0px;\n}\n\n.treadle-comment {\n    color: red;\n    font-size: 0.8em;\n    margin-top: 0px;\n    padding: 0px;\n}\n\n.section-title {\n    display: block;\n    font-weight: bold;\n    padding: 16px 0px 16px 0px;\n}"],
-  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,WAAA;;AAGJ,CAAA;AACI,SAAA;AACA,aAAA;AACA,cAAA;AACA,WAAA;;AAGJ,CAAA;AACI,SAAA;AACA,aAAA;AACA,cAAA;AACA,WAAA;;AAGJ,CAAA;AACI,WAAA;AACA,eAAA;AACA,WAAA,KAAA,IAAA,KAAA;;",
-  "names": []
-}

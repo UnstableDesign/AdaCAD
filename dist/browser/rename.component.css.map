@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/ui/rename/rename.component.scss"],
-  "sourcesContent": [".draft-info-container {\n    display: flex;\n    flex-direction: column;\n    justify-content: flex-start;\n    align-items: flex-start;\n    gap: 10px;\n}"],
-  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,mBAAA;AACA,eAAA;AACA,OAAA;;",
-  "names": []
-}

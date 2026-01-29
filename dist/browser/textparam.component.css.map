@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/ui/textparam/textparam.component.scss"],
-  "sourcesContent": [".file-input-container {\n    display: flex;\n    flex-direction: column;\n    align-items: flex-start;\n    gap: 8px;\n    margin-top: 16px;\n    margin-bottom: 8px;\n}\n\n.mat-mdc-form-field {\n    width: 100%;\n}"],
-  "mappings": ";AAAA,CAAA;AACI,WAAA;AACA,kBAAA;AACA,eAAA;AACA,OAAA;AACA,cAAA;AACA,iBAAA;;AAGJ,CAAA;AACI,SAAA;;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/core/ui/blankdraft/blankdraft.modal.scss"],
-  "sourcesContent": [".mat-mdc-form-field {\n\twidth:400px !important;\n\tclear:both;\n\tdisplay:block;\n}"],
-  "mappings": ";AAAA,CAAA;AACC,SAAA;AACA,SAAA;AACA,WAAA;;",
-  "names": []
-}
