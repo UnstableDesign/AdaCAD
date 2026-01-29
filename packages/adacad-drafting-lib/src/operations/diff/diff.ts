@@ -1,0 +1,191 @@
+import { initDraftFromDrawdown, createCell, wefts, warps, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles } from "../../draft";
+import { Sequence } from "../../sequence";
+import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "../../operations";
+import { NumParam, BoolParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta } from "../types";
+import { defaults, lcm } from "../../utils";
+import { computeOp } from "../categories";
+
+const name = "diff";
+
+const meta: OpMeta = {
+  displayname: 'diff, (a, b) => (a NEQ b)',
+  desc: 'Applies binary math to two drafts. To do so, it looks at each interlacement in input drafts a and b and it returns a black cell in any location where the two draft cells were different',
+  img: 'diff.png',
+  advanced: true,
+  old_names: ['knockout'],
+  categories: [computeOp]
+}
+
+//PARAMS
+
+const shift_ends: NumParam =
+{
+  name: 'shift ends',
+  type: 'number',
+  min: 0,
+  max: 10000,
+  value: 0,
+  dx: ''
+};
+
+const shift_pics: NumParam =
+{
+  name: 'shift pics',
+  type: 'number',
+  min: 0,
+  max: 10000,
+  value: 0,
+  dx: ''
+};
+
+const repeats: BoolParam =
+{
+  name: 'calculate repeats',
+  type: 'boolean',
+  falsestate: 'do not repeat inputs to match size',
+  truestate: 'repeat inputs to match size',
+  value: 1,
+  dx: "controls if the inputs are interlaced in the exact format submitted or repeated to fill evenly"
+}
+
+
+const params = [shift_ends, shift_pics, repeats];
+
+//INLETS
+const draft_a: OperationInlet = {
+  name: 'a',
+  type: 'static',
+  value: null,
+  uses: "draft",
+  dx: 'one draft you would like to compare',
+  num_drafts: 1
+}
+
+const draft_b: OperationInlet = {
+  name: 'b',
+  type: 'static',
+  value: null,
+  uses: "draft",
+  dx: 'one draft you would like to compare',
+  num_drafts: 1
+}
+
+
+
+const inlets = [draft_a, draft_b];
+
+
+const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
+
+  const input_draft_a = getAllDraftsAtInlet(op_inputs, 0);
+  const input_draft_b = getAllDraftsAtInlet(op_inputs, 1);
+  const shift_ends: number = <number>getOpParamValById(0, op_params);
+  const shift_pics: number = <number>getOpParamValById(1, op_params);
+  const repeat: boolean = <boolean>getOpParamValById(2, op_params);
+
+  if (input_draft_a.length == 0 && input_draft_b.length == 0) return Promise.resolve([]);
+
+  const draft_a = (input_draft_a.length == 0) ? initDraftFromDrawdown([[createCell(null)]]) : input_draft_a[0];
+  const draft_b = (input_draft_b.length == 0) ? initDraftFromDrawdown([[createCell(null)]]) : input_draft_b[0];
+
+  let width, height = 0;
+
+  if (repeat) {
+    height = lcm([wefts(draft_a.drawdown), wefts(draft_b.drawdown)], defaults.lcm_timeout);
+    width = lcm([warps(draft_a.drawdown), warps(draft_b.drawdown)], defaults.lcm_timeout);
+  } else {
+    height = Math.max(wefts(draft_b.drawdown) + shift_pics, wefts(draft_a.drawdown));
+    width = Math.max(warps(draft_b.drawdown) + shift_ends, warps(draft_a.drawdown));
+  }
+
+
+  //offset draft b:
+  const pattern_b = new Sequence.TwoD();
+  for (let i = 0; i < height; i++) {
+    const seq = new Sequence.OneD();
+    if (!repeat) {
+      if (i < shift_pics) {
+        seq.pushMultiple(2, width);
+      } else if (i < (shift_pics + wefts(draft_b.drawdown))) {
+        seq.pushMultiple(2, shift_ends).pushRow(draft_b.drawdown[i - shift_pics]);
+        const remaining = width - (warps(draft_b.drawdown) + shift_ends);
+        if (remaining > 0) seq.pushMultiple(2, remaining);
+      } else {
+        seq.pushMultiple(2, width);
+      }
+    } else {
+      const ndx = (i + shift_pics) % wefts(draft_b.drawdown);
+      seq.pushRow(draft_b.drawdown[ndx]).resize(width);
+    }
+    pattern_b.pushWeftSequence(seq.val());
+  }
+
+
+
+  //make sure pattern a is the same size
+  const pattern_a = new Sequence.TwoD();
+  for (let i = 0; i < height; i++) {
+    const seq = new Sequence.OneD();
+
+    if (!repeat) {
+      if (i < wefts(draft_a.drawdown)) {
+        seq.pushRow(draft_a.drawdown[i]);
+        const remaining = width - draft_a.drawdown[i].length;
+        if (remaining > 0) seq.pushMultiple(2, remaining);
+      } else {
+        seq.pushMultiple(2, width);
+      }
+    } else {
+      if (i < wefts(draft_a.drawdown)) {
+        seq.pushRow(draft_a.drawdown[i]).resize(width).shift(shift_ends);
+      } else {
+        seq.pushMultiple(2, width)
+      }
+    }
+    pattern_a.pushWeftSequence(seq.val());
+  }
+
+
+
+  const pattern = new Sequence.TwoD();
+  for (let i = 0; i < height; i++) {
+    const seq_a = new Sequence.OneD(pattern_a.getWeft(i));
+    const seq_b = new Sequence.OneD(pattern_b.getWeft(i));
+    seq_a.computeFilter('neq', seq_b);
+    pattern.pushWeftSequence(seq_a.val());
+  }
+
+
+
+
+
+  let d = initDraftFromDrawdown(pattern.export());
+  d = updateWeftSystemsAndShuttles(d, draft_a);
+  d = updateWarpSystemsAndShuttles(d, draft_a);
+
+  return Promise.resolve([{ draft: d }]);
+}
+
+const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>): string => {
+  const drafts = getAllDraftsAtInlet(op_inputs, 0);
+  return 'diff' + parseDraftNames(drafts) + ")";
+}
+
+const sizeCheck = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const input_draft_a = getAllDraftsAtInlet(op_inputs, 0);
+  const input_draft_b = getAllDraftsAtInlet(op_inputs, 1);
+  const shift_ends: number = <number>getOpParamValById(0, op_params);
+  const shift_pics: number = <number>getOpParamValById(1, op_params);
+
+  if (input_draft_a.length == 0 && input_draft_b.length == 0) return true;
+
+  const draft_a = (input_draft_a.length == 0) ? initDraftFromDrawdown([[createCell(null)]]) : input_draft_a[0];
+  const draft_b = (input_draft_b.length == 0) ? initDraftFromDrawdown([[createCell(null)]]) : input_draft_b[0];
+
+  const height = Math.max(wefts(draft_b.drawdown) + shift_pics, wefts(draft_a.drawdown));
+  const width = Math.max(warps(draft_b.drawdown) + shift_ends, warps(draft_a.drawdown));
+
+  return (height * width) <= defaults.max_area ? true : false;
+}
+
+export const diff: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
