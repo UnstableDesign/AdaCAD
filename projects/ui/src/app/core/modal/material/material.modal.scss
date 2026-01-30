@@ -1,0 +1,43 @@
+.material-list-container{
+    width: 100%;
+    overflow: scroll;
+}
+
+
+// .colorpicker{
+//     outline: grey;
+//     width: 40px;
+//     height: 40px;
+//     margin: 2px 8px 0px 0px;
+// }
+
+.okbutton{
+    color: blue
+}
+
+i{
+	padding-right: 8px;
+    margin: 4px 0px 0px 0px;
+}
+
+.delete_material{
+   display: flex; 
+   flex-direction: row;
+   font-size: .8em;
+
+   button{
+    width: 66%;
+
+   }
+   /* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
+   mat-select{
+       width: 33%;
+       overflow: hidden;
+   }
+}
+
+.toprow{
+    display: flex;
+    flex-direction: row;
+    line-height: 1em;
+}
