@@ -17,5 +17,4 @@ Thumbs.db
 .firebase/
 .vscode/
 
-# This folder can contain 100+ generated images, ignoring for now
-/screenshot-generator/screenshots/
+
