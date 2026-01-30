@@ -1,0 +1,102 @@
+
+<!--TODO add z index support here
+-->
+<div
+  class="note-container selectable-{{!disable_drag}}"
+  id="note-{{note.id}}"
+  [style.background]="note.color"
+  cdkDrag
+  (cdkDragStarted)="dragStart($event)"
+  (cdkDragMoved)="dragMove($event)">
+
+
+
+  <div class="note-opts">
+
+    <div class="align-left">
+      <div class="handle" cdkDragHandle>
+        <button mat-icon-button class="fa-solid fa-up-down-left-right"></button>
+      </div>
+    </div>
+
+    <div class="align-right">
+      <!-- <button
+      mat-icon-button
+      matTooltip= "Change Note Color"
+      (colorPickerChange) = 'colorChange($event)'
+      class="fa-solid fa-palette"
+      [(colorPicker)]="note.color"
+      [style.background]="note.color"
+      >
+    </button>  -->
+
+
+    @if (!show_url) {
+      <button
+        matTooltip= "Upload Image"
+        mat-icon-button
+        class="fas fa-image"
+        (click)="uploadImage()">
+      </button>
+    }
+
+
+
+    <button
+      matTooltip= "Delete"
+      mat-icon-button
+      class="fas fa-times"
+      [name]="delete"
+      (click)="delete()">
+    </button>
+  </div>
+</div>
+
+
+<mat-form-field appearance="outline" class="notetitle">
+  <mat-label>note title</mat-label>
+  <input matInput placeholder="note title"  [(ngModel)]="note.title" (focusout)="save()" name="title">
+
+</mat-form-field>
+
+@if (note.imageurl) {
+  <div>
+    <img [src]="note.imageurl" >
+  </div>
+}
+
+
+@if (show_url) {
+  <mat-form-field
+    class="url" appearance="outline">
+    <mat-label>url to image</mat-label>
+    <input class="textfield" matInput [(ngModel)]="note.imageurl" [style.width.px]="note.width" placeholder="enter the url to your image">
+    <button
+      matSuffix
+      matTooltip= "enter url"
+      mat-icon-button
+      class="fa-solid fa-check"
+      (click)="enterUrl()">
+    </button>
+  </mat-form-field>
+}
+
+
+
+<mat-form-field class="textfield" appearance="outline">
+  <mat-label>note text</mat-label>
+
+  <textarea cdkTextareaAutosize resizeToFitContent matInput placeholder="add your note text here" [(ngModel)]="note.text" name="text" (focusout)="save()"></textarea>
+</mat-form-field>
+
+<!-- <div class="expand" >
+<button mat-icon-button id="resize_button" class="expand-icon fa-solid fa-up-right-and-down-left-from-center"></button>
+
+</div> -->
+
+<canvas id="notecanvas-{{note.id}}" hidden></canvas>
+
+</div>
+
+
+

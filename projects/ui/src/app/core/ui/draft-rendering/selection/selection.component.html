@@ -1,0 +1,42 @@
+<div id="selection-container-{{id}}"
+  class="selection-container-div"
+  [class.hasSelection] = "has_selection">
+
+  <div id="selection-{{id}}" class="selection">
+
+
+
+  </div>
+
+  <div class="meta" id="selection-meta">
+
+    @if (width !== -1) {
+      <div class="size-row" id="size-row-id-{{id}}">
+        <span>{{width}} x {{height}} </span>
+      </div>
+    }
+
+    <div class="selection-row" id="action-row-id-{{id}}">
+
+
+      <button mat-fab
+        matTooltip="edit design in this region"
+        [matMenuTriggerFor]="actions"
+        ><i class="fas fa-magic"></i></button>
+
+        <mat-menu #actions="matMenu"
+          yPosition="below"
+          xPosition="before">
+          @for (action of design_actions; track action) {
+            <button class="menu-button"
+              mat-menu-item
+              (click)="designActionChange(action.value)">
+              <span class="{{action.icon}}"></span>
+              <span>{{action.viewValue}}</span>
+            </button>
+          }
+        </mat-menu>
+      </div>
+    </div>
+
+  </div>

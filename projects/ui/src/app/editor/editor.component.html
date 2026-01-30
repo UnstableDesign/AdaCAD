@@ -1,0 +1,254 @@
+<div  class="detail-sidebars" id="detail-sidebar">
+
+  <mat-accordion multi>
+    <!--
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i class="fas fa-eye"></i>
+          View
+        </mat-panel-title>
+        <mat-panel-description>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <button *ngIf="!viewer_expanded" mat-button (click)="focusUIView()">
+        <i  class="fa-solid fa-maximize"></i> Enter Full Screen</button>
+        <button *ngIf="viewer_expanded" mat-button (click)="collapseUIView()">
+          <i  class="fa-solid fa-minimize"></i> Exit Full Screen</button>
+
+          <button
+            mat-icon-button
+            [class.active]="current_view == 'draft'"
+            matTooltip="view draft"
+            (click)="viewChange('draft')">
+            <i class="fa-solid fa-chess-board"></i>
+          </button>
+
+          <button
+            mat-icon-button
+            [class.active]="current_view == 'structure'"
+            matTooltip="view structure"
+            (click)="viewChange('structure')">
+            <i class="fa-solid fa-hashtag"></i>
+          </button>
+
+          <button
+            mat-icon-button
+            [class.active]="current_view == 'color'"
+            matTooltip="view colors"
+            (click)="viewChange('color')">
+            <i class="fa-solid fa-paint-roller">
+            </i></button>
+
+            <button  mat-icon-button ><i class="fa-solid fa-expand" (click)="expandViewer()"></i></button>
+
+
+
+
+          </mat-expansion-panel>
+          -->
+
+
+
+          <button
+            mat-stroked-button
+            class="new_draft"
+            color="primary"
+            matTooltip= "Blank Draft"
+            (click)="createNewDraft()">
+            + <i class="fas fa-chess-board"></i> new draft
+          </button>
+
+
+          <mat-expansion-panel expanded >
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <i class="fas fa-edit"></i>
+                Edit Draft
+              </mat-panel-title>
+
+            </mat-expansion-panel-header>
+
+
+
+
+            <div class="draft_tools">
+
+              @if (loom.type !== 'jacquard') {
+                <div class="editing-mode-toggle">
+                  <mat-label>drafting style</mat-label>
+                  <mat-button-toggle-group  [(value)]="dm.cur_draft_edit_source"  name="design source" (change)="swapEditingStyleClicked()" aria-label="edit mode">
+                    <mat-button-toggle matTooltip="threading-first" class="draft-edit-mode-loom" value="loom"></mat-button-toggle>
+                    <mat-button-toggle matTooltip="drawdown-first" class="draft-edit-mode-drawdown" value="drawdown"> </mat-button-toggle>
+                  </mat-button-toggle-group>
+                </div>
+              }
+              <mat-label>drafting pencil</mat-label>
+
+              <mat-button-toggle-group
+                name="editor mode"
+                (change)="selectPencil()"
+                [(ngModel)]="pencil"
+                aria-label="edit mode">
+
+                <mat-button-toggle
+                  matTooltip="select regions"
+                  value="select">
+                  <i class="fas fa-expand"></i>
+                </mat-button-toggle>
+
+                @for (mode of draw_modes; track mode) {
+                  @if (mode.value !== 'material') {
+                    <mat-button-toggle
+                      [matTooltip]= "mode.viewValue"
+                      [value] = "mode.value"
+                      >
+                      <span class="{{mode.icon}}"></span>
+                    </mat-button-toggle >
+                  }
+                }
+
+                @for (shuttle of ms.materials; track shuttle) {
+                  <mat-button-toggle
+                    [matTooltip]= "shuttle.name"
+                    [value]="shuttle.id"
+                    >
+                    <span  [style.color]="shuttle.color" ><i class="fa-solid fa-paintbrush"></i></span>
+                  </mat-button-toggle >
+                }
+
+              </mat-button-toggle-group>
+
+
+              <!-- <div class="select">
+              <h3>select</h3> -->
+              <!-- <button
+              mat-icon-button
+              class="menu-button"
+              matTooltip= "Select Region"
+              [class.is-active]="dm.isSelectedDraftEditingMode('select')"
+              (click)="select()">
+              <i class="fas fa-expand"></i>
+            </button>
+          </div> -->
+
+          <!-- <div class="pencils">
+          <h3>draft</h3>
+          <ng-container *ngFor="let mode of draw_modes">
+            <button *ngIf="mode.value !== 'material'"
+              class="menu-button"
+              mat-icon-button
+              [matTooltip]= "mode.viewValue"
+              [class.is-active]="dm.isSelectedDraftEditingMode('draw') && dm.isSelectedPencil(mode.value)"
+              [name] = "mode.value"
+              (click)="drawModeChange(mode.value)">
+              <span class="{{mode.icon}}"></span>
+            </button>
+          </ng-container>
+        </div> -->
+        <!-- <div class="materials">
+        <h3>materials</h3>
+
+        <ng-container *ngFor="let shuttle of ms.materials">
+          <button class="menu-button"
+            mat-icon-button
+            [matTooltip]= "shuttle.name"
+            [class.is-active]="dm.isSelectedDraftEditingMode('draw') && dm.isSelectedPencil('material') && selected_material_id == shuttle.id"
+            (click)="drawWithMaterial(shuttle.id)">
+            <span  [style.color]="shuttle.color" ><i class="fa-solid fa-paintbrush"></i></span>
+          </button>
+        </ng-container>
+      </div> -->
+    </div>
+
+
+    <!-- <button
+    matTooltip= "Set Repeats"
+    mat-raised-button
+    class="fullwidth set_repeats"
+    [class.is-active] = "actions_modal && actions_modal.componentInstance != null"
+    (click)='openActions()'><i class="fas fa-magic"></i> Set Repeats</button> -->
+
+    <button
+      matTooltip= "Add/Edit Materials"
+      mat-flat-button
+      class="fullwidth set_repeats"
+      (click)='openMaterials()'><i class="fa-solid fa-paintbrush"></i> Add / Edit Materials</button>
+
+
+
+    </mat-expansion-panel>
+
+
+
+
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i class="fa-solid fa-gear"></i>
+          Loom Settings
+        </mat-panel-title>
+
+      </mat-expansion-panel-header>
+
+      <app-loom
+        #loom
+        [id]="id"
+        (unsetSelection)='unsetSelection()'
+        (drawdownUpdated)='drawdownUpdated()'
+        (loomSettingsUpdated)="loomSettingsUpdated()"
+      ></app-loom>
+    </mat-expansion-panel>
+
+
+    <mat-expansion-panel expanded>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <i class="fa-solid fa-circle-info"></i>
+          Information
+        </mat-panel-title>
+
+      </mat-expansion-panel-header>
+
+      @for (line of dressing_info; track line) {
+        <div>
+          {{line.label}}: {{line.value}}
+        </div>
+      }
+
+
+    </mat-expansion-panel>
+
+
+  </mat-accordion>
+
+</div>
+
+<div class="draft-container">
+
+
+  <div [class.hidden]="parentOp == ''" class="locked_draft">
+    <p>Edits are disabled by default because the draft you are viewing was generated by the <b>{{parentOp}}</b> operation. <button mat-raised-button color="warn" (click)="enableEdits()">Enable Edits</button>
+  </div>
+
+
+
+
+  <app-draft-rendering
+    id="draft_viewer"
+    #weaveRef
+    source = "editor"
+    [id]="id"
+    [view_only] = "false"
+    [current_view]="current_view"
+    [scale]="scale"
+    (onNewSelection) = "updateSelection($event)"
+    (onDrawdownUpdated)="drawdownUpdated()"
+    (onLoomSettingsUpdated)="loomSettingsUpdated()"
+    (onMaterialChange)="materialChange()"
+    (onViewerExpanded)="expandViewer()">
+  </app-draft-rendering>
+</div>
+
+

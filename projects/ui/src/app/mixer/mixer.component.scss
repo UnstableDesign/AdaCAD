@@ -1,0 +1,183 @@
+
+
+.mat-mdc-icon-button{
+  font-size: 14px;
+}
+
+.mat-mdc-outlined-button{
+  width: 100%;
+  text-wrap: pretty;
+  padding: 8px;
+  margin: 2px;
+  height: fit-content;
+}
+
+#saver{
+  z-index: -1;
+}
+
+.right {
+  display: flex;
+  flex-direction: row;
+  text-align: right;
+}
+
+.mixer-sidebars{
+
+
+  padding: 16px;
+  flex: 0 0 275px;
+  display: flex;
+  overflow: scroll;
+  flex-direction: column;
+
+}
+
+.palette{
+  height: 100%;
+  overflow: scroll;
+}
+
+
+
+.no-pointer{
+  pointer-events: none;
+}
+
+h3{
+  text-align: left;
+  font-weight: lighter;
+  padding-bottom: 0px;
+  color: #999;
+  margin-top: 24px;
+}
+
+
+.mat-expansion-panel-header{
+  i{
+      padding-right: 8px;
+  }
+}
+
+.sidenav{
+  display: flex;
+  padding: 16px;
+  background-color: #f0f0f0;
+  flex-direction: column;
+  height: 100%;
+  width: min-content;
+  overflow: scroll;
+
+  &.hide{
+    display: none;;
+  }
+  
+}
+
+
+.mode-pan{
+  cursor:grab;
+}
+
+.mode-marquee{
+  cursor:crosshair;
+}
+
+.mode-move{
+  cursor:default;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of slider that may no longer apply for the MDC version. */
+
+
+
+.mat-stroked-button{
+  margin: 2px;
+  max-width: 160px;
+  
+  &.operation{
+    color: white;
+    white-space: normal;
+    line-height: 20px;
+    padding: 10px;
+  }
+
+}
+
+.button_col{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.sidenav_opened{
+  width:  33%;
+}
+
+
+.view_slider{
+  display: flex;
+  flex-direction: row;
+  line-height: 40px;
+}
+
+.topbar_sub{
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+}
+
+.description{
+  font-style: italic;
+  width: 80%;
+  padding: 0px 0px 8px 8px;
+}
+
+
+
+.collapse{
+  color: #3f51b5;
+}
+
+.setting_title{
+  padding: 18px;
+  color: grey;
+  font-size: .8em;
+}
+
+.nav-opened{
+  left: 33%;
+}
+
+
+.mat-mdc-form-field {
+width: 95%;
+}
+
+
+.workspace_settings{
+width:100%;
+padding: 20px;
+display: flex;
+flex-direction: column;
+}
+
+.mat-drawer-content{
+  background:hsl(0, 100%, 100%);
+}
+
+.mat-drawer-container {
+  position: absolute;
+  width: 100%;
+  height: calc(100vh) !important;
+}
+
+
+
+.cdk-live-announcer-element{
+  display: none;
+}
+  
+  
+

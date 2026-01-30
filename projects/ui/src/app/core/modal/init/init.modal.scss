@@ -1,0 +1,24 @@
+.mat-mdc-form-field {
+	width:400px !important;
+	clear:both;
+	display:block;
+}
+
+.toprow{
+	display: flex;
+	flex-direction: row;
+}
+
+p{
+	font: 100;
+	font-style: italic;
+	width: 80%;
+	padding-bottom: 8px;
+	padding-left:8px;
+}
+
+
+
+.error{
+	color: red;
+}
