@@ -22,6 +22,7 @@ If applicable, add screenshots to help explain your problem.
 **Device and Browser (please complete the following information):**
  - Which Browser Were you Using [e.g. chrome, safari]
 - What kind of device were you interacting on (e.g. a Phone, Tablet, Laptop, etc). 
+- which AdaCAD version were you using (showing in top left of the screen). 
 
 **Additional context**
 Add any other context about the problem here.
