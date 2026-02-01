@@ -1,0 +1,304 @@
+@use '@angular/material' as mat;
+
+
+
+
+
+.draft-info-card-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    text-align: center;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+    position: relative;
+    align-items: flex-start;
+    max-width: 300px;
+
+    &.selected {
+        border: 4px solid #3f51b5;
+    }
+
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    @include mat.form-field-overrides((container-text-size: 12px,
+            subscript-text-line-height: 0px,
+            container-text-line-height:12px,
+            container-height: 15px,
+            filled-with-label-container-padding-bottom: 0px));
+
+
+
+
+
+
+
+    .mdc-text-field--no-label,
+    .mat-mdc-form-field-infix,
+    .mdc-text-field,
+    .mdc-text-field--filled {
+        padding: 0px !important;
+        width: 100% !important;
+
+
+    }
+
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+    }
+}
+
+.draft-info-card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #f5f5f5;
+    color: black;
+    width: 100%;
+    font-weight: bold;
+    font-size: 12px;
+    align-items: center;
+
+
+
+
+    @include mat.form-field-overrides((filled-container-color: #f5f5f5,
+            filled-input-text-color: black,
+            container-text-weight:bold));
+}
+
+.draft-info-card-header-name {
+    font-weight: bold;
+    text-wrap-mode: wrap;
+    text-wrap-style: pretty;
+    flex: 1 1 80%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.draft-info-card-header-select {
+    flex: 0 1 20%;
+}
+
+.draft-info-card-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    background-color: whitesmoke;
+    height: 300px;
+}
+
+.draft-info-card-body-input-list {
+    width: 46px;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin: 4px 2px;
+}
+
+.input-list-header {
+    font-size: 8px;
+    font-weight: normal;
+    text-align: center;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
+
+.data-label {
+    font-size: 8px;
+    font-weight: normal;
+    text-transform: uppercase;
+    color: #999;
+}
+
+
+
+.input-list-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.image_map_input_icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    font-size: 8px;
+    border: 1px solid white;
+}
+
+.dynamic_input_icon {
+    width: 40px;
+    height: 40px;
+    font-size: clamp(10px, 18px, 20px);
+    /* Minimum 1rem, preferred 2.5vw, maximum 2.5rem */
+    border-radius: 4px;
+    font-size: 18px;
+    line-height: 40px;
+    background-color: white;
+    color: black;
+    text-align: center;
+}
+
+.input-list-item-op-name {
+    font-size: 8px;
+    width: 40px;
+    text-wrap-mode: wrap;
+    text-wrap-style: pretty;
+    border-radius: 2px;
+    color: white;
+    padding: 2px 0px;
+    background-color: black;
+
+}
+
+.draft-info-card-main {
+
+    display: flex;
+    width: 250px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+
+    .slider {
+        vertical-align: middle;
+    }
+
+
+    @include mat.slider-overrides((active-track-color: black,
+            active-track-height: 3px,
+            handle-color: black))
+}
+
+.draft-info-card-body-rendering-and-notes {
+    width: 100%;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+.draft-info-card-body-rendering {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    overflow: scroll;
+}
+
+.draft-info-card-body-notes {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    overflow-y: scroll;
+    padding: 2px 31px 4px 0px;
+
+    button {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    @include mat.icon-button-overrides((icon-size: 12px,
+            touch-target-size: 12px,
+            icon-color: black));
+
+
+
+}
+
+.notes-text {
+    width: 100%;
+    text-align: left;
+    padding: 0px 2px;
+    font-size: 12px;
+    line-height: 14px;
+    padding: 0px;
+    margin: 0px;
+}
+
+.draft-data {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 2px;
+    align-items: center;
+}
+
+.dims,
+.density,
+.warp_systems,
+.weft_systems {
+    font-size: 12px;
+    line-height: 14px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+
+    @include mat.form-field-overrides((container-text-size: 20px,
+            container-text-line-height:12px));
+
+
+    .mat-mdc-form-field {
+        padding: 0px !important;
+        width: 30px !important;
+        height: 20px !important;
+        font-size: 12px !important;
+    }
+
+    .mdc-text-field--filled {
+        height: 20px !important;
+        padding: 0px !important;
+    }
+
+    ::ng-deep .mat-mdc-form-field-infix {
+        height: 20px !important;
+        padding: 0px !important;
+    }
+
+    ::ng-deep.mdc-text-field {
+        padding: 0px !important;
+    }
+
+
+}
+
+
+.density-inputs {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+.draft-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 2px;
+    align-items: center;
+    font-size: 14px;
+
+    .mat-mdc-icon-button {
+        font-size: 14px;
+    }
+}

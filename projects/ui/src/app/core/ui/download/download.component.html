@@ -1,0 +1,42 @@
+@if(origin === 'menu') {
+<button mat-menu-item [matMenuTriggerFor]="downloadMenu">Export</button>
+}
+@else if(origin === 'library') {
+<button [class.library]="origin === 'library'" matIconButton matTooltip="download draft"
+    [matMenuTriggerFor]="downloadMenu">
+    <i class="fas fa-download"></i>
+</button>
+
+<button matIconButton [class.library]="origin === 'library'" matTooltip="download bitmap" (click)="saveDraftAs('bmp')">
+    .BMP
+</button>
+
+}
+
+@else {
+<button mat-raised-button [matMenuTriggerFor]="downloadMenu" matTooltip="download workspace" color="primary">
+    <i class="fa-solid fa-download"></i>
+</button>
+}
+
+
+
+<mat-menu #downloadMenu="matMenu">
+    @if(origin !== 'library') {
+    <button mat-menu-item (click)="downloadWorkspace('ada')">Current Workspace</button>
+    }
+
+    <button mat-menu-item [disabled]="ids.length == 0" (click)="saveDraftAs('bmp')">Selected Draft as
+        Bitmap</button>
+    <button mat-menu-item [disabled]="ids.length == 0" (click)="saveDraftAs('jpg')">Selected Draft as
+        Image</button>
+    <button mat-menu-item [disabled]="ids.length == 0" (click)="saveDraftAs('wif')">Selected Draft as
+        .WIF</button>
+
+    <button mat-menu-item [disabled]="ids.length == 0" (click)="saveDraftAs('coloring_page')"
+        matTooltip="Download as Coloring Page">
+        <i class="fa-solid fa-pencil"></i> Selected Draft as Coloring Page
+    </button>
+</mat-menu>
+
+<canvas #bitmapImage hidden></canvas>
