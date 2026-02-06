@@ -1,0 +1,13 @@
+advanced:
+  label: 'Advanced'
+  permalink: '/advanced'
+  description: 'advanced operations.'
+
+
+# A partial tag definition is also valid
+structure:
+  label: 'Structure'
+
+# An empty tag definition is also valid
+# Other attributes will be inferred from the key
+emptyTag:

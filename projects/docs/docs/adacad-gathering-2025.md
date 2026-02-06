@@ -1,0 +1,204 @@
+---
+title: "AdaCAD Gathering 2025"
+---
+
+
+:::tip
+The [Event Program](./img/AdaCAD_Gathering_Program_2025_Final.pdf) is now available! Please refer to this program for final plans and full event details. We'll also provide you a printed copy when you arrive. 
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_01.jpg)
+
+:::
+
+:::info
+Need to ask question, want to meet the other attendees? Join the discussion on a private Discord channel for this event: [AdaCAD Gathering 2025 on Discord](https://discord.gg/bsMbEPEykd)
+:::
+
+The AdaCAD Gathering will take place June 2-6, 2025 in Boulder Colorado. This Working Group is supported by a [National Science Foundation grant](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346150&HistoricalAwards=false) focused on transitioning the AdaCAD open-source weaving software into a larger and more diverse open-source “eco-system” of users, developers, and maintainers. With this support, we are able to cover the costs of your flight, hotel, and meals for the duration of the trip.
+
+This group will bring together ~10 experts from art, craft, open-source, and engineering to co-author founding documents, workshop governance structures, and establish policies that will found our eco-system and help AdaCAD function as a community owned and maintained tool. We especially want to develop a thoughtful and sustainable approach for weavers (and the weave-curious) to connect, share, and collaborate.
+
+The tentative schedule for the working group is included below and would take place over five days, with two days devoted to arrival/departure and three days focused on group activities. While the impetus for the gathering is AdaCAD, we are planning activities that could be useful to participants more broadly. We also intend to keep the working schedule humane so that we can build connections and think creatively about open-source/craft futures.
+
+# 2025 Gathering
+
+## What to Prepare
+- [Print and Complete the Weaving and Drafting Force Sensors Booklet (fun in-flight activity)](https://drive.google.com/file/d/1W7ZrAOSZP2u_9rPzGfgMVJf9ui6FCtSJ/view),
+- [Watch and Follow Along with the "Getting Started with AdaCAD" Virtual Workshop](https://www.youtube.com/watch?v=xS_DZB3A7yY)
+- [Add your Introduction to our Introduction Slide Template](https://docs.google.com/presentation/d/1YZRHs_PO2np5WljdVAkw9sL5fqTJ9EcmpvIkJqRL1EY/edit?slide=id.p#slide=id.p)
+- Pack one physical sample or item that you can share with the group. Ideally, we'd love to see physical examples from your work or research that might help others understand what you do.
+
+
+## Schedule
+
+last updated Monday May 28, 2025
+
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_10.jpg)
+
+Links: 
+- [Cafe Aion](https://thehillboulder.com/go/cafe-aion). 
+
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_11.jpg)
+
+Links:
+- [Participant Introduction Slide Template](https://docs.google.com/presentation/d/1YZRHs_PO2np5WljdVAkw9sL5fqTJ9EcmpvIkJqRL1EY/edit?slide=id.p#slide=id.p)
+- [Sherpa’s Adventure](https://sherparestaurantboulder.com/)
+
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_12.jpg)
+
+
+Links: 
+- [Media Archaeology Lab](https://www.mediaarchaeologylab.com/)
+- [Barcetta](https://www.barchetta.pizza/)
+
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_13.jpg)
+
+
+Links:
+-  [Schacht Spindle Company](https://schachtspindle.com/)
+-  [Chautauqua Dining Hall](https://www.chautauqua.com/dining/dining-hall/)
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_14.jpg)
+
+
+## Event Map
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_09.jpg)
+
+## Confirmed Attendees 
+
+- [Brett Fiedler](https://www.colorado.edu/per/people/brett-fiedler) - CU Boulder
+- [Bhakti Ziek](https://bhaktiziek.com/) - Independent Author and Educator
+- [Bine Roth ](https://www.rca.ac.uk/more/staff/bine-roth/) - Royal College of London
+- [Chris Coleman](https://digitalcoleman.com/) - The Ohio State University
+- [Emily Winter](https://www.emilyfranceswinter.com/) - Co-Founder of The Weaving Mill.
+- [Jim McCann](https://www.cs.cmu.edu/~jmccann/) - Carnegie Mellon University
+- [Kaori Ueda](https://www.kyoto-saga.ac.jp/about/teachers/2156) - Kobe University
+- [Kathryn Walters](https://www.kmwalters.com/) - Swedish School of Textiles
+- [Marianne Fairbanks](https://www.mariannefairbanks.com/) - University of Wisconsin-Madison
+- [Sienna Bosch](https://siennabosch.com/) - Schacht Spindle Company
+- [Steven Frost](https://www.stevenfrost.com/) - Unstable Design Lab Associate Director
+- [Vibeke Vestby](https://digitalweaving.no/) - Digital Weaving Norway
+
+
+## Locations
+
+- [Moxy Hotel](https://www.marriott.com/en-us/hotels/denbx-moxy-boulder/overview/) 
+- [Roser ATLAS Center](https://www.colorado.edu/atlas), Room 208
+- Environmental Design, Room 234
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_06.jpg)
+
+
+## Transportation During the Gathering
+All restaurants are located within 20 minutes walking distance of ATLAS and the Moxy hotel. One or more of the organizers will also have cars available to anyone who desires a ride.  We are able to reimburse the cost of an Uber or Lyft to attend Gathering related events. 
+
+On Thursday June 5, we have already arranged transportation to the Schacht Spindle Company (which is located located 10 minutes away by car) and to the Chautauqua Dining Hall. 
+
+## Dietary Considerations
+All meals we provide and restaurants where we will have dinner offer gluten free (celiac-friendly), and vegetarian options. If you have any questions about the menu or food provided, please ask Deanna Gelosi. 
+
+## Alcohol
+We are not authorized to purchase any alcohol for this event and we cannot reimburse any purchases of alcohol. We have notified each restaurant of this rule and they will offer a separate “cash bar” option for any guests who wish to pay for alcohol out of pocket.
+
+## Code of Conduct
+While we will collectively set an official set of expectations for the gathering on Day 1, we would like to remind all attendees that people will come from many different backgrounds and bring different facets of experience. Please honor these different knowledges and be gracious if someone makes a mistake in, say, terminology. If you feel uncomfortable or in any way upset by an interaction during the Gathering, please do not hesitate to let Laura know. We will discuss with the organizers and determine next steps. 
+
+## Hosts and Organizing Committee
+Please reach out to our organizing team if you have any questions about the event. Our phone numbers are also listed in the [event program](./img/AdaCAD_Gathering_Program_2025_Final.pdf). Please email non urgent questions and feel free to text or call for urgent requests. 
+
+- [Laura Devendorf](http://artfordorks.com/) - laura.devendorf@colorado.edu
+- [Deanna Gelosi](https://deannagelosi.com) - deanna.gelosi@colorado.edu 
+- [Etta Sandry](https://ettasandry.com/) - etta.sandry@colorado.edu 
+
+
+## Questions or Requests 
+We'd love to make this event as comfortable as possible for you. Please let us know what you need in order to make this happen by writing to Laura via email or Discord. This might keep us informed of any food allergies (or preferences, things you really want to try) as well as any accessibility concerns.  
+
+
+## Travel
+Travel has been arranged for out of town guests.  
+
+### Flights
+If you have questions or concerns about your travel, or require any changes, please contact Deanna Gelosi via email or through Discord. 
+
+### Hotel
+Individual rooms have been booked in your name at the [Moxy Hotel](https://www.marriott.com/en-us/hotels/denbx-moxy-boulder/overview/) in Boulder. This hotel is located directly adjacent to the CU Boulder campus and is directly accessible via the [AB1 bus route](https://maps.app.goo.gl/sES2AdgHym5sceTW7) that runs to and from the Denver International Airport. If you need to change your hotel or dates for any reason, please contact Deanna Gelosi via email or through Discord. 
+
+<!-- The best way to get to Boulder is to fly into and out from Denver International Airport (DEN). This is a major hub in the United States, especially for United/Lufthansa.-->
+
+### Getting From the Airport to Boulder
+Travel from the airport to boulder is simplest using the [AB1 bus](https://app.rtd-denver.com/route/AB1/schedule?serviceType=3&direction=Eastbound&branch=) line, which runs every hour between 5AM and 11PM. You can purchase tickets and view schedules using the [RTDMyRide App](https://www.rtd-denver.com/fares-passes/myride). Ride share services like Uber and Lyft are also available. The ride from the airport to Boulder is roughly 1 hour. The Moxy hotel is located directly across from the Broadway and Pleasant Stop on the AB1 route. 
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_07.jpg)
+
+## What to Pack 
+We are having calm/warm weather during the day and wind/rain/thunderstorms/hail in the afternoons. Bring a rain jacket and some light layers. I'm typically wearing a t-shirt and jeans or shorts with a rain jacket to work. I like a light sweater for indoors because sometimes the air conditioning has a mind of its own. Also, bring shoes you don't mind walking in. Feel free to dress casually for the event -- Pretty much everyone in Boulder dresses casually no matter what the event is!  We plan to do most activities using pens and papers but if you like having a laptop for note-taking, bring it. We'll also have a few extra computers here if you need something.
+
+## Reimbursements
+We can reimburse for food and incidental expenses during the event up to an amount specified by our sponsor (the NSF). The amount of reimbursement depends on if you are spending a full day at the event ($69) or if it is a travel day ($51). We are not able to reimburse you for meals if we offered the same meal as part of the gathering (for example, you could not reimburse for breakfast on days when we plan to serve you breakfast). This is complicated, so we are happy to answer any questions. 
+
+In order to receive reimbursement, we'll need you to provide clear photos of itemized receipts via the form below no later than June 30.
+
+- Link to [Reimbursement Form](https://forms.gle/Tfh6D2SWPhXASyoS6)
+
+<!-- 
+### Booking Travel
+
+**Please send your ideal flights to Deanna Gelosi** (deanna.gelosi@colorado.edu). Keep in mind that whenever possible, the grant funding requires us to use US carriers (e.g. United/Luftansa or Delta/KLM etc). Please include: 
+
+**Domestic Travelers**
+
+- Name as printed on their government id (first, middle, last)
+- Date of birth
+- Cellphone number
+- Email address
+- Frequent flyer number, if applicable
+- TSA pre-check or Known Traveler Number, if applicable
+- Seat preference
+
+**International Travelers**
+
+- Name as printed on their passport (first, middle, last)
+- Issuing country for their passport
+- Passport number and expiration date
+- Confirmation that they have 6 months of validity on their passport past the return date (early December 2025)
+- Date of birth
+- Cellphone number
+- Email address
+- Frequent flyer number, if applicable
+- TSA pre-check or Known Traveler Number, if applicable
+- Seat preference --> 
+
+## About Boulder
+
+Boulder is a walkable/bikeable city and your hotel will be within walking distance of the university. Thus, you will not need to rent a car. If you'd like to explore Boulder, the bike paths are robust, extensive and off-street. You can rent an hourly bike using Boulder's B-Cycle program. The bus lines run regularly in Boulder as well.
+
+
+
+### General Map of Boulder
+
+![](./img/AdaCAD_Gathering_Program_2025_Final_Page_15.jpg)
+
+### Local Attractions
+
+
+
+- [ArtParts Creative Reuse Store](https://www.artpartsboulder.org/) - A secondhand store for art supplies
+- [Celestial Seasonings Tea Factory Tour](https://celestialseasonings.com/pages/tea-tour)
+- [Chautauqua Park](https://bouldercolorado.gov/locations/chautauqua-park)
+- [Dushanbe Teahouse](https://www.boulderteahouse.com/) - Beautiful teahouse from sister city in Tajikistan
+- [Pearl Street Mall](https://boulderdowntown.com/) - The downtown area of Boulder with shops, restaurants, and coffee
+- [Schacht Spindle Company](https://schachtspindle.com/)
+
+### Nearby Attractions
+
+- [Meow Wolf Denver (Convergence Station)](https://meowwolf.com/visit/denver) -  An immersive / interactive living art exhibit
+- Nederland + Carousel of Happiness - Nederland is a funky little mountain town with a nice cafe, crystal shops, pizzeria, and hand-build, hard carved carousel running on original motors and Wurlizer organ! **[Laura's personal favorite]**
+- [Rocky Mountain National Park](https://www.nps.gov/romo/index.htm)
+
+### High Altitude
+Boulder is 5,430 feet/1,655 meters above sea level. The weather can be erratic, the sun can be very strong, and the air is thin. Plan to wear sunblock, hat, sunglasses, and bring a bottle of water with you all day. Bring a wind breaker, rain coat, and maybe a light down jacket (it is rare but not impossible to get snow in June). A stray thunderstorm is likely in early June.

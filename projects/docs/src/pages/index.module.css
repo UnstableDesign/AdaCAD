@@ -1,0 +1,49 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+
+
+@keyframes playful {
+
+  from {
+    background-position-x: 0px;
+  }
+
+  to {
+    background-position-x: 1500px;
+  }
+
+}
+
+
+
+
+
+.heroBanner {
+  background-image: url('/img/bitmap.jpg');
+  animation-name: playful;
+  animation-duration: 1000s;
+  animation-iteration-count: infinite;
+  background-blend-mode: multiply;
+  background-color: grey;
+  animation-direction: alternate-reverse;
+  animation-timing-function: linear;
+  padding: 4rem 0;
+  text-align: left;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  padding: 4px;
+  align-items: left;
+  padding: 2px;
+  justify-content: left;
+}

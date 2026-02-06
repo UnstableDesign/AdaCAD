@@ -1,0 +1,20 @@
+.operationRow {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+.basicOps,
+.advancedOps {
+    display: flex;
+    flex-direction: row;
+    flex: 0 0 max-content;
+    flex-wrap: wrap;
+    gap: 4px;
+
+}
+
+.operationBlock h3 {
+    margin: 20px 0px 10px 0px;
+}
