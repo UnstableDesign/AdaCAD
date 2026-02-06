@@ -626,7 +626,7 @@ export class OperationComponent implements OnInit {
       const opnode = <OpNode>this.tree.getNode(this.id);
       const op = <DynamicOperation>this.operations.getOp(opnode.name);
 
-      if (op.dynamic_param_id === obj.id) {
+      if (op.dynamic_param_id.includes(obj.id)) {
 
         if (op.params[obj.id].type == 'draft') {
           const inputs: Array<IOTuple> = this.tree.getInputsAtNdx(this.id, 0);

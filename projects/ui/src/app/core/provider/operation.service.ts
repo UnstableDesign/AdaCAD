@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { DynamicOperation, getOpList, OpCategory, opCategoryList, Operation } from "adacad-drafting-lib";
+import { CanvasParam, DynamicOperation, getOpList, OpCategory, opCategoryList, Operation } from "adacad-drafting-lib";
 import { OperationClassification } from "../model/datatypes";
 
 @Injectable({
@@ -58,7 +58,7 @@ export class OperationService {
           newParam.value = JSON.parse(JSON.stringify(param.value));
         } catch (e) {
           console.error("Error parsing p5-canvas value", e);
-          newParam.value = {};
+          newParam.value = {} as CanvasParam['value'];
         }
         return newParam;
       }

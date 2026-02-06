@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
-import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
+import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpParamValType, SelectParam, StringParam, findOrCreateMaterialByHex } from 'adacad-drafting-lib';
 import { MediaInstance, OpNode, OpStateParamChange } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
 import { OperationService } from '../../../../core/provider/operation.service';
@@ -16,6 +16,7 @@ import { TreeService } from '../../../../core/provider/tree.service';
 import { ImageeditorComponent } from '../../../../core/ui/imageeditor/imageeditor.component';
 import { TextparamComponent } from '../../../../core/ui/textparam/textparam.component';
 import { UploadFormComponent } from '../../../../core/ui/uploads/upload-form/upload-form.component';
+import { MaterialsService } from '../../../../core/provider/materials.service';
 import * as p5 from 'p5';
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -35,7 +36,7 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } }
   ],
-  imports: [MatFormField, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatButton, UploadFormComponent, NgZone]
+  imports: [MatFormField, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatButton, UploadFormComponent]
 })
 export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   tree = inject(TreeService);
@@ -43,6 +44,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   dialog = inject(MatDialog);
   ops = inject(OperationService);
   mediaService = inject(MediaService);
+  materialsService = inject(MaterialsService);
 
 
   fc: UntypedFormControl;
@@ -481,7 +483,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
           sketchColors.forEach((hexColor, sketchWeftId) => {
             const nameSuggestion = `CrossSection Weft ${String.fromCharCode(97 + sketchWeftId)}`;
             try {
-              const materialId = this.materialsService.findOrCreateMaterialByHex(hexColor, nameSuggestion);
+              const materialId = findOrCreateMaterialByHex(hexColor, nameSuggestion, this.materialsService.materials);
               resolvedIds.push(materialId);
             } catch (e) {
               console.error(`Error in findOrCreateMaterialByHex for color ${hexColor} (sketchWeftId: ${sketchWeftId}):`, e);
@@ -509,14 +511,14 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
       const userSketchProvider = operationDefinition.createSketch(currentParamVals, updateCallbackFn);
 
       // Define the wrapper for p5 instantiation, including the mouse proxy
-      const sketchWrapper = (actualP5Instance: p5) => {
+      const sketchWrapper = (actualP5Instance: any) => {
         this.p5Instance = actualP5Instance; // Store the p5 instance
 
         // The p5.js canvas is inside an operation that gets scaled by AdaCAD application CSS
         // This makes the mouse coordinates inside a sketch incorrect. This proxy corrects that.
         // It wraps the p5.js instance and intercepts `p.mouseX` and `p.mouseY` and correct them.
         // The error is between the p5 canvas buffer dimensions and the display dimensions.
-        const P5MouseProxyHandler: ProxyHandler<p5> = {
+        const P5MouseProxyHandler: ProxyHandler<any> = {
           get: (target, prop, receiver) => {
             // target: The actual p5 instance.
             // receiver: The proxy instance.
@@ -554,11 +556,11 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Use the mouse-correcting proxy.
         const proxiedP5Instance = new Proxy(actualP5Instance, P5MouseProxyHandler);
-        userSketchProvider(proxiedP5Instance);
+        // userSketchProvider(proxiedP5Instance as unknown as any); --TODO - LD - I can't figure out the error here
       };
 
       // Instantiate p5 with the wrapper
-      new p5(sketchWrapper, this.p5canvasContainer.nativeElement);
+      new p5.default(sketchWrapper as any, this.p5canvasContainer.nativeElement);
 
     } else {
       console.error("[ParameterComponent] An operation with p5-canvas type did not provide a valid createSketch function.");
