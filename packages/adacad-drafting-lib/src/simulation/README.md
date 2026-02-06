@@ -1,13 +1,15 @@
-# Simulation Approach
+# Simulation
 
-## REQUIREMENTS:
+** IN PROGRESS **
+
+## GOALS / REQUIREMENTS:
 -  be able to create a structural simulation for any given draft that accurately anticipates how layers will form and separate without defining specific assignments of warp/weft systems to layers. 
 - to handle and represent the variable packing of yarns in different locations of the cloth (to anticipate packing)
 
 
 ## APPROACH
 
-Modeled off of TopoKnit [CITE], the core of this simulation is based on the idea of where two yarns (a warp and a weft) will or will not contact each other in a woven cloth. While TopoKnit is specific to weft knitting, the approach inspired me to think about representing points of contact between yarns in a process oriented fashion. As such, I model the possible contact points based on a draft, refine them based on how layers will or will not form, and then "insert" each yarn into the visualization in the order in which it would be woven. This is compiled from a drawdown, to a list of contact neighborhoods (topology) -> then by translating those neighborhoods into vertices. 
+Modeled off of [TopoKnit](https://arxiv.org/abs/2101.04560), the core of this simulation is based on the idea of where two yarns (a warp and a weft) will or will not contact each other in a woven cloth. While TopoKnit is specific to weft knitting, the approach inspired me to think about representing points of contact between yarns in a process oriented fashion. As such, I model the possible contact points based on a draft, refine them based on how layers will or will not form, and then "insert" each yarn into the visualization in the order in which it would be woven. This is compiled from a drawdown, to a list of contact neighborhoods (topology) -> then by translating those neighborhoods into vertices. 
 
 ## DRAFT -> CONTACT NEIGHBORHOODS
 It begins by parsing a drawdown, represented as a 2D array of cells. No additional information needs to be supplied with the drawdown to explain if and how layers should form (e.g. it ignores system information when parsing). At each cell/interlacement (crossing point of a warp end and weft pick) the yarns can make contact in four different locations, depending on the pairwise relationship of draft instructions to the top/bottom/left/right of the cell representing the interlacement. 
