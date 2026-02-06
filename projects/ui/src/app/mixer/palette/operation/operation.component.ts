@@ -272,6 +272,10 @@ export class OperationComponent implements OnInit {
 
   mousedown(e: any) {
     //this.disable_drag = false;
+    if (e.target.closest('.p5-canvas-parameter')) {
+      // Allow the mouse event to reach the canvas
+      return;
+    }
     e.stopPropagation();
   }
 
@@ -575,13 +579,45 @@ export class OperationComponent implements OnInit {
   }
 
 
+  /**
+ * Public method called by parent components (e.g., PaletteComponent) when any parameter changes.
+ * If the changed parameter wasn't the canvas itself, it triggers a reset on the canvas parameter component,
+ * passing the latest configuration derived from non-canvas parameters.
+ */
+  public triggerCanvasResetIfNeeded(changedParamType: string): void {
+    // Trigger reset if op has a p5-canvas param AND the changed parameter is not the p5-canvas param
+    // (canvasParamIndex is -1 if the op does not have a p5-canvas param, otherwise is the index of the canvas param)
+    const canvasParamIndex = this.op.params.findIndex(p => p.type === 'p5-canvas');
+
+    if (canvasParamIndex !== -1 && changedParamType !== 'p5-canvas') {
+
+      if (this.op === null || this.op === undefined) { console.error("Operation is null"); return; }
+
+      const currentParamVals = this.op.params.map((param, ndx) => {
+        return {
+          param: param,
+          val: this.opnode.params[ndx]
+        }
+      })
+
+      // Trigger reset on the p5-canvas parameter component with the current param vals
+      const paramComp = this.paramsComps?.find(comp => comp.param.type === 'p5-canvas');
+
+      if (currentParamVals) {
+        paramComp.triggerSketchReset(currentParamVals);
+      } else {
+        // Could not find p5-canvas ParameterComponent to trigger reset
+      }
+    }
+  }
+
 
   /**
    * called from the child parameter when a value has changed, this functin then updates the inlets
    * @param id an object containing the id of hte parameter that has changed
    * @param value 
    */
-  onParamChange(obj: any) {
+  onParamChange(obj: { id: number, value: any, type: string; }) {
     const opnode = <OpNode>this.tree.getNode(this.id);
     const original_inlets = this.opnode.inlets.slice();
 
@@ -621,7 +657,7 @@ export class OperationComponent implements OnInit {
 
     }
 
-    this.onOperationParamChange.emit({ id: this.id, prior_inlet_vals: original_inlets });
+    this.onOperationParamChange.emit({ id: this.id, paramId: obj.id, value: obj.value, type: obj.type, prior_inlet_vals: original_inlets });
   }
 
   nameChanged(id) {

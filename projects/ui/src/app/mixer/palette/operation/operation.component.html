@@ -103,10 +103,26 @@
 
       <div class="params">
         @for (param of op.params; track param; let i = $index) {
+        @if (param.type !== 'p5-canvas') {
         <app-parameter class="param" [param]='param' [opid]='id' [paramid]='i'
           (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event)
           (preventDrag)="disableDrag()">
         </app-parameter>
+        }
+        @else {
+
+        <!-- Canvas Parameters Area -->
+        <div class="canvas-params-container">
+          <ng-container *ngFor="let param of op.params; let i = index">
+            <app-parameter *ngIf="param.type === 'p5-canvas'" class="param-canvas" [param]='param' [opid]='id'
+              [paramid]='i' (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event)
+              (preventDrag)=disableDrag()>
+            </app-parameter>
+
+          </ng-container>
+        </div>
+        }
+
         }
       </div>
 

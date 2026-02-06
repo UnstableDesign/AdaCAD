@@ -49,7 +49,21 @@ export class OperationService {
   getOp(name: string): Operation | DynamicOperation {
     const op = this.ops.find(el => el.name == name);
     if (op == undefined) return null;
-    return op;
+
+    const newOp = { ...op };
+    newOp.params = newOp.params.map(param => {
+      const newParam = { ...param };
+      if (param.type === 'p5-canvas') {
+        try {
+          newParam.value = JSON.parse(JSON.stringify(param.value));
+        } catch (e) {
+          console.error("Error parsing p5-canvas value", e);
+          newParam.value = {};
+        }
+        return newParam;
+      }
+    });
+    return newOp;
   }
 
   hasOldName(op: Operation | DynamicOperation, name: string): boolean {
