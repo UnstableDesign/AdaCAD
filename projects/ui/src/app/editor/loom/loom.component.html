@@ -1,144 +1,269 @@
-<form #envt="ngForm" novalidate>
+<form class="loom-form" [formGroup]="loomForm" novalidate>
+
+  {{view_only}}
 
   <mat-form-field class="fullwidth">
 
     <mat-label>Loom Type</mat-label>
-    <mat-select  (selectionChange) ="loomChange(envt)" [(ngModel)]="type" name="loomtype">
+    <mat-select formControlName="loomtype">
       @for (loomtype of loomtypes; track loomtype) {
-        <mat-option [value]="loomtype.value">
-          {{loomtype.viewValue}}
-        </mat-option>
+      <mat-option [value]="loomtype.value">
+        {{loomtype.viewValue}}
+      </mat-option>
       }
     </mat-select>
+    @if (loomForm.get('loomtype')?.invalid && loomForm.get('loomtype')?.touched) {
+    <mat-error>Please select a loom type</mat-error>
+    }
   </mat-form-field>
 
-
-  <!-- TO DO DISABLE THESE IF EDITS ARE NOT ENABLED-->
-  <mat-form-field >
-    <mat-label>Warp Ends</mat-label>
-
-    <input matInput name="warps"
-      [disabled] = "!enabled"
-      [(ngModel)]="warps"
-      type="number"
-      [min]="1"
-      [max]="100000"
-      placeholder="Warp Ends"
-      (change)="warpChange(envt)"
-      (blur)="warpChange(envt)">
+  @if (loomForm.get('loomtype')?.value !== 'jacquard') {
 
 
+
+  <mat-form-field class="fullwidth">
+    <mat-label>Number of Frames</mat-label>
+
+    <input matInput formControlName="frames" step="1" type="number" min="2" max="1000">
+    <span matTextSuffix>frames</span>
+
+    @if ((loomForm.get('frames')?.invalid && loomForm.get('frames')?.touched) ) { <mat-error>
+      @if (loomForm.get('frames')?.errors?.['required']) {
+      Number of frames is required
+      }
+      @if (loomForm.get('frames')?.errors?.['min']) {
+      Number of frames must be at least 2
+      }
+      @if (loomForm.get('frames')?.errors?.['max']) {
+      Number of frames cannot exceed 1000
+      }
+    </mat-error>
+    }
+  </mat-form-field>
+
+  @if (loomForm.get('frames')?.value < required_frames) { <div class="frame-comment">This number
+    represents the
+    amount of frames you
+    have available on your loom. Your design requires {{required_frames}} frames.
+    </div>
+    }
+    }
+
+
+
+
+
+    @if(loomForm.get('loomtype')?.value == 'frame') {
+    <mat-form-field class="fullwidth">
+      <mat-label>Number of Treadles</mat-label>
+      <input [disabled]="!enabled" matInput formControlName="treadles" step="1" type="number" min="2" max="1000">
+      <span matTextSuffix>treadles</span>
+      @if (loomForm.get('treadles')?.invalid && loomForm.get('treadles')?.touched ) {
+      <mat-error>
+        @if (loomForm.get('treadles')?.errors?.['required']) {
+        Number of treadles is required
+        }
+        @if (loomForm.get('treadles')?.errors?.['min']) {
+        Number of treadles must be at least 2
+        }
+        @if (loomForm.get('treadles')?.errors?.['max']) {
+        Number of treadles cannot exceed 1000
+        }
+      </mat-error>
+      }
     </mat-form-field>
 
-    <mat-form-field >
-      <mat-label>Weft Picks</mat-label>
+    @if (loomForm.get('treadles')?.value < required_treadles) { <div class="treadle-comment">This number represents the
+      amount of treadles you
+      have available on your loom. Your design requires {{required_treadles}} treadles.
+      </div>}
+      }
 
-      <input matInput name="wefts"
-        [disabled] = "!enabled"
-        [(ngModel)]="wefts"
-        type="number"
-        min="2"
-        [max]="100000"
-        placeholder="Weft Picks"
-        (change)="weftChange(envt)"
-        (blur)="weftChange(envt)">
+
+
+      <mat-divider></mat-divider>
+      <mat-label class="section-title">Warp</mat-label>
+
+      <mat-form-field>
+        <mat-label>Warp Ends</mat-label>
+
+        <input matInput formControlName="warps" type="number" [min]="1" [max]="100000" placeholder="Warp Ends">
+
+        @if (loomForm.get('warps')?.invalid && loomForm.get('warps')?.touched) {
+        <mat-error>
+          @if (loomForm.get('warps')?.errors?.['required']) {
+          Warp ends is required
+          }
+          @if (loomForm.get('warps')?.errors?.['min']) {
+          Warp ends must be at least 1
+          }
+          @if (loomForm.get('warps')?.errors?.['max']) {
+          Warp ends cannot exceed 100,000
+          }
+        </mat-error>
+        }
 
       </mat-form-field>
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Warp Density</mat-label>
+        <input matInput formControlName="epi" type="number" min="0">
+
+        <span matTextSuffix>
+          @if (loomForm.get('units')?.value === 'in') {
+          epi
+          }
+          @if (loomForm.get('units')?.value === 'cm') {
+          ends / 10cm
+          }
+
+        </span>
+
+        @if (loomForm.get('epi')?.invalid && loomForm.get('epi')?.touched) {
+        <mat-error>
+          @if (loomForm.get('epi')?.errors?.['required']) {
+          Density is required
+          }
+          @if (loomForm.get('epi')?.errors?.['min']) {
+          Density must be at least 0
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Width</mat-label>
+        <input matInput [disabled]="!enabled || view_only" formControlName="width" step="0.125" type="number" min="0.25"
+          max="2000" placeholder="Width">
+        <span matTextSuffix>
+          @if (loomForm.get('units')?.value === 'in') {
+          inches
+          }
+          @if (loomForm.get('units')?.value === 'cm') {
+          cm
+          }
+
+        </span>
+
+        @if (loomForm.get('width')?.invalid && loomForm.get('width')?.touched) {
+        <mat-error>
+          @if (loomForm.get('width')?.errors?.['min']) {
+          Width must be at least 0.25
+          }
+          @if (loomForm.get('width')?.errors?.['max']) {
+          Width cannot exceed 60
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+
+      <mat-divider></mat-divider>
+      <mat-label class="section-title">Weft</mat-label>
+
+      <mat-form-field>
+        <mat-label>Weft Picks</mat-label>
+
+        <input matInput formControlName="wefts" [disabled]="!enabled || view_only" type="number" min="1" [max]="100000"
+          placeholder="Weft Picks">
+
+        @if (loomForm.get('wefts')?.invalid && loomForm.get('wefts')?.touched) {
+        <mat-error>
+          @if (loomForm.get('wefts')?.errors?.['required']) {
+          Weft picks is required
+          }
+          @if (loomForm.get('wefts')?.errors?.['min']) {
+          Weft picks must be at least 1
+          }
+          @if (loomForm.get('wefts')?.errors?.['max']) {
+          Weft picks cannot exceed 100,000
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Weft Density</mat-label>
+        <input matInput formControlName="ppi" type="number" min="0">
+
+        <span matTextSuffix>
+          @if (loomForm.get('units')?.value === 'in') {
+          ppi
+          }
+          @if (loomForm.get('units')?.value === 'cm') {
+          picks / 10cm
+          }
+
+        </span>
+
+        @if (loomForm.get('ppi')?.invalid && loomForm.get('ppi')?.touched) {
+        <mat-error>
+          @if (loomForm.get('ppi')?.errors?.['required']) {
+          Weft Density is required
+          }
+          @if (loomForm.get('ppi')?.errors?.['min']) {
+          Weft Density must be at least 0
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+      <mat-form-field class="fullwidth">
+        <mat-label>Length</mat-label>
+        <input matInput [disabled]="!enabled || view_only" formControlName="length" step="0.125" type="number"
+          min="0.25" max="2000" placeholder="Width">
+        <span matTextSuffix>
+          @if (loomForm.get('units')?.value === 'in') {
+          inches
+          }
+          @if (loomForm.get('units')?.value === 'cm') {
+          cm
+          }
+
+        </span>
+
+        @if (loomForm.get('length')?.invalid && loomForm.get('length')?.touched) {
+        <mat-error>
+          @if (loomForm.get('length')?.errors?.['min']) {
+          Width must be at least 0.25
+          }
+          @if (loomForm.get('length')?.errors?.['max']) {
+          Width cannot exceed 2000
+          }
+        </mat-error>
+        }
+
+      </mat-form-field>
+
+
+      <mat-divider></mat-divider>
+
+      <mat-label class="section-title">General</mat-label>
+
+
 
       <mat-form-field class="fullwidth">
         <mat-label>Density Units</mat-label>
-        <mat-select [(value)]="units" [(ngModel)]="units" name="units" (selectionChange) ="unitChange()">
+        <mat-select formControlName="units">
           @for (unit of density_units; track unit) {
-            <mat-option [value]="unit.value">
-              {{unit.viewValue}}
-            </mat-option>
+          <mat-option [value]="unit.value">
+            {{unit.viewValue}}
+          </mat-option>
           }
         </mat-select>
+        @if (loomForm.get('units')?.invalid && loomForm.get('units')?.touched) {
+        <mat-error>Please select density units</mat-error>
+        }
       </mat-form-field>
 
-      <mat-form-field class="fullwidth">
-        <mat-label>Density</mat-label>
-        <input matInput
-          name="epi"
-          [(ngModel)]="epi"
-          type="number"
-          min= "0"
-          (change)="epiChange(envt)"
-          (blur)="epiChange(envt)">
-
-          <span matTextSuffix>
-            @if (units === 'in') {
-              epi
-            }
-            @if (units === 'cm') {
-              ends / 10cm
-            }
-
-          </span>
-
-
-        </mat-form-field>
 
 
 
-        <mat-form-field class="fullwidth">
-          <mat-label>width</mat-label>
-          <input matInput
-            [disabled] = "!enabled"
-            name="width"
-            [(ngModel)]="width"
-            step="0.125"
-            type="number"
-            min= "0.25"
-            max ="60"
-            placeholder="Width"
-            (change)="widthChange(envt)"
-            (blur)="widthChange(envt)">
-            <span matTextSuffix>
-              @if (units === 'in') {
-                inches
-              }
-              @if (units === 'cm') {
-                cm
-              }
 
-            </span>
-
-
-
-          </mat-form-field>
-
-
-
-          @if (type != 'jacquard') {
-            <mat-form-field class="fullwidth" >
-              <mat-label >Number of Frames</mat-label>
-              <input matInput
-                name="frames"
-                [(ngModel)]="frames"
-                step="1"
-                type="number"
-                min= "2"
-                max ="1000"
-                (change)="updateMinFrames(envt)"
-                (blur)="updateMinFrames(envt)">
-                <span matTextSuffix>frames</span>
-              </mat-form-field>
-              <mat-form-field class="fullwidth">
-                <mat-label>Number of Treadles</mat-label>
-                <input matInput
-                  name="treadles"
-                  [disabled]="type == 'jacquard'"
-                  [(ngModel)]="treadles"
-                  step="1"
-                  type="number"
-                  min= "2"
-                  max ="1000"
-                  (change)="updateMinTreadles(envt)"
-                  (blur)="updateMinTreadles(envt)"
-                  >
-                  <span matTextSuffix>treadles</span>
-                </mat-form-field>
-              }
-
-            </form>
+</form>

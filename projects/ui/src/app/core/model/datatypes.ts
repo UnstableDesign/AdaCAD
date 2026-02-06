@@ -1,127 +1,108 @@
 import { ViewRef } from "@angular/core";
-import { NoteComponent } from "../../mixer/palette/note/note.component";
+import { AnalyzedImage, Color, CompressedDraft, Draft, Loom, LoomSettings, Material, OpInletValType, OpParamValType, SingleImage } from "adacad-drafting-lib";
+import { BehaviorSubject } from "rxjs";
 import { ConnectionComponent } from "../../mixer/palette/connection/connection.component";
+import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
-import { MaterialsService } from "../provider/materials.service";
-
-/**
- * This file contains all definitions of custom types and objects
- */
-
-
-/*** APPLICATION STATE MANAGEMENT */
 
 
 
-/*****   OBJECTS/TYPES RELATED TO DRAFTS  *******/
+/****************** OBJECTS/TYPES RELATED to OPERATION TREE *****************/
 
 
 /**
- * Drawdown can be used as shorthand for drafts, which are just 2D arrays of Cells
+ * this stores a reference to a component on the palette with its id and some
+ * @param type is the type of component'
+ * @param view_id is ndx to reference to this object in the ViewComponentRef (for deleting)
+ * @param id is a unique id linked forever to this component 
+ * @param component is a reference to the component object
+ * @param dirty describes if this needs to be recalcuated or redrawn 
  */
-export type Drawdown = Array<Array<Cell>>;
+type BaseNode = {
+  type: 'draft' | 'op' | 'cxn',
+  ref: ViewRef,
+  id: number, //this will be unique for every instance
+  component: SubdraftComponent | OperationComponent | ConnectionComponent,
+  dirty: boolean
+}
+
+/**
+ * an OpNode is an extension of BaseNode that includes additional params
+ * @param name the name of the operation at this node
+ * @param params an array of the current param values at this node
+ * @param inlets an array of the inlet values at this node (for instance, in the layer notation op, these might be 'a', 'b', etc.)
+ * @param outlets an array of the 
+ */
+export type OpNode = BaseNode & {
+  name: string,
+  params: Array<OpParamValType>,
+  inlets: Array<OpInletValType>,
+  recomputing: BehaviorSubject<boolean>,
+  checkChildren: BehaviorSubject<boolean>, //called after a perform when there is a chance new children could have been created
+  positionChange: BehaviorSubject<Point>
+}
+
+
+export type ConnectionNode = BaseNode & {
+  upstreamOfSelected: BehaviorSubject<boolean>,
+  downstreamOfSelected: BehaviorSubject<boolean>,
+}
+
+
+/***
+ * a DraftNode is an extension of BaseNode that includes additional params
+ * @param draft the active draft at this node
+ * @param loom the loom associated with the draft at this node
+ * @param loom_settings the settings associated with the loom at this node
+ * @param render_colors whether to render the colors of the draft
+ * @param scale the local zoom of the draft to use on the mixer
+ * @param visible whether the draft is visible on the mixer
+ * @param mark_for_deletion whether the draft is marked for deletion
+ * @param onValueChange a subject to emit the draft when it changes
+ * @param valueChange$ an observable to subscribe to the draft when it changes
+ */
+export type DraftNode = BaseNode & {
+  draft: Draft,
+  loom: Loom,
+  loom_settings: LoomSettings,
+  render_colors: boolean,
+  scale: number,
+  visible: boolean,
+  mark_for_deletion: boolean,
+  onValueChange: BehaviorSubject<DraftNodeBroadcast>, //called anytime a value on this draft is set
+  canvases: CanvasList,
+  positionChange: BehaviorSubject<Point>
+
+}
 
 
 /**
- * stores a drawdown along with broader information a draft such
- * @param id a unique id to refer to this draft, used for linking the draft to screen components
- * @param gen_name a automatically generated name for this draft (from parent operation)
- * @param ud_name a user defined name for this draft, which, if it exists, will be used instead of the generated name
- * @param drawdown the drawdown/interlacement pattern used in this draft
- * @param rowShuttleMapping the repeating pattern to use to assign draft rows to shuttles (materials)
- * @param rowSystemMapping the repeating pattern to use to assign draft rows to systems (structual units like layers for instance)
- * @param colShuttleMapping the repeating pattern to use to assign draft columns to shuttles (materials)
- * @param colSystemMapping the repeating pattern to use to assign draft columns to systems (structual units like layers for instance)
+ * Allows one to use Node as shorthand for any of these types of nodes
  */
-export interface Draft{
+export type Node = BaseNode | OpNode | DraftNode;
+
+
+export type DraftNodeBroadcast = {
   id: number,
-  gen_name: string,
-  ud_name: string,
-  drawdown: Drawdown,
-  rowShuttleMapping: Array<number>,
-  rowSystemMapping: Array<number>,
-  colShuttleMapping: Array<number>,
-  colSystemMapping: Array<number>,
+  draft: Draft,
+  loom: Loom,
+  loom_settings: LoomSettings,
+  flags: DraftNodeBroadcastFlags
 }
 
 
-/**
- * a modified version of the draft that stores the drawdown as a Byte Array to save space
- */
-export interface CompressedDraft{
-  id: number,
-  gen_name: string,
-  ud_name: string,
-  warps: number; 
-  wefts: number;
-  compressed_drawdown:  Array<number>,
-  rowShuttleMapping: Array<number>,
-  rowSystemMapping: Array<number>,
-  colShuttleMapping: Array<number>,
-  colSystemMapping: Array<number>,
-}
-
-
-export interface Cell{
-  is_set: boolean,
-  is_up: boolean
-}
-
-
-export interface System{
-  id: number;
-  name: string;
-  notes: string;
-  visible: boolean;
-  in_use: boolean;
+/**used to signal what aspect of this node changed, used for rendering */
+export type DraftNodeBroadcastFlags = {
+  meta: boolean, //name, view settings, etc 
+  draft: boolean, //the drawdown, or system mappings
+  loom: boolean, //the loom itself
+  loom_settings: boolean //the loom settings,
+  materials: boolean //the rowShuttle or colShuttle mappings
 }
 
 
 
-export interface Material {
-  id: number;
-  name: string;
-  insert: boolean; //true is left, false is right
-  visible: boolean;
-  color: string;
-  thickness: number; //percentage of base dims
-  type: number;
-  diameter: number;
-  startLabel?: string;
-  endLabel?: string;
-  notes: string;
-  rgb: {r: number, g: number, b: number}
-
-}
-
-/**
- * represents a location within a draft.
- * @param i is the row/weft number (0 being at the top of the drawdown)
- * @param j is the column/warp number (0 being at the far left of the drawdown)
- * @param si is the location of this cell within the current view (where the view may be hiding some rows)
- *        this value can be de-indexed to absolute position in the rows using draft.visibleRows array
- * @example const i: number = draft.visibleRows[si];
- */
- export interface Interlacement {
-  i: number;  
-  j: number;  
-  si: number; 
-}
-
-/**
- * represents a location within a draft as well as the value to be placed at that location
- * used by Loom to stage updates before settting them
- * @param i is the row/weft number (0 being at the top of the drawdown)
- * @param j is the column/warp number (0 being at the far left of the drawdown)
- * @param val the value to be assigned at the given location
- */
-
- export interface InterlacementVal {
-  i: number;  
-  j: number 
-  val: boolean; 
-}
 
 
 /***** OBJECTS/TYPES RELATED TO MIXER COMPONENTS ****/
@@ -130,20 +111,38 @@ export interface Material {
  * this stores a list of drafts created with associated component ids for those drafts, 
  * or -1 if the component for this draft has not been generated yet. 
  */
- export interface DraftMap{
+export interface DraftMap {
   component_id: number;
   draft: any;
 }
 
+/**
+ * a way to store the relationship between two nodes so we can restore them if we need on undo
+ */
+export type OutwardConnectionProxy = {
+  identity: "DRAFT" | "OP",
+  outlet_id: number,
+  to_id: number,
+  inlet_id: number
+}
+
+export type InwardConnectionProxy = {
+  from_id: number, //always references a draft id
+  inlet_id: number
+}
+
+
+
 
 /***** OBJECTS/TYPES RELATED TO SCREEN LAYOUT ****/
+
 
 
 /**
  * describes a point using x,y coordinates
  * often used for referencing mouse and/or screen drawing positions
  */
- export interface Point {
+export interface Point {
   x: number;
   y: number;
 }
@@ -154,20 +153,18 @@ export interface Material {
  * @param width - the width of the rectangle
  * @param height - the height of this rectanble.
  */
- export interface Bounds {
+export interface Bounds {
   topleft: Point;  //row on draft
   width: number;  //column on draft 
   height: number; //corresponding screen row
 }
 
-// /**
-//  * A type to communicate locations on the loom that have been updated in response to a given action
-//  */
-// interface LoomUpdate {
-//   threading: Array<InterlacementVal>,
-//   treadling: Array<InterlacementVal>,
-//   tieup: Array<Array<InterlacementVal>>
-// }
+
+export interface MultiSelectElement {
+  id: number,
+  topleft: Point,
+  positionUpdate: BehaviorSubject<Point>
+}
 
 
 /****** OBJECTS/TYPES to CONTROL SELECT LISTS******/
@@ -202,87 +199,26 @@ export interface ViewModes {
  * @param children, menu to nest within this
  * @param selected boolean to show if it is selected
  */
- export interface DesignMode{
+export interface DesignMode {
   value: string;
   viewValue: string;
   icon?: string;
 }
 
-export interface Note{
+export interface Note {
   id: number,
   topleft: Point,
   title: string;
   text: string;
   ref: ViewRef;
   color: string;
-  component: NoteComponent; 
+  component: NoteComponent;
   imageurl: string;
   width: number;
   height: number;
- }
-
-
-/**
- * this keeps any user defined preferences associated with a given loom
- * @param type the type of loom to use for computations (currently only supporting jacquard, direct tieup/dobby looms, floor looms with shafts and treadles)
- * @param epi the ends for unit length to use for calcuations
- * @param units the units to use for length, currently supports inches (1 inch), or centimeters (10cm)
- * @param frames the number of frames the user has specified as the max for their loom
- * @param treadles the number of treadles the user has specified as the max for their loom or -1, if they have no limit
- */
- export type LoomSettings = {
-  type: string,
-  epi: number,
-  units: 'cm' | 'in',
-  frames: number,
-  treadles: number,
-}
-
-/**
- * a loom is just a threading, tieup, and treadling
- */
-export type Loom = {
-  threading: Array<number>,
-  tieup: Array<Array<boolean>>,
-  treadling: Array<Array<number>>
 }
 
 
-
-/***
- *  Store each loom type as a different unit that computes functions based on its particular settings
- * @param type an identifer relating to the currently supported types
- * @param displayname the name to show with this loom type
- * @param dx the description for this type of loom
- * @param updateThreading a function to execute when a single cell is modified within the Threading
- * @param updateTreadling a function to execute when a single cell is modified within the Treadling
- * @param updateTieup a function to execute when a single cell is modified within the Tieup
- * @param pasteThreading a function to execute when a single cell is modified within the Threading
- * @param pasteTreadling a function to execute when a single cell is modified within the Treadling
- * @param pasteTieup a function to execute when a single cell is modified within the Tieup
- */
-export type LoomUtil = {
-  type: 'jacquard' | 'frame' | 'direct',
-  displayname: string,
-  dx: string,
-  computeLoomFromDrawdown: (d:Drawdown, loom_settings: LoomSettings) => Promise<Loom>,
-  computeDrawdownFromLoom: (l:Loom) => Promise<Drawdown>,
-  recomputeLoomFromThreadingAndDrawdown:(l:Loom, loom_settings: LoomSettings, d: Drawdown) => Promise<Loom>,
-  updateThreading: (l: Loom, ndx: InterlacementVal) => Loom,
-  updateTreadling: (l: Loom, ndx: InterlacementVal) => Loom,
-  updateTieup: (l: Loom, ndx: InterlacementVal)=> Loom,
-  insertIntoThreading: (l: Loom, j: number, val: number) => Loom,
-  insertIntoTreadling: (l: Loom, i: number, val: Array<number>) => Loom,
-  deleteFromThreading: (l: Loom, j: number) => Loom,
-  deleteFromTreadling: (l: Loom, i: number) => Loom,
-  pasteThreading: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
-  pasteTreadling: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number) => Loom,
-  pasteTieup: (l: Loom, drawdown: Drawdown, ndx: InterlacementVal, width:number, height: number)=> Loom
-  getDressingInfo: (dd: Drawdown, l: Loom, ls: LoomSettings)=> Array<{label: string, value: string}>;
-}
-
-
-export type YarnMap = Array<Array<Cell>>;
 
 
 /****** OBJECTS/TYPES FOR LOADING AND SAVING FILES *****/
@@ -294,11 +230,11 @@ export type YarnMap = Array<Array<Cell>>;
  * @param type the type of node
  * @param topleft the screen position and size data for this node
  */
-export interface NodeComponentProxy{
+export interface NodeComponentProxy {
   node_id: number,
   type: string,
   topleft: Point
- }
+}
 
 /**
  * stores a sparce version of a tree node for easy reloading
@@ -307,96 +243,96 @@ export interface NodeComponentProxy{
  * @param inputs an array of treenode ids for all values coming into this node
  * @param outputs an array of treenode ids for all downstream functions 
  */
- export interface TreeNodeProxy{
+export interface TreeNodeProxy {
   node: number,
-  parent: number; 
-  inputs: Array<{tn: number, ndx: number}>;
-  outputs: Array<{tn: number, ndx: number}>; 
- }
+  parent: number;
+  inputs: Array<{ tn: number, ndx: number }>;
+  outputs: Array<{ tn: number, ndx: number }>;
+}
 
-  /**
-  * holds data about each draft component in a compressed form 
-  * @param draft_id the draft id associated with this node (if available)
- * @param draft_visible a boolean to state if this node is visible or not. 
- * @param draft_name a string representing a user defined name
- * @param warps the number of warps in the drawdown
- * @param wefts the number of wefts in the drawdown 
- * @param compressed_draft this will only export if the draft is a seed draft
- * @param loom this will only export if the draft is a seed draft 
- * @param loom_settings the associated loom settings on this node, if present
-  */
+/**
+* holds data about each draft component in a compressed form 
+* @param draft_id the draft id associated with this node (if available)
+* @param draft_visible a boolean to state if this node is visible or not. 
+* @param draft_name a string representing a user defined name
+* @param warps the number of warps in the drawdown
+* @param wefts the number of wefts in the drawdown 
+* @param compressed_draft this will only export if the draft is a seed draft
+* @param loom this will only export if the draft is a seed draft 
+* @param loom_settings the associated loom settings on this node, if present
+*/
 
-   export interface DraftNodeProxy{
-    node_id: number;
-    draft_id: number;
-    ud_name: string;
-    gen_name:string;
-    draft: Draft;
-    compressed_draft: CompressedDraft;
-    draft_visible: boolean;
-    loom: Loom;
-    loom_settings: LoomSettings;
-    render_colors: boolean;
-    scale: number;
-   }
+export interface DraftNodeProxy {
+  node_id: number;
+  draft_id: number;
+  ud_name: string;
+  gen_name: string;
+  notes: string;
+  draft: Draft;
+  compressed_draft: CompressedDraft;
+  draft_visible: boolean;
+  loom: Loom;
+  loom_settings: LoomSettings;
+  render_colors: boolean;
+  scale: number;
+}
 
- /**
-  * a sparse form of an operation component to use for saving
-  * @param node_id the node id this object refers too
-  * @param name the name of the operation at this node
-  * @param params the list of input parameters to this operation
-  * @param inlets the let of inlets and associated values 
-  */
- export interface OpComponentProxy{
+
+
+
+/**
+ * a sparse form of an operation component to use for saving
+ * @param node_id the node id this object refers too
+ * @param name the name of the operation at this node
+ * @param params the list of input parameters to this operation
+ * @param inlets the let of inlets and associated values 
+ */
+export interface OpComponentProxy {
   node_id: number,
   name: string,
-  params: Array<any>, 
+  params: Array<any>,
   inlets: Array<any>;
- }
+}
 
- /**
-  * a container for zoom values of the editor, mixer.
-  */
- export interface ZoomProxy{
-    editor: number;
-    mixer: number;
- }
+/**
+ * a container for zoom values of the editor, mixer.
+ */
+export interface ZoomProxy {
+  editor: number;
+  mixer: number;
+}
 
- /**
-  * a media object is something a user uploads for manipulation in AdaCAD that is stored on the Firebase server
-  * a media object belongs to a user and eventually can be used across file contexts
-  * @param id a unique id that refers to only this media object instance
-  * @param ref the reference id used to find the media object in storage
-  * @param type a flag to determine which type of media this is
-  */
- export type MediaInstance ={
+// /**
+//  * a media object is something a user uploads for manipulation in AdaCAD that is stored on the Firebase server
+//  * a media object belongs to a user and eventually can be used across file contexts
+//  * @param id a unique id that refers to only this media object instance
+//  * @param ref the reference id used to find the media object in storage
+//  * @param type a flag to determine which type of media this is
+//  */
+export type MediaInstance = {
   id: number;
-  ref: string; 
+  ref: string;
   type: 'image' | 'indexed_color_image'; //currently we only support images
-  img: IndexedColorImageInstance | SingleImage;
+  img: SingleImage | AnalyzedImage;
+}
 
- }
 
- export type IndexedColorImageInstance = MediaInstance & {
-  img: AnalyzedImage;
- }
-
- export type IndexedColorMediaProxy = {
+export type IndexedColorMediaProxy = {
   id: number,
   ref: string,
   colors: Array<Color>;
-  color_mapping: Array<{from:number, to: number}>;
- }
+  color_mapping: Array<{ from: number, to: number }>;
+}
 
 
- /**
-  * describes the data from the workspace that is saved.
-  */
- export interface SaveObj{
+/**
+ * describes the data from the workspace that is saved.
+ */
+export interface SaveObj {
   version: string,
   workspace: any,
   zoom: ZoomProxy,
-  type: string,
+  type: 'mixer' | 'partial' | 'wif',
   nodes: Array<NodeComponentProxy>,
   tree: Array<TreeNodeProxy>,
   draft_nodes: Array<DraftNodeProxy>,
@@ -404,369 +340,94 @@ export interface NodeComponentProxy{
   notes: Array<Note>,
   materials: Array<Material>,
   indexed_image_data: Array<IndexedColorMediaProxy>
- }
-
-export interface FileObj{
- version: string,
- workspace: any,
- zoom: ZoomProxy,
- filename: string,
- nodes: Array<NodeComponentProxy>,
- treenodes: Array<TreeNodeProxy>,
- draft_nodes: Array<DraftNodeProxy>,
- notes: Array<any>,
- ops: Array<OpComponentProxy>,
- indexed_image_data: Array<IndexedColorMediaProxy>
-
 }
 
+// export interface FileObj {
+//   version: string,
+//   workspace: any,
+//   zoom: ZoomProxy,
+//   filename: string,
+//   nodes: Array<NodeComponentProxy>,
+//   treenodes: Array<TreeNodeProxy>,
+//   draft_nodes: Array<DraftNodeProxy>,
+//   notes: Array<any>,
+//   ops: Array<OpComponentProxy>,
+//   indexed_image_data: Array<IndexedColorMediaProxy>
 
-export interface StatusMessage{
+// }
+
+
+export interface StatusMessage {
   id: number,
   message: string,
   success: boolean
 }
 
-export interface LoadResponse{
-  data: FileObj,
-  id: number,
-  name: string, 
-  desc: string,
+export interface LoadResponse {
+  data: SaveObj,
+  meta: FileMeta,
   status: number,
-  from_share: string
 }
 
-export interface Fileloader{
-  ada: (filename: string, src: string, id: number, desc: string, data: any, from_share: string) => Promise<LoadResponse>,
+export interface Fileloader {
+  ada: (data: SaveObj, meta: FileMeta, src: string) => Promise<LoadResponse>,
   paste: (data: any) => Promise<LoadResponse>,
-  //wif: (filename: string, data: any) => Promise<LoadResponse>,
+  wif: (filename: string, data: any) => Promise<LoadResponse>,
+  bitmap: (filename: string, data: any) => Promise<LoadResponse>,
 }
 
-export interface FileSaver{
-  ada: () => Promise<{json: string, file: SaveObj}>,
+export interface FileSaver {
+  ada: () => Promise<{ json: string, file: SaveObj }>,
   copy: (include: Array<number>) => Promise<SaveObj>,
+  png: (canvas: HTMLCanvasElement) => Promise<string>,
   wif: (draft: Draft, loom: Loom, loom_settings: LoomSettings) => Promise<string>
   bmp: (canvas: HTMLCanvasElement) => Promise<string>,
   jpg: (canvas: HTMLCanvasElement) => Promise<string>
 }
 
 
-/****************** OBJECTS/TYPES RELATED to OPERATIONS *****************/
-
 
 /**
- * each operation has 0 or more inlets. These are areas where drafts can be entered as inputs to the operation
- * @param name the display name to show with this inlet
- * @param type the type of parameter that becomes mapped to inputs at this inlet, static means that the user cannot change this value
- * @param dx the description of this inlet
- * @param uses this is used to alert the user the inforamation from the input this inlet will use, draft or materials. 
- * @param value the assigned value of the parameter. 
- * @param num_drafts the total number of drafts accepted into this inlet (or -1 if unlimited)
+ * this type is used to classify operations in the dropdown menu
+ * @param category the name of the category for all associated operations (e.g. block, structure)
+ * @param dx a description of that category to show on screen
+ * @param ops an array of all the operations associated with this category
  */
- export type OperationInlet = {
-  name: string,
-  type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
-  dx: string,
-  uses: 'draft' | 'weft-data' | 'warp-data' | 'warp-and-weft-data' ,
-  value: number | string | null,
-  num_drafts: number
-}
-
-
-/**
- * An extension of Inlet that handles extra requirements for numeric data inputs
- * @param value the current (or default?) value of this number input
- * @param min the minimum allowable value
- * @param max the maximum allowable value
- */
- export type NumInlet = OperationInlet & {
-  value: number,
-  min: number,
-  max: number
-}
-
-
-
-
-/**
- * an operation param describes what data be provided to this operation
- * some type of operations inherent from this to offer more specific validation data 
- */
-export type OperationParam = {
-  name: string,
-  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'notation_toggle' | 'code';
-  value: any,
-  dx: string
-}
-
-/**
- * An extension of Param that handles extra requirements for numeric data inputs
- * @param min the minimum allowable value
- * @param max the maximum allowable value
- */
-export type NumParam = OperationParam & {
-  min: number,
-  max: number
-}
-
-
-/**
- * An extension of Param that handles extra requirements for select list  inputs
- * @param seleclist an array of names and values from which the user can select
- */
-export type SelectParam = OperationParam & {
-  selectlist: Array<{name: string, value: number}>
-}
-
-/**
- * An extension of Param that handles extra requirements for select boolean inputs
- * @param falsestate a description for the user explaining what "false" means in this param
- * @param truestate a description for the user explaining what "false" means in this param
- */
-export type BoolParam = OperationParam & {
-  falsestate: string,
-  truestate: string
-}
-
-/**
-* An extension of Param that handles extra requirements for select file inputs
-*/
-export type FileParam = OperationParam & {
-}
-
-/**
-* An extension of Param that handles extra requirements for blocks that interpret code
-*/
-export type CodeParam = OperationParam & {
-  docs: string;
-}
-
-
-
-/**
-* An extension of Param that in intended to shape how inlets parse layer notation to generate inlets
-* @param id draft id at this parameter --- unusued currently 
-*/
-export type NotationTypeParam = OperationParam & {
-  falsestate: string,
-  truestate: string
-}
-
-
-/**
-* An extension of Param that handles extra requirements for strings as inputs
-* @param regex strings must come with a regex used to validate their structure
- * test and make regex using RegEx101 website
- * do not use global (g) flag, as it creates unpredictable results in test functions used to validate inputs
-@param error the error message to show the user if the string is invalid 
-*/
-export type StringParam = OperationParam & {
-  regex: RegExp,
-  error: string
-}
-
-
- /**
-  * this containers the parameters associated with the operation
-  * @param op_name the name of the operation  input parameter
-  * @param params the parameters associated with this operation OR child input
-  */
- export interface OpParamVal{
-  param: OperationParam,
-  val: any
- }
-
-
- /**
-  * this is a type that contains and contextualizes a series of inputs to an operation, each inlet on an operation corresponds to one op input
-  * @param drafts the drafts (from zero to multiple) associated with this input
-  * @param params the parameters associated with this input
-  * @param inlet_id the index of the inlet for which the draft is entering upon
-  */
-  export interface OpInput{
-    drafts: Array<Draft>,
-    params: Array<any>,
-    inlet_id: number
-   }
-  
-/**
- * a standard opeartion
- * @param name the internal name of this opearation (CHANGING THESE WILL BREAK LEGACY VERSIONS)
- * @param displayname the name to show upon this operation in the interface
- * @param dx the description of this operation
- * @param params the parameters associated with this operation
- * @param inets the inlets associated with this operation
- * @param old_names referes to any prior name of this operation to aid when loading old files
- * @param perform a function that executes when this operation is performed, takes a series of inputs and resturns an array of drafts
- * @param generateName a function that computes the system provided name default based on the inputs. a number can be passed in args to handle cases where the operation needs to assign different names to different draft outputs
- */
-export type Operation = {
-    name: string,
-    params: Array<OperationParam>,
-    inlets: Array<OperationInlet>,
-    old_names: Array<string>,
-    perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>,
-    generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>, ...args) => string
- }
-
- /**
- * A container operation that takes drafts with some parameter assigned to them 
- * @param dynamic_param_id which parameter ids should we use to determine the number and value of parameterized input slots
- * @param dynamic_inlet_type dynamic parameters convert parameter inputs to inlets of a given type, this specifies the type of inlet created
- * @param onParamChange a function that executes when a dynamic parameter is changed
- */
-export type DynamicOperation = Operation &  {
-  dynamic_param_id: Array<number>,
-  dynamic_param_type: 'number' | 'notation' | 'system' | 'color' | 'static' | 'draft' | 'profile' | 'null',
-  onParamChange: ( param_vals: Array<OpParamVal>, inlets: Array<OperationInlet>, inlet_vals: Array<any>, changed_param_id: number, dynamic_param_vals: Array<any>) => Array<any>;
-  perform: (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<Draft>>;
-}
-
-
-
- /**
-  * this type is used to classify operations in the dropdown menu
-  * @param category the name of the category for all associated operations (e.g. block, structure)
-  * @param dx a description of that category to show on screen
-  * @param ops an array of all the operations associated with this category
-  */
- export interface OperationClassification{
+export interface OperationClassification {
   category_name: string,
   description: string,
   color: string,
   op_names: Array<string>;
- }
+}
 
 
 
- /**
-  * an object that is stored in memory when an image is loaded
-  * @param name the file name of the uploaded file
-  * @param data the raw data of the image 
-  * @param colors an array of unique hex values found in this image 
-  * @param colors_mapping an array that matches each index in the color array to a color index that it should be grouped with
-  * @param image the HTML image object to write the data into 
-  * @param image_map an 2D array associating every pixel in the image with the id of the associated color in the colors array
-  * @param width 
-  * @param height
-  * @param type
-  * @param warning a text warning is added if the image file violates rules
-  */
- export interface AnalyzedImage{
-    name: string,
-    data: ImageData, 
-    colors: Array<Color>,
-    colors_mapping: Array<{from: number, to: number}>,
-    proximity_map: Array<{a: number, b: number, dist: number}>,
-    image: HTMLImageElement,
-    image_map: Array<Array<number>>,
-    width:number,
-    height: number,
-    type: string,
-    warning: string
- }
-
- export interface Color{
-  r: number,
-  g: number,
-  b: number,
-  hex: string
- }
-
- export interface Upload {
+export interface Upload {
   $key: string,
-  file:File,
-  name:string,
-  url:string,
-  progress:number,
+  file: File,
+  name: string,
+  url: string,
+  progress: number,
   createdAt: Date,
-
-}
-
-export interface SingleImage{
-  name: string,
-  data: ImageData, 
-  image: HTMLImageElement,
-  width:number,
-  height: number,
-  type: string,
-  warning: string
+  fileType: string,
 }
 
 
 
-
-/****************** OBJECTS/TYPES RELATED to OPERATION TREE *****************/
-
-
 /**
- * this stores a reference to a component on the palette with its id and some
- * @param type is the type of component'
- * @param view_id is ndx to reference to this object in the ViewComponentRef (for deleting)
- * @param id is a unique id linked forever to this component 
- * @param component is a reference to the component object
- * @param dirty describes if this needs to be recalcuated or redrawn 
+ * a type to store input and output information for nodes that takes multiple node inputs and outputs into account.
+ * each IOTuple stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
+ * connections will have inlet/outlet indexes of {0, 0} (they cannot connect to multiple things)
+ * drafts will have inlet indexes of {0, 0} (they can only have one parent)
+ * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
+ * @param treenode - the treenode that this input or output goes towards
+ * @param ndx - which ndx on the said treenodes does this connect to specifically
+ * @param val - the value associated with this inlet
  */
-type BaseNode = {
-  type: 'draft' | 'op' | 'cxn',
-  ref: ViewRef,
-  id: number, //this will be unique for every instance
-  component: SubdraftComponent | OperationComponent | ConnectionComponent,
-  dirty: boolean
+export interface IOTuple {
+  tn: TreeNode,
+  ndx: number
 }
-
-
-/**
- * an OpNode is an extension of BaseNode that includes additional params
- * @param name the name of the operation at this node
- * @param params an array of the current param values at this node
- * @param inlets an array of the inlet values at this node (for instance, in the layer notation op, these might be 'a', 'b', etc.)
- * @param outlets an array of the 
- */
-export type OpNode = BaseNode & {
-  name: string,
-  params: Array<any>
-  inlets: Array<any>
- }
-
-
- /**
- * a DraftNode is an extension of BaseNode that includes additional params
- * @param draft the active draft at this node
- * @param loom the loom associated with the draft at this node
- * @param loom_settings the settings associted with the loom at this node
- */
- export type DraftNode = BaseNode & {
-  draft: Draft,
-  loom: Loom,
-  loom_settings: LoomSettings,
-  render_colors: boolean,
-  scale: number,
-  visible: boolean,
-  mark_for_deletion: boolean
- }
-
-
-/**
- * Allows one to use Node as shorthand for any of these types of nodes
- */
- export type Node = BaseNode | OpNode | DraftNode;
-
-
- /**
-  * a type to store input and output information for nodes that takes multiple node inputs and outputs into account.
-  * each IOTuple stores the node it gets as input and output and the inlet/outlet that node enter into on itself. 
-  * connections will have inlet/outlet indexes of {0, 0} (they cannot connect to multiple things)
-  * drafts will have inlet indexes of {0, 0} (they can only have one parent)
-  * ops will have multiple inlets and outlets. For example, an input of (2, 1) means that treenode 2 is connected to inlet 1. 
-  * @param treenode - the treenode that this input or output goes towards
-  * @param ndx - which ndx on the said treenodes does this connect to specifically
-  * @param val - the value associated with this inlet
-  */
- export interface IOTuple{
-   tn: TreeNode,
-   ndx: number
-   }
 
 /**
  * A tree node stores relationships between the components created by operations
@@ -779,153 +440,12 @@ export type OpNode = BaseNode & {
   *   Subdrafts can only have one input and one output (for now)
   *   
 */
-export interface TreeNode{
+export interface TreeNode {
   node: Node,
   parent: TreeNode,
   inputs: Array<IOTuple>,
   outputs: Array<IOTuple>
 }
-
-
-/****** OBJECTS/TYPES FOR SIMULATING YARN PATHS *****/
-
-
-/**
- * a yarn cell holds a binary value representing the direction of the weft yarn through the cell. 
- * the binary is organized as NESW and has a 0 if no yarn is at that point, or 1 if there is a yarn at that point
- * for example. 0101 is a weft yarn that travels through the cell, 1100 is a weft yarn that comes in the east (right) size and curves, existing the bottom edge of teh cell
- */
-export type YarnCell = number;
-
-
-/**
- * represts the point of this yarn within the simulation
- */
-export type YarnVertex = {
-  x: number, 
-  y: number, 
-  z: number, 
-  i: number, 
-  j: number
-};
-
-/**
- * used in the relaxing round of the simulation to store teh amount of deflection that should be inflicted on any individual vertex. 
- */
-export type Deflection = {
-  dx: number, 
-  dy: number, 
-  dz: number, 
-  i: number, 
-  j: number
-};
-
-
-
-
-/**
- * used to calculate arching of floats
- */
-export type YarnFloat = {
-  heddle: boolean, 
-  end: number,
-  start: number,
-  layer: number
-}
-
-
-
-
-
-export type YarnSimSettings = {
-
-  warp_sett: number, //the distance between warp center points on the loom
-  warp_tension: number, //the tension value of the warp (higher tension, tighter packing)
-  fpack: number, //the force exerted by the packing 
-
-}
-
-export type WarpInterlacementTuple = {
-  j: number, 
-  i_top: number,
-  i_bot: number,
-  orientation: boolean; //true = black cell over white, false white over black. 
-}
-
-export type WeftInterlacementTuple = {
-  i: number, 
-  j_left: number,
-  j_right: number,
-  orientation: boolean //true = black left white right 
-}
-
-export type InterlacementLayerMap = {
-  i: number, 
-  j: number,
-  layer: number
-
-}
-
-//marks a point of interlacement between wefts and warps
-// x -             - x
-// - x === true    x - == false
-export type TopologyVtx ={
-  id: string,
-  i_top: number,
-  i_bot: number,
-  j_left: number,
-  j_right: number,
-  z_pos: number,
-  orientation: boolean;
-
-}
-
-export type WarpRange ={
-  j_left: number, 
-  j_right: number
-
-}
-
-export type WarpWeftLayerCount = {
-  ndx: number, 
-  count: number,
-  layer: number
-}
-
-export type WarpHeight = {
-  over: number,
-  under: number
-}
-
-export type SimulationData = {
-  draft: Draft,
-  sim: SimulationVars,
-  topo: Array<TopologyVtx>,
-  vtxs: VertexMaps,
-  layer_maps: LayerMaps
-};
-
-export type SimulationVars = {
-  warp_spacing: number, 
-  layer_spacing: number,
-  layer_threshold: number,
-  max_interlacement_width: number,
-  max_interlacement_height: number,
-  boundary: number,
-  radius: number,
-  ms: MaterialsService
-}
-
-export type LayerMaps = {
-  warp: Array<Array<number>>,
-  weft: Array<Array<number>>
-}
-
-export type VertexMaps = {
-  warps: Array<Array<YarnVertex>>,
-  wefts: Array<Array<YarnVertex>>
-}
-
 
 /**** SETTINGS FOR OTHER FEATURES */
 
@@ -933,6 +453,7 @@ export type Example = {
   id: string,
   ext: string,
   title: string,
+  docs?: string,
   desc: string
 }
 
@@ -948,8 +469,8 @@ export type CanvasList = {
   id: number,
   drawdown: HTMLCanvasElement,
   threading: HTMLCanvasElement,
-  tieup: HTMLCanvasElement, 
-  treadling: HTMLCanvasElement, 
+  tieup: HTMLCanvasElement,
+  treadling: HTMLCanvasElement,
   warp_systems: HTMLCanvasElement,
   warp_mats: HTMLCanvasElement,
   weft_systems: HTMLCanvasElement,
@@ -960,17 +481,39 @@ export type CanvasList = {
  * used to tell the draft renderer what to redraw and what settings to use
  */
 export type RenderingFlags = {
- u_drawdown: boolean, 
- u_threading: boolean, 
- u_treadling: boolean, 
- u_tieups: boolean,
- u_warp_sys: boolean,
- u_warp_mats: boolean,
- u_weft_sys: boolean,
- u_weft_mats: boolean,
- use_colors: boolean,
- use_floats: boolean,
- show_loom: boolean
+  u_drawdown: boolean,
+  u_threading: boolean,
+  u_treadling: boolean,
+  u_tieups: boolean,
+  u_warp_sys: boolean,
+  u_warp_mats: boolean,
+  u_weft_sys: boolean,
+  u_weft_mats: boolean,
+  use_colors: boolean,
+  use_floats: boolean,
+  show_loom: boolean,
+  use_sizes: boolean
+}
+
+
+export type FileMeta = {
+  id: number,
+  name: string,
+  desc: string,
+  time?: number,
+  from_share: string,
+  share_owner: string
+}
+
+export type UserFile = {
+  id: number,
+  meta: FileMeta
+}
+
+export type FilesState = {
+  user: UserFile[],
+  shared: ShareObj[],
+  public: ShareObj[]
 }
 
 
@@ -979,20 +522,256 @@ export type RenderingFlags = {
  */
 
 
+
+
 export type ShareObj = {
+  id: number,
   license: string,
   owner_uid: string,
   owner_creditline: string,
   owner_url: string,
   filename: string,
   desc: string,
-  public:boolean,
+  public: boolean,
   img: string
 
 }
- 
+
+
+/**
+ * State - UNDO and REDO
+ * classify all the kinds of events that can create a workspace change so that we can undo or redo them.
+ */
+/**
+ * an object to store the state of a draft node for undo/redo
+ * @param draft the draft object
+ * @param draft_visible the visibility of the draft
+ * @param loom the loom object
+ * @param loom_settings the loom settings object
+ */
+export interface DraftNodeState {
+  draft: Draft;
+  draft_visible: boolean;
+  loom: Loom;
+  loom_settings: LoomSettings;
+  scale: number;
+}
+
+
+export type StateChangeEvent = {
+  originator: 'OP' | 'DRAFT' | 'CONNECTION' | 'NOTE' | 'MATERIALS' | 'MIXER' | 'FILEMETA'
+}
+
+type MoveEvent = {
+  id: number,
+  before: Point,
+  after: Point
+}
+
+type MultiMoveEvent = {
+  moving_id: number,
+  relative_position_before: Point,
+  relative_position_after: Point,
+  selected_before: Array<{ id: number, topleft: Point }>,
+  selected_after: Array<{ id: number, topleft: Point }>
+}
+
+type ParamEvent = {
+  opid: number,
+  paramid: number,
+  before: OpParamValType,
+  after: OpParamValType
+}
+
+type NumberEvent = {
+  before: number,
+  after: number
+}
+
+type NodeEvent = {
+  node: OpNode | DraftNode | BaseNode,
+  inputs: Array<InwardConnectionProxy>,
+  outputs: Array<OutwardConnectionProxy>,
+  media?: Array<MediaInstance>
+}
+
+type ConnectionChangeEvent = {
+  from: number,
+  to: number,
+  inlet: number
+}
+
+
+type DraftChangedEvent = {
+  id: number,
+  before: DraftNodeState,
+  after: DraftNodeState
+}
+
+
+export type FileMetaStateChange = StateChangeEvent & {
+  type: 'META_CHANGE',
+  id: number,
+  before: FileMeta,
+  after: FileMeta
+}
+
+
+export type MixerStateChangeEvent = StateChangeEvent & {
+  type: 'PASTE' | 'DELETE' | 'MOVE',
+}
+
+export type MixerStateMove = MixerStateChangeEvent & MultiMoveEvent;
+
+export type MixerStatePasteEvent = MixerStateChangeEvent & {
+  ids: Array<number>,
+};
+export type MixerStateDeleteEvent = MixerStateChangeEvent & {
+  obj: SaveObj,
+};
+export type OpStateEvent = StateChangeEvent & {
+  type: 'MOVE' | 'PARAM_CHANGE' | 'CREATED' | 'REMOVED'
+}
+
+
+export type OpStateMove = OpStateEvent & MoveEvent;
+export type OpStateParamChange = OpStateEvent & ParamEvent;
+export type OpStateLocalZoomChange = OpStateEvent & NumberEvent
+export type OpExistenceChanged = OpStateEvent & NodeEvent;
+export type OpStateConnectionChange = OpStateEvent & ConnectionChangeEvent;
+
+
+export type DraftStateEvent = StateChangeEvent & {
+  type: 'MOVE' | 'VALUE_CHANGE' | 'NAME_OR_NOTES_CHANGE' | 'CREATED' | 'REMOVED'
+}
+
+export type DraftStateMove = DraftStateEvent & MoveEvent;
+export type DraftStateChange = DraftStateEvent & DraftChangedEvent;
+export type DraftExistenceChange = DraftStateEvent & NodeEvent;
+export type DraftStateNameChange = DraftStateEvent & {
+  id: number,
+  before: { name: string, notes: string },
+  after: { name: string, notes: string }
+};
+
+export type DraftStateNameOrNotesChange = DraftStateEvent & {
+  id: number,
+  before: { name: string, notes: string },
+  after: { name: string, notes: string }
+};
+
+export type ConnectionStateEvent = StateChangeEvent & {
+  type: 'CREATED' | 'REMOVED'
+}
+
+export type ConnectionExistenceChange = ConnectionStateEvent & NodeEvent
+
+
+export type WorkspaceStateChange = StateChangeEvent & {
+  type: 'SETTINGS' | 'FILE_META',
+  workspace: any; //whatever is in the workspace
+  meta: FileMeta
+}
+
+export type NoteStateChange = StateChangeEvent & {
+  type: 'CREATED' | 'REMOVED' | 'UPDATED' | 'MOVE',
+}
+
+export type NoteStateMove = NoteStateChange & MoveEvent;
+export type NoteValueChange = NoteStateChange & {
+  id: number,
+  before: Note,
+  after: Note
+}
+
+export type MaterialsStateChange = StateChangeEvent & {
+  type: 'UPDATED',
+  before: Array<Material>,
+  after: Array<Material>
+}
+
+/**
+ * this is what is communicated from the state service to the component that needs to execute the command
+ */
+export type StateAction = {
+  type: "CREATE" | "REMOVE" | "CHANGE",
+}
+
+export type FileMetaStateAction = StateAction & {
+  id: number,
+  before: FileMeta,
+  after: FileMeta
+}
+
+export type NoteAction = StateAction & {
+  before: Note,
+  after: Note,
+  id: number
+}
+
+
+export type MoveAction = StateAction & {
+  id: number,
+  before: Point,
+  after: Point
+}
+
+export type ParamAction = StateAction & {
+  opid: number,
+  paramid: number,
+  value: OpParamValType
+}
+
+export type NodeAction = StateAction & {
+  node: Node,
+  inputs: Array<InwardConnectionProxy>,
+  outputs: Array<OutwardConnectionProxy>,
+  media?: Array<MediaInstance>
+}
+
+export type DraftStateAction = StateAction & {
+  id: number,
+  before: DraftNodeState,
+  after: DraftNodeState
+}
+
+export type RenameAction = StateAction & {
+  id: number,
+  before: { name: string, notes: string },
+  after: { name: string, notes: string }
+}
 
 
 
+export type MaterialsStateAction = StateAction & {
+  before: Array<Material>,
+  after: Array<Material>
+}
 
 
+
+export type MixerStateMoveAction = StateAction & {
+  moving_id: number,
+  relative_position: Point,
+  selected: Array<{ id: number, topleft: Point }>,
+}
+
+export type MixerStateRemoveAction = StateAction & {
+  ids: Array<number>,
+}
+
+
+export type MixerStatePasteAction = StateAction & {
+  obj: SaveObj,
+}
+
+
+
+export type ErrorType = 'SIZE_ERROR' | 'FILE_ERROR' | 'OTHER';
+
+export type ErrorStatement = {
+  id: number,
+  type: ErrorType
+  label: string
+  affected_nodes?: Array<number>
+}

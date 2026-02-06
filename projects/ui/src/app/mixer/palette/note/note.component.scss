@@ -1,81 +1,78 @@
-.textfield{
+@use '@angular/material' as mat;
+
+
+.textfield {
 	width: 100%;
-	font-size: 20px;
-    line-height: 28px;
+	font-size: var(--form-field-entry-size);
+	line-height: calc(var(--form-field-entry-size)*1.15);
 }
 
-.note-container{
+.note-container {
+	z-index: 100000;
 	position: absolute;
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
-	min-width: 400px;
+	min-width: 600px;
 	padding: 24px;
-}
 
-.mat-mdc-icon-button{
-	font-size: 14px;
 }
 
 
+.save-button {
+	font-size: var(--scalable-text-heading-size);
+	height: var(--input-container-height);
 
-.notetitle{
+}
+
+.notetitle {
 	font-weight: bold;
 	width: 100%;
 	background-color: transparent;
 	width: 100%;
-	font-size: 20px;
-    line-height: 28px;
+	font-size: var(--scalable-text-heading-size);
 }
 
-.expand{
+.expand {
 	display: flex;
 	width: 100%;
 	height: 40px;
 	justify-content: flex-end;
 	padding: 0;
-    min-width: 0;
-    height: 40px;
-    flex-shrink: 0;
-    line-height: 40px;
-    border-radius: 50%;
+	min-width: 0;
+	height: 40px;
+	flex-shrink: 0;
+	line-height: 40px;
+	border-radius: 50%;
 	text-align: center;
 }
 
-.expand-icon{
+.expand-icon {
 	transform: rotate(90deg);
 }
 
-img{
+img {
 	pointer-events: none;
 }
 
 
 
-.handle{
+.handle {
 	padding: 0;
-    min-width: 0;
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-    line-height: 40px;
-    border-radius: 50%;
+	min-width: 0;
+	width: 40px;
+	height: 40px;
+	flex-shrink: 0;
+	line-height: 40px;
+	border-radius: 50%;
 	text-align: center;
 }
 
 
 
-.note-opts{
+.note-opts {
 	width: 100%;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 }
-
-
-
-
-
-
-
-

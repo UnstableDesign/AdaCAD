@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>Make Blank Draft</h2>
+
+<mat-dialog-content>
+
+
+  <mat-form-field appearance="fill">
+    <mat-label>Warps</mat-label>
+    <input matInput type="number" placeholder="Number of Warp Ends" name="warps" min="1" step="1" [formControl]="warps">
+    @if (warps.invalid && (warps.dirty || warps.touched)) {
+    @if (warps.hasError('required')) {
+    <mat-error>A value for the number of warps is required.</mat-error>
+    }
+    @if (warps.hasError('min')) {
+    <mat-error>There must be at least 1 warp </mat-error>
+    }
+
+    }
+  </mat-form-field>
+
+
+  <mat-form-field appearance="fill">
+    <mat-label>Wefts</mat-label>
+
+    <input matInput type="number" placeholder="Number of Weft Picks" name="wefts" min="1" step="1"
+      [formControl]="wefts">
+  </mat-form-field>
+
+  @if (wefts.invalid && (warps.dirty || wefts.touched)) {
+  @if (wefts.hasError('required')) {
+  <mat-error>A value for the number of wefts is required.</mat-error>
+  }
+  @if (wefts.hasError('min')) {
+  <mat-error>There must be at least 1 weft pick </mat-error>
+  }
+
+  }
+
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Close</button>
+  <button color="primary" [disabled]="wefts.invalid || warps.invalid" mat-button cdkFocusInitial
+    (click)="save()">Ok</button>
+</mat-dialog-actions>

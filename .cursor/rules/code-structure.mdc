@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+
+Directory Logic: The top level of the app should include five major components organized by the three modes of interaction in AdaCAD: 
+
+- Mixer: all of the components and services that are specific to and only used to render and manage the mixer component. 
+- Editor: all of the components and services that are specific to and only used to render and manage the editor component. 
+- Library: all of the components and services that are specific to and only used to render and manage the library component. 
+- Viewer: all of the components and services that are specific to and only used to render and manage the viewer component. 
+- Core: components and services that are accessed or used across multiple modes. 
+
+All data structures and core computation should occur in adacad-drafting-lib. This library avoid classes and, instead, attempt to create objects that represent an immutable state of a given type.
+
+Types: 
+All types specific to the AdaCAD application should be defined in core/model/datatypes.ts. Aggressively create new types rather than passing objects with different variables. 
+
+Streamlining Functions
+Function that perform the same task should never be implemented in multiple places within the code. If you need a function that can be accessible in multiple locations, consider adding it in core/model/helper.ts or to the adacad-drafting-lib. If you need to create an object that somehow manages and makes state accessible across multiple components, add it as a service in core/model/provider/.  If you need a UI component in multiple places (e.g. the download menu), created it within core/ui. 
+
+
+
+
+

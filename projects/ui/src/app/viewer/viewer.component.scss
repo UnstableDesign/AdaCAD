@@ -1,26 +1,171 @@
+@use '@angular/material' as mat;
+
+
 // .mat-mdc-icon-button{
 //     font-size: 14px;
 //   }
 
-.static-menus{
+.static-menus {
     margin: 16px;
 }
 
-.view_container{
-    background-color: darkgrey;
-    padding: 16px 16px 16px 42px;
-    overflow: scroll;
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 calc(100% - 64px);
-}
-
-.viewer-header{
+.static-controls {
     display: flex;
     flex-direction: row;
-    background-color: whitesmoke;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: 100%;
+}
+
+.sim-controls-form {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.sim-slider-container {
+    display: flex;
+    flex: 1 1;
+    min-width: 160px;
+    flex-direction: column;
+    align-items: flex-start-reverse;
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+
+.sim-slider-label {
+    font-size: 12px;
+    color: #3f51b5;
+    text-align: flex-start;
+}
+
+.sim-slider-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+}
+
+.sim-slider-value {
+    font-size: 12px;
+    color: #3f51b5;
+    text-align: flex-end;
+    width: 20px;
+}
+
+.no-draft-placeholder {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    text-align: center;
+
+    p {
+        margin: 0;
+        padding: 24px;
+        color: #999;
+    }
+}
+
+
+.viewer_container {
+    padding: 16px 16px 16px 32px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    width: auto;
+    height: 100%;
+    overflow: hidden;
+}
+
+.viewer-controls {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    justify-content: space-between;
+    padding: 8px 0px 24px 0px;
+    align-items: center;
+
+    @include mat.button-toggle-overrides((text-color:#3f51b5,
+            selected-state-text-color:#3f51b5,
+            label-text-size: 12px,
+            height: 36px));
+
+
+    .viewer-zoom-container {
+        flex: 1 0 40%;
+
+        .mat-mdc-slider {
+            min-width: 80px !important;
+        }
+    }
+
+    .viewer-extra-controls {
+        display: flex;
+        flex-direction: row;
+        gap: 2px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+
+
+
+}
+
+.pin-container {
+    position: relative;
+    top: -8px;
+    right: 3px;
+    height: 0px;
+    overflow: visible;
+    z-index: 20;
+}
+
+.draft-info-list {
+    padding: 0px;
+    margin: 0px;
+    list-style: none;
+
+    button {
+        font-size: 12px;
+    }
+}
+
+.draft-info-list .fieldname {
+    display: inline-block;
+    font-weight: normal;
+    width: 100%;
+    color: #999;
+}
+
+.draft-info-list .fieldvalue {
+    font-weight: normal;
+}
+
+
+.draft-info-list li {
+    padding: 8px;
+    border-bottom: thin solid #3f51b5;
+}
+
+.footer-container {}
+
+.viewer-header {
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 16px;
+
 }
 
 .filename {
@@ -33,93 +178,102 @@
 
 
 
-.current_view{
-    background-color:whitesmoke;
+.current_view {
+    height: 83%;
+    background-color: whitesmoke;
     display: flex;
-    flex: 1 1 50%;
     align-items: center;
-    margin-bottom: 12px;
     overflow: scroll;
 }
 
-.view_options{
+.view_options {
     display: flex;
     align-items: center;
-    gap:8px;
+    gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
     padding-bottom: 8px;
 }
 
-.footer{
+.footer {
     display: flex;
     flex-direction: row;
-    flex-wrap: nowarp;
+    flex: 1 1 nowrap;
     justify-content: space-between;
     font-size: 14px;
     background-color: darkgrey;
+    height: max-content;
+    padding: 16px 16px 16px 16px;
 }
 
 .footer-left,
-.footer-center{
-    display: inline-flex;
+.footer-center {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
     flex: 1 1;
     overflow: hidden;
 }
+
+
 
 ::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 7px;
     height: 7px;
-  }
-  ::-webkit-scrollbar-thumb {
+}
+
+::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background-color: rgba(0, 0, 0, .5);
     -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
-  }
+}
 
-.view_standard{
+.view_standard {
     // width: fit-content;
     // height: fit-content;
-    height: 14vw; 
+    height: 14vw;
     overflow: scroll;
     display: flex;
     flex-direction: column;
 }
 
-#viewer_canvas{
+#viewer_canvas {
     transform-origin: left top;
 }
 
-.view_expanded{
+.view_expanded {
     width: 100%;
     height: 50vh;
     overflow: scroll;
 }
 
 .dims,
-.draft_name{
+.draft_name {
     width: 100%;
     text-align: center;
 }
 
 
 
-.slider{
+.slider {
     width: 100%
 }
 
-.scale-container{
+.scale-container {
     width: 100%;
     height: 100%;
     display: flex;
+    position: relative;
+    align-items: flex-start;
+    justify-content: flex-start;
 }
 
-.mat-expansion-panel-body {
-    padding: 0 0px 16px 0px;
-}
 
-.filelist{
+
+
+
+.filelist {
     text-align: center;
     padding: 16px;
     overflow: scroll;
@@ -128,15 +282,59 @@
     flex-direction: column;
     align-items: stretch;
 
-    button{
+    button {
         margin: 2px;
     }
 }
 
-.active{
+.active {
     color: #ff4081;
 }
 
-.hidden{
+.hidden {
     display: none;
+}
+
+.toggle-group-wrapper {
+    position: relative;
+}
+
+.collapsible-toggle-group {
+
+    // Hide non-selected toggles by default
+    ::ng-deep .mat-button-toggle:not(.mat-button-toggle-checked) {
+        max-width: 0;
+        opacity: 0;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: 0;
+        margin-right: 0;
+        border-left: none;
+        border-right: none;
+        overflow: hidden;
+        transition: max-width 0.3s ease, opacity 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+    }
+
+    // Show all toggles on hover
+
+
+    // Show all toggles when focused (clicked)
+    &:focus-within {
+        ::ng-deep .mat-button-toggle:not(.mat-button-toggle-checked) {
+            max-width: 200px;
+            opacity: 1;
+            padding-left: initial;
+            padding-right: initial;
+            margin-left: initial;
+            margin-right: initial;
+            border-left: initial;
+            border-right: initial;
+        }
+    }
+
+    // Keep selected toggle always visible
+    ::ng-deep .mat-button-toggle-checked {
+        opacity: 1 !important;
+        max-width: none !important;
+    }
 }

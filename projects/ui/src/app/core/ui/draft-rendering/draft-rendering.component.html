@@ -1,81 +1,115 @@
-<div class="draft-container {{source}} origin{{ws.selected_origin_option}}"  id="draft-scale-container-{{source}}-{{id}}">
+<div class="draft-container {{source}} origin{{ws.selected_origin_option}}"
+  id="draft-scale-container-{{source}}-{{id}}">
 
-  <app-selection
-    #selection
-    class="app-selection"
-    [id]="id"
-    [source]="source"
-    [scale]="scale"
-    (onSelectionEnd)="onSelectionEnd()"
-    (forceRedraw)="redrawAll()"
-    (saveAction)="afterSelectAction()"
-  ></app-selection>
 
-  <div class="draft-top {{source}} origin{{ws.selected_origin_option}}">
+
+  @if (isRedrawing && (overTimeLimit$ | async)) {
+  <div class="loading-overlay">
+    <div class="loading">
+      <img src="assets/img/loading_animation.gif" alt="Loading">
+      <div>
+        <p>Rendering Draft...</p>
+      </div>
+    </div>
+  </div>
+  }
+
+
+
+  @if (oversize && !ignoreOversize) {
+
+
+
+  <div class="oversize-warning {{source}}">
+
+
+
+
+    <p>Drafts with more than {{ws.oversize_dim_threshold}} cells are hidden by
+      default.
+    </p>
+    <button matButton="filled" (click)="toggleOversize()" color="accent"> <i class="fas fa-exclamation-triangle"></i>
+      Load Rendering</button>
+  </div>
+  }
+
+  <div id="highlight-row-{{source}}" class="highlight-row"></div>
+  <div id="highlight-col-{{source}}" class="highlight-col"></div>
+
+
+
+
+
+
+  <app-selection #selection class="app-selection {{(oversize && !ignoreOversize) ? 'oversize' : ''}}" [id]="id"
+    [source]="source" [scale]="scale" [draft_edit_source]="draft_edit_source" (onSelectionEnd)="onSelectionEnd()"
+    (saveAction)="afterSelectAction($event)"></app-selection>
+
+  <div
+    class="draft-top {{source}} origin{{ws.selected_origin_option}} {{(oversize && !ignoreOversize) ? 'oversize' : ''}}">
 
 
     <div class="warp-systems-container origin{{ws.selected_origin_option}}">
 
 
-      <div
-        class="warp-systems-text {{source}} origin{{ws.selected_origin_option}}"
-        id="warp-systems-text-{{source}}-{{id}}"
-        [style.width]="warp_text_div_width">
+      <div class="warp-systems-text {{source}} origin{{ws.selected_origin_option}}"
+        id="warp-systems-text-{{source}}-{{id}}" [style.width]="warp_text_div_width">
 
         @for (i of colSystemMapping; track i; let j = $index) {
-          <div class="warp-system-col origin{{ws.selected_origin_option}}"
-            [style.width.px] = "cell_size"
-            >
-            <div class="warp-number-container">
-              @if (j % epi == 0) {
-                <span class="warp_number origin{{ws.selected_origin_option}}">
-                  <span class='rotate90'>{{j}}</span>
-                </span>
-              }
-              @if (j == colSystemMapping.length-1) {
-                <span class="warp_number_last origin{{ws.selected_origin_option}}">
-                  <span class='rotate90'>{{j+1}}</span>
-                </span>
-              }
-            </div>
-            <div  class="warp_selectors {{source}}">
-              <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
+        <div class="warp-system-col origin{{ws.selected_origin_option}}" [style.width.px]="cell_size">
+          <div class="warp-number-container">
+            @if (j % epi == 0) {
+            <span class="warp_number origin{{ws.selected_origin_option}}">
+              <span class='rotate90'>{{j}}</span>
             </span>
-            <span class="warp_clone"
-              (click)="cloneCol(j);">
+            }
+            @if (j == colSystemMapping.length-1) {
+            <span class="warp_number_last origin{{ws.selected_origin_option}}">
+              <span class='rotate90'>{{j+1}}</span>
+            </span>
+            }
+          </div>
+          <div class="warp_selectors {{source}}">
+
+            <span class="warp_delete" (click)="deleteCol(j);"><i class="fa fa-trash"></i>
+            </span>
+            <span class="warp_clone" (click)="cloneCol(j);">
               <i class="fa fa-clone"></i>
             </span>
-            <span class="warp_insert"
-              (click)="insertCol(j + 1);">
+            <span class="warp_insert" (click)="insertCol(j + 1);">
               <i class="fa fa-plus-circle"></i></span>
-            </div>
           </div>
+        </div>
         }
 
       </div>
 
-      <div class="warp-systems-canvas origin{{ws.selected_origin_option}} ">
-        <canvas id="warp-systems-{{source}}-{{id}}" class="warp-systems">  </canvas>
+      <div class="warp-systems">
+        <div class="warp-systems-canvas origin{{ws.selected_origin_option}}">
+          <canvas id="warp-systems-{{source}}-{{id}}" class="warp-systems"> </canvas>
+        </div>
       </div>
 
-      <div class="warp-materials-canvas origin{{ws.selected_origin_option}} ">
-        <canvas id ="warp-materials-{{source}}-{{id}}" class="warp-materials">  </canvas>
+      <div class="warp-materials ">
+        <div class="warp-materials-canvas origin{{ws.selected_origin_option}}">
+          <canvas id="warp-materials-{{source}}-{{id}}" class="warp-materials"> </canvas>
+
+        </div>
       </div>
 
     </div>
 
-        <div class="threading-tieup-container 
+    <div class="threading-tieup-container 
         {{source}}
         origin{{ws.selected_origin_option}} 
-        editable-{{dm.cur_draft_edit_source}}
-        loomtype-{{selected_loom_type}}"
-      >
+        editable-{{draft_edit_source}}
+        loomtype-{{selected_loom_type}}">
       <div class="threading-canvas">
         <canvas id="threading-{{source}}-{{id}}"></canvas>
       </div>
 
       <div class="tieups-canvas">
-        <canvas id="tieups-{{source}}-{{id}}" class="tieups-editor" ></canvas>
+        <canvas id="tieups-{{source}}-{{id}}" class="tieups-editor"></canvas>
       </div>
     </div>
 
@@ -86,90 +120,83 @@
 
 
 
-  <div
-    class="drawdown-container 
+  <div class="drawdown-container 
+    {{source}}
     origin{{ws.selected_origin_option}} 
-    editable-{{dm.cur_draft_edit_source}}" >
+    {{(oversize && !ignoreOversize) ? 'oversize' : ''}}
+    editable-{{draft_edit_source}}">
 
-    <div class="drawdown-canvas">
-      <div id = "origin-marker-{{source}}-{{id}}" class="origin-marker  origin{{ws.selected_origin_option}} "><i class="fa-solid fa-circle"></i></div>
-      <canvas class="drawdown-editor {{source}}" id="drawdown-{{source}}-{{id}}">  </canvas>
+    <div class="drawdown-canvas {{source}}">
+      <div id="origin-marker-{{source}}-{{id}}" class="origin-marker  origin{{ws.selected_origin_option}} "><i
+          class="fa-solid fa-asterisk"></i></div>
+      <canvas class="drawdown-editor {{source}}" id="drawdown-{{source}}-{{id}}"> </canvas>
     </div>
 
 
-    <div
-      class="treadling-container 
+    <div class="treadling-container 
       {{source}}
       loomtype-{{selected_loom_type}}
       treadling-canvas">
-      <canvas class="treadling-editor"
-      id="treadling-{{source}}-{{id}}"></canvas>
+      <canvas class="treadling-editor" id="treadling-{{source}}-{{id}}"></canvas>
     </div>
 
     <div class="weft-materials-canvas {{source}} origin{{ws.selected_origin_option}}">
-      <canvas id ="weft-materials-{{source}}-{{id}}" class="weft-materials">  </canvas>
+      <canvas id="weft-materials-{{source}}-{{id}}" class="weft-materials"> </canvas>
     </div>
 
     <div class="weft-systems-canvas {{source}} origin{{ws.selected_origin_option}}">
-      <canvas id="weft-systems-{{source}}-{{id}}" class="weft-systems">  </canvas>
+      <canvas id="weft-systems-{{source}}-{{id}}" class="weft-systems"> </canvas>
     </div>
 
     <div class="weft-systems-container  {{source}} origin{{ws.selected_origin_option}}">
 
-      <div
-        class="weft-systems-text {{source}} origin{{ws.selected_origin_option}}"
-        id="weft-systems-text-{{source}}-{{id}}"
-        [style.height]="weft_text_div_height">
+      <div class="weft-systems-text {{source}} origin{{ws.selected_origin_option}}"
+        id="weft-systems-text-{{source}}-{{id}}" [style.height]="weft_text_div_height">
 
         @for (i of rowSystemMapping; track i; let j = $index) {
-          <div class="weft-system-row origin{{ws.selected_origin_option}}"
-            [style.height.px]="cell_size"
-            >
-            <div class="weft_indicies">
-              @if (ws.selected_origin_option == 1 || ws.selected_origin_option == 2) {
-                @if ((j % epi == 0)) {
-                  <span class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>
-                }
-                @if ((j == rowSystemMapping.length -1)) {
-                  <span class="weft_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>
-                }
-              }
-              @if (ws.selected_origin_option == 0 || ws.selected_origin_option == 3) {
-                @if (j % epi == 0) {
-                  <span class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>
-                }
-                @if ((j == rowSystemMapping.length -1)) {
-                  <span class="weft_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>
-                }
-              }
-            </div>
-            <div class="weft_actions">
-              <span class = "weft_insert"
-                (click)="insertRow(j, i)">
-                <i class="fa fa-plus-circle"></i>
-              </span>
-              <span class = "weft_clone"
-                (click)="cloneRow(j, i);">
-                <i class="fa fa-clone"></i>
-              </span>
-              <span class="weft_delete"
-                (click)="deleteRow(j);">
-                <i class="fa fa-trash"></i>
-              </span>
-            </div>
+        <div class="weft-system-row origin{{ws.selected_origin_option}}" [style.height.px]="cell_size">
+          <div class="weft_indicies">
+            @if (ws.selected_origin_option == 1 || ws.selected_origin_option == 2) {
+            @if ((j % epi == 0)) {
+            <span class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>
+            }
+            @if ((j == rowSystemMapping.length -1)) {
+            <span class="weft_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>
+            }
+            }
+            @if (ws.selected_origin_option == 0 || ws.selected_origin_option == 3) {
+            @if (j % epi == 0) {
+            <span class="weft_number origin{{ws.selected_origin_option}}">{{j}}</span>
+            }
+            @if ((j == rowSystemMapping.length -1)) {
+            <span class="weft_number_last origin{{ws.selected_origin_option}}">{{j+1}}</span>
+            }
+            }
           </div>
-          } <!-- end weft system row-->
+          <div class="weft_actions">
+            <span class="weft_insert" (click)="insertRow(j, i)">
+              <i class="fa fa-plus-circle"></i>
+            </span>
+            <span class="weft_clone" (click)="cloneRow(j, i);">
+              <i class="fa fa-clone"></i>
+            </span>
+            <span class="weft_delete" (click)="deleteRow(j);">
+              <i class="fa fa-trash"></i>
+            </span>
+          </div>
         </div>
+        } <!-- end weft system row-->
       </div>
-
-
     </div>
 
 
-
-
-
-
-
-
   </div>
+
+
+
+
+
+
+
+
+</div>

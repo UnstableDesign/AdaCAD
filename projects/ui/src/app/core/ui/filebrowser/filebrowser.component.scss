@@ -1,98 +1,157 @@
-.welcome{
+.welcome {
     padding: 24px 24px 0px 24px;
 }
 
-.welcome-options{
+.welcome-options {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
+    padding: 16px;
 }
 
-h1{
-    font-size: 2em;
+.welcome-subtitle {
+    padding: 16px 0px;
+    width: 100%;
 }
 
-h2{
-    color: rgba(0,0,0,.54);
+
+
+h2 {
+    color: rgba(0, 0, 0, .54);
     padding-bottom: 12px;
 }
 
-h3{
+h3 {
     font-size: 1.5em;
     padding-top: 40px;
     font-weight: bold;
 }
 
-h4{
+h4 {
     padding: 0px;
     margin: 0px;
     line-height: 40px;
 
 }
 
-.desc{
+.desc {
     font-size: .8em;
     padding: 0px;
     margin: 0px;
 }
 
-.filebrowser{
+.filebrowser {
     display: flex;
     flex-direction: column;
     width: 100%;
+    overflow-y: scroll;
+
 }
 
 
-.browser_list{
+.browser_list {
     display: flex;
     flex-direction: column;
     // overflow-y: scroll;
 }
 
 
-.folder{
+.folder {
     display: flex;
     flex-direction: column;
 }
 
-.lastviewed{
-    flex: 0 1 20%;
-    justify-content: flex-end;
-
-}
-
-.filename{
-    text-align: left;
-    justify-content: flex-start;
-    flex: 1 1 50%;
-}
-
-
-
-.file-item-block{
+.file-header,
+.file-item {
+    font-size: 12px;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     width: 100%;
     border-bottom: thin dotted grey;
-    align-items: flex-start;
-    padding: 8px 0px;
-    gap: 12px;
-
+    align-items: center;
+    gap: 8px;
 }
 
-.current{
+
+
+.file-header {
+    background-color: #3f51b5;
+    color: white;
+
+    .mdc-button,
+    .mdc-checkbox {
+        color: white;
+        font-size: 12px;
+    }
+}
+
+.browser_header {
+    padding: 16px;
+    font-size: 12px;
+    color: #3f51b5;
+}
+
+.file-item.current {
     color: #ff4081;
 }
 
+.file-item.selected {
+    background-color: rgba(63, 81, 181, 0.1);
+}
 
-.actions{
+.field-select {
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.field-shared {
+    flex: 0 1 10%;
+    justify-content: flex-start;
+    font-size: 12px;
+
+    .mdc-icon-button {
+        font-size: 12px;
+    }
+
+    .shared-link {
+        color: #1976d2;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: #1565c0;
+            text-decoration: underline;
+        }
+
+        .shared-icon {
+            font-size: 16px;
+        }
+    }
+}
+
+.field-name {
+    text-align: left;
+    justify-content: flex-start;
+    flex: 1 1 50%;
+}
+
+.field-date {
+    flex: 0 1 20%;
+    justify-content: flex-end;
+}
+
+.field-actions {
     flex: 0 1 20%;
     display: flex;
     justify-content: center;
     flex-direction: row;
-    
-    i{
+
+    i {
         font-size: .6em;
     }
 }
@@ -104,20 +163,19 @@ h4{
 //     width: 100%;
 // }
 
-.timestamp{
+.timestamp {
     position: relative;
     left: 16px;
     padding: 4px 0px;
 }
 
-.details{
+.details {
     width: inherit;
     display: flex;
     flex: 2 2 75%;
     flex-direction: column;
 }
 
-.accent{
-    color:#ff4081;
+.accent {
+    color: #ff4081;
 }
-

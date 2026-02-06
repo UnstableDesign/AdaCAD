@@ -8,8 +8,8 @@ describe('PaletteComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PaletteComponent ]
-    })
+    imports: [PaletteComponent]
+})
     .compileComponents();
   }));
 

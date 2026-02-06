@@ -1,0 +1,133 @@
+<p mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
+  Examples
+</p>
+
+<mat-dialog-content class="example_tab">
+
+  <mat-tab-group>
+
+    <mat-tab label="AdaCAD Templates">
+
+
+
+      <div class="file_list_container">
+
+        <div class="file_list">
+
+          @for (example of local_examples; track example) {
+          <mat-card class="example-card" appearance="outlined">
+
+            <mat-card-header class="example-header">
+              <mat-card-title class="example-title">{{example.title}}</mat-card-title>
+              <mat-card-subtitle>by AdaCAD project team</mat-card-subtitle>
+            </mat-card-header>
+
+            <img class="example-img" (click)="loadExample(example.id)" mat-card-image
+              src="/assets/example_img/{{example.id}}.{{example.ext}}"
+              alt="Photo of the workspace associated with this example">
+
+
+            <mat-card-content class="example-content">
+
+              <p>{{example.desc}}</p>
+
+            </mat-card-content>
+            <mat-card-actions class="example-actions" align="end">
+              @if (example.docs){
+              <button matButton (click)="openDocs(example.docs)"><i class="fa-solid fa-arrow-up-right-from-square"></i>
+                Learn More</button>
+              }
+              <button matButton (click)="loadExample(example.id)"><i class="fa-solid fa-arrow-up-right-from-square"></i>
+                Open</button>
+
+
+            </mat-card-actions>
+          </mat-card>
+          }
+
+
+
+        </div>
+      </div>
+
+
+
+
+    </mat-tab>
+    <mat-tab label="Community Projects">
+
+
+
+
+      <div class="file_list">
+        <div class="header-text">
+          <p>AdaCAD community members can share their workspaces if they have an AdaCAD account by selected "share" on
+            any file in their file list and clicking the box to share the file publicly. Want to try?</p>
+          <button mat-raised-button (click)="openFileManager()">Manage and Share your Files</button>
+        </div>
+        @for (example of community_examples; track example; let idx = $index) {
+        <mat-card class="example-card" appearance="outlined">
+
+          <mat-card-header class="example-header">
+            <mat-card-title class="example-title">{{example.filename}}</mat-card-title>
+            <mat-card-subtitle>{{example.owner_creditline}}</mat-card-subtitle>
+
+            <div class="license">
+              <img class='license' src="/assets/img/{{example.license}}.png">
+            </div>
+          </mat-card-header>
+
+          <div class="img-container">
+            @if (exampleImgs[idx] !== ''){
+            <img class="example-img" (click)="loadSharedFile(example.id)" mat-card-image [ngSrc]="exampleImgs[idx]"
+              alt="Photo of the workspace associated with this example" fill />
+
+            } @else {
+            <img class="example-img" mat-card-image [ngSrc]="placeholderImg" alt="No image provided for this example"
+              fill />
+
+            }
+          </div>
+
+          <mat-card-content class="example-content">
+
+            <p>{{example.desc}}</p>
+
+          </mat-card-content>
+          <mat-card-actions class="example-actions" align="end">
+
+            @if (example.owner_url !='') {
+            <button matButton (click)="openDocs(example.owner_url)"><i
+                class="fa-solid fa-arrow-up-right-from-square"></i>
+              Learn More</button>
+            }
+
+            <button matButton (click)="loadSharedFile(example.id)"><i
+                class="fa-solid fa-arrow-up-right-from-square"></i>
+              Open</button>
+
+
+          </mat-card-actions>
+        </mat-card>
+        }
+
+
+
+      </div>
+
+
+
+
+
+
+    </mat-tab>
+  </mat-tab-group>
+
+
+
+
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

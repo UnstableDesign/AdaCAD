@@ -1,9 +1,15 @@
+<div class="multi_select_bounds_overlay" [class.hidden]="!hasMultiSelectBounds"
+    [style.top.px]="multi_select_bounds.topleft.y" [style.left.px]="multi_select_bounds.topleft.x"
+    [style.width.px]="multi_select_bounds.width" [style.height.px]="multi_select_bounds.height"></div>
+
 <div id="palette-scale-container">
-<canvas class="palette_base"></canvas>
-<ng-container #vc>
-    <svg id="scratch_svg">
-    
-    </svg>
-    
-</ng-container>
+
+
+    <canvas class="palette_base"></canvas>
+    <ng-container #vc>
+        <svg id="scratch_svg">
+
+        </svg>
+
+    </ng-container>
 </div>

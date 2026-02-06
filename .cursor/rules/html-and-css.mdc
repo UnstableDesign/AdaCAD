@@ -1,0 +1,16 @@
+---
+alwaysApply: true
+---
+
+When embedding variables within the HTML files, always include as variables (never functions). For example, if you need to display a name that requires formatting, include {{formatted_name}} rather than {{formatName(unformatted_name)}}. 
+
+Prefer to use Angular's @for syntax rather than *ngFor. 
+
+Do not use 'id' fields unless that id will be explicitly referenced within the code.
+
+Use snake-case for CSS class and style names
+
+When styling elements that are drawn from the Angular Material library, we angular materials default styling as much as possible. Do not use ::ng-deep to override styles. 
+
+
+

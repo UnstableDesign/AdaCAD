@@ -1,0 +1,155 @@
+<h2 mat-dialog-title>Workspace Settings</h2>
+<mat-dialog-content class="workspace">
+
+  <mat-expansion-panel hideToggle expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Origin </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div>
+      <p>This setting allows you to specify the orientation of your draft and structures.</p>
+      <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group"
+        [formControl]="originOptionForm">
+        @for (opt of originOptions; track opt) {
+        <mat-radio-button class="example-radio-button" [value]="opt.value">{{opt.view}}</mat-radio-button>
+
+        }
+      </mat-radio-group>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel hideToggle expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Default Loom Type </mat-panel-title>
+      <!-- <mat-panel-description> Assigns a specific kind of loom as the default for the workspace. </mat-panel-description> -->
+    </mat-expansion-panel-header>
+    <p> This setting lets you assign your type of loom as the default for the workspace. All new drafts will be assigned
+      this type. </p>
+    <div>
+      <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group"
+        [formControl]="loomTypeForm">
+        @for (loom of loomOptions; track loom) {
+        <mat-radio-button class="example-radio-button" [value]="loom.value">{{loom.viewValue}}</mat-radio-button>
+
+        }
+      </mat-radio-group>
+      <p>click below to overwrite the type of all looms on the workspace to your current selection </p>
+      <button mat-raised-button (click)="overrideLoomType()">Overwrite</button>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel hideToggle expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Units </mat-panel-title>
+      <!-- <mat-panel-description> Sets the unit of measurement for the warp density</mat-panel-description> -->
+    </mat-expansion-panel-header>
+    <div>
+      <p>This allows you to set the unit of measurement for the warp density</p>
+      <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group"
+        [formControl]="unitsForm">
+        @for (unit of unitOptions; track unit) {
+        <mat-radio-button class="example-radio-button" [value]="unit.value">{{unit.viewValue}}</mat-radio-button>
+
+        }
+      </mat-radio-group>
+    </div>
+  </mat-expansion-panel>
+
+
+  <mat-expansion-panel hideToggle expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Hide Drafts on All Operations </mat-panel-title>
+      <!-- <mat-panel-description> Controls if and how drafts are shown in dataflows</mat-panel-description> -->
+    </mat-expansion-panel-header>
+    <p>This controls if if you would like to see the outcome of each operation as a draft, or just the operation
+      information (which can be helpful to save space). Turn this to "On" if you are experiencing slowdowns.</p>
+    <div>
+      <mat-slide-toggle [formControl]="hideMixerDraftsForm">
+        Hide Drafts
+        <!-- <span *ngIf="this.ws.hide_mixer_drafts">On (Drafts Hidden)</span>
+        <span *ngIf="!this.ws.hide_mixer_drafts">Off (Drafts Shown)</span> -->
+      </mat-slide-toggle>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- <button mat-menu-item [matMenuTriggerFor]="showAdvancedOps">Show Advanced Operations</button> -->
+
+  <mat-expansion-panel hideToggle expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Operations </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div>
+      <p>This controls which operations are shown in the interface.</p>
+      <mat-slide-toggle [formControl]="showAdvancedOperationsForm">Show
+        Advanced Operations </mat-slide-toggle>
+
+
+    </div>
+  </mat-expansion-panel>
+
+
+  <mat-expansion-panel hideToggle expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Optimize </mat-panel-title>
+    </mat-expansion-panel-header>
+    <p>Use the buttons and sliders below to adjust settings that may lead to long processing times.</p>
+    <div>
+      <p>Hiding all drafts can help when you have many large drafts in the dataflow</p>
+      <button mat-raised-button (click)="hideDrafts()">Hide all Drafts </button>
+
+      <p>Changing all drafts to have a loom type of Jacquard helps speed up computation.</p>
+      <button mat-raised-button (click)="forceJacquard()">Convert all Drafts to Jacquard </button>
+
+      <mat-form-field class="full-width">
+        <mat-label>Maximum Draft Area</mat-label>
+        <input matInput [formControl]="maxAreaForm" type="number" [min]="60000" [max]="10000000" step="100">
+        <mat-hint>This will be the maximum size for any draft. Keeping this number low as possible will ensure the
+          software runs smoothly. Set to 2500 x 2500 (or 6,250,000) by default. Raising this may slow down the
+          interface.</mat-hint>
+
+        @if(maxAreaForm.dirty){
+        <button matButton="filled" color="accent" (click)="updateMaxArea(maxAreaForm.value)">Save</button>
+        }
+
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>Draft Rendering Hidden Area</mat-label>
+        <input matInput [formControl]="oversizeDimForm" type="number" [min]="100" [max]="1000000" step="100">
+        <mat-hint>This will be the maximum number of any cells you can have in a draft that will be automatically
+          drawn. Set to 50 x 50 (or 2,500) by default. Raising this may slow down the interface.</mat-hint>
+        @if( oversizeDimForm.dirty){
+        <button matButton="filled" color="accent" (click)="updateOversizeDim(oversizeDimForm.value)">Save</button>
+        }
+      </mat-form-field>
+
+
+      <!-- 
+<p>Any drafts with (warp ends x weft picks) larger the number specified below will be forced to be "jacquard" type, meaning they won't need AdaCAD to compute threading, tieup and treadling information which can be particularly slow on large drafts.</p>
+
+<mat-slider min="0" max="100000" step="100" showTickMarks discrete>
+  <input matSliderThumb (valueChange) = "setJacquardThreshold($event)">
+</mat-slider> {{this.ws.force_jacquard_threshold}}
+
+<p>Certain compound operations require that AdaCAD computes and least common multiple (LCM) calculation to ensure that all drafts repeat at even intervals. This can slow or crash the software when drafts are very large. Use the slider below to set the maximum size for which an LCM is computed. Drafts with a number of warps or wefts over this number will not be evenly repeated within a draft.</p>
+<mat-slider  min="1" max="1000" step="10" showTickMarks discrete>
+  <input matSliderThumb>
+</mat-slider> {{this.ws.largest_lcm_factor}} -->
+
+
+
+    </div>
+  </mat-expansion-panel>
+
+
+  <!-- <mat-menu #showAdvancedOps="matMenu">
+    <button [class.active]="this.ws.show_advanced_operations" mat-menu-item (click)="setAdvancedOperations(true)">yes</button>
+    <button [class.active]="!this.ws.show_advanced_operations" mat-menu-item (click)="setAdvancedOperations(false)">no</button>
+    </mat-menu>   
+
+    <button mat-menu-item (click)="optimizeWorkspace()">Optimize Workspace</button>
+ -->
+
+  <!-- <button mat-menu-item >Optimize for Device</button> -->
+
+</mat-dialog-content>

@@ -1,204 +1,235 @@
-<div class="view_container">
+<div class="viewer_container">
 
- <div 
- class="view_options"
- >
-
- <button 
- mat-flat-button 
- matTooltip="pin this draft in the viewer"
- (click)="togglePin()"
- >
- <i   [class.active]="vs.hasPin()" class="fa-solid fa-map-pin"></i>
- </button> 
-
- <button  
- mat-flat-button 
- [matMenuTriggerFor]="viewOptions"
- matTooltip="view options" >
- <i class="fa-regular fa-eye"></i>  
- </button>
-
- <mat-menu #viewOptions>
-
-    <button  
-     mat-menu-item
-     [class.active]="vis_mode == 'sim'"
-     matTooltip="view in 3D" 
-     (click)="viewAsSimulation()">
-       <i class="fa-solid fa-cube"></i> simulation
-     </button> 
-     
-   
-   <button mat-menu-item
-   [class.active]="vis_mode == 'draft'"
-   (click)="viewAsDraft()">
-   <i class="fa-solid fa-chess-board"></i>  draft
-   </button>
-
-   <button mat-menu-item
-   [class.active]="vis_mode == 'structure'"
-   (click)="viewAsStructure()">
-   <i class="fa-solid fa-hashtag"></i>  structure
-   </button>
-
-   <button mat-menu-item
-   [class.active]="vis_mode == 'color'"
-   (click)="viewAsColor()">
-   <i class="fa-solid fa-paint-roller"></i>  color pattern
-   </button>
-
- </mat-menu>
-
-
-
-     <button  
-     mat-flat-button  
-     (click)="openEditor()"
-     matTooltip="edit this draft">
-     <i class="fa-solid fa-pen-to-square"></i> 
-     </button>
-
-
- 
+  <div class="no-draft-placeholder" [class.hidden]="vs.getViewerId() !== -1">
+    <p>no draft selected, select a draft to visualize</p>
+  </div>
 
 
 
 
 
-     
-  
+  @if (view_controls_visible) {
+
+  <ul class="draft-info-list">
+    <li>
+      <span class="fieldname">name</span>
+      <span class="fieldvalue">{{draft_name}} <button matIconButton matTooltip="edit the draft name"
+          (click)="openNameChangeDialog()"><i class="fa-solid fa-pen-to-square"></i></button></span>
+    </li>
+    <li>
+      <span class="fieldname">dimensions</span>
+      <span class="fieldvalue">{{warps}} ends x {{wefts}} pics</span>
+    </li>
+    <li>
+      <span class="fieldname">notes</span>
+      <span class="fieldvalue">{{draft_notes}} <button matIconButton
+          matTooltip="edit the notes associated with this draft" (click)="openNameChangeDialog()"><i
+            class="fa-solid fa-pen-to-square"></i></button></span>
+    </li>
+  </ul>
+  }
 
 
- </div>
+
+  <div class="viewer-controls" [class.hidden]="vs.getViewerId() === -1">
+
+    <form class="sim-controls-form" [formGroup]="sim.simControls"
+      [class.hidden]="vs.current_view != 'sim' || !simControlsVisible">
 
 
-  <!-- <div class="draft-data">
 
-    <div class="dims">draft size: {{warps}} ends x {{wefts}} pics</div>
+      <div class="sim-slider-container">
 
-  </div> -->
-  
-    <div 
-    class="current_view" 
-    id="static_draft_view"
-    >
+        <div class="sim-slider-label">
+          <mat-label for="liftLimit">Lift Limit</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="1" max="50" step="1" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="liftLimit" />
+          </mat-slider>
+          <span class="sim-slider-value">{{sim.simControls.value.liftLimit}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
+
+      <div class="sim-slider-container">
+
+        <div class="sim-slider-label">
+          <mat-label for="pack">Pack (%)</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="0" max="1" step=".01" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="pack" />
+          </mat-slider>
+          <span class="sim-slider-value">{{sim.simControls.value.pack * 100}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
+
+      <div class="sim-slider-container" [class.active]="sim.simControls.get('mass').touched">
+
+        <div class="sim-slider-label">
+          <mat-label for="mass">Mass (g)</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="0" max="1000" step="100" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="mass" />
+          </mat-slider>
+          <span class="sim-slider-value">{{sim.simControls.value.mass}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
+
+      <div class="sim-slider-container" [class.active]="sim.simControls.get('maxTheta').touched">
+
+        <div class="sim-slider-label">
+          <mat-label for="maxTheta">Yarn Drooping (°)</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="0" max="90" step="1" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="maxTheta" />
+          </mat-slider>
+          <span class="sim-slider-value">{{sim.simControls.value.maxTheta}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
+
+      <div class="sim-slider-container" [class.active]="sim.simControls.get('warpSpacing').touched">
+
+        <div class="sim-slider-label">
+          <mat-label for="warpSpacing">Warp-Density ({{epiUnits}})</mat-label>
+        </div>
+        <div class="sim-slider-input">
+          <mat-slider min="1" max="100" step="1" aria-label="Select a value" showThumbLabel>
+            <input matSliderThumb formControlName="warpSpacing" />
+          </mat-slider>
+          <span class="sim-slider-value">{{sim.simControls.value.warpSpacing}}</span>
+        </div>
+        <div class="sim-slider-dx"></div>
+      </div>
+
+
+      <div class="sim-slider-container" [class.active]="sim.simControls.get('weftsAsWritten').touched">
+        <div class="toggle-group-wrapper">
+          <mat-button-toggle-group hideSingleSelectionIndicator formControlName="weftsAsWritten" appearance="standard"
+            class="collapsible-toggle-group">
+            <mat-button-toggle value="true">
+              no selvedge
+            </mat-button-toggle>
+            <mat-button-toggle value="false">
+              assume selvedge
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+      </div>
+
+    </form>
+
+
+    <div class="static-controls">
+      <div class="viewer-zoom-container" [class.hidden]="vs.current_view == 'sim'">
+        <mat-slider [class.hidden]="vs.current_view == 'sim'" min="0" [max]="zs.num_steps" step="1">
+          <input id='zoomLevel' matSliderThumb [formControl]="zoomLevel" (valueChange)="zoomChange()">
+        </mat-slider>
+      </div>
+
+
+
+      <button [class.hidden]="vs.current_view != 'sim'" matButton="filled"
+        [color]="simControlsVisible ? 'accent' : 'primary'" (click)="toggleSimControls()"><i
+          class="fa-solid fa-sliders"></i> Adjust Simulation
+      </button>
+
+
+
+      <div class="toggle-group-wrapper">
+        <mat-button-toggle-group hideSingleSelectionIndicator [formControl]="visMode" appearance="standard"
+          class="collapsible-toggle-group">
+          <mat-button-toggle matTooltip="view in 3D" value="sim">
+            <i class="fa-solid fa-cube"></i>
+          </mat-button-toggle>
+          <mat-button-toggle value="draft" matTooltip="view as draft">
+            <i class="fa-solid fa-chess-board"></i>
+          </mat-button-toggle>
+          <mat-button-toggle value="structure" matTooltip="view structure">
+            <i class="fa-solid fa-hashtag"></i>
+          </mat-button-toggle>
+          <mat-button-toggle value="visual" matTooltip="view color pattern">
+            <i class="fa-solid fa-paint-roller"></i>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+
+
+
+      <div class="toggle-group-wrapper" [class.hidden]="vs.current_view == 'sim'">
+        <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
+          [formControl]="viewFace" appearance="standard" class="collapsible-toggle-group">
+          <mat-button-toggle value="front">
+            front
+          </mat-button-toggle>
+          <mat-button-toggle value="back">
+            back
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+
+
+      <div class="toggle-group-wrapper" [class.hidden]="vs.current_view == 'sim'">
+        <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
+          [formControl]="useSizes" appearance="standard" class="collapsible-toggle-group">
+          <mat-button-toggle value="actual">
+            actual
+          </mat-button-toggle>
+          <mat-button-toggle value="standard">
+            standard
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+
+
+      <button matIconButton="filled" [color]="view_controls_visible ? 'accent' : 'primary'"
+        (click)="toggleViewControls()"><i class="fa-solid fa-circle-info"></i>
+      </button>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <div class="pin-container" [class.hidden]="vs.getViewerId() === -1">
+    <button mat-mini-fab [color]="vs.hasPin ? 'accent' : 'primary'" (click)="onTogglePinPressed()" class="pin-button"
+      [matTooltip]="vs.hasPin ? 'Unpin draft' : 'Pin draft to viewer'">
+      <i class="fa-solid fa-map-pin"></i>
+    </button>
+  </div>
+
+
+  <div class="current_view" id="static_draft_view" [class.hidden]="vs.getViewerId() === -1">
 
     <div class="scale-container" id="viewer-scale-container">
 
-    <app-draft-rendering
-    #view_rendering
-    [class.hidden]="vis_mode == 'sim'" 
-    source = "viewer"
-    [id]="id"
-    [view_only]="true"
-    [scale]="scale"
-    current_view="color"
-    >
-    </app-draft-rendering>
 
-    <app-simulation 
-    [class.hidden]="vis_mode != 'sim'" 
-    #sim
-     id="sim_viewer" 
-    [id]="id"
-    >
-  </app-simulation>
+      <app-draft-rendering #view_rendering [class.hidden]="vs.current_view == 'sim'" source="viewer"
+        [id]="vs.getViewerId()" [view_only]="true" [scale]="scale" [current_view]="vs.current_view">
+      </app-draft-rendering>
+
+      <app-simulation [class.hidden]="vs.current_view != 'sim'" #sim id="sim_viewer" [id]="vs.getViewerId()">
+      </app-simulation>
+
+
+    </div>
 
   </div>
-  
-  </div>
 
-  
-
- 
 
 
 
 </div>
-
-      <div class="footer-container">
-        <mat-toolbar class="footer">
-          <div class="footer-left">
-      
-            <!-- <button mat-icon-button (click)="zoomOut()"><i class="fas fa-search-minus"></i></button>          -->
-           
-              <mat-slider
-              [class.hidden]="vis_mode == 'sim'" 
-              min="0"
-              [max]="zs.num_steps"  
-              step="1" 
-             >
-              <input matSliderThumb [(ngModel)]="zs.zoom_table_ndx_viewer"  (valueChange)="zoomChange()" >
-            </mat-slider>
-
-      
-            <!-- <button  mat-icon-button (click)="zoomIn()"><i class="fas fa-search-plus"></i></button> -->
-            
-
-      
-          </div>
-      
-
-          <div class="footer-center"> 
-            <input 
-            [(ngModel)]="draft_name" 
-            class="filename"
-            matInput 
-            (change)="updateDraftName()"
-            placeholder="draft_name">
-            <!-- <mat-form-field appearance="outline">
-              <mat-label>draft name</mat-label>
-      
-              <input matInput  [(ngModel)]="draft_name" 
-              [placeholder]="draft_name"  
-              (change)="updateDraftName()">
-            </mat-form-field> -->
-      </div>
-      <div class="footer-right">
-
-            <button  
-            mat-mini-fab
-            color="primary"
-            matTooltip="download draft"
-            [matMenuTriggerFor]="subdraftOptions">
-            <i class="fa-solid fa-download"></i> 
-            </button>
-      
-      
-            <mat-menu #subdraftOptions>
-        
-          
-              <button mat-menu-item
-              (click)="saveAs('bmp')"
-              matTooltip ="Download as Bitmap">
-              <i class="fa-solid fa-download"></i> download as bitmap
-              </button>
-        
-              <button mat-menu-item
-              (click)="saveAs('jpg')"
-              matTooltip ="Download as Printable Image">
-              <i class="fa-solid fa-image"></i> download as image
-              </button>
-        
-              <button mat-menu-item
-              (click)="saveAs('wif')"
-              matTooltip ="Download as .WIF file">
-              <i class="fa-solid fa-file"></i> download as .WIF file
-              </button>
-        
-      
-            </mat-menu>
-
-            </div>
-        </mat-toolbar>
-      </div>
-
-
-
-
-
-
-
-
-

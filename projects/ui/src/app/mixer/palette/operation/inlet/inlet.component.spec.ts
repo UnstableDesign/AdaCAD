@@ -8,8 +8,8 @@ describe('InletComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ InletComponent ]
-    })
+    imports: [InletComponent]
+})
     .compileComponents();
   });
 

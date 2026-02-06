@@ -1,53 +1,70 @@
 @use '@angular/material' as mat;
 
 
-.view-container{
+.view-container {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  @include mat.toolbar-overrides((standard-height: 54px));
+
 }
 
 
-.mat-mdc-icon-button{
+
+.mat-mdc-icon-button {
   font-size: 14px;
   position: relative;
   top: 0px;
 }
 
-.mat-button-toggle-appearance-standard{
-  font-size: 14px;
-  color: white;
-  background-color: #3f51b5;
-}
 
-.toggle {
-  line-height: 10px;
-}
 
-.copypaste{
+.copypaste {
   display: flex;
   flex-direction: row;
   gap: 8px;
   font-size: 14px;
   flex: 1 1;
+  align-items: center;
   overflow: hidden;
 
 }
 
-.filename{
+.examples {
+  button {
+    color: #3f51b5;
+  }
+}
+
+.library-container {
+
+  margin: 0 auto;
+  padding: 16px;
+  flex-direction: column;
+}
+
+
+.filename {
   height: 30px;
   background: whitesmoke;
   border: thin solid #3f51b5;
   margin: 0px 8px 0px 0px;
   border-radius: 3px;
+  color: #3f51b5;
 }
 
 
 
-.header-container{
+.header-container {
+
+
   display: flex;
   flex-direction: column;
-  flex: 0 1 64px;
+  flex: 0 1 54px;
   background-color: #3f51b5;
   overflow: hidden;
   position: fixed;
@@ -55,136 +72,156 @@
 
 }
 
-.view-adjust-overlay{
+.view-adjust-overlay {
   height: 100%;
   width: 1px;
   position: absolute;
 }
 
-.ui-left{
+.ui-left {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
-  overflow: hidden;
+  height: 100%;
+  overflow: scroll;
 
 }
 
-.ui-right{
+.ui-right {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 
-.ui-grid{
+.ui-grid {
   position: relative;
-  top: 64px;
+  top: 54px;
+  height: calc(100vh - 54px);
   display: flex;
   background: white;
   flex-direction: row;
   align-items: stretch;
 }
 
-
-.footer-container{
-  display: flex;
-  flex-direction: row;
-  flex: 0 1 64px;
-  flex-wrap: wrap;
-  background-color: #3f51b5;
-  justify-content: space-between;
+.test {
+  font-size: 12px;
+  color: white;
+  background-color: #ff4081;
+  padding: 2px 4px;
+  border-radius: 4px;
 }
 
-.mixer-container{
+
+.mixer-container {
 
 
   display: flex;
   flex-direction: row;
   background-color: #f0f0f0;
   overflow: hidden;
+  height: 100%;
 
 }
 
-.detail-container{
+.detail-container {
   display: flex;
   flex: 0 1 100%;
   flex-direction: row;
   background-color: #f0f0f0;
-  overflow: hidden;
+  padding-bottom: 100px;
 }
 
-.static-container{
+.static-container {
   display: flex;
+  flex: 1 1 100%;
   align-items: stretch;
   flex-direction: column;
-  flex: 1 1 100px;
   overflow: hidden;
   background-color: whitesmoke;
 
-  &.collapsed{
+  &.collapsed {
     flex: 0 1 40px;
   }
 
 }
 
-.toggle{
+.toggle {
   font-size: .5em;
 
 
 
 }
 
-.download{
+.download {
   width: 18vw;
 }
 
+.mat-button-toggle-appearance-standard {
+  font-size: 14px;
+  color: #3f51b5;
+  background-color: white;
+}
 
+.toggle {
+  line-height: 10px;
+}
 
-.topbar{
+.topbar {
   display: flex;
   justify-content: space-between;
   color: white;
   background-color: #3f51b5;
 
-   @include mat.button-toggle-overrides((
-    background-color: #3f51b5,
-    disabled-selected-state-background-color:  #3f51b5,
-    selected-state-background-color: white,
-    height: 40px
+  @include mat.button-toggle-overrides((background-color: white,
+      selected-state-text-color: #ff4081,
+      selected-state-background-color: white,
+      text-color: #3f51b5,
+      height: 40px));
 
 
-  ));
-
-  
 }
 
-.footer{
+.footer-container {
+  border-top: thin solid #3f51b5;
+  color: #3f51b5;
+  position: fixed;
+  width: calc(100% - 32px);
   display: flex;
+  align-items: center;
+  flex-direction: row;
+  top: calc(100vh - 54px);
+  display: flex;
+  background-color: white;
   justify-content: space-between;
-  flex: 0 1 100%;
-  flex-wrap: nowrap;
   padding: 0px 16px;
 }
 
-.footer-left{
+
+.footer-left {
   display: flex;
   overflow: hidden;
   flex: 1 1;
+  align-items: center;
+
+  button {
+    color: #3f51b5;
+  }
 }
 
 .footer-center,
-.footer-right{
+.footer-right {
   font-size: 14px;
   display: flex;
   flex: 0 1;
   gap: 8px;
+  align-items: center;
+
 }
 
-.design_mode{
+.design_mode {
   margin-right: 12px;
 }
 
-.topbar-button-group{
+.topbar-button-group {
   justify-content: flex-start;
   display: flex;
   flex-direction: row;
@@ -192,28 +229,27 @@
   font-size: 14px;
 }
 
-  .hide{
-    display: none;
-  }
+.hide {
+  display: none;
+}
 
-  .show{
-    display: flex;
-  }
-
-
-
-  .active{
-    color: #ff4081;
-  }
+.show {
+  display: flex;
+}
 
 
-  .offline{
-    font-size: .6em;
-  }
+
+.active {
+  color: #ff4081;
+}
 
 
-  .selected,
-  .active{
-    opacity: .9;
-  }
-  
+.offline {
+  font-size: .6em;
+}
+
+
+.selected,
+.active {
+  opacity: .9;
+}

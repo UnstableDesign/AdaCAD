@@ -1,157 +1,136 @@
-
-
 <!-- {{id}} -->
+
+
+@if (hasPin()) {
+
+<button mat-mini-fab color="accent" [style.scale]="globalZoomUndo" class="pin-indicator" (click)="unpinFromView()"
+  matTooltip="Pinned in viewer">
+  <i class="fa-solid fa-map-pin"></i>
+</button>
+}
+
+
+
+
 
 <div class="subdraft-container" id="subdraft-container-{{id}}">
 
 
-  <div class="header-container">
+  <div class="header-container" [class.hidden]="!draft_visible">
 
-    @if (!draft_visible) {
-      <button class="show_draft" mat-flat-button  (click)="toggleVisibility()">
-        <i class="fa fa-eye" aria-hidden="true"></i> show draft
-      </button>
-    }
+
+
+    <div class="rendering-view-opts" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
+      <!-- set local zoom -->
+      <mat-slider class='slider' min=".1" max="2" step="0.1">
+        <input matSliderThumb [formControl]="localZoomForm" #slider>
+      </mat-slider>
+
+    </div>
 
     @if (draft_visible) {
-      <button class="show_draft" mat-flat-button (click)="toggleVisibility()">
-        <i class="fa fa-eye" aria-hidden="true"></i> hide draft
-      </button>
+    <button class="show_draft" matIconButton (click)="toggleVisibility()">
+      <i class="fa fa-eye-slash" aria-hidden="true"></i>
+    </button>
     }
 
-    <!-- <button *ngIf = 'draft_visible' mat-icon-button (click)="toggleVisibility()">
-    <i class="fa fa-eye-slash" aria-hidden="true"></i>
-  </button> -->
 
-  <div class="rendering-view-opts" [class.hidden]="(hasParent && ws.hide_mixer_drafts) || !draft_visible">
-    <!-- set local zoom -->
-    <mat-slider min=".1" max="1" step="0.1">
-      <input matSliderThumb  [value]="local_zoom" (valueChange)="localZoomChange($event)">
-    </mat-slider>
+
+
+
+
+    @if (!hasParent) {
+    <div class="options">
+      <mat-menu #subdraftOptions>
+        @if (!exceeds_size && !hasParent && !hasPin()) {
+        <button mat-menu-item (click)="pinToView()">
+          <i class="fa-solid fa-map-pin"></i> pin for view
+        </button>
+        }
+        @if (!exceeds_size && !hasParent && hasPin()) {
+        <button mat-menu-item color="accent" (click)="unpinFromView()">
+          <i class="fa-solid fa-map-pin"></i> unpin from view
+        </button>
+        }
+        <button mat-menu-item matTooltip="Select Draft" (click)="openInEditor()">
+          <i class="fa-solid fa-pen-to-square"></i> open in editor
+        </button>
+        <button mat-menu-item matTooltip="Duplicate" name="duplicate" (click)="designActionChange('duplicate')">
+          <i class="fa-solid fa-clone"></i> duplicate
+        </button>
+        <button mat-menu-item (click)="saveAsBmp()" matTooltip="Download as Bitmap">
+          <i class="fa-solid fa-download"></i> download as bitmap
+        </button>
+        <button mat-menu-item (click)="saveAsPrint()" matTooltip="Download as Printable Image">
+          <i class="fa-solid fa-image"></i> download as image
+        </button>
+        <button mat-menu-item (click)="saveAsWif()" matTooltip="Download as .WIF file">
+          <i class="fa-solid fa-file"></i> download as .WIF file
+        </button>
+        @if (!hasParent) {
+        <button mat-menu-item matTooltip="Delete" [name]="delete" (click)="designActionChange('delete')">
+          <i class="fa-solid fa-times"></i> delete
+        </button>
+        }
+      </mat-menu>
+      <button matIconButton #trigger [matMenuTriggerFor]="subdraftOptions" class="is-small fa-solid fa-ellipsis"
+        matTooltip="View Options">
+      </button>
+    </div>
+    }
 
   </div>
 
 
 
+  <div class="draft-rendering-wrapper" [class.hidden]="!draft_visible">
+
+    <app-draft-rendering [class.hidden]="!draft_visible" #draft_rendering source="mixer" [id]="id"
+      [view_only]="hasParent" [current_view]="current_view" [scale]="local_zoom">
+    </app-draft-rendering>
+  </div>
 
 
-  @if (!hasParent) {
-    <div  class="options">
-      <mat-menu #subdraftOptions>
-        @if (!exceeds_size && !hasParent && !hasPin()) {
-          <button
-            mat-menu-item
-            (click)="pinToView()">
-            <i class="fa-solid fa-map-pin"></i> pin for view
-          </button>
-        }
-        @if (!exceeds_size && !hasParent && hasPin()) {
-          <button
-            mat-menu-item
-            color="accent"
-            (click)="unpinFromView()">
-            <i class="fa-solid fa-map-pin"></i> unpin from view
-          </button>
-        }
-        <button
-          mat-menu-item
-          matTooltip ="Select Draft"
-          (click)="openInEditor()">
-          <i class="fa-solid fa-pen-to-square"></i>  open in editor
+
+  <div class="output_meta" [class.hidden]="!draft_visible">
+
+    <div class="name_and_dims">
+      <div class="text">
+        <div class="name">{{draft_name}} </div>
+        <div class="dims">{{warps}} x {{wefts}}</div>
+      </div>
+      <div class="edit_button">
+        <button mat-icon-button (click)="rename($event)">
+          <i class="fas fa-edit"></i>
         </button>
-        <button  mat-menu-item
-          matTooltip= "Duplicate"
-          name="duplicate"
-          (click)="designActionChange('duplicate')">
-          <i class="fa-solid fa-clone"></i> duplicate
-        </button>
-        <button  mat-menu-item
-          (click)="saveAsBmp()"
-          matTooltip ="Download as Bitmap">
-          <i class="fa-solid fa-download"></i> download as bitmap
-        </button>
-        <button  mat-menu-item
-          (click)="saveAsPrint()"
-          matTooltip ="Download as Printable Image">
-          <i class="fa-solid fa-image"></i> download as image
-        </button>
-        <button  mat-menu-item
-          (click)="saveAsWif()"
-          matTooltip ="Download as .WIF file">
-          <i class="fa-solid fa-file"></i> download as .WIF file
-        </button>
-        @if (!hasParent) {
-          <button  mat-menu-item
-            matTooltip= "Delete"
-            [name]="delete"
-            (click)="designActionChange('delete')">
-            <i class="fa-solid fa-times"></i> delete
-          </button>
-        }
-      </mat-menu>
-      <button mat-icon-button
-        #trigger
-        [matMenuTriggerFor]="subdraftOptions"
-        class="is-small fa-solid fa-ellipsis"
-        matTooltip ="View Options">
-      </button>
+      </div>
+
     </div>
-  }
-
-</div>
-
-
-
-<app-draft-rendering [class.hidden]="!draft_visible"
-  #draft_rendering
-  source = "mixer"
-  [id]="id"
-  [view_only]="hasParent"
-  [current_view]="current_view"
-  [scale]="local_zoom"
-  (onDrawdownUpdated)="drawdownUpdated()"
-  (onMaterialChange)="drawdownUpdated()"
-
-  >
-</app-draft-rendering>
-
-
-
-<div class="output_meta">
-
-  <div class="name_and_dims">
-    <div class="text">
-      <div class="name">{{draft_name}} </div>
-      <div class="dims">{{warps}} x {{wefts}}</div>
-    </div>
-    <div class="edit_button">
-      <button mat-icon-button (click)="rename($event)">
-        <i class="fas fa-edit"></i>
-      </button>
-    </div>
-
   </div>
 
 
 
   <canvas #bitmapImage hidden></canvas>
 
-  <div class="outlet_row">
+  <div [class.outlet_row-draft-visible-false]="!draft_visible" [class.outlet_row]="draft_visible">
 
 
-    <button
-      mat-raised-button
-      id = "{{id}}-out"
-      class="outlet"
-      [class.active]="selecting_connection"
-      [class.outlet_connected]="outlet_connected"
-      matTooltip = "connect this draft to an operation"
+
+
+    <button mat-raised-button id="{{id}}-out" class="outlet" [class.active]="selecting_connection"
+      [class.outlet_connected]="outlet_connected" matTooltip="connect this draft to an operation"
       (click)="connectionStarted($event)">
       <i class="fa-sharp fa-solid fa-circle-down"></i>
     </button>
+
+    @if(!draft_visible) {
+    <button class="show_draft" matIconButton (click)="toggleVisibility()">
+      <i class="fa fa-eye" aria-hidden="true"></i>
+    </button>
+    }
+
+
   </div>
 
 
 </div>
-
-

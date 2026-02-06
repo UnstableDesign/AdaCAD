@@ -1,77 +1,62 @@
-
-
-
-.colorgroup{
-    display: inline-flex;
-    border: thin solid grey;
-}
-
-.inlet_connector{
+.inlet_connector {
     display: flex;
     flex-direction: row;
     align-items: center;
 
 }
 
-.open_inlet{
-    font-size: 1.5em;
+.open_inlet {
+    font-size: var(--form-field-entry-size);
     display: flex;
     flex-direction: row;
     align-items: center;
-    
+
 }
 
-.button{
-    padding-right: 12px;
-}
 
-.has_connection{
-    font-size: 1.5em;
+.has_connection {
+    font-size: var(--form-field-entry-size);
     background-color: black;
     color: white;
     margin-right: 12px;
 }
 
 
-.inlet_block{
+.inlet_block {
     display: flex;
     flex-direction: row;
-    padding-right: 12px;
     position: relative;
+    height: max-content;
     top: -24px;
 }
 
-.inlet_block  .mat-mdc-raised-button{
+.inlet_block .mat-mdc-raised-button {
     display: flex;
     flex-direction: row;
     align-items: center;
+    height: max-content;
+    padding: 16px;
 }
 
 
-.input-color{
-    width: 30px;
-    height: 15px;
-    border: thin solid white;
+.input-color {
+    display: inline-flex;
+    width: var(--form-field-entry-size);
+    height: var(--form-field-entry-size);
+    border: 2px solid grey;
 }
 
 
 
-.inputs{
+.inputs {
     display: flex;
     justify-content: flex-start;
     text-align: center;
 }
 
 
-.mat-mdc-select{
-    width: 34px;
-    padding-left: 4px;
-    line-height: 30px;
-    background-color: #fff;
-}
 
-
-input{
+input {
     width: 35px;
 }
 

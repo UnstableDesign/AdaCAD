@@ -1,26 +1,33 @@
 # AdaCAD Drafting Library
 
-**CURRENTLY IN DEVELOPMENT***
+The AdaCAD Drafting Library contains the core functionality of AdaCAD without of the UI implementation. Thus, you can access and import the library to work directly in typescript, without having to touch the complex and overwhelming angular code that is used to manage the UI. This goal is to enable better testing, documentation, and integration of our data structures, operations and functions into broader projects. 
 
-The AdaCAD Drafting LIbrary contains the core functionality of AdaCAD without of the UI implementation. Thus, you can access and import the library to work directly in typescript, without having to touch the complex and overwhelming angular code that is used to manage the UI. This goal is to enable better testing, documentation, and integration of our data structures, operations and functions into broader projects. 
 
-## Envisioned Features (in Progress)
+## Code Structure
 
-- To Generate Drafts in Bitmap and .WIF formats from the Command Line or by writting typescript files that import the library. For example, you might imagine that you can script: 
-```
-const a = tabby (1, 2, 1, 2); //create a tabby variant
-const b = twill (2, 3, 'Z'); // create a twill 
-const c = layer(a, b); //layer the structures
-export(c, 'bmp') //export the resutling draft as a bitmap file
-```
+The library is organized into several core directories, each handling a specific aspect of drafting functionality:
 
-- A more accessible format for developers who may be interested in contributing to simulation functions, adding custom operations, or adding support for different loom or file export types. 
+- **[draft](./src/draft/README.md)**: Contains the data structures, types, and helper functions for managing drafts and warp/weft systems. This includes the `Draft` interface, `Cell` operations, drawdown manipulation, and system management.
 
-- 
+- **[loom](./src/loom/README.md)**: Contains the data structures, types, and helper functions for managing looms. Supports different loom types (jacquard, frame/shaft-treadle, direct-tie/dobby) with type-specific computation functions and conversion utilities.
 
-## Installation
+- **[material](./src/material/README.md)**: Contains the material representation and management logic. Materials represent yarns/threads with visual properties (color, diameter) and physical properties (stretch, thickness) used in rendering and simulation.
 
-The library is available via the NPM registry. The current version represents the existing core functionality (e.g. datastructures, types, operations, and utilities) that control AdaCAD. 
+- **[media](./src/media/README.md)**: Contains type definitions and interfaces for handling images and color data. Supports image analysis, color extraction, and rendering color definitions for draft visualization.
+
+- **[operations](./src/operations/README.md)**: Contains all the operations available in AdaCAD. Operations are the building blocks of the dataflow system - they take drafts as inputs, apply transformations or generate new patterns, and output drafts. Includes both regular operations (fixed inlets) and dynamic operations (variable inlets).
+
+- **[sequence](./src/sequence/README.md)**: Contains the `Sequence` namespace with classes for manipulating 1D and 2D sequences of interlacement values. Provides a fluent API for pattern manipulation, transformation, and system mapping operations.
+
+- **[simulation](./src/simulation/README.md)**: Contains the simulation engine for generating 3D visualizations of woven cloth. Uses material properties and draft information to predict how the woven cloth will look and behave.
+
+- **[utils](./src/utils/README.md)**: Contains utility functions, default values, and helper functions used throughout AdaCAD. Includes draft analysis functions, mathematical operations (LCM, GCD), comparison functions, string parsing, and configuration defaults.
+
+
+
+## Installation (Global via NPM)
+
+Use this if you need only to use the existing library. The library is available via the NPM registry. The current version represents the existing core functionality (e.g. data-structures, types, operations, and utilities) that control AdaCAD. 
 
 You can download it using: 
 
@@ -32,7 +39,24 @@ To import it into your project use
 
 or select the specific features and functions you will import
 
+<<<<<<< HEAD
 `import {Draft} from 'adacad-drafting-lib/objects'`
+=======
+`import {Draft} from 'adacad-drafting-lib/draft'`
+
+
+## Installation (Local)
+Use this if you want to develop new features in teh library and use these local changes as the backbone in the AdaCAD UI. 
+
+create a symlink in this directory:
+
+`npm link`
+
+make sure that the package.json file in /projects/adacad/ui/ links to the local library: 
+
+`npm link adacad-drafting-lib --save --legacy-peer-deps`
+
+>>>>>>> v5.0
 
 
 ## Documentation 
@@ -44,8 +68,11 @@ Automated TypeDoc documentation for each file has been generated in the [docs](.
 ## Public Facing: 
 - [AdaCAD Online](htts://adacad.org) 
 - [AdaCAD Documentation](htts://docs.adacad.org)
+<<<<<<< HEAD
 
 ## Github Repos
 
 - [AdaCAD UI](https://github.com/UnstableDesign/AdaCAD/tree/main) - Branch 'migrate_to_standalone' is a version that is built onto of this library
 - [AdaCAD Docs](https://github.com/UnstableDesign/AdaCAD_Documentation) - eventually will work library documentation into this website to support development.
+=======
+>>>>>>> v5.0

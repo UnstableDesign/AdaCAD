@@ -1,0 +1,44 @@
+<div cdkDrag cdkDragRootElement=".mat-mdc-dialog-panel" cdkDragHandle>
+    <h2 mat-dialog-title> Update Text</h2>
+
+
+    <mat-dialog-content>
+
+
+
+        <mat-form-field appearance="fill">
+
+            <mat-label>{{stringparam.name}}</mat-label>
+            <textarea matInput [formControl]="fc" (keyup.enter)="save()"></textarea>
+            @if (fc.hasError('required') ) {
+            <mat-error>An input is required</mat-error>
+            }
+            @if (fc.hasError('pattern')) {
+            <mat-error>the current input is not correctly formatted </mat-error>
+            }
+
+            <mat-hint><i class="fas fa-save"></i> hit enter to save and update</mat-hint>
+        </mat-form-field>
+
+        <div class="file-input-container">
+            <input #fileInput type="file" accept=".csv,.txt,.text" (change)="onFileSelected($event)"
+                style="display: none;">
+            <button mat-stroked-button type="button" (click)="fileInput.click()">
+                Import from CSV or Text File
+            </button>
+            <span style="margin-left: 8px; font-size: 12px; color: rgba(0,0,0,0.6);">
+                CSV: one value per row | Text: direct content
+            </span>
+        </div>
+
+
+
+
+    </mat-dialog-content>
+
+
+
+    <mat-dialog-actions>
+        <button mat-raised-button (click)="close()" color="primary"><i class="fas fa-times"></i> Close</button>
+    </mat-dialog-actions>
+</div>

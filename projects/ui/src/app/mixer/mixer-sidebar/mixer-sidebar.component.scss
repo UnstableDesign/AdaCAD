@@ -1,0 +1,137 @@
+@use '@angular/material' as mat;
+
+
+h4 {
+  font-size: 14px;
+  font-weight: lighter;
+  padding-bottom: 0px;
+  color: black;
+  text-transform: uppercase;
+  margin-top: 24px;
+  text-align: left;
+  margin-bottom: 0px;
+}
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+.edit-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 24px;
+
+  // Customize the entire app. Change :root to your selector if you want to scope the styles.
+
+
+}
+
+
+
+
+.mixer-sidebars {
+
+  padding: 16px;
+  flex: 0 0 275px;
+  display: flex;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-direction: column;
+  position: relative;
+  transition: flex 0.3s ease;
+  height: 100%;
+  max-height: 100vh;
+
+  &.hide {
+    display: none;
+  }
+
+  &.collapsed {
+    flex: 0 0 60px;
+    padding: 8px;
+    overflow: visible;
+  }
+}
+
+.toggle-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+
+  &:hover {
+    background-color: #3f51b5;
+
+    i {
+      color: white;
+    }
+  }
+
+  i {
+    display: block;
+    color: #3f51b5;
+    font-size: 14px;
+    line-height: 12px;
+  }
+}
+
+.collapsed-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 48px;
+  align-items: center;
+  width: 100%;
+}
+
+.collapsed-icon-button {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #3f51b5;
+
+  i {
+    font-size: 18px;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+h3 {
+  text-align: left;
+  font-weight: lighter;
+  padding-bottom: 0px;
+  color: #999;
+  margin-top: 24px;
+}
+
+.mat-expansion-panel-header {
+  i {
+    padding-right: 8px;
+  }
+}
+
+// .mat-stroked-button {
+//   margin: 2px;
+//   max-width: 160px;
+
+//   &.operation {
+//     color: white;
+//     white-space: normal;
+//     line-height: 20px;
+//     padding: 10px;
+//   }
+// }
+
+.mat-mdc-form-field {
+  width: 95%;
+}

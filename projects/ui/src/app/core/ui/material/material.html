@@ -1,0 +1,112 @@
+<!-- <button mat-icon-button (click)="close()"><i class="fas fa-times"></i></button> -->
+
+
+<div [formGroup]="materialsForm">
+  <div formArrayName="materials">
+    @for (materialControl of materialsFormArray.controls; track materialControl.get('uid')?.value) {
+    <div [formGroupName]="$index" class="material-row">
+
+      <div class="material-icon">
+        <i [style.color]="materialControl.get('color')?.value"
+          [style.font-size]="materialControl.get('icon_size')?.value + 'em'" class="fa-solid fa-circle"></i>
+        {{materialControl.get('id')?.value}}
+      </div>
+      <mat-form-field class="material-name">
+        <mat-label>name</mat-label>
+        <input matInput placeholder="Material Name"
+          (change)="onNameChange(materialControl.get('id')?.value, $event.target.value)" formControlName="name">
+      </mat-form-field>
+
+      <mat-form-field class="material-color">
+        <mat-label>color</mat-label>
+        <input matInput #colorpicker type="color" placeholder="Color" class="colorpicker" formControlName="color"
+          (input)="materialColorChange(materialControl.get('id')?.value, $event.target.value)" (change)="save()" />
+      </mat-form-field>
+      <mat-form-field class="material-diameter">
+        <mat-label>diameter</mat-label>
+        <input matInput type="number" placeholder="Yarn Diameter (in mm)" min="0.01" max="100" step=".25"
+          (change)="diameterChange(materialControl.get('id')?.value, materialControl.get('diameter')?.value)"
+          formControlName="diameter">
+        <span matTextSuffix>mm</span>
+      </mat-form-field>
+      <mat-form-field class="material-notes">
+        <mat-label>Add Notes</mat-label>
+        <textarea matInput (change)="notesChange(materialControl.get('id')?.value, $event.target.value)"
+          formControlName="notes"></textarea>
+      </mat-form-field>
+
+
+
+      <!--     </mat-panel-description> -->
+      <!--     </mat-expansion-panel-header> -->
+
+
+
+
+
+      @if (ms.materials.length > 1) {
+      <div class="material-actions">
+
+
+        @if(materialsForm.dirty) {
+        <!-- <button mat-flat-button color="primary" (click)="save()">
+          <i class="fa fa-save"></i> 
+        </button> -->
+        }
+        <button matIconButton class="material-actions-button"
+          (click)="delete(materialControl.get('id')?.value, materialControl.get('id')?.value)">
+          <i class="fa fa-trash"></i>
+        </button>
+
+
+      </div>
+      }
+      <!--     </mat-expansion-panel> -->
+    </div>
+    }
+
+
+
+
+
+
+    <h3>Add New Material</h3>
+    <div [formGroup]="newMaterialForm" class="material-row">
+
+
+      <mat-form-field class="material-name">
+        <mat-label>name</mat-label>
+        <input matInput placeholder="Material Name" formControlName="name">
+      </mat-form-field>
+
+
+
+      <mat-form-field class="material-color">
+        <mat-label>color</mat-label>
+        <input matInput #colorpicker type="color" placeholder="Color" class="colorpicker"
+          [style.background]="newMaterialForm.get('color')?.value" formControlName="color" />
+      </mat-form-field>
+
+      <mat-form-field class="material-diameter">
+        <mat-label>diameter</mat-label>
+        <input matInput type="number" placeholder="Yarn Diameter (in mm)" min="0.1" max="100" step=".5"
+          formControlName="diameter">
+        <span matTextSuffix>mm</span>
+      </mat-form-field>
+
+
+
+
+
+      <mat-form-field class="material-notes">
+        <mat-label>Add Notes</mat-label>
+        <textarea matInput formControlName="notes"></textarea>
+      </mat-form-field>
+
+      <button matIconButton class="material-actions-button" (click)="addNewShuttle()"> <i
+          class="fa fa-plus"></i></button>
+    </div>
+
+
+  </div>
+</div>
