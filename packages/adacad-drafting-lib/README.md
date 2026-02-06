@@ -39,9 +39,6 @@ To import it into your project use
 
 or select the specific features and functions you will import
 
-<<<<<<< HEAD
-`import {Draft} from 'adacad-drafting-lib/objects'`
-=======
 `import {Draft} from 'adacad-drafting-lib/draft'`
 
 
@@ -56,7 +53,6 @@ make sure that the package.json file in /projects/adacad/ui/ links to the local 
 
 `npm link adacad-drafting-lib --save --legacy-peer-deps`
 
->>>>>>> v5.0
 
 
 ## Documentation 
@@ -68,11 +64,3 @@ Automated TypeDoc documentation for each file has been generated in the [docs](.
 ## Public Facing: 
 - [AdaCAD Online](htts://adacad.org) 
 - [AdaCAD Documentation](htts://docs.adacad.org)
-<<<<<<< HEAD
-
-## Github Repos
-
-- [AdaCAD UI](https://github.com/UnstableDesign/AdaCAD/tree/main) - Branch 'migrate_to_standalone' is a version that is built onto of this library
-- [AdaCAD Docs](https://github.com/UnstableDesign/AdaCAD_Documentation) - eventually will work library documentation into this website to support development.
-=======
->>>>>>> v5.0
