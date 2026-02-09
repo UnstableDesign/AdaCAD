@@ -1,12 +1,10 @@
+import React from 'react'
+import Markdown from 'react-markdown';
 import { getOp } from 'adacad-drafting-lib/operations/operations.js'
-import { assets } from '../import_helper';
 import styles from './styles.module.css';
 
 
-export const OperationImage = ({ name }) => {
-    const obj = assets.find(el => el.name == name)
-    if (obj !== undefined) return (<img src={obj.img}></img>)
-}
+
 
 
 export const OperationHeader = (props) => {
@@ -15,8 +13,18 @@ export const OperationHeader = (props) => {
     if (operation !== null) return (
         < section className={styles.opHeader} >
             {operation.meta.desc}
-            <OperationImage name={props.name}></OperationImage>
+            <img
+                src={require(`@site/docs/reference/operations/${operation.meta.categories[0].name}/${operation.name}/${operation.name}.png`).default}
+                alt="Example banner"
+            />
         </section >
     );
+}
+
+export const OperationMarkdown = ({ name }) => {
+    const obj = assets.find(el => el.name == name)
+    console.log("FOUND OBJ", obj, obj.frontMatter);
+    if (obj !== undefined) return (<Markdown>## Hi</Markdown>)
+
 }
 
