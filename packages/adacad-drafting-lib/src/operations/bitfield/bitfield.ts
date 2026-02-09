@@ -14,7 +14,8 @@ const meta: OpMeta = {
     categories: [structureOp],
     authors: ["Alex McLean"],
     desc: "Creates a structure based on a bitfield function, a mathematical function that uses x/y values to determine which heddles are lifted and lowered. ",
-    img: 'bitfield.png'
+    img: 'bitfield.png',
+    draft: true
 }
 
 
