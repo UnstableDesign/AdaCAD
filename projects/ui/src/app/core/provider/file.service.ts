@@ -67,7 +67,6 @@ export class FileService {
         if (meta.id === -1) meta.id = generateId(8);
 
         let draft_nodes: Array<DraftNodeProxy> = [];
-        let ops: Array<OpComponentProxy> = [];
         let version = "0.0.0";
 
         this.clearAll();
@@ -263,14 +262,14 @@ export class FileService {
                 }
               })
 
-
+            let ops_new: Array<OpComponentProxy> = [];
             if (data.ops !== undefined) {
-              ops = data.ops.map(data => {
+              ops_new = data.ops.map(single_op_data => {
                 const op: OpComponentProxy = {
-                  node_id: data.node_id,
-                  name: data.name,
-                  params: data.params,
-                  inlets: (data.inlets === undefined) ? [0] : data.inlets
+                  node_id: single_op_data.node_id,
+                  name: single_op_data.name,
+                  params: single_op_data.params,
+                  inlets: (single_op_data.inlets === undefined) ? [0] : single_op_data.inlets
                 }
                 return op;
               });
@@ -281,6 +280,7 @@ export class FileService {
               indexed_images = data.indexed_image_data;
             }
 
+            console.log('[file.service] Ops data:', ops_new.slice());
             const envt: SaveObj = {
               version: data.version,
               workspace: data.workspace,
@@ -290,7 +290,7 @@ export class FileService {
               tree: (data.tree === undefined) ? [] : data.tree,
               draft_nodes: draft_nodes,
               notes: (data.notes === undefined) ? [] : data.notes,
-              ops: ops,
+              ops: ops_new,
               materials: [],
               indexed_image_data: indexed_images
             }

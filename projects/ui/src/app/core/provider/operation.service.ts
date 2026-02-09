@@ -47,6 +47,7 @@ export class OperationService {
 
 
   getOp(name: string): Operation | DynamicOperation {
+    console.log('[getOp] Getting op:', name, this.ops.slice());
     const op = this.ops.find(el => el.name == name);
     if (op == undefined) return null;
     return op;

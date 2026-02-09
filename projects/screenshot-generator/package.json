@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "automatically creates screenshots of operations within the current AdaCAD interface to keep docs up to date",
   "license": "ISC",
-  "author": "",
+  "author": "Patrick Steppan",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "main.ts",
   "scripts": {
     "build": "npx tsx main.ts"
   },

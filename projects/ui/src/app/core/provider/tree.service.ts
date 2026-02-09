@@ -46,6 +46,7 @@ export class TreeService {
   async replaceOutdatedOps(nodes: Array<any>): Promise<Array<any>> {
 
     const correctedNodes = nodes.map(node => {
+      console.log('[replaceOutdatedOps] Replacing outdated op:', node.name, this.ops.getOp(node.name));
       if (this.ops.getOp(node.name) === null) {
         const op = this.ops.getOpByOldName(node.name);
         node.name = op.name

@@ -992,6 +992,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   //must be online
   loadFromDB(fileid: number): Promise<any> {
+
     let fns = [this.fb.getFile(fileid), this.fb.getFileMeta(fileid)];
     return Promise.all(fns)
       .then(res => {
@@ -1119,6 +1120,12 @@ export class AppComponent implements OnInit, OnDestroy {
   loadNewFile(result: LoadResponse, source: string): Promise<any> {
     this.ws.setCurrentFile(result.meta)
     this.filename_form.setValue(result.meta.name)
+
+    console.log('[loadNewFile] LoadResponse received:', result);
+    console.log('[loadNewFile] Ops:', result.data.ops);
+
+
+
 
     return this.processFileData(result.data, result.meta.name)
       .then(data => {
@@ -1563,36 +1570,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
   prepAndLoadFile(ada: SaveObj, meta: FileMeta, src: string): Promise<any> {
+    console.log('[prepAndLoadFile] Prepping and loading file:', ada);
     this.clearAll();
     return this.fs.loader.ada(ada, meta, src).then(lr => {
-      console.log('[prepAndLoadFile] LoadResponse received:', lr);
-      console.log('[prepAndLoadFile] Draft nodes count:', lr.data.draft_nodes?.length || 0);
-      console.log('[prepAndLoadFile] Draft nodes data:', lr.data.draft_nodes);
-      if (lr.data.draft_nodes && lr.data.draft_nodes.length > 0) {
-        lr.data.draft_nodes.forEach((draftNode, index) => {
-          console.log(`[prepAndLoadFile] Draft node ${index}:`, {
-            draft_id: draftNode.draft_id,
-            draft: draftNode.draft,
-            loom: draftNode.loom,
-            loom_settings: draftNode.loom_settings,
-            render_colors: draftNode.render_colors,
-            scale: draftNode.scale,
-            draft_visible: draftNode.draft_visible
-          });
-        });
-      }
-      console.log('[prepAndLoadFile] Operations count:', lr.data.ops?.length || 0);
-      console.log('[prepAndLoadFile] Operations data:', lr.data.ops);
-      if (lr.data.ops && lr.data.ops.length > 0) {
-        lr.data.ops.forEach((op, index) => {
-          console.log(`[prepAndLoadFile] Operation ${index}:`, {
-            node_id: op.node_id,
-            name: op.name,
-            params: op.params,
-            inlets: op.inlets
-          });
-        });
-      }
+
       return this.loadNewFile(lr, 'prepAndLoad');
     }).catch(console.error);
   }
@@ -1602,8 +1583,12 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   async processFileData(data: SaveObj, name: string): Promise<Array<{ prev_id: number, cur_id: number }>> {
 
+
     let entry_mapping: Array<{ prev_id: number, cur_id: number }> = [];
     this.openLoadingAnimation(name)
+
+
+
 
 
 
@@ -1645,12 +1630,45 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     }
 
+
+    console.log('[prepAndLoadFile] Draft nodes count:', data.draft_nodes?.length || 0);
+    console.log('[prepAndLoadFile] Draft nodes data:', data.draft_nodes);
+    if (data.draft_nodes && data.draft_nodes.length > 0) {
+      data.draft_nodes.forEach((draftNode, index) => {
+        console.log(`[prepAndLoadFile] Draft node ${index}:`, {
+          draft_id: draftNode.draft_id,
+          draft: draftNode.draft,
+          loom: draftNode.loom,
+          loom_settings: draftNode.loom_settings,
+          render_colors: draftNode.render_colors,
+          scale: draftNode.scale,
+          draft_visible: draftNode.draft_visible
+        });
+      });
+    }
+    if (data.ops && data.ops.length > 0) {
+      data.ops.forEach((op, index) => {
+        console.log(`[prepAndLoadFile] Operation ${index}:`, {
+          node_id: op.node_id,
+          name: op.name,
+          params: op.params,
+          inlets: op.inlets
+        });
+      });
+    }
+
+
+
+
+
     return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
       //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
       // console.log("REPLACE OUTDATED OPS")
+      console.log('[processFileData] Replacing outdated ops:', data.ops.slice());
       return this.tree.replaceOutdatedOps(data.ops);
     })
       .then(correctedOps => {
+        console.log('[processFileData] Corrected ops:', correctedOps);
         data.ops = correctedOps;
         //console.log(" LOAD NODES")
         return this.loadNodes(data.nodes)

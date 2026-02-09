@@ -12,7 +12,6 @@ const meta: OpMeta = {
     displayname: 'treading/threading sequence',
     desc: 'use a list of numbers to create a sequence threading or treadling assignments',
     img: 'draft_sequence.png',
-    draft: true,
     categories: [draftingStylesOp],
     advanced: true
 }

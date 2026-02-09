@@ -12,8 +12,7 @@ const meta: OpMeta = {
     desc: 'use a list of numbers to create a sequence of materials',
     img: 'material_sequence.png',
     categories: [colorEffectsOp],
-    advanced: true,
-    draft: true
+    advanced: true
 }
 
 
