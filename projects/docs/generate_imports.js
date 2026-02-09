@@ -20,81 +20,81 @@ const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
  * - Deletes import_helper.js
  * - Deletes all generated operation documentation pages (preserves index.md)
  */
-async function clearGeneratedAssets() {
-    try {
-        // Clear import_helper.js
-        try {
-            await fs.unlink(outputFilePath);
-            console.log(`Deleted ${outputFilePath}`);
-        } catch (err) {
-            if (err.code !== 'ENOENT') {
-                // File doesn't exist is okay, but other errors should be reported
-                console.warn(`Could not delete ${outputFilePath}:`, err.message);
-            }
-        }
+// async function clearGeneratedAssets() {
+//     try {
+//         // Clear import_helper.js
+//         try {
+//             await fs.unlink(outputFilePath);
+//             console.log(`Deleted ${outputFilePath}`);
+//         } catch (err) {
+//             if (err.code !== 'ENOENT') {
+//                 // File doesn't exist is okay, but other errors should be reported
+//                 console.warn(`Could not delete ${outputFilePath}:`, err.message);
+//             }
+//         }
 
-        // Clear generated operation documentation pages
-        const operationsDocsPath = path.join(__dirname, 'docs/reference/operations');
+//         // Clear generated operation documentation pages
+//         const operationsDocsPath = path.join(__dirname, 'docs/reference/operations');
 
-        try {
-            // Read all category directories
-            const categoryDirs = await fs.readdir(operationsDocsPath, { withFileTypes: true });
+//         try {
+//             // Read all category directories
+//             const categoryDirs = await fs.readdir(operationsDocsPath, { withFileTypes: true });
 
-            for (const dirent of categoryDirs) {
-                if (dirent.isDirectory()) {
-                    const categoryPath = path.join(operationsDocsPath, dirent.name);
-                    const files = await fs.readdir(categoryPath);
+//             for (const dirent of categoryDirs) {
+//                 if (dirent.isDirectory()) {
+//                     const categoryPath = path.join(operationsDocsPath, dirent.name);
+//                     const files = await fs.readdir(categoryPath);
 
-                    // Delete all .md files except index.md
-                    for (const file of files) {
-                        if (file.endsWith('.md') && file !== 'index.md') {
-                            const filePath = path.join(categoryPath, file);
-                            await fs.unlink(filePath);
-                            console.log(`Deleted ${filePath}`);
-                        }
-                    }
-                }
-            }
+//                     // Delete all .md files except index.md
+//                     for (const file of files) {
+//                         if (file.endsWith('.md') && file !== 'index.md') {
+//                             const filePath = path.join(categoryPath, file);
+//                             await fs.unlink(filePath);
+//                             console.log(`Deleted ${filePath}`);
+//                         }
+//                     }
+//                 }
+//             }
 
-            console.log('Successfully cleared all generated assets');
-        } catch (err) {
-            if (err.code === 'ENOENT') {
-                console.log('Operations docs directory does not exist yet');
-            } else {
-                throw err;
-            }
-        }
-    } catch (err) {
-        console.error('An error occurred while clearing generated assets:', err);
-        throw err;
-    }
-}
+//             console.log('Successfully cleared all generated assets');
+//         } catch (err) {
+//             if (err.code === 'ENOENT') {
+//                 console.log('Operations docs directory does not exist yet');
+//             } else {
+//                 throw err;
+//             }
+//         }
+//     } catch (err) {
+//         console.error('An error occurred while clearing generated assets:', err);
+//         throw err;
+//     }
+// }
 
 /**
  * Copies any image files from the operation's directory in adacad-drafting-lib
  * into the corresponding docs reference/operations category directory.
  */
-async function copyOperationImages(op, docsCategoryOpDir) {
-    const libOpDir = path.join(__dirname, '..', '..', 'packages', 'adacad-drafting-lib', 'src', 'operations', op.name);
-    try {
-        const entries = await fs.readdir(libOpDir, { withFileTypes: true });
-        for (const ent of entries) {
-            if (!ent.isFile()) continue;
-            const ext = path.extname(ent.name).toLowerCase();
-            if (!IMAGE_EXTENSIONS.includes(ext)) continue;
-            const src = path.join(libOpDir, ent.name);
-            const dest = path.join(docsCategoryOpDir, ent.name);
-            await fs.copyFile(src, dest);
-            console.log(`Copied ${ent.name} to ${docsCategoryOpDir}`);
-        }
-    } catch (e) {
-        if (e.code === 'ENOENT') {
-            // Operation directory or docs dir doesn't exist; skip
-            return;
-        }
-        throw e;
-    }
-}
+// async function copyOperationImages(op, docsCategoryOpDir) {
+//     const libOpDir = path.join(__dirname, '..', '..', 'packages', 'adacad-drafting-lib', 'src', 'operations', op.name);
+//     try {
+//         const entries = await fs.readdir(libOpDir, { withFileTypes: true });
+//         for (const ent of entries) {
+//             if (!ent.isFile()) continue;
+//             const ext = path.extname(ent.name).toLowerCase();
+//             if (!IMAGE_EXTENSIONS.includes(ext)) continue;
+//             const src = path.join(libOpDir, ent.name);
+//             const dest = path.join(docsCategoryOpDir, ent.name);
+//             await fs.copyFile(src, dest);
+//             console.log(`Copied ${ent.name} to ${docsCategoryOpDir}`);
+//         }
+//     } catch (e) {
+//         if (e.code === 'ENOENT') {
+//             // Operation directory or docs dir doesn't exist; skip
+//             return;
+//         }
+//         throw e;
+//     }
+// }
 
 /**
  * pupulates src/components/import_helper.js with the imports for the operations
@@ -194,18 +194,18 @@ async function generateDocumentationPage(op) {
 
 // Main execution: clear old assets, then generate new ones
 (async () => {
-    try {
-        await clearGeneratedAssets();
+    // try {
+    //     await clearGeneratedAssets();
 
-        for (const op of oplist) {
-            if (op.meta.draft === undefined || op.meta.draft !== true) {
-                await generateDocumentationPage(op);
-            }
-        }
+    //     for (const op of oplist) {
+    //         if (op.meta.draft === undefined || op.meta.draft !== true) {
+    //             await generateDocumentationPage(op);
+    //         }
+    //     }
 
-        console.log('Generation complete!');
-    } catch (err) {
-        console.error('Generation failed:', err);
-        process.exit(1);
-    }
+    //     console.log('Generation complete!');
+    // } catch (err) {
+    //     console.error('Generation failed:', err);
+    //     process.exit(1);
+    // }
 })();
