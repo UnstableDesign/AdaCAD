@@ -1,0 +1,16 @@
+{
+  "name": "screenshot-generator",
+  "version": "1.0.0",
+  "description": "automatically creates screenshots of operations within the current AdaCAD interface to keep docs up to date",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsx main.ts"
+  },
+  "dependencies": {
+    "puppeteer": "^24.37.2",
+    "sharp": "^0.34.5"
+  }
+}

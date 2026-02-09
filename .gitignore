@@ -18,6 +18,8 @@ out/
 .nuxt/
 .output/
 *.tsbuildinfo
+/packages/adacad-drafting-lib/docs/
+/projects/screenshot-generator/screenshots/
 
 # Logs and caches
 *.log

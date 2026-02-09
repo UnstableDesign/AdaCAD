@@ -121,7 +121,7 @@ async function captureScreenshots(specificAdaFilesToCapture: Array<string>) {
 
   let i = 1;
   for (let filePath of filteredAdaFiles) {
-    process.stdout.write('processing file #' + i++ + '\r');
+    process.stdout.write('processing file #' + i++ + ' ' + filePath + '\r');
     const adaFile = fs.readFileSync(filePath, 'utf8');
     const jsonAdaFile = JSON.parse(adaFile);
 
@@ -137,7 +137,7 @@ async function captureScreenshots(specificAdaFilesToCapture: Array<string>) {
 
     const mainView = await page.waitForSelector('app-palette');
     const componentName = filePath.split('/')[3].replace('.ada', '');
-    await mainView.screenshot({ path: path.join(screenshotsRawDir, componentName) + '.png' as `${string}.png` }); // TS doesn't like this w/o the cast
+    await mainView?.screenshot({ path: path.join(screenshotsRawDir, componentName) + '.png' as `${string}.png` }); // TS doesn't like this w/o the cast
   }
 
   console.log();
@@ -181,8 +181,8 @@ async function cropScreenshots(specificImagesToCrop: Array<string>) {
 
     const bounds = hits.reduce((acc, hit) => {
       return {
-        minY: Math.min(acc.minY, hit[1]),
-        maxY: Math.max(acc.maxY, hit[1])
+        minY: Math.min(acc.minY, hit?.[1] ?? 0),
+        maxY: Math.max(acc.maxY, hit?.[1] ?? 0)
       };
     }, { minY: height, maxY: 0 });
 
