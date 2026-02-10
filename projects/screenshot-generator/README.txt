@@ -21,3 +21,9 @@ Then applies auto layout, zooms and centers, and lastly screenshots
 These images tend to have a fair bit of empty space top and bottom
 
 So we crop them and the outputs are saved to the same same directory that housed the .ada file
+
+
+Temp Workaround: 
+the font-size on the warp and weft systems isn't calculating correctly, potentially due to device
+ratio. So, before I run this, I go into ui/core/provider/render.service and change the font size to 
+40px Arial for both the warp and weft data. 

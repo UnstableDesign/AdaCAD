@@ -276,6 +276,7 @@ export class RenderService {
         weft_mats_cx.closePath();
 
         weft_systems_cx.font = 1.5 * (cell_size / this.pixel_ratio) + "px Arial";
+        //enable for screenshot generation: weft_systems_cx.font = "40px Arial";
         weft_systems_cx.fillStyle = "#666666";
 
         weft_systems_cx.save();
@@ -348,6 +349,7 @@ export class RenderService {
         warp_mats_cx.closePath();
         //need to flip this on certain origins. 
         warp_systems_cx.font = 1.5 * (cell_size / this.pixel_ratio) + "px Arial";
+        //enable for screenshot generation: warp_systems_cx.font = "40px Arial";
         warp_systems_cx.fillStyle = "#666666";
 
         warp_systems_cx.save();

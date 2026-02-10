@@ -8,10 +8,7 @@ const URL = 'http://localhost:4200/';
 const docsOpsBase = path.resolve(__dirname, '../docs/docs/reference/operations');
 const screenshotsDir = './screenshots';
 // raw screenshots from puppeteer
-const screenshotsRawDir = path.join(screenshotsDir, 'raw');
 // cropped screenshots from sharp
-const screenshotsProcessedDir = path.join(screenshotsDir, 'processed');
-// note this padding is just for the top and bottom of the image
 let verticalCropPadding = 20;
 
 async function main() {
@@ -38,29 +35,25 @@ async function main() {
   if (!fs.existsSync(screenshotsDir)) {
     fs.mkdirSync(screenshotsDir);
   }
-  if (!fs.existsSync(screenshotsRawDir)) {
-    fs.mkdirSync(screenshotsRawDir);
-  }
-  if (!fs.existsSync(screenshotsProcessedDir)) {
-    fs.mkdirSync(screenshotsProcessedDir);
-  }
+
+
 
   if (!skipScreenshots) {
     await captureScreenshots(filterFileNames);
   }
 
-  if (!skipCropping) {
-    await cropScreenshots(filterFileNames);
-  }
+
 
   console.log('script finished');
 }
 
 async function captureScreenshots(specificAdaFilesToCapture: Array<string>) {
   console.log('launching browser!');
+  const skipCropping = process.argv.includes('--preview');
+
   const browser = await puppeteer.launch({
     // uncomment the line below to see the screenshots happen live
-    // headless: false,
+    //headless: false,
   });
 
   console.log('opening new page');
@@ -75,7 +68,6 @@ async function captureScreenshots(specificAdaFilesToCapture: Array<string>) {
 
   console.log('page loaded');
 
-  await new Promise(t => setTimeout(t, 1000));
 
   // inject CSS to:
   // 1. remove the "added to workspace" animation that is on the component titles
@@ -149,14 +141,15 @@ async function captureScreenshots(specificAdaFilesToCapture: Array<string>) {
       await (window as any).autoLayout();
       await new Promise(t => setTimeout(t, 200));
       await (window as any).zoomToFit();
+
     }, jsonAdaFile);
 
     const mainView = await page.waitForSelector('app-palette');
-    const rawPath = path.join(screenshotsRawDir, componentName) + '.png' as `${string}.png`;
+    const rawPath = path.join(screenshotsDir, componentName) + '.png' as `${string}.png`;
     await mainView?.screenshot({ path: rawPath });
     const adaDir = path.dirname(filePath);
     const croppedPath = path.join(adaDir, opName + '.png');
-    await cropImage(rawPath, croppedPath);
+    if (!skipCropping) await cropImage(rawPath, croppedPath);
   }
 
   console.log();
@@ -201,29 +194,39 @@ async function cropImage(inputPath: string, outputPath: string): Promise<void> {
     .toFile(outputPath);
 }
 
-async function cropScreenshots(specificImagesToCrop: Array<string>) {
-  const imageFileNames = fs.readdirSync(screenshotsRawDir).filter(name => name !== '.DS_Store');
+// async function cropScreenshots(specificImagesToCrop: Array<string>) {
 
-  const filteredImageFiles = specificImagesToCrop.length > 0
-    ? imageFileNames.filter(file => specificImagesToCrop.findIndex(name => file.startsWith(name)) > -1)
-    : imageFileNames;
+//   const allOps = getAllOps();
+//   for (const op of allOps) {
+//     const category = op.meta.categories?.[0]?.name;
+//     if (!category) continue;
+//     const opDir = path.join(docsOpsBase, category, op.name);
+//     if (!fs.existsSync(opDir)) continue;
+//     const files = fs.readdirSync(opDir).filter(name => name !== '.DS_Store' && name.endsWith('.ada'));
+//   }
+//   const imageFileNames = fs.readdirSync(screenshotsDir).filter(name => name !== '.DS_Store');
 
-  if (imageFileNames.length > filteredImageFiles.length) {
-    console.log('filter applied, matching image file count: ' + filteredImageFiles.length);
-  }
+//   const filteredImageFiles = specificImagesToCrop.length > 0
+//     ? imageFileNames.filter(file => specificImagesToCrop.findIndex(name => file.startsWith(name)) > -1)
+//     : imageFileNames;
 
-  let i = 1;
-  for (const imageFileName of filteredImageFiles) {
-    process.stdout.write('cropping file #' + i++ + '\r');
-    await cropImage(
-      path.join(screenshotsRawDir, imageFileName),
-      path.join(screenshotsProcessedDir, imageFileName)
-    );
-  }
+//   if (imageFileNames.length > filteredImageFiles.length) {
+//     console.log('filter applied, matching image file count: ' + filteredImageFiles.length);
+//   }
 
-  console.log();
-  console.log('completed cropping');
-}
+//   let i = 1;
+//   for (const imageFileName of filteredImageFiles) {
+//     process.stdout.write('cropping file #' + i++ + '\r');
+
+//     await cropImage(
+//       path.join(screenshotsDir, imageFileName),
+//       path.join(screenshotsDir, imageFileName)
+//     );
+//   }
+
+//   console.log();
+//   console.log('completed cropping');
+// }
 
 main().catch(console.error);
 
