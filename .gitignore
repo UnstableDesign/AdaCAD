@@ -20,6 +20,8 @@ out/
 *.tsbuildinfo
 /packages/adacad-drafting-lib/docs/
 /projects/screenshot-generator/screenshots/
+/projects/docs/docs/lib-api/
+
 
 # Logs and caches
 *.log

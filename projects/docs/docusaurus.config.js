@@ -19,12 +19,15 @@ const config = {
   baseUrl: '/',
 
   organizationName: 'unstabledesignlab', // Usually your GitHub org/user name.
-  projectName: 'AdaCAD_Documentation', // Usually your repo name.
+  projectName: 'AdaCAD', // Usually your repo name.
   //trailingSlash: false,
 
   onBrokenLinks: 'warn', //throw
   onBrokenMarkdownLinks: 'warn',
 
+  markdown: {
+    mermaid: true
+  },
   // onBrokenLinks: 'warn',
   // onBrokenMarkdownLinks: 'ignore',
 
@@ -36,6 +39,16 @@ const config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+  plugins: [
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        entryPoints: ['../../packages/adacad-drafting-lib/src/index.ts'],
+        tsconfig: '../../packages/adacad-drafting-lib/tsconfig.json',
+        out: 'docs/lib-api'
+      },
+    ],
+  ],
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -72,9 +85,10 @@ const config = {
     ],
   ],
 
-  themes: [
-    '@saucelabs/theme-github-codeblock'
-  ],
+  themes:
+    ['@docusaurus/theme-mermaid',
+      '@saucelabs/theme-github-codeblock'
+    ],
   themeConfig:
     ({
       // announcementBar: {

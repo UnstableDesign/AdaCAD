@@ -1,5 +1,4 @@
 
-
 /**
  * A draft object contains a set of information that can be used for executing a given design. 
  * @param id a unique id to refer to this draft, used for linking the draft to screen components
