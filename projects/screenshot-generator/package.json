@@ -10,6 +10,7 @@
     "build": "npx tsx main.ts"
   },
   "dependencies": {
+    "adacad-drafting-lib": "file:../../packages/adacad-drafting-lib",
     "puppeteer": "^24.37.2",
     "sharp": "^0.34.5"
   }
