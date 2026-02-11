@@ -125,6 +125,9 @@
 
     </form>
 
+    @if (vs.current_view == 'sim') {
+    <div class="work-in-progress"> <i class="fa-solid fa-wrench"></i> The Simulation is Still a Work In Progress</div>
+    }
 
     <div class="static-controls">
       <div class="viewer-zoom-container" [class.hidden]="vs.current_view == 'sim'">

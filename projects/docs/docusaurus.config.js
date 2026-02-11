@@ -72,7 +72,7 @@ const config = {
           },
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/UnstableDesign/AdaCAD_Documentation/tree/main',
+            'https://github.com/UnstableDesign/AdaCAD',
 
 
         },
@@ -146,7 +146,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://github.com/UnstableDesign/AdaCAD_Documentation/',
+            href: 'https://github.com/UnstableDesign/AdaCAD',
             label: 'GitHub',
             position: 'right',
           },

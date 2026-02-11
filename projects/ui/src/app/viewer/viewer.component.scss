@@ -9,6 +9,19 @@
     margin: 16px;
 }
 
+.work-in-progress {
+    font-size: 12px;
+    color: black;
+    background-color: yellow;
+    text-align: center;
+    font-weight: normal;
+    display: flex;
+    text-align: center;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+}
+
 .static-controls {
     display: flex;
     flex-direction: row;

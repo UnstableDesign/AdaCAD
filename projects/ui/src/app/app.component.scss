@@ -15,6 +15,8 @@
 
 
 
+
+
 .mat-mdc-icon-button {
   font-size: 14px;
   position: relative;
@@ -151,6 +153,55 @@
 
 }
 
+.sparkle {
+  margin: 0 15px;
+
+  @keyframes sparkle {
+    0% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+  }
+
+  button:hover {
+    color: yellow;
+  }
+
+
+  .sparkle-1 {
+    animation: sparkle 2s infinite;
+    position: fixed;
+    top: 15px;
+    left: 110px;
+    font-size: 24px;
+    z-index: 1000;
+  }
+
+  .sparkle-2 {
+    animation-delay: 1s;
+    animation: sparkle 2s infinite;
+    font-size: 24px;
+    position: absolute;
+    top: -6px;
+    left: 220px;
+    z-index: 1000;
+  }
+
+  .sparkle-3 {
+    animation-delay: 2.5s;
+    animation: sparkle 2s infinite;
+    font-size: 24px;
+    position: absolute;
+    top: 30px;
+    left: 290px;
+    z-index: 1000;
+  }
+}
+
+
 .download {
   width: 18vw;
 }
@@ -163,6 +214,20 @@
 
 .toggle {
   line-height: 10px;
+}
+
+.logo-text {
+  margin: 0 8px 0 0;
+}
+
+.banner {
+  background: red;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
 }
 
 .topbar {

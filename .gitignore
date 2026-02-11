@@ -21,6 +21,8 @@ out/
 /packages/adacad-drafting-lib/docs/
 /projects/screenshot-generator/screenshots/
 /projects/docs/docs/lib-api/
+/projects/docs/upload.sh
+/projects/ui/.firebaserc
 
 
 # Logs and caches

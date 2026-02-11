@@ -55,6 +55,7 @@ import { SubdraftComponent } from './mixer/palette/subdraft/subdraft.component';
 import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
+import { WelcomeComponent } from './core/ui/welcome/welcome.component';
 
 @Component({
   selector: 'app-root',
@@ -1322,7 +1323,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
 
-
+  openNews() {
+    this.dialog.open(WelcomeComponent, {
+      width: '600px',
+    });
+  }
   /**
    * called when a user selects a file to open from the AdaFile Browser
    * @param selectOnly 
