@@ -1,7 +1,7 @@
 import { opCategoryList, getOp } from 'adacad-drafting-lib/operations/operations.js'
 import React from 'react';
 
-import { assets } from '../import_helper';
+//import { assets } from '../import_helper';
 const cat_list = opCategoryList();
 
 

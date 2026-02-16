@@ -1,24 +1,85 @@
-
-<h2 mat-dialog-title>Welcome to AdaCAD 4</h2>
+<h2 mat-dialog-title>Welcome to AdaCAD 5</h2>
 <mat-dialog-content>
-  <p> 
-    It's time! We're updating the primary url (adacad.org) to our latest version of the software: AdaCAD 4! This launch comes alongside updated documentation at <a href="https://docs.adacad.org" target="_blank">docs.adacad.org</a>. You can still use the older version, AdaCAD3, at <a href="https://version3.adacad.org">version3.adacad.org</a>
- 
+  <p>
+    This is a new version of the software that makes lots of improvements, but also probably added
+    a few new bugs.
+
   <div class="container">
     <div class="left">
-     Want to learn more about AdaCAD 4?
-      <button mat-raised-button (click)="loadDocs()">Browse the Documentation</button>
 
+      <h3><i class="fa-solid fa-backward"></i>Load an Older Version</h3>
+
+      <button mat-raised-button (click)="loadOlderBeta('v4')">Use AdaCAD 4</button>
+      <button mat-raised-button (click)="loadOlderBeta('v3')">Use AdaCAD 3</button>
     </div>
     <div class="right">
-      Or, would you prefer to use the older version?
-      <button mat-raised-button (click)="loadOlderBeta()" >Go to version3.adacad.org</button>
+      <h3><i class="fa-solid fa-bug"></i>Report a Bug</h3>
+      <p>
+        Please report bugs by creating an issue on the <a href="https://github.com/UnstableDesign/AdaCAD/issues"
+          target="_blank">AdaCAD GitHub repository</a>.
+      </p>
+      <p>
+        Or, letting us know on the <a href="https://discord.gg/Be7ukQcvrC" target="_blank">AdaCAD Discord server</a>.
+      </p>
+      <p>
+        Or, sending us an email to <a href="mailto:unstabledesignlab@gmail.com">unstabledesignlab@gmail.com</a>.
+      </p>
     </div>
   </div>
+  <div class="block">
+    <h3>New Features</h3>
+    <ul>
+      <li>Added <b>Library Design Mode</b>: A place to manage all drafts and view as grid (helpful when assigning
+        drafts to images or importing/exporting drafts for use with Photoshop).</li>
+      <li><b>Import .WIF or Bitmap files</b>: You can upload a single or many individual .wif files or
+        bitmaps.</li>
+      <li><b>Simulation</b>: new approach developed based on <a href="https://arxiv.org/abs/2101.04560"
+          target="_blank">TopoKnit</a> algorithm (which made it much faster) and custom
+        modifications to detect layer relationships. <span style="color: red;"> still in progress.</span></li>
+      <li><b>Coloring Pages</b>: A silly/fun feature that allows you to print a coloring page of any given draft.</li>
+      <li><b>Speed and Performance Improvements</b>: We did a major redesign of how drafts are computed and rendered
+        to prevent
+        crashing and slowdowns! New approach to undo makes it faster and more reliable.</li>
+      <li><b>Better Visibility and Feedback on Mixer</b>: Added more bolding on connections going into
+        and out of selected operations. We also made zoom variable, so that text stays more readable when zoomed out.
+        Prevented
+        drafts from moving outside selectable range and, if it happens again, you can use “Bump” command-b to move the
+        whole workflow down and to the right until it is back in view. Any draft that is being recomputed flashes to
+        black when changes are made.</li>
+      <li><b>Mouse Pan and Zoom</b>: Enabled by community members! This lets you zoom in and out of the workspace
+        using a
+        mouse-wheel or pinch and expand gestures on a tablet or computer. Pan via ctrl + click. Thank you Patrick
+        Steppan!</li>
+      <li><b>New Operations</b>: Integrated 2-3 years of community created operations as well as a few more.
+      <li>
+        <ul>
+          <li><b>Bitfield</b>: a mathematical function that uses x/y values to return a boolean value for each cell,
+            to make 'bitfield' patterns</li>
+          <li><b>Random Tree</b>: a random tree structure</li>
+          <li><b>Sierpinski Square</b>: a Sierpinski square structure</li>
+          <li><b>Create Material Sequence</b>: a sequence of materials specified by a list of numbers</li>
+          <li><b>Threading/Treadling Sequence</b>: a sequence of threading/treadling specified by a list of numbers
+          </li>
+          <li><b>Tile</b>: added the ability to offset rows/columns when tiling</li>
+        </ul>
+      </li>
+      <li><b>Text Fields can Accept .CSV input</b>: so if you want to make a long list of inputs from a database
+        (e.g. climate data, etc) this is easier!</li>
+      <li><b>Draft Editor</b>: reworked UI to make select/copy/paste actions more accessible</li>
+
+    </ul>
+
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/KAzg3NRexmw?si=SJoKhhSq7pLScvKQ"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+  </div>
+
+
 
 
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button cdkFocusInitial color="primary" mat-dialog-close >Close</button>
+  <button mat-button cdkFocusInitial color="primary" mat-dialog-close>Close</button>
 </mat-dialog-actions>
-

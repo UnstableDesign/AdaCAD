@@ -118,7 +118,6 @@ export class ViewerComponent {
 
 
     this.useSizes.valueChanges.subscribe(value => {
-      console.log("USE SIZES VALUE CHANGED", value);
       if (value !== null && value !== undefined) {
         this.vs.use_sizes = value as 'actual' | 'standard';
         if (this.view_rendering !== undefined) this.view_rendering.use_sizes = value === 'actual';

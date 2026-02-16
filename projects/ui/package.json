@@ -49,10 +49,10 @@
     "puppeteer": "^24.23.0",
     "rxfire": "^6.0.3",
     "rxjs": "^7.8.1",
-    "sharp": "^0.34.4",
     "tar": ">=5.0.10",
     "three": "^0.150.1",
     "tslib": "^2.3.1",
+    "vite": "^7.3.1",
     "zone.js": "~0.15.1"
   },
   "devDependencies": {

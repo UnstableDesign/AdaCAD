@@ -1,13 +1,27 @@
-.container{
+.container {
     display: flex;
     flex-direction: row;
+    gap: 16px;
 }
 
-button{
+h3 {
+    color: black;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+}
+
+button {
     margin-top: 1em;
 }
 
 .left,
-.right{
-    padding: 12px;
+.right {
+    flex: 1 1 50%;
+}
+
+.left {
+    text-align: center;
 }

@@ -1,1 +1,61 @@
+# OS and editor
 .DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+.angular/
+.docusaurus/
+.next/
+.nuxt/
+.output/
+*.tsbuildinfo
+/packages/adacad-drafting-lib/docs/
+/projects/screenshot-generator/screenshots/
+/projects/docs/docs/lib-api/
+/projects/docs/upload.sh
+/projects/ui/.firebaserc
+
+
+# Logs and caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.cache/
+.parcel-cache/
+.turbo/
+.eslintcache
+.stylelintcache
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+secrets/
+.secrets
+
+# Test and coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# IDE (uncomment if you want to ignore)
+# .idea/
+# .vscode/
+
+# Misc
+*.bak
+*.tmp
+.temp/
+tmp/
+temp/

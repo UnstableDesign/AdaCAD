@@ -1,3 +1,8 @@
+/**
+ * @module draft
+ * @description Functions for creating and manipulating drafts
+ */
+
 import { generateId } from "../utils/utils";
 import { createCell, getCellValue, setCellValue } from "./cell";
 import { defaults, rendering_color_defaults } from "../utils/defaults";

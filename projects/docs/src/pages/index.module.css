@@ -22,7 +22,8 @@
 
 
 .heroBanner {
-  background-image: url('/img/bitmap.jpg');
+  background-image: url('/img/5banner.jpg');
+  background-size: cover;
   animation-name: playful;
   animation-duration: 1000s;
   animation-iteration-count: infinite;

@@ -689,8 +689,8 @@ export function printDrawdown(d: Drawdown) {
 
 /**
  * used by operations that parse a string input meant to represent a set of warp and weft systems. This checks if the systems input are valid in terms of the systems that draft will be using, 
- * @param input_systems  {wesy: Array<string>, wasy: Array<string>}
- * @param original_systems {wesy: Array<string>, wasy: Array<string>}
+ * @param input_systems  SystemList
+ * @param original_systems SystemList
  */
 export function makeValidSystemList(input_systems: SystemList, original_systems: SystemList): SystemList {
 

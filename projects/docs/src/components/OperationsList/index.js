@@ -1,38 +1,26 @@
 import { opCategoryList, getOpList } from 'adacad-drafting-lib/operations/operations.js'
-import { assets } from '../import_helper';
 import styles from './styles.module.css';
 const cat_list = opCategoryList();
 
-//import FlipImg from "adacad-drafting-lib/img/flip.png";
 
 
 export const OperationItem = ({ color, operation }) => {
     if (operation !== undefined) {
 
-        const link = '/docs/reference/operations/' + operation.name + '/';
-        const obj = assets.find(el => el.name == operation.name);
+        const link = '/docs/reference/operations/' + operation.meta.categories[0].name + '/' + operation.name + '/';
 
 
-        if (obj !== undefined) {
-            return (
-                <div>
-                    <a className="opItem"
-                        style={{
-                            backgroundColor: color,
-                        }}
-                        href={link}>{operation.meta.displayname}</a>
-                    {/* <img src={obj.img}></img> */}
-                </div>
-            );
-        } else {
+        return (
+            <div>
+                <a className="opItem"
+                    style={{
+                        backgroundColor: color,
+                    }}
+                    href={link}>{operation.meta.displayname}</a>
+                {/* <img src={obj.img}></img> */}
+            </div>
+        );
 
-
-            return (
-                <div>
-                    <h3><a className="opItem" href={link}>{operation.meta.displayname}</a></h3>
-                </div>
-            );
-        }
     }
 
 }

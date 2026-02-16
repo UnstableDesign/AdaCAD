@@ -6,21 +6,23 @@
 ![Adacad_logo2025_SMALL](https://github.com/user-attachments/assets/13ac2355-0f6f-4fb4-bc36-bc405afaf36a)
 
 # AdaCAD
-AdaCAD is a collection of resources for algorithmically generating and manipulating woven drafts. This collection current consists of the following resources: 
 
-- [AdaCAD Library (adacad-drafting-lib)](https://github.com/UnstableDesign/AdaCAD/packages/adacad-drafting-lib): contains the core data structures and algorithms for draft making and manipulating. This includes all of the code and documentation for operations **(if you want to make your own operation, do it in this library!)**. The library also contains the code to render drafts for simulation. Written as a typescript library that is also hosted on as an [NPM package](https://www.npmjs.com/package/adacad-drafting-lib). 
+AdaCAD is a **monorepo** of tools and libraries for algorithmically generating and manipulating woven drafts. Everything below lives in this single repository.
 
-- [AdaCAD UI](https://github.com/UnstableDesign/AdaCAD/projects/ui): An Angular project that imports the local AdaCAD library and offers a series of components and features for managing the user interface. This includes a graph of relationships between on-screen operations and drafts, integrations with the user database, and functions for loading and saving files.The UI offers an experimental workspace that applies parametric design to the domain of weave drafting. It supports algorithmic and playful approaches to developing woven structures and cloth, for shaft and jacquard looms. Use it online at [https://adacad.org/](https://adacad.org/).
+## Repository structure
 
-- [AdaCAD Docs ](https://github.com/UnstableDesign/AdaCAD/projects/docs): A Docusaurus project that imports the AdaCAD library and creates components and markdown pages that document the operations. It also includes additional documentation, examples, and getting started guides. Available at [https://docs.adacad.org](https://docs.adacad.org/)
+- **packages/** — Libraries and shared code
+  - [`adacad-drafting-lib`](./packages/adacad-drafting-lib) — Core data structures and algorithms for draft making and manipulation. Includes all operations code and documentation **(if you want to make your own operation, do it here!)** and the code to render drafts for simulation. TypeScript library also published as an [NPM package](https://www.npmjs.com/package/adacad-drafting-lib).
 
-- [AdaCAD Screenshot Generator ](https://github.com/UnstableDesign/AdaCAD/projects/screenshot-generator): A project that renders each AdaCAD operations in the UI and creates an image of the result. These images can be used to keep the documentation for each operation up to date. 
+- **projects/** — Applications and tools
+  - [`ui`](./projects/ui) — Angular web app that imports the AdaCAD library. Provides the graph of operations and drafts, user/database integrations, and file load/save. Experimental workspace for parametric weave drafting, supporting algorithmic and playful approaches for shaft and jacquard looms. Use it online at [adacad.org](https://adacad.org/).
+  - [`docs`](./projects/docs) — Docusaurus site that imports the library and documents operations, with getting started guides and examples. Available at [docs.adacad.org](https://docs.adacad.org/).
+  - [`screenshot-generator`](./projects/screenshot-generator) — Renders each AdaCAD operation in the UI and generates images for keeping operation documentation up to date.
 
+## Development
 
-We invite anyone interested to hack on AdaCAD, should you wish to dive into the code. If that describes you, you can find support by contacting us in our [Discord channel](https://discord.gg/Be7ukQcvrC)
+Clone this repository once. To build or run a specific part of the monorepo, see the README at the root of that package or project (e.g. [packages/adacad-drafting-lib/README.md](./packages/adacad-drafting-lib/README.md), [projects/ui/README.md](./projects/ui/README.md)). The UI and docs depend on the library in `packages/adacad-drafting-lib`, which is typically linked locally in the monorepo.
 
-This project is maintained by Laura Devendorf and the [Unstable Design Lab](https://unstable.design/). The project is supported by National Science Foundation Grants [#2346150](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346150&HistoricalAwards=false), [#1943109](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1943109), and [#1755587](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1755587)
+We invite anyone interested to hack on AdaCAD. If that describes you, you can find support in our [Discord channel](https://discord.gg/Be7ukQcvrC).
 
-For more specific information on installing and developing within a project or package included here, please see the associated README file at the base of each project/package directory
-
-
+This project is maintained by Laura Devendorf and the [Unstable Design Lab](https://unstable.design/). The project is supported by National Science Foundation Grants [#2346150](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346150&HistoricalAwards=false), [#1943109](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1943109), and [#1755587](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1755587).

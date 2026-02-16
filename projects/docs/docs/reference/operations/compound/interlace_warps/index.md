@@ -1,0 +1,27 @@
+---
+title: interlace warps
+sidebar_label: interlace warps
+sidebar_class_name: compound opItem
+editUrl: 'https://github.com/UnstableDesign/AdaCAD/tree/main/packages/adacad-drafting-lib/src/operations/interlace_warps/interlace_warps.ts'
+---
+
+import {OperationHeader} from '@site/src/components/OperationPage';
+
+<OperationHeader name='interlace_warps' />
+
+## Parameters
+- `calculate repeats`: this defines what happens if/when you connect drafts with different numbers of warp ends. If `repeat inputs to match size` is selected, AdaCAD will expand the number of ends in the output draft such that all structures repeat at the even intervals across along width of the cloth. If the `do not repeat inputs to match size` is selected, unset ends will be added to drafts with fewer ends. 
+
+## Inlets
+- `drafts`: connect all the drafts you would like to interlace
+- `weft system map`: an optional field if you'd like to assign each weft pic in the output to a specific color or system sequence. 
+
+## Application
+Combines two structures into a compound structure.
+
+## Developer
+adacad id: `interlacewarps`
+
+```ts reference
+https://github.com/UnstableDesign/AdaCAD/tree/main/packages/adacad-drafting-lib/src/operations/interlace_warps/interlace_warps.ts
+```
