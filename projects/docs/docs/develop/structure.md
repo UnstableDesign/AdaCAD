@@ -59,44 +59,55 @@ If you use a fork, push the updated `main` to your fork: `git push origin main`.
 
 ## Installing Projects
 
-After cloning the AdaCAD repo, we suggest that you run the install script located in the base directory to produce all the required assets and dependencies for development by running: 
+After cloning the AdaCAD repo, we suggest that you run the install script located in the base directory to install all dependencies for development by running:
 
-```ts
+```bash
 ./install.sh
 ```
 
-This will build all of the resources required for development in the correct sequence to prevent breaks. Alternatively, you are welcome to navigate to the base directory of each component project and install them individually in the following order: 
+This will install the dependencies for all sub-projects in the correct sequence to prevent breaks. After installing, you will need to build the library and start the dev server:
 
-1. **build** the library to create the /dist directory that will be required by the other projects. This will ensure that your all assets run off your local build rather than the published library. 
-
-```ts
+```bash
 cd ./packages/adacad-drafting-lib/
-npm install
-```
-
-after making changes and updates be sure to run 
-
-```ts
 npm run build
 ```
-to make sure those changes are accessible to the other projects. 
 
-2. build the user interface to install any required modules. 
+```bash
+cd ./projects/ui
+ng serve
+```
 
-```ts
+If you receive an error about a missing environments, autogenerate a blank file using angular built in functions. We do not share our environments file because it contains access code for our database and deployments.  As a result, you will not have access to the adacad-database where user files are stored and shared during development.
+
+```bash
+ng generate environments
+```
+
+### Manual Installation
+
+Alternatively, you are welcome to navigate to the base directory of each component project and install them individually in the following order:
+
+1. **Build** the library to create the /dist directory that will be required by the other projects. This will ensure that all assets run off your local build rather than the published library.
+
+```bash
+cd ./packages/adacad-drafting-lib/
+npm install
+npm run build
+```
+
+After making changes and updates to the library, be sure to run `npm run build` again to make sure those changes are accessible to the other projects.
+
+2. **Build** the user interface to install any required modules.
+
+```bash
 cd ./projects/ui
 npm install -g @angular/cli
 npm install --legacy-peer-deps
 ```
 
-If you receive an error about a missing environments, autogenerate a blank file using angular built in functions. We do not share our environments file because it contains access code for our database and deployments.  As a result, you will not have access to the adacad-database where user files are stored and shared during development. 
+To preview your local code, run
 
-```ts
-ng generate environments
-```
-to preview you local code, run
-
-```ts
+```bash
 ng serve
 ```
 
