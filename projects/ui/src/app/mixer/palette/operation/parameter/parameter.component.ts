@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
-import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpParamValType, SelectParam, StringParam, findOrCreateMaterialByHex } from 'adacad-drafting-lib';
+import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { MediaInstance, OpNode, OpStateParamChange } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
 import { OperationService } from '../../../../core/provider/operation.service';
@@ -483,7 +483,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
           sketchColors.forEach((hexColor, sketchWeftId) => {
             const nameSuggestion = `CrossSection Weft ${String.fromCharCode(97 + sketchWeftId)}`;
             try {
-              const materialId = findOrCreateMaterialByHex(hexColor, nameSuggestion, this.materialsService.materials);
+              const materialId = this.materialsService.findOrCreateMaterialByHex(hexColor, nameSuggestion);
               resolvedIds.push(materialId);
             } catch (e) {
               console.error(`Error in findOrCreateMaterialByHex for color ${hexColor} (sketchWeftId: ${sketchWeftId}):`, e);
