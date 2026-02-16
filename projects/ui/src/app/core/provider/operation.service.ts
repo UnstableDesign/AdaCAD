@@ -61,8 +61,10 @@ export class OperationService {
           console.error("Error parsing p5-canvas value", e);
           newParam.value = {} as CanvasParam['value'];
         }
-        return newParam;
+      } else {
+        newParam.value = param.value;
       }
+      return newParam;
     });
     return newOp;
   }

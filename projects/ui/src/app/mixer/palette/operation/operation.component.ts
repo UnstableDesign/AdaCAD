@@ -657,7 +657,13 @@ export class OperationComponent implements OnInit {
 
     }
 
-    this.onOperationParamChange.emit({ id: this.id, paramId: obj.id, value: obj.value, type: obj.type, prior_inlet_vals: original_inlets });
+    this.onOperationParamChange.emit({
+      id: this.id,            // Operation ID
+      paramId: obj.id,        // Original parameter ID that changed
+      value: obj.value,       // New value
+      type: obj.type,         // Type of the parameter that changed (p5-canvas ops use this to trigger canvas reset)
+      prior_inlet_vals: original_inlets // Inlet state before dynamic changes
+    });
   }
 
   nameChanged(id) {

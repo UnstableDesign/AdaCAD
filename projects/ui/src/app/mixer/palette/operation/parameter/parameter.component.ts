@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
-import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
+import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpParamVal, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { MediaInstance, OpNode, OpStateParamChange } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
 import { OperationService } from '../../../../core/provider/operation.service';
@@ -280,8 +280,10 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
         break;
 
       case 'p5-canvas':
-        opnode.params[this.paramid] = value;
-        this.onOperationParamChange.emit({ id: this.paramid, value: value, type: this.param.type });
+        // Encode p5-canvas state as base64 string (firebase strips out empty keys in objects)
+        const encodedValue = btoa(JSON.stringify(value));
+        opnode.params[this.paramid] = encodedValue;
+        this.onOperationParamChange.emit({ id: this.paramid, value: encodedValue, type: this.param.type });
         break;
     }
 
@@ -414,23 +416,24 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
  * Public method called by parent components to explicitly reset the p5 sketch.
  * @param latestConfig The latest configuration object derived from non-canvas params.
  */
-  public triggerSketchReset(latestConfig: object): void {
+  public triggerSketchReset(latestConfig: Array<OpParamVal>): void {
     if (this.param.type === 'p5-canvas') {
       if (!latestConfig) {
         console.error('[ParameterComponent] triggerSketchReset called without latestConfig for op:', this.opid);
         return;
       }
 
-      this._resetSketch(latestConfig);
+      this._resetSketch(latestConfig, true);
     }
   }
 
   /**
    * Private helper to destroy the current p5 instance and re-initialize it
    * with the provided configuration.
-   * @param latestConfig The latest configuration object for the sketch.
+   * @param latestParamVals The latest configuration object for the sketch.
+   * @param isParameterChange Is reset caused by a param change (true), or file restore (false)
    */
-  private _resetSketch(latestParamVals: object): void {
+  private _resetSketch(latestParamVals: Array<OpParamVal>, isParameterChange: boolean = false): void {
     if (this.p5Instance) {
       try {
         this.p5Instance.remove();
@@ -439,10 +442,10 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.p5Instance = null;
     }
-    setTimeout(() => this.initializeP5Canvas(latestParamVals), 0);
+    setTimeout(() => this.initializeP5Canvas(latestParamVals, isParameterChange), 0);
   }
 
-  initializeP5Canvas(currentParamVals: object) {
+  initializeP5Canvas(currentParamVals: Array<OpParamVal>, isParameterChange: boolean = false) {
     // Setup an interactive p5.js canvas for operations that use it
 
     if (!this.p5canvasContainer || !this.p5canvasContainer.nativeElement) {
@@ -508,7 +511,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
         this.p5Instance = null;
       }
 
-      const userSketchProvider = operationDefinition.createSketch(currentParamVals, updateCallbackFn);
+      const userSketchProvider = operationDefinition.createSketch(currentParamVals, updateCallbackFn, {isParameterChange});
 
       // Define the wrapper for p5 instantiation, including the mouse proxy
       const sketchWrapper = (actualP5Instance: any) => {
@@ -556,7 +559,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Use the mouse-correcting proxy.
         const proxiedP5Instance = new Proxy(actualP5Instance, P5MouseProxyHandler);
-        // userSketchProvider(proxiedP5Instance as unknown as any); --TODO - LD - I can't figure out the error here
+        userSketchProvider(proxiedP5Instance);
       };
 
       // Instantiate p5 with the wrapper

@@ -54,7 +54,8 @@ export type Operation = {
   meta: OpMeta,
   perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<OpOutput>>,
   generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string,
-  sizeCheck: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => boolean
+  sizeCheck: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => boolean,
+  createSketch?: (op_params: Array<OpParamVal>, updateCallback: (canvasState: CanvasParam['value']) => void, context?: {isParameterChange: boolean}) => (p: any) => void
 }
 
 /**
@@ -76,9 +77,18 @@ export type DynamicOperation = Operation & {
  */
 export type OperationParam = {
   name: string,
-  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft';
+  type: 'number' | 'boolean' | 'select' | 'file' | 'string' | 'draft' | 'p5-canvas';
   value: OpParamValType,
   dx: string
+}
+
+/**
+ * Store canvas state as an object param for p5 canvas operations
+ */
+export type CanvasParam = OperationParam & {
+  value: {
+    [key: string]: any;
+  }
 }
 
 
