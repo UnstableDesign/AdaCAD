@@ -1,5 +1,5 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, NgZone, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatButton, MatFabButton } from '@angular/material/button';
@@ -130,7 +130,6 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
       case 'p5-canvas':
         this.param = <CanvasParam>this.param;
         this.fc = new UntypedFormControl(this.param.value);
-        //ADD ON CHANGE CODE
         this.fc.valueChanges.subscribe(val => {
           this.onParamChange(val);
         });
@@ -152,26 +151,15 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    // Initialize canvas if needed
     if (this.param.type === 'p5-canvas' && this.p5canvasContainer) {
-      // Fetch initial param value from the opnode
       const op = this.ops.getOp(this.opnode.name);
-
-      if (op === null || op === undefined) return Promise.reject("Operation is null")
+      if (op === null || op === undefined) return;
 
       const initialParamVals = op.params.map((param, ndx) => {
-        return {
-          param: param,
-          val: this.opnode.params[ndx]
-        }
+        return { param: param, val: this.opnode.params[ndx] }
       })
 
-      // Wait for next tick to ensure ViewChild is available
-      // Fetch the initial state for the first load - This determines the initial config
-      if (!initialParamVals) {
-        console.error(`[ParameterComponent ${this.opid}] Could not get initial param value in ngAfterViewInit.`);
-        return;
-      }
+      if (!initialParamVals) return;
 
       setTimeout(() => this.initializeP5Canvas(initialParamVals), 0);
     }
@@ -445,129 +433,105 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.initializeP5Canvas(latestParamVals, isParameterChange), 0);
   }
 
+  /**
+   * Manage a p5.js canvas instance as an operation parameter
+   *
+   * Called on first load (ngAfterViewInit) and on sketch resets (_resetSketch).
+   *   - Gets the operation's createSketch() function
+   *   - Sets up updateCallback to communicate sketch state changes to AdaCAD
+   *   - Wraps the p5 instance in a mouse-coordinate correction proxy
+   *   - Instantiates the p5 sketch in the container element
+   */
   initializeP5Canvas(currentParamVals: Array<OpParamVal>, isParameterChange: boolean = false) {
-    // Setup an interactive p5.js canvas for operations that use it
-
-    if (!this.p5canvasContainer || !this.p5canvasContainer.nativeElement) {
-      console.error(`[ParameterComponent ${this.opid}] p5canvasContainer not available.`);
+    if (!this.p5canvasContainer?.nativeElement) {
+      console.error(`[ParameterComponent ${this.opid}] p5canvasContainer not available`);
       return;
     }
 
     if (this.param.type !== 'p5-canvas') {
-      console.error(`[ParameterComponent ${this.opid}] This component's own param Input is not type 'p5-canvas'. Type: ${this.param.type}`);
+      console.error(`[ParameterComponent ${this.opid}] param type is '${this.param.type}', expected 'p5-canvas'`);
       return;
     }
 
     const opNodeName = this.tree.getOpNode(this.opid)?.name;
     if (!opNodeName) {
-      console.error(`[ParameterComponent ${this.opid}] Could not determine operation name.`);
+      console.error(`[ParameterComponent ${this.opid}] could not resolve operation name`);
       return;
     }
     const operationDefinition = this.ops.getOp(opNodeName);
 
-    // If operation provides a sketch function, create the P5 instance
-    if (operationDefinition && 'createSketch' in operationDefinition && typeof operationDefinition.createSketch === 'function') {
+    if (!operationDefinition?.createSketch) {
+      console.error("[ParameterComponent] Operation with p5-canvas param missing createSketch function.");
+      return;
+    }
 
-      const updateCallbackFn = (newCanvasState: any) => {
-        // 1. Update the canvasState in the component param value to the newCanvasState
-        //    This ensures that if findOrCreateMaterialByHex fails or this logic has an issue,
-        //    the raw sketch state is still preserved at a base level.
-        this.param.value = newCanvasState;
+    // Callback used by the sketch whenever canvas state changes
+    // Resolves sketch weft colors to AdaCAD material IDs, then emits the param change
+    const updateCallbackFn = (newCanvasState: any) => {
+      this.param.value = newCanvasState;
 
-        // 2. Resolve weft colors used in the sketch to AdaCAD material IDs
-        if (this.param.type === 'p5-canvas' &&
-          newCanvasState &&
-          newCanvasState.generatedDraft &&
-          Array.isArray(newCanvasState.generatedDraft.weftColors)) {
-
-          const sketchColors: string[] = newCanvasState.generatedDraft.weftColors;
-          const resolvedIds: number[] = [];
-
-          sketchColors.forEach((hexColor, sketchWeftId) => {
-            const nameSuggestion = `CrossSection Weft ${String.fromCharCode(97 + sketchWeftId)}`;
-            try {
-              const materialId = this.materialsService.findOrCreateMaterialByHex(hexColor, nameSuggestion);
-              resolvedIds.push(materialId);
-            } catch (e) {
-              console.error(`Error in findOrCreateMaterialByHex for color ${hexColor} (sketchWeftId: ${sketchWeftId}):`, e);
-              resolvedIds.push(0); // Fallback to material ID 0 if service call fails
-            }
-          });
-          newCanvasState.generatedDraft.resolvedSketchMaterialIds = resolvedIds;
-        }
-
-        // 3. Emit that a change has occurred to the canvasState
-        // Triggers onParamChange, which saves to the tree and notifies the op chain.
-        this.onParamChange(newCanvasState);
-      };
-
-      // Debounce or ensure cleanup happens correctly if resets are rapid
-      if (this.p5Instance) {
-        try {
-          this.p5Instance.remove();
-        } catch (e) {
-          console.error("[ParameterComponent] Error removing previous p5 instance:", e);
-        }
-        this.p5Instance = null;
+      if (newCanvasState?.generatedDraft?.weftColors &&
+        Array.isArray(newCanvasState.generatedDraft.weftColors)) {
+        const sketchColors: string[] = newCanvasState.generatedDraft.weftColors;
+        const resolvedIds: number[] = [];
+        sketchColors.forEach((hexColor, sketchWeftId) => {
+          const nameSuggestion = `CrossSection Weft ${String.fromCharCode(97 + sketchWeftId)}`;
+          try {
+            resolvedIds.push(this.materialsService.findOrCreateMaterialByHex(hexColor, nameSuggestion));
+          } catch (e) {
+            console.error(`Error resolving material for color ${hexColor}:`, e);
+            resolvedIds.push(0);
+          }
+        });
+        newCanvasState.generatedDraft.resolvedSketchMaterialIds = resolvedIds;
       }
 
-      const userSketchProvider = operationDefinition.createSketch(currentParamVals, updateCallbackFn, {isParameterChange});
+      this.onParamChange(newCanvasState);
+    };
 
-      // Define the wrapper for p5 instantiation, including the mouse proxy
-      const sketchWrapper = (actualP5Instance: any) => {
-        this.p5Instance = actualP5Instance; // Store the p5 instance
+    // Clean up any existing p5 instance before creating a new one
+    if (this.p5Instance) {
+      try {
+        this.p5Instance.remove();
+      } catch (e) {
+        console.error('[ParameterComponent] p5 cleanup error:', e);
+      }
+      this.p5Instance = null;
+    }
 
-        // The p5.js canvas is inside an operation that gets scaled by AdaCAD application CSS
-        // This makes the mouse coordinates inside a sketch incorrect. This proxy corrects that.
-        // It wraps the p5.js instance and intercepts `p.mouseX` and `p.mouseY` and correct them.
-        // The error is between the p5 canvas buffer dimensions and the display dimensions.
-        const P5MouseProxyHandler: ProxyHandler<any> = {
-          get: (target, prop, receiver) => {
-            // target: The actual p5 instance.
-            // receiver: The proxy instance.
+    const userSketchProvider = operationDefinition.createSketch(currentParamVals, updateCallbackFn, { isParameterChange });
 
-            // Intercept mouseX/Y
-            if (prop === 'mouseX') {
-              if (!target.canvas || !(target as any)._setupDone) {
-                const unscaledFallbackX = Reflect.get(target, 'mouseX', receiver); // Get actual p5.mouseX
-                return typeof unscaledFallbackX === 'number' ? unscaledFallbackX : 0;
-              }
-              const rect = target.canvas.getBoundingClientRect();
-              const unscaledMouseX = Reflect.get(target, 'mouseX', receiver); // Get actual p5.mouseX value
-              if (rect.width > 0 && target.width > 0 && typeof unscaledMouseX === 'number') {
-                return unscaledMouseX * (target.width / rect.width);
-              }
-              return typeof unscaledMouseX === 'number' ? unscaledMouseX : 0;
+    // Wrapper for p5 to apply a mouse-coordinate proxy to correct for AdaCAD's CSS scaling
+    // Compares canvas buffer size and display size
+    const sketchWrapper = (actualP5Instance: any) => {
+      this.p5Instance = actualP5Instance;
+
+      const P5MouseProxyHandler: ProxyHandler<any> = {
+        get: (target, prop, receiver) => {
+          if (prop === 'mouseX' || prop === 'mouseY') {
+            if (!target.canvas || !target._setupDone) {
+              const fallback = Reflect.get(target, prop, receiver);
+              return typeof fallback === 'number' ? fallback : 0;
             }
-            if (prop === 'mouseY') {
-              if (!target.canvas || !(target as any)._setupDone) {
-                const unscaledFallbackY = Reflect.get(target, 'mouseY', receiver);
-                return typeof unscaledFallbackY === 'number' ? unscaledFallbackY : 0;
-              }
-              const rect = target.canvas.getBoundingClientRect();
-              const unscaledMouseY = Reflect.get(target, 'mouseY', receiver); // Get actual p5.mouseY value
-              if (rect.height > 0 && target.height > 0 && typeof unscaledMouseY === 'number') {
-                return unscaledMouseY * (target.height / rect.height);
-              }
-              return typeof unscaledMouseY === 'number' ? unscaledMouseY : 0;
+            const rect = target.canvas.getBoundingClientRect();
+            const raw = Reflect.get(target, prop, receiver);
+            const isX = prop === 'mouseX';
+            const displaySize = isX ? rect.width : rect.height;
+            const bufferSize = isX ? target.width : target.height;
+            if (displaySize > 0 && bufferSize > 0 && typeof raw === 'number') {
+              return raw * (bufferSize / displaySize);
             }
-
-            // Delegate all other property access to the original p5 instance.
-            return Reflect.get(target, prop, receiver);
-          },
-        };
-
-        // Use the mouse-correcting proxy.
-        const proxiedP5Instance = new Proxy(actualP5Instance, P5MouseProxyHandler);
-        userSketchProvider(proxiedP5Instance);
+            return typeof raw === 'number' ? raw : 0;
+          }
+          return Reflect.get(target, prop, receiver);
+        },
       };
 
-      // Instantiate p5 with the wrapper
-      new p5.default(sketchWrapper as any, this.p5canvasContainer.nativeElement);
+      const proxiedP5Instance = new Proxy(actualP5Instance, P5MouseProxyHandler);
+      userSketchProvider(proxiedP5Instance);
+    };
 
-    } else {
-      console.error("[ParameterComponent] An operation with p5-canvas type did not provide a valid createSketch function.");
-    }
+    new p5.default(sketchWrapper as any, this.p5canvasContainer.nativeElement);
   }
 
 

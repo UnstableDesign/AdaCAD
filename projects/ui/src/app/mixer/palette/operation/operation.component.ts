@@ -135,6 +135,7 @@ export class OperationComponent implements OnInit {
 
   recomputationSubscription: Subscription;
   recomputing: boolean = false;
+  suppressNextAnimation: boolean = false;
 
   // Add a property to track if we just finished dragging
   private wasDragged: boolean = false;
@@ -198,6 +199,10 @@ export class OperationComponent implements OnInit {
 
 
     this.recomputationSubscription = this.opnode.recomputing.subscribe((value) => {
+      if (this.suppressNextAnimation) {
+        this.suppressNextAnimation = false;
+        return;
+      }
       this.triggerFadeToBlack();
       //this.recomputing = value;
     });
@@ -577,13 +582,9 @@ export class OperationComponent implements OnInit {
 
 
   /**
- * Public method called by parent components (e.g., PaletteComponent) when any parameter changes.
- * If the changed parameter wasn't the canvas itself, it triggers a reset on the canvas parameter component,
- * passing the latest configuration derived from non-canvas parameters.
- */
+   * Resets the p5 canvas sketch when a non-canvas parameter changes.
+   */
   public triggerCanvasResetIfNeeded(changedParamType: string): void {
-    // Trigger reset if op has a p5-canvas param AND the changed parameter is not the p5-canvas param
-    // (canvasParamIndex is -1 if the op does not have a p5-canvas param, otherwise is the index of the canvas param)
     const canvasParamIndex = this.op.params.findIndex(p => p.type === 'p5-canvas');
 
     if (canvasParamIndex !== -1 && changedParamType !== 'p5-canvas') {
@@ -597,13 +598,10 @@ export class OperationComponent implements OnInit {
         }
       })
 
-      // Trigger reset on the p5-canvas parameter component with the current param vals
       const paramComp = this.paramsComps?.find(comp => comp.param.type === 'p5-canvas');
 
       if (currentParamVals) {
         paramComp.triggerSketchReset(currentParamVals);
-      } else {
-        // Could not find p5-canvas ParameterComponent to trigger reset
       }
     }
   }
@@ -657,7 +655,7 @@ export class OperationComponent implements OnInit {
       id: this.id,            // Operation ID
       paramId: obj.id,        // Original parameter ID that changed
       value: obj.value,       // New value
-      type: obj.type,         // Type of the parameter that changed (p5-canvas ops use this to trigger canvas reset)
+      type: obj.type,         // p5 canvas ops use this for canvas resets
       prior_inlet_vals: original_inlets // Inlet state before dynamic changes
     });
   }

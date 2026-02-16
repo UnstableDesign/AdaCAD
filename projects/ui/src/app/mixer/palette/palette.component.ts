@@ -2231,26 +2231,16 @@ export class PaletteComponent implements OnInit {
 
 
 
-    // --- Start of Logic for resetting p5-canvas operations ---
+    // Reset p5-canvas sketch when a non-canvas param changes
+    // Suppress flash animation for canvas state changes (e.g., drawing in the canvas)
     const opComponentInstance = this.tree.getComponent(obj.id) as OperationComponent;
-    if (opComponentInstance && typeof opComponentInstance.triggerCanvasResetIfNeeded === 'function') {
-      if (obj.type !== undefined) { // Ensure type is present
-        // Calling triggerCanvasResetIfNeeded on OpComponent
-        opComponentInstance.triggerCanvasResetIfNeeded(obj.type);
-      }
-    } else {
-      if (!opComponentInstance) {
-        console.warn(`[PaletteComponent] Could not find OperationComponent instance for ID: ${obj.id}`);
-      }
-      if (opComponentInstance && typeof opComponentInstance.triggerCanvasResetIfNeeded !== 'function') {
-        console.warn(`[PaletteComponent] OperationComponent ${obj.id} does not have triggerCanvasResetIfNeeded method.`);
+    if (opComponentInstance && obj.type !== undefined) {
+      opComponentInstance.triggerCanvasResetIfNeeded(obj.type);
+      if (obj.type === 'p5-canvas') {
+        opComponentInstance.suppressNextAnimation = true;
       }
     }
-    // --- End of Logic for resetting p5-canvas operations ---
 
-
-
-    console.log("Operation param changed", obj.id);
     return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)
       .then(viewRefs => {
         viewRefs.forEach(el => {
