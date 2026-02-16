@@ -111,8 +111,6 @@ export class OperationComponent implements OnInit {
 
   is_dynamic_op: boolean = false;
 
-  //dynamic_type: string = 'main';
-
   filewarning: string = "";
 
   all_system_codes: Array<string> = [];
@@ -194,7 +192,6 @@ export class OperationComponent implements OnInit {
 
 
 
-    //if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
     this.errorSubscription = this.errorBroadcaster.errorBroadcast$.subscribe((alert_text) => {
       this.updateErrorState();
     })
@@ -626,7 +623,7 @@ export class OperationComponent implements OnInit {
       const opnode = <OpNode>this.tree.getNode(this.id);
       const op = <DynamicOperation>this.operations.getOp(opnode.name);
 
-      if (op.dynamic_param_id.includes(obj.id)) {
+      if (op.dynamic_param_id === obj.id) {
 
         if (op.params[obj.id].type == 'draft') {
           const inputs: Array<IOTuple> = this.tree.getInputsAtNdx(this.id, 0);
@@ -646,7 +643,6 @@ export class OperationComponent implements OnInit {
         if (opnode.name == 'imagemap' || opnode.name == 'bwimagemap') {
 
           //update the width and height
-          // let image_param = opnode.params[op.dynamic_param_id];
           let image_param: Img = <Img>opnode.params[0];
           if (image_param.id != '') {
             opnode.params[1] = image_param.data.width;
@@ -686,8 +682,6 @@ export class OperationComponent implements OnInit {
     switch (obj.data.type) {
 
       case 'image':
-        // if(this.operations.isDynamic(this.name) && (<DynamicOperation> this.op).dynamic_param_type !== 'color') return;
-
         if (obj.data.warning !== '') {
           image_div.style.display = 'flex';
           this.filewarning = obj.warning;
