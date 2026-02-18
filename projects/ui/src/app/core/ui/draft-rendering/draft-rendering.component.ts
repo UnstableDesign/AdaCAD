@@ -1111,7 +1111,21 @@ export class DraftRenderingComponent implements OnInit {
 
     //rescale
     if (!this.oversize || this.ignoreOversize) {
-      this.render.addToQueue(draft, loom, loom_settings, this.canvases, null, 'scale', () => {
+      let flags: RenderingFlags = {
+        u_drawdown: true,
+        u_threading: true,
+        u_tieups: true,
+        u_treadling: true,
+        u_warp_sys: true,
+        u_warp_mats: true,
+        u_weft_sys: true,
+        u_weft_mats: true,
+        use_colors: (this.current_view === 'visual'),
+        use_floats: (this.current_view !== 'draft'),
+        show_loom: (this.source === 'editor'),
+        use_sizes: this.use_sizes
+      }
+      this.render.addToQueue(draft, loom, loom_settings, this.canvases, flags, 'scale', () => {
       }, this.scale);
       this.refreshOriginMarker();
     }

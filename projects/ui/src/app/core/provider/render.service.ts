@@ -1315,12 +1315,14 @@ export class RenderService {
   private async rescaleCanvases(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
     let raw_cell_size = this.calculateRawPixelCellSize(draft, 'canvas');
     const css_cell_size = raw_cell_size / this.pixel_ratio;
+
+
     const drawdown_height = this.getHeight(draft, loom_settings, css_cell_size, rf);
 
-
-    console.log("RESCALE CANVASES", drawdown_height, factor);
     canvases.drawdown.style.width = (warps(draft.drawdown) * css_cell_size * factor) + "px";
     canvases.drawdown.style.height = (drawdown_height * factor) + "px";
+
+
 
 
     if (loom !== null) {
