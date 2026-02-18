@@ -450,9 +450,9 @@ export class ViewerComponent {
   //this is called, then, to rescale the view
   zoomChange() {
 
-    this.scale = this.zs.getViewerZoom();
     this.view_rendering.scale = this.scale;
     const out_format = (!this.getVisVariables().floats && !this.getVisVariables().use_colors) ? 'canvas' : 'array_buffer';
+    this.scale = this.zs.getViewerZoom();
     this.view_rendering.rescale(this.scale, out_format);
   }
 
