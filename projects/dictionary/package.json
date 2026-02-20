@@ -1,0 +1,16 @@
+{
+  "name": "dictionary",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "laura devendorf",
+  "type": "commonjs",
+  "main": "main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsx main.ts"
+  },
+  "dependencies": {
+    "puppeteer": "^24.37.5"
+  }
+}

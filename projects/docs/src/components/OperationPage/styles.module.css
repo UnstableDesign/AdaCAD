@@ -1,4 +1,48 @@
 .opDeveloper {}
 
 
-.opHeader {}
+.opHeader {
+
+
+    ul {
+        padding: 0;
+        margin: 0;
+        list-style-type: disc;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    li {
+        display: inline;
+        margin-right: 10px;
+    }
+
+
+}
+
+
+@media print {
+    .opHeader {
+        p {
+            font-size: 18px !important;
+
+        }
+
+        ul {
+            padding: 12px 0px !important;
+            font-size: 14px !important;
+        }
+
+        li {
+            display: inline;
+            margin-right: 10px;
+        }
+    }
+
+    img {
+        padding: 12px 0px !important;
+        display: block !important;
+        width: 500px !important;
+        height: auto !important;
+    }
+}

@@ -1,0 +1,25 @@
+.dictionary {
+    font-size: 12px;
+
+    h2 {
+        display: inline;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    #developer {
+        display: none;
+    }
+
+    .theme-code-block {
+        display: none;
+    }
+
+}
+
+
+
+.dictionaryImage {
+    width: 400px;
+    object-fit: contain;
+}
