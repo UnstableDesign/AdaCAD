@@ -9,7 +9,7 @@ const name = "threading_treadling_sequence";
 
 
 const meta: OpMeta = {
-    displayname: 'treading/threading sequence',
+    displayname: 'treadling/threading sequence',
     desc: 'use a list of numbers to create a sequence threading or treadling assignments',
     img: 'draft_sequence.png',
     categories: [draftingStylesOp],
