@@ -47,24 +47,23 @@ export class OperationService {
 
 
   getOp(name: string): Operation | DynamicOperation {
-    console.log('[getOp] Getting op:', name, this.ops.slice());
     const op = this.ops.find(el => el.name == name);
     if (op == undefined) return null;
 
+    if (!op.params.some(p => p.type === 'p5-canvas')) return op;
+    
+    // Deep copy p5-canvas state between different instances
     const newOp = { ...op };
     newOp.params = newOp.params.map(param => {
-      const newParam = { ...param };
       if (param.type === 'p5-canvas') {
         try {
-          newParam.value = JSON.parse(JSON.stringify(param.value));
+          return { ...param, value: JSON.parse(JSON.stringify(param.value)) };
         } catch (e) {
           console.error("Error parsing p5-canvas value", e);
-          newParam.value = {} as CanvasParam['value'];
+          return { ...param, value: {} as CanvasParam['value'] };
         }
-      } else {
-        newParam.value = param.value;
       }
-      return newParam;
+      return param;
     });
     return newOp;
   }

@@ -390,7 +390,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
 
-    this.onOperationParamChange.emit({ id: this.paramid, value: this.opnode.params[this.paramid] });
+    this.onOperationParamChange.emit({ id: this.paramid, value: this.opnode.params[this.paramid], type: this.param.type });
 
 
 

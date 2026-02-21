@@ -589,8 +589,6 @@ export class OperationComponent implements OnInit {
 
     if (canvasParamIndex !== -1 && changedParamType !== 'p5-canvas') {
 
-      if (this.op === null || this.op === undefined) { console.error("Operation is null"); return; }
-
       const currentParamVals = this.op.params.map((param, ndx) => {
         return {
           param: param,
@@ -600,7 +598,7 @@ export class OperationComponent implements OnInit {
 
       const paramComp = this.paramsComps?.find(comp => comp.param.type === 'p5-canvas');
 
-      if (currentParamVals) {
+      if (paramComp) {
         paramComp.triggerSketchReset(currentParamVals);
       }
     }
@@ -653,10 +651,8 @@ export class OperationComponent implements OnInit {
 
     this.onOperationParamChange.emit({
       id: this.id,            // Operation ID
-      paramId: obj.id,        // Original parameter ID that changed
-      value: obj.value,       // New value
-      type: obj.type,         // p5 canvas ops use this for canvas resets
-      prior_inlet_vals: original_inlets // Inlet state before dynamic changes
+      type: obj.type,         // Used by p5 canvas ops for canvas resets
+      prior_inlet_vals: original_inlets // Inlet state before changes
     });
   }
 
@@ -719,7 +715,7 @@ export class OperationComponent implements OnInit {
         break;
     }
 
-    this.onOperationParamChange.emit({ id: this.id });
+    this.onOperationParamChange.emit({ id: this.id, type: obj.data.type, prior_inlet_vals: this.opnode.inlets.slice() });
 
   }
 
@@ -734,7 +730,7 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onInletChange(obj: any) {
-    this.onOperationParamChange.emit({ id: this.id });
+    this.onOperationParamChange.emit({ id: this.id, type: 'inlet', prior_inlet_vals: this.opnode.inlets.slice() });
   }
 
   delete() {
