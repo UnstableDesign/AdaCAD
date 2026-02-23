@@ -22,6 +22,14 @@
 
   }
 
+
+  <!-- Canvas parameter container -->
+  @if (param.type === 'p5-canvas') {
+  <div class="p5-canvas-parameter">
+    <div #p5canvasContainer class="p5-canvas-container"></div>
+  </div>
+
+  }
   @if (param.type == 'select') {
   <div class="select-input">
     <mat-form-field>

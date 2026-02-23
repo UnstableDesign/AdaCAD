@@ -111,8 +111,6 @@ export class OperationComponent implements OnInit {
 
   is_dynamic_op: boolean = false;
 
-  //dynamic_type: string = 'main';
-
   filewarning: string = "";
 
   all_system_codes: Array<string> = [];
@@ -137,6 +135,7 @@ export class OperationComponent implements OnInit {
 
   recomputationSubscription: Subscription;
   recomputing: boolean = false;
+  suppressNextAnimation: boolean = false;
 
   // Add a property to track if we just finished dragging
   private wasDragged: boolean = false;
@@ -194,13 +193,16 @@ export class OperationComponent implements OnInit {
 
 
 
-    //if(this.is_dynamic_op) this.dynamic_type = (<DynamicOperation>this.op).dynamic_param_type;
     this.errorSubscription = this.errorBroadcaster.errorBroadcast$.subscribe((alert_text) => {
       this.updateErrorState();
     })
 
 
     this.recomputationSubscription = this.opnode.recomputing.subscribe((value) => {
+      if (this.suppressNextAnimation) {
+        this.suppressNextAnimation = false;
+        return;
+      }
       this.triggerFadeToBlack();
       //this.recomputing = value;
     });
@@ -272,6 +274,10 @@ export class OperationComponent implements OnInit {
 
   mousedown(e: any) {
     //this.disable_drag = false;
+    if (e.target.closest('.p5-canvas-parameter')) {
+      // Allow the mouse event to reach the canvas
+      return;
+    }
     e.stopPropagation();
   }
 
@@ -575,13 +581,36 @@ export class OperationComponent implements OnInit {
   }
 
 
+  /**
+   * Resets the p5 canvas sketch when a non-canvas parameter changes.
+   */
+  public triggerCanvasResetIfNeeded(changedParamType: string): void {
+    const canvasParamIndex = this.op.params.findIndex(p => p.type === 'p5-canvas');
+
+    if (canvasParamIndex !== -1 && changedParamType !== 'p5-canvas') {
+
+      const currentParamVals = this.op.params.map((param, ndx) => {
+        return {
+          param: param,
+          val: this.opnode.params[ndx]
+        }
+      })
+
+      const paramComp = this.paramsComps?.find(comp => comp.param.type === 'p5-canvas');
+
+      if (paramComp) {
+        paramComp.triggerSketchReset(currentParamVals);
+      }
+    }
+  }
+
 
   /**
    * called from the child parameter when a value has changed, this functin then updates the inlets
    * @param id an object containing the id of hte parameter that has changed
    * @param value 
    */
-  onParamChange(obj: any) {
+  onParamChange(obj: { id: number, value: any, type: string; }) {
     const opnode = <OpNode>this.tree.getNode(this.id);
     const original_inlets = this.opnode.inlets.slice();
 
@@ -610,7 +639,6 @@ export class OperationComponent implements OnInit {
         if (opnode.name == 'imagemap' || opnode.name == 'bwimagemap') {
 
           //update the width and height
-          // let image_param = opnode.params[op.dynamic_param_id];
           let image_param: Img = <Img>opnode.params[0];
           if (image_param.id != '') {
             opnode.params[1] = image_param.data.width;
@@ -621,7 +649,11 @@ export class OperationComponent implements OnInit {
 
     }
 
-    this.onOperationParamChange.emit({ id: this.id, prior_inlet_vals: original_inlets });
+    this.onOperationParamChange.emit({
+      id: this.id,            // Operation ID
+      type: obj.type,         // Used by p5 canvas ops for canvas resets
+      prior_inlet_vals: original_inlets // Inlet state before changes
+    });
   }
 
   nameChanged(id) {
@@ -644,8 +676,6 @@ export class OperationComponent implements OnInit {
     switch (obj.data.type) {
 
       case 'image':
-        // if(this.operations.isDynamic(this.name) && (<DynamicOperation> this.op).dynamic_param_type !== 'color') return;
-
         if (obj.data.warning !== '') {
           image_div.style.display = 'flex';
           this.filewarning = obj.warning;
@@ -685,7 +715,7 @@ export class OperationComponent implements OnInit {
         break;
     }
 
-    this.onOperationParamChange.emit({ id: this.id });
+    this.onOperationParamChange.emit({ id: this.id, type: obj.data.type, prior_inlet_vals: this.opnode.inlets.slice() });
 
   }
 
@@ -700,7 +730,7 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onInletChange(obj: any) {
-    this.onOperationParamChange.emit({ id: this.id });
+    this.onOperationParamChange.emit({ id: this.id, type: 'inlet', prior_inlet_vals: this.opnode.inlets.slice() });
   }
 
   delete() {

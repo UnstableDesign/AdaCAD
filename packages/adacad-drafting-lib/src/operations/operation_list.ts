@@ -12,6 +12,7 @@ export * from './clear/clear';
 export * from './combos/combos';
 export * from './complex_twill/complex_twill';
 export * from './crop/crop';
+export * from './cross_section_view/cross_section_view';
 export * from './cutout/cutout';
 export * from './deinterlace/deinterlace';
 export * from './diff/diff';

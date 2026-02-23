@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { DynamicOperation, getOpList, OpCategory, opCategoryList, Operation } from "adacad-drafting-lib";
+import { CanvasParam, DynamicOperation, getOpList, OpCategory, opCategoryList, Operation } from "adacad-drafting-lib";
 import { OperationClassification } from "../model/datatypes";
 
 @Injectable({
@@ -50,7 +50,23 @@ export class OperationService {
     console.log('[getOp] Getting op:', name, this.ops.slice());
     const op = this.ops.find(el => el.name == name);
     if (op == undefined) return null;
-    return op;
+
+    if (!op.params.some(p => p.type === 'p5-canvas')) return op;
+    
+    // Deep copy p5-canvas state between different instances
+    const newOp = { ...op };
+    newOp.params = newOp.params.map(param => {
+      if (param.type === 'p5-canvas') {
+        try {
+          return { ...param, value: JSON.parse(JSON.stringify(param.value)) };
+        } catch (e) {
+          console.error("Error parsing p5-canvas value", e);
+          return { ...param, value: {} as CanvasParam['value'] };
+        }
+      }
+      return param;
+    });
+    return newOp;
   }
 
   hasOldName(op: Operation | DynamicOperation, name: string): boolean {

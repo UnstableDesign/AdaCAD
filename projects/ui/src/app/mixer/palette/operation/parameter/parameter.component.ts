@@ -1,5 +1,5 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { Component, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatButton, MatFabButton } from '@angular/material/button';
@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
-import { AnalyzedImage, BoolParam, CodeParam, FileParam, Img, NumParam, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
+import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpParamVal, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { MediaInstance, OpNode, OpStateParamChange } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
 import { OperationService } from '../../../../core/provider/operation.service';
@@ -16,7 +16,8 @@ import { TreeService } from '../../../../core/provider/tree.service';
 import { ImageeditorComponent } from '../../../../core/ui/imageeditor/imageeditor.component';
 import { TextparamComponent } from '../../../../core/ui/textparam/textparam.component';
 import { UploadFormComponent } from '../../../../core/ui/uploads/upload-form/upload-form.component';
-
+import { MaterialsService } from '../../../../core/provider/materials.service';
+import * as p5 from 'p5';
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -37,12 +38,13 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
   ],
   imports: [MatFormField, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatButton, UploadFormComponent]
 })
-export class ParameterComponent implements OnInit {
+export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   tree = inject(TreeService);
   ss = inject(StateService);
   dialog = inject(MatDialog);
   ops = inject(OperationService);
   mediaService = inject(MediaService);
+  materialsService = inject(MaterialsService);
 
 
   fc: UntypedFormControl;
@@ -50,7 +52,7 @@ export class ParameterComponent implements OnInit {
 
   name: any;
 
-  @Input() param: NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam;
+  @Input() param: NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam | CanvasParam;
   @Input() opid: number;
   @Input() paramid: number;
   @Output() onOperationParamChange = new EventEmitter<any>();
@@ -63,7 +65,10 @@ export class ParameterComponent implements OnInit {
   filewarning: string = '';
 
   @ViewChild('autosize') autosize: CdkTextareaAutosize;
+  @ViewChild('p5canvasContainer') p5canvasContainer: ElementRef;
 
+
+  private p5Instance: any;
 
   ngOnInit(): void {
 
@@ -122,7 +127,13 @@ export class ParameterComponent implements OnInit {
           }
         });
         break;
-
+      case 'p5-canvas':
+        this.param = <CanvasParam>this.param;
+        this.fc = new UntypedFormControl(this.param.value);
+        this.fc.valueChanges.subscribe(val => {
+          this.onParamChange(val);
+        });
+        break;
 
       // case 'draft':
       //   this.draftparam = <DraftParam> this.param;
@@ -139,6 +150,27 @@ export class ParameterComponent implements OnInit {
 
   }
 
+  ngAfterViewInit() {
+    if (this.param.type === 'p5-canvas' && this.p5canvasContainer) {
+      const op = this.ops.getOp(this.opnode.name);
+      if (op === null || op === undefined) return;
+
+      const initialParamVals = op.params.map((param, ndx) => {
+        return { param: param, val: this.opnode.params[ndx] }
+      })
+
+      if (!initialParamVals) return;
+
+      setTimeout(() => this.initializeP5Canvas(initialParamVals), 0);
+    }
+  }
+
+  ngOnDestroy() {
+    // Clean up p5 instance if it exists
+    if (this.p5Instance) {
+      this.p5Instance.remove();
+    }
+  }
 
 
 
@@ -233,6 +265,13 @@ export class ParameterComponent implements OnInit {
       case 'draft':
         opnode.params[this.paramid] = value;
         this.onOperationParamChange.emit({ id: this.paramid, value: value, type: this.param.type });
+        break;
+
+      case 'p5-canvas':
+        // Encode p5-canvas state as base64 string (firebase strips out empty keys in objects)
+        const encodedValue = btoa(JSON.stringify(value));
+        opnode.params[this.paramid] = encodedValue;
+        this.onOperationParamChange.emit({ id: this.paramid, value: encodedValue, type: this.param.type });
         break;
     }
 
@@ -351,14 +390,141 @@ export class ParameterComponent implements OnInit {
     }
 
 
-    this.onOperationParamChange.emit({ id: this.paramid, value: this.opnode.params[this.paramid] });
+    this.onOperationParamChange.emit({ id: this.paramid, value: this.opnode.params[this.paramid], type: this.param.type });
+  }
 
+  /**
+ * Public method called by parent components to explicitly reset the p5 sketch.
+ * @param latestConfig The latest configuration object derived from non-canvas params.
+ */
+  public triggerSketchReset(latestConfig: Array<OpParamVal>): void {
+    if (this.param.type === 'p5-canvas') {
+      if (!latestConfig) {
+        console.error('[ParameterComponent] triggerSketchReset called without latestConfig for op:', this.opid);
+        return;
+      }
 
+      this._resetSketch(latestConfig, true);
+    }
+  }
 
+  /**
+   * Private helper to destroy the current p5 instance and re-initialize it
+   * with the provided configuration.
+   * @param latestParamVals The latest configuration object for the sketch.
+   * @param isParameterChange Is reset caused by a param change (true), or file restore (false)
+   */
+  private _resetSketch(latestParamVals: Array<OpParamVal>, isParameterChange: boolean = false): void {
+    if (this.p5Instance) {
+      try {
+        this.p5Instance.remove();
+      } catch (e) {
+        console.error('[ParameterComponent] Error removing p5 instance:', e);
+      }
+      this.p5Instance = null;
+    }
+    setTimeout(() => this.initializeP5Canvas(latestParamVals, isParameterChange), 0);
+  }
 
+  /**
+   * Manage a p5.js canvas instance as an operation parameter
+   *
+   * Called on first load (ngAfterViewInit) and on sketch resets (_resetSketch).
+   *   - Gets the operation's createSketch() function
+   *   - Sets up updateCallback to communicate sketch state changes to AdaCAD
+   *   - Wraps the p5 instance in a mouse-coordinate correction proxy
+   *   - Instantiates the p5 sketch in the container element
+   */
+  initializeP5Canvas(currentParamVals: Array<OpParamVal>, isParameterChange: boolean = false) {
+    if (!this.p5canvasContainer?.nativeElement) {
+      console.error(`[ParameterComponent ${this.opid}] p5canvasContainer not available`);
+      return;
+    }
 
+    if (this.param.type !== 'p5-canvas') {
+      console.error(`[ParameterComponent ${this.opid}] param type is '${this.param.type}', expected 'p5-canvas'`);
+      return;
+    }
 
+    const opNodeName = this.tree.getOpNode(this.opid)?.name;
+    if (!opNodeName) {
+      console.error(`[ParameterComponent ${this.opid}] could not resolve operation name`);
+      return;
+    }
+    const operationDefinition = this.ops.getOp(opNodeName);
 
+    if (!operationDefinition?.createSketch) {
+      console.error("[ParameterComponent] Operation with p5-canvas param missing createSketch function.");
+      return;
+    }
+
+    // Callback used by the sketch whenever canvas state changes
+    // Resolves sketch weft colors to AdaCAD material IDs, then emits the param change
+    const updateCallbackFn = (newCanvasState: any) => {
+      this.param.value = newCanvasState;
+
+      if (newCanvasState?.generatedDraft?.weftColors &&
+        Array.isArray(newCanvasState.generatedDraft.weftColors)) {
+        const sketchColors: string[] = newCanvasState.generatedDraft.weftColors;
+        const resolvedIds: number[] = [];
+        sketchColors.forEach((hexColor, sketchWeftId) => {
+          const nameSuggestion = `CrossSection Weft ${String.fromCharCode(97 + sketchWeftId)}`;
+          try {
+            resolvedIds.push(this.materialsService.findOrCreateMaterialByHex(hexColor, nameSuggestion));
+          } catch (e) {
+            console.error(`Error resolving material for color ${hexColor}:`, e);
+            resolvedIds.push(0);
+          }
+        });
+        newCanvasState.generatedDraft.resolvedSketchMaterialIds = resolvedIds;
+      }
+
+      this.onParamChange(newCanvasState);
+    };
+
+    // Clean up any existing p5 instance before creating a new one
+    if (this.p5Instance) {
+      try {
+        this.p5Instance.remove();
+      } catch (e) {
+        console.error('[ParameterComponent] p5 cleanup error:', e);
+      }
+      this.p5Instance = null;
+    }
+
+    const userSketchProvider = operationDefinition.createSketch(currentParamVals, updateCallbackFn, { isParameterChange });
+
+    // Wrapper for p5 to apply a mouse-coordinate proxy to correct for AdaCAD's CSS scaling
+    // Compares canvas buffer size and display size
+    const sketchWrapper = (actualP5Instance: any) => {
+      this.p5Instance = actualP5Instance;
+
+      const P5MouseProxyHandler: ProxyHandler<any> = {
+        get: (target, prop, receiver) => {
+          if (prop === 'mouseX' || prop === 'mouseY') {
+            if (!target.canvas || !target._setupDone) {
+              const fallback = Reflect.get(target, prop, receiver);
+              return typeof fallback === 'number' ? fallback : 0;
+            }
+            const rect = target.canvas.getBoundingClientRect();
+            const raw = Reflect.get(target, prop, receiver);
+            const isX = prop === 'mouseX';
+            const displaySize = isX ? rect.width : rect.height;
+            const bufferSize = isX ? target.width : target.height;
+            if (displaySize > 0 && bufferSize > 0 && typeof raw === 'number') {
+              return raw * (bufferSize / displaySize);
+            }
+            return typeof raw === 'number' ? raw : 0;
+          }
+          return Reflect.get(target, prop, receiver);
+        },
+      };
+
+      const proxiedP5Instance = new Proxy(actualP5Instance, P5MouseProxyHandler);
+      userSketchProvider(proxiedP5Instance);
+    };
+
+    new p5.default(sketchWrapper as any, this.p5canvasContainer.nativeElement);
   }
 
 

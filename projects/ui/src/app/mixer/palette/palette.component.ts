@@ -2226,10 +2226,21 @@ export class PaletteComponent implements OnInit {
    * @param obj with attribute id describing the operation that called this
    * @returns 
    */
-  async operationParamChanged(obj: { id: number, prior_inlet_vals: Array<any> }) {
+  async operationParamChanged(obj: { id: number, type?: string, prior_inlet_vals: Array<any> }) {
     if (obj === null) return;
 
-    console.log("Operation param changed", obj.id);
+
+
+    // Reset p5-canvas sketch when a non-canvas param changes
+    // Suppress flash animation for canvas state changes (e.g., drawing in the canvas)
+    const opComponentInstance = this.tree.getComponent(obj.id) as OperationComponent;
+    if (opComponentInstance && obj.type !== undefined) {
+      opComponentInstance.triggerCanvasResetIfNeeded(obj.type);
+      if (obj.type === 'p5-canvas') {
+        opComponentInstance.suppressNextAnimation = true;
+      }
+    }
+
     return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)
       .then(viewRefs => {
         viewRefs.forEach(el => {

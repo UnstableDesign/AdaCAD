@@ -213,6 +213,16 @@ export const getOpParamValById = (id: number, params: Array<OpParamVal>): OpPara
     if (params.length == 0) return null;
 
     if (id < params.length) {
+        const param = params[id];
+        // Decode p5-canvas state param (encoded since firebase strips out empty keys in objects)
+        if (param.param.type === 'p5-canvas' && typeof param.val === 'string' && param.val.length > 0) {
+            try {
+                return JSON.parse(atob(param.val));
+            } catch (error) {
+                console.error('Failed to decode p5-canvas parameter:', error);
+                return param.param.value; // fallback to default
+            }
+        }
         return params[id].val;
     } else {
         console.error("PARAM ID ", id, " NOT FOUND IN PARAMS ", params)
