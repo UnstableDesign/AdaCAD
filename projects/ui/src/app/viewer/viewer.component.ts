@@ -144,10 +144,13 @@ export class ViewerComponent {
     this.visMode.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
         this.vs.current_view = value;
+
         if (this.view_rendering !== undefined) {
           this.view_rendering.current_view = value;
         }
+
         if (this.vs.current_view === 'sim') {
+          console.log("SETTING SIM TO FOCUS", this.vs.getViewerId());
           this.sim.onFocus(this.vs.getViewerId());
         } else {
           if (this.sim.hasFocus) this.sim.onFocusOut()

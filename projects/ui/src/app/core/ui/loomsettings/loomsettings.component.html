@@ -1,0 +1,46 @@
+<div class="loomsettings-form">
+
+    <mat-form-field class="fullwidth">
+        <mat-label>Loom Type</mat-label>
+        <mat-select [formControl]="type">
+            @for (loomtype of loomTypes; track loomtype) {
+            <mat-option [value]="loomtype.value">{{loomtype.viewValue}}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+
+    <mat-form-field class="fullwidth">
+        <mat-label>Units</mat-label>
+        <mat-select [formControl]="units">
+            @for (unit of densityUnits; track unit) {
+            <mat-option [value]="unit.value">{{unit.viewValue}}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="fullwidth">
+        <mat-label>EPI</mat-label>
+        <input matInput [formControl]="epi" type="number" min="0" />
+        <span matTextSuffix>@if(units.value === 'in') {ends/in} @else {ends/10cm}</span>
+    </mat-form-field>
+
+    <mat-form-field class="fullwidth">
+        <mat-label>PPI</mat-label>
+        <input matInput [formControl]="ppi" type="number" min="0" />
+        <span matTextSuffix>@if(units.value === 'in') {picks/in} @else {picks/10cm}</span>
+    </mat-form-field>
+
+
+    <mat-form-field class="fullwidth">
+        <mat-label>Frames</mat-label>
+        <input matInput [formControl]="frames" type="number" min="2" max="1000" />
+        <span matTextSuffix>frames</span>
+    </mat-form-field>
+
+    <mat-form-field class="fullwidth">
+        <mat-label>Treadles</mat-label>
+        <input matInput [formControl]="treadles" type="number" min="2" max="1000" />
+        <span matTextSuffix>treadles</span>
+    </mat-form-field>
+</div>

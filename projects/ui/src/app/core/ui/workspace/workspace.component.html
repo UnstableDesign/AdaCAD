@@ -57,6 +57,29 @@
 
   <mat-expansion-panel hideToggle expanded>
     <mat-expansion-panel-header>
+      <mat-panel-title> Warp Density </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div>
+      <p>This allows you to set the default warp density for all drafts. This will affect how the draft is drawn in the
+        simulations</p>
+      <mat-form-field class="fullwidth">
+        <mat-label>Warp Density</mat-label>
+        <input matInput [formControl]="epiForm" type="number" min="0.1" max="1000" step="0.1">
+        <span matTextSuffix>
+          @if (epiForm.value === 'in') {
+          epi
+          }
+          @if (epiForm.value === 'cm') {
+          ends / 10cm
+          }
+        </span>
+      </mat-form-field>
+
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel hideToggle expanded>
+    <mat-expansion-panel-header>
       <mat-panel-title> Hide Drafts on All Operations </mat-panel-title>
       <!-- <mat-panel-description> Controls if and how drafts are shown in dataflows</mat-panel-description> -->
     </mat-expansion-panel-header>

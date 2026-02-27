@@ -405,6 +405,7 @@ export class SimulationService {
     this.weft_scene = new THREE.Group();
     this.weft_scene.name = 'weft-scene'
 
+    console.log("SIM data", simdata)
 
     // WARPS
     simdata.warps.forEach(path => {
@@ -449,57 +450,57 @@ export class SimulationService {
 
     simdata.wefts.forEach(path => {
 
+      if (path.vtxs.length >= 2) {
+        const curvePath = new THREE.CurvePath();
 
-      const curvePath = new THREE.CurvePath();
+        const material_id = path.material;
+        let diameter = getDiameter(material_id, simVars.ms);
+        let color = getColorForSim(material_id, simVars.ms)
 
-      const material_id = path.material;
-      let diameter = getDiameter(material_id, simVars.ms);
-      let color = getColorForSim(material_id, simVars.ms)
+        let pts = [];
 
-      let pts = [];
+        //GET POINTS
 
-      //GET POINTS
+        for (let x = 0; x < path.vtxs.length - 1; x++) {
 
-      for (let x = 0; x < path.vtxs.length - 1; x++) {
-
-        //we need to reference 3 vertices. 
-        //vtx0 is the vertex we last drew (used to calibrate directionality)
-        //vtxy is the start of vertex in a pair of verticies that is currently being drawn
-        //vtx2 is the ending  vertex in a pair of verticies that is currently being drawn
-        const vtx0 = (x > 0) ? path.vtxs[x - 1] : null;
-        const vtx1 = path.vtxs[x];
-        const vtx2 = path.vtxs[x + 1];
+          //we need to reference 3 vertices. 
+          //vtx0 is the vertex we last drew (used to calibrate directionality)
+          //vtxy is the start of vertex in a pair of verticies that is currently being drawn
+          //vtx2 is the ending  vertex in a pair of verticies that is currently being drawn
+          const vtx0 = (x > 0) ? path.vtxs[x - 1] : null;
+          const vtx1 = path.vtxs[x];
+          const vtx2 = path.vtxs[x + 1];
 
 
 
-        const o_vecs = this.getOrientationVector(vtx0, vtx1, vtx2, simVars.warp_spacing, diameter);
+          const o_vecs = this.getOrientationVector(vtx0, vtx1, vtx2, simVars.warp_spacing, diameter);
 
-        const cp1 = new THREE.Vector3(vtx1.vtx.x + o_vecs.orientation_1.x, vtx1.vtx.y + o_vecs.orientation_1.y, vtx1.vtx.z + o_vecs.orientation_1.z);
-        const cp2 = new THREE.Vector3(vtx2.vtx.x + o_vecs.orientation_2.x, vtx2.vtx.y + o_vecs.orientation_2.y, vtx2.vtx.z + o_vecs.orientation_2.z);
+          const cp1 = new THREE.Vector3(vtx1.vtx.x + o_vecs.orientation_1.x, vtx1.vtx.y + o_vecs.orientation_1.y, vtx1.vtx.z + o_vecs.orientation_1.z);
+          const cp2 = new THREE.Vector3(vtx2.vtx.x + o_vecs.orientation_2.x, vtx2.vtx.y + o_vecs.orientation_2.y, vtx2.vtx.z + o_vecs.orientation_2.z);
 
-        const curve = new THREE.CubicBezierCurve3(vtx1.vtx, cp1, cp2, vtx2.vtx);
-        curvePath.add(curve);
-        const points = curve.getPoints(50);
-        pts = pts.concat(points);
+          const curve = new THREE.CubicBezierCurve3(vtx1.vtx, cp1, cp2, vtx2.vtx);
+          curvePath.add(curve);
+          const points = curve.getPoints(50);
+          pts = pts.concat(points);
 
+        }
+
+        const geometry = new THREE.TubeGeometry(curvePath, curvePath.curves.length * 10, diameter / 2, 8, false);
+        const material = new THREE.MeshPhysicalMaterial({
+          color: color,
+          emissive: 0x000000,
+          depthTest: true,
+          metalness: 0,
+          roughness: 0.5,
+          clearcoat: 1.0,
+          clearcoatRoughness: 1.0,
+          reflectivity: 0.0
+        });
+        let curveObject = new THREE.Mesh(geometry, material);
+        curveObject.name = 'weft-' + path.system + "-" + path.material;
+
+        this.weft_scene.add(curveObject);
       }
-
-      const geometry = new THREE.TubeGeometry(curvePath, curvePath.curves.length * 10, diameter / 2, 8, false);
-      const material = new THREE.MeshPhysicalMaterial({
-        color: color,
-        emissive: 0x000000,
-        depthTest: true,
-        metalness: 0,
-        roughness: 0.5,
-        clearcoat: 1.0,
-        clearcoatRoughness: 1.0,
-        reflectivity: 0.0
-      });
-      let curveObject = new THREE.Mesh(geometry, material);
-      curveObject.name = 'weft-' + path.system + "-" + path.material;
-
-      this.weft_scene.add(curveObject);
-
 
     })
     this.weft_scene = this.applyOrientationConversion(this.weft_scene, boundary_vtx);

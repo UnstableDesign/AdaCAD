@@ -99,6 +99,7 @@ export class TreeService {
       const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
 
 
+      console.log("BROADCASTING DRAFT NODE VALUE CHANGE", id, draft, (<DraftNode>node).loom, (<DraftNode>node).loom_settings, flags);
       (<DraftNode>node).onValueChange.next({ id: id, draft: draft, loom: (<DraftNode>node).loom, loom_settings: (<DraftNode>node).loom_settings, flags: flags });
     }
   }
@@ -1277,7 +1278,6 @@ export class TreeService {
      * @returns a list of the draft nodes touched. 
      */
   async updateDraftsFromResults(parent: number, outputs: Array<OpOutput>, inputs: Array<OpInput>): Promise<Array<number>> {
-    console.log("UPDATING DRAFTS FROM RESULTS", parent, outputs, inputs);
     const out = this.getNonCxnOutputs(parent);
     const op_outlets = this.getOutputsWithNdx(parent);
 

@@ -14,6 +14,7 @@ import { MaterialsService } from '../../core/provider/materials.service';
 import { SimulationService } from '../../core/provider/simulation.service';
 import { TreeService } from '../../core/provider/tree.service';
 import { ViewadjustService } from '../../core/provider/viewadjust.service';
+import { WorkspaceService } from '../../core/provider/workspace.service';
 @Component({
   selector: 'app-simulation',
   templateUrl: './simulation.component.html',
@@ -25,7 +26,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
   ms = inject(MaterialsService);
   sim = inject(SimulationService);
   vas = inject(ViewadjustService);
-
+  ws = inject(WorkspaceService);
 
 
   @Input('id') id;
@@ -87,7 +88,18 @@ export class SimulationComponent implements OnInit, OnDestroy {
    * @param formValues 
    */
   updateSimFormValues() {
-    const ls = this.tree.getLoomSettings(this.id);
+    if (!this.hasFocus) return;
+    let ls = this.tree.getLoomSettings(this.id);
+    if (ls == null) {
+      ls = {
+        type: 'jacquard',
+        epi: this.ws.epi,
+        ppi: this.ws.ppi,
+        units: this.ws.units,
+        frames: this.ws.min_frames,
+        treadles: this.ws.min_treadles
+      }
+    }
     this.simControls.patchValue({
       warpSpacing: ls.epi,
       liftLimit: this.simVars.lift_limit,
@@ -346,6 +358,17 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (this.draftChangeSubscription) this.draftChangeSubscription.unsubscribe();
 
     this.draftChangeSubscription = draftNode.onValueChange.subscribe(draftNodeBroadcast => {
+      console.log("SIM ON DRAFT CHANGE", draftNodeBroadcast);
+      if (draftNodeBroadcast.loom_settings == null) {
+        draftNodeBroadcast.loom_settings = {
+          type: 'jacquard',
+          epi: this.ws.epi,
+          ppi: this.ws.ppi,
+          units: this.ws.units,
+          frames: this.ws.min_frames,
+          treadles: this.ws.min_treadles
+        }
+      }
       this.simVars.warp_spacing = convertEPItoMM(draftNodeBroadcast.loom_settings);
       this.updateSimFormValues();
       this.recalcAndRenderSimData(draftNodeBroadcast.draft);
@@ -361,6 +384,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
   }
 
   onFocusOut() {
+    console.log("SIM ON FOCUS OUT");
     this.hasFocus = false;
     this.id = -1;
   }

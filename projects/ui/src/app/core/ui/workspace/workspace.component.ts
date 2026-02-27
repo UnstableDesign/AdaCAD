@@ -47,6 +47,7 @@ export class WorkspaceComponent implements OnInit {
   unitsForm: FormControl;
   hideMixerDraftsForm: FormControl;
   showAdvancedOperationsForm: FormControl;
+  epiForm: FormControl;
 
   constructor() {
 
@@ -64,7 +65,7 @@ export class WorkspaceComponent implements OnInit {
     this.unitsForm = new FormControl(this.ws.units);
     this.hideMixerDraftsForm = new FormControl(this.ws.hide_mixer_drafts);
     this.showAdvancedOperationsForm = new FormControl(this.ws.show_advanced_operations);
-
+    this.epiForm = new FormControl(this.ws.epi);
     // Subscribe to form changes
     this.originOptionForm.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined) {
@@ -77,6 +78,12 @@ export class WorkspaceComponent implements OnInit {
       if (value !== null && value !== undefined) {
         this.ws.type = value;
         this.onLoomTypeOverride.emit(value);
+      }
+    });
+
+    this.epiForm.valueChanges.subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.ws.epi = value;
       }
     });
 
