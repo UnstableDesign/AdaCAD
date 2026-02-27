@@ -471,20 +471,10 @@ export class SimulationService {
           const vtx1 = path.vtxs[x];
           const vtx2 = path.vtxs[x + 1];
 
-          const geometry = new THREE.BoxGeometry(diameter, diameter, diameter);
-          const material = new THREE.MeshPhysicalMaterial({
-            color: color,
-            emissive: 0x000000,
-            depthTest: true,
-            metalness: 0,
-            roughness: 0.5,
-            clearcoat: 1.0,
-            clearcoatRoughness: 1.0,
-            reflectivity: 0.0
-          });
-          const cube = new THREE.Mesh(geometry, material);
-          cube.position.set(vtx1.vtx.x, vtx1.vtx.y, vtx1.vtx.z);
-          this.weft_scene.add(cube);
+          // const geometry = new THREE.BoxGeometry(diameter, diameter, diameter);
+          // const cube = new THREE.Mesh(geometry, material);
+          // cube.position.set(vtx1.vtx.x, vtx1.vtx.y, vtx1.vtx.z);
+          // this.weft_scene.add(cube);
 
 
           const o_vecs = this.getOrientationVector(vtx0, vtx1, vtx2, simVars.warp_spacing, diameter);

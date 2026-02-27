@@ -50,7 +50,7 @@ export const defaults = {
   //SIM DEFAULTS
   wefts_as_written: false,
   layer_spacing: 10,
-  pack: 1,
+  pack: .70,
 
   //material icon rendering sizes
   min_material_icon_size: .5,
