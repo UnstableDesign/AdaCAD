@@ -27,7 +27,6 @@ export const computeSimulationData = async (draft: Draft, simVars: SimulationVar
 
     if (simData.topo.length == 0) {
         simData.topo = await getDraftTopology(simData.draft, simVars);
-
     }
 
     if (simData.wefts.length == 0)
@@ -1841,7 +1840,7 @@ export const getClosestBlockingVertex = (ndx: CNIndex, vtx: Vec3, warps: number,
     const weft_layer = getWeftLayer(ndx, warps, cns);
 
     //get eligable blocking vertices that have already been added to the vtx list
-    const eligable_blocking_vtxs = vtx_list.filter(el => getLayer(el.ndx, warps, cns) == weft_layer);
+    const eligable_blocking_vtxs = vtx_list.filter(el => getWeftLayer(el.ndx, warps, cns) == weft_layer);
 
     if (eligable_blocking_vtxs.length == 0) return -1;
 
@@ -1962,7 +1961,7 @@ const createWeftVertex = (ndx: CNIndex, fell: number, d: Draft, vtx_list: Array<
 
     pos = calcX(pos, ndx.j, sim.warp_spacing);
     pos = calcWeftVertexY(ndx, pos, sim.pack, warps(d.drawdown), wefts(d.drawdown), vtx_list, paths, sim, cns, verbose);
-    pos = calcWeftVertexZ(pos, face, getLayer(ndx, warps(d.drawdown), cns), sim.layer_spacing, warp_diameter, weft_diameter);
+    pos = calcWeftVertexZ(pos, face, getWeftLayer(ndx, warps(d.drawdown), cns), sim.layer_spacing, warp_diameter, weft_diameter);
 
 
     if (verbose) console.log("CREATED VTX ", ndx, pos)
@@ -2191,8 +2190,9 @@ export const getOrientation = (el: YarnVertex, el2: YarnVertex, warps: number, c
 
 
 /**
-* between each front/back facing weft float pair, there should be at least one blocking float. Update the pair based 
-* on the max y value (set from the blocking float). Also reposition the ACN x value in the center of the warp spacing, instead of at the edge the warp. 
+ * The method of rendering wefts looks for center points between the two ACNs.
+ * If a duplicate vertex is found, it means that this weft is meant to travel on one side 
+ * of this warp, and on the opposite side of it's neighboring warp. 
  * @param temp_pic 
  * @returns 
  */
@@ -2208,6 +2208,19 @@ export const pruneDuplicateWeftVertices = (temp_pic: Array<YarnVertex>): Array<Y
         return acc;
     }, []);
 
+}
+
+export const pruneDuplicateWeftOrientations = (temp_pic: Array<YarnVertex>): Array<YarnVertex> => {
+
+    const pruned_pic: Array<YarnVertex> = [];
+    let last: boolean | null = null;
+    temp_pic.forEach(el => {
+        if (el.orientation !== last) {
+            pruned_pic.push(el);
+            last = el.orientation;
+        }
+    });
+    return pruned_pic;
 }
 
 
@@ -2341,17 +2354,26 @@ export const pruneWarps = (wefts: number, warps: number, cns: Array<ContactNeigh
 }
 
 
+
+
+/**
+ * this creates a list of ACNS that are associated with warps and wefts assigned to the same layer. 
+ * @param wefts 
+ * @param warps 
+ * @param cns 
+ * @returns 
+ */
 export const pruneWeftsAndSetCNBlocking = (wefts: number, warps: number, cns: Array<ContactNeighborhood>): Array<ContactNeighborhood> => {
     const acns = cns
-        .filter(el => el.node_type == 'ACN')
         .filter(el => el.ndx.id < 2)
         .filter(el => getWeftLayer(el.ndx, warps, cns) == getWarpLayer(el.ndx, wefts, warps, cns));
 
 
+    const only_acns = acns.filter(el => el.node_type == 'ACN');
 
-    acns.forEach(acn => {
+    only_acns.forEach(acn => {
         const layer = getWeftLayer(acn.ndx, warps, cns);
-        let potential_blocks = acns.filter(el => getWeftLayer(el.ndx, warps, cns) == layer && el.ndx.i < acn.ndx.i && el.ndx.id < 2);
+        let potential_blocks = only_acns.filter(el => getWeftLayer(el.ndx, warps, cns) == layer && el.ndx.i < acn.ndx.i && el.ndx.id < 2);
 
         //prune this list so it is just the max i
         const max_i = potential_blocks.reduce((acc: number, el: ContactNeighborhood) => {
@@ -2404,7 +2426,9 @@ export const placeWarps = (draft: Draft, weft_paths: Array<WeftPath>, cns: Array
 
         const end_acns = pruned_cns.filter(el => el.ndx.j == j && el.ndx.id >= 2);
 
+
         end_acns.forEach(el => {
+
             const vtx = createWarpVertex(el.ndx, draft, cns, weft_paths, sim);
             path.vtxs.push(vtx);
         });
@@ -2440,13 +2464,17 @@ export const placeWarps = (draft: Draft, weft_paths: Array<WeftPath>, cns: Array
 
 
 
+
+
 export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, sim: SimulationVars): Promise<Array<WeftPath>> => {
     // printDrawdown(draft.drawdown);
-    // printCNs(cns, wefts(draft.drawdown), warps(draft.drawdown));
 
+    console.log("CNS at start of follow the wefts ")
+    printCNs(cns, wefts(draft.drawdown), warps(draft.drawdown));
 
     const pruned_cns = pruneWeftsAndSetCNBlocking(wefts(draft.drawdown), warps(draft.drawdown), cns);
-    // console.log("PRUNED CNS ", pruned_cns.map(el => el.isect));
+
+    console.log("PRUNED CNS ", pruned_cns.map(el => el.isect));
 
     const warpnum = warps(draft.drawdown);
 
@@ -2471,28 +2499,31 @@ export const followTheWefts = (draft: Draft, cns: Array<ContactNeighborhood>, si
         const direction = (path.pics.length % 2 == 0);  //true is left to right, false is 
         let temp_pic: Array<YarnVertex> = [];
 
-        let pic_acns = pruned_cns.filter(el => el.ndx.i == i && el.ndx.id < 2);
-        if (!direction) pic_acns = pic_acns.reverse();
+        let pic_cns = pruned_cns.filter(el => el.ndx.i == i && el.ndx.id < 2);
+        if (!direction) pic_cns = pic_cns.reverse();
 
-        // console.log("PIC ACNS ", pic_acns.map(el => el.ndx));
-        pic_acns.forEach(el => {
+        pic_cns.forEach(el => {
+
+            //create a vertex if there is an ACN at this j
             const vtx = createWeftVertex(el.ndx, fell_y, draft, flat_vtx_list, cns, paths, sim);
             temp_pic.push(vtx);
+
+
         });
 
-        //  console.log("TEMP BEFORE ", temp_pic.map(el => el.ndx));
 
         //updates the x and y values based on blocking of both front and back facing weft floats
         temp_pic = pruneDuplicateWeftVertices(temp_pic);
-        //  console.log("AFTER PRUNING ", temp_pic.map(el => el.ndx));
+        // temp_pic = pruneDuplicateWeftOrientations(temp_pic);
 
-        //  console.log("AFTER ALIGNMET ", i, temp_pic.map(el => el.vtx.y));
 
         //given a particular theta, smooth the pick. Make sure the yarn cannot move more than theta away from the highest vertex. 
         if (sim.use_smoothing) {
             temp_pic = smoothPick(temp_pic, getMaterialStretch(sim.ms[material]), sim.max_theta, sim.warp_spacing);
         }
         //  console.log("AFTER SMOOTHING ", i, temp_pic.map(el => el.vtx.y));
+
+
 
 
         //if we are rending full width add placeholder verticies and make sure they match the layer of the weft. 

@@ -1,28 +1,18 @@
-<<<<<<< HEAD
-# Simulation Approach
-
-## REQUIREMENTS:
-=======
 # Simulation
 
 ** IN PROGRESS **
 
 ## GOALS / REQUIREMENTS:
->>>>>>> v5.0
 -  be able to create a structural simulation for any given draft that accurately anticipates how layers will form and separate without defining specific assignments of warp/weft systems to layers. 
 - to handle and represent the variable packing of yarns in different locations of the cloth (to anticipate packing)
 
 
 ## APPROACH
 
-<<<<<<< HEAD
-Modeled off of TopoKnit [CITE], the core of this simulation is based on the idea of where two yarns (a warp and a weft) will or will not contact each other in a woven cloth. While TopoKnit is specific to weft knitting, the approach inspired me to think about representing points of contact between yarns in a process oriented fashion. As such, I model the possible contact points based on a draft, refine them based on how layers will or will not form, and then "insert" each yarn into the visualization in the order in which it would be woven. This is compiled from a drawdown, to a list of contact neighborhoods (topology) -> then by translating those neighborhoods into vertices. 
-=======
 Modeled off of [TopoKnit](https://arxiv.org/abs/2101.04560), the core of this simulation is based on the idea of where two yarns (a warp and a weft) will or will not contact each other in a woven cloth. While TopoKnit is specific to weft knitting, the approach inspired me to think about representing points of contact between yarns in a process oriented fashion. As such, I model the possible contact points based on a draft, refine them based on how layers will or will not form, and then "insert" each yarn into the visualization in the order in which it would be woven. This is compiled from a drawdown, to a list of contact neighborhoods (topology) -> then by translating those neighborhoods into vertices. 
->>>>>>> v5.0
 
 ## DRAFT -> CONTACT NEIGHBORHOODS
-It begins by parsing a drawdown, represented as a 2D array of cells. No additional information needs to be supplied with the drawdown to explain if and how layers should form (e.g. it ignores system information when parsing). At each cell/interlacement (crossing point of a warp end and weft pick) the yarns can make contact in four different locations, depending on the pairwise relationship of draft instructions to the top/bottom/left/right of the cell representing the interlacement. 
+It begins by parsing a drawdown, represented as a 2D array of cells. No additional information needs to be supplied with the drawdown to explain if and how layers should form (e.g. it ignores system information when parsing). At each cell/interlacement (crossing point of a warp end and weft pick) the yarns can potentially make contact in four different locations, depending on the pairwise relationship of draft instructions to the top/bottom/left/right of the cell representing the interlacement. 
 
 To start, every interlacement/cell in the draft is populated by four contact neighborhoods. The value of these contact neighborhoods is set by the relationship of the cell to it's neighbor. All contact neighborhoods are initialized as Potentials (PCN's) to start. If the cell changes face (from back to front or vice-versa, the id/edge associated with that change it is considered an "Active" contact node or ACN). An Empty Contact Neighborhood (ECN) represents a place where there is no active weft. A virtual contact node is added in cases where we need render a warp or weft at full width. 
 
@@ -49,7 +39,7 @@ We then iterate through the list of valid acns for a given row, and create verte
 ## Approaches that Didn't Work
 Pairwise comparison of floats. Could not fully capture extent to weft crossings (example being second layer or 3 layer tabby). 
 
-## comapring two paths and seeing where they intersect
+## comparing two paths and seeing where they intersect
 Not all intersections will behave the same in "real" cloth. A few different draft profiles can create a wide variety of crossing patterns and no single route made this easy. Could be computationally expensive. 
 
 

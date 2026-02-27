@@ -1,4 +1,4 @@
-import { getNodeType, getFloats, getWeftLayer, getDraftTopology } from '../../src/simulation/simulation';
+import { getNodeType, getFloats, getWeftLayer, getDraftTopology, printCNs } from '../../src/simulation/simulation';
 import { parseStringToDrawdown, filterToUniqueValues, printDrawdown } from '../../src/utils/utils';
 import { initDraftFromDrawdown, initDraftWithParams } from '../../src/draft';
 import { createMaterial } from '../../src/material';
@@ -573,6 +573,7 @@ test('isolate layers, three layer tabby', async () => {
     const floats = getFloats(8, 8, cns);
     cns = isolateLayers(8, 8, floats, 1, cns, sim);
 
+    printCNs(cns, 8, 8);
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
