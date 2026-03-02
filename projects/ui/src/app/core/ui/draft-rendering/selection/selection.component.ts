@@ -744,6 +744,7 @@ export class SelectionComponent implements OnInit {
     this.hide_actions = true;
     const draft = this.tree.getDraft(this.id);
     this.cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
+    this.cell_size = this.cell_size / this.render.pixel_ratio;
 
     //clear existing params
     this.unsetParameters();
@@ -931,6 +932,8 @@ export class SelectionComponent implements OnInit {
   }
 
   recalculateSize() {
+
+    console.log('cell size', this.cell_size);
 
     this.width = Math.abs(this.end.j - this.start.j) + 1; //make this inclusive
     this.height = Math.abs(this.end.i - this.start.i) + 1;
