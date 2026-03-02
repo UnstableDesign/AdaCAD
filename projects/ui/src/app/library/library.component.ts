@@ -26,13 +26,12 @@ import { LoadfileComponent } from '../core/ui/loadfile/loadfile.component';
 import { MaterialComponent } from '../core/ui/material/material';
 import { ShareComponent } from '../core/ui/share/share.component';
 import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component';
-import { LoomsettingsComponent } from '../core/ui/loomsettings/loomsettings.component';
 
 @Component({
   selector: 'app-library',
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
-  imports: [MatButton, MatMenuModule, MatIconButton, MaterialComponent, LoomsettingsComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
+  imports: [MatButton, MatMenuModule, MatIconButton, MaterialComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {

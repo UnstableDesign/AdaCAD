@@ -933,7 +933,6 @@ export class SelectionComponent implements OnInit {
 
   recalculateSize() {
 
-    console.log('cell size', this.cell_size);
 
     this.width = Math.abs(this.end.j - this.start.j) + 1; //make this inclusive
     this.height = Math.abs(this.end.i - this.start.i) + 1;

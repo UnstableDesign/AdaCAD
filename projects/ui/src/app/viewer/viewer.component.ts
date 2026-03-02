@@ -74,6 +74,7 @@ export class ViewerComponent {
   draftValueChangeSubscription: Subscription;
   redrawCompleteSubscription: Subscription;
 
+  flag_recenter: boolean = false;
   simControlsVisible: boolean = false;
   //Sim Controls
   // weftsAsWrittenForm: FormControl;
@@ -239,13 +240,16 @@ export class ViewerComponent {
   private loadDraft(id: number) {
 
     const draftNode = this.tree.getNode(id) as DraftNode;
+
     if (draftNode.type !== 'draft') return;
 
+    this.flag_recenter = true;
     if (this.view_rendering !== undefined) {
       this.view_rendering.clearAll();
       this.view_rendering.onNewDraftLoaded(id); //this is going to subscribe and redraw the front view
       this.redrawCompleteSubscription = this.view_rendering.redrawComplete.subscribe(draft => {
-        this.centerScrollbars();
+        if (this.flag_recenter) this.centerScrollbars();
+        this.flag_recenter = false;
       });
     }
 

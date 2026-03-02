@@ -310,7 +310,6 @@ export class DraftRenderingComponent implements OnInit {
 
 
     this.draftValueChangeSubscription = node.onValueChange.subscribe(draftNodeBroadcast => {
-      console.log("DRAFT VALUE CHANGE SUBSCRIPTION CALLED", draftNodeBroadcast, this.use_sizes);
       const draft = draftNodeBroadcast.draft;
       const loom = draftNodeBroadcast.loom;
       const loom_settings = (draftNodeBroadcast.loom_settings != null) ? draftNodeBroadcast.loom_settings : defaults.loom_settings;

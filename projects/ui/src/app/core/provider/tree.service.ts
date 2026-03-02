@@ -46,7 +46,6 @@ export class TreeService {
   async replaceOutdatedOps(nodes: Array<any>): Promise<Array<any>> {
 
     const correctedNodes = nodes.map(node => {
-      console.log('[replaceOutdatedOps] Replacing outdated op:', node.name, this.ops.getOp(node.name));
       if (this.ops.getOp(node.name) === null) {
         const op = this.ops.getOpByOldName(node.name);
         node.name = op.name
@@ -99,7 +98,6 @@ export class TreeService {
       const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
 
 
-      console.log("BROADCASTING DRAFT NODE VALUE CHANGE", id, draft, (<DraftNode>node).loom, (<DraftNode>node).loom_settings, flags);
       (<DraftNode>node).onValueChange.next({ id: id, draft: draft, loom: (<DraftNode>node).loom, loom_settings: (<DraftNode>node).loom_settings, flags: flags });
     }
   }
@@ -272,13 +270,7 @@ export class TreeService {
    */
   loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
 
-    console.log("[loadDraftData] LOADING DRAFT DATA", entry, draft, loom, loom_settings, render_colors, scale, draft_visible);
-    console.log("[loadDraftData] Loom being loaded:", loom ? {
-      threading: loom.threading,
-      treadling: loom.treadling,
-      tieup: loom.tieup
-    } : null);
-    console.log("[loadDraftData] Loom settings being loaded:", loom_settings);
+
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
     if (nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id " + entry.cur_id);
 
@@ -299,7 +291,6 @@ export class TreeService {
     };
 
     if (loom_settings === null || loom_settings == undefined) {
-      console.log("[loadDraftData] Loom settings are null/undefined, using workspace defaults");
       this.setLoomSettings(entry.cur_id, {
         type: this.ws.type,
         epi: this.ws.epi,
@@ -310,17 +301,14 @@ export class TreeService {
       }, false);
 
     } else {
-      console.log("[loadDraftData] Setting loom settings from loaded data:", loom_settings);
       draftNode.loom_settings = loom_settings;
       draftNode.loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
     }
 
 
     if (loom === null || loom == undefined || loom_settings.type === "jacquard") {
-      console.log("[loadDraftData] Loom is null/undefined, setting null loom");
       this.setLoom(entry.cur_id, null, false);
     } else {
-      console.log("[loadDraftData] Setting loom from loaded data");
       this.setLoom(entry.cur_id, copyLoom(loom), false);
     }
 
@@ -1314,7 +1302,6 @@ export class TreeService {
             loom_settings: false,
             materials: true
           };
-          console.log("SETTING DRAFT a", cxn_child[0], outputs[i].draft, flags);
           this.setDraft(cxn_child[0], outputs[i].draft, flags, true, false);
           touched.push(cxn_child[0]);
 
@@ -1349,7 +1336,6 @@ export class TreeService {
     return Promise.all(new_draft_fns)
       .then(drafts_loaded => {
 
-        console.log("DRAFTS LOADED", drafts_loaded);
         const ids = drafts_loaded.map(el => el.entry.cur_id);
         ids.forEach((id, ndx) => {
           let d = this.getDraft(id);
@@ -1387,7 +1373,6 @@ export class TreeService {
       op.dirty = true;
       opList.push(op.id);
     })
-    console.log("RECOMPUTE DRAFT CHILDREN CALLED ON ", id)
     return this.performAndUpdateDownstream(opList);
   }
 
@@ -1475,7 +1460,6 @@ export class TreeService {
 
     } else {
       const toplevel_ops = this.getTopLevelOps().map(op_id => {
-        console.log("TOP LEVEL OP IS", op_id);
         return { op_id: op_id, start_time: performance.now(), generation: 0 };
       });
       lineage.push(...toplevel_ops);
@@ -1492,7 +1476,6 @@ export class TreeService {
 
 
 
-    console.log("LINEAGE IS", lineage);
 
     //sort by generation. 
     lineage.sort((a, b) => a.generation - b.generation);
@@ -1557,7 +1540,6 @@ export class TreeService {
    * @param op_id the operation triggering this series of update
    */
   async performOp(id: number): Promise<Array<number>> {
-    console.log("PERFORMING OP", id);
     const opnode = <OpNode>this.getNode(id);
 
 
@@ -1602,7 +1584,6 @@ export class TreeService {
 
 
     try {
-      console.log("PERFORMING OP", opnode.name, "WITH PARAM VALUES", param_vals, "AND CLEANED INPUTS", cleaned_inputs);
 
       const res = await op.perform(param_vals, cleaned_inputs);
       opnode.recomputing.next(false);
@@ -1656,16 +1637,10 @@ export class TreeService {
   }
 
   setLoom(id: number, loom: Loom, broadcast: boolean = true) {
-    console.log('[setLoom] Setting loom on draft node, id:', id, 'broadcast:', broadcast);
-    console.log('[setLoom] Loom data:', loom ? {
-      threading: loom.threading,
-      treadling: loom.treadling,
-      tieup: loom.tieup,
-    } : null);
+
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) {
       dn.loom = (loom === null) ? null : copyLoom(loom);
-      console.log('[setLoom] Loom set on draft node:', dn.id, 'loom is null:', dn.loom === null);
     } else {
       console.error('[setLoom] Draft node not found for id:', id);
     }
@@ -1677,7 +1652,6 @@ export class TreeService {
       materials: false
     };
     if (broadcast) {
-      console.log('[setLoom] Broadcasting loom change for node:', dn.id);
       this.broadcastDraftNodeValueChange(dn.id, flags);
     }
   }

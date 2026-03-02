@@ -299,8 +299,6 @@ export class RenderService {
 
   private drawWarpData(draft: Draft, cell_size: number, warp_sys_canvas: HTMLCanvasElement, warp_mats_canvas: HTMLCanvasElement): Promise<string> {
 
-    console.log('cell_size in warp data', cell_size);
-    console.log('pixel_ratio', this.pixel_ratio);
     if (warp_mats_canvas == null || warp_sys_canvas == null) {
       return Promise.resolve('warp materials or systems canvas was null')
     }
@@ -812,12 +810,6 @@ export class RenderService {
     const warp_unit = cell_size;
 
     const pixels_per_mm = warp_unit / warp_spacing_mm;
-    console.log('warp_unit', warp_unit);
-    console.log('warp_spacing_mm', warp_spacing_mm);
-    console.log('pixels_per_mm', pixels_per_mm);
-
-
-
 
     let margin = 1;
     if (warp_unit <= 4) {
@@ -1050,10 +1042,8 @@ export class RenderService {
 
     let warp_spacing_mm = convertEPItoMM(loom_settings);
     const pixels_per_mm = cell_size / warp_spacing_mm;
-    console.log('pixels_per_mm', pixels_per_mm);
     const height = this.getHeight(draft, loom_settings, cell_size, rf);
 
-    console.log('width', width, 'height', height, 'pixel_ratio', pixel_ratio);
 
     canvas.width = width;
     canvas.height = height;
