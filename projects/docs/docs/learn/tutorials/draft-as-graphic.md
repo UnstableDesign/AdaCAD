@@ -7,6 +7,11 @@ Sometimes we end up creating a draft whose pattern we really love and want to "s
 </div>
 
 
+:::tip
+Play with the ideas in this tutorial using our example AdaCAD workspace:
+[https://adacad.org/?share=14197547](https://adacad-5.web.app/?share=14197547)
+:::
+
 ## Operations Explored
 <OpLink name = "bitfield" /> <OpLink name = "selector" /><OpLink name = "interlace" /><OpLink name = "stretch" /><OpLink name = "crop" /><OpLink name = "fill" />
 
@@ -42,6 +47,9 @@ You can make weaves, and their graphics, chunkier and more visible using the <Op
 
 Because I'm working on 24 shafts, I have to first pick a section of the draft to stretch and repeat. To do this, I use the <OpLink name="crop" /> operation to find a 12x12 the region of the design that I like best. I then stretch it by 2 along the ends and picks and then export that design to my loom. 
 
+![file](img/bitfield_stretch_1.jpeg)
+![file](img/bitfield_stretch_2.jpeg)
+
 ## Strategy 2: Interlace Wefts
 
 ```mermaid
@@ -53,6 +61,10 @@ flowchart LR;
 ```
 
 For patterns that have large regions of black or white draft cells (e.g. long floats) your modification might need to add structure to the design. I do this using <OpLink name="interlace" /> and interlacing my design with tabby. The tabby rows will give the cloth structure while the floats will create a visible graphic on the cloth. To maintain that the graphic is visible, I usually use a thicker contrasting yarn for the floating graphic picks and a thinner yarn that is similar to the warp for the tabby picks. 
+
+![file](img/bitfield_interlace_1.jpeg)
+![file](img/bitfield_interlace_2.jpeg)
+
 
 ## Strategy 3: Fill 
 
@@ -66,9 +78,10 @@ flowchart LR;
 
 ```
 
-One of the most straightforward ways to create a graphic on a cloth is to use contrasting or "shaded" structures with contrasting warps and wefts in different regions of the design. Say, a warp-faced <OpLink name="satin" />, <OpLink name="shaded_satin" /> or <OpLink name="twill" /> in the black regions and the inverse, weft-facing structure in the white. This works best if you have large regions of black and white and enough frames or jacquard heddles to weave the varying regions. In more limited settings, such as our 24-shaft AVL, we have to think about designs that create strong visual contrast even with relatively small regions. Here, we experimented with a huck-lace like structure. We selected part of the bitfield design, stretched it a little bit and then "filled" the black regions of the stretched design with <OpLink name="tabby" /> while leaving the white floats as is.
+One of the most straightforward ways to create a graphic on a cloth is to use contrasting or "shaded" structures with contrasting warps and wefts in different regions of the design. Say, a warp-faced <OpLink name="satin" />, <OpLink name="shaded_satin" /> or <OpLink name="twill" /> in the black regions and the inverse, weft-facing structure in the white. This works best if you have large regions of black and white and enough frames or jacquard heddles to weave the varying regions. In more limited settings, such as our 24-shaft AVL, we have to think about designs that create strong visual contrast even with relatively small regions. Here, we experimented with a huck-lace like structure. We selected part of the bitfield design, stretched it a little bit and then "filled" the black regions of the stretched design with <OpLink name="tabby" /> while leaving the white floats as is. To maintain some kind of structural integrity, we spliced in a tabby row every 4 picks using <OpLink name="splice_in_wefts" />
 
-
+![file](img/bitfield_huck_1.jpeg)
+![file](img/bitfield_huck_2.jpeg)
 
 
 ##  Play
@@ -85,15 +98,42 @@ flowchart TD;
 
 ```
 
-We created a workspace that includes all three of these approaches so that you can compare, contrast and play. In the dataflow for each strategy, you'll see that we used <OpLink name="apply_materials" /> to experiment with different colors. Then, we connect all the outcomes into a <OpLink name="selector" /> operation that can let you easily toggle  
+
+We created a workspace [link here!](https://adacad.org/?share=14197547) that includes all three of these approaches so that you can compare, contrast and play. 
+
+In the dataflow for each strategy, you'll see that we used <OpLink name="apply_materials" /> to experiment with different colors. 
+
+And while our workspace starts with a graphic created by the <OpLink name="bitfield" /> operation, you could also experiment with any structures or drafts that you create. For example, you can try weaving the outputs of <OpLink name="random" />, <OpLink name="glitchsatin" />, <OpLink name='sierpinski_square' />, or just by creating a blank draft and free-hand drawing a graphic. 
 
 
-You can switch between the strategy used by changing the number on the <OpLink name="selector" /> operation. 
+## Weave
+To create our samples, we needed to produce a .WIF file to import to our AVL workshop dobby loom. We do this using the <OpLink name="directdrawdown" /> operation. This operation takes a threading and lift plan and generates the associated drawdown. When you export it as a .wif, it will be correctly formatted with the threading and lift-plan specified. 
+
+![file](img/bitfield_loomop.png)
+
+
+For the threading, I make a straight draw for a 24-shaft loom by tiling a 1/23 <OpLink name="twill" />. I pop that tiled twill into the "threading" inlet on  <OpLink name="directdrawdown" />. Since the result of each strategy was a lift plan, I take all the possible lift plans and connect them into a <OpLink name="selector" /> operation that lets me easily toggle between the drafts connected. Think of this like a gate that just lets the selected draft through. I connect the outlet of the <OpLink name="selector" /> operation to the "lift plan" inlet on <OpLink name="directdrawdown" /> to format my draft. 
+
+I open the draft created by <OpLink name="directdrawdown" /> in the editor. 
+
+![file](img/bitfield_oie.png)
+
+
+ and then hit the download button in the lower right corner of the interface and select "Export Draft as .WIF". From there, I load it up on my AVL loom and weave!
+
+
+![file](img/bitfield_export.png)
+
+
+
+Happy weaving, from my living room loom to yours....
+
+![file](img/bitfield_weave.jpg)
+
+:::tip
+For more specific instructions about exporting and weaving on Dobby Looms, you can read our tutorial: [Weaving on Dobby Looms](./weave_avl.md)
+:::
 
 
 
 
-Now that you have a few options and 
-
-
-Start by finding an operation where you like the look of the draft is creates. Some of our favorites include <OpLink name="bitfield" />, <OpLink name="random" />, <OpLink name="glitchsatin" />, <OpLink name='sierpinski_square' />, or just by creating a blank draft and free-hand drawing a graphic. 

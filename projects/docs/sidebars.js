@@ -83,6 +83,7 @@ const sidebars = {
         'learn/tutorials/figured_weaving_tc2',
         'learn/tutorials/block_threading',
         'learn/tutorials/multi-layer',
+        'learn/tutorials/draft-as-graphic',
         'learn/tutorials/weave_tc2',
         'learn/tutorials/weave_avl'
       ],
