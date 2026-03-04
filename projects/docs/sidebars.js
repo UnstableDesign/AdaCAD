@@ -76,7 +76,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Tutorials',
-      collapsed: true,
+      collapsed: false,
       collapsible: true,
       link: { type: 'doc', id: 'learn/tutorials/index' },
       items: [
