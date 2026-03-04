@@ -1,10 +1,9 @@
 import { initDraftFromDrawdown } from "../../draft";
-import { OpParamVal, OpInput, Operation, OperationInlet, CanvasParam, OpMeta, OpOutput } from "../types";
-import { getInputDraft, getOpParamValById } from "../../operations";
+import { NumParam, OpParamVal, OpInput, Operation, OperationInlet, CanvasParam, OpMeta, OpOutput } from "../types";
+import { getOpParamValById } from "../../operations";
 import { Sequence } from "../../sequence";
 import { clothOp } from "../categories";
 import { createP5Sketch } from './p5_canvas_sketch';
-import { computeStrokeWeights, computeDotSizes } from './defaults';
 
 const name = "cross_section_view";
 
@@ -23,43 +22,45 @@ const canvasParam: CanvasParam = {
     dx: 'Interactive canvas for drawing cross-section paths.'
 };
 
-const seed_draft_inlet: OperationInlet = {
-    name: 'seed draft',
-    type: 'static',
-    value: null,
-    uses: 'draft',
-    dx: 'optional seed draft providing warp/weft system counts and colors',
-    num_drafts: 1
+const warp_systems_param: NumParam = {
+    name: 'Warp Systems',
+    type: 'number',
+    min: 1,
+    max: 10,
+    value: 2,
+    dx: "Number of distinct warp systems or layers for interaction."
 };
 
-const params = [canvasParam];
-const paramIds = { canvasState: 0 };
+const weft_systems_param: NumParam = {
+    name: 'Weft Systems',
+    type: 'number',
+    min: 1,
+    max: 10,
+    value: 5,
+    dx: "Number of weft systems/colors available for drawing paths."
+};
 
-const inlets: OperationInlet[] = [seed_draft_inlet];
+const num_warps_param: NumParam = {
+    name: 'Number of Warps',
+    type: 'number',
+    min: 1,
+    max: 24,
+    value: 8,
+    dx: "Number of warps (width) in the cross section draft"
+};
 
-// Derive effective warp/weft system counts and warp count from seed draft or canvas state
-function deriveEffectiveConfig(canvasState: any, seedDraft: any) {
-    const numWarps = canvasState?.manualNumWarps || 8;
-    let warpSystems: number;
-    let weftSystems: number;
+const params = [canvasParam, warp_systems_param, weft_systems_param, num_warps_param];
+const paramIds = { canvasState: 0, warpSystems: 1, weftSystems: 2, numWarps: 3 };
 
-    if (seedDraft) {
-        warpSystems = new Set(seedDraft.colSystemMapping).size || 1;
-        weftSystems = new Set(seedDraft.rowSystemMapping).size || 1;
-    } else {
-        warpSystems = canvasState?.manualWarpSystems || 2;
-        weftSystems = canvasState?.manualWeftSystems || 5;
-    }
-    return { numWarps, warpSystems, weftSystems };
-}
+const inlets: OperationInlet[] = [];
 
 const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promise<Array<OpOutput>> => {
     // perform() converts the p5 draft to an AdaCAD Draft object
+    // No draft generation logic, only this type conversion
 
     const canvasStateOpParam = getOpParamValById(paramIds.canvasState, op_params) as any;
-    const seedDraft = getInputDraft(op_inputs);
-
-    const { numWarps: numWarpsVal, warpSystems: warpSystemsVal } = deriveEffectiveConfig(canvasStateOpParam, seedDraft);
+    const warpSystemsOpParam = getOpParamValById(paramIds.warpSystems, op_params) as number;
+    const numWarpsOpParam = getOpParamValById(paramIds.numWarps, op_params) as number;
 
     // Validate Input Params
     let genericDraftData;
@@ -73,29 +74,25 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
         !Array.isArray(canvasStateOpParam.generatedDraft.colSystemMapping)
     ) {
         // Return a default blank draft (handles first run before createSketch populates)
-        const numWarpsForBlank = numWarpsVal > 0 ? numWarpsVal : 1;
+        const numWarpsForBlank = numWarpsOpParam > 0 ? numWarpsOpParam : 1;
         const emptyPattern = new Sequence.TwoD();
         emptyPattern.pushWeftSequence(new Sequence.OneD(Array(numWarpsForBlank).fill(0)).val());
         let d = initDraftFromDrawdown(emptyPattern.export());
 
         d.colSystemMapping = [];
-        const warpSysForBlank = warpSystemsVal > 0 ? warpSystemsVal : 1;
+        const warpSysForBlank = warpSystemsOpParam > 0 ? warpSystemsOpParam : 1;
         for (let i = 0; i < numWarpsForBlank; i++) {
             d.colSystemMapping.push(i % warpSysForBlank);
         }
         d.rowSystemMapping = [0];
-        d.colShuttleMapping = seedDraft
-            ? Array(numWarpsForBlank).fill(0).map((_, i) =>
-                seedDraft.colShuttleMapping[i % seedDraft.colShuttleMapping.length] || 0)
-            : Array(numWarpsForBlank).fill(0);
+        d.colShuttleMapping = Array(numWarpsForBlank).fill(0);
         d.rowShuttleMapping = [0];
-
         return Promise.resolve([{draft: d}]);
     }
 
     genericDraftData = canvasStateOpParam.generatedDraft;
 
-    // Create Draft object using genericDraftData
+    // Step 2: Create Draft object using genericDraftData
     const pattern = new Sequence.TwoD();
     const rowSystemMappingArray: Array<number> = [];
     const rowShuttleMappingArray: Array<number> = [];
@@ -114,7 +111,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
         });
     } else {
         // Create a single blank row when genericDraftData.rows is empty
-        const numWarpsForEmptyRow = numWarpsVal > 0 ? numWarpsVal : 1;
+        const numWarpsForEmptyRow = numWarpsOpParam > 0 ? numWarpsOpParam : 1;
         pattern.pushWeftSequence(new Sequence.OneD(Array(numWarpsForEmptyRow).fill(0)).val());
         rowSystemMappingArray.push(0); // Default weftId for the blank row
     }
@@ -124,113 +121,77 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
     // Populate System Mappings from genericDraftData
     d.colSystemMapping = genericDraftData.colSystemMapping;
-    if (d.colSystemMapping.length === 0 && numWarpsVal > 0) {
-        const warpSysForBlankFallback = warpSystemsVal > 0 ? warpSystemsVal : 1;
-        for (let i = 0; i < numWarpsVal; i++) {
+    if (d.colSystemMapping.length === 0 && numWarpsOpParam > 0) {
+        const warpSysForBlankFallback = warpSystemsOpParam > 0 ? warpSystemsOpParam : 1;
+        for (let i = 0; i < numWarpsOpParam; i++) {
             d.colSystemMapping.push(i % warpSysForBlankFallback);
         }
     }
-    if (d.colSystemMapping.length === 0 && numWarpsVal <= 0) {
+    if (d.colSystemMapping.length === 0 && numWarpsOpParam <= 0) {
         d.colSystemMapping = [0]; // Default for 0 warps
     }
 
     d.rowSystemMapping = rowSystemMappingArray.length > 0 ? rowSystemMappingArray : [0];
 
     // Populate Shuttle Mappings
-    const numColsInDraft = d.drawdown[0] ? d.drawdown[0].length : (numWarpsVal > 0 ? numWarpsVal : 1);
-    if (seedDraft) {
-        d.colShuttleMapping = Array(numColsInDraft).fill(0).map((_, i) => {
-            return seedDraft.colShuttleMapping[i % seedDraft.colShuttleMapping.length] || 0;
-        });
-    } else {
-        d.colShuttleMapping = Array(numColsInDraft).fill(0);
-    }
+    const numColsInDraft = d.drawdown[0] ? d.drawdown[0].length : (numWarpsOpParam > 0 ? numWarpsOpParam : 1);
+    d.colShuttleMapping = Array(numColsInDraft).fill(0);
     d.rowShuttleMapping = rowShuttleMappingArray.length > 0 ? rowShuttleMappingArray : [0];
 
     return Promise.resolve([{draft: d}]);
 };
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>): string => {
+    const num_warps_val = getOpParamValById(paramIds.numWarps, param_vals) as number;
     const canvasState = getOpParamValById(paramIds.canvasState, param_vals) as any;
-    const numWarpsVal = canvasState?.manualNumWarps || 8;
 
     let numRows = 1;
     if (canvasState?.generatedDraft?.rows?.length > 0) {
         numRows = canvasState.generatedDraft.rows.length;
     }
 
-    return 'cross section ' + numWarpsVal + 'x' + numRows;
+    return 'cross section ' + num_warps_val + 'x' + numRows;
 };
 
 const sizeCheck = (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
     return true;
 };
 
-const createSketch = (op_params: Array<OpParamVal>, updateCallback: Function, context?: {isParameterChange: boolean, weftColors?: string[], weftMaterialIds?: number[], warpColors?: string[], weftDiameters?: number[], warpDiameters?: number[]}, op_inputs?: Array<OpInput>) => {
+const createSketch = (op_params: Array<OpParamVal>, updateCallback: Function, context?: {isParameterChange: boolean}) => {
     const canvasStateOpParam = getOpParamValById(paramIds.canvasState, op_params) as any;
-    const seedDraft = op_inputs ? getInputDraft(op_inputs) : null;
-    const hasSeedDraft = seedDraft !== null;
-
-    const { numWarps: effectiveNumWarps, warpSystems: effectiveWarpSystems, weftSystems: effectiveWeftSystems } = deriveEffectiveConfig(canvasStateOpParam, seedDraft);
-
-    // Colors and diameters resolved at the UI boundary (parameter.component.ts -> MaterialsService)
-    const weftColors = context?.weftColors ?? [];
-    const weftMaterialIds = context?.weftMaterialIds ?? [];
-    const warpColors = context?.warpColors ?? [];
-    const weftDiameters = context?.weftDiameters ?? [];
-    const warpDiameters = context?.warpDiameters ?? [];
-
-    // Compute visual sizes from raw diameters
-    const weftStrokeWeights = computeStrokeWeights(weftDiameters);
-    const warpDotSizes = computeDotSizes(warpDiameters);
-
+    const warpSystemsOpParam = getOpParamValById(paramIds.warpSystems, op_params) as number;
+    const weftSystemsOpParam = getOpParamValById(paramIds.weftSystems, op_params) as number;
+    const numWarpsOpParam = getOpParamValById(paramIds.numWarps, op_params) as number;
+    
     const isParameterChange = context?.isParameterChange || false;
     const isNewOperation = !canvasStateOpParam || canvasStateOpParam === "" || (typeof canvasStateOpParam === 'object' && Object.keys(canvasStateOpParam).length === 0);
 
     function loadCanvasState(DEFAULT_CANVAS_STATE: object) {
         let canvasState: any;
         let needsReset: boolean;
-
+        
         if (isParameterChange || isNewOperation) {
+            // Reset to default
             canvasState = JSON.parse(JSON.stringify(DEFAULT_CANVAS_STATE));
             needsReset = true;
         } else {
-            // Compare what the design was built for vs current effective values.
-            // Catches: seed draft system changes, connect, disconnect, manual stepper.
-            const builtWarp = canvasStateOpParam?.builtForWarpSystems;
-            const builtWeft = canvasStateOpParam?.builtForWeftSystems;
-            const structureChanged =
-                (builtWarp !== undefined && builtWarp !== effectiveWarpSystems) ||
-                (builtWeft !== undefined && builtWeft !== effectiveWeftSystems);
-
-            if (structureChanged) {
-                canvasState = JSON.parse(JSON.stringify(DEFAULT_CANVAS_STATE));
-                needsReset = true;
-            } else {
-                canvasState = canvasStateOpParam;
-                needsReset = false;
-            }
+            // Restore from saved state
+            canvasState = canvasStateOpParam;
+            needsReset = false;
         }
         return { canvasState, needsReset };
     }
 
-    const config = {
-        warpSystems: effectiveWarpSystems,
-        weftSystems: effectiveWeftSystems,
-        numWarps: effectiveNumWarps,
-        hasSeedDraft,
-        weftColors,
-        weftMaterialIds,
-        warpColors,
-        weftStrokeWeights,
-        warpDotSizes,
-        seedColSystemMapping: seedDraft?.colSystemMapping,
-        canvasState: canvasStateOpParam,
-        updateCallback,
-        loadCanvasState
-    };
-    const sketch = createP5Sketch(config);
-    return sketch;
+  const config = {
+    warpSystems: warpSystemsOpParam,
+    weftSystems: weftSystemsOpParam,
+    numWarps: numWarpsOpParam,
+    canvasState: canvasStateOpParam,
+    updateCallback,
+    loadCanvasState
+  };
+  const sketch = createP5Sketch(config);
+  return sketch;
 };
 
 export const cross_section_view: Operation = {

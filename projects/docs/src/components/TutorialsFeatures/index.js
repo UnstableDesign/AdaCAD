@@ -4,6 +4,17 @@ import clsx from 'clsx';
 import { OpLink } from '@site/src/components/OpLink';
 const FeatureList = [
     {
+        title: 'Using Drafts as Graphics',
+        img: require('@site/docs/learn/tutorials/img/bitfield_stretch_1.jpeg').default,
+        url: 'draft-as-graphic',
+        description: (
+            <>
+                Strategies for using interesting looking drafts as graphics in cloth.
+            </>
+        ),
+        operations: ['bitfield', 'stretch', 'interlace', 'fill']
+    },
+    {
         title: 'Blend Colors with Layers',
         url: 'multi-layer',
         img: require('@site/docs/learn/tutorials/img/colorblending_tutorial.jpeg').default,
@@ -36,17 +47,6 @@ const FeatureList = [
             </>
         ),
         operations: ['warp_profile', 'rotate', 'drawdown']
-    },
-    {
-        title: 'Using Drafts as Graphics',
-        img: require('@site/docs/learn/tutorials/img/bitfield_stretch_1.jpeg').default,
-        url: 'draft-as-graphic',
-        description: (
-            <>
-                Strategies for using interesting looking drafts as graphics in cloth.
-            </>
-        ),
-        operations: ['bitfield', 'stretch', 'interlace', 'fill']
     },
     {
         title: 'Generate Drafts to Weave on a TC2',

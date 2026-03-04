@@ -136,8 +136,8 @@
 
       <div class="upload-form-box">
         <upload-form [class.hide]="has_uploaded_image && !replace_img" source="share" type="init" multiple="false"
-          accepts=".jpg,.png,.bmp" type="single_image" (onData)="handleFile($event)" (onError)="handleError($event)"
-          class="upload-form-box">
+          accepts=".jpg,.png,.bmp,.jpeg" type="single_image" (onData)="handleFile($event)"
+          (onError)="handleError($event)" class="upload-form-box">
         </upload-form>
       </div>
       <button class="replace" [class.hide]="!has_uploaded_image || replace_img" mat-raised-button

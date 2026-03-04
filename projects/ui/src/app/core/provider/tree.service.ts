@@ -1506,7 +1506,7 @@ export class TreeService {
    * @param op_id 
    * @returns 
    */
-  async performAndUpdateDownstream(op_ids: Array<number>, excludeFromCanvasReset: number[] = []): Promise<any> {
+  async performAndUpdateDownstream(op_ids: Array<number>): Promise<any> {
     const schedule = await this.createSchedule(op_ids);
     for (const op_id of schedule) {
       try {
@@ -1517,15 +1517,6 @@ export class TreeService {
       }
     }
 
-    // Trigger canvas resets on p5-canvas ops so they pick up new inlet data
-    for (const id of schedule) {
-      if (excludeFromCanvasReset.includes(id)) continue;
-      if (this.getType(id) !== 'op') continue;
-      const comp = this.getComponent(id) as OperationComponent;
-      if (comp?.triggerCanvasResetIfNeeded) {
-        comp.triggerCanvasResetIfNeeded('upstream', false);
-      }
-    }
   }
 
 
@@ -1541,30 +1532,6 @@ export class TreeService {
     return true;
   }
 
-  /**
-   * Assembles OpInput[] from an operation's connected inputs.
-   * Validates each input via isValidIOTuple (non-null draft with non-zero warps/wefts).
-   * Used by performOp() and by parameter.component.ts for p5-canvas operations.
-   */
-  assembleOpInputs(opId: number): Array<OpInput> {
-    const all_inputs = this.getInputsWithNdx(opId);
-    const opnode = this.getOpNode(opId);
-
-    const draft_id_to_ndx = [];
-    all_inputs.filter(el => this.isValidIOTuple(el))
-      .forEach((el) => {
-        const draft_tn = el.tn.inputs[0].tn;
-        draft_id_to_ndx.push({ ndx: el.ndx, draft: (<DraftNode>draft_tn.node).draft });
-      });
-
-    return draft_id_to_ndx
-      .map(el => ({
-        drafts: [el.draft],
-        inlet_id: el.ndx,
-        inlet_params: [opnode.inlets[el.ndx]]
-      }))
-      .filter(el => el !== undefined);
-  }
 
 
   /**
@@ -1577,9 +1544,12 @@ export class TreeService {
 
 
     const op = this.ops.getOp(opnode.name);
+    const all_inputs = this.getInputsWithNdx(id);
     this.errorBroadcaster.clearError(id); //clear before we compute again.
 
     if (op === null || op === undefined) return Promise.reject("Operation is null")
+
+    let inputs: Array<OpInput> = [];
 
     const param_vals = op.params.map((param, ndx) => {
       return {
@@ -1588,7 +1558,21 @@ export class TreeService {
       }
     })
 
-    const cleaned_inputs: Array<OpInput> = this.assembleOpInputs(id);
+
+    const draft_id_to_ndx = [];
+
+    all_inputs.filter(el => this.isValidIOTuple(el))
+      .forEach((el) => {
+
+        const draft_tn = el.tn.inputs[0].tn;
+        draft_id_to_ndx.push({ ndx: el.ndx, draft: (<DraftNode>draft_tn.node).draft })
+      });
+
+
+    const paraminputs = draft_id_to_ndx.map(el => {
+      return { drafts: [el.draft], inlet_id: el.ndx, inlet_params: [opnode.inlets[el.ndx]] }
+    })
+    const cleaned_inputs: Array<OpInput> = paraminputs.filter(el => el !== undefined);
 
     let passes_size_check = op.sizeCheck(param_vals, cleaned_inputs);
     if (!passes_size_check) {

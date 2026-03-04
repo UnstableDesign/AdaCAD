@@ -48,7 +48,6 @@ export class UploadFormComponent implements OnInit {
     await this.upSvc.pushUpload(upload).then(snapshot => {
       return this.upSvc.getDownloadData(upload.name)
     }).then(url => {
-      console.log("got download", url)
       this.httpClient.get(url).toPromise()
         .then(data => {
           var obj = {
