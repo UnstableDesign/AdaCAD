@@ -108,6 +108,7 @@ export class ShareComponent {
       .then(share_obj => {
         if (share_obj !== undefined) {
           this.share_obj = share_obj;
+          console.log(" FROM GET SHARE", this.share_obj)
 
           this.shared_id = this.fileid.toString();
           this.updateSettings(share_obj);
@@ -150,6 +151,7 @@ export class ShareComponent {
       public: share_obj.public || false,
     }, { emitEvent: false }); // Don't trigger valueChanges when setting initial values
 
+    console.log("UPDATE SETTINGS ", share_obj)
     if (share_obj.img !== 'none') {
       this.mediaService.loadImageViaURL(-1, share_obj.img).then(url => {
         this.has_uploaded_image = true;
