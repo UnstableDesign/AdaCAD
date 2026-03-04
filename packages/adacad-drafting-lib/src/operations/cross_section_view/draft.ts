@@ -1,12 +1,12 @@
 // Draft Class - Handles draft generation from canvas state
 interface DraftConfig {
     weftSystems: number;
-    ACCESSIBLE_COLORS: string[];
+    weftColors: string[];
 }
 
 export const createDraft = (config: DraftConfig) => {
     const weftSystems = config.weftSystems;
-    const ACCESSIBLE_COLORS = config.ACCESSIBLE_COLORS;
+    const weftColors = config.weftColors;
 
     const hasDirectInteractionInPick = (pickObject: any, targetWarpIdx: number): boolean => {
         if (!pickObject.interactions) return false;
@@ -78,7 +78,7 @@ export const createDraft = (config: DraftConfig) => {
         currentCanvasState.generatedDraft = {
             rows: [],
             colSystemMapping: [],
-            weftColors: ACCESSIBLE_COLORS.slice(0, weftSystems)
+            weftColors: weftColors.slice(0, weftSystems)
         };
 
         // Step 1: Create allInteractions List
@@ -89,8 +89,16 @@ export const createDraft = (config: DraftConfig) => {
             currentCanvasState.generatedDraft.colSystemMapping = [];
             const numWarpsForBlank = currentNumWarps > 0 ? currentNumWarps : 1;
             const warpSysForBlank = currentWarpSystems > 0 ? currentWarpSystems : 1;
-            for (let i = 0; i < numWarpsForBlank; i++) {
-                currentCanvasState.generatedDraft.colSystemMapping.push(i % warpSysForBlank);
+            // Read warpSys from warpAndEdgeData for warp system assignment
+            const blankWarpEntities = currentCanvasState.warpAndEdgeData
+                ? currentCanvasState.warpAndEdgeData.filter((e: any) => e.type === 'warp')
+                : [];
+            if (blankWarpEntities.length === numWarpsForBlank) {
+                currentCanvasState.generatedDraft.colSystemMapping = blankWarpEntities.map((wd: any) => wd.warpSys);
+            } else {
+                for (let i = 0; i < numWarpsForBlank; i++) {
+                    currentCanvasState.generatedDraft.colSystemMapping.push(i % warpSysForBlank);
+                }
             }
             currentCanvasState.generatedDraft.rows.push({
                 weftId: 0, // Default weftId
