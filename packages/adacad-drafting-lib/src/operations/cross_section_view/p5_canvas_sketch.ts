@@ -1,14 +1,22 @@
 // P5 Canvas Sketch for Cross-Section View Operation
 import { createDraft } from './draft';
 import { createBezierCurve } from './bezier_curve';
+import { DEFAULT_WARP_DOT_COLOR, DEFAULT_WARP_DOT_SIZE } from './defaults';
 
 const CANVAS_WIDTH = 1000;
-const CANVAS_HEIGHT = 400;
+const CANVAS_HEIGHT = 450;
 
 interface CrossSectionViewSketchConfig {
     warpSystems: number;
     weftSystems: number;
     numWarps: number;
+    hasSeedDraft: boolean;
+    weftColors: string[];
+    weftMaterialIds: number[];
+    warpColors: string[];
+    weftStrokeWeights: number[];
+    warpDotSizes: number[];
+    seedColSystemMapping?: number[];
     canvasState: any;
     updateCallback: Function;
     loadCanvasState: Function;
@@ -18,19 +26,26 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
     const warpSystems = config.warpSystems;
     const weftSystems = config.weftSystems;
     const numWarps = config.numWarps;
+    const hasSeedDraft = config.hasSeedDraft;
+    const weftColors = config.weftColors;
+    const weftMaterialIds = config.weftMaterialIds;
+    const warpColors = config.warpColors;
+    const weftStrokeWeights = config.weftStrokeWeights;
+    const warpDotSizes = config.warpDotSizes;
+    const seedColSystemMapping = config.seedColSystemMapping;
     const updateCallback = config.updateCallback;
     const loadCanvasState = config.loadCanvasState;
 
     return (p: any) => {
-        // Use whichever is smaller: numWarps or warpSystems. 
-        // If numWarps is < warpSystems, you cant access all the warp systems.
-        const activeWarpSystems = Math.min(numWarps, warpSystems);
+        let effectiveWarpSystems = warpSystems;
+        let effectiveWeftSystems = weftSystems;
+        let effectiveNumWarps = numWarps;
+
+        // Use whichever is smaller: numWarps or warpSystems
+        // If numWarps is < warpSystems, you cant access all the warp systems
+        let activeWarpSystems = Math.min(effectiveNumWarps, effectiveWarpSystems);
 
         // -- Constants
-        const ACCESSIBLE_COLORS = [
-            "#F4A7B9", "#A7C7E7", "#C6E2E9", "#FAD6A5", "#D5AAFF", "#B0E57C",
-            "#FFD700", "#FFB347", "#87CEFA", "#E6E6FA", "#FFE4E1", "#C1F0F6"
-        ];
         const SKETCH_CANVAS_WIDTH = CANVAS_WIDTH;
         const SKETCH_CANVAS_HEIGHT = CANVAS_HEIGHT;
         const SKETCH_TOP_MARGIN = 60;
@@ -39,10 +54,28 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         const SKETCH_BOTTOM_MARGIN = 20;
         const WEFT_ICON_SIZE = 36;
         const WEFT_ICON_FONT_SIZE = 24;
-        const WARP_DOT_SIZE = 22;
         const WEFT_DOT_SIZE = 16;
         const WEFT_SPACING = 24;
+        const TILE_DOT_OFFSET = WEFT_DOT_SIZE + 2;
+        const TILE_TOGGLE_DURATION = 150; // hover preview animation duration (ms)
+        const TILE_GHOST_OPACITY = 130;
         const RESET_BUTTON = { x: 30, y: 15, w: 60, h: 28 };
+
+        // Control limits
+        const MAX_WARP_SYSTEMS = 10;
+        const MAX_WEFT_SYSTEMS = 10;
+        const MAX_WARPS = 24;
+        const MIN_WARPS = 1;
+        const MIN_WARP_SYSTEMS = 1;
+        const MIN_WEFT_SYSTEMS = 1;
+
+        const BADGE_CENTER_Y = 45;
+        const BADGE_BASE_W = 24;
+        const BADGE_BASE_H = 20;
+        const BADGE_FONT_SIZE = 12;
+        const BADGE_MIN_W = 18;
+        const BADGE_MIN_H = 15;
+        const BADGE_MIN_FONT = 9;
 
         const DEFAULT_CANVAS_STATE = {
             weftDots: [],
@@ -55,6 +88,11 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             hoveredDotIndex: -1,
             showDeleteButton: false,
             deleteButtonBounds: null,
+            manualWarpSystems: warpSystems,
+            manualWeftSystems: weftSystems,
+            manualNumWarps: numWarps,
+            builtForWarpSystems: warpSystems,
+            builtForWeftSystems: weftSystems,
             generatedDraft: {
                 rows: [],
                 colSystemMapping: [],
@@ -65,6 +103,10 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         // Canvas State
         let { canvasState, needsReset } = loadCanvasState(DEFAULT_CANVAS_STATE);
 
+        // Tile-mode state
+        let tileHoverAnim: { dotIndex: number, startTime: number, fromTile: boolean } | null = null;
+        let provisionalFill: { dotIndex: number, weftId: number, subDot: 'top' | 'bottom' } | null = null;
+
         // Track wefts that have had dots deleted in the current session.
         // When adding new dots for an "edited" weft, the interaction is inserted
         // after the weft's existing interactions (preserving row position in the draft)
@@ -72,48 +114,338 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         // an unwanted extra row).
         const editedWeftIds = new Set<number>();
 
+        // Hover state for warp system badges
+        let hoveredBadgeWarp = -1;
+
         // Initialize helper classes
-        const draftGenerator = createDraft({ weftSystems, ACCESSIBLE_COLORS });
-        const bezierRenderer = createBezierCurve({ p, ACCESSIBLE_COLORS });
+        let draftGenerator = createDraft({ weftSystems: effectiveWeftSystems, weftColors });
+        let bezierRenderer = createBezierCurve({ p, weftColors, weftStrokeWeights });
 
-        function resetCanvas() {
-            editedWeftIds.clear();
-            canvasState = JSON.parse(JSON.stringify(DEFAULT_CANVAS_STATE));
 
-            // Initialize dotFills to the correct size with empty arrays for each dot
+        // ── Shared Helpers ──────────────────────────────────────────
+
+        // Generate draft and stamp material IDs
+        function generateDraft() {
+            draftGenerator.generate(canvasState, effectiveNumWarps, activeWarpSystems);
+            if (canvasState.generatedDraft) {
+                canvasState.generatedDraft.resolvedSketchMaterialIds = weftMaterialIds;
+            }
+        }
+
+        // Single source of truth for dot layout. Returns positions in order:
+        function computeWeftDotPositions(): Array<{x: number, y: number}> {
+            const numColumns = effectiveNumWarps + 2;
+            const firstColumnX = SKETCH_LEFT_MARGIN;
+            const lastColumnX = SKETCH_CANVAS_WIDTH - SKETCH_RIGHT_MARGIN;
+            const drawingWidth = lastColumnX - firstColumnX;
+            const spacingX = numColumns > 1 ? drawingWidth / (numColumns - 1) : 0;
+            const spacingY = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (activeWarpSystems + 1);
+
+            const dots: Array<{x: number, y: number}> = [];
+
+            // Left edge dots
+            for (let sys = 0; sys < activeWarpSystems; sys++) {
+                dots.push({ x: firstColumnX, y: SKETCH_TOP_MARGIN + spacingY * (sys + 1) });
+            }
+
+            // Warp dots (top then bottom for each warp)
+            for (let i = 0; i < effectiveNumWarps; i++) {
+                const x = firstColumnX + spacingX * (i + 1);
+                const warpEntityData = canvasState.warpAndEdgeData[i + 1];
+                const warpCenterY = SKETCH_TOP_MARGIN + spacingY * ((warpEntityData.warpSys % activeWarpSystems) + 1);
+                dots.push({ x, y: warpCenterY - WEFT_SPACING }); // top
+                dots.push({ x, y: warpCenterY + WEFT_SPACING }); // bottom
+            }
+
+            // Right edge dots
+            const rightX = numColumns > 1 ? lastColumnX : firstColumnX;
+            for (let sys = 0; sys < activeWarpSystems; sys++) {
+                dots.push({ x: rightX, y: SKETCH_TOP_MARGIN + spacingY * (sys + 1) });
+            }
+
+            return dots;
+        }
+
+        // Reverse mapping: entity position -> dot index (inverse of getDotInfo)
+        function getDotIdx(entityIdx: number, posType: string, warpSysId?: number): number {
+            if (entityIdx === 0) {
+                // Left edge
+                return warpSysId!;
+            } else if (entityIdx === effectiveNumWarps + 1) {
+                // Right edge
+                return activeWarpSystems + (effectiveNumWarps * 2) + warpSysId!;
+            } else {
+                // Warp
+                return activeWarpSystems + ((entityIdx - 1) * 2) + (posType === 'bottomWeft' ? 1 : 0);
+            }
+        }
+
+
+        // Check if a dot index corresponds to a tile-mode edge dot
+        function isEdgeDotInTileMode(dotIndex: number): boolean {
+            const info = getDotInfo(dotIndex);
+            if (info.posType !== 'edgeSys') return false;
+            const entity = canvasState.warpAndEdgeData[info.idx];
+            return entity && entity.tileMode && entity.tileMode[info.warpSysId!];
+        }
+
+        // Click detection for both loop-mode and tile-mode dots
+        function findHitDot(mx: number, my: number): { dotIndex: number, subDot?: 'top' | 'bottom' } | null {
+            for (let i = 0; i < canvasState.weftDots.length; i++) {
+                const dot = canvasState.weftDots[i];
+                if (isEdgeDotInTileMode(i)) {
+                    const topY = dot.y - TILE_DOT_OFFSET;
+                    const bottomY = dot.y + TILE_DOT_OFFSET;
+                    const distTop = p.dist(mx, my, dot.x, topY);
+                    const distBottom = p.dist(mx, my, dot.x, bottomY);
+                    if (distTop < WEFT_DOT_SIZE || distBottom < WEFT_DOT_SIZE) {
+                        const subDot: 'top' | 'bottom' = distTop <= distBottom ? 'top' : 'bottom';
+                        return { dotIndex: i, subDot };
+                    }
+                } else {
+                    if (p.dist(mx, my, dot.x, dot.y) < WEFT_DOT_SIZE) {
+                        return { dotIndex: i };
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        // ── Render Cache ────────────────────────────────────────────
+
+        // Derives all visual state from warpAndEdgeData (single source of truth)
+        // Called after every data mutation: dot click, delete, reset
+        function rebuildRenderCache(): void {
+            // 1. Compute dot positions
+            canvasState.weftDots = computeWeftDotPositions();
+
+            // 2. Initialize dotFills with empty arrays
+            const totalDots = (activeWarpSystems * 2) + (effectiveNumWarps * 2);
             canvasState.dotFills = [];
-            const currentTotalDots = (activeWarpSystems * 2) + (numWarps * 2);
-            for (let i = 0; i < currentTotalDots; i++) {
+            for (let i = 0; i < totalDots; i++) {
                 canvasState.dotFills.push([]);
             }
 
+            // 3. Walk warpAndEdgeData -> populate dotFills and collect interactions for path building
+            const allInteractions: Array<{weftId: number, sequence: number, dotIdx: number, subDot?: 'top' | 'bottom'}> = [];
+
+            for (let entityIdx = 0; entityIdx < canvasState.warpAndEdgeData.length; entityIdx++) {
+                const entity = canvasState.warpAndEdgeData[entityIdx];
+
+                if (entity.type === 'edge') {
+                    for (let sysLevel = 0; sysLevel < entity.edgeSys.length; sysLevel++) {
+                        const dotIdx = getDotIdx(entityIdx, 'edgeSys', sysLevel);
+                        for (const interaction of entity.edgeSys[sysLevel]) {
+                            canvasState.dotFills[dotIdx].push(interaction.weft);
+                            allInteractions.push({
+                                weftId: interaction.weft,
+                                sequence: interaction.sequence,
+                                dotIdx,
+                                subDot: interaction.subDot
+                            });
+                        }
+                    }
+                } else if (entity.type === 'warp') {
+                    const topDotIdx = getDotIdx(entityIdx, 'topWeft');
+                    for (const interaction of entity.topWeft) {
+                        canvasState.dotFills[topDotIdx].push(interaction.weft);
+                        allInteractions.push({
+                            weftId: interaction.weft,
+                            sequence: interaction.sequence,
+                            dotIdx: topDotIdx
+                        });
+                    }
+
+                    const bottomDotIdx = getDotIdx(entityIdx, 'bottomWeft');
+                    for (const interaction of entity.bottomWeft) {
+                        canvasState.dotFills[bottomDotIdx].push(interaction.weft);
+                        allInteractions.push({
+                            weftId: interaction.weft,
+                            sequence: interaction.sequence,
+                            dotIdx: bottomDotIdx
+                        });
+                    }
+                }
+            }
+
+            // 3b. Build tileDotFills for tile-mode edge dots
+            canvasState.tileDotFills = {} as Record<number, {top: number[], bottom: number[]}>;
+            for (let entityIdx = 0; entityIdx < canvasState.warpAndEdgeData.length; entityIdx++) {
+                const entity = canvasState.warpAndEdgeData[entityIdx];
+                if (entity.type === 'edge') {
+                    for (let sysLevel = 0; sysLevel < entity.edgeSys.length; sysLevel++) {
+                        if (entity.tileMode && entity.tileMode[sysLevel]) {
+                            const dotIdx = getDotIdx(entityIdx, 'edgeSys', sysLevel);
+                            const topFills: number[] = [];
+                            const bottomFills: number[] = [];
+                            for (const interaction of entity.edgeSys[sysLevel]) {
+                                if (interaction.subDot === 'top') {
+                                    topFills.push(interaction.weft);
+                                } else if (interaction.subDot === 'bottom') {
+                                    bottomFills.push(interaction.weft);
+                                }
+                            }
+                            canvasState.tileDotFills[dotIdx] = { top: topFills, bottom: bottomFills };
+                        }
+                    }
+                }
+            }
+
+            // 4. Derive selectedDots (any dot with non-empty fills)
+            canvasState.selectedDots = [];
+            for (let i = 0; i < canvasState.dotFills.length; i++) {
+                if (canvasState.dotFills[i].length > 0) {
+                    canvasState.selectedDots.push(i);
+                }
+            }
+
+            // 5. Group interactions by weftId, sorted by sequence
+            const interactionsByWeft: Record<number, Array<{sequence: number, dotIdx: number, subDot?: 'top' | 'bottom'}>> = {};
+            for (const interaction of allInteractions) {
+                if (!interactionsByWeft[interaction.weftId]) {
+                    interactionsByWeft[interaction.weftId] = [];
+                }
+                interactionsByWeft[interaction.weftId].push({
+                    sequence: interaction.sequence,
+                    dotIdx: interaction.dotIdx,
+                    subDot: interaction.subDot
+                });
+            }
+            for (const weftId in interactionsByWeft) {
+                interactionsByWeft[weftId].sort((a, b) => a.sequence - b.sequence);
+            }
+
+            // 6. Build pathsByWeft: create anchors, split into sub-paths at tile-mode edges
+            canvasState.pathsByWeft = {};
+            for (const weftIdStr in interactionsByWeft) {
+                const weftId = parseInt(weftIdStr, 10);
+                const sortedInteractions = interactionsByWeft[weftId];
+
+                // Build flat anchor list
+                const allAnchors: any[] = [];
+                for (const interaction of sortedInteractions) {
+                    const dotPos = canvasState.weftDots[interaction.dotIdx];
+                    // Skip consecutive same-dotIdx (dedup)
+                    if (allAnchors.length === 0 || allAnchors[allAnchors.length - 1].dotIdx !== interaction.dotIdx) {
+                        allAnchors.push({
+                            id: generateUUID(),
+                            dotIdx: interaction.dotIdx,
+                            pos: { x: dotPos.x, y: dotPos.y },
+                            cpBefore: { x: dotPos.x, y: dotPos.y },
+                            cpAfter: { x: dotPos.x, y: dotPos.y },
+                            subDot: interaction.subDot,
+                            isTileModeEdge: isEdgeDotInTileMode(interaction.dotIdx)
+                        });
+                    }
+                }
+
+                // Split into sub-paths at tile-mode edge anchors (middle anchors only)
+                const subPaths: any[][] = [];
+                let currentSubPath: any[] = [];
+
+                for (let i = 0; i < allAnchors.length; i++) {
+                    const anchor = allAnchors[i];
+                    currentSubPath.push(anchor);
+
+                    // Split at tile-mode edge anchors that are in the middle of the path
+                    if (anchor.isTileModeEdge && i > 0 && i < allAnchors.length - 1) {
+                        subPaths.push(currentSubPath);
+                        // Start new sub-path with departure copy of this anchor (opposite subDot)
+                        const departureAnchor = {
+                            ...anchor,
+                            id: generateUUID(),
+                            pos: { ...anchor.pos },
+                            cpBefore: { ...anchor.pos },
+                            cpAfter: { ...anchor.pos },
+                            subDot: anchor.subDot === 'top' ? 'bottom' : anchor.subDot === 'bottom' ? 'top' : undefined
+                        };
+                        currentSubPath = [departureAnchor];
+                    }
+                }
+                if (currentSubPath.length > 0) {
+                    subPaths.push(currentSubPath);
+                }
+
+                // Calculate Bezier control points for each sub-path
+                for (const sp of subPaths) {
+                    if (sp.length >= 2) {
+                        bezierRenderer.calculateBezierControlPoints(sp);
+                    }
+                }
+
+                canvasState.pathsByWeft[weftId] = subPaths;
+            }
+
+            // 7. Generate draft
+            generateDraft();
+        }
+
+
+        // ── Canvas Lifecycle ────────────────────────────────────────
+
+        function resetCanvas() {
+            editedWeftIds.clear();
+
+            const savedManualWarpSystems = canvasState.manualWarpSystems ?? effectiveWarpSystems;
+            const savedManualWeftSystems = canvasState.manualWeftSystems ?? effectiveWeftSystems;
+            const savedManualNumWarps = canvasState.manualNumWarps ?? effectiveNumWarps;
+
+            // Update effective values from manual state
+            if (!hasSeedDraft) {
+                effectiveWarpSystems = savedManualWarpSystems;
+                effectiveWeftSystems = savedManualWeftSystems;
+            }
+            effectiveNumWarps = savedManualNumWarps;
+            activeWarpSystems = Math.min(effectiveNumWarps, effectiveWarpSystems);
+
+            // Recreate helper classes with current config
+            draftGenerator = createDraft({ weftSystems: effectiveWeftSystems, weftColors });
+            bezierRenderer = createBezierCurve({ p, weftColors, weftStrokeWeights });
+
+            canvasState = JSON.parse(JSON.stringify(DEFAULT_CANVAS_STATE));
+
+            // Restore manual values (DEFAULT_CANVAS_STATE has initial config values)
+            canvasState.manualWarpSystems = savedManualWarpSystems;
+            canvasState.manualWeftSystems = savedManualWeftSystems;
+            canvasState.manualNumWarps = savedManualNumWarps;
+
             // Left Edge Entity (index 0)
-            const leftEdgeEntity: { type: string, edgeSys: any[][] } = { type: 'edge', edgeSys: [] };
+            const leftEdgeEntity: { type: string, edgeSys: any[][], tileMode: boolean[] } = {
+                type: 'edge', edgeSys: [], tileMode: new Array(activeWarpSystems).fill(false)
+            };
             for (let i = 0; i < activeWarpSystems; i++) {
                 leftEdgeEntity.edgeSys.push([]);
             }
             canvasState.warpAndEdgeData.push(leftEdgeEntity);
 
-            // Warp Entities (indices 1 to numWarps)
-            for (let i = 0; i < numWarps; i++) {
+            // Warp Entities (indices 1 to effectiveNumWarps)
+            // Use seed draft's colSystemMapping when available or use round-robin
+            for (let i = 0; i < effectiveNumWarps; i++) {
+                const warpSys = seedColSystemMapping
+                    ? seedColSystemMapping[i % seedColSystemMapping.length]
+                    : (i % activeWarpSystems);
                 canvasState.warpAndEdgeData.push({
                     type: 'warp',
-                    warpSys: i % activeWarpSystems,
+                    warpSys,
                     topWeft: [],
                     bottomWeft: []
                 });
             }
 
-            // Right Edge Entity (index numWarps + 1)
-            const rightEdgeEntity: { type: string, edgeSys: any[][] } = { type: 'edge', edgeSys: [] };
+            // Right Edge Entity (index effectiveNumWarps + 1)
+            const rightEdgeEntity: { type: string, edgeSys: any[][], tileMode: boolean[] } = {
+                type: 'edge', edgeSys: [], tileMode: new Array(activeWarpSystems).fill(false)
+            };
             for (let i = 0; i < activeWarpSystems; i++) {
                 rightEdgeEntity.edgeSys.push([]);
             }
             canvasState.warpAndEdgeData.push(rightEdgeEntity);
 
-            // Initialize generatedDraft to a blank state based on current params
-            draftGenerator.generate(canvasState, numWarps, activeWarpSystems);
+            rebuildRenderCache();
 
+            canvasState.builtForWarpSystems = effectiveWarpSystems;
+            canvasState.builtForWeftSystems = effectiveWeftSystems;
 
             // Report the new canvasState to the operation
             updateCallback(canvasState);
@@ -128,7 +460,21 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 // Brand new operation or parameter change
                 resetCanvas();
             } else {
-                // File restore, draw restored state
+                // File restore — sync effective values from saved state
+                if (!hasSeedDraft) {
+                    effectiveWarpSystems = canvasState.manualWarpSystems ?? effectiveWarpSystems;
+                    effectiveWeftSystems = canvasState.manualWeftSystems ?? effectiveWeftSystems;
+                }
+                effectiveNumWarps = canvasState.manualNumWarps ?? effectiveNumWarps;
+                activeWarpSystems = Math.min(effectiveNumWarps, effectiveWarpSystems);
+                draftGenerator = createDraft({ weftSystems: effectiveWeftSystems, weftColors });
+
+                canvasState.builtForWarpSystems = effectiveWarpSystems;
+                canvasState.builtForWeftSystems = effectiveWeftSystems;
+
+                // Rebuild render cache from warpAndEdgeData
+                rebuildRenderCache();
+                updateCallback(canvasState);
                 p.redraw();
             }
 
@@ -145,10 +491,14 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             drawStickyLineToMouse();
             drawDeleteButton();
             drawResetButton();
+            drawWarpSystemBadges();
+            drawWarpSystemButtons();
+            drawWarpCountButtons();
+            drawWeftSystemButtons();
         };
 
         function drawLines() {
-            const numColumns = numWarps + 2; // Left Edge, Warps, Right Edge
+            const numColumns = effectiveNumWarps + 2; // Left Edge, Warps, Right Edge
 
             const firstColumnX = SKETCH_LEFT_MARGIN;
             const lastColumnX = SKETCH_CANVAS_WIDTH - SKETCH_RIGHT_MARGIN;
@@ -159,39 +509,15 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 spacingX = drawingWidth / (numColumns - 1);
             }
 
-            let spacingY = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (activeWarpSystems + 1);
-            canvasState.weftDots = [];
+            // Recompute dot positions each frame
+            canvasState.weftDots = computeWeftDotPositions();
 
-            let currentX;
-
-            // --- Populate Left Edge Interaction Dot Positions ---
-            currentX = firstColumnX;
-            for (let sys = 0; sys < activeWarpSystems; sys++) {
-                let y = SKETCH_TOP_MARGIN + spacingY * (sys + 1);
-                canvasState.weftDots.push({ x: currentX, y: y });
-            }
-
-            // --- Draw Warp Lines & Populate Warp Interaction Dot Positions ---
-            for (let i = 0; i < numWarps; i++) {
-                currentX = firstColumnX + spacingX * (i + 1);
-
+            // --- Draw Warp Lines ---
+            for (let i = 0; i < effectiveNumWarps; i++) {
+                let currentX = firstColumnX + spacingX * (i + 1);
                 p.stroke(0);
                 p.strokeWeight(1);
                 p.line(currentX, SKETCH_TOP_MARGIN, currentX, SKETCH_CANVAS_HEIGHT - SKETCH_BOTTOM_MARGIN);
-
-                const warpEntityData = canvasState.warpAndEdgeData[i + 1];
-                let warpCenterY = SKETCH_TOP_MARGIN + spacingY * ((warpEntityData.warpSys % activeWarpSystems) + 1);
-
-                canvasState.weftDots.push({ x: currentX, y: warpCenterY - WEFT_SPACING }); // Top weft dot
-                canvasState.weftDots.push({ x: currentX, y: warpCenterY + WEFT_SPACING }); // Bottom weft dot
-            }
-
-            // --- Populate Right Edge Interaction Dot Positions ---
-            currentX = lastColumnX;
-            if (numColumns <= 1) currentX = firstColumnX;
-            for (let sys = 0; sys < activeWarpSystems; sys++) {
-                let y = SKETCH_TOP_MARGIN + spacingY * (sys + 1);
-                canvasState.weftDots.push({ x: currentX, y: y });
             }
 
             // --- Draw Edge Lines (Dashed) ---
@@ -211,7 +537,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         }
 
         function drawWarpDots() {
-            const numColumns = numWarps + 2;
+            const numColumns = effectiveNumWarps + 2;
             const firstColumnX = SKETCH_LEFT_MARGIN;
             const lastColumnX = SKETCH_CANVAS_WIDTH - SKETCH_RIGHT_MARGIN;
             const drawingWidth = lastColumnX - firstColumnX;
@@ -222,89 +548,255 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             }
             let spacingY = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (activeWarpSystems + 1);
 
-            for (let i = 0; i < numWarps; i++) {
+            for (let i = 0; i < effectiveNumWarps; i++) {
                 let currentX = firstColumnX + spacingX * (i + 1);
                 const warpEntityData = canvasState.warpAndEdgeData[i + 1];
                 if (warpEntityData && warpEntityData.type === 'warp') {
                     let warpCenterY = SKETCH_TOP_MARGIN + spacingY * ((warpEntityData.warpSys % activeWarpSystems) + 1);
-                    p.noStroke();
-                    p.fill(50);
-                    p.ellipse(currentX, warpCenterY, WARP_DOT_SIZE, WARP_DOT_SIZE);
+                    const warpSys = warpEntityData.warpSys % activeWarpSystems;
+                    const dotColor = warpColors.length > 0
+                        ? warpColors[warpSys % warpColors.length]
+                        : DEFAULT_WARP_DOT_COLOR;
+                    p.fill(dotColor);
+                    p.stroke(0);
+                    p.strokeWeight(1);
+                    const dotSize = warpDotSizes.length > 0
+                        ? (warpDotSizes[warpSys % warpDotSizes.length] ?? DEFAULT_WARP_DOT_SIZE)
+                        : DEFAULT_WARP_DOT_SIZE;
+                    p.ellipse(currentX, warpCenterY, dotSize, dotSize);
                 }
             }
         }
 
+        // Check luminance different between background and font color (WCAG)
+        function relativeLuminance(hex: string): number {
+            const h = hex.replace('#', '');
+            const r = parseInt(h.substring(0, 2), 16) / 255;
+            const g = parseInt(h.substring(2, 4), 16) / 255;
+            const b = parseInt(h.substring(4, 6), 16) / 255;
+            const lin = (c: number) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+            return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+        }
+
+        function contrastTextColor(hex: string): string {
+            return relativeLuminance(hex) > 0.3 ? '#000000' : '#FFFFFF';
+        }
+
         function drawWeftSysIcons() {
-            let spacing = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (weftSystems + 1);
+            let spacing = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (effectiveWeftSystems + 1);
             p.textAlign(p.CENTER, p.CENTER);
             p.textSize(16);
-            for (let i = 0; i < weftSystems; i++) {
+            for (let i = 0; i < effectiveWeftSystems; i++) {
                 let y = SKETCH_TOP_MARGIN + spacing * (i + 1);
-                let weftColor = ACCESSIBLE_COLORS[i % ACCESSIBLE_COLORS.length];
+                let weftColor = weftColors[i % weftColors.length];
 
                 p.fill(weftColor);
                 p.stroke(canvasState.activeWeft === i ? 80 : 200);
                 p.strokeWeight(canvasState.activeWeft === i ? 2 : 1);
                 p.ellipse(SKETCH_LEFT_MARGIN * 0.4, y, WEFT_ICON_SIZE, WEFT_ICON_SIZE);
 
-                p.fill(0);
+                p.fill(contrastTextColor(weftColor));
                 p.noStroke();
                 p.textSize(WEFT_ICON_FONT_SIZE);
                 p.text(String.fromCharCode(97 + i), SKETCH_LEFT_MARGIN * 0.4, y);
             }
         }
 
+        // Apply render-time Y offset to tile-mode edge anchors based on subDot
+        function applyTileModeOffsets(anchors: any[]): any[] {
+            return anchors.map(a => {
+                if (a.isTileModeEdge && a.subDot) {
+                    const yOffset = a.subDot === 'top' ? -TILE_DOT_OFFSET : TILE_DOT_OFFSET;
+                    return {
+                        ...a,
+                        pos: { x: a.pos.x, y: a.pos.y + yOffset },
+                        cpBefore: { x: a.cpBefore.x, y: a.cpBefore.y + yOffset },
+                        cpAfter: { x: a.cpAfter.x, y: a.cpAfter.y + yOffset }
+                    };
+                }
+                return a;
+            });
+        }
+
         function drawSplines() {
+            // Build segment overlap map across all sub-paths
+            const segmentOverlapMap: Record<string, number[]> = {};
             for (const weftIdStr in canvasState.pathsByWeft) {
                 const weftId = parseInt(weftIdStr, 10);
-                const anchors = canvasState.pathsByWeft[weftId];
+                const subPaths = canvasState.pathsByWeft[weftId];
+                if (!subPaths) continue;
+                for (const anchors of subPaths) {
+                    if (anchors && anchors.length >= 2) {
+                        for (let i = 0; i < anchors.length - 1; i++) {
+                            const a = anchors[i].dotIdx;
+                            const b = anchors[i + 1].dotIdx;
+                            const key = Math.min(a, b) + ',' + Math.max(a, b);
+                            if (!segmentOverlapMap[key]) {
+                                segmentOverlapMap[key] = [];
+                            }
+                            if (!segmentOverlapMap[key].includes(weftId)) {
+                                segmentOverlapMap[key].push(weftId);
+                            }
+                        }
+                    }
+                }
+            }
+            for (const key in segmentOverlapMap) {
+                segmentOverlapMap[key].sort((a, b) => a - b);
+            }
 
-                if (anchors && anchors.length >= 2) {
+            // Render each weft's sub-paths
+            for (const weftIdStr in canvasState.pathsByWeft) {
+                const weftId = parseInt(weftIdStr, 10);
+                const subPaths = canvasState.pathsByWeft[weftId];
+                if (!subPaths) continue;
+
+                for (const rawAnchors of subPaths) {
+                    if (!rawAnchors || rawAnchors.length < 2) continue;
+
+                    // Apply tile-mode Y offsets at render time
+                    const anchors = applyTileModeOffsets(rawAnchors);
+
                     try {
                         bezierRenderer.calculateBezierControlPoints(anchors);
                     } catch (e) {
                         console.error('[CrossSectionView] Error calling calculateBezierControlPoints in draw:', e);
                         console.error('Path data that caused error:', JSON.parse(JSON.stringify({ weftId, anchors })));
-                        p.noLoop(); // Stop looping if this error occurs
+                        p.noLoop();
                         return;
                     }
-                    bezierRenderer.renderBezierPath(anchors, weftId);
+
+                    // Build per-segment overlap metadata
+                    const segmentOverlaps: Array<{position: number, total: number, flipNormal: boolean}> = [];
+                    for (let i = 0; i < anchors.length - 1; i++) {
+                        const a = anchors[i].dotIdx;
+                        const b = anchors[i + 1].dotIdx;
+                        const key = Math.min(a, b) + ',' + Math.max(a, b);
+                        const group = segmentOverlapMap[key];
+                        if (group && group.length > 1) {
+                            segmentOverlaps.push({
+                                position: group.indexOf(weftId),
+                                total: group.length,
+                                flipNormal: a > b
+                            });
+                        } else {
+                            segmentOverlaps.push({ position: 0, total: 1, flipNormal: false });
+                        }
+                    }
+
+                    bezierRenderer.renderBezierPath(anchors, weftId, segmentOverlaps);
                 }
+            }
+        }
+
+        // Draw a single weft dot with fill color and concentric rings
+        function drawSingleWeftDot(x: number, y: number, fills: number[]) {
+            if (fills.length > 0) {
+                p.fill(weftColors[fills[0] % weftColors.length]);
+                p.stroke(0);
+            } else {
+                p.fill(255);
+                p.stroke(140);
+            }
+            p.strokeWeight(1);
+            p.ellipse(x, y, WEFT_DOT_SIZE, WEFT_DOT_SIZE);
+
+            for (let r = 1; r < fills.length; r++) {
+                p.noFill();
+                p.stroke(weftColors[fills[r] % weftColors.length]);
+                p.strokeWeight(2);
+                p.ellipse(x, y, WEFT_DOT_SIZE + r * 4, WEFT_DOT_SIZE + r * 4);
             }
         }
 
         function drawWeftDots() {
             for (let i = 0; i < canvasState.weftDots.length; i++) {
-                let dot = canvasState.weftDots[i];
+                const dot = canvasState.weftDots[i];
 
-                if (canvasState.selectedDots.includes(i) && canvasState.dotFills[i].length > 0) {
-                    p.fill(ACCESSIBLE_COLORS[canvasState.dotFills[i][0] % ACCESSIBLE_COLORS.length]);
-                    p.stroke(0);
+                if (isEdgeDotInTileMode(i)) {
+                    // Tile mode: draw two dots at y +/- TILE_DOT_OFFSET
+                    const tileFills = canvasState.tileDotFills[i] || { top: [], bottom: [] };
+                    // Include provisional fill if it targets this dot
+                    let topFills = tileFills.top;
+                    let bottomFills = tileFills.bottom;
+                    if (provisionalFill && provisionalFill.dotIndex === i) {
+                        if (provisionalFill.subDot === 'top') {
+                            topFills = [...topFills, provisionalFill.weftId];
+                        } else {
+                            bottomFills = [...bottomFills, provisionalFill.weftId];
+                        }
+                    }
+                    drawSingleWeftDot(dot.x, dot.y - TILE_DOT_OFFSET, topFills);
+                    drawSingleWeftDot(dot.x, dot.y + TILE_DOT_OFFSET, bottomFills);
                 } else {
-                    p.fill(255);
-                    p.stroke(180);
+                    // Loop mode: draw single dot at center
+                    drawSingleWeftDot(dot.x, dot.y, canvasState.dotFills[i]);
                 }
-                p.strokeWeight(1);
-                p.ellipse(dot.x, dot.y, WEFT_DOT_SIZE, WEFT_DOT_SIZE);
+            }
 
-                for (let r = 1; r < canvasState.dotFills[i].length; r++) {
-                    p.noFill();
-                    p.stroke(ACCESSIBLE_COLORS[canvasState.dotFills[i][r] % ACCESSIBLE_COLORS.length]);
-                    p.strokeWeight(2);
-                    p.ellipse(dot.x, dot.y, WEFT_DOT_SIZE + r * 4, WEFT_DOT_SIZE + r * 4);
+            // Draw tile-mode hover preview animation (ghost dots)
+            if (tileHoverAnim) {
+                const dot = canvasState.weftDots[tileHoverAnim.dotIndex];
+                if (dot) {
+                    const elapsed = p.millis() - tileHoverAnim.startTime;
+                    const t = Math.min(elapsed / TILE_TOGGLE_DURATION, 1); // 0->1 over duration
+
+                    p.push();
+                    if (tileHoverAnim.fromTile) {
+                        // Tile -> Loop preview: ghost dot at center
+                        p.fill(255, TILE_GHOST_OPACITY);
+                        p.stroke(180, TILE_GHOST_OPACITY);
+                        p.strokeWeight(1);
+                        p.ellipse(dot.x, dot.y, WEFT_DOT_SIZE, WEFT_DOT_SIZE);
+                    } else {
+                        // Loop -> Tile preview: ghost dots slide apart from center
+                        const offset = TILE_DOT_OFFSET * t;
+                        p.fill(255, TILE_GHOST_OPACITY);
+                        p.stroke(180, TILE_GHOST_OPACITY);
+                        p.strokeWeight(1);
+                        p.ellipse(dot.x, dot.y - offset, WEFT_DOT_SIZE, WEFT_DOT_SIZE);
+                        p.ellipse(dot.x, dot.y + offset, WEFT_DOT_SIZE, WEFT_DOT_SIZE);
+                    }
+                    p.pop();
+
+                    // Stop loop after animation completes but keep ghost visible
+                    if (t >= 1 && canvasState.activeWeft === null) {
+                        p.noLoop();
+                    }
                 }
             }
         }
 
         function drawStickyLineToMouse() {
             if (canvasState.activeWeft !== null) {
-                const activePathAnchors = canvasState.pathsByWeft[canvasState.activeWeft];
-                if (activePathAnchors && activePathAnchors.length > 0) {
-                    const activeWeftColorHex = ACCESSIBLE_COLORS[canvasState.activeWeft % ACCESSIBLE_COLORS.length];
-                    const lastAnchorPos = activePathAnchors[activePathAnchors.length - 1].pos;
-                    p.stroke(activeWeftColorHex);
-                    p.strokeWeight(2);
-                    p.line(lastAnchorPos.x, lastAnchorPos.y, p.mouseX, p.mouseY);
+                const activeWeftColorHex = weftColors[canvasState.activeWeft % weftColors.length];
+
+                // If provisional fill is active, sticky line starts from the departure dot
+                if (provisionalFill && provisionalFill.weftId === canvasState.activeWeft) {
+                    const dot = canvasState.weftDots[provisionalFill.dotIndex];
+                    if (dot) {
+                        const departY = dot.y + (provisionalFill.subDot === 'top' ? -TILE_DOT_OFFSET : TILE_DOT_OFFSET);
+                        p.stroke(activeWeftColorHex);
+                        p.strokeWeight(2);
+                        p.line(dot.x, departY, p.mouseX, p.mouseY);
+                    }
+                    return;
+                }
+
+                const subPaths = canvasState.pathsByWeft[canvasState.activeWeft];
+                if (subPaths && subPaths.length > 0) {
+                    const lastSubPath = subPaths[subPaths.length - 1];
+                    if (lastSubPath && lastSubPath.length > 0) {
+                        const lastAnchor = lastSubPath[lastSubPath.length - 1];
+                        // Apply tile-mode Y offset for sticky line origin
+                        let stickyY = lastAnchor.pos.y;
+                        if (lastAnchor.isTileModeEdge && lastAnchor.subDot) {
+                            stickyY += lastAnchor.subDot === 'top' ? -TILE_DOT_OFFSET : TILE_DOT_OFFSET;
+                        }
+                        p.stroke(activeWeftColorHex);
+                        p.strokeWeight(2);
+                        p.line(lastAnchor.pos.x, stickyY, p.mouseX, p.mouseY);
+                    }
                 }
             }
         }
@@ -349,9 +841,241 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             p.text('Reset', RESET_BUTTON.x + RESET_BUTTON.w / 2, RESET_BUTTON.y + RESET_BUTTON.h / 2);
         }
 
+        // ── Integrated Controls ──────────────────────────────────────
+
+        // Weft system [-][+] buttons: circles below last weft icon, centered horizontally
+        function computeWeftButtonLayout() {
+            const spacing = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (effectiveWeftSystems + 1);
+            const lastWeftY = SKETCH_TOP_MARGIN + spacing * effectiveWeftSystems;
+            const btnY = lastWeftY + spacing * 0.7;
+            const centerX = SKETCH_LEFT_MARGIN * 0.4;
+            const btnSize = WEFT_ICON_SIZE * 0.7;
+            const gap = 4;
+            const minusBtnX = centerX - btnSize / 2 - gap / 2;
+            const plusBtnX = centerX + btnSize / 2 + gap / 2;
+            return { btnY, btnSize, minusBtnX, plusBtnX };
+        }
+
+        function drawWeftSystemButtons() {
+            const { btnY, btnSize, minusBtnX, plusBtnX } = computeWeftButtonLayout();
+            const atMin = hasSeedDraft || effectiveWeftSystems <= MIN_WEFT_SYSTEMS;
+            const atMax = hasSeedDraft || effectiveWeftSystems >= MAX_WEFT_SYSTEMS;
+
+            // [-] button
+            p.strokeWeight(1);
+            p.fill(atMin ? '#F0F0F0' : '#F5F5F5');
+            p.stroke(atMin ? '#D8D8D8' : '#B0B0B0');
+            p.ellipse(minusBtnX, btnY, btnSize, btnSize);
+            p.noStroke();
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(18);
+            p.fill(atMin ? '#C8C8C8' : '#808080');
+            p.text('-', minusBtnX, btnY);
+
+            // [+] button
+            p.strokeWeight(1);
+            p.fill(atMax ? '#F0F0F0' : '#F5F5F5');
+            p.stroke(atMax ? '#D8D8D8' : '#B0B0B0');
+            p.ellipse(plusBtnX, btnY, btnSize, btnSize);
+            p.noStroke();
+            p.fill(atMax ? '#C8C8C8' : '#808080');
+            p.text('+', plusBtnX, btnY);
+        }
+
+        // Returns +1, -1, or 0 (no hit)
+        function isInsideWeftSystemButton(mx: number, my: number): number {
+            if (hasSeedDraft) return 0;
+            const { btnY, btnSize, minusBtnX, plusBtnX } = computeWeftButtonLayout();
+            const r = btnSize / 2;
+
+            const dxMinus = mx - minusBtnX;
+            const dyMinus = my - btnY;
+            if (dxMinus * dxMinus + dyMinus * dyMinus <= r * r && effectiveWeftSystems > MIN_WEFT_SYSTEMS) {
+                return -1;
+            }
+            const dxPlus = mx - plusBtnX;
+            const dyPlus = my - btnY;
+            if (dxPlus * dxPlus + dyPlus * dyPlus <= r * r && effectiveWeftSystems < MAX_WEFT_SYSTEMS) {
+                return 1;
+            }
+            return 0;
+        }
+
+        // Shared layout for warp system badges, badge buttons, and badge hit-tests
+        function computeBadgeLayout() {
+            const numColumns = effectiveNumWarps + 2;
+            const firstColumnX = SKETCH_LEFT_MARGIN;
+            const lastColumnX = SKETCH_CANVAS_WIDTH - SKETCH_RIGHT_MARGIN;
+            const drawingWidth = lastColumnX - firstColumnX;
+            const spacingX = numColumns > 1 ? drawingWidth / (numColumns - 1) : 0;
+
+            const maxBadgeW = spacingX * 0.8;
+            const badgeW = Math.max(BADGE_MIN_W, Math.min(BADGE_BASE_W, maxBadgeW));
+            const scale = badgeW < BADGE_BASE_W ? badgeW / BADGE_BASE_W : 1;
+            const badgeH = Math.max(BADGE_MIN_H, BADGE_BASE_H * scale);
+            const fontSize = Math.max(BADGE_MIN_FONT, BADGE_FONT_SIZE * scale);
+            return { firstColumnX, spacingX, badgeW, badgeH, fontSize };
+        }
+
+        // Warp system [-][+] buttons: pill pair after last badge in the badge row
+        function drawWarpSystemButtons() {
+            const { firstColumnX, spacingX, badgeW, badgeH, fontSize } = computeBadgeLayout();
+            const lastBadgeCx = firstColumnX + spacingX * effectiveNumWarps;
+            const centerX = lastBadgeCx + spacingX * 0.7;
+            const gap = 2;
+            const minusBtnLeft = centerX - badgeW - gap / 2;
+            const plusBtnLeft = centerX + gap / 2;
+            const top = BADGE_CENTER_Y - badgeH / 2;
+            const cornerRadius = badgeH / 2;
+
+            const atMin = hasSeedDraft || effectiveWarpSystems <= MIN_WARP_SYSTEMS;
+            const atMax = hasSeedDraft || effectiveWarpSystems >= MAX_WARP_SYSTEMS;
+
+            // [-] button
+            p.strokeWeight(1);
+            p.fill(atMin ? '#F0F0F0' : '#F5F5F5');
+            p.stroke(atMin ? '#D8D8D8' : '#B0B0B0');
+            p.rect(minusBtnLeft, top, badgeW, badgeH, cornerRadius);
+            p.noStroke();
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(fontSize);
+            p.fill(atMin ? '#C8C8C8' : '#808080');
+            p.text('-', minusBtnLeft + badgeW / 2, BADGE_CENTER_Y);
+
+            // [+] button
+            p.strokeWeight(1);
+            p.fill(atMax ? '#F0F0F0' : '#F5F5F5');
+            p.stroke(atMax ? '#D8D8D8' : '#B0B0B0');
+            p.rect(plusBtnLeft, top, badgeW, badgeH, cornerRadius);
+            p.noStroke();
+            p.fill(atMax ? '#C8C8C8' : '#808080');
+            p.text('+', plusBtnLeft + badgeW / 2, BADGE_CENTER_Y);
+        }
+
+        // Returns +1, -1, or 0 (no hit)
+        function isInsideWarpSystemButton(mx: number, my: number): number {
+            if (hasSeedDraft) return 0;
+            const { firstColumnX, spacingX, badgeW, badgeH } = computeBadgeLayout();
+            const lastBadgeCx = firstColumnX + spacingX * effectiveNumWarps;
+            const centerX = lastBadgeCx + spacingX * 0.7;
+            const gap = 2;
+            const minusBtnLeft = centerX - badgeW - gap / 2;
+            const plusBtnLeft = centerX + gap / 2;
+            const top = BADGE_CENTER_Y - badgeH / 2;
+
+            if (my >= top && my <= top + badgeH) {
+                if (mx >= minusBtnLeft && mx <= minusBtnLeft + badgeW && effectiveWarpSystems > MIN_WARP_SYSTEMS) {
+                    return -1;
+                }
+                if (mx >= plusBtnLeft && mx <= plusBtnLeft + badgeW && effectiveWarpSystems < MAX_WARP_SYSTEMS) {
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
+        // Warp count [+][-] buttons: above right edge line
+        function computeWarpCountButtonLayout() {
+            const lastColumnX = SKETCH_CANVAS_WIDTH - SKETCH_RIGHT_MARGIN;
+            const btnW = 22;
+            const btnH = 20;
+            const btnY = 70;
+            const gap = 4;
+            const minusBtnX = lastColumnX - btnW - gap / 2;
+            const plusBtnX = lastColumnX + gap / 2;
+            return { btnW, btnH, btnY, minusBtnX, plusBtnX };
+        }
+
+        function drawWarpCountButtons() {
+            const { btnW, btnH, btnY, minusBtnX, plusBtnX } = computeWarpCountButtonLayout();
+            const atMin = effectiveNumWarps <= MIN_WARPS;
+            const atMax = effectiveNumWarps >= MAX_WARPS;
+
+            // [-] button
+            p.strokeWeight(1);
+            p.fill(atMin ? '#F0F0F0' : '#F5F5F5');
+            p.stroke(atMin ? '#D8D8D8' : '#B0B0B0');
+            p.rect(minusBtnX, btnY, btnW, btnH, 3);
+            p.noStroke();
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(14);
+            p.fill(atMin ? '#C8C8C8' : '#606060');
+            p.text('-', minusBtnX + btnW / 2, btnY + btnH / 2);
+
+            // [+] button
+            p.strokeWeight(1);
+            p.fill(atMax ? '#F0F0F0' : '#F5F5F5');
+            p.stroke(atMax ? '#D8D8D8' : '#B0B0B0');
+            p.rect(plusBtnX, btnY, btnW, btnH, 3);
+            p.noStroke();
+            p.fill(atMax ? '#C8C8C8' : '#606060');
+            p.text('+', plusBtnX + btnW / 2, btnY + btnH / 2);
+        }
+
+        // Returns +1, -1, or 0 (no hit)
+        function isInsideWarpCountButton(mx: number, my: number): number {
+            const { btnW, btnH, btnY, minusBtnX, plusBtnX } = computeWarpCountButtonLayout();
+
+            if (my >= btnY && my <= btnY + btnH) {
+                if (mx >= minusBtnX && mx <= minusBtnX + btnW && effectiveNumWarps > MIN_WARPS) {
+                    return -1;
+                }
+                if (mx >= plusBtnX && mx <= plusBtnX + btnW && effectiveNumWarps < MAX_WARPS) {
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
+        function drawWarpSystemBadges() {
+            const { firstColumnX, spacingX, badgeW, badgeH, fontSize } = computeBadgeLayout();
+
+            p.textAlign(p.CENTER, p.CENTER);
+            p.textSize(fontSize);
+
+            for (let i = 0; i < effectiveNumWarps; i++) {
+                const cx = firstColumnX + spacingX * (i + 1);
+                const warpEntity = canvasState.warpAndEdgeData[i + 1];
+                if (!warpEntity || warpEntity.type !== 'warp') continue;
+
+                const displayNum = (warpEntity.warpSys % activeWarpSystems) + 1;
+                const isHovered = hoveredBadgeWarp === i;
+
+                const left = cx - badgeW / 2;
+                const top = BADGE_CENTER_Y - badgeH / 2;
+                const cornerRadius = badgeH / 2;
+
+                // Background
+                p.fill(isHovered ? '#DCDCDC' : '#E8E8E8');
+                p.stroke(isHovered ? '#787878' : '#B4B4B4');
+                p.strokeWeight(1);
+                p.rect(left, top, badgeW, badgeH, cornerRadius);
+
+                // Text
+                p.fill(isHovered ? '#000000' : '#3C3C3C');
+                p.noStroke();
+                p.text(displayNum, cx, BADGE_CENTER_Y);
+            }
+        }
+
         function isInsideResetButton(mx: number, my: number): boolean {
             return mx >= RESET_BUTTON.x && mx <= RESET_BUTTON.x + RESET_BUTTON.w &&
                    my >= RESET_BUTTON.y && my <= RESET_BUTTON.y + RESET_BUTTON.h;
+        }
+
+        // Hit-test warp system badges. Returns 0-based warp index or -1.
+        function isInsideWarpBadge(mx: number, my: number): number {
+            const { firstColumnX, spacingX, badgeW, badgeH } = computeBadgeLayout();
+
+            for (let i = 0; i < effectiveNumWarps; i++) {
+                const cx = firstColumnX + spacingX * (i + 1);
+                const left = cx - badgeW / 2;
+                const top = BADGE_CENTER_Y - badgeH / 2;
+                if (mx >= left && mx <= left + badgeW && my >= top && my <= top + badgeH) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         p.mouseMoved = function mouseMoved() {
@@ -364,6 +1088,29 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 return;
             }
 
+            // Check if hovering over integrated controls
+            if (isInsideWeftSystemButton(p.mouseX, p.mouseY) !== 0 ||
+                isInsideWarpSystemButton(p.mouseX, p.mouseY) !== 0 ||
+                isInsideWarpCountButton(p.mouseX, p.mouseY) !== 0) {
+                p.cursor(p.HAND);
+                return;
+            }
+
+            // Check if hovering over a warp system badge
+            const newHoveredBadge = isInsideWarpBadge(p.mouseX, p.mouseY);
+            if (newHoveredBadge >= 0) {
+                p.cursor(p.HAND);
+                if (newHoveredBadge !== hoveredBadgeWarp) {
+                    hoveredBadgeWarp = newHoveredBadge;
+                    p.redraw();
+                }
+                return;
+            }
+            if (hoveredBadgeWarp >= 0) {
+                hoveredBadgeWarp = -1;
+                p.redraw();
+            }
+
             // First check if we're hovering over the delete button itself
             if (canvasState.deleteButtonBounds &&
                 p.mouseX >= canvasState.deleteButtonBounds.x - 2 && p.mouseX <= canvasState.deleteButtonBounds.x + canvasState.deleteButtonBounds.w + 2 &&
@@ -374,30 +1121,56 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             }
 
             canvasState.hoveredDotIndex = -1;
+            canvasState.hoveredSubDot = undefined;
             canvasState.showDeleteButton = false;
             canvasState.deleteButtonBounds = null;
 
-            // Check if hovering over any dot
-            for (let i = 0; i < canvasState.weftDots.length; i++) {
-                let dot = canvasState.weftDots[i];
-                if (p.dist(p.mouseX, p.mouseY, dot.x, dot.y) < WEFT_DOT_SIZE) {
-                    canvasState.hoveredDotIndex = i;
+            // Check if hovering over any dot (tile-mode aware)
+            const hoverHit = findHitDot(p.mouseX, p.mouseY);
+            if (hoverHit) {
+                canvasState.hoveredDotIndex = hoverHit.dotIndex;
+                canvasState.hoveredSubDot = hoverHit.subDot;
+                const dot = canvasState.weftDots[hoverHit.dotIndex];
 
-                    // Only show delete button if:
-                    // 1. No active weft is selected (not actively drawing)
-                    // 2. The dot has at least one weft assigned
-                    if (canvasState.activeWeft === null && canvasState.dotFills[i].length > 0) {
-                        canvasState.showDeleteButton = true;
-                        // Position delete button to the top-right of the dot
-                        canvasState.deleteButtonBounds = {
-                            x: dot.x + 8,
-                            y: dot.y - 18,
-                            w: 16,
-                            h: 16
-                        };
-                    }
-                    break;
+                // Only show delete button if:
+                // 1. No active weft is selected (not actively drawing)
+                // 2. The dot has at least one weft assigned
+                if (canvasState.activeWeft === null && canvasState.dotFills[hoverHit.dotIndex].length > 0) {
+                    canvasState.showDeleteButton = true;
+                    // Position delete button relative to the hit position
+                    const hitY = hoverHit.subDot === 'top' ? dot.y - TILE_DOT_OFFSET
+                               : hoverHit.subDot === 'bottom' ? dot.y + TILE_DOT_OFFSET
+                               : dot.y;
+                    canvasState.deleteButtonBounds = {
+                        x: dot.x + 8,
+                        y: hitY - 18,
+                        w: 16,
+                        h: 16
+                    };
                 }
+            }
+
+            // Tile-mode hover preview animation
+            let previousTileHover = tileHoverAnim;
+            if (hoverHit && canvasState.activeWeft === null) {
+                const info = getDotInfo(hoverHit.dotIndex);
+                if (info.posType === 'edgeSys') {
+                    const entity = canvasState.warpAndEdgeData[info.idx];
+                    const isTile = entity.tileMode && entity.tileMode[info.warpSysId!];
+                    if (!tileHoverAnim || tileHoverAnim.dotIndex !== hoverHit.dotIndex) {
+                        tileHoverAnim = { dotIndex: hoverHit.dotIndex, startTime: p.millis(), fromTile: isTile };
+                        p.loop(); // need animation frames
+                    }
+                } else {
+                    tileHoverAnim = null;
+                }
+            } else {
+                tileHoverAnim = null;
+            }
+            // Stop animation loop when hover ends and no active weft
+            if (previousTileHover && !tileHoverAnim && canvasState.activeWeft === null) {
+                p.noLoop();
+                p.redraw();
             }
 
             // Redraw if hover state changed
@@ -424,12 +1197,40 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 return;
             }
 
-            let clickedDotInfo: { index: number, pos: { x: number, y: number } } | null = null;
-            let clicked = false;
-            let spacing = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (weftSystems + 1);
+            // Check integrated control clicks
+            const weftSysDelta = isInsideWeftSystemButton(p.mouseX, p.mouseY);
+            if (weftSysDelta !== 0) {
+                const current = canvasState.manualWeftSystems || effectiveWeftSystems;
+                canvasState.manualWeftSystems = Math.max(MIN_WEFT_SYSTEMS, Math.min(MAX_WEFT_SYSTEMS, current + weftSysDelta));
+                resetCanvas();
+                return;
+            }
+            const warpSysDelta = isInsideWarpSystemButton(p.mouseX, p.mouseY);
+            if (warpSysDelta !== 0) {
+                const current = canvasState.manualWarpSystems || effectiveWarpSystems;
+                canvasState.manualWarpSystems = Math.max(MIN_WARP_SYSTEMS, Math.min(MAX_WARP_SYSTEMS, current + warpSysDelta));
+                resetCanvas();
+                return;
+            }
+            const warpCountDelta = isInsideWarpCountButton(p.mouseX, p.mouseY);
+            if (warpCountDelta !== 0) {
+                const current = canvasState.manualNumWarps || effectiveNumWarps;
+                canvasState.manualNumWarps = Math.max(MIN_WARPS, Math.min(MAX_WARPS, current + warpCountDelta));
+                resetCanvas();
+                return;
+            }
+
+            // Check warp system badge click
+            const clickedBadgeWarp = isInsideWarpBadge(p.mouseX, p.mouseY);
+            if (clickedBadgeWarp >= 0) {
+                cycleWarpSystem(clickedBadgeWarp);
+                return;
+            }
+
+            let spacing = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (effectiveWeftSystems + 1);
 
             // Check weft system clicks
-            for (let i = 0; i < weftSystems; i++) {
+            for (let i = 0; i < effectiveWeftSystems; i++) {
                 let y = SKETCH_TOP_MARGIN + spacing * (i + 1);
                 if (p.dist(p.mouseX, p.mouseY, SKETCH_LEFT_MARGIN * 0.4, y) < WEFT_ICON_SIZE) {
                     const clickedWeftId = i;
@@ -437,6 +1238,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                         // User clicked the same active weft button (to deselect/complete open path)
                         editedWeftIds.delete(clickedWeftId);
                         canvasState.activeWeft = null;
+                        provisionalFill = null;
                         p.noLoop();
                     } else {
                         // User clicked a new weft button or re-selected one.
@@ -444,15 +1246,31 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                         if (canvasState.activeWeft !== null) {
                             editedWeftIds.delete(canvasState.activeWeft);
                         }
+                        provisionalFill = null; // clear any previous provisional
                         canvasState.activeWeft = clickedWeftId;
-                        if (!canvasState.pathsByWeft[clickedWeftId]) {
-                            canvasState.pathsByWeft[clickedWeftId] = [];
+
+                        // Check if re-engaging a weft that ended at a tile-mode edge
+                        const subPaths = canvasState.pathsByWeft[clickedWeftId];
+                        if (subPaths && subPaths.length > 0) {
+                            const lastSubPath = subPaths[subPaths.length - 1];
+                            if (lastSubPath && lastSubPath.length > 0) {
+                                const lastAnchor = lastSubPath[lastSubPath.length - 1];
+                                if (lastAnchor.isTileModeEdge && lastAnchor.subDot) {
+                                    // Set provisional fill on the departure dot (opposite of arrival)
+                                    const departSubDot: 'top' | 'bottom' = lastAnchor.subDot === 'top' ? 'bottom' : 'top';
+                                    provisionalFill = {
+                                        dotIndex: lastAnchor.dotIdx,
+                                        weftId: clickedWeftId,
+                                        subDot: departSubDot
+                                    };
+                                }
+                            }
                         }
+
                         p.loop();
                     }
-                    clicked = true;
                     p.redraw();
-                    draftGenerator.generate(canvasState, numWarps, activeWarpSystems);
+                    generateDraft();
                     // Report the new canvasState to the operation
                     updateCallback(canvasState);
                     return;
@@ -490,73 +1308,101 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                     }
 
                     if (mostRecentIndex !== -1) {
-                        // Remove from dotFills
-                        const weftToRemove = mostRecentWeft;
-                        const weftIndex = canvasState.dotFills[dotIdx].indexOf(weftToRemove);
-                        if (weftIndex !== -1) {
-                            canvasState.dotFills[dotIdx].splice(weftIndex, 1);
-                        }
+                        // Paired deletion for tile-mode edges: remove both arrival and departure
+                        if (posType === 'edgeSys' && isEdgeDotInTileMode(dotIdx)) {
+                            // Find the paired interaction: same weft, same edge dot
+                            // Sort this weft's interactions at this edge by sequence
+                            const weftInteractions: Array<{index: number, sequence: number}> = [];
+                            for (let j = 0; j < weftArray.length; j++) {
+                                if (weftArray[j].weft === mostRecentWeft) {
+                                    weftInteractions.push({ index: j, sequence: weftArray[j].sequence });
+                                }
+                            }
+                            weftInteractions.sort((a, b) => b.sequence - a.sequence);
 
-                        if (canvasState.dotFills[dotIdx].length === 0) {
-                            canvasState.dotFills[dotIdx] = [];
-                            canvasState.selectedDots = canvasState.selectedDots.filter((idx: number) => idx !== dotIdx);
+                            // Remove the two most recent interactions for this weft (arrival + departure)
+                            const toRemove = weftInteractions.slice(0, 2);
+                            // Sort by index descending so splicing doesn't shift later indices
+                            toRemove.sort((a, b) => b.index - a.index);
+                            for (const item of toRemove) {
+                                const removedSeq = weftArray[item.index].sequence;
+                                weftArray.splice(item.index, 1);
+                                updateSequenceNumbers(removedSeq);
+                            }
+                        } else {
+                            // Normal single deletion
+                            const removedSequence = weftArray[mostRecentIndex].sequence;
+                            weftArray.splice(mostRecentIndex, 1);
+                            updateSequenceNumbers(removedSequence);
                         }
-
-                        // Remove from warpAndEdgeData
-                        const removedSequence = weftArray[mostRecentIndex].sequence;
-                        weftArray.splice(mostRecentIndex, 1);
-                        updateSequenceNumbers(removedSequence);
 
                         // Mark this weft as "edited" so future additions insert at the
                         // correct sequence position instead of appending at the end
-                        editedWeftIds.add(weftToRemove);
-
-                        // Update splines by removing anchors associated with the deleted dot
-                        const weftOfPathToUpdate = weftToRemove;
-                        if (canvasState.pathsByWeft[weftOfPathToUpdate]) {
-                            let currentAnchorsForWeft = canvasState.pathsByWeft[weftOfPathToUpdate];
-                            const updatedAnchors = currentAnchorsForWeft.filter((anchor: any) => anchor.dotIdx !== dotIdx);
-
-                            if (updatedAnchors.length === 0) {
-                                canvasState.pathsByWeft[weftOfPathToUpdate] = [];
-                            } else if (updatedAnchors.length > 0 && updatedAnchors.length < 2) {
-                                // Path is too short to be a Bezier curve, but still has a point
-                                canvasState.pathsByWeft[weftOfPathToUpdate] = updatedAnchors;
-                            } else {
-                                bezierRenderer.calculateBezierControlPoints(updatedAnchors); // Recalculate CPs for the modified path
-                                canvasState.pathsByWeft[weftOfPathToUpdate] = updatedAnchors;
-                            }
-                        }
+                        editedWeftIds.add(mostRecentWeft);
                     }
 
                     canvasState.showDeleteButton = false;
                     canvasState.hoveredDotIndex = -1;
                     canvasState.deleteButtonBounds = null;
 
+                    // Rebuild render cache (derives dotFills, selectedDots, pathsByWeft, draft)
+                    rebuildRenderCache();
+
                     p.redraw();
-                    draftGenerator.generate(canvasState, numWarps, activeWarpSystems);
                     // Report the new canvasState to the operation
                     updateCallback(canvasState);
                     return;
                 }
             }
 
-            // Check dot clicks
-            if (canvasState.activeWeft !== null) {
-                for (let i = 0; i < canvasState.weftDots.length; i++) {
-                    let dot = canvasState.weftDots[i];
-                    if (p.dist(p.mouseX, p.mouseY, dot.x, dot.y) < WEFT_DOT_SIZE) {
-                        clickedDotInfo = { index: i, pos: dot };
-                        break;
+            // Check dot clicks (tile-mode aware)
+            const dotHit = findHitDot(p.mouseX, p.mouseY);
+
+            // Tile-mode toggle: click edge dot with no active weft
+            if (dotHit && canvasState.activeWeft === null) {
+                const info = getDotInfo(dotHit.dotIndex);
+                if (info.posType === 'edgeSys') {
+                    const entity = canvasState.warpAndEdgeData[info.idx];
+                    entity.tileMode[info.warpSysId!] = !entity.tileMode[info.warpSysId!];
+                    if (entity.tileMode[info.warpSysId!]) {
+                        assignSubDotsOnLoopToTile(info.idx, info.warpSysId!);
+                    } else {
+                        removeSubDotsOnTileToLoop(info.idx, info.warpSysId!);
                     }
+                    tileHoverAnim = null;
+                    provisionalFill = null;
+                    canvasState.showDeleteButton = false;
+                    canvasState.deleteButtonBounds = null;
+                    rebuildRenderCache();
+                    p.redraw();
+                    updateCallback(canvasState);
+                    return;
                 }
             }
 
-            if (clickedDotInfo && canvasState.activeWeft !== null) {
-                const dotIndex = clickedDotInfo.index;
-                const dotPosition = clickedDotInfo.pos;
+            if (dotHit && canvasState.activeWeft !== null) {
+                const dotIndex = dotHit.dotIndex;
 
-                // --- Update Weave Structure ---
+                // Confirm provisional fill: write the departure interaction before the new click
+                if (provisionalFill && provisionalFill.weftId === canvasState.activeWeft) {
+                    const provInfo = getDotInfo(provisionalFill.dotIndex);
+                    let provArray;
+                    const provEntity = canvasState.warpAndEdgeData[provInfo.idx];
+                    if (provInfo.posType === 'edgeSys' && provInfo.warpSysId !== undefined) {
+                        provArray = provEntity.edgeSys[provInfo.warpSysId];
+                    } else {
+                        provArray = provEntity[provInfo.posType];
+                    }
+                    const provSequence = getSequenceForNewInteraction(canvasState.activeWeft);
+                    provArray.push({
+                        weft: canvasState.activeWeft,
+                        sequence: provSequence,
+                        subDot: provisionalFill.subDot
+                    });
+                    provisionalFill = null;
+                }
+
+                // --- Update warpAndEdgeData (source of truth) ---
                 const { idx, posType, warpSysId } = getDotInfo(dotIndex);
                 let weftArray;
                 const targetEntity = canvasState.warpAndEdgeData[idx];
@@ -566,40 +1412,44 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                     weftArray = targetEntity[posType];
                 }
 
-                // ALWAYS PUSH INTERACTION TO warpAndEdgeData for draft sequence
-                // For edited wefts, this inserts at the correct position in the
-                // global sequence (after the weft's existing interactions).
-                // For non-edited wefts, appends at the end (normal behavior).
                 const newSequence = getSequenceForNewInteraction(canvasState.activeWeft);
-                weftArray.push({
+                const newInteraction: any = {
                     weft: canvasState.activeWeft,
                     sequence: newSequence
-                });
-                // dotFills must stay in sync with warpAndEdgeData (a weft can visit the same dot multiple times)
-                if (!canvasState.selectedDots.includes(dotIndex)) {
-                    canvasState.selectedDots.push(dotIndex);
+                };
+                // Store subDot for tile-mode edge interactions
+                if (dotHit.subDot) {
+                    newInteraction.subDot = dotHit.subDot;
                 }
-                canvasState.dotFills[dotIndex].push(canvasState.activeWeft);
+                weftArray.push(newInteraction);
 
-                // --- Spline Logic: Add anchor ---
-                if (canvasState.activeWeft !== null) {
-                    if (!canvasState.pathsByWeft[canvasState.activeWeft]) {
-                        canvasState.pathsByWeft[canvasState.activeWeft] = [];
+                // After clicking a tile-mode edge dot as arrival, set provisional fill
+                // on the departure dot so the sticky line originates from there.
+                // Skip if this is the weft's very first interaction (starting here, not arriving).
+                if (dotHit.subDot && isEdgeDotInTileMode(dotIndex)) {
+                    let weftInteractionCount = 0;
+                    for (const e of canvasState.warpAndEdgeData) {
+                        if (e.type === 'warp') {
+                            for (const a of e.topWeft) if (a.weft === canvasState.activeWeft) weftInteractionCount++;
+                            for (const a of e.bottomWeft) if (a.weft === canvasState.activeWeft) weftInteractionCount++;
+                        } else if (e.type === 'edge') {
+                            for (const sys of e.edgeSys) {
+                                for (const a of sys) if (a.weft === canvasState.activeWeft) weftInteractionCount++;
+                            }
+                        }
                     }
-                    const currentActivePath = canvasState.pathsByWeft[canvasState.activeWeft];
-                    const newAnchor = {
-                        id: generateUUID(),
-                        dotIdx: dotIndex,
-                        pos: { x: dotPosition.x, y: dotPosition.y },
-                        cpBefore: { x: dotPosition.x, y: dotPosition.y },
-                        cpAfter: { x: dotPosition.x, y: dotPosition.y }
-                    };
-
-                    // Only add new anchor to spline if it's visually a new point or the first point
-                    if (currentActivePath.length === 0 || currentActivePath[currentActivePath.length - 1].dotIdx !== newAnchor.dotIdx) {
-                        currentActivePath.push(newAnchor);
+                    if (weftInteractionCount > 1) {
+                        const departSubDot: 'top' | 'bottom' = dotHit.subDot === 'top' ? 'bottom' : 'top';
+                        provisionalFill = {
+                            dotIndex: dotIndex,
+                            weftId: canvasState.activeWeft,
+                            subDot: departSubDot
+                        };
                     }
                 }
+
+                // Rebuild render cache (derives dotFills, selectedDots, pathsByWeft, draft)
+                rebuildRenderCache();
 
                 // Ensure draw loop is running for sticky line if path not closed
                 if (canvasState.activeWeft !== null) {
@@ -607,18 +1457,18 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 }
 
                 p.redraw();
-                draftGenerator.generate(canvasState, numWarps, activeWarpSystems);
                 updateCallback(canvasState);
                 return;
             }
 
             // Clicks outside of any dots (if an active weft is selected)
-            if (!clicked && canvasState.activeWeft !== null) {
+            if (canvasState.activeWeft !== null) {
                 editedWeftIds.delete(canvasState.activeWeft);
                 canvasState.activeWeft = null;
+                provisionalFill = null;
                 p.noLoop();
                 p.redraw();
-                draftGenerator.generate(canvasState, numWarps, activeWarpSystems);
+                generateDraft();
                 // Report the new canvasState to the operation
                 updateCallback(canvasState);
             }
@@ -627,10 +1477,10 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
 
         // Helper Functions
 
-        // Returns the correct sequence number for a new interaction. For "edited" 
-        // wefts (ones that had dots deleted), inserts the new interaction right 
-        // after the weft's existing interactions in the global sequence, shifting 
-        // later interactions up. This keeps the weft's interactions contiguous so 
+        // Returns the correct sequence number for a new interaction. For "edited"
+        // wefts (ones that had dots deleted), inserts the new interaction right
+        // after the weft's existing interactions in the global sequence, shifting
+        // later interactions up. This keeps the weft's interactions contiguous so
         // the draft algorithm produces a single row instead of splitting into two.
         // For non-edited wefts, appends at the end (normal behavior).
         function getSequenceForNewInteraction(weftId: number): number {
@@ -718,7 +1568,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
 
         function getDotInfo(originalDotIndex: number) {
             const numLeftEdgeDots = activeWarpSystems;
-            const numWarpCoreDots = numWarps * 2;
+            const numWarpCoreDots = effectiveNumWarps * 2;
 
             // Check Left Edge Dots
             if (originalDotIndex < numLeftEdgeDots) {
@@ -743,11 +1593,70 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             else {
                 const systemLevelOnRightEdge = originalDotIndex - (numLeftEdgeDots + numWarpCoreDots);
                 return {
-                    idx: numWarps + 1, // Right Edge entity is at the last index
+                    idx: effectiveNumWarps + 1, // Right Edge entity is at the last index
                     posType: 'edgeSys',
                     warpSysId: systemLevelOnRightEdge
                 };
             }
+        }
+
+        // When toggling loop->tile on an edge dot with existing interactions,
+        // assign subDot based on the approach direction so the Bezier snaps to
+        // the correct tile dot and the fill renders on it.
+        function assignSubDotsOnLoopToTile(entityIdx: number, sysLevel: number): void {
+            const entity = canvasState.warpAndEdgeData[entityIdx];
+            const edgeInteractions = entity.edgeSys[sysLevel];
+            if (edgeInteractions.length === 0) return;
+
+            // Build sorted list of all interactions with position metadata
+            const allMeta: Array<{weft: number, sequence: number, posType: string}> = [];
+            for (const e of canvasState.warpAndEdgeData) {
+                if (e.type === 'warp') {
+                    for (const a of e.topWeft) allMeta.push({weft: a.weft, sequence: a.sequence, posType: 'topWeft'});
+                    for (const a of e.bottomWeft) allMeta.push({weft: a.weft, sequence: a.sequence, posType: 'bottomWeft'});
+                } else if (e.type === 'edge') {
+                    for (const sys of e.edgeSys) {
+                        for (const a of sys) allMeta.push({weft: a.weft, sequence: a.sequence, posType: 'edgeSys'});
+                    }
+                }
+            }
+            allMeta.sort((a, b) => a.sequence - b.sequence);
+
+            for (const interaction of edgeInteractions) {
+                // Find the preceding interaction in this weft's path
+                let prevPosType: string | null = null;
+                for (const meta of allMeta) {
+                    if (meta.weft === interaction.weft && meta.sequence < interaction.sequence) {
+                        prevPosType = meta.posType;
+                    }
+                }
+
+                // topWeft (yarn over) -> top dot, bottomWeft (yarn under) -> bottom dot
+                if (prevPosType === 'bottomWeft') {
+                    interaction.subDot = 'bottom';
+                } else {
+                    interaction.subDot = 'top';
+                }
+            }
+        }
+
+        // When toggling tile->loop, strip subDot from interactions
+        function removeSubDotsOnTileToLoop(entityIdx: number, sysLevel: number): void {
+            const entity = canvasState.warpAndEdgeData[entityIdx];
+            for (const interaction of entity.edgeSys[sysLevel]) {
+                delete interaction.subDot;
+            }
+        }
+
+        function cycleWarpSystem(warpIndex: number) {
+            const warpEntity = canvasState.warpAndEdgeData[warpIndex + 1]; // +1: index 0 is left edge
+            if (!warpEntity || warpEntity.type !== 'warp') return;
+
+            warpEntity.warpSys = (warpEntity.warpSys + 1) % activeWarpSystems;
+
+            rebuildRenderCache();
+            updateCallback(canvasState);
+            p.redraw();
         }
 
         function generateUUID() {

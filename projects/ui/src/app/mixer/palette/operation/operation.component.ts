@@ -584,7 +584,7 @@ export class OperationComponent implements OnInit {
   /**
    * Resets the p5 canvas sketch when a non-canvas parameter changes.
    */
-  public triggerCanvasResetIfNeeded(changedParamType: string): void {
+  public triggerCanvasResetIfNeeded(changedParamType: string, isParameterChange: boolean = true): void {
     const canvasParamIndex = this.op.params.findIndex(p => p.type === 'p5-canvas');
 
     if (canvasParamIndex !== -1 && changedParamType !== 'p5-canvas') {
@@ -599,7 +599,7 @@ export class OperationComponent implements OnInit {
       const paramComp = this.paramsComps?.find(comp => comp.param.type === 'p5-canvas');
 
       if (paramComp) {
-        paramComp.triggerSketchReset(currentParamVals);
+        paramComp.triggerSketchReset(currentParamVals, isParameterChange);
       }
     }
   }
