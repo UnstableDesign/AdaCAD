@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
-import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpParamVal, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
+import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpInput, OpParamVal, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { MediaInstance, OpNode, OpStateParamChange } from '../../../../core/model/datatypes';
 import { MediaService } from '../../../../core/provider/media.service';
 import { OperationService } from '../../../../core/provider/operation.service';
@@ -17,6 +17,8 @@ import { ImageeditorComponent } from '../../../../core/ui/imageeditor/imageedito
 import { TextparamComponent } from '../../../../core/ui/textparam/textparam.component';
 import { UploadFormComponent } from '../../../../core/ui/uploads/upload-form/upload-form.component';
 import { MaterialsService } from '../../../../core/provider/materials.service';
+import { Subscription } from 'rxjs';
+import { skip } from 'rxjs/operators';
 import * as p5 from 'p5';
 
 export function regexValidator(nameRe: RegExp): ValidatorFn {
@@ -69,6 +71,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private p5Instance: any;
+  private materialDiameterSub: Subscription | null = null;
+  private materialColorSub: Subscription | null = null;
 
   ngOnInit(): void {
 
@@ -133,6 +137,20 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
         this.fc.valueChanges.subscribe(val => {
           this.onParamChange(val);
         });
+
+        // Refresh p5 canvas when material properties change in the library
+        const resetSketchOnMaterialChange = () => {
+          const op = this.ops.getOp(this.opnode.name);
+          if (!op) return;
+          const currentParamVals = op.params.map((param, ndx) => ({
+            param: param, val: this.opnode.params[ndx]
+          }));
+          this._resetSketch(currentParamVals);
+        };
+        this.materialDiameterSub = this.materialsService.materialDiameterChange
+          .pipe(skip(1)).subscribe(resetSketchOnMaterialChange);
+        this.materialColorSub = this.materialsService.materialColorChange
+          .pipe(skip(1)).subscribe(resetSketchOnMaterialChange);
         break;
 
       // case 'draft':
@@ -166,7 +184,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Clean up p5 instance if it exists
+    if (this.materialDiameterSub) this.materialDiameterSub.unsubscribe();
+    if (this.materialColorSub) this.materialColorSub.unsubscribe();
     if (this.p5Instance) {
       this.p5Instance.remove();
     }
@@ -397,14 +416,14 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
  * Public method called by parent components to explicitly reset the p5 sketch.
  * @param latestConfig The latest configuration object derived from non-canvas params.
  */
-  public triggerSketchReset(latestConfig: Array<OpParamVal>): void {
+  public triggerSketchReset(latestConfig: Array<OpParamVal>, isParameterChange: boolean = true): void {
     if (this.param.type === 'p5-canvas') {
       if (!latestConfig) {
         console.error('[ParameterComponent] triggerSketchReset called without latestConfig for op:', this.opid);
         return;
       }
 
-      this._resetSketch(latestConfig, true);
+      this._resetSketch(latestConfig, isParameterChange);
     }
   }
 
@@ -459,26 +478,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Callback used by the sketch whenever canvas state changes
-    // Resolves sketch weft colors to AdaCAD material IDs, then emits the param change
     const updateCallbackFn = (newCanvasState: any) => {
       this.param.value = newCanvasState;
-
-      if (newCanvasState?.generatedDraft?.weftColors &&
-        Array.isArray(newCanvasState.generatedDraft.weftColors)) {
-        const sketchColors: string[] = newCanvasState.generatedDraft.weftColors;
-        const resolvedIds: number[] = [];
-        sketchColors.forEach((hexColor, sketchWeftId) => {
-          const nameSuggestion = `CrossSection Weft ${String.fromCharCode(97 + sketchWeftId)}`;
-          try {
-            resolvedIds.push(this.materialsService.findOrCreateMaterialByHex(hexColor, nameSuggestion));
-          } catch (e) {
-            console.error(`Error resolving material for color ${hexColor}:`, e);
-            resolvedIds.push(0);
-          }
-        });
-        newCanvasState.generatedDraft.resolvedSketchMaterialIds = resolvedIds;
-      }
-
       this.onParamChange(newCanvasState);
     };
 
@@ -492,7 +493,58 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
       this.p5Instance = null;
     }
 
-    const userSketchProvider = operationDefinition.createSketch(currentParamVals, updateCallbackFn, { isParameterChange });
+    const opInputs = this.tree.assembleOpInputs(this.opid);
+
+    // Currently only cross_section_view uses p5-canvas params; future ops may need a different inlet convention.
+    const seedDraft = opInputs[0]?.drafts?.[0] ?? null;
+    let weftColors: string[];
+    let weftMaterialIds: number[];
+    let weftDiameters: number[];
+
+    let warpColors: string[] = [];
+    let warpDiameters: number[] = [];
+    // If a second p5-canvas op is added, generalize this into an op-provided resolver.
+    if (seedDraft) {
+      // Cannot use Set(rowShuttleMapping) — deduplication drops entries when two systems
+      // share the same material, causing index mismatches in perform().
+      const weftSystemMaterialMap = new Map<number, number>();
+      const weftSystemColorMap = new Map<number, string>();
+      const weftSystemDiameterMap = new Map<number, number>();
+      for (let i = 0; i < seedDraft.rowSystemMapping.length; i++) {
+        const sys = seedDraft.rowSystemMapping[i];
+        if (!weftSystemMaterialMap.has(sys)) {
+          const shuttleId = seedDraft.rowShuttleMapping[i] ?? 0;
+          weftSystemMaterialMap.set(sys, shuttleId);
+          weftSystemColorMap.set(sys, this.materialsService.getColor(shuttleId));
+          weftSystemDiameterMap.set(sys, this.materialsService.getDiameter(shuttleId));
+        }
+      }
+      const sortedWeftSystems = [...weftSystemMaterialMap.keys()].sort((a, b) => a - b);
+      weftMaterialIds = sortedWeftSystems.map(sys => weftSystemMaterialMap.get(sys)!);
+      weftColors = sortedWeftSystems.map(sys => weftSystemColorMap.get(sys)!);
+      weftDiameters = sortedWeftSystems.map(sys => weftSystemDiameterMap.get(sys)!);
+
+      const systemColorMap = new Map<number, string>();
+      const systemDiameterMap = new Map<number, number>();
+      for (let i = 0; i < seedDraft.colSystemMapping.length; i++) {
+        const sys = seedDraft.colSystemMapping[i];
+        if (!systemColorMap.has(sys)) {
+          const shuttleId = seedDraft.colShuttleMapping[i] ?? 0;
+          systemColorMap.set(sys, this.materialsService.getColor(shuttleId));
+          systemDiameterMap.set(sys, this.materialsService.getDiameter(shuttleId));
+        }
+      }
+      const sortedSystems = [...systemColorMap.keys()].sort((a, b) => a - b);
+      warpColors = sortedSystems.map(sys => systemColorMap.get(sys)!);
+      warpDiameters = sortedSystems.map(sys => systemDiameterMap.get(sys)!);
+    } else {
+      // Default mode: use AdaCAD's built-in material colors (skip 0=black, 1=white)
+      weftMaterialIds = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+      weftColors = weftMaterialIds.map(id => this.materialsService.getColor(id));
+      weftDiameters = weftMaterialIds.map(id => this.materialsService.getDiameter(id));
+    }
+
+    const userSketchProvider = operationDefinition.createSketch(currentParamVals, updateCallbackFn, { isParameterChange, weftColors, weftMaterialIds, warpColors, weftDiameters, warpDiameters }, opInputs);
 
     // Wrapper for p5 to apply a mouse-coordinate proxy to correct for AdaCAD's CSS scaling
     // Compares canvas buffer size and display size

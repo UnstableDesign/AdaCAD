@@ -1646,16 +1646,9 @@ export class PaletteComponent implements OnInit {
    * @param op_id 
    * @returns 
    */
-  private performAndUpdateDownstream(op_id: number): Promise<any> {
-
+  private async performAndUpdateDownstream(op_id: number, excludeFromCanvasReset: number[] = []): Promise<any> {
     console.log("Perform and update downstream from palette", op_id);
-    return this.tree.performAndUpdateDownstream([op_id])
-
-      .catch(err => {
-        console.error("Error performing and updating downstream", err);
-        return Promise.reject(err);
-      });
-
+    await this.tree.performAndUpdateDownstream([op_id], excludeFromCanvasReset);
   }
 
 
@@ -1883,7 +1876,7 @@ export class PaletteComponent implements OnInit {
    * Called when a connection is explicitly deleted
    * id refers to the id of the connection that is being deleted. 
   */
-  removeConnection(obj: { id: number }) {
+  async removeConnection(obj: { id: number }) {
 
     let to = this.tree.getConnectionOutputWithIndex(obj.id);
     let from = this.tree.getConnectionInput(obj.id);
@@ -1898,18 +1891,14 @@ export class PaletteComponent implements OnInit {
     this.setOutletStylingOnConnection(from, false);
 
     if (this.tree.getType(to.id) === "op") {
-      this.performAndUpdateDownstream(to.id).then(done => {
+      try {
+        await this.performAndUpdateDownstream(to.id);
         this.vs.updateViewer();
-
-
-      }).catch(err => {
+      } catch (err) {
         console.error("Error performing and updating downstream", err);
         this.postOperationErrorMessage(to.id, err);
-      });
+      }
     }
-
-
-
 
 
 
@@ -2246,7 +2235,7 @@ export class PaletteComponent implements OnInit {
         viewRefs.forEach(el => {
           this.removeFromViewContainer(el)
         });
-        return this.performAndUpdateDownstream(obj.id)
+        return this.performAndUpdateDownstream(obj.id, [obj.id])
       })
       .then(el => {
         return this.tree.sweepOutlets(obj.id)
