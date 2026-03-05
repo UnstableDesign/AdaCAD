@@ -173,7 +173,7 @@ const createSketch = (op_params: Array<OpParamVal>, updateCallback: Function, co
 
     const { numWarps: effectiveNumWarps, warpSystems: effectiveWarpSystems, weftSystems: effectiveWeftSystems } = deriveEffectiveConfig(canvasStateOpParam, seedDraft);
 
-    // Colors and diameters resolved at the UI boundary (parameter.component.ts -> MaterialsService)
+    // Colors and diameters resolved at the UI boundary
     const weftColors = context?.weftColors ?? [];
     const weftMaterialIds = context?.weftMaterialIds ?? [];
     const warpColors = context?.warpColors ?? [];

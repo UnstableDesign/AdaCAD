@@ -41,8 +41,6 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         let effectiveWeftSystems = weftSystems;
         let effectiveNumWarps = numWarps;
 
-        // Use whichever is smaller: numWarps or warpSystems
-        // If numWarps is < warpSystems, you cant access all the warp systems
         let activeWarpSystems = Math.min(effectiveNumWarps, effectiveWarpSystems);
 
         // -- Constants
@@ -180,7 +178,6 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             }
         }
 
-
         // Check if a dot index corresponds to a tile-mode edge dot
         function isEdgeDotInTileMode(dotIndex: number): boolean {
             const info = getDotInfo(dotIndex);
@@ -189,7 +186,8 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             return entity && entity.tileMode && entity.tileMode[info.warpSysId!];
         }
 
-        // Click detection for both loop-mode and tile-mode dots
+        // Unified hit detection for both loop-mode and tile-mode dots.
+        // Returns which dot was hit and, for tile-mode, which sub-dot (top/bottom).
         function findHitDot(mx: number, my: number): { dotIndex: number, subDot?: 'top' | 'bottom' } | null {
             for (let i = 0; i < canvasState.weftDots.length; i++) {
                 const dot = canvasState.weftDots[i];
@@ -210,7 +208,6 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             }
             return null;
         }
-
 
         // ── Render Cache ────────────────────────────────────────────
 
@@ -420,7 +417,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             canvasState.warpAndEdgeData.push(leftEdgeEntity);
 
             // Warp Entities (indices 1 to effectiveNumWarps)
-            // Use seed draft's colSystemMapping when available or use round-robin
+            // Use seed draft's colSystemMapping when available; fall back to round-robin
             for (let i = 0; i < effectiveNumWarps; i++) {
                 const warpSys = seedColSystemMapping
                     ? seedColSystemMapping[i % seedColSystemMapping.length]
@@ -842,63 +839,102 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         }
 
         // ── Integrated Controls ──────────────────────────────────────
+        type StepperLayout = {
+            shape: 'ellipse';
+            minusCx: number; minusCy: number;
+            plusCx: number; plusCy: number;
+            size: number;
+            fontSize: number;
+            textColor: string;
+        } | {
+            shape: 'rect';
+            minusLeft: number; plusLeft: number;
+            top: number; w: number; h: number;
+            cornerRadius: number;
+            fontSize: number;
+            textColor: string;
+        };
+
+        function drawStepperButtons(layout: StepperLayout, atMin: boolean, atMax: boolean) {
+            const drawBtn = (disabled: boolean, label: string) => {
+                p.strokeWeight(1);
+                p.fill(disabled ? '#F0F0F0' : '#F5F5F5');
+                p.stroke(disabled ? '#D8D8D8' : '#B0B0B0');
+                if (layout.shape === 'ellipse') {
+                    const cx = label === '-' ? layout.minusCx : layout.plusCx;
+                    p.ellipse(cx, layout.minusCy, layout.size, layout.size);
+                    p.noStroke();
+                    p.textAlign(p.CENTER, p.CENTER);
+                    p.textSize(layout.fontSize);
+                    p.fill(disabled ? '#C8C8C8' : layout.textColor);
+                    p.text(label, cx, layout.minusCy);
+                } else {
+                    const left = label === '-' ? layout.minusLeft : layout.plusLeft;
+                    p.rect(left, layout.top, layout.w, layout.h, layout.cornerRadius);
+                    p.noStroke();
+                    p.textAlign(p.CENTER, p.CENTER);
+                    p.textSize(layout.fontSize);
+                    p.fill(disabled ? '#C8C8C8' : layout.textColor);
+                    p.text(label, left + layout.w / 2, layout.top + layout.h / 2);
+                }
+            };
+            drawBtn(atMin, '-');
+            drawBtn(atMax, '+');
+        }
+
+        // Returns +1, -1, or 0 (no hit)
+        function hitTestStepperButtons(mx: number, my: number, layout: StepperLayout, atMin: boolean, atMax: boolean): number {
+            if (layout.shape === 'ellipse') {
+                const r = layout.size / 2;
+                const dxM = mx - layout.minusCx;
+                const dyM = my - layout.minusCy;
+                if (dxM * dxM + dyM * dyM <= r * r && !atMin) return -1;
+                const dxP = mx - layout.plusCx;
+                const dyP = my - layout.plusCy;
+                if (dxP * dxP + dyP * dyP <= r * r && !atMax) return 1;
+            } else {
+                if (my >= layout.top && my <= layout.top + layout.h) {
+                    if (mx >= layout.minusLeft && mx <= layout.minusLeft + layout.w && !atMin) return -1;
+                    if (mx >= layout.plusLeft && mx <= layout.plusLeft + layout.w && !atMax) return 1;
+                }
+            }
+            return 0;
+        }
 
         // Weft system [-][+] buttons: circles below last weft icon, centered horizontally
-        function computeWeftButtonLayout() {
+        function computeWeftButtonLayout(): StepperLayout {
             const spacing = (SKETCH_CANVAS_HEIGHT - SKETCH_TOP_MARGIN - SKETCH_BOTTOM_MARGIN) / (effectiveWeftSystems + 1);
             const lastWeftY = SKETCH_TOP_MARGIN + spacing * effectiveWeftSystems;
             const btnY = lastWeftY + spacing * 0.7;
             const centerX = SKETCH_LEFT_MARGIN * 0.4;
             const btnSize = WEFT_ICON_SIZE * 0.7;
             const gap = 4;
-            const minusBtnX = centerX - btnSize / 2 - gap / 2;
-            const plusBtnX = centerX + btnSize / 2 + gap / 2;
-            return { btnY, btnSize, minusBtnX, plusBtnX };
+            return {
+                shape: 'ellipse',
+                minusCx: centerX - btnSize / 2 - gap / 2,
+                minusCy: btnY,
+                plusCx: centerX + btnSize / 2 + gap / 2,
+                plusCy: btnY,
+                size: btnSize,
+                fontSize: 18,
+                textColor: '#808080'
+            };
         }
 
         function drawWeftSystemButtons() {
-            const { btnY, btnSize, minusBtnX, plusBtnX } = computeWeftButtonLayout();
+            const layout = computeWeftButtonLayout();
             const atMin = hasSeedDraft || effectiveWeftSystems <= MIN_WEFT_SYSTEMS;
             const atMax = hasSeedDraft || effectiveWeftSystems >= MAX_WEFT_SYSTEMS;
-
-            // [-] button
-            p.strokeWeight(1);
-            p.fill(atMin ? '#F0F0F0' : '#F5F5F5');
-            p.stroke(atMin ? '#D8D8D8' : '#B0B0B0');
-            p.ellipse(minusBtnX, btnY, btnSize, btnSize);
-            p.noStroke();
-            p.textAlign(p.CENTER, p.CENTER);
-            p.textSize(18);
-            p.fill(atMin ? '#C8C8C8' : '#808080');
-            p.text('-', minusBtnX, btnY);
-
-            // [+] button
-            p.strokeWeight(1);
-            p.fill(atMax ? '#F0F0F0' : '#F5F5F5');
-            p.stroke(atMax ? '#D8D8D8' : '#B0B0B0');
-            p.ellipse(plusBtnX, btnY, btnSize, btnSize);
-            p.noStroke();
-            p.fill(atMax ? '#C8C8C8' : '#808080');
-            p.text('+', plusBtnX, btnY);
+            drawStepperButtons(layout, atMin, atMax);
         }
 
         // Returns +1, -1, or 0 (no hit)
         function isInsideWeftSystemButton(mx: number, my: number): number {
             if (hasSeedDraft) return 0;
-            const { btnY, btnSize, minusBtnX, plusBtnX } = computeWeftButtonLayout();
-            const r = btnSize / 2;
-
-            const dxMinus = mx - minusBtnX;
-            const dyMinus = my - btnY;
-            if (dxMinus * dxMinus + dyMinus * dyMinus <= r * r && effectiveWeftSystems > MIN_WEFT_SYSTEMS) {
-                return -1;
-            }
-            const dxPlus = mx - plusBtnX;
-            const dyPlus = my - btnY;
-            if (dxPlus * dxPlus + dyPlus * dyPlus <= r * r && effectiveWeftSystems < MAX_WEFT_SYSTEMS) {
-                return 1;
-            }
-            return 0;
+            const layout = computeWeftButtonLayout();
+            const atMin = effectiveWeftSystems <= MIN_WEFT_SYSTEMS;
+            const atMax = effectiveWeftSystems >= MAX_WEFT_SYSTEMS;
+            return hitTestStepperButtons(mx, my, layout, atMin, atMax);
         }
 
         // Shared layout for warp system badges, badge buttons, and badge hit-tests
@@ -918,113 +954,70 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         }
 
         // Warp system [-][+] buttons: pill pair after last badge in the badge row
-        function drawWarpSystemButtons() {
+        function computeWarpSystemButtonLayout(): StepperLayout {
             const { firstColumnX, spacingX, badgeW, badgeH, fontSize } = computeBadgeLayout();
             const lastBadgeCx = firstColumnX + spacingX * effectiveNumWarps;
             const centerX = lastBadgeCx + spacingX * 0.7;
             const gap = 2;
-            const minusBtnLeft = centerX - badgeW - gap / 2;
-            const plusBtnLeft = centerX + gap / 2;
-            const top = BADGE_CENTER_Y - badgeH / 2;
-            const cornerRadius = badgeH / 2;
+            return {
+                shape: 'rect',
+                minusLeft: centerX - badgeW - gap / 2,
+                plusLeft: centerX + gap / 2,
+                top: BADGE_CENTER_Y - badgeH / 2,
+                w: badgeW, h: badgeH,
+                cornerRadius: badgeH / 2,
+                fontSize,
+                textColor: '#808080'
+            };
+        }
 
+        function drawWarpSystemButtons() {
+            const layout = computeWarpSystemButtonLayout();
             const atMin = hasSeedDraft || effectiveWarpSystems <= MIN_WARP_SYSTEMS;
             const atMax = hasSeedDraft || effectiveWarpSystems >= MAX_WARP_SYSTEMS;
-
-            // [-] button
-            p.strokeWeight(1);
-            p.fill(atMin ? '#F0F0F0' : '#F5F5F5');
-            p.stroke(atMin ? '#D8D8D8' : '#B0B0B0');
-            p.rect(minusBtnLeft, top, badgeW, badgeH, cornerRadius);
-            p.noStroke();
-            p.textAlign(p.CENTER, p.CENTER);
-            p.textSize(fontSize);
-            p.fill(atMin ? '#C8C8C8' : '#808080');
-            p.text('-', minusBtnLeft + badgeW / 2, BADGE_CENTER_Y);
-
-            // [+] button
-            p.strokeWeight(1);
-            p.fill(atMax ? '#F0F0F0' : '#F5F5F5');
-            p.stroke(atMax ? '#D8D8D8' : '#B0B0B0');
-            p.rect(plusBtnLeft, top, badgeW, badgeH, cornerRadius);
-            p.noStroke();
-            p.fill(atMax ? '#C8C8C8' : '#808080');
-            p.text('+', plusBtnLeft + badgeW / 2, BADGE_CENTER_Y);
+            drawStepperButtons(layout, atMin, atMax);
         }
 
         // Returns +1, -1, or 0 (no hit)
         function isInsideWarpSystemButton(mx: number, my: number): number {
             if (hasSeedDraft) return 0;
-            const { firstColumnX, spacingX, badgeW, badgeH } = computeBadgeLayout();
-            const lastBadgeCx = firstColumnX + spacingX * effectiveNumWarps;
-            const centerX = lastBadgeCx + spacingX * 0.7;
-            const gap = 2;
-            const minusBtnLeft = centerX - badgeW - gap / 2;
-            const plusBtnLeft = centerX + gap / 2;
-            const top = BADGE_CENTER_Y - badgeH / 2;
-
-            if (my >= top && my <= top + badgeH) {
-                if (mx >= minusBtnLeft && mx <= minusBtnLeft + badgeW && effectiveWarpSystems > MIN_WARP_SYSTEMS) {
-                    return -1;
-                }
-                if (mx >= plusBtnLeft && mx <= plusBtnLeft + badgeW && effectiveWarpSystems < MAX_WARP_SYSTEMS) {
-                    return 1;
-                }
-            }
-            return 0;
+            const layout = computeWarpSystemButtonLayout();
+            const atMin = effectiveWarpSystems <= MIN_WARP_SYSTEMS;
+            const atMax = effectiveWarpSystems >= MAX_WARP_SYSTEMS;
+            return hitTestStepperButtons(mx, my, layout, atMin, atMax);
         }
 
         // Warp count [+][-] buttons: above right edge line
-        function computeWarpCountButtonLayout() {
+        function computeWarpCountButtonLayout(): StepperLayout {
             const lastColumnX = SKETCH_CANVAS_WIDTH - SKETCH_RIGHT_MARGIN;
             const btnW = 22;
             const btnH = 20;
             const btnY = 70;
             const gap = 4;
-            const minusBtnX = lastColumnX - btnW - gap / 2;
-            const plusBtnX = lastColumnX + gap / 2;
-            return { btnW, btnH, btnY, minusBtnX, plusBtnX };
+            return {
+                shape: 'rect',
+                minusLeft: lastColumnX - btnW - gap / 2,
+                plusLeft: lastColumnX + gap / 2,
+                top: btnY, w: btnW, h: btnH,
+                cornerRadius: 3,
+                fontSize: 14,
+                textColor: '#606060'
+            };
         }
 
         function drawWarpCountButtons() {
-            const { btnW, btnH, btnY, minusBtnX, plusBtnX } = computeWarpCountButtonLayout();
+            const layout = computeWarpCountButtonLayout();
             const atMin = effectiveNumWarps <= MIN_WARPS;
             const atMax = effectiveNumWarps >= MAX_WARPS;
-
-            // [-] button
-            p.strokeWeight(1);
-            p.fill(atMin ? '#F0F0F0' : '#F5F5F5');
-            p.stroke(atMin ? '#D8D8D8' : '#B0B0B0');
-            p.rect(minusBtnX, btnY, btnW, btnH, 3);
-            p.noStroke();
-            p.textAlign(p.CENTER, p.CENTER);
-            p.textSize(14);
-            p.fill(atMin ? '#C8C8C8' : '#606060');
-            p.text('-', minusBtnX + btnW / 2, btnY + btnH / 2);
-
-            // [+] button
-            p.strokeWeight(1);
-            p.fill(atMax ? '#F0F0F0' : '#F5F5F5');
-            p.stroke(atMax ? '#D8D8D8' : '#B0B0B0');
-            p.rect(plusBtnX, btnY, btnW, btnH, 3);
-            p.noStroke();
-            p.fill(atMax ? '#C8C8C8' : '#606060');
-            p.text('+', plusBtnX + btnW / 2, btnY + btnH / 2);
+            drawStepperButtons(layout, atMin, atMax);
         }
 
         // Returns +1, -1, or 0 (no hit)
         function isInsideWarpCountButton(mx: number, my: number): number {
-            const { btnW, btnH, btnY, minusBtnX, plusBtnX } = computeWarpCountButtonLayout();
-
-            if (my >= btnY && my <= btnY + btnH) {
-                if (mx >= minusBtnX && mx <= minusBtnX + btnW && effectiveNumWarps > MIN_WARPS) {
-                    return -1;
-                }
-                if (mx >= plusBtnX && mx <= plusBtnX + btnW && effectiveNumWarps < MAX_WARPS) {
-                    return 1;
-                }
-            }
-            return 0;
+            const layout = computeWarpCountButtonLayout();
+            const atMin = effectiveNumWarps <= MIN_WARPS;
+            const atMax = effectiveNumWarps >= MAX_WARPS;
+            return hitTestStepperButtons(mx, my, layout, atMin, atMax);
         }
 
         function drawWarpSystemBadges() {

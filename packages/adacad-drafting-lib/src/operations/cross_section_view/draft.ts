@@ -299,18 +299,21 @@ export const createDraft = (config: DraftConfig) => {
                                 const warpLayerAtCell = warpEntities[cellWarpIdx]?.warpSys ?? 0;
 
                                 let travelDepth = srcLayer;
-                                if (transitionWarpIdx !== -1) {
-                                    // Use destLayer strictly AFTER transition warp
-                                    const dir = Math.sign(interactionB.warpIdx - interactionA.warpIdx);
-                                    const strictlyPastTransition = dir > 0
-                                        ? cellWarpIdx > transitionWarpIdx
-                                        : cellWarpIdx < transitionWarpIdx;
-                                    if (strictlyPastTransition) {
-                                        travelDepth = destLayer;
-                                    }
+                                const dir = Math.sign(interactionB.warpIdx - interactionA.warpIdx);
+                                const strictlyPastTransition = transitionWarpIdx !== -1 && (dir > 0
+                                    ? cellWarpIdx > transitionWarpIdx
+                                    : cellWarpIdx < transitionWarpIdx);
+                                if (strictlyPastTransition) {
+                                    travelDepth = destLayer;
                                 }
 
-                                if (travelDepth > warpLayerAtCell) {
+                                const isUnderAtCell = strictlyPastTransition
+                                    ? !interactionB.isTopInteraction
+                                    : !interactionA.isTopInteraction;
+
+                                // Lift if weft travels deeper than this warp's layer or if at the same layer and going under
+                                if (travelDepth > warpLayerAtCell ||
+                                    (travelDepth === warpLayerAtCell && isUnderAtCell)) {
                                     currentRowCells[cellWarpIdx] = 1; // BLACK
                                 }
                             }
