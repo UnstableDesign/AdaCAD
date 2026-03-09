@@ -94,7 +94,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             generatedDraft: {
                 rows: [],
                 colSystemMapping: [],
-                weftColors: []
+                weftSystems: 0
             }
         };
 
@@ -116,7 +116,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         let hoveredBadgeWarp = -1;
 
         // Initialize helper classes
-        let draftGenerator = createDraft({ weftSystems: effectiveWeftSystems, weftColors });
+        let draftGenerator = createDraft({ weftSystems: effectiveWeftSystems });
         let bezierRenderer = createBezierCurve({ p, weftColors, weftStrokeWeights });
 
 
@@ -150,7 +150,8 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             for (let i = 0; i < effectiveNumWarps; i++) {
                 const x = firstColumnX + spacingX * (i + 1);
                 const warpEntityData = canvasState.warpAndEdgeData[i + 1];
-                const warpCenterY = SKETCH_TOP_MARGIN + spacingY * ((warpEntityData.warpSys % activeWarpSystems) + 1);
+                const warpLayer = ((warpEntityData.warpLayer ?? warpEntityData.warpSys) % activeWarpSystems);
+                const warpCenterY = SKETCH_TOP_MARGIN + spacingY * (warpLayer + 1);
                 dots.push({ x, y: warpCenterY - WEFT_SPACING }); // top
                 dots.push({ x, y: warpCenterY + WEFT_SPACING }); // bottom
             }
@@ -397,7 +398,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             activeWarpSystems = Math.min(effectiveNumWarps, effectiveWarpSystems);
 
             // Recreate helper classes with current config
-            draftGenerator = createDraft({ weftSystems: effectiveWeftSystems, weftColors });
+            draftGenerator = createDraft({ weftSystems: effectiveWeftSystems });
             bezierRenderer = createBezierCurve({ p, weftColors, weftStrokeWeights });
 
             canvasState = JSON.parse(JSON.stringify(DEFAULT_CANVAS_STATE));
@@ -425,6 +426,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 canvasState.warpAndEdgeData.push({
                     type: 'warp',
                     warpSys,
+                    warpLayer: warpSys,
                     topWeft: [],
                     bottomWeft: []
                 });
@@ -464,7 +466,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 }
                 effectiveNumWarps = canvasState.manualNumWarps ?? effectiveNumWarps;
                 activeWarpSystems = Math.min(effectiveNumWarps, effectiveWarpSystems);
-                draftGenerator = createDraft({ weftSystems: effectiveWeftSystems, weftColors });
+                draftGenerator = createDraft({ weftSystems: effectiveWeftSystems });
 
                 canvasState.builtForWarpSystems = effectiveWarpSystems;
                 canvasState.builtForWeftSystems = effectiveWeftSystems;
@@ -483,8 +485,9 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             drawWeftSysIcons();
             drawLines();
             drawWarpDots();
+            drawWeftDots('empty');
             drawSplines();
-            drawWeftDots();
+            drawWeftDots('filled');
             drawStickyLineToMouse();
             drawDeleteButton();
             drawResetButton();
@@ -549,16 +552,17 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 let currentX = firstColumnX + spacingX * (i + 1);
                 const warpEntityData = canvasState.warpAndEdgeData[i + 1];
                 if (warpEntityData && warpEntityData.type === 'warp') {
-                    let warpCenterY = SKETCH_TOP_MARGIN + spacingY * ((warpEntityData.warpSys % activeWarpSystems) + 1);
-                    const warpSys = warpEntityData.warpSys % activeWarpSystems;
+                    const warpLayer = ((warpEntityData.warpLayer ?? warpEntityData.warpSys) % activeWarpSystems);
+                    let warpCenterY = SKETCH_TOP_MARGIN + spacingY * (warpLayer + 1);
+                    const colorSys = warpEntityData.warpSys % activeWarpSystems;
                     const dotColor = warpColors.length > 0
-                        ? warpColors[warpSys % warpColors.length]
+                        ? warpColors[colorSys % warpColors.length]
                         : DEFAULT_WARP_DOT_COLOR;
                     p.fill(dotColor);
                     p.stroke(0);
                     p.strokeWeight(1);
                     const dotSize = warpDotSizes.length > 0
-                        ? (warpDotSizes[warpSys % warpDotSizes.length] ?? DEFAULT_WARP_DOT_SIZE)
+                        ? (warpDotSizes[colorSys % warpDotSizes.length] ?? DEFAULT_WARP_DOT_SIZE)
                         : DEFAULT_WARP_DOT_SIZE;
                     p.ellipse(currentX, warpCenterY, dotSize, dotSize);
                 }
@@ -616,11 +620,10 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         }
 
         function drawSplines() {
-            // Build segment overlap map across all sub-paths
-            const segmentOverlapMap: Record<string, number[]> = {};
+            // Count total traversals per segment (every pass counts, even same weft doubling back)
+            const segmentTraversalCount: Record<string, number> = {};
             for (const weftIdStr in canvasState.pathsByWeft) {
-                const weftId = parseInt(weftIdStr, 10);
-                const subPaths = canvasState.pathsByWeft[weftId];
+                const subPaths = canvasState.pathsByWeft[parseInt(weftIdStr, 10)];
                 if (!subPaths) continue;
                 for (const anchors of subPaths) {
                     if (anchors && anchors.length >= 2) {
@@ -628,19 +631,14 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                             const a = anchors[i].dotIdx;
                             const b = anchors[i + 1].dotIdx;
                             const key = Math.min(a, b) + ',' + Math.max(a, b);
-                            if (!segmentOverlapMap[key]) {
-                                segmentOverlapMap[key] = [];
-                            }
-                            if (!segmentOverlapMap[key].includes(weftId)) {
-                                segmentOverlapMap[key].push(weftId);
-                            }
+                            segmentTraversalCount[key] = (segmentTraversalCount[key] || 0) + 1;
                         }
                     }
                 }
             }
-            for (const key in segmentOverlapMap) {
-                segmentOverlapMap[key].sort((a, b) => a - b);
-            }
+
+            // Each traversal claims the next position slot during rendering
+            const segmentNextPosition: Record<string, number> = {};
 
             // Render each weft's sub-paths
             for (const weftIdStr in canvasState.pathsByWeft) {
@@ -648,7 +646,8 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 const subPaths = canvasState.pathsByWeft[weftId];
                 if (!subPaths) continue;
 
-                for (const rawAnchors of subPaths) {
+                for (let spIdx = 0; spIdx < subPaths.length; spIdx++) {
+                    const rawAnchors = subPaths[spIdx];
                     if (!rawAnchors || rawAnchors.length < 2) continue;
 
                     // Apply tile-mode Y offsets at render time
@@ -669,11 +668,13 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                         const a = anchors[i].dotIdx;
                         const b = anchors[i + 1].dotIdx;
                         const key = Math.min(a, b) + ',' + Math.max(a, b);
-                        const group = segmentOverlapMap[key];
-                        if (group && group.length > 1) {
+                        const total = segmentTraversalCount[key] || 1;
+                        if (total > 1) {
+                            const position = segmentNextPosition[key] || 0;
+                            segmentNextPosition[key] = position + 1;
                             segmentOverlaps.push({
-                                position: group.indexOf(weftId),
-                                total: group.length,
+                                position,
+                                total,
                                 flipNormal: a > b
                             });
                         } else {
@@ -706,33 +707,48 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             }
         }
 
-        function drawWeftDots() {
+        // Draw weft dots filtered by fill state -- empty behind curves, filled on top
+        function drawWeftDots(mode: 'empty' | 'filled') {
+            const wantFilled = mode === 'filled';
             for (let i = 0; i < canvasState.weftDots.length; i++) {
                 const dot = canvasState.weftDots[i];
 
                 if (isEdgeDotInTileMode(i)) {
-                    // Tile mode: draw two dots at y +/- TILE_DOT_OFFSET
                     const tileFills = canvasState.tileDotFills[i] || { top: [], bottom: [] };
-                    // Include provisional fill if it targets this dot
                     let topFills = tileFills.top;
                     let bottomFills = tileFills.bottom;
-                    if (provisionalFill && provisionalFill.dotIndex === i) {
+                    if (wantFilled && provisionalFill && provisionalFill.dotIndex === i) {
                         if (provisionalFill.subDot === 'top') {
                             topFills = [...topFills, provisionalFill.weftId];
                         } else {
                             bottomFills = [...bottomFills, provisionalFill.weftId];
                         }
                     }
-                    drawSingleWeftDot(dot.x, dot.y - TILE_DOT_OFFSET, topFills);
-                    drawSingleWeftDot(dot.x, dot.y + TILE_DOT_OFFSET, bottomFills);
+                    const isProvisionalTop = provisionalFill?.dotIndex === i && provisionalFill?.subDot === 'top';
+                    const isProvisionalBottom = provisionalFill?.dotIndex === i && provisionalFill?.subDot === 'bottom';
+                    if (wantFilled) {
+                        if (topFills.length > 0) drawSingleWeftDot(dot.x, dot.y - TILE_DOT_OFFSET, topFills);
+                        if (bottomFills.length > 0) drawSingleWeftDot(dot.x, dot.y + TILE_DOT_OFFSET, bottomFills);
+                    } else {
+                        if (topFills.length === 0 && !isProvisionalTop) drawSingleWeftDot(dot.x, dot.y - TILE_DOT_OFFSET, []);
+                        if (bottomFills.length === 0 && !isProvisionalBottom) drawSingleWeftDot(dot.x, dot.y + TILE_DOT_OFFSET, []);
+                    }
                 } else {
-                    // Loop mode: draw single dot at center
-                    drawSingleWeftDot(dot.x, dot.y, canvasState.dotFills[i]);
+                    const fills = canvasState.dotFills[i];
+                    if (wantFilled) {
+                        if (fills && fills.length > 0) {
+                            drawSingleWeftDot(dot.x, dot.y, fills);
+                        }
+                    } else {
+                        if (!fills || fills.length === 0) {
+                            drawSingleWeftDot(dot.x, dot.y, []);
+                        }
+                    }
                 }
             }
 
             // Draw tile-mode hover preview animation (ghost dots)
-            if (tileHoverAnim) {
+            if (wantFilled && tileHoverAnim) {
                 const dot = canvasState.weftDots[tileHoverAnim.dotIndex];
                 if (dot) {
                     const elapsed = p.millis() - tileHoverAnim.startTime;
@@ -1031,7 +1047,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
                 const warpEntity = canvasState.warpAndEdgeData[i + 1];
                 if (!warpEntity || warpEntity.type !== 'warp') continue;
 
-                const displayNum = (warpEntity.warpSys % activeWarpSystems) + 1;
+                const displayNum = ((warpEntity.warpLayer ?? warpEntity.warpSys) % activeWarpSystems) + 1;
                 const isHovered = hoveredBadgeWarp === i;
 
                 const left = cx - badgeW / 2;
@@ -1645,7 +1661,8 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             const warpEntity = canvasState.warpAndEdgeData[warpIndex + 1]; // +1: index 0 is left edge
             if (!warpEntity || warpEntity.type !== 'warp') return;
 
-            warpEntity.warpSys = (warpEntity.warpSys + 1) % activeWarpSystems;
+            const currentLayer = warpEntity.warpLayer ?? warpEntity.warpSys;
+            warpEntity.warpLayer = (currentLayer + 1) % activeWarpSystems;
 
             rebuildRenderCache();
             updateCallback(canvasState);
