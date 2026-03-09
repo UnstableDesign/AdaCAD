@@ -1,12 +1,31 @@
-// Draft Class - Handles draft generation from canvas state
+// Draft generation from cross-section canvas state
 interface DraftConfig {
     weftSystems: number;
-    weftColors: string[];
+}
+
+// Optional hooks for observing rule activations during generate().
+// Each method is called when the corresponding rule fires. Hooks are
+// purely observational -- they do not influence algorithm behavior.
+// When no hooks are provided, zero overhead is added.
+export interface GenerateHooks {
+    // Pick Identification (Phase 2)
+    onR6a?: () => void;  // weft ID change
+    onR6b?: () => void;  // explicit turn
+    onR6c?: () => void;  // edge-mediated turn
+
+    // Within-Pick Cell Computation (Phase 3, Part 1)
+    onR3?: () => void;              // direct interaction applied
+    onR5?: () => void;              // segment implied lift applied
+    onR5CrossLayer?: () => void;    // segment crosses layers (transition point found)
+    onR5BezierCrossing?: () => void; // same-layer opposite-type bezier crossing
+
+    // Between-Pick Transition (Phase 3, Part 2)
+    onR7?: () => void;   // weft system independence (skip)
+    onR9b?: () => void;  // intervening warp virtual segment lift
 }
 
 export const createDraft = (config: DraftConfig) => {
     const weftSystems = config.weftSystems;
-    const weftColors = config.weftColors;
 
     const hasDirectInteractionInPick = (pickObject: any, targetWarpIdx: number): boolean => {
         if (!pickObject.interactions) return false;
@@ -35,7 +54,7 @@ export const createDraft = (config: DraftConfig) => {
                                 sequence: entry.sequence,
                                 warpIdx: entityIdx - 1, // Left edge is at entityIdx 0, so first warp is at entityIdx 1
                                 isTopInteraction: true,
-                                warpLayer: entity.warpSys
+                                warpLayer: entity.warpLayer ?? entity.warpSys
                             });
                         });
                     }
@@ -47,7 +66,7 @@ export const createDraft = (config: DraftConfig) => {
                                 sequence: entry.sequence,
                                 warpIdx: entityIdx - 1, // Adjust entityIdx to be 0-indexed visual warp number
                                 isTopInteraction: false,
-                                warpLayer: entity.warpSys
+                                warpLayer: entity.warpLayer ?? entity.warpSys
                             });
                         });
                     }
@@ -73,12 +92,12 @@ export const createDraft = (config: DraftConfig) => {
         return allInteractions;
     };
 
-    const generate = (currentCanvasState: any, currentNumWarps: number, currentWarpSystems: number): void => {
+    const generate = (currentCanvasState: any, currentNumWarps: number, currentWarpSystems: number, hooks?: GenerateHooks): void => {
 
         currentCanvasState.generatedDraft = {
             rows: [],
             colSystemMapping: [],
-            weftColors: weftColors.slice(0, weftSystems)
+            weftSystems
         };
 
         // Step 1: Create allInteractions List
@@ -132,16 +151,10 @@ export const createDraft = (config: DraftConfig) => {
         // Step 5: Identify picks (logical draft rows) from allInteractions.
         //
         // Each pick = one continuous weft traversal of the warp field (one draft row).
-        // Trend detection uses "column position" (Math.floor(warpIdx / warpSystems))
-        // rather than raw warpIdx. In multi-system layouts (e.g., s0,s1,s2,s0,s1,s2...),
-        // warps from different systems at the same physical column are interleaved.
-        // A weft crossing from W20(sys2) to W19(sys1) appears as a 1-warp backtrack
-        // in raw indices, but both warps are in the same column — not a direction change.
+        // Three mechanisms detect pick boundaries: weft ID change, explicit turn,
+        // and edge-mediated turn.
         const identifiedPicks: Array<any> = [];
         let currentPickInteractions: Array<any> = [];
-        let currentTrendInPick: 'increasing' | 'decreasing' | 'stationary' | 'none' = 'none';
-        const effectiveWarpSystems = Math.max(currentWarpSystems, 1);
-        const colPos = (warpIdx: number) => Math.floor(warpIdx / effectiveWarpSystems);
 
         for (let i = 0; i < allInteractions.length; i++) {
             const currentInteraction = allInteractions[i];
@@ -150,17 +163,19 @@ export const createDraft = (config: DraftConfig) => {
 
             if (prevInteractionGlobal && currentInteraction.weftId !== prevInteractionGlobal.weftId) {
                 startNewPick = true;
+                hooks?.onR6a?.();
             } else if (prevInteractionGlobal &&
                 currentInteraction.weftId === prevInteractionGlobal.weftId &&
                 currentInteraction.warpIdx === prevInteractionGlobal.warpIdx && // Explicit Turn
                 currentInteraction.isTopInteraction !== prevInteractionGlobal.isTopInteraction &&
                 currentInteraction.sequence === prevInteractionGlobal.sequence + 1) { // Ensure it's the next click
                 startNewPick = true;
+                hooks?.onR6b?.();
             } else if (prevInteractionGlobal &&
                 currentInteraction.weftId === prevInteractionGlobal.weftId &&
                 // Edge-mediated turn: prev interaction is an edge, current is a valid warp,
                 // and EITHER: (a) the pick already has non-edge warp interactions (typical
-                // selvedge turn: warps → edge → return to warps), OR (b) the pick contains
+                // selvedge turn: warps -> edge -> return to warps), OR (b) the pick contains
                 // both left and right edge interactions (edge-to-edge traversal: the weft
                 // crossed the entire warp field without interacting, now starts a new pick).
                 (prevInteractionGlobal.warpIdx === -1 || prevInteractionGlobal.warpIdx === currentNumWarps) &&
@@ -169,32 +184,7 @@ export const createDraft = (config: DraftConfig) => {
                  (currentPickInteractions.some((int: any) => int.warpIdx === -1) &&
                   currentPickInteractions.some((int: any) => int.warpIdx === currentNumWarps)))) {
                 startNewPick = true;
-            } else if (currentPickInteractions.length > 0 &&
-                prevInteractionGlobal &&
-                currentInteraction.weftId === prevInteractionGlobal.weftId) { // Trend Reversal
-                const lastInteractionInCurrentPick = currentPickInteractions[currentPickInteractions.length - 1];
-                let newTrendSegment: 'increasing' | 'decreasing' | 'stationary' = 'stationary';
-
-                const curCol = colPos(currentInteraction.warpIdx);
-                const lastCol = colPos(lastInteractionInCurrentPick.warpIdx);
-                if (curCol > lastCol) {
-                    newTrendSegment = 'increasing';
-                } else if (curCol < lastCol) {
-                    newTrendSegment = 'decreasing';
-                }
-
-                const isCurrentInteractionAnEdge = currentInteraction.warpIdx === -1 || currentInteraction.warpIdx === currentNumWarps;
-
-                if (currentPickInteractions.length === 1 && lastInteractionInCurrentPick.warpIdx !== currentInteraction.warpIdx) {
-                    // First segment of a pick, establish initial trend
-                    currentTrendInPick = newTrendSegment;
-                } else if (!isCurrentInteractionAnEdge &&
-                    currentTrendInPick !== 'none' &&
-                    currentTrendInPick !== 'stationary' &&
-                    newTrendSegment !== 'stationary' && // Don't break pick if new segment is stationary
-                    currentTrendInPick !== newTrendSegment) {
-                    startNewPick = true; // Trend reversed
-                }
+                hooks?.onR6c?.();
             }
 
             if (startNewPick && currentPickInteractions.length > 0) {
@@ -203,35 +193,8 @@ export const createDraft = (config: DraftConfig) => {
                     interactions: [...currentPickInteractions]
                 });
                 currentPickInteractions = [];
-                currentTrendInPick = 'none';
             }
             currentPickInteractions.push(currentInteraction);
-
-            // Update trend *after* pushing current interaction to currentPickInteractions
-            // and *after* checking for startNewPick
-            if (!startNewPick && currentPickInteractions.length > 1) {
-                const lastInThisPick = currentPickInteractions[currentPickInteractions.length - 1];
-                let trendAnchor = currentPickInteractions[0]; // Default anchor
-                // Find the latest interaction in the current pick at a different column than the last one
-                const lastColInPick = colPos(lastInThisPick.warpIdx);
-                for (let k = currentPickInteractions.length - 2; k >= 0; k--) {
-                    if (colPos(currentPickInteractions[k].warpIdx) !== lastColInPick) {
-                        trendAnchor = currentPickInteractions[k];
-                        break;
-                    }
-                }
-
-                const anchorCol = colPos(trendAnchor.warpIdx);
-                if (lastColInPick > anchorCol) {
-                    currentTrendInPick = 'increasing';
-                } else if (lastColInPick < anchorCol) {
-                    currentTrendInPick = 'decreasing';
-                } else {
-                    currentTrendInPick = 'stationary';
-                }
-            } else if (!startNewPick && currentPickInteractions.length === 1) {
-                currentTrendInPick = 'stationary';
-            }
         }
         if (currentPickInteractions.length > 0) {
             identifiedPicks.push({
@@ -247,7 +210,7 @@ export const createDraft = (config: DraftConfig) => {
         if (currentCanvasState.warpAndEdgeData && currentCanvasState.warpAndEdgeData.length > 0 && currentNumWarps > 0) {
             identifiedPicks.forEach((pickDetails: any) => {
                 const currentRowCells: Array<number> = Array(currentNumWarps).fill(0); // Initialize WHITE
-                const pickInteractions = pickDetails.interactions; // Already sorted by sequence
+                const pickInteractions = pickDetails.interactions;
 
                 // A. Apply Direct Interactions first (Rule 3: Direct Interaction Priority)
                 const directInteractionMapForPick = new Map<number, any>();
@@ -256,6 +219,7 @@ export const createDraft = (config: DraftConfig) => {
                         // Only set cell state if the interaction is on an actual warp column
                         if (interaction.warpIdx >= 0 && interaction.warpIdx < currentNumWarps) {
                             currentRowCells[interaction.warpIdx] = interaction.isTopInteraction ? 0 : 1; // Cell state by direct click
+                            hooks?.onR3?.();
                         }
                         directInteractionMapForPick.set(interaction.warpIdx, interaction);
                     });
@@ -279,42 +243,92 @@ export const createDraft = (config: DraftConfig) => {
                         const destLayer = interactionB.warpLayer;
                         const startWarpIdxExclusive = Math.min(interactionA.warpIdx, interactionB.warpIdx);
                         const endWarpIdxExclusive = Math.max(interactionA.warpIdx, interactionB.warpIdx);
+                        const segDirection = Math.sign(interactionB.warpIdx - interactionA.warpIdx);
 
                         // Find transition point for any cross-layer segment
                         let transitionWarpIdx = -1;
-                        if (destLayer !== srcLayer) {
-                            const direction = Math.sign(interactionB.warpIdx - interactionA.warpIdx);
-                            if (direction !== 0) {
-                                for (let w = interactionA.warpIdx + direction; w !== interactionB.warpIdx; w += direction) {
-                                    if (w >= 0 && w < currentNumWarps && warpEntities[w]?.warpSys === destLayer) {
-                                        transitionWarpIdx = w;
-                                        break;
-                                    }
+                        if (destLayer !== srcLayer && segDirection !== 0) {
+                            for (let w = interactionA.warpIdx + segDirection; w !== interactionB.warpIdx; w += segDirection) {
+                                if (w >= 0 && w < currentNumWarps && (warpEntities[w]?.warpLayer ?? warpEntities[w]?.warpSys) === destLayer) {
+                                    transitionWarpIdx = w;
+                                    break;
                                 }
+                            }
+                            if (transitionWarpIdx !== -1) {
+                                hooks?.onR5CrossLayer?.();
                             }
                         }
 
+                        // When descending (going to a deeper layer) with no
+                        // intermediate destination-layer warp, the travel depth
+                        // depends on whether the weft goes under at the source.
+                        // Under (BTM): the weft must physically descend through
+                        // intermediate layers to reach the destination, so
+                        // travelDepth = destLayer for all intermediate cells.
+                        // Over (TOP): the weft approaches from above and stays
+                        // at the source depth -- intermediate warps don't lift.
+                        const descendingNoTransition = transitionWarpIdx === -1
+                            && destLayer > srcLayer
+                            && !interactionA.isTopInteraction;
+
                         for (let cellWarpIdx = startWarpIdxExclusive + 1; cellWarpIdx < endWarpIdxExclusive; cellWarpIdx++) {
                             if (!directInteractionMapForPick.has(cellWarpIdx)) {
-                                const warpLayerAtCell = warpEntities[cellWarpIdx]?.warpSys ?? 0;
+                                const warpLayerAtCell = warpEntities[cellWarpIdx]?.warpLayer ?? warpEntities[cellWarpIdx]?.warpSys ?? 0;
 
                                 let travelDepth = srcLayer;
-                                const dir = Math.sign(interactionB.warpIdx - interactionA.warpIdx);
-                                const strictlyPastTransition = transitionWarpIdx !== -1 && (dir > 0
+                                if (descendingNoTransition) {
+                                    travelDepth = destLayer;
+                                }
+                                const strictlyPastTransition = transitionWarpIdx !== -1 && (segDirection > 0
                                     ? cellWarpIdx > transitionWarpIdx
                                     : cellWarpIdx < transitionWarpIdx);
                                 if (strictlyPastTransition) {
                                     travelDepth = destLayer;
                                 }
 
-                                const isUnderAtCell = strictlyPastTransition
-                                    ? !interactionB.isTopInteraction
-                                    : !interactionA.isTopInteraction;
+                                // Same-layer under/over: determines if the weft goes
+                                // under warps at the same layer as the travel depth.
+                                //
+                                // Post-transition: use the layer transition direction --
+                                // ascending (src deeper than dest) means the weft came
+                                // from below and goes under; descending means it came
+                                // from above and goes over.
+                                //
+                                // Pre-transition with same interaction type at both
+                                // endpoints: uniform -- use the source endpoint's type.
+                                //
+                                // Pre-transition with opposite interaction types (one
+                                // TOP, one BTM on the same layer): the bezier crosses
+                                // from under to over (or vice versa) at the segment
+                                // midpoint. Cells closer to the source follow the
+                                // source's state; cells at or past the midpoint follow
+                                // the destination's state. At the midpoint the weft is
+                                // at the layer level (crossing point), so isUnder=false.
+                                let isUnderAtCell: boolean;
+                                if (strictlyPastTransition) {
+                                    isUnderAtCell = srcLayer > destLayer;
+                                } else if (srcLayer === destLayer &&
+                                    interactionA.isTopInteraction !== interactionB.isTopInteraction) {
+                                    hooks?.onR5BezierCrossing?.();
+                                    const distFromA = Math.abs(cellWarpIdx - interactionA.warpIdx);
+                                    const distFromB = Math.abs(cellWarpIdx - interactionB.warpIdx);
+                                    if (distFromA < distFromB) {
+                                        isUnderAtCell = !interactionA.isTopInteraction;
+                                    } else if (distFromB < distFromA) {
+                                        isUnderAtCell = !interactionB.isTopInteraction;
+                                    } else {
+                                        // At the midpoint: weft is at the layer level
+                                        isUnderAtCell = false;
+                                    }
+                                } else {
+                                    isUnderAtCell = !interactionA.isTopInteraction;
+                                }
 
                                 // Lift if weft travels deeper than this warp's layer or if at the same layer and going under
                                 if (travelDepth > warpLayerAtCell ||
                                     (travelDepth === warpLayerAtCell && isUnderAtCell)) {
                                     currentRowCells[cellWarpIdx] = 1; // BLACK
+                                    hooks?.onR5?.();
                                 }
                             }
                         }
@@ -324,139 +338,95 @@ export const createDraft = (config: DraftConfig) => {
             });
         }
 
-        // == Part 2: Post-Processing for Turn/Transition Lifts ==
+        // == Part 2: Inter-Pick Transition Lifts ==
+        //
+        // When a weft transitions from Pick N to Pick N+1, it must physically
+        // travel from where it ended Pick N to where it starts Pick N+1. Any
+        // warps it wraps around during this travel must be lifted.
+        //
+        // Same-warp turns require no processing -- the weft turns tightly
+        // around the warp without extending past it.
+        //
+        // Cross-warp transitions (Rule 9): the weft travels to a different
+        // warp, wrapping around intervening warps. Lifts go in the CURRENT
+        // row (start of Pick N+1).
 
         if (processedRowsData.length > 1) { // Need at least two rows to compare
             for (let i = 1; i < processedRowsData.length; i++) { // Start from the second row
                 const currentRowData = processedRowsData[i];
                 const prevRowData = processedRowsData[i - 1];
 
-                // Rule 7: Weft System Independence — turn/transition logic only applies
-                // between picks of the same weft system. Different weft systems are
-                // independent threads that don't interact.
+                // Rule 7: Weft System Independence -- turn/transition logic only applies
+                // between picks of the same weft system.
                 if (currentRowData.weftId !== prevRowData.weftId) {
+                    hooks?.onR7?.();
                     continue;
                 }
 
                 if (currentRowData.pickObj.interactions.length === 0 || prevRowData.pickObj.interactions.length === 0) {
-                    continue; // Both current and previous pick must have interactions
+                    continue;
                 }
 
                 const currentPickFirstInt = currentRowData.pickObj.interactions[0];
                 const prevPickLastInt = prevRowData.pickObj.interactions[prevRowData.pickObj.interactions.length - 1];
 
-                let isSameWarpTurn = false;
-                let turnContext: { turnWarpIdx: number, turnWarpLayer: number } | null = null;
-
-                // A. Detect Same-Warp Turn condition (Rule 8)
-                if (currentPickFirstInt.warpIdx === prevPickLastInt.warpIdx &&
+                // Same-warp turns (Pick N+1 starts on the same warp as Pick N
+                // ended, opposite interaction type) require no special processing
+                // -- the weft turns tightly around the warp without extending past it.
+                //
+                // Cross-warp transitions: the weft travels from Pick N's endpoint
+                // to Pick N+1's startpoint, wrapping around intervening warps.
+                const isSameWarpTurn = currentPickFirstInt.warpIdx === prevPickLastInt.warpIdx &&
                     currentPickFirstInt.isTopInteraction !== prevPickLastInt.isTopInteraction &&
-                    currentPickFirstInt.weftId === prevPickLastInt.weftId) {
-                    isSameWarpTurn = true;
-                    turnContext = {
-                        turnWarpIdx: currentPickFirstInt.warpIdx,
-                        turnWarpLayer: currentPickFirstInt.warpLayer // Layer of the weft as it starts the new pick
-                    };
-                }
+                    currentPickFirstInt.weftId === prevPickLastInt.weftId;
 
-                if (isSameWarpTurn && turnContext) {
-                    // Handle Specific Adjacent Warp — Directional Lift (Rule 8)
-                    let adjacentWarpToPotentiallyLift: number | null = null;
-                    if (prevRowData.pickObj.interactions.length >= 2) {
-                        const prevPrevInteraction = prevRowData.pickObj.interactions[prevRowData.pickObj.interactions.length - 2];
-                        const incomingSegmentOriginWarpIdx = prevPrevInteraction.warpIdx;
-
-                        if (incomingSegmentOriginWarpIdx !== turnContext.turnWarpIdx) { // Ensure distinct point forming a segment
-                            adjacentWarpToPotentiallyLift = turnContext.turnWarpIdx + Math.sign(turnContext.turnWarpIdx - incomingSegmentOriginWarpIdx);
-                        }
-                    }
-                    // If prevRowData.pickObj.interactions.length < 2, no defined incoming direction,
-                    // so no adjacent warp is lifted by this specific turn mechanism.
-
-                    if (adjacentWarpToPotentiallyLift !== null && adjacentWarpToPotentiallyLift >= 0 && adjacentWarpToPotentiallyLift < currentNumWarps) {
-                        const adjacentWarpLayer = warpEntities[adjacentWarpToPotentiallyLift]?.warpSys ?? 0;
-                        if (adjacentWarpLayer < turnContext.turnWarpLayer) { // Adjacent warp is physically higher
-                            // Only lift in PREVIOUS row (Pick N, the incoming leg).
-                            // The adjacent warp is in the concavity of the turn, which the incoming
-                            // pick wraps around. The outgoing pick (Pick N+1) moves away from the
-                            // adjacent warp — if it later traverses that warp, Part 1 travel depth handles the lift.
-                            if (!hasDirectInteractionInPick(prevRowData.pickObj, adjacentWarpToPotentiallyLift)) {
-                                prevRowData.cells[adjacentWarpToPotentiallyLift] = 1; // BLACK
-                            }
-                        }
-                    }
-                } else {
-                    // B. Handle Cross-Warp Transition (Rule 9)
-                    // This applies when the new pick starts on a different warp than the previous pick ended.
-                    const newPickStartLayer = currentPickFirstInt.warpLayer;
-
-                    // 1. Lift Previous Pick End-Warp in Current Pick (Rule 9a)
-                    // Lift if: (a) its physical layer is higher than the weft's new layer, OR
-                    // (b) the weft was going UNDER the end warp (btm interaction). When the weft
-                    // departs in a new direction, it's still under that warp and the warp must lift.
-                    // Edge interactions also have isTopInteraction=false but are out-of-bounds,
-                    // so the subsequent bounds check prevents spurious lifts.
-                    const prevPickEndWarpLayer = warpEntities[prevPickLastInt.warpIdx]?.warpSys ?? 0;
-
-                    if (prevPickEndWarpLayer < newPickStartLayer || !prevPickLastInt.isTopInteraction) {
-                        // Only attempt to set cell if prevPickLastInt.warpIdx is a valid warp index
-                        if (prevPickLastInt.warpIdx >= 0 && prevPickLastInt.warpIdx < currentNumWarps) {
-                            if (!hasDirectInteractionInPick(currentRowData.pickObj, prevPickLastInt.warpIdx)) {
-                                currentRowData.cells[prevPickLastInt.warpIdx] = 1; // BLACK
-                            }
-                        }
-                    }
-
-                    // 2. Lift Intervening Warps in Current Pick (Rule 9b)
-                    // (If their physical layer is higher than the weft's new layer)
+                if (!isSameWarpTurn) {
+                    // Cross-Warp Transition (Rule 9): the transition from
+                    // Pick N's endpoint to Pick N+1's startpoint is a virtual
+                    // segment. Apply implied lift logic similar to Part 1, but
+                    // with a different transition model: the weft transitions
+                    // at the LAST destination-layer warp (closest to the
+                    // destination), not the first. In Part 1 segments the weft
+                    // actively interacts with the destination and transitions
+                    // early. In virtual segments the weft is traveling freely
+                    // between picks, staying at the source depth longer.
+                    const transitionSrcLayer = prevPickLastInt.warpLayer;
+                    const transitionDestLayer = currentPickFirstInt.warpLayer;
                     const minWarpIdx = Math.min(prevPickLastInt.warpIdx, currentPickFirstInt.warpIdx);
                     const maxWarpIdx = Math.max(prevPickLastInt.warpIdx, currentPickFirstInt.warpIdx);
 
-                    for (let warpIdxInBetween = minWarpIdx + 1; warpIdxInBetween < maxWarpIdx; warpIdxInBetween++) { // Strictly between
-                        const interveningWarpLayer = warpEntities[warpIdxInBetween]?.warpSys ?? 0;
-                        if (interveningWarpLayer < newPickStartLayer) { // Intervening warp is physically higher
-                            if (!hasDirectInteractionInPick(currentRowData.pickObj, warpIdxInBetween)) {
-                                currentRowData.cells[warpIdxInBetween] = 1; // BLACK
+                    // Direction from Pick N's endpoint to Pick N+1's startpoint
+                    const transDir = Math.sign(currentPickFirstInt.warpIdx - prevPickLastInt.warpIdx);
+
+                    // Find the LAST destination-layer warp scanning from source
+                    // toward destination (closest to destination). The weft
+                    // stays at source depth until this point.
+                    let transitionVirtualIdx = -1;
+                    if (transitionDestLayer !== transitionSrcLayer && transDir !== 0) {
+                        for (let w = prevPickLastInt.warpIdx + transDir; w !== currentPickFirstInt.warpIdx; w += transDir) {
+                            if (w >= 0 && w < currentNumWarps && (warpEntities[w]?.warpLayer ?? warpEntities[w]?.warpSys) === transitionDestLayer) {
+                                transitionVirtualIdx = w; // keep scanning, don't break
                             }
                         }
                     }
-                }
 
-                // --- C. Retrospective Scoop Lift Logic (Rule 10, modifies prevRowData.cells) ---
-                // Applied after A and B, using currentPickFirstInt as context for prevRowData interactions.
-                const I_next_overall = currentPickFirstInt;
-                if (prevRowData.pickObj.interactions.length >= 1) { // Minimum one point in prev pick to be I_current
-                    // Iterate through all interactions in prevRowData to check if they form a scoop peak
-                    // with I_next_overall as the clarifying point.
-                    for (let k_idx = 0; k_idx < prevRowData.pickObj.interactions.length; k_idx++) {
-                        const I_current = prevRowData.pickObj.interactions[k_idx];
+                    for (let warpIdxInBetween = minWarpIdx + 1; warpIdxInBetween < maxWarpIdx; warpIdxInBetween++) {
+                        if (!hasDirectInteractionInPick(currentRowData.pickObj, warpIdxInBetween)) {
+                            const interveningWarpLayer = warpEntities[warpIdxInBetween]?.warpLayer ?? warpEntities[warpIdxInBetween]?.warpSys ?? 0;
 
-                        if (I_current.isTopInteraction === true) {
-                            if (k_idx > 0) { // I_current has a preceding interaction in its own pick
-                                const I_prev_in_I_current_pick = prevRowData.pickObj.interactions[k_idx - 1];
+                            const pastTransition = transitionVirtualIdx !== -1 && (transDir > 0
+                                ? warpIdxInBetween > transitionVirtualIdx
+                                : warpIdxInBetween < transitionVirtualIdx);
 
-                                const direction1 = Math.sign(I_current.warpIdx - I_prev_in_I_current_pick.warpIdx);
-                                const direction2 = Math.sign(I_next_overall.warpIdx - I_current.warpIdx);
+                            const virtualTravelDepth = pastTransition ? transitionDestLayer : transitionSrcLayer;
+                            const virtualIsUnder = pastTransition
+                                ? transitionSrcLayer > transitionDestLayer
+                                : !prevPickLastInt.isTopInteraction;
 
-                                // Conditions for Retrospective Scoop Lift:
-                                const cond_directional_reversal = (direction1 !== 0 && direction2 !== 0 && direction1 === -direction2);
-                                const cond_peak_vs_incoming_layer = (I_current.warpLayer <= I_prev_in_I_current_pick.warpLayer);
-                                const cond_peak_and_scoop_out_same_layer = (I_current.warpLayer === I_next_overall.warpLayer);
-                                const cond_scoop_out_is_bottom = (I_next_overall.isTopInteraction === false);
-
-                                if (cond_directional_reversal &&
-                                    cond_peak_vs_incoming_layer &&
-                                    cond_peak_and_scoop_out_same_layer &&
-                                    cond_scoop_out_is_bottom
-                                ) {
-                                    prevRowData.cells[I_current.warpIdx] = 1; // BLACK
-                                }
-                            } else {
-                                // I_current is the *first* interaction in prevRowData.
-                                // A scoop here would need a point before it in the same pick
-                                // to form the 3-point peak pattern. Not applicable if k_idx === 0.
-                                // Cross-Warp Transition (Part B) or Same-Warp-Turn (Part A) handle
-                                // the relationship with picks before prevRowData.
+                            if (virtualTravelDepth > interveningWarpLayer ||
+                                (virtualTravelDepth === interveningWarpLayer && virtualIsUnder)) {
+                                currentRowData.cells[warpIdxInBetween] = 1; // BLACK
+                                hooks?.onR9b?.();
                             }
                         }
                     }
