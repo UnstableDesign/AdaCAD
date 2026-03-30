@@ -76,7 +76,7 @@ const draft_b: OperationInlet={
 
 const inlets=[draft_a, draft_b];
 
-let getCommonSize=(patternAOrg:Draft, patternBOrg:Draft, patternSizeChange:number)=>{
+let getCommonSize=(patternAOrg:Draft, patternBOrg:Draft, patternSizeChange:number)=>{  // get the common width and height to repeat the two patterns too
   let drafts = [patternAOrg, patternBOrg];
   let commonW = lcm(drafts.map(draft=>warps(draft.drawdown)).filter(size=>size>0), defaults.lcm_timeout)+patternSizeChange;
   let commonH = lcm(drafts.map(draft=>wefts(draft.drawdown)).filter(size=>size>0), defaults.lcm_timeout)+patternSizeChange;
@@ -89,7 +89,7 @@ let getCommonSize=(patternAOrg:Draft, patternBOrg:Draft, patternSizeChange:numbe
   return {commonW:adjustedCommonW, commonH:adjustedCommonH};
 };
 
-let repeatPatternToSize=(patternOrg:Draft, targetH:number, targetW:number):(boolean | null)[][]=>{
+let repeatPatternToSize=(patternOrg:Draft, targetH:number, targetW:number):(boolean | null)[][]=>{  // repeat the patterns to fill the area using common width and height
   let output:(boolean | null)[][]=[];
 
   for(let i=0;i<targetH;i++){
@@ -152,51 +152,51 @@ const perform=(op_params:OpParamVal[], op_inputs:OpInput[])=>{
 
   if(!isVertical){   
     let fullTileCount=Math.floor(horizontalMiddleLength/commonW);
-    let remainder=horizontalMiddleLength%commonW;
-    let leftFullTileCount=Math.floor(fullTileCount/2);
+    let remainder=horizontalMiddleLength%commonW;   // found full tile count and the remainder of cols left over
+    let leftFullTileCount=Math.floor(fullTileCount/2);   
     let leftFullWidth=leftFullTileCount*commonW;
-    let remainderStart=leftFullWidth;
+    let remainderStart=leftFullWidth;     // place remainder in middle so full pattern tiles can be on either side
     let remainderEnd=remainderStart+remainder;
     let center=0;
     if(fullTileCount>0){
-      center=(blendCenterPercent/100)*(fullTileCount-1);
+      center=(blendCenterPercent/100)*(fullTileCount-1);   // find center of blend using blend center percent
     }
 
     for(let i=0;i<rows;i++){
       for(let j=0;j<cols;j++){
-        if(j<commonW){
+        if(j<commonW){         // left pattern
           cellValue=patternA[i][j];
         }
-        else if(j>=horizontalPatternBStart){
+        else if(j>=horizontalPatternBStart){    // right pattern
           let patternBCol=j-horizontalPatternBStart;
           cellValue=patternB[i][patternBCol];
         }
-        else if(j>=commonW && j<horizontalPatternBStart){
+        else if(j>=commonW && j<horizontalPatternBStart){    // middle region
           let middleCol=j-commonW;
           let usePatternA=false;
 
-          if(middleCol>=remainderStart && middleCol<remainderEnd){
+          if(middleCol>=remainderStart && middleCol<remainderEnd){   // remainder cols flip A/B/A/B
             let remainderCol=middleCol-remainderStart;
             usePatternA=(remainderCol%2===0);
           }else{
             let tileIndex=0;
             let colInTile=0;
 
-            if(middleCol<remainderStart){
-              tileIndex=Math.floor(middleCol/commonW);
-              colInTile=middleCol%commonW;
+            if(middleCol<remainderStart){   // left of remainder
+              tileIndex=Math.floor(middleCol/commonW);  // find which tile your in, starts at 0
+              colInTile=middleCol%commonW;  // col within the tile your in
             }else{
               let rightCol=middleCol-remainderEnd;
               tileIndex=leftFullTileCount+Math.floor(rightCol/commonW);
               colInTile=rightCol%commonW;
             }
 
-            let distance=Math.floor(Math.abs(tileIndex-center));
+            let distance=Math.floor(Math.abs(tileIndex-center));  // find distance from center
             let isPatternASide=tileIndex<center;
             let isPatternBSide=tileIndex>center;
-            let stripeSpacing=2+distance;
-            let useOpposite=((colInTile+1)%stripeSpacing===0);
-
+            let stripeSpacing=2+distance;   // minimum distance of 2
+            let useOpposite=((colInTile+1)%stripeSpacing===0); // if remainder is 0 after dividing by stripe space then flips to other pattern
+                                                               // farther from center less likely to flip (ex. closer to A it can go A/A/A/B/A)
             if(!isPatternASide && !isPatternBSide){
               usePatternA=(colInTile%2===0);
             }else if(isPatternASide){
@@ -205,14 +205,14 @@ const perform=(op_params:OpParamVal[], op_inputs:OpInput[])=>{
               usePatternA=useOpposite;
             }
 
-            if(usePatternA){
+            if(usePatternA){    // get cell values for middle region
               cellValue=patternA[i][colInTile];
             }else{
               cellValue=patternB[i][colInTile];
             }
           }
 
-          if(middleCol>=remainderStart && middleCol<remainderEnd){
+          if(middleCol>=remainderStart && middleCol<remainderEnd){  // get cell values for remainder
             let centerCol=(middleCol-remainderStart)%commonW;
             if(usePatternA){
               cellValue=patternA[i][centerCol];
@@ -222,11 +222,11 @@ const perform=(op_params:OpParamVal[], op_inputs:OpInput[])=>{
           }
         }
 
-        drawdown[i][j]=createCell(cellValue);
+        drawdown[i][j]=createCell(cellValue); // put the cell value found into the array holding all cell values
       }
     }
   }
-  else{ 
+  else{      // same logic for vertical, just based on rows instead of cols
     let fullTileCount=Math.floor(verticalMiddleLength/commonH);
     let remainder=verticalMiddleLength%commonH;
     let leftFullTileCount=Math.floor(fullTileCount/2);
@@ -302,7 +302,7 @@ const perform=(op_params:OpParamVal[], op_inputs:OpInput[])=>{
     }
   }
 
-  let draft=initDraftFromDrawdown(drawdown);    
+  let draft=initDraftFromDrawdown(drawdown);    // make draft using drawdown
   draft=updateWeftSystemsAndShuttles(draft, patternAOrg); 
   draft=updateWarpSystemsAndShuttles(draft, patternAOrg); 
 
