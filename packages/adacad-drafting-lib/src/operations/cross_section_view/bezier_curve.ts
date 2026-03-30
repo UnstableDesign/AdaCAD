@@ -159,9 +159,9 @@ export const createBezierCurve = (config: BezierCurveConfig) => {
         const baseHue = p.hue(baseWeftColor);
         const baseSat = p.saturation(baseWeftColor);
         const baseBright = p.brightness(baseWeftColor);
-        // Darker start, lighter end -- luminance shift visible on any base color
-        const startColor = p.color(baseHue, Math.min(baseSat * 1.3, 100), baseBright * 0.55);
-        const endColor = p.color(baseHue, baseSat * 0.6, Math.min(baseBright * 1.4, 100));
+        // Subtle darker-to-lighter gradient along weft path
+        const startColor = p.color(baseHue, Math.min(baseSat * 1.15, 100), baseBright * 0.75);
+        const endColor = p.color(baseHue, baseSat * 0.8, Math.min(baseBright * 1.2, 100));
         p.colorMode(p.RGB, 255);
 
         const numSubdivisionsPerMainSegment = 15;

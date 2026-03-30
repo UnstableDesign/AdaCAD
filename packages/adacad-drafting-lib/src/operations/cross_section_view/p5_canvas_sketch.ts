@@ -57,7 +57,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         const TILE_DOT_OFFSET = WEFT_DOT_SIZE + 2;
         const TILE_TOGGLE_DURATION = 150; // hover preview animation duration (ms)
         const TILE_GHOST_OPACITY = 130;
-        const RESET_BUTTON = { x: 30, y: 15, w: 60, h: 28 };
+        const RESET_BUTTON = { x: 30, y: 15, w: 82, h: 28 };
 
         // Control limits
         const MAX_WARP_SYSTEMS = 10;
@@ -451,6 +451,36 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             p.redraw();
         }
 
+        // Clear only weft spline data, preserving warp structure and system assignments
+        function resetWeftSplines() {
+            editedWeftIds.clear();
+
+            for (const entity of canvasState.warpAndEdgeData) {
+                if (entity.type === 'warp') {
+                    entity.topWeft = [];
+                    entity.bottomWeft = [];
+                } else if (entity.type === 'edge') {
+                    for (let i = 0; i < entity.edgeSys.length; i++) {
+                        entity.edgeSys[i] = [];
+                    }
+                    entity.tileMode = new Array(entity.tileMode.length).fill(false);
+                }
+            }
+
+            canvasState.activeWeft = null;
+            canvasState.clickSequence = 0;
+            canvasState.pathsByWeft = {};
+            canvasState.selectedDots = [];
+            canvasState.hoveredDotIndex = -1;
+            canvasState.showDeleteButton = false;
+            canvasState.deleteButtonBounds = null;
+
+            rebuildRenderCache();
+            generateDraft();
+            updateCallback(canvasState);
+            p.redraw();
+        }
+
         p.setup = function setup() {
             p.createCanvas(SKETCH_CANVAS_WIDTH, SKETCH_CANVAS_HEIGHT);
             p.textSize(14);
@@ -492,6 +522,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             drawDeleteButton();
             drawResetButton();
             drawWarpSystemBadges();
+            drawWarpIndexLabels();
             drawWarpSystemButtons();
             drawWarpCountButtons();
             drawWeftSystemButtons();
@@ -851,7 +882,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             p.noStroke();
             p.textAlign(p.CENTER, p.CENTER);
             p.textSize(14);
-            p.text('Reset', RESET_BUTTON.x + RESET_BUTTON.w / 2, RESET_BUTTON.y + RESET_BUTTON.h / 2);
+            p.text('Reset Picks', RESET_BUTTON.x + RESET_BUTTON.w / 2, RESET_BUTTON.y + RESET_BUTTON.h / 2);
         }
 
         // ── Integrated Controls ──────────────────────────────────────
@@ -1067,6 +1098,21 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
             }
         }
 
+        function drawWarpIndexLabels() {
+            const { firstColumnX, spacingX } = computeBadgeLayout();
+            const labelY = SKETCH_CANVAS_HEIGHT - SKETCH_BOTTOM_MARGIN + 2;
+
+            p.fill(160);
+            p.noStroke();
+            p.textAlign(p.CENTER, p.TOP);
+            p.textSize(11);
+
+            for (let i = 0; i < effectiveNumWarps; i++) {
+                const cx = firstColumnX + spacingX * (i + 1);
+                p.text(i + 1, cx, labelY);
+            }
+        }
+
         function isInsideResetButton(mx: number, my: number): boolean {
             return mx >= RESET_BUTTON.x && mx <= RESET_BUTTON.x + RESET_BUTTON.w &&
                    my >= RESET_BUTTON.y && my <= RESET_BUTTON.y + RESET_BUTTON.h;
@@ -1202,7 +1248,7 @@ export const createP5Sketch = (config: CrossSectionViewSketchConfig) => {
         p.mousePressed = function mousePressed() {
             // Check reset button click
             if (isInsideResetButton(p.mouseX, p.mouseY)) {
-                resetCanvas();
+                resetWeftSplines();
                 return;
             }
 
