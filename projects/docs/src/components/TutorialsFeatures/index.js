@@ -4,6 +4,17 @@ import clsx from 'clsx';
 import { OpLink } from '@site/src/components/OpLink';
 const FeatureList = [
     {
+        title: 'Data Weaving',
+        img: require('@site/docs/learn/tutorials/img/dataweave.013.jpeg').default,
+        url: 'data-weave',
+        description: (
+            <>
+                Use data to create and manipulate drafts.
+            </>
+        ),
+        operations: ['undulatewefts', 'sample_width', 'sample_length', 'fill']
+    },
+    {
         title: 'Using Drafts as Graphics',
         img: require('@site/docs/learn/tutorials/img/bitfield_stretch_1.jpeg').default,
         url: 'draft-as-graphic',
