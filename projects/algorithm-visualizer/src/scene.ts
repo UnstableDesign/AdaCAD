@@ -17,6 +17,7 @@ import { getFloatGeometry } from "./floatAdapter";
 import { isolateLayersLocal, type LayerAlgorithmOptions } from "./isolateLayersLocal";
 import { type FloatTraceState, type FloatTraversalEvent } from "./traceTypes";
 import { createSeedDebugGeometry } from "./seedDebugAdapter";
+import { buildLiftMap } from "./liftMap";
 
 export interface SceneRuntime {
   scene: Scene;
@@ -144,6 +145,14 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
 
     const floats = getFloats(wefts(draft.drawdown), warps(draft.drawdown), updatedCNs);
     const floatBundle = getFloatGeometry(floats, warps(draft.drawdown), wefts(draft.drawdown));
+
+
+    //TEST OUT AND PRINT TO CONSOLE THE LIFT MAP
+    const liftMap = buildLiftMap(floats, wefts(draft.drawdown), warps(draft.drawdown));
+    console.log("LIFT MAP IS", liftMap);
+
+
+
 
     const localLayersResult = isolateLayersLocal(
       wefts(draft.drawdown),

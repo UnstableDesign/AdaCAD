@@ -10,7 +10,7 @@ material_b.diameter = 2;
 
 export const simVars = {
     pack: 1, //max packing
-    lift_limit: 10,
+    lift_limit: 1,
     use_layers: true,
     warp_spacing: 10,
     layer_spacing: 5,

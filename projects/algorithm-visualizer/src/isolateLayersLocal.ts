@@ -125,10 +125,10 @@ const buildScoredLocalTraceAndLayers = (
         return { seed, score };
     });
 
-    console.log("SCORED SEEDS", scoredSeeds);
     scoredSeeds.sort((a, b) => b.score - a.score);
 
     for (const scored of scoredSeeds) {
+
         const radius = Math.max(1, Math.ceil(scored.score * scoreRadiusScale));
         const baseDebug = {
             floatId: scored.seed.id,
@@ -148,7 +148,6 @@ const buildScoredLocalTraceAndLayers = (
         }
 
         const localFloats = sourceFloats
-            .filter((item) => getLayer(item.left, warps, workingCNs) === 0)
             .filter((item) => minSideDistance(scored.seed, item) <= radius);
 
         if (localFloats.length === 0) {

@@ -1,7 +1,7 @@
 import "./style.css";
 import { GUI } from "dat.gui";
 import { createSceneRuntime, type SceneGroups } from "./scene";
-import { DRAFT_LIST } from "./simVars";
+import { DRAFT_LIST, simVars } from "./simVars";
 import { reduceFloatTrace } from "./traceTypes";
 import { pngFileToDrawdown } from "./pngDraft";
 
@@ -36,6 +36,7 @@ gui.close();
 
 const guiState = {
   draft_id: 0,
+  lift_limit: 1,
   layer_id: 0,
   event_index: 0,
   play_speed_ms: 250,
@@ -140,6 +141,11 @@ eventSliderController = gui
     guiState.event_index = Math.floor(value);
     applyTraceState();
   });
+
+gui.add(guiState, "lift_limit", 1, 10, 1).name("Lift Limit").onChange((value: number) => {
+  simVars.lift_limit = value;
+
+});
 
 gui
   .add(guiState, "dim_untouched")
