@@ -39,7 +39,7 @@
  * 
  */
 
-import { modStrict, type CNFloat, type CNIndex } from "adacad-drafting-lib";
+import { getWeftFloatLength, modStrict, warps, weft_profile, wefts, type CNFloat, type CNIndex } from "adacad-drafting-lib";
 import { simVars } from "./simVars";
 import { type LiftMapTraceEvent } from "./traceTypes";
 
@@ -228,26 +228,15 @@ const onRay = (start: CNIndex, lastLift: CNIndex, end: CNIndex, threshold: numbe
 
 }
 /**
- * checks the starting point, ending point, and last visited warp to see if you can
- * draw a ray from the last warp to this weft (even if it didn't end on the same point)
- * this handles a case such as basket, where the weft would have lifted but is 
- * eseentially "blocked" by separate weft along the loop
  * @param startKey 
  * @param chain 
  * @returns 
  */
-const ValidLoop = (startKey: string, chain: string[], threshold: number): boolean => {
+const hasValidLoop = (startKey: string, touched: Set<string>): boolean => {
 
+    if (touched.has(startKey)) return true;
+    return false;
 
-    console.log("START KEY IS", startKey);
-
-    const start = parseKey(startKey);
-    const end = parseKey(chain[chain.length - 1]);
-    const lastLift = parseKey(chain[chain.length - 2]);
-
-    if (samePoint(start, end)) return true;
-    else if (onRay(start, lastLift, end, threshold)) return true;
-    else return false;
 
 
 }
@@ -329,101 +318,470 @@ export interface LiftMapBuildResult {
     trace: LiftMapTraceEvent[];
 }
 
-/**
- * Builds layer groups from float endpoints using the lift-map walk described above.
- * Emits a step trace for visualization (see `LiftMapTraceEvent`).
- */
-export const buildLiftMapWithTrace = (
-    floats: Array<CNFloat>,
-    wefts: number,
-    warps: number,
-): LiftMapBuildResult => {
-    const trace: LiftMapTraceEvent[] = [];
-    const layerSet: LayerSet = [];
-    const searchSet = new Set<string>();
 
-    for (const f of floats) {
-        searchSet.add(cnKey(normalizeNdx(f.left, wefts, warps)));
-        searchSet.add(cnKey(normalizeNdx(f.right, wefts, warps)));
+/**
+ * given an ACN, this function casts a ray in the next search direction, returns a set of ACNs that are within the threshold of the origin ACN.
+ * @param origin 
+ * @param threshold 
+ * @param wefts 
+ * @param warps 
+ * @param searchSet 
+ * @returns 
+ */
+const getLiftSet = (origin: CNIndex, threshold: number, wefts: number, warps: number, searchSet: ReadonlySet<string>, floats: Array<CNFloat>): Array<CNIndex> => {
+    const liftSet: Array<CNIndex> = [];
+
+
+    //I am an ACN on a weft float, left side, look one column left and walk UP
+    if (origin.id == 0) {
+        const search_start = { i: origin.i, j: modStrict(origin.j - 1, warps), id: origin.id };
+        for (let i = 0; i < threshold; i++) {
+            if (searchSet.has(cnKey({ i: modStrict(search_start.i - i, wefts), j: search_start.j, id: 2 }))) {
+                liftSet.push({ i: modStrict(search_start.i - i, wefts), j: search_start.j, id: 2 });
+            }
+        }
+
+        //if we end on a float, get it's end point
+        const float = getWarpFloat(modStrict(search_start.i - threshold, wefts), search_start.j, wefts, warps, floats);
+        if (float == null) return liftSet;
+        liftSet.push(float.left);
+
+    }
+    //I am an ACN on a weft float, Right side, look one column right and walk DOWN
+    if (origin.id == 1) {
+        const search_start = { i: origin.i, j: modStrict(origin.j + 1, warps), id: origin.id };
+        for (let i = 0; i < threshold; i++) {
+            if (searchSet.has(cnKey({ i: modStrict(search_start.i + i, wefts), j: search_start.j, id: 3 }))) {
+                liftSet.push({ i: modStrict(search_start.i + i, wefts), j: search_start.j, id: 3 });
+            }
+        }
+        //if we end on a float, get it's end point
+        const float = getWarpFloat(modStrict(search_start.i + threshold, wefts), search_start.j, wefts, warps, floats);
+        if (float == null) return liftSet;
+        liftSet.push(float.right);
     }
 
-    const addToLayerUnique = (layer: CNIndex[], key: string, dedupe: Set<string>) => {
-        const addOne = (k: string) => {
-            if (dedupe.has(k)) {
-                return;
+    //I am an ACN on a warp float, Top side, look one row up and walk RIGHT
+    if (origin.id == 2) {
+        const search_start = { i: modStrict(origin.i - 1, wefts), j: origin.j, id: origin.id };
+        for (let j = 0; j < threshold; j++) {
+            if (searchSet.has(cnKey({ i: search_start.i, j: modStrict(search_start.j + j, warps), id: 1 }))) {
+                liftSet.push({ i: search_start.i, j: modStrict(search_start.j + j, warps), id: 1 });
             }
-            dedupe.add(k);
-            layer.push(parseKey(k));
-        };
-        addOne(key);
-    };
+            //if we end on a float, get it's end point
+            const float = getWeftFloat(search_start.i, modStrict(search_start.j + threshold, warps), wefts, warps, floats);
+            if (float == null) return liftSet;
+            liftSet.push(float.right);
+        }
+    }
 
-    while (searchSet.size > 0) {
-        const layerIndex = layerSet.length;
-        trace.push({ type: "layer_begin", layer_index: layerIndex });
+    // I am an ACN on a warp float, Bottom Side, Look one row down and walk LEFT
+    else if (origin.id == 3) {
+        const search_start = { i: modStrict(origin.i + 1, wefts), j: origin.j, id: origin.id };
+        for (let j = 0; j < threshold; j++) {
+            if (searchSet.has(cnKey({ i: search_start.i, j: modStrict(search_start.j - j, warps), id: 0 }))) {
+                liftSet.push({ i: search_start.i, j: modStrict(search_start.j + j, warps), id: 0 });
+            }
+            //if we end on a float, get it's end point
+            const float = getWeftFloat(search_start.i, modStrict(search_start.j - threshold, warps), wefts, warps, floats);
+            if (float == null) return liftSet;
+            liftSet.push(float.left);
+        }
+    }
 
-        const layer: CNIndex[] = [];
-        const dedupe = new Set<string>();
+    //there shouldn't be any duplicates but just in case
+    return filterDuplicates(liftSet);
+}
 
-        let { cnMap, stepFloatId } = buildCnMapWithEdgeFloats(searchSet, floats, wefts, warps);
+const filterDuplicates = (liftSet: Array<CNIndex>): Array<CNIndex> => {
+    return liftSet.filter((acn, index, self) =>
+        index === self.findIndex((t) => t.i === acn.i && t.j === acn.j && t.id === acn.id)
+    );
+}
 
-        const nullKeys = [...searchSet].filter((k) => cnMap.get(k) === null);
-        for (const k of nullKeys) {
-            trace.push({ type: "null_candidate", acn_key: k });
-            searchSet.delete(k);
-            const lenBefore = layer.length;
-            addToLayerUnique(layer, k, dedupe);
-            if (layer.length > lenBefore) {
-                trace.push({ type: "add_acn_layer", acn_key: k, layer_index: layerIndex, reason: "null_next" });
+export const emitLiftPaths = (startKey: string, cnMap: Map<string, string | null>, threshold: number, wefts: number, warps: number, searchSet: ReadonlySet<string>, floats: Array<CNFloat>): Set<string> => {
+
+    const touched = new Set<string>();
+
+    let cur = startKey;
+    for (let i = 0; i < 5; i++) {
+        const next = cnMap.get(cur);
+        if (next == null) break;
+        const lift_set = getLiftSet(parseKey(cur), threshold, wefts, warps, searchSet, floats);
+        for (const acn of lift_set) {
+            touched.add(cnKey(acn));
+        }
+        cur = next;
+    }
+    return touched;
+
+
+}
+
+
+
+/**
+ * TODO - update this function to consider layers. 
+ * uses the contact neighborhoods on this row to get a list of floats. Some floats may be out of range (> warps) in the case where the pattern would repeat and wrap
+ * @param i 
+ * @param warps 
+ * @param cns 
+ * @returns 
+ */
+export const getRowAsFloats = (i: number, warps: number, searchSet: ReadonlySet<string>): Array<CNFloat> => {
+
+
+    const floats: Array<CNFloat> = [];
+    const lefts = Array.from(searchSet).filter(el => parseKey(el).id == 0);
+    const rights = Array.from(searchSet).filter(el => parseKey(el).id == 1);
+    if (lefts.length !== rights.length) console.error("THIS ROW HAS AN UNEVEN NUMBER OF ACNS")
+
+
+    lefts.forEach(left => {
+        let found = false;
+
+        for (let j = left.ndx.j; j < warps && !found; j++) {
+            const right = rights.find(el => el.ndx.j == j);
+            if (right !== undefined) {
+                found = true;
+                floats.push({
+                    id: -1,
+                    left: left.ndx,
+                    right: right.ndx,
+                    edge: false,
+                    face: left.face,
+                    blocking: []
+                })
             }
         }
 
-        if (searchSet.size > 0) {
-            const rebuilt = buildCnMapWithEdgeFloats(searchSet, floats, wefts, warps);
-            cnMap = rebuilt.cnMap;
-            stepFloatId = rebuilt.stepFloatId;
+        if (!found) {
+            const right = rights.shift();
+            if (right !== undefined) {
+                floats.push({
+                    id: -1,
+                    left: left.ndx,
+                    right: { i: right.ndx.i, j: warps + right.ndx.j, id: 1 }, //get the first in the list
+                    edge: false,
+                    face: left.face,
+                    blocking: []
+                })
+            }
         }
 
-        const consumedByLoop = new Set<string>();
 
-        for (const startKey of [...searchSet]) {
-            if (consumedByLoop.has(startKey)) {
-                continue;
+    })
+
+    return floats;
+
+
+}
+
+
+//CREATE A BASIC MAP OF WHERE THE FLOATS ARE PLACED 
+const createMergeMap = (searchSet: ReadonlySet<string>, floats: Array<CNFloat>, wefts: number, warps: number){
+
+    const WEFT_FLOAT = 0;
+    const WARP_FLOAT = 1;
+    const NO_FLOAT = -1;
+
+    const mergeMap = new Array<Array<number>>(wefts).fill(new Array<number>(warps).fill(NO_FLOAT));
+
+
+    for (const f of floats) {
+
+        if (searchSet.has(cnKey(f.left)) && searchSet.has(cnKey(f.right))) {
+
+            if (f.face) {
+                for (let i = f.left.i; i < f.right.i; i++) {
+                    mergeMap[i][f.left.j] = WARP_FLOAT;
+                }
+            } else {
+                for (let j = f.left.j; j < f.right.j; j++) {
+                    mergeMap[f.left.i][j] = WEFT_FLOAT;
+                }
             }
-            trace.push({ type: "loop_seed", acn_key: startKey });
-            let cur = startKey;
-            let valid = true;
-            const chain: string[] = [];
-            for (let s = 0; s < 4; s++) {
-                const nxt = cnMap.get(cur);
-                if (nxt === null || nxt === undefined) {
-                    valid = false;
-                    trace.push({ type: "loop_outcome", start_key: startKey, valid: false });
+
+
+        } else if (searchSet.has(cnKey(f.left)) != searchSet.has(cnKey(f.right))) {
+
+            const left_is_active = searchSet.has(cnKey(f.left));
+
+            if (f.face) {
+                const half_dist = Math.ceil((f.right.i - f.left.i) / 2);
+
+                for (let i = f.left.i; i < f.right.i; i++) {
+                    if ((left_is_active && i <= f.left.i + half_dist) || (!left_is_active && i >= f.right.i - half_dist)) {
+                        mergeMap[i][f.left.j] = WARP_FLOAT;
+                    }
+                }
+            } else {
+                const half_dist = Math.ceil((f.right.j - f.left.j) / 2);
+
+                for (let j = f.left.j; j < f.right.j; j++) {
+                    if ((left_is_active && j <= f.left.j + half_dist) || (!left_is_active && j >= f.right.j - half_dist)) {
+                        mergeMap[f.left.i][j] = WEFT_FLOAT;
+                    }
+                }
+            }
+
+
+        }
+        return mergeMap;
+    }
+
+
+    const floatIsActive = (f: CNFloat, searchSet: ReadonlySet<string>, wefts: number, warps: number): boolean => {
+        let left_acn = searchSet.has(cnKey(normalizeNdx(f.left, wefts, warps)));
+        let right_acn = searchSet.has(cnKey(normalizeNdx(f.right, wefts, warps)));
+        if (left_acn && right_acn) return true;
+        if (left_acn != right_acn) console.error("a float is active on only one side");
+        return false;
+
+    }
+
+    const extendFloats = (mergeMap: Array<Array<number>>, wefts: number, warps: number): Array<CNFloat> => {
+        const WEFT_FLOAT = 0;
+        const WARP_FLOAT = 1;
+        const NO_FLOAT = -1;
+        let last = NO_FLOAT;
+
+        //WALK ALONG THE WEFTS
+        for (let i = 0; i < wefts; i++) {
+            for (let j = 0; j < warps; j++) {
+
+                if (mergeMap[i][j] == NO_FLOAT) {
+                    if (last == WEFT_FLOAT) {
+                        mergeMap[i][j] = WEFT_FLOAT;
+                    }
+                }
+
+                last = mergeMap[i][j];
+            }
+
+            //do it again just to make sure we assign the front ones if they are missing
+            for (let j = 0; j < warps; j++) {
+
+                if (mergeMap[i][j] == NO_FLOAT) {
+                    if (last == WEFT_FLOAT) {
+                        mergeMap[i][j] = WEFT_FLOAT;
+                    }
+                } else {
                     break;
                 }
-                const fid = stepFloatId.get(edgeStepKey(cur, nxt)) ?? null;
-                trace.push({
-                    type: "loop_step",
-                    acn_key_from: cur,
-                    acn_key_to: nxt,
-                    step_index: s,
-                    float_id: fid,
-                });
-                chain.push(nxt);
-                cur = nxt;
+
+                last = mergeMap[i][j];
+            }
+        }
+
+        //WALK ALONG THE WARPS
+        for (let j = 0; j < warps; j++) {
+            for (let i = 0; i < wefts; i++) {
+
+                if (mergeMap[i][j] == NO_FLOAT) {
+                    if (last == WARP_FLOAT) {
+                        mergeMap[i][j] = WARP_FLOAT;
+                    }
+                }
+
+                last = mergeMap[i][j];
             }
 
-            if (valid) {
-                const vl = ValidLoop(
+            //do it again just to make sure we assign the front ones if they are missing
+            for (let i = 0; i < wefts; i++) {
+
+                if (mergeMap[i][j] == NO_FLOAT) {
+                    if (last == WARP_FLOAT) {
+                        mergeMap[i][j] = WARP_FLOAT;
+                    }
+                } else {
+                    break;
+                }
+
+                last = mergeMap[i][j];
+            }
+        }
+    }
+
+
+
+    const updateFloatsFromMergeMap = (mergeMap: Array<Array<number>>, wefts: number, warps: number): Array<CNFloat> => {
+
+
+        //TODO, check this to make sure it rights when the weft closes! 
+
+        const updatedFloats: Array<CNFloat> = [];
+        //start by pushing any weft floats
+        for (let i = 0; i < wefts; i++) {
+            let weft_open = false;
+            let start_j = 0;
+            for (let j = 0; j < warps; j++) {
+                if (mergeMap[i][modStrict(j, warps)] == WEFT_FLOAT) {
+                    if (!weft_open) {
+                        weft_open = true;
+                        start_j = j;
+                    }
+
+                } else {
+                    if (weft_open == true) {
+                        const f: CNFloat = {
+                            id: updatedFloats.length,
+                            left: { i: i, j: start_j, id: 0 },
+                            right: { i: i, j: j - 1, id: 1 },
+                            face: false,
+                            edge: false,
+                            blocking: []
+                        }
+                        updatedFloats.push(f);
+                        weft_open = false;
+                    }
+
+                }
+            }
+            //if we get to the end here and we're still on an open float, close it. 
+
+            if (weft_open == true) {
+                const j_break = mergeMap[i].findIndex(el => el == WARP_FLOAT);
+                if (j_break != -1) {
+                    const f: CNFloat = {
+                        id: updatedFloats.length,
+                        left: { i: i, j: start_j, id: 0 },
+                        right: { i: i, j: warps + j_break - 1, id: 1 },
+                        face: false,
+                        edge: false,
+                        blocking: []
+                    }
+                    updatedFloats.push(f);
+                } else {
+                    //then this just spanned the whole thing
+                    const f: CNFloat = {
+                        id: updatedFloats.length,
+                        left: { i: i, j: start_j, id: 0 },
+                        right: { i: i, j: warps - 1, id: 1 },
+                        face: false,
+                        edge: false,
+                        blocking: []
+                    }
+                    updatedFloats.push(f);
+                }
+
+            }
+
+        }
+
+
+        //TODO REPEAT FOR WARPS
+
+
+    }
+
+
+    //WALK THE WARPS AND WEFTS. 
+    //GET A PAIR OF NEIGHBORDING WEFT FLOATS. 
+    //GET ALL THE WARP FLOATS IN BETWEEN THESE TWO WEFT FLOATS
+    // IF THEIR BOTH ACNS HAVE BEEN TAKEN OUT OF THE SET, REMOVE
+    // IF ONLY ONE HAS BEEN TAKEN OUT, SEE IF THIS IS WITHIN THE 1/2 RANGE FROM THIS EDGE.
+    // IF THERE WAS SOMETHING IN BETWEEN (BUT IT IS LESS THAN THE FULL WIDTH), EXTEND THE EDGES
+
+    export const updateAndMergeWeftFloats = (searchSet: ReadonlySet<string>, floats: Array<CNFloat>, wefts: number, warps: number): Array<CNFloat> => {
+
+        //MAKE SURE THIS ALIGNS WITH MERGE MAP FUNCTION
+
+
+        const mergeMap = createMergeMap(searchSet, floats, wefts, warps);
+        console.log("MERGE MAP", mergeMap);
+
+        const extendedMap = extendFloats(mergeMap, wefts, warps);
+        console.log("EXTENDED MAP", extendedMap);
+
+        //reposition the floats based on the merge mapk and update the ACNS
+        const updatedFloats = updateFloatsFromMergeMap(extendedMap, wefts, warps);
+
+        return updatedFloats;
+
+
+    }
+
+
+
+
+
+    /**
+     * Builds layer groups from float endpoints using the lift-map walk described above.
+     * Emits a step trace for visualization (see `LiftMapTraceEvent`).
+     */
+    export const buildLiftMapWithTrace = (
+        floats: Array<CNFloat>,
+        wefts: number,
+        warps: number,
+    ): LiftMapBuildResult => {
+
+        const trace: LiftMapTraceEvent[] = [];
+        const layerSet: LayerSet = [];
+        const searchSet = new Set<string>();
+
+        for (const f of floats) {
+            searchSet.add(cnKey(normalizeNdx(f.left, wefts, warps)));
+            searchSet.add(cnKey(normalizeNdx(f.right, wefts, warps)));
+        }
+
+        const addToLayerUnique = (layer: CNIndex[], key: string, dedupe: Set<string>) => {
+            const addOne = (k: string) => {
+                if (dedupe.has(k)) {
+                    return;
+                }
+                dedupe.add(k);
+                layer.push(parseKey(k));
+            };
+            addOne(key);
+        };
+
+        while (searchSet.size > 0) {
+
+
+            const threshold = (simVars as { neighbor_lift_threshold?: number }).neighbor_lift_threshold ?? 10;
+            const layerIndex = layerSet.length;
+            trace.push({ type: "layer_begin", layer_index: layerIndex });
+
+            const layer: CNIndex[] = [];
+            const dedupe = new Set<string>();
+
+            //First build with to search for null values. 
+            let { cnMap, stepFloatId } = buildCnMapWithEdgeFloats(searchSet, floats, wefts, warps);
+
+            const nullKeys = [...searchSet].filter((k) => cnMap.get(k) === null);
+            for (const k of nullKeys) {
+                trace.push({ type: "null_candidate", acn_key: k });
+                searchSet.delete(k);
+                const lenBefore = layer.length;
+                addToLayerUnique(layer, k, dedupe);
+                if (layer.length > lenBefore) {
+                    trace.push({ type: "add_acn_layer", acn_key: k, layer_index: layerIndex, reason: "null_next" });
+                }
+            }
+
+            //Then rebuild the cnMap with the remaining ACNs. 
+            if (searchSet.size > 0) {
+                const rebuilt = buildCnMapWithEdgeFloats(searchSet, floats, wefts, warps);
+                cnMap = rebuilt.cnMap;
+                stepFloatId = rebuilt.stepFloatId;
+            }
+
+            for (const startKey of [...searchSet]) {
+
+                trace.push({ type: "loop_seed", acn_key: startKey });
+                let cur = startKey;
+                const chain: string[] = [];
+
+                const touched = emitLiftPaths(startKey, cnMap, threshold, wefts, warps, searchSet, floats);
+
+                const vl = hasValidLoop(
                     startKey,
-                    chain,
-                    (simVars as { neighbor_lift_threshold?: number }).neighbor_lift_threshold ?? 10,
-                );
+                    touched);
                 trace.push({ type: "loop_outcome", start_key: startKey, valid: vl });
                 if (vl) {
                     const loopNodes = new Set<string>([startKey, ...chain]);
                     for (const nk of loopNodes) {
-                        consumedByLoop.add(nk);
                         const lenBefore = layer.length;
                         addToLayerUnique(layer, nk, dedupe);
                         if (layer.length > lenBefore) {
@@ -431,45 +789,56 @@ export const buildLiftMapWithTrace = (
                         }
                     }
                 }
+
+            }
+
+            //CHECK FOR FLOATS HERE
+
+
+
+            for (const k of dedupe) {
+                searchSet.delete(k);
+            }
+
+            trace.push({ type: "layer_end", layer_index: layerIndex });
+
+            if (layer.length > 0) {
+                layerSet.push(layer);
+            }
+
+
+
+
+
+            if (searchSet.size === 0) {
+                break;
+            }
+
+            //this performs a merge that essentially takes out removed floats
+            floats = updateAndMergeFloats(searchSet, layer, updatedFloats, wefts, warps);
+
+
+            if (nullKeys.length === 0 && dedupe.size === 0) {
+                const remainderKeys = [...searchSet];
+                trace.push({
+                    type: "terminate_remainder",
+                    acn_keys: remainderKeys,
+                    layer_index: layerSet.length,
+                });
+                const remainder: CNIndex[] = remainderKeys.map((k) => parseKey(k));
+                layerSet.push(remainder);
+                break;
             }
         }
 
+        return { layerSet, trace };
+    };
 
-        for (const k of dedupe) {
-            searchSet.delete(k);
-        }
-
-        trace.push({ type: "layer_end", layer_index: layerIndex });
-
-        if (layer.length > 0) {
-            layerSet.push(layer);
-        }
-
-        if (searchSet.size === 0) {
-            break;
-        }
-
-        if (nullKeys.length === 0 && dedupe.size === 0) {
-            const remainderKeys = [...searchSet];
-            trace.push({
-                type: "terminate_remainder",
-                acn_keys: remainderKeys,
-                layer_index: layerSet.length,
-            });
-            const remainder: CNIndex[] = remainderKeys.map((k) => parseKey(k));
-            layerSet.push(remainder);
-            break;
-        }
-    }
-
-    return { layerSet, trace };
-};
-
-/**
- * Builds layer groups from float endpoints using the lift-map walk described above.
- * @param floats - floats to analyze (typically all floats for the draft)
- * @param wefts - row count (simulation grid height)
- * @param warps - column count (simulation grid width)
- */
-export const buildLiftMap = (floats: Array<CNFloat>, wefts: number, warps: number): LayerSet =>
-    buildLiftMapWithTrace(floats, wefts, warps).layerSet;
+    /**
+     * Builds layer groups from float endpoints using the lift-map walk described above.
+     * @param floats - floats to analyze (typically all floats for the draft)
+     * @param wefts - row count (simulation grid height)
+     * @param warps - column count (simulation grid width)
+     */
+    export const buildLiftMap = (floats: Array<CNFloat>, wefts: number, warps: number): LayerSet =>
+        buildLiftMapWithTrace(floats, wefts, warps).layerSet;
