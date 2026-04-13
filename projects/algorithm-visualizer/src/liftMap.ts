@@ -7,7 +7,7 @@
  * CN NDX 2 -> NEXT is TOP Edge Neighbor Float -> NDX #RIGHT, 1
  * CN NDX 3 -> NEXT is BOTTOM Edge Neighbor Float -> NDX #LEFT, 0
  *
- *
+ * initialize a starting float map based on starting draft.  
  *
  * 1. Create a "SearchSet" from the float map, such that every Float contributes 2 ACNs to the ValidACNs LIst (e.g. left and right))
  *
@@ -16,26 +16,33 @@
  *
  * 3. Create a map from every remaining ACN that follows the form:
  * CNMap = [CN_Index, Next_CN_Index]
- * To populate this CNMap, we will "walk the floats" by looking at the correct neighbor float, and if it's correct corresponding ACN index is not yet in SearchSet, then we add as this map entries "Next CN Index". If the visited ACN is not in the SearchSet, it means that it's already been visited and assigned to the layer, so the algorithm must continue walking in the appropriate direction until it finds an ACN that is part of the Search Set. If it doesn't find one, mark the neighbor as NULL.
- *
+ * To populate this CNMap, we will "walk the floats" by looking at the correct neighbor float, and if it's correct corresponding ACN index is not yet in SearchSet, then we add as this map entries "Next CN Index". If the visited ACN is not in the SearchSet, it means that it's already been visited and assigned to the layer, so the algorithm must continue walking in the appropriate direction until it finds an ACN that is part of the Search Set. In some cases. . If it doesn't find one, mark the neighbor as NULL.
  *
  * 4. Scan the CNMap list and look for any CNS that have "NULL" as they next value. Add those ACN to the LayerSet, and, remove them from the ValidACNs, and from the Map.
  *
  * 5. Create a set of all remaining ACN Indexes with ndx 1, call it "RightEdgeSet". Also initialize a list of groups, called LoopGroups, that will contain an array of objects including: the current ACN Index, a boolean flag for "valid", and a set of CN Indexes that are part of the "group".
  *
- * For each ACN in the RightEdgeSet, walk the neighbors 4 times (e.g. follow the "next" values in the CNMap 4 times) - (which equates to traversing to the right neighbor down, bottom neighbor left, left neighbor up, up neighbor right). Push the CN Index of each visited ACN to the group list assocated with this ACN's LoopGroup
+ * For each ACN in the RightEdgeSet, we're going to shoot rays that represent different walking paths.
+ * First, we'll walk to the "next" direction, and shoot a ray of length l, adding every correctly positioned float we pass through to a list. 
+ * Next, we'll call "next" on all the marked float ACNs.  SHooting a ray of length l from all those ACNs in the "next" direction.
+ * We reepat this 5 times, and as we do, we add each ACN we visit to a "Loop Group"
  *
- * If the set ends at the same CN_Index where it began, then mark this LoopGroup as valid.
- *
- * 6. After creating LoopGroups for all ACNS in the RightEdgeSet, scan through the LoopGroups and, if marked "valid" add all the CNIndex's that are part of this objects "group" variable to the current LayerSet. Do not add duplicates to the LayerSet.
- *
- * 6. Remove any ACNs that were pushed to LayerSet from SearchSet, and repeat steps 2-6 until SearchSet is empty.
+ * When we end the loop, if the starting CN is part of the loop group, we mark this ACN as belonging to the layer set. And we add JUST this ACN to the layer set. 
+ * *
+ * 6. AFter all ACns have been checked, we need to recreate the floatMap based on the ACNS that have been assigned layers. 
+ * We do this by starting at the assigned ACN and walking 1/2 of the float length by walking the float that have been assigned to layers and merging or moving the neighbording floats, unmarked ACNs as required
  *
  * 7. Return the LayerSet.
  *
+ * 
+ * 
+ * 
  */
 
-import { modStrict, wefts, type CNFloat, type CNIndex } from "adacad-drafting-lib";
+import { modStrict, type CNFloat, type CNIndex } from "adacad-drafting-lib";
+import { simVars } from "./simVars";
+import { type LiftMapTraceEvent } from "./traceTypes";
+
 
 
 
@@ -175,26 +182,86 @@ export const getWarpFloat = (i: number, j: number, wefts: number, warps: number,
 /** Each entry is one layer: the list of contact indices assigned to that layer (order is not significant). */
 export type LayerSet = Array<Array<CNIndex>>;
 
-const cnKey = (n: CNIndex): string => `${n.i},${n.j},${n.id}`;
+export const cnKey = (n: CNIndex): string => `${n.i},${n.j},${n.id}`;
 
 const parseKey = (key: string): CNIndex => {
     const [is, js, ids] = key.split(",");
     return { i: Number(is), j: Number(js), id: Number(ids) };
 };
 
-const normalizeNdx = (n: CNIndex, wefts: number, warps: number): CNIndex => ({
+export const normalizeNdx = (n: CNIndex, wefts: number, warps: number): CNIndex => ({
     i: modStrict(n.i, wefts),
     j: modStrict(n.j, warps),
     id: n.id,
 });
 
 
+const samePoint = (a: CNIndex, b: CNIndex): boolean => a.i == b.i && a.j == b.j;
 
 
+const onRay = (start: CNIndex, lastLift: CNIndex, end: CNIndex, threshold: number): boolean => {
+    if (start.id == 1 || start.id == 0) {
 
-const getNextCNInSearchSet = (ndx: CNIndex, floats: Array<CNFloat>, searchSet: Set<string>, wefts: number, warps: number): CNIndex | null => {
+
+        //check if it's in line with the last warp lift
+        if (lastLift.j == start.j) {
+            if (Math.abs(start.i - lastLift.i) < threshold) return true;
+        }
+
+        //check if it's in line with the last weft lift
+        if (end.i == start.i) {
+            if (Math.abs(start.j - end.j) < threshold) return true;
+        }
+    }
+
+    if (start.id == 2 || start.id == 3) {
+        if (lastLift.i == start.i) {
+            if (Math.abs(start.j - lastLift.j) < threshold) return true;
+        }
+
+        if (end.j == start.j) {
+            if (Math.abs(start.i - end.i) < threshold) return true;
+        }
+    }
+
+    return false;
+
+}
+/**
+ * checks the starting point, ending point, and last visited warp to see if you can
+ * draw a ray from the last warp to this weft (even if it didn't end on the same point)
+ * this handles a case such as basket, where the weft would have lifted but is 
+ * eseentially "blocked" by separate weft along the loop
+ * @param startKey 
+ * @param chain 
+ * @returns 
+ */
+const ValidLoop = (startKey: string, chain: string[], threshold: number): boolean => {
 
 
+    console.log("START KEY IS", startKey);
+
+    const start = parseKey(startKey);
+    const end = parseKey(chain[chain.length - 1]);
+    const lastLift = parseKey(chain[chain.length - 2]);
+
+    if (samePoint(start, end)) return true;
+    else if (onRay(start, lastLift, end, threshold)) return true;
+    else return false;
+
+
+}
+
+
+type NextInSearchSet = { acn: CNIndex; floatId: number };
+
+const getNextCNInSearchSet = (
+    ndx: CNIndex,
+    floats: Array<CNFloat>,
+    searchSet: ReadonlySet<string>,
+    wefts: number,
+    warps: number,
+): NextInSearchSet | null => {
     if (ndx.id == 0 || ndx.id == 1) {
         let j_offset = (ndx.id == 0) ? -1 : 1;
         while (j_offset < warps - 1) {
@@ -202,12 +269,11 @@ const getNextCNInSearchSet = (ndx: CNIndex, floats: Array<CNFloat>, searchSet: S
             const float = getWarpFloat(ndx.i, j_adj, wefts, warps, floats);
             if (float == null) return null;
 
-
             let acn = (ndx.id == 0) ? float.left : float.right;
             const acnNorm = normalizeNdx(acn, wefts, warps);
             const acnKey = cnKey(acnNorm);
             if (searchSet.has(acnKey)) {
-                return acn;
+                return { acn: acnNorm, floatId: float.id };
             }
             j_offset++;
         }
@@ -224,67 +290,55 @@ const getNextCNInSearchSet = (ndx: CNIndex, floats: Array<CNFloat>, searchSet: S
             const acnNorm = normalizeNdx(acn, wefts, warps);
             const acnKey = cnKey(acnNorm);
             if (searchSet.has(acnKey)) {
-                return acn;
+                return { acn: acnNorm, floatId: float.id };
             }
             i_offset++;
         }
         return null;
     }
 
-
-
+    return null;
 }
 
 
+const edgeStepKey = (fromKey: string, toKey: string): string => `${fromKey}|${toKey}`;
 
-
-const resolveNextInSearchSet = (
-    start: CNIndex,
+const buildCnMapWithEdgeFloats = (
     searchSet: ReadonlySet<string>,
+    floats: Array<CNFloat>,
     wefts: number,
     warps: number,
-): CNIndex | null => {
-    const startNorm = normalizeNdx(start, wefts, warps);
-    const startKey = cnKey(startNorm);
-    let cur = stepLiftMapNext(startNorm, wefts, warps);
-    const maxSteps = wefts * warps * 8;
-    const visited = new Set<string>();
-
-    for (let step = 0; step < maxSteps; step++) {
-        const norm = normalizeNdx(cur, wefts, warps);
-        const key = cnKey(norm);
-        if (visited.has(key)) {
-            return null;
-        }
-        visited.add(key);
-        if (searchSet.has(key) && key !== startKey) {
-            return norm;
-        }
-        cur = stepLiftMapNext(norm, wefts, warps);
-    }
-    return null;
-};
-
-const buildCnMap = (
-    searchSet: ReadonlySet<string>,
-    wefts: number,
-    warps: number,
-): Map<string, string | null> => {
-    const map = new Map<string, string | null>();
+): { cnMap: Map<string, string | null>; stepFloatId: Map<string, number> } => {
+    const cnMap = new Map<string, string | null>();
+    const stepFloatId = new Map<string, number>();
     for (const key of searchSet) {
-        const nxt = resolveNextInSearchSet(parseKey(key), searchSet, wefts, warps);
-        map.set(key, nxt ? cnKey(nxt) : null);
+        const nxt = getNextCNInSearchSet(parseKey(key), floats, searchSet, wefts, warps);
+        if (!nxt) {
+            cnMap.set(key, null);
+        } else {
+            const toKey = cnKey(nxt.acn);
+            cnMap.set(key, toKey);
+            stepFloatId.set(edgeStepKey(key, toKey), nxt.floatId);
+        }
     }
-    return map;
+    return { cnMap, stepFloatId };
 };
+
+export interface LiftMapBuildResult {
+    layerSet: LayerSet;
+    trace: LiftMapTraceEvent[];
+}
 
 /**
  * Builds layer groups from float endpoints using the lift-map walk described above.
- * @param floats - floats to analyze (typically all floats for the draft)
- * @param wefts - row count (simulation grid height)
- * @param warps - column count (simulation grid width)
+ * Emits a step trace for visualization (see `LiftMapTraceEvent`).
  */
-export const buildLiftMap = (floats: Array<CNFloat>, wefts: number, warps: number): LayerSet => {
+export const buildLiftMapWithTrace = (
+    floats: Array<CNFloat>,
+    wefts: number,
+    warps: number,
+): LiftMapBuildResult => {
+    const trace: LiftMapTraceEvent[] = [];
     const layerSet: LayerSet = [];
     const searchSet = new Set<string>();
 
@@ -302,34 +356,41 @@ export const buildLiftMap = (floats: Array<CNFloat>, wefts: number, warps: numbe
             layer.push(parseKey(k));
         };
         addOne(key);
-        const { i, j, id } = parseKey(key);
-        const partnerKey = cnKey({ i, j, id: id ^ 1 });
-        addOne(partnerKey);
     };
 
     while (searchSet.size > 0) {
+        const layerIndex = layerSet.length;
+        trace.push({ type: "layer_begin", layer_index: layerIndex });
+
         const layer: CNIndex[] = [];
         const dedupe = new Set<string>();
 
-        let cnMap = buildCnMap(searchSet, wefts, warps);
+        let { cnMap, stepFloatId } = buildCnMapWithEdgeFloats(searchSet, floats, wefts, warps);
 
         const nullKeys = [...searchSet].filter((k) => cnMap.get(k) === null);
         for (const k of nullKeys) {
+            trace.push({ type: "null_candidate", acn_key: k });
             searchSet.delete(k);
+            const lenBefore = layer.length;
             addToLayerUnique(layer, k, dedupe);
+            if (layer.length > lenBefore) {
+                trace.push({ type: "add_acn_layer", acn_key: k, layer_index: layerIndex, reason: "null_next" });
+            }
         }
 
         if (searchSet.size > 0) {
-            cnMap = buildCnMap(searchSet, wefts, warps);
+            const rebuilt = buildCnMapWithEdgeFloats(searchSet, floats, wefts, warps);
+            cnMap = rebuilt.cnMap;
+            stepFloatId = rebuilt.stepFloatId;
         }
 
-        const rightEdgeKeys = [...searchSet].filter((k) => parseKey(k).id === 1);
         const consumedByLoop = new Set<string>();
 
-        for (const startKey of rightEdgeKeys) {
+        for (const startKey of [...searchSet]) {
             if (consumedByLoop.has(startKey)) {
                 continue;
             }
+            trace.push({ type: "loop_seed", acn_key: startKey });
             let cur = startKey;
             let valid = true;
             const chain: string[] = [];
@@ -337,23 +398,48 @@ export const buildLiftMap = (floats: Array<CNFloat>, wefts: number, warps: numbe
                 const nxt = cnMap.get(cur);
                 if (nxt === null || nxt === undefined) {
                     valid = false;
+                    trace.push({ type: "loop_outcome", start_key: startKey, valid: false });
                     break;
                 }
+                const fid = stepFloatId.get(edgeStepKey(cur, nxt)) ?? null;
+                trace.push({
+                    type: "loop_step",
+                    acn_key_from: cur,
+                    acn_key_to: nxt,
+                    step_index: s,
+                    float_id: fid,
+                });
                 chain.push(nxt);
                 cur = nxt;
             }
-            if (valid && cur === startKey) {
-                const loopNodes = new Set<string>([startKey, ...chain]);
-                for (const nk of loopNodes) {
-                    consumedByLoop.add(nk);
-                    addToLayerUnique(layer, nk, dedupe);
+
+            if (valid) {
+                const vl = ValidLoop(
+                    startKey,
+                    chain,
+                    (simVars as { neighbor_lift_threshold?: number }).neighbor_lift_threshold ?? 10,
+                );
+                trace.push({ type: "loop_outcome", start_key: startKey, valid: vl });
+                if (vl) {
+                    const loopNodes = new Set<string>([startKey, ...chain]);
+                    for (const nk of loopNodes) {
+                        consumedByLoop.add(nk);
+                        const lenBefore = layer.length;
+                        addToLayerUnique(layer, nk, dedupe);
+                        if (layer.length > lenBefore) {
+                            trace.push({ type: "add_acn_layer", acn_key: nk, layer_index: layerIndex, reason: "loop" });
+                        }
+                    }
                 }
             }
         }
 
+
         for (const k of dedupe) {
             searchSet.delete(k);
         }
+
+        trace.push({ type: "layer_end", layer_index: layerIndex });
 
         if (layer.length > 0) {
             layerSet.push(layer);
@@ -364,14 +450,26 @@ export const buildLiftMap = (floats: Array<CNFloat>, wefts: number, warps: numbe
         }
 
         if (nullKeys.length === 0 && dedupe.size === 0) {
-            const remainder: CNIndex[] = [];
-            for (const k of searchSet) {
-                remainder.push(parseKey(k));
-            }
+            const remainderKeys = [...searchSet];
+            trace.push({
+                type: "terminate_remainder",
+                acn_keys: remainderKeys,
+                layer_index: layerSet.length,
+            });
+            const remainder: CNIndex[] = remainderKeys.map((k) => parseKey(k));
             layerSet.push(remainder);
             break;
         }
     }
 
-    return layerSet;
+    return { layerSet, trace };
 };
+
+/**
+ * Builds layer groups from float endpoints using the lift-map walk described above.
+ * @param floats - floats to analyze (typically all floats for the draft)
+ * @param wefts - row count (simulation grid height)
+ * @param warps - column count (simulation grid width)
+ */
+export const buildLiftMap = (floats: Array<CNFloat>, wefts: number, warps: number): LayerSet =>
+    buildLiftMapWithTrace(floats, wefts, warps).layerSet;

@@ -63,7 +63,7 @@ const COLOR_ASSIGNED = new Color("#37d67a");
 const COLOR_CURRENT = new Color("#00d2ff");
 const COLOR_LOCAL_REGION = new Color("#8b7cf0");
 const COLOR_DISCOVERED = new Color("#ff0000");
-const getAssignedLayerColor = (layerId: number): Color => {
+export const getAssignedLayerColor = (layerId: number): Color => {
     // Spread layer hues around the wheel so adjacent layers stay visually distinct.
     const hue = ((layerId * 0.1618) % 1 + 1) % 1;
     return new Color().setHSL(hue, 0.78, 0.52);

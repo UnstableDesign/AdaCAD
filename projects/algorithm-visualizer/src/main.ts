@@ -1,8 +1,9 @@
 import "./style.css";
 import { GUI } from "dat.gui";
+import { formatTraceEventPanel } from "./eventDescription";
 import { createSceneRuntime, type SceneGroups } from "./scene";
 import { DRAFT_LIST, simVars } from "./simVars";
-import { reduceFloatTrace } from "./traceTypes";
+import { reduceFloatTrace, reduceLiftMapTrace } from "./traceTypes";
 import { pngFileToDrawdown } from "./pngDraft";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
@@ -11,10 +12,15 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       <h1>Algorithm Visualizer</h1>
       <p>Draft-derived geometry from local adacad-drafting-lib</p>
     </header>
-    <main id="viewport" class="viewport"></main>
+    <div class="visualization_stack">
+      <label for="event_description" class="event_description_label">Current trace event</label>
+      <textarea id="event_description" class="event_description" readonly rows="8" spellcheck="false" aria-label="Current trace event description"></textarea>
+      <main id="viewport" class="viewport"></main>
+    </div>
   </div>
 `;
 
+const eventDescriptionEl = document.querySelector<HTMLTextAreaElement>("#event_description");
 const viewportElement = document.querySelector<HTMLElement>("#viewport");
 if (!viewportElement) {
   throw new Error("Viewport element not found.");
@@ -47,10 +53,21 @@ const guiState = {
   showGeometry: true,
   showFloats: true,
   showSeedDebug: false,
+  /** Layer isolation trace (floats) vs lift-map construction (floats + ACN endpoints). */
+  visualization_mode: "lift_map" as "layers_local" | "lift_map",
   layer_algorithm_mode: "global" as "global" | "scored_local",
   score_radius_scale: 1,
   autoRotate: false,
   autoRotateSpeed: 1.5,
+};
+
+const activeTraceLength = (): number => {
+  if (!sceneGroups) {
+    return 1;
+  }
+  return guiState.visualization_mode === "lift_map"
+    ? sceneGroups.liftMapTrace.length
+    : sceneGroups.floatTrace.length;
 };
 
 const getLayerAlgorithmOptions = () => ({
@@ -65,12 +82,34 @@ const stopPlayback = () => {
   }
 };
 
+const updateEventDescriptionPanel = () => {
+  if (!eventDescriptionEl) {
+    return;
+  }
+  if (!sceneGroups) {
+    eventDescriptionEl.value = "Load a draft to see trace events.";
+    return;
+  }
+  eventDescriptionEl.value = formatTraceEventPanel(
+    guiState.visualization_mode,
+    sceneGroups.floatTrace,
+    sceneGroups.liftMapTrace,
+    guiState.event_index,
+  );
+};
+
 const applyTraceState = () => {
   if (!sceneGroups) {
     return;
   }
-  const state = reduceFloatTrace(sceneGroups.floatTrace, guiState.event_index);
-  sceneGroups.applyFloatTraceState(state, guiState.dim_untouched);
+  if (guiState.visualization_mode === "lift_map") {
+    const state = reduceLiftMapTrace(sceneGroups.liftMapTrace, guiState.event_index);
+    sceneGroups.applyLiftMapTraceState(state, guiState.dim_untouched);
+  } else {
+    const state = reduceFloatTrace(sceneGroups.floatTrace, guiState.event_index);
+    sceneGroups.applyFloatTraceState(state, guiState.dim_untouched);
+  }
+  updateEventDescriptionPanel();
 };
 
 const renderSceneGroups = (next: SceneGroups) => {
@@ -78,16 +117,21 @@ const renderSceneGroups = (next: SceneGroups) => {
   //runtime.scene.add(sceneGroups.draftGeometry);
   //runtime.scene.add(sceneGroups.cnGeometry);
   runtime.scene.add(sceneGroups.floatGeometry);
+  runtime.scene.add(sceneGroups.liftMapGeometry);
   runtime.scene.add(sceneGroups.seedDebugGeometry);
   sceneGroups.seedDebugGeometry.visible = guiState.showSeedDebug;
 
+  sceneGroups.floatGeometry.visible =
+    guiState.showFloats && guiState.visualization_mode === "layers_local";
+  sceneGroups.liftMapGeometry.visible =
+    guiState.showFloats && guiState.visualization_mode === "lift_map";
+
   guiState.event_index = 0;
   if (eventSliderController) {
-    eventSliderController.max(Math.max(sceneGroups.floatTrace.length, 1));
+    eventSliderController.max(Math.max(activeTraceLength(), 1));
     eventSliderController.setValue(0);
-  } else {
-    applyTraceState();
   }
+  applyTraceState();
 };
 
 const loadFromDrawdown = (drawdown: Parameters<typeof runtime.loadFromDrawdown>[0]) => {
@@ -111,6 +155,25 @@ runtime
   .load(0, getLayerAlgorithmOptions())
   .then((scenes) => {
     renderSceneGroups(scenes);
+  });
+
+gui
+  .add(guiState, "visualization_mode", ["layers_local", "lift_map"])
+  .name("Visualization")
+  .onFinishChange(() => {
+    if (!sceneGroups) {
+      return;
+    }
+    sceneGroups.floatGeometry.visible =
+      guiState.showFloats && guiState.visualization_mode === "layers_local";
+    sceneGroups.liftMapGeometry.visible =
+      guiState.showFloats && guiState.visualization_mode === "lift_map";
+    guiState.event_index = 0;
+    if (eventSliderController) {
+      eventSliderController.max(Math.max(activeTraceLength(), 1));
+      eventSliderController.setValue(0);
+    }
+    applyTraceState();
   });
 
 gui
@@ -177,7 +240,7 @@ gui.add(guiState, "auto_play").name("Auto Play").onChange((value: boolean) => {
     if (!sceneGroups) {
       return;
     }
-    if (guiState.event_index >= sceneGroups.floatTrace.length) {
+    if (guiState.event_index >= activeTraceLength()) {
       stopPlayback();
       guiState.auto_play = false;
       return;
@@ -198,7 +261,7 @@ const actions = {
     }
     guiState.event_index = Math.min(
       guiState.event_index + 1,
-      sceneGroups.floatTrace.length,
+      activeTraceLength(),
     );
     if (eventSliderController) {
       eventSliderController.setValue(guiState.event_index);
@@ -275,7 +338,10 @@ gui
   .name("Show Floats")
   .onChange((value: boolean) => {
     if (sceneGroups) {
-      sceneGroups.floatGeometry.visible = value;
+      sceneGroups.floatGeometry.visible =
+        value && guiState.visualization_mode === "layers_local";
+      sceneGroups.liftMapGeometry.visible =
+        value && guiState.visualization_mode === "lift_map";
     }
   });
 

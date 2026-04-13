@@ -14,10 +14,16 @@ import { DRAFT_LIST, simVars } from "./simVars";
 import { createTopologyGeometry } from "./topoAdapter";
 import { createDraftGeometryGroup } from "./draftAdapter";
 import { getFloatGeometry } from "./floatAdapter";
+import { getLiftMapGeometry } from "./liftMapAdapter";
 import { isolateLayersLocal, type LayerAlgorithmOptions } from "./isolateLayersLocal";
-import { type FloatTraceState, type FloatTraversalEvent } from "./traceTypes";
+import {
+  type FloatTraceState,
+  type FloatTraversalEvent,
+  type LiftMapTraceEvent,
+  type LiftMapTraceState,
+} from "./traceTypes";
 import { createSeedDebugGeometry } from "./seedDebugAdapter";
-import { buildLiftMap } from "./liftMap";
+import { buildLiftMapWithTrace } from "./liftMap";
 
 export interface SceneRuntime {
   scene: Scene;
@@ -42,9 +48,12 @@ export interface SceneGroups {
   draftGeometry: Group;
   cnGeometry: Group;
   floatGeometry: Group;
+  liftMapGeometry: Group;
   seedDebugGeometry: Group;
   floatTrace: FloatTraversalEvent[];
   applyFloatTraceState: (state: FloatTraceState, dimUntouched: boolean) => void;
+  liftMapTrace: LiftMapTraceEvent[];
+  applyLiftMapTraceState: (state: LiftMapTraceState, dimUntouched: boolean) => void;
 }
 
 export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
@@ -119,6 +128,7 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
     scene.remove(sceneGroups.draftGeometry);
     scene.remove(sceneGroups.cnGeometry);
     scene.remove(sceneGroups.floatGeometry);
+    scene.remove(sceneGroups.liftMapGeometry);
     scene.remove(sceneGroups.seedDebugGeometry);
   }
 
@@ -146,10 +156,9 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
     const floats = getFloats(wefts(draft.drawdown), warps(draft.drawdown), updatedCNs);
     const floatBundle = getFloatGeometry(floats, warps(draft.drawdown), wefts(draft.drawdown));
 
-
-    //TEST OUT AND PRINT TO CONSOLE THE LIFT MAP
-    const liftMap = buildLiftMap(floats, wefts(draft.drawdown), warps(draft.drawdown));
-    console.log("LIFT MAP IS", liftMap);
+    const liftMapResult = buildLiftMapWithTrace(floats, wefts(draft.drawdown), warps(draft.drawdown));
+    console.log("LIFT MAP IS", liftMapResult.layerSet);
+    const liftMapBundle = getLiftMapGeometry(floats, warps(draft.drawdown), wefts(draft.drawdown));
 
 
 
@@ -178,9 +187,12 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
       draftGeometry: draftGeometry,
       cnGeometry: cnGeometry,
       floatGeometry: floatBundle.group,
+      liftMapGeometry: liftMapBundle.group,
       seedDebugGeometry,
       floatTrace: localLayersResult.trace,
       applyFloatTraceState: floatBundle.applyTraceState,
+      liftMapTrace: liftMapResult.trace,
+      applyLiftMapTraceState: liftMapBundle.applyLiftMapState,
     }
 
 
