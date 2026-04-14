@@ -1,9 +1,7 @@
 import "./style.css";
 import { GUI } from "dat.gui";
-import { formatTraceEventPanel } from "./eventDescription";
 import { createSceneRuntime, type SceneGroups } from "./scene";
 import { DRAFT_LIST, simVars } from "./simVars";
-import { reduceFloatTrace, reduceLiftMapTrace } from "./traceTypes";
 import { pngFileToDrawdown } from "./pngDraft";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
@@ -29,7 +27,6 @@ if (!viewportElement) {
 const runtime = createSceneRuntime(viewportElement);
 let sceneGroups: SceneGroups | null = null;
 let playbackTimer: number | null = null;
-let eventSliderController: dat.GUIController | null = null;
 let currentCustomDrawdown: Parameters<typeof runtime.loadFromDrawdown>[0] | null = null;
 const uploadInput = document.createElement("input");
 uploadInput.type = "file";
@@ -42,38 +39,9 @@ gui.close();
 
 const guiState = {
   draft_id: 0,
-  lift_limit: 1,
-  layer_id: 0,
-  event_index: 0,
-  play_speed_ms: 250,
-  auto_play: false,
-  dim_untouched: true,
-  cns: true,
-  showAxes: true,
-  showGeometry: true,
-  showFloats: true,
-  showSeedDebug: false,
-  /** Layer isolation trace (floats) vs lift-map construction (floats + ACN endpoints). */
-  visualization_mode: "lift_map" as "layers_local" | "lift_map",
-  layer_algorithm_mode: "global" as "global" | "scored_local",
-  score_radius_scale: 1,
-  autoRotate: false,
-  autoRotateSpeed: 1.5,
 };
 
-const activeTraceLength = (): number => {
-  if (!sceneGroups) {
-    return 1;
-  }
-  return guiState.visualization_mode === "lift_map"
-    ? sceneGroups.liftMapTrace.length
-    : sceneGroups.floatTrace.length;
-};
 
-const getLayerAlgorithmOptions = () => ({
-  mode: guiState.layer_algorithm_mode,
-  scoreRadiusScale: guiState.score_radius_scale,
-});
 
 const stopPlayback = () => {
   if (playbackTimer !== null) {
@@ -90,48 +58,15 @@ const updateEventDescriptionPanel = () => {
     eventDescriptionEl.value = "Load a draft to see trace events.";
     return;
   }
-  eventDescriptionEl.value = formatTraceEventPanel(
-    guiState.visualization_mode,
-    sceneGroups.floatTrace,
-    sceneGroups.liftMapTrace,
-    guiState.event_index,
-  );
+
 };
 
-const applyTraceState = () => {
-  if (!sceneGroups) {
-    return;
-  }
-  if (guiState.visualization_mode === "lift_map") {
-    const state = reduceLiftMapTrace(sceneGroups.liftMapTrace, guiState.event_index);
-    sceneGroups.applyLiftMapTraceState(state, guiState.dim_untouched);
-  } else {
-    const state = reduceFloatTrace(sceneGroups.floatTrace, guiState.event_index);
-    sceneGroups.applyFloatTraceState(state, guiState.dim_untouched);
-  }
-  updateEventDescriptionPanel();
-};
 
 const renderSceneGroups = (next: SceneGroups) => {
   sceneGroups = next;
   //runtime.scene.add(sceneGroups.draftGeometry);
   //runtime.scene.add(sceneGroups.cnGeometry);
   runtime.scene.add(sceneGroups.floatGeometry);
-  runtime.scene.add(sceneGroups.liftMapGeometry);
-  runtime.scene.add(sceneGroups.seedDebugGeometry);
-  sceneGroups.seedDebugGeometry.visible = guiState.showSeedDebug;
-
-  sceneGroups.floatGeometry.visible =
-    guiState.showFloats && guiState.visualization_mode === "layers_local";
-  sceneGroups.liftMapGeometry.visible =
-    guiState.showFloats && guiState.visualization_mode === "lift_map";
-
-  guiState.event_index = 0;
-  if (eventSliderController) {
-    eventSliderController.max(Math.max(activeTraceLength(), 1));
-    eventSliderController.setValue(0);
-  }
-  applyTraceState();
 };
 
 const loadFromDrawdown = (drawdown: Parameters<typeof runtime.loadFromDrawdown>[0]) => {
@@ -139,42 +74,21 @@ const loadFromDrawdown = (drawdown: Parameters<typeof runtime.loadFromDrawdown>[
     runtime.clear(sceneGroups);
   }
   stopPlayback();
-  guiState.auto_play = false;
   runtime
     .loadFromDrawdown(
-      drawdown,
-      getLayerAlgorithmOptions(),
-    )
+      drawdown)
     .then((scenes) => {
-      guiState.layer_id = 0;
       renderSceneGroups(scenes);
     });
 };
 
 runtime
-  .load(0, getLayerAlgorithmOptions())
+  .load(0)
   .then((scenes) => {
     renderSceneGroups(scenes);
   });
 
-gui
-  .add(guiState, "visualization_mode", ["layers_local", "lift_map"])
-  .name("Visualization")
-  .onFinishChange(() => {
-    if (!sceneGroups) {
-      return;
-    }
-    sceneGroups.floatGeometry.visible =
-      guiState.showFloats && guiState.visualization_mode === "layers_local";
-    sceneGroups.liftMapGeometry.visible =
-      guiState.showFloats && guiState.visualization_mode === "lift_map";
-    guiState.event_index = 0;
-    if (eventSliderController) {
-      eventSliderController.max(Math.max(activeTraceLength(), 1));
-      eventSliderController.setValue(0);
-    }
-    applyTraceState();
-  });
+
 
 gui
   .add(guiState, "draft_id", 0, DRAFT_LIST.length - 1, 1)
@@ -184,110 +98,17 @@ gui
       runtime.clear(sceneGroups);
     }
     stopPlayback();
-    guiState.auto_play = false;
     currentCustomDrawdown = null;
     runtime
       .load(
-        Math.floor(value),
-        getLayerAlgorithmOptions(),
+        Math.floor(value)
       )
       .then((scenes) => {
-        guiState.layer_id = 0;
         renderSceneGroups(scenes);
       });
   });
 
-eventSliderController = gui
-  .add(guiState, "event_index", 0, 1, 1)
-  .name("Event Index")
-  .onChange((value: number) => {
-    guiState.event_index = Math.floor(value);
-    applyTraceState();
-  });
 
-gui.add(guiState, "lift_limit", 1, 10, 1).name("Lift Limit").onChange((value: number) => {
-  simVars.lift_limit = value;
-
-});
-
-gui
-  .add(guiState, "dim_untouched")
-  .name("Dim Untouched")
-  .onChange((value: boolean) => {
-    guiState.dim_untouched = value;
-    applyTraceState();
-  });
-
-gui
-  .add(guiState, "play_speed_ms", 20, 1000, 10)
-  .name("Play Speed (ms)")
-  .onChange((value: number) => {
-    guiState.play_speed_ms = value;
-  });
-
-gui.add(guiState, "auto_play").name("Auto Play").onChange((value: boolean) => {
-  if (!sceneGroups) {
-    guiState.auto_play = false;
-    return;
-  }
-
-  stopPlayback();
-  if (!value) {
-    return;
-  }
-
-  playbackTimer = window.setInterval(() => {
-    if (!sceneGroups) {
-      return;
-    }
-    if (guiState.event_index >= activeTraceLength()) {
-      stopPlayback();
-      guiState.auto_play = false;
-      return;
-    }
-    guiState.event_index += 1;
-    if (eventSliderController) {
-      eventSliderController.setValue(guiState.event_index);
-    } else {
-      applyTraceState();
-    }
-  }, guiState.play_speed_ms);
-});
-
-const actions = {
-  step_forward: () => {
-    if (!sceneGroups) {
-      return;
-    }
-    guiState.event_index = Math.min(
-      guiState.event_index + 1,
-      activeTraceLength(),
-    );
-    if (eventSliderController) {
-      eventSliderController.setValue(guiState.event_index);
-    } else {
-      applyTraceState();
-    }
-  },
-  reset_trace: () => {
-    stopPlayback();
-    guiState.auto_play = false;
-    guiState.event_index = 0;
-    if (eventSliderController) {
-      eventSliderController.setValue(0);
-    } else {
-      applyTraceState();
-    }
-  },
-  upload_png: () => {
-    uploadInput.value = "";
-    uploadInput.click();
-  },
-};
-
-gui.add(actions, "step_forward").name("Step +1");
-gui.add(actions, "reset_trace").name("Reset Trace");
-gui.add(actions, "upload_png").name("Upload PNG");
 
 uploadInput.addEventListener("change", async () => {
   const selected = uploadInput.files?.[0];
@@ -307,114 +128,6 @@ uploadInput.addEventListener("change", async () => {
   }
 });
 
-gui.add(guiState, "cns").name("contact neighborhoods").onChange((value: boolean) => {
-  if (sceneGroups) {
-    sceneGroups.cnGeometry.visible = value;
-  }
-});
-
-gui.add(guiState, "showAxes").name("Show Axes").onChange((value: boolean) => {
-  runtime.axesHelper.visible = value;
-});
-
-gui
-  .add(guiState, "layer_id", 0, 10)
-  .name("Layer ID")
-  .onChange((value: number) => {
-    guiState.layer_id = value;
-  });
-
-gui
-  .add(guiState, "showGeometry")
-  .name("Show Geometry")
-  .onChange((value: boolean) => {
-    if (sceneGroups) {
-      sceneGroups.draftGeometry.visible = value;
-    }
-  });
-
-gui
-  .add(guiState, "showFloats")
-  .name("Show Floats")
-  .onChange((value: boolean) => {
-    if (sceneGroups) {
-      sceneGroups.floatGeometry.visible =
-        value && guiState.visualization_mode === "layers_local";
-      sceneGroups.liftMapGeometry.visible =
-        value && guiState.visualization_mode === "lift_map";
-    }
-  });
-
-gui
-  .add(guiState, "showSeedDebug")
-  .name("Seed Debug Overlay")
-  .onChange((value: boolean) => {
-    if (sceneGroups) {
-      sceneGroups.seedDebugGeometry.visible = value;
-    }
-  });
-
-gui
-  .add(guiState, "layer_algorithm_mode", ["global", "scored_local"])
-  .name("Layer Algorithm")
-  .onFinishChange((value: "global" | "scored_local") => {
-    guiState.layer_algorithm_mode = value;
-    if (currentCustomDrawdown) {
-      loadFromDrawdown(currentCustomDrawdown);
-      return;
-    }
-    if (sceneGroups) {
-      runtime.clear(sceneGroups);
-    }
-    stopPlayback();
-    guiState.auto_play = false;
-    runtime
-      .load(
-        Math.floor(guiState.draft_id),
-        getLayerAlgorithmOptions(),
-      )
-      .then((scenes) => {
-        renderSceneGroups(scenes);
-      });
-  });
-
-gui
-  .add(guiState, "score_radius_scale", 0.25, 4, 0.05)
-  .name("Score Radius Scale")
-  .onFinishChange((value: number) => {
-    guiState.score_radius_scale = Math.max(0.05, value);
-    if (guiState.layer_algorithm_mode !== "scored_local") {
-      return;
-    }
-    if (currentCustomDrawdown) {
-      loadFromDrawdown(currentCustomDrawdown);
-      return;
-    }
-    if (sceneGroups) {
-      runtime.clear(sceneGroups);
-    }
-    stopPlayback();
-    guiState.auto_play = false;
-    runtime
-      .load(
-        Math.floor(guiState.draft_id),
-        getLayerAlgorithmOptions(),
-      )
-      .then((scenes) => {
-        renderSceneGroups(scenes);
-      });
-  });
-
-gui.add(guiState, "autoRotate").name("Auto Rotate").onChange((value: boolean) => {
-  runtime.controls.autoRotate = value;
-});
-
-gui
-  .add(guiState, "autoRotateSpeed", 0, 8, 0.1)
-  .name("Rotate Speed")
-  .onChange((value: number) => {
-    runtime.controls.autoRotateSpeed = value;
-  });
 
 window.addEventListener("beforeunload", () => {
   stopPlayback();

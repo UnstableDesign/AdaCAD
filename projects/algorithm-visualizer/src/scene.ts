@@ -11,19 +11,12 @@ import {
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { DRAFT_LIST, simVars } from "./simVars";
-import { createTopologyGeometry } from "./topoAdapter";
 import { createDraftGeometryGroup } from "./draftAdapter";
 import { getFloatGeometry } from "./floatAdapter";
-import { getLiftMapGeometry } from "./liftMapAdapter";
-import { isolateLayersLocal, type LayerAlgorithmOptions } from "./isolateLayersLocal";
 import {
   type FloatTraceState,
-  type FloatTraversalEvent,
-  type LiftMapTraceEvent,
-  type LiftMapTraceState,
 } from "./traceTypes";
-import { createSeedDebugGeometry } from "./seedDebugAdapter";
-import { buildLiftMapWithTrace } from "./liftMap";
+import { createLayerSet } from "./liftMap";
 
 export interface SceneRuntime {
   scene: Scene;
@@ -36,24 +29,15 @@ export interface SceneRuntime {
   clear: (sceneGroups: SceneGroups) => void;
   load: (
     draft_id: number,
-    layerOptions?: LayerAlgorithmOptions,
   ) => Promise<SceneGroups>;
   loadFromDrawdown: (
     drawdown: Drawdown,
-    layerOptions?: LayerAlgorithmOptions,
   ) => Promise<SceneGroups>;
 }
 
 export interface SceneGroups {
   draftGeometry: Group;
-  cnGeometry: Group;
   floatGeometry: Group;
-  liftMapGeometry: Group;
-  seedDebugGeometry: Group;
-  floatTrace: FloatTraversalEvent[];
-  applyFloatTraceState: (state: FloatTraceState, dimUntouched: boolean) => void;
-  liftMapTrace: LiftMapTraceEvent[];
-  applyLiftMapTraceState: (state: LiftMapTraceState, dimUntouched: boolean) => void;
 }
 
 export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
@@ -126,15 +110,11 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
 
   const clear = (sceneGroups: SceneGroups) => {
     scene.remove(sceneGroups.draftGeometry);
-    scene.remove(sceneGroups.cnGeometry);
     scene.remove(sceneGroups.floatGeometry);
-    scene.remove(sceneGroups.liftMapGeometry);
-    scene.remove(sceneGroups.seedDebugGeometry);
   }
 
   const buildSceneGroups = async (
     drawdown: Drawdown,
-    layerOptions: LayerAlgorithmOptions = {},
   ): Promise<SceneGroups> => {
     const draft = initDraftFromDrawdown(drawdown);
     //DRAW THE DRAFT TO START
@@ -156,43 +136,14 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
     const floats = getFloats(wefts(draft.drawdown), warps(draft.drawdown), updatedCNs);
     const floatBundle = getFloatGeometry(floats, warps(draft.drawdown), wefts(draft.drawdown));
 
-    const liftMapResult = buildLiftMapWithTrace(floats, wefts(draft.drawdown), warps(draft.drawdown));
-    console.log("LIFT MAP IS", liftMapResult.layerSet);
-    const liftMapBundle = getLiftMapGeometry(floats, warps(draft.drawdown), wefts(draft.drawdown));
 
+    const layerSet = await createLayerSet(draft.drawdown, warps(draft.drawdown), wefts(draft.drawdown), 10);
+    console.log("layerSet", layerSet);
 
-
-
-    const localLayersResult = isolateLayersLocal(
-      wefts(draft.drawdown),
-      warps(draft.drawdown),
-      floats,
-      1,
-      updatedCNs,
-      simVars,
-      layerOptions,
-    );
-
-
-
-    const layeredCNs = localLayersResult.cns;
-    const seedDebugGeometry = createSeedDebugGeometry(localLayersResult.seedDebug);
-    const pruned_cns = pruneWeftsAndSetCNBlocking(wefts(draft.drawdown), warps(draft.drawdown), layeredCNs);
-    const cnGeometry = createTopologyGeometry(pruned_cns, warps(draft.drawdown), wefts(draft.drawdown));
-
-
-    console.log("FLOAT TRACE IS", localLayersResult.trace);
 
     const sceneGroups: SceneGroups = {
       draftGeometry: draftGeometry,
-      cnGeometry: cnGeometry,
       floatGeometry: floatBundle.group,
-      liftMapGeometry: liftMapBundle.group,
-      seedDebugGeometry,
-      floatTrace: localLayersResult.trace,
-      applyFloatTraceState: floatBundle.applyTraceState,
-      liftMapTrace: liftMapResult.trace,
-      applyLiftMapTraceState: liftMapBundle.applyLiftMapState,
     }
 
 
@@ -203,16 +154,14 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
 
   const load = async (
     draft_id: number,
-    layerOptions: LayerAlgorithmOptions = {},
   ): Promise<SceneGroups> => {
-    return buildSceneGroups(DRAFT_LIST[draft_id], layerOptions);
+    return buildSceneGroups(DRAFT_LIST[draft_id]);
   };
 
   const loadFromDrawdown = async (
     drawdown: Drawdown,
-    layerOptions: LayerAlgorithmOptions = {},
   ): Promise<SceneGroups> => {
-    return buildSceneGroups(drawdown, layerOptions);
+    return buildSceneGroups(drawdown);
   }
 
   return { scene, camera, renderer, axesHelper, controls, start, stop, clear, load, loadFromDrawdown };
