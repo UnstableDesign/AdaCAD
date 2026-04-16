@@ -22,6 +22,7 @@ export const simVars = {
     ms: [material_a, material_b],
     use_smoothing: true,
     repulse_force_correction: 0,
+    neighbor_lift_threshold: 10, //structures with longer floats might want longer values here. 
 }
 
 

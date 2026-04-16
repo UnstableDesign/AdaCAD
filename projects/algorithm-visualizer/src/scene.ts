@@ -1,4 +1,4 @@
-import { getFloats, initContactNeighborhoods, initDraftFromDrawdown, initWeftPaths, parseWeftPaths, pruneWeftsAndSetCNBlocking, updateCNs, warps, wefts, type Drawdown, type WeftPath } from "adacad-drafting-lib";
+import { initDraftFromDrawdown, warps, wefts, type Drawdown } from "adacad-drafting-lib";
 import {
   AmbientLight,
   AxesHelper,
@@ -10,13 +10,20 @@ import {
   WebGLRenderer,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { DRAFT_LIST, simVars } from "./simVars";
+import { DRAFT_LIST } from "./simVars";
 import { createDraftGeometryGroup } from "./draftAdapter";
-import { getFloatGeometry } from "./floatAdapter";
+import { createLayerSetGeometry } from "./createLayerSetAdapter";
+import { createLiftMapHeatGeometry } from "./liftMapHeatAdapter";
 import {
-  type FloatTraceState,
+  type CreateLayerSetHeatTraceState,
+  type CreateLayerSetTraceEvent,
+  type CreateLayerSetTraceState,
 } from "./traceTypes";
-import { createLayerSet } from "./liftMap";
+import { createLayerSetWithTrace } from "./liftMap";
+
+export interface CreateLayerSetOptions {
+  threshold?: number;
+}
 
 export interface SceneRuntime {
   scene: Scene;
@@ -29,15 +36,30 @@ export interface SceneRuntime {
   clear: (sceneGroups: SceneGroups) => void;
   load: (
     draft_id: number,
+    options?: CreateLayerSetOptions,
   ) => Promise<SceneGroups>;
   loadFromDrawdown: (
     drawdown: Drawdown,
+    options?: CreateLayerSetOptions,
   ) => Promise<SceneGroups>;
 }
 
 export interface SceneGroups {
   draftGeometry: Group;
-  floatGeometry: Group;
+  createLayerSetGeometry: Group;
+  liftMapHeatGeometry: Group;
+  createLayerSetTrace: CreateLayerSetTraceEvent[];
+  applyCreateLayerSetState: (
+    state: CreateLayerSetTraceState,
+    dimUntouched: boolean,
+    scoreDepthEnabled: boolean,
+    scoreDepthStrength: number,
+  ) => void;
+  applyLiftMapHeatState: (
+    state: CreateLayerSetHeatTraceState,
+    dimUntouched: boolean,
+    heatGamma: number,
+  ) => void;
 }
 
 export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
@@ -110,11 +132,13 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
 
   const clear = (sceneGroups: SceneGroups) => {
     scene.remove(sceneGroups.draftGeometry);
-    scene.remove(sceneGroups.floatGeometry);
+    scene.remove(sceneGroups.createLayerSetGeometry);
+    scene.remove(sceneGroups.liftMapHeatGeometry);
   }
 
   const buildSceneGroups = async (
     drawdown: Drawdown,
+    options: CreateLayerSetOptions = {},
   ): Promise<SceneGroups> => {
     const draft = initDraftFromDrawdown(drawdown);
     //DRAW THE DRAFT TO START
@@ -122,28 +146,32 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
     draftGeometry.visible = true;
 
 
-    //MANUALLY MOVE THROUGH THE SIMULATION ALG
-
-    //UNPACKING GET DRAFT TOPOLOGY
-    //SET INITAL CNS
-    const cns = await initContactNeighborhoods(draft.drawdown)
-    const updatedCNs = await updateCNs(cns, wefts(draft.drawdown), warps(draft.drawdown), simVars);
-
-    let paths: Array<WeftPath> = initWeftPaths(draft);
-    paths = parseWeftPaths(draft, paths);
-
-
-    const floats = getFloats(wefts(draft.drawdown), warps(draft.drawdown), updatedCNs);
-    const floatBundle = getFloatGeometry(floats, warps(draft.drawdown), wefts(draft.drawdown));
-
-
-    const layerSet = await createLayerSet(draft.drawdown, warps(draft.drawdown), wefts(draft.drawdown), 10);
-    console.log("layerSet", layerSet);
+    const createLayerSetResult = await createLayerSetWithTrace(
+      draft.drawdown,
+      warps(draft.drawdown),
+      wefts(draft.drawdown),
+      Math.max(1, Math.floor(options.threshold ?? 15)),
+    );
+    console.log("CREATE LAYER SET RESULT", createLayerSetResult.layerSet);
+    const geometryBundle = createLayerSetGeometry(
+      createLayerSetResult.snapshots,
+      warps(draft.drawdown),
+      wefts(draft.drawdown),
+    );
+    const heatBundle = createLiftMapHeatGeometry(
+      createLayerSetResult.snapshots,
+      warps(draft.drawdown),
+      wefts(draft.drawdown),
+    );
 
 
     const sceneGroups: SceneGroups = {
       draftGeometry: draftGeometry,
-      floatGeometry: floatBundle.group,
+      createLayerSetGeometry: geometryBundle.group,
+      liftMapHeatGeometry: heatBundle.group,
+      createLayerSetTrace: createLayerSetResult.trace,
+      applyCreateLayerSetState: geometryBundle.applyCreateLayerSetState,
+      applyLiftMapHeatState: heatBundle.applyHeatState,
     }
 
 
@@ -154,14 +182,16 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
 
   const load = async (
     draft_id: number,
+    options: CreateLayerSetOptions = {},
   ): Promise<SceneGroups> => {
-    return buildSceneGroups(DRAFT_LIST[draft_id]);
+    return buildSceneGroups(DRAFT_LIST[draft_id], options);
   };
 
   const loadFromDrawdown = async (
     drawdown: Drawdown,
+    options: CreateLayerSetOptions = {},
   ): Promise<SceneGroups> => {
-    return buildSceneGroups(drawdown);
+    return buildSceneGroups(drawdown, options);
   }
 
   return { scene, camera, renderer, axesHelper, controls, start, stop, clear, load, loadFromDrawdown };

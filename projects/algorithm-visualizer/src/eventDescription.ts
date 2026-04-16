@@ -1,4 +1,8 @@
-import { type FloatTraversalEvent, type LiftMapTraceEvent } from "./traceTypes";
+import {
+  type CreateLayerSetTraceEvent,
+  type FloatTraversalEvent,
+  type LiftMapTraceEvent,
+} from "./traceTypes";
 
 const describeFloatEvent = (e: FloatTraversalEvent): string => {
   switch (e.type) {
@@ -46,19 +50,55 @@ const describeLiftMapEvent = (e: LiftMapTraceEvent): string => {
   }
 };
 
+const describeCreateLayerSetEvent = (e: CreateLayerSetTraceEvent): string => {
+  switch (e.type) {
+    case "snapshot_set":
+      return `Snapshot ${e.snapshot_index} active (${e.stage}) for layer ${e.layer_index}.`;
+    case "float_scores":
+      return `Layer ${e.layer_index}: computed float scores for ${e.scores.length} float(s).`;
+    case "search_start":
+      return `Layer ${e.layer_index}: searching ACN ${e.acn_key}.`;
+    case "touched_set":
+      return `Layer ${e.layer_index}: ACN ${e.acn_key} touched ${e.touched_acn_keys.length} ACN(s) and ${e.touched_float_ids.length} float(s).`;
+    case "search_result":
+      return `Layer ${e.layer_index}: ACN ${e.acn_key} is ${e.valid ? "valid (added to layer)" : "invalid (not added)"}.`;
+    case "layer_complete":
+      return `Layer ${e.layer_index} complete: ${e.lifted_count} float(s) lifted.`;
+    default: {
+      const _exhaustive: never = e;
+      return String(_exhaustive);
+    }
+  }
+};
+
 /**
  * Text for the panel above the viewport. `eventIndex` matches the GUI: it is the number of
  * events already applied (0 … trace.length). The line shown is the last applied event when
  * eventIndex > 0.
  */
 export const formatTraceEventPanel = (
-  mode: "layers_local" | "lift_map",
+  mode: "layers_local" | "lift_map" | "create_layer_set" | "lift_map_heat",
   floatTrace: FloatTraversalEvent[],
   liftMapTrace: LiftMapTraceEvent[],
+  createLayerSetTrace: CreateLayerSetTraceEvent[],
   eventIndex: number,
 ): string => {
-  const trace = mode === "lift_map" ? liftMapTrace : floatTrace;
-  const modeLabel = mode === "lift_map" ? "Lift map (floats + ACNs)" : "Layer isolation (floats)";
+  const trace =
+    mode === "lift_map"
+      ? liftMapTrace
+      : mode === "lift_map_heat"
+        ? createLayerSetTrace
+      : mode === "create_layer_set"
+        ? createLayerSetTrace
+        : floatTrace;
+  const modeLabel =
+    mode === "lift_map"
+      ? "Lift map (floats + ACNs)"
+      : mode === "lift_map_heat"
+        ? "Lift map heat (touched frequency)"
+      : mode === "create_layer_set"
+        ? "CreateLayerSet (floats + ACNs)"
+        : "Layer isolation (floats)";
   const total = trace.length;
   const applied = Math.max(0, Math.min(eventIndex, total));
 
@@ -72,7 +112,11 @@ export const formatTraceEventPanel = (
   const detail =
     mode === "lift_map"
       ? describeLiftMapEvent(last as LiftMapTraceEvent)
-      : describeFloatEvent(last as FloatTraversalEvent);
+      : mode === "lift_map_heat"
+        ? describeCreateLayerSetEvent(last as CreateLayerSetTraceEvent)
+      : mode === "create_layer_set"
+        ? describeCreateLayerSetEvent(last as CreateLayerSetTraceEvent)
+        : describeFloatEvent(last as FloatTraversalEvent);
 
   return `${header}\nLast applied (event ${applied} of ${total}):\n${detail}`;
 };

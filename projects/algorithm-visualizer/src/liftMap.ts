@@ -39,9 +39,9 @@
  * 
  */
 
-import { createCell, getCellValue, getFloats, getWeftFloatLength, initContactNeighborhoods, modStrict, printDrawdown, updateCNs, warps, wefts, type CNFloat, type CNIndex, type ContactNeighborhood, type Drawdown } from "adacad-drafting-lib";
+import { createCell, getCellValue, getFloats, initContactNeighborhoods, modStrict, updateCNs, type CNFloat, type CNIndex, type Drawdown } from "adacad-drafting-lib";
 import { simVars } from "./simVars";
-import { type LiftMapTraceEvent } from "./traceTypes";
+import { type CreateLayerSetTraceEvent } from "./traceTypes";
 
 
 
@@ -54,6 +54,11 @@ import { type LiftMapTraceEvent } from "./traceTypes";
 
 
 export type LayerSet = Array<Array<CNFloat>>;
+export interface CreateLayerSetBuildResult {
+    layerSet: LayerSet;
+    trace: CreateLayerSetTraceEvent[];
+    snapshots: Array<Array<CNFloat>>;
+}
 
 export const cnKey = (n: CNIndex): string => `${n.i},${n.j},${n.id}`;
 
@@ -72,7 +77,6 @@ export const normalizeNdx = (n: CNIndex, wefts: number, warps: number): CNIndex 
 const reconstituteFloats = (layer: Set<string>, floats: Array<CNFloat>, wefts: number, warps: number): Array<CNFloat> => {
     const updated_floats = [];
 
-    console.log("ORIGINAL FLOATS", floats);
 
     for (const f of floats) {
         const left_set = layer.has(cnKey(normalizeNdx(f.left, wefts, warps)));
@@ -81,6 +85,7 @@ const reconstituteFloats = (layer: Set<string>, floats: Array<CNFloat>, wefts: n
         if (left_set && right_set) {
             updated_floats.push(f);
         } else if (left_set != right_set) {
+            updated_floats.push(f);
             //push 1/2 length of the float into the float stack
         }
     }
@@ -139,63 +144,102 @@ const reconstituteFloats = (layer: Set<string>, floats: Array<CNFloat>, wefts: n
 
 
 
-//collect next values in as an array of nexts that are within range of the key
+/**
+ * this map creates two lists for each active ACN. The first list describe bes the CNS that would be hit if a ray was cast in the direction of the id. The second value indicates the next ACN on the neighboring float. Next should always be the same as the first value in the ray list. 
+ * @param searchSet 
+ * @param floats 
+ * @param threshold 
+ * @param wefts 
+ * @param warps 
+ * @returns 
+ */
 const buildNextMap = (
     searchSet: ReadonlySet<string>,
     floats: Array<CNFloat>,
     threshold: number,
     wefts: number,
     warps: number,
-): Map<string, Array<string>> => {
-    const cnMap = new Map<string, Array<string>>();
-    console.log("Search Set is: ", searchSet);
+): Map<string, { ray: Array<CNIndex>, next: CNIndex | null }> => {
+    const cnMap = new Map<string, { ray: Array<CNIndex>, next: CNIndex | null }>();
     for (const key of searchSet) {
-        const nxt = getLiftSet(parseKey(key), threshold, wefts, warps, searchSet, floats);
-        cnMap.set(key, nxt.map(el => cnKey(el)));
+        const ray = castRay(parseKey(key), floats, threshold, wefts, warps);
+        const nxt = getLift(parseKey(key), wefts, warps, floats);
+        cnMap.set(key, { ray: ray, next: nxt });
 
     }
-    console.log(cnMap);
+    // console.log("cnMap", cnMap);
     return cnMap;
 };
 
 
-export const castRay = (origin: CNIndex, threshold: number, wefts: number, warps: number, searchSet: ReadonlySet<string>): Array<CNIndex> => {
+/**
+ * shoots a ray out from the origin of the ACN in the direction of the id, and returns all "floats, then "next" oriented indices associated 
+ * @param origin 
+ * @param threshold 
+ * @param wefts 
+ * @param warps 
+ * @param searchSet 
+ * @returns 
+ */
+export const castRay = (origin: CNIndex, floats: Array<CNFloat>, threshold: number, wefts: number, warps: number): Array<CNIndex> => {
 
     const ray = [];
     //cast left side of the float
     if (origin.id == 0) {
-        for (let j = 0; j < threshold; j++) {
-            const ndx = { i: modStrict(origin.i, wefts), j: modStrict(origin.j - j, warps), id: origin.id };
-            if (searchSet.has(cnKey(ndx))) {
-                ray.push(ndx);
+        let i_range = { l: origin.i, r: origin.i };
+        let j_range = { l: origin.j - threshold, r: origin.j };
+
+        const floats_in_range = getFloatsInRange(i_range, j_range, floats, wefts, warps);
+        for (const f of floats_in_range) {
+            if (f.face == false) {
+                ray.push(normalizeNdx(f.left, wefts, warps));
+            } else {
+                ray.push(normalizeNdx(f.left, wefts, warps));
             }
         }
+
         return filterDuplicates(ray);
     }
     //cast right side of the float
     else if (origin.id == 1) {
-        for (let j = 0; j < threshold; j++) {
-            const ndx = { i: modStrict(origin.i, wefts), j: modStrict(origin.j + j, warps), id: origin.id };
-            if (searchSet.has(cnKey(ndx))) {
-                ray.push(ndx);
+        let i_range = { l: origin.i, r: origin.i };
+        let j_range = { l: origin.j, r: origin.j + threshold };
+
+        const floats_in_range = getFloatsInRange(i_range, j_range, floats, wefts, warps);
+        for (const f of floats_in_range) {
+            if (f.face == false) {
+                ray.push(normalizeNdx(f.right, wefts, warps));
+            } else {
+                ray.push(normalizeNdx(f.right, wefts, warps));
             }
         }
+
         return filterDuplicates(ray);
     }
     //cast top side of the float
     else if (origin.id == 2) {
-        for (let i = 0; i < threshold; i++) {
-            const ndx = { i: modStrict(origin.i - i, wefts), j: modStrict(origin.j, warps), id: origin.id };
-            if (searchSet.has(cnKey(ndx))) {
-                ray.push(ndx);
+        let i_range = { l: origin.i - threshold, r: origin.i };
+        let j_range = { l: origin.j, r: origin.j };
+
+        const floats_in_range = getFloatsInRange(i_range, j_range, floats, wefts, warps);
+        for (const f of floats_in_range) {
+            if (f.face == false) {
+                ray.push(normalizeNdx(f.right, wefts, warps));
+            } else {
+                ray.push(normalizeNdx(f.left, wefts, warps));
             }
         }
         return filterDuplicates(ray);
     } else if (origin.id == 3) {
-        for (let i = 0; i < threshold; i++) {
-            const ndx = { i: modStrict(origin.i + i, wefts), j: modStrict(origin.j, warps), id: origin.id };
-            if (searchSet.has(cnKey(ndx))) {
-                ray.push(ndx);
+        let i_range = { l: origin.i, r: origin.i + threshold };
+        let j_range = { l: origin.j, r: origin.j };
+
+        const floats_in_range = getFloatsInRange(i_range, j_range, floats, wefts, warps);
+        for (const f of floats_in_range) {
+            if (f.face == false) {
+                ray.push(normalizeNdx(f.left, wefts, warps));
+            } else {
+                ray.push(normalizeNdx(f.right, wefts, warps));
             }
         }
         return filterDuplicates(ray);
@@ -205,50 +249,111 @@ export const castRay = (origin: CNIndex, threshold: number, wefts: number, warps
 }
 
 
-export const followTheNexts = (origin: CNIndex, stopping_id: number, cnMap: Map<string, Array<string>>, threshold: number, searchSet: ReadonlySet<string>, wefts: number, warps: number, touched: Set<string>): Set<string> => {
-
-
-    const nexts = cnMap.get(cnKey(origin));
-    const next_array = nexts ? [...nexts] : [];
-
-    if (next_array.length == 0) return touched;
-
-    //before stopping, add all the nexts along this trajectory
-    if (parseKey(next_array[0]).id == stopping_id) {
-        for (const next of next_array) {
-            touched.add(next);
-        }
+/**
+ * proceeds to search if lifting this index, would result in a next that lifts the target. 
+ * at each iteration. 
+ * Pseudocode: 
+ * from origin - find all the ACNS that sit on this ray (e.g. would lift if this was lifted)
+ * for each of those ACNs identified, call their "next" acn, as the next origin. 
+ * @param origin 
+ * @param target 
+ * @param cnMap 
+ * @param searchSet 
+ * @param wefts 
+ * @param warps 
+ * @param touched 
+ * @returns 
+ */
+export const followTheNexts = (origin: CNIndex | null, target: string, cnMap: Map<string, { ray: Array<CNIndex>, next: CNIndex | null }>, searchSet: ReadonlySet<string>, wefts: number, warps: number, touched: Set<string>): Set<string> => {
+    // console.log("followTheNexts", origin, target);
+    if (origin == null) {
+        // console.error("Origin is null");
         return touched;
     }
 
-    for (const next of next_array) {
+    //we found our target!
+    // if (cnKey(origin) == target) {
+    //     touched.add(cnKey(origin));
+    //     return touched;
+    // }
+
+    //we already searched this index (shouldn't happen, but just in case)
+    if (touched.has(cnKey(origin))) {
+        return touched;
+    }
+
+
+    touched.add(cnKey(origin));
+
+    const mapEntry = cnMap.get(cnKey(origin));
+    if (!mapEntry) {
+        return touched;
+    }
+    const ray = mapEntry.ray ?? [];
+
+    //if the ray should never be empty, because it should at least contain the origin. 
+    if (ray.length == 0) {
+        // console.error("Ray is empty for origin", origin);
+        return touched;
+    }
+
+    //if the origin is on the ray, we're good
+    if (ray.includes(origin)) {
+        touched.add(cnKey(origin));
+        return touched;
+    }
+
+    //if we've looped enough times to get back to the starting direction (and we already checked the ray, end this branch of the search)
+    if (origin.id == parseKey(target).id) {
+        return touched;
+    }
+
+    for (const seed of mapEntry.ray) {
+        let next = cnKey(seed);
+        if (next == null) continue;
         if (!touched.has(next)) {
-            touched.add(next);
-            const traces = followTheNexts(parseKey(next), stopping_id, cnMap, threshold, searchSet, wefts, warps, touched);
-            for (const trace of traces) {
+            const traces = followTheNexts(parseKey(next), target, cnMap, searchSet, wefts, warps, touched);
+            for (const trace of traces.values()) {
                 touched.add(trace);
             }
         }
     }
+
+    // console.log("reached end");
+
     return touched;
 }
 
 /** casts nets out from the start key to the next 5 warp and weft floats that would lift as a result */
 //
-export const emitLiftPaths = (origin: CNIndex, cnMap: Map<string, Array<string>>, threshold: number, searchSet: ReadonlySet<string>, wefts: number, warps: number): Set<string> => {
+export const emitLiftPaths = (origin: CNIndex, cnMap: Map<string, { ray: Array<CNIndex>, next: CNIndex | null }>, searchSet: ReadonlySet<string>, wefts: number, warps: number): Set<string> => {
 
+
+    // console.log("emitLiftPaths", origin);
 
     const touched = new Set<string>();
-    const starting_ray = castRay(origin, threshold, wefts, warps, searchSet);
-    console.log("STARTING RAY", starting_ray);
-    for (const acn of starting_ray) {
-        const traces = followTheNexts(acn, origin.id, cnMap, threshold, searchSet, wefts, warps, touched);
-        for (const trace of traces) {
+    const starting_ray = cnMap.get(cnKey(origin))?.ray ?? [];
+    // console.log("starting ray", starting_ray);
+
+    //start off one step away from the origin so we don't immediately trigger the target condition
+    for (const seed of starting_ray) {
+        // console.log("seed --", seed);
+
+        const seedKey = cnKey(seed);
+        const next: CNIndex | null = cnMap.get(seedKey)?.next ?? null;
+        // console.log("next --", next);
+        const traces = followTheNexts(next, cnKey(origin), cnMap, searchSet, wefts, warps, touched);
+        // console.log("traces --", traces);
+        for (const trace of traces.values()) {
             touched.add(trace);
         }
+        // console.log("touched --", touched);
     }
+
+
     return touched;
 }
+
 
 /**
  * this algorithm determines which floats are part of the current top layer
@@ -257,56 +362,216 @@ export const emitLiftPaths = (origin: CNIndex, cnMap: Map<string, Array<string>>
  * @param warps 
  * @returns 
  */
-const peelLayer = (floats: Array<CNFloat>, wefts: number, warps: number, threshold: number): Array<CNFloat> => {
 
+const touchedFloatIdsFromAcnKeys = (
+    touched: ReadonlySet<string>,
+    floats: Array<CNFloat>,
+    wefts: number,
+    warps: number,
+): number[] => {
+    const ids = new Set<number>();
+    for (const f of floats) {
+        const lk = cnKey(normalizeNdx(f.left, wefts, warps));
+        const rk = cnKey(normalizeNdx(f.right, wefts, warps));
+        if (touched.has(lk) || touched.has(rk)) {
+            ids.add(f.id);
+        }
+    }
+    return [...ids];
+}
+
+export const scoreFloatsWithCasting = (floats: Array<CNFloat>, cnMap: Map<string, { ray: Array<CNIndex>, next: CNIndex | null }>, searchSet: ReadonlySet<string>, warps: number, wefts: number): Map<number, number> => {
+
+
+    //what happens if we also use the casting information
+    const nextMap = new Map<string, Array<string> | null>();
+    for (const key of searchSet) {
+        const next_ndx = cnMap.get(key)?.ray ?? null;
+        if (next_ndx != null) {
+            const casting_ray = next_ndx.map(el => cnKey(normalizeNdx(el, wefts, warps)));
+            nextMap.set(key, casting_ray);
+
+        } else {
+            nextMap.set(key, null);
+        }
+    }
+
+
+    console.log("nextMap", [...nextMap.entries()]);
+
+    //give every float a score based on the number of incoming connections. 
+    const floatScores = new Map<number, number>();
+    for (const f of floats) {
+        floatScores.set(f.id, 0);
+    }
+
+    for (const f of floats) {
+        //count how many "next" values in the CN map are associated with the left acn
+        const leftKey = cnKey(normalizeNdx(f.left, wefts, warps));
+        const rightKey = cnKey(normalizeNdx(f.right, wefts, warps));
+
+        for (const [, value] of nextMap.entries()) {
+            if (value?.includes(leftKey) || value?.includes(rightKey)) {
+                floatScores.set(f.id, (floatScores.get(f.id) ?? 0) + 1);
+            }
+        }
+    }
+
+
+    //now, normalize the values based on float length 
+    for (const [float_id, score] of floatScores.entries()) {
+        const float = floats.find(el => el.id == float_id);
+
+        if (float) {
+            if (float.face == true) {
+                floatScores.set(float_id, score / (float.right.i - float.left.i + 1));
+            } else {
+                floatScores.set(float_id, score / (float.right.j - float.left.j + 1));
+            }
+        }
+    }
+
+    console.log("floatScores, AFTER", floatScores);
+    return floatScores;
+}
+
+const scoreFloatsWithNext = (floats: Array<CNFloat>, cnMap: Map<string, { ray: Array<CNIndex>, next: CNIndex | null }>, searchSet: ReadonlySet<string>, warps: number, wefts: number): Map<number, number> => {
+
+
+    //what happens if we also use the casting information
+    const nextMap = new Map<string, string | null>();
+    for (const key of searchSet) {
+        const next_ndx = cnMap.get(key)?.next ?? null;
+        if (next_ndx != null) {
+            nextMap.set(key, cnKey(normalizeNdx(next_ndx, wefts, warps)));
+        } else {
+            nextMap.set(key, null);
+        }
+    }
+
+
+    console.log("nextMap", [...nextMap.entries()]);
+
+    //give every float a score based on the number of incoming connections. 
+    const floatScores = new Map<number, number>();
+    for (const f of floats) {
+        floatScores.set(f.id, 0);
+    }
+
+    for (const f of floats) {
+        //count how many "next" values in the CN map are associated with the left acn
+        const leftKey = cnKey(normalizeNdx(f.left, wefts, warps));
+        const rightKey = cnKey(normalizeNdx(f.right, wefts, warps));
+
+        for (const [, value] of nextMap.entries()) {
+            if (value == leftKey || value == rightKey) {
+                floatScores.set(f.id, (floatScores.get(f.id) ?? 0) + 1);
+            }
+        }
+    }
+
+
+    //now, normalize the values based on float length 
+    for (const [float_id, score] of floatScores.entries()) {
+        const float = floats.find(el => el.id == float_id);
+
+        if (float) {
+            if (float.face == true) {
+                floatScores.set(float_id, score / (float.right.i - float.left.i + 1));
+            } else {
+                floatScores.set(float_id, score / (float.right.j - float.left.j + 1));
+            }
+        }
+    }
+
+    console.log("floatScores, AFTER", floatScores);
+    return floatScores;
+}
+
+
+const peelLayerWithTrace = (
+    floats: Array<CNFloat>,
+    wefts: number,
+    warps: number,
+    threshold: number,
+    layerIndex: number,
+    emit: (event: CreateLayerSetTraceEvent) => void,
+): Array<CNFloat> => {
     const layer: CNIndex[] = [];
     const searchSet = new Set<string>();
-
 
     const full_weft_floats = floats.filter(el => el.face == false && el.right.j - el.left.j == warps - 1);
     const full_warp_floats = floats.filter(el => el.face == true && el.right.i - el.left.i == wefts - 1);
 
-    //handle cases where we have an unbound layer. 
     if (full_weft_floats.length > 0) {
+        emit({ type: "layer_complete", layer_index: layerIndex, lifted_count: full_weft_floats.length });
         return full_weft_floats;
     }
 
     if (full_warp_floats.length > 0) {
+        emit({ type: "layer_complete", layer_index: layerIndex, lifted_count: full_warp_floats.length });
         return full_warp_floats;
     }
 
-    //now we can promise that there aren't any full wefts in teh set. 
     for (const f of floats) {
         searchSet.add(cnKey(normalizeNdx(f.left, wefts, warps)));
         searchSet.add(cnKey(normalizeNdx(f.right, wefts, warps)));
     }
 
 
+    //scramble the order of the search set
+    const scrambledSearchSet = new Set<string>([...searchSet].sort(() => Math.random() - 0.5));
     const cnMap = buildNextMap(searchSet, floats, threshold, wefts, warps);
-    console.log("CN MAP", cnMap);
-    for (const startKey of [...searchSet]) {
-        console.log("START KEY", startKey);
-        const touched = emitLiftPaths(parseKey(startKey), cnMap, threshold, searchSet, wefts, warps);
-        console.log("TOUCHED", touched);
-        if (touched.has(cnKey(parseKey(startKey)))) {
-            console.log("ADDING TO LAYER", parseKey(startKey));
+
+    const floatScores = scoreFloatsWithNext(floats, cnMap, searchSet, warps, wefts);
+    emit({
+        type: "float_scores",
+        layer_index: layerIndex,
+        scores: [...floatScores.entries()].map(([float_id, score]) => ({ float_id, score })),
+    });
+
+
+
+
+
+
+
+    for (const startKey of [...scrambledSearchSet]) {
+        emit({ type: "search_start", layer_index: layerIndex, acn_key: startKey });
+        const touched = emitLiftPaths(parseKey(startKey), cnMap, searchSet, wefts, warps);
+        const touchedAcnKeys = [...touched];
+        const touchedFloatIds = touchedFloatIdsFromAcnKeys(touched, floats, wefts, warps);
+        emit({
+            type: "touched_set",
+            layer_index: layerIndex,
+            acn_key: startKey,
+            touched_acn_keys: touchedAcnKeys,
+            touched_float_ids: touchedFloatIds,
+        });
+        const valid = touched.has(cnKey(parseKey(startKey)));
+        emit({ type: "search_result", layer_index: layerIndex, acn_key: startKey, valid });
+        if (valid) {
             layer.push(parseKey(startKey));
         }
     }
+
+    //
 
     const layerSet = new Set<string>();
     for (const el of layer) {
         layerSet.add(cnKey(el));
     }
-    return reconstituteFloats(layerSet, floats, wefts, warps);
-
-
-
+    const result = reconstituteFloats(layerSet, floats, wefts, warps);
+    emit({ type: "layer_complete", layer_index: layerIndex, lifted_count: result.length });
+    return result;
 }
 
 
 //Walks through any warp floats in the new floats list, and marks those warp floats as "heddle down", in teh drawdown (essentially casting them out)
 const castOutWarpFloats = (dd_warp_co: Drawdown, newFloats: Array<CNFloat>, warps: number, wefts: number) => {
+
+
+    //THIS ISN"T CURRENTLY GETTING ALL THE WARP
 
     let updated: Drawdown = copyDrawdown(dd_warp_co);
     for (const f of newFloats) {
@@ -377,8 +642,6 @@ const isValidWeftFloat = (float: CNFloat, warps: number, assignedACNS: Set<strin
  */
 const updateMap = async (dd_warp_co: Drawdown, dd_weft_co: Drawdown, warps: number, wefts: number, newFloats: Array<CNFloat>, assignedACNS: Set<string>) => {
 
-    //for each warp float - mark the dd_warp_co cells associated as "heddle lower"
-    // init CNS - 
     const updated_dd_warp_co = castOutWarpFloats(dd_warp_co, newFloats, warps, wefts);
 
     let emptyCns = await initContactNeighborhoods(updated_dd_warp_co);
@@ -387,6 +650,7 @@ const updateMap = async (dd_warp_co: Drawdown, dd_weft_co: Drawdown, warps: numb
     const weft_floats = floats
         .filter(el => el.face == false)
         .filter(el => isValidWeftFloat(el, warps, assignedACNS));
+
 
     //for each weft float - mark the dd_weft_co cells associated as "heddle raised"
     const updated_dd_weft_co = castOutWeftFloats(dd_weft_co, newFloats, warps, wefts);
@@ -399,10 +663,10 @@ const updateMap = async (dd_warp_co: Drawdown, dd_weft_co: Drawdown, warps: numb
 
     const all_floats = [...weft_floats, ...warp_floats];
 
-    console.log("DD WARP CO in update map");
-    printDrawdown(updated_dd_warp_co)
-    console.log("DD WEFT CO in update map");
-    printDrawdown(updated_dd_weft_co)
+    // console.log("DD WARP CO in update map");
+    // printDrawdown(updated_dd_warp_co)
+    // console.log("DD WEFT CO in update map");
+    // printDrawdown(updated_dd_weft_co)
 
     return { dd_warp_co: updated_dd_warp_co, dd_weft_co: updated_dd_weft_co, all_floats };
 }
@@ -426,23 +690,42 @@ const copyDrawdown = (dd: Drawdown): Drawdown => {
 
 /** parses the drawdown in search of possible layers, updating and assign ACNS as they correspond to floats in the lifted structures**/
 export const createLayerSet = async (drawdown: Drawdown, warps: number, wefts: number, threshold: number): Promise<LayerSet> => {
+    return (await createLayerSetWithTrace(drawdown, warps, wefts, threshold)).layerSet;
+}
+
+export const createLayerSetWithTrace = async (
+    drawdown: Drawdown,
+    warps: number,
+    wefts: number,
+    threshold: number,
+): Promise<CreateLayerSetBuildResult> => {
     const layerSet: LayerSet = [];
+    const trace: CreateLayerSetTraceEvent[] = [];
+    const snapshots: Array<Array<CNFloat>> = [];
     const assignedACNS = new Set<string>();
     let dd_warp_co = copyDrawdown(drawdown);
     let dd_weft_co = copyDrawdown(drawdown);
-    let floats = [];
+    let floats: Array<CNFloat> = [];
 
     let obj = await updateMap(dd_warp_co, dd_weft_co, warps, wefts, floats, assignedACNS);
     dd_warp_co = obj.dd_warp_co;
     dd_weft_co = obj.dd_weft_co;
     floats = obj.all_floats;
+    snapshots.push([...floats]);
+    trace.push({ type: "snapshot_set", snapshot_index: 0, layer_index: 0, stage: "initial" });
 
 
     let loops = 1;
-    //  while (floats.length > 0) {
-    while (loops < 5) {
-        const layer_floats = peelLayer(floats, wefts, warps, threshold);
-        console.log("LAYER FLOATS", layer_floats);
+    while (floats.length > 0 && loops < 10) {
+        const layerIndex = loops - 1;
+        const layer_floats = peelLayerWithTrace(
+            floats,
+            wefts,
+            warps,
+            threshold,
+            layerIndex,
+            (event) => trace.push(event),
+        );
         layerSet.push(layer_floats);
 
         for (const cn of extractACNS(layer_floats)) {
@@ -450,12 +733,26 @@ export const createLayerSet = async (drawdown: Drawdown, warps: number, wefts: n
         }
 
 
+        //TO DO - run a second pass here to catch any islands
+        //so, check each lifted float, add it's partner and then check all 
+        //neighboring flaoats within a rannge. If they are not marked as lifting, lift them
+
+
         obj = await updateMap(dd_warp_co, dd_weft_co, warps, wefts, layer_floats, assignedACNS);
 
+        //We need a smarter strategy here to catch layer changes. Some areas should grow, others shouldn't. 
+        //how do we know the difference? 
 
         dd_warp_co = obj.dd_warp_co;
         dd_weft_co = obj.dd_weft_co;
         floats = obj.all_floats;
+        snapshots.push([...floats]);
+        trace.push({
+            type: "snapshot_set",
+            snapshot_index: snapshots.length - 1,
+            layer_index: loops,
+            stage: "post_update",
+        });
         loops++;
     }
 
@@ -463,7 +760,7 @@ export const createLayerSet = async (drawdown: Drawdown, warps: number, wefts: n
 
 
 
-    return layerSet;
+    return { layerSet, trace, snapshots };
 
 }
 
@@ -557,7 +854,7 @@ export const getWeftFloat = (i: number, j: number, wefts: number, warps: number,
         // console.error("a warp float was not found with this index ");
         return null;
     } else if (res.length > 1) {
-        console.error("a warp float returned multiple possible associations ")
+        // console.error("a warp float returned multiple possible associations ")
         return null;
     } else {
         if (res[0].face == null) return null;
@@ -597,7 +894,7 @@ export const getWarpFloat = (i: number, j: number, wefts: number, warps: number,
         // console.error("a warp float was not found with this index ")
         return null;
     } else if (res.length > 1) {
-        console.error("a warp float returned multiple possible associations ")
+        // console.error("a warp float returned multiple possible associations ")
         return null;
     } else {
         if (res[0].face == null) return null;
@@ -626,9 +923,6 @@ export const getWarpFloat = (i: number, j: number, wefts: number, warps: number,
 //     j: modStrict(n.j, warps),
 //     id: n.id,
 // });
-
-
-const sameIndex = (a: CNIndex, b: CNIndex): boolean => a.i == b.i && a.j == b.j;
 
 
 // const onRay = (start: CNIndex, lastLift: CNIndex, end: CNIndex, threshold: number): boolean => {
@@ -673,8 +967,6 @@ const sameIndex = (a: CNIndex, b: CNIndex): boolean => a.i == b.i && a.j == b.j;
 
 // }
 
-
-type NextInSearchSet = { acn: CNIndex; floatId: number };
 
 // const getNextCNInSearchSet = (
 //     ndx: CNIndex,
@@ -751,8 +1043,50 @@ type NextInSearchSet = { acn: CNIndex; floatId: number };
 // }
 
 
+
 /**
- * given an ACN, this function casts a ray in the search direction, returns a set of ACNs that are within the threshold of the origin ACN.
+ * given a range in i and/or j this returns any float that has at least part of it within the boundary formed by i and j. 
+ * @param i  //the l can be less than 0 and r can be greater than wefts
+ * @param j 
+ * @param fs 
+ */
+export const getFloatsInRange = (i: { l: number, r: number }, j: { l: number, r: number }, all_floats: Array<CNFloat>, wefts: number, warps: number): Array<CNFloat> => {
+
+
+    const candidates: Array<CNFloat> = [];
+
+    //unwrap the range
+    if (i.l > i.r) {
+        i.r = wefts + i.r;
+    }
+
+    //unwrap the range
+    if (j.l > j.r) {
+        j.r = warps + j.r;
+    }
+
+    for (let x = i.l; x <= i.r; x++) {
+        for (let y = j.l; y <= j.r; y++) {
+            const adj_i = modStrict(x, wefts);
+            const adj_j = modStrict(y, warps);
+
+            const weft = getWeftFloat(adj_i, adj_j, wefts, warps, all_floats);
+            if (weft !== null) candidates.push(weft);
+
+            const warp = getWarpFloat(adj_i, adj_j, wefts, warps, all_floats);
+            if (warp !== null) candidates.push(warp);
+
+        }
+    }
+
+
+    return candidates;
+
+
+}
+
+/**
+ * given an ACN, this returns the next ACN on its neighboring float
  * @param origin 
  * @param threshold 
  * @param wefts 
@@ -760,71 +1094,38 @@ type NextInSearchSet = { acn: CNIndex; floatId: number };
  * @param searchSet 
  * @returns 
  */
-const getLiftSet = (origin: CNIndex, threshold: number, wefts: number, warps: number, searchSet: ReadonlySet<string>, floats: Array<CNFloat>): Array<CNIndex> => {
-    const liftSet: Array<CNIndex> = [];
-
-    console.log("SEARCHING FOR ", origin);
+const getLift = (origin: CNIndex, wefts: number, warps: number, floats: Array<CNFloat>): CNIndex | null => {
 
 
-    //I am an ACN on a weft float, left side, look one column left and walk UP
+    //I am an ACN on a weft float, left side, look one column left
     if (origin.id == 0) {
-        const search_start = { i: origin.i, j: modStrict(origin.j - 1, warps), id: origin.id };
-        for (let i = 0; i < threshold; i++) {
-            if (searchSet.has(cnKey({ i: modStrict(search_start.i - i, wefts), j: modStrict(search_start.j, warps), id: 2 }))) {
-                liftSet.push({ i: modStrict(search_start.i - i, wefts), j: modStrict(search_start.j, warps), id: 2 });
-            }
-        }
-
-        //if we end on a float, get it's end point
-        const float = getWarpFloat(modStrict(search_start.i - threshold, wefts), search_start.j, wefts, warps, floats);
-        if (float == null) return liftSet;
-        liftSet.push({ i: modStrict(float.left.i, wefts), j: modStrict(float.left.j, warps), id: float.left.id });
+        const warp_float = getWarpFloat(modStrict(origin.i, wefts), modStrict(origin.j - 1, warps), wefts, warps, floats);
+        if (warp_float == null) return null;
+        return normalizeNdx(warp_float.left, wefts, warps);
 
     }
     //I am an ACN on a weft float, Right side, look one column right and walk DOWN
     if (origin.id == 1) {
-        const search_start = { i: origin.i, j: modStrict(origin.j + 1, warps), id: origin.id };
-        for (let i = 0; i < threshold; i++) {
-            if (searchSet.has(cnKey({ i: modStrict(search_start.i + i, wefts), j: modStrict(search_start.j, warps), id: 3 }))) {
-                liftSet.push({ i: modStrict(search_start.i + i, wefts), j: modStrict(search_start.j, warps), id: 3 });
-            }
-        }
-        //if we end on a float, get it's end point
-        const float = getWarpFloat(modStrict(search_start.i + threshold, wefts), search_start.j, wefts, warps, floats);
-        if (float == null) return liftSet;
-        liftSet.push({ i: modStrict(float.right.i, wefts), j: modStrict(float.right.j, warps), id: float.right.id });
+        const warp_float = getWarpFloat(modStrict(origin.i, wefts), modStrict(origin.j + 1, warps), wefts, warps, floats);
+        if (warp_float == null) return null;
+        return normalizeNdx(warp_float.right, wefts, warps);
     }
 
     //I am an ACN on a warp float, Top side, look one row up and walk RIGHT
     if (origin.id == 2) {
-        const search_start = { i: modStrict(origin.i - 1, wefts), j: origin.j, id: origin.id };
-        for (let j = 0; j < threshold; j++) {
-            if (searchSet.has(cnKey({ i: modStrict(search_start.i, wefts), j: modStrict(search_start.j + j, warps), id: 1 }))) {
-                liftSet.push({ i: modStrict(search_start.i, wefts), j: modStrict(search_start.j + j, warps), id: 1 });
-            }
-        }
-        //if we end on a float, get it's end point
-        const float = getWeftFloat(search_start.i, modStrict(search_start.j + threshold, warps), wefts, warps, floats);
-        if (float == null) return liftSet;
-        liftSet.push({ i: modStrict(float.right.i, wefts), j: modStrict(float.right.j, warps), id: float.right.id });
+        const warp_float = getWeftFloat(modStrict(origin.i - 1, wefts), modStrict(origin.j, warps), wefts, warps, floats);
+        if (warp_float == null) return null;
+        return normalizeNdx(warp_float.right, wefts, warps);
     }
 
     // I am an ACN on a warp float, Bottom Side, Look one row down and walk LEFT
     else if (origin.id == 3) {
-        const search_start = { i: modStrict(origin.i + 1, wefts), j: origin.j, id: origin.id };
-        for (let j = 0; j < threshold; j++) {
-            if (searchSet.has(cnKey({ i: modStrict(search_start.i, wefts), j: modStrict(search_start.j - j, warps), id: 0 }))) {
-                liftSet.push({ i: modStrict(search_start.i, wefts), j: modStrict(search_start.j - j, warps), id: 0 });
-            }
-        }
-        //if we end on a float, get it's end point
-        const float = getWeftFloat(search_start.i, modStrict(search_start.j - threshold, warps), wefts, warps, floats);
-        if (float == null) return liftSet;
-        liftSet.push({ i: modStrict(float.left.i, wefts), j: modStrict(float.left.j, warps), id: float.left.id });
+        const warp_float = getWeftFloat(modStrict(origin.i + 1, wefts), modStrict(origin.j, warps), wefts, warps, floats);
+        if (warp_float == null) return null;
+        return normalizeNdx(warp_float.left, wefts, warps);
     }
 
-    //there shouldn't be any duplicates but just in case
-    return filterDuplicates(liftSet);
+    return null;
 }
 
 const filterDuplicates = (liftSet: Array<CNIndex>): Array<CNIndex> => {

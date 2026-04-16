@@ -10,7 +10,15 @@ import {
   SpriteMaterial,
 } from "three";
 import { CELL_SIZE, VIEW_SCALE } from "./simVars";
-import { type ScoredSeedDebugInfo } from "./isolateLayersLocal";
+
+type ScoredSeedDebugInfo = {
+  centerI: number;
+  centerJ: number;
+  radius: number;
+  processed: boolean;
+  floatId: number;
+  score: number;
+};
 
 const makeLabel = (text: string): Sprite => {
   const canvas = document.createElement("canvas");

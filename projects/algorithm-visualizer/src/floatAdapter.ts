@@ -54,6 +54,7 @@ export const getWarpFloatLength = (f: CNFloat, wefts: number): number => {
 export interface FloatGeometryBundle {
     group: Group;
     applyTraceState: (state: FloatTraceState, dimUntouched: boolean) => void;
+    applyZOffsets: (offsetByFloatId: ReadonlyMap<number, number>) => void;
 }
 
 const BASE_WEFT = new Color("#FFFFFF");
@@ -78,6 +79,8 @@ export const getFloatGeometry = (floats: Array<CNFloat>, warps: number, wefts: n
 
     const floatMeshes = new Map<number, Mesh>();
     const floatLabels = new Map<number, Sprite>();
+    const floatBaseZ = new Map<number, number>();
+    const labelBaseZ = new Map<number, number>();
 
 
 
@@ -101,11 +104,13 @@ export const getFloatGeometry = (floats: Array<CNFloat>, warps: number, wefts: n
             mesh.position.set(x + (planeGeometry.parameters.width / 2), y + (planeGeometry.parameters.height / 2), 0.1);
             warpFloats.add(mesh);
             floatMeshes.set(float.id, mesh);
+            floatBaseZ.set(float.id, mesh.position.z);
 
             const idLabel = makeFloatIdLabel(`${float.id}`, "#FFFFFF");
             idLabel.position.set(mesh.position.x, mesh.position.y, mesh.position.z + 0.05);
             warpFloats.add(idLabel);
             floatLabels.set(float.id, idLabel);
+            labelBaseZ.set(float.id, idLabel.position.z);
         } else {
             const planeGeometry = new PlaneGeometry(
                 CELL_SIZE * (getWeftFloatLength(float, warps) + 1),
@@ -116,11 +121,13 @@ export const getFloatGeometry = (floats: Array<CNFloat>, warps: number, wefts: n
             mesh.position.set(x + (planeGeometry.parameters.width / 2), y + (planeGeometry.parameters.height / 2), 0.1);
             weftFloats.add(mesh);
             floatMeshes.set(float.id, mesh);
+            floatBaseZ.set(float.id, mesh.position.z);
 
             const idLabel = makeFloatIdLabel(`${float.id}`, "#000000");
             idLabel.position.set(mesh.position.x, mesh.position.y, mesh.position.z + 0.05);
             weftFloats.add(idLabel);
             floatLabels.set(float.id, idLabel);
+            labelBaseZ.set(float.id, idLabel.position.z);
         }
     }
 
@@ -196,7 +203,24 @@ export const getFloatGeometry = (floats: Array<CNFloat>, warps: number, wefts: n
         }
     };
 
-    return { group, applyTraceState };
+    const applyZOffsets = (offsetByFloatId: ReadonlyMap<number, number>) => {
+        for (const float of floats) {
+            const mesh = floatMeshes.get(float.id);
+            if (mesh) {
+                const base = floatBaseZ.get(float.id) ?? mesh.position.z;
+                const offset = offsetByFloatId.get(float.id) ?? 0;
+                mesh.position.z = base + offset;
+            }
+            const label = floatLabels.get(float.id);
+            if (label) {
+                const base = labelBaseZ.get(float.id) ?? label.position.z;
+                const offset = offsetByFloatId.get(float.id) ?? 0;
+                label.position.z = base + offset;
+            }
+        }
+    };
+
+    return { group, applyTraceState, applyZOffsets };
 };
 
 
