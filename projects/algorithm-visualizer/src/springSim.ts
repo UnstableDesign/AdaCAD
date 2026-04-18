@@ -43,8 +43,8 @@ export interface SpringBuildOptions {
 
 const DEFAULT_BUILD_OPTIONS: SpringBuildOptions = {
     perNodeForceMultiplier: 1,
-    floatScoreZMultiplier: 100,
-    floatSpringShrinkFactor: 0,
+    floatScoreZMultiplier: 5,
+    floatSpringShrinkFactor: 0.8,
 };
 
 
@@ -533,9 +533,9 @@ const DEFAULT_STEP_OPTIONS: SpringStepOptions = {
     gravity: 1.0,
     stiffnessScale: 1.0,
     dampingScale: 1.0,
-    globalDamping: 0.98,
-    boundaryMaxStretchAdd: 0.25,
-    floatMaxStretchAdd: 0.1,
+    globalDamping: 0.2,
+    boundaryMaxStretchAdd: 1.5,
+    floatMaxStretchAdd: 1.5,
     packStrength: 1.0,
     boundaryZMinSeparation: 1,
 };

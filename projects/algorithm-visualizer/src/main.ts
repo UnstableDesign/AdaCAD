@@ -59,12 +59,12 @@ const guiState = {
   spring_gravity: 0.6,
   spring_stiffness: 1.0,
   spring_damping: 1.0,
-  spring_global_damping: 0.96,
-  boundary_max_stretch_add: 0.25,
-  float_max_stretch_add: 0.1,
+  spring_global_damping: 0.2,
+  boundary_max_stretch_add: 1.5,
+  float_max_stretch_add: 1.5,
   per_node_force_multiplier: 1.0,
-  float_score_z_multiplier: 100.0,
-  float_spring_shrink_factor: 0.0,
+  float_score_z_multiplier: 5,
+  float_spring_shrink_factor: 0.8,
 };
 
 const actions = {
@@ -102,7 +102,7 @@ const getCreateLayerSetOptions = () => ({
   yarnRadiusMultiplier: Math.max(0.2, guiState.yarn_thickness),
   perNodeForceMultiplier: Math.max(0, guiState.per_node_force_multiplier),
   floatScoreZMultiplier: Math.max(0, guiState.float_score_z_multiplier),
-  floatSpringShrinkFactor: Math.max(0, guiState.float_spring_shrink_factor),
+  floatSpringShrinkFactor: Math.min(1, Math.max(0, guiState.float_spring_shrink_factor)),
 });
 
 const renderSceneGroups = (next: SceneGroups) => {
@@ -224,26 +224,26 @@ gui
   });
 
 gui
-  .add(guiState, "spring_global_damping", 0.7, 1.0, 0.01)
+  .add(guiState, "spring_global_damping", 0, 1, 0.01)
   .name("Global Damping")
   .onChange((value: number) => {
-    guiState.spring_global_damping = Math.min(1.0, Math.max(0.7, value));
+    guiState.spring_global_damping = Math.min(1, Math.max(0, value));
     runtime.setSpringStepOptions({ globalDamping: guiState.spring_global_damping });
   });
 
 gui
-  .add(guiState, "boundary_max_stretch_add", 0, 2.0, 0.05)
+  .add(guiState, "boundary_max_stretch_add", 1, 10, 0.05)
   .name("Boundary MaxStretch +")
   .onChange((value: number) => {
-    guiState.boundary_max_stretch_add = Math.max(0, value);
+    guiState.boundary_max_stretch_add = Math.min(10, Math.max(1, value));
     runtime.setSpringStepOptions({ boundaryMaxStretchAdd: guiState.boundary_max_stretch_add });
   });
 
 gui
-  .add(guiState, "float_max_stretch_add", 0, 2.0, 0.05)
+  .add(guiState, "float_max_stretch_add", 1, 5, 0.05)
   .name("Float MaxStretch +")
   .onChange((value: number) => {
-    guiState.float_max_stretch_add = Math.max(0, value);
+    guiState.float_max_stretch_add = Math.min(5, Math.max(1, value));
     runtime.setSpringStepOptions({ floatMaxStretchAdd: guiState.float_max_stretch_add });
   });
 
@@ -271,7 +271,7 @@ gui
   });
 
 gui
-  .add(guiState, "float_score_z_multiplier", 0, 300, 1)
+  .add(guiState, "float_score_z_multiplier", 0, 20, 0.1)
   .name("Float Score Z Mult")
   .onFinishChange((value: number) => {
     guiState.float_score_z_multiplier = Math.max(0, value);
@@ -294,10 +294,10 @@ gui
   });
 
 gui
-  .add(guiState, "float_spring_shrink_factor", 0, 5, 0.05)
+  .add(guiState, "float_spring_shrink_factor", 0, 1, 0.05)
   .name("Float Spring Shrink")
   .onFinishChange((value: number) => {
-    guiState.float_spring_shrink_factor = Math.max(0, value);
+    guiState.float_spring_shrink_factor = Math.min(1, Math.max(0, value));
     if (currentCustomDrawdown) {
       loadFromDrawdown(currentCustomDrawdown);
       return;
