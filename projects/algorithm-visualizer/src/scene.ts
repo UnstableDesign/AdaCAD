@@ -1,4 +1,4 @@
-import { initDraftFromDrawdown, warps, wefts, type Drawdown } from "adacad-drafting-lib";
+import { getFloats, initContactNeighborhoods, initDraftFromDrawdown, updateCNs, warps, wefts, type Drawdown } from "adacad-drafting-lib";
 import {
   AmbientLight,
   AxesHelper,
@@ -7,22 +7,22 @@ import {
   Group,
   PerspectiveCamera,
   Scene,
+  Vector3,
   WebGLRenderer,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { DRAFT_LIST } from "./simVars";
-import { createDraftGeometryGroup } from "./draftAdapter";
-import { createLayerSetGeometry } from "./createLayerSetAdapter";
-import { createLiftMapHeatGeometry } from "./liftMapHeatAdapter";
-import {
-  type CreateLayerSetHeatTraceState,
-  type CreateLayerSetTraceEvent,
-  type CreateLayerSetTraceState,
-} from "./traceTypes";
-import { createLayerSetWithTrace } from "./liftMap";
+import { simVars } from "./simVars";
+import { createSpringSystem, stepSpringSystem, type SpringStepOptions, type SpringSystem } from "./springSim";
+import { createSpringGeometry, type SpringGeometryBundle } from "./springAdapter";
+import { getFloatScores } from "./liftMap";
 
 export interface CreateLayerSetOptions {
   threshold?: number;
+  yarnRadiusMultiplier?: number;
+  perNodeForceMultiplier?: number;
+  floatScoreZMultiplier?: number;
+  floatSpringShrinkFactor?: number;
 }
 
 export interface SceneRuntime {
@@ -42,24 +42,17 @@ export interface SceneRuntime {
     drawdown: Drawdown,
     options?: CreateLayerSetOptions,
   ) => Promise<SceneGroups>;
+  setSpringStepOptions: (options: Partial<SpringStepOptions>) => void;
+  setSimulationPaused: (paused: boolean) => void;
+  getSimulationPaused: () => boolean;
+  getSimulationTime: () => number;
 }
 
 export interface SceneGroups {
-  draftGeometry: Group;
-  createLayerSetGeometry: Group;
-  liftMapHeatGeometry: Group;
-  createLayerSetTrace: CreateLayerSetTraceEvent[];
-  applyCreateLayerSetState: (
-    state: CreateLayerSetTraceState,
-    dimUntouched: boolean,
-    scoreDepthEnabled: boolean,
-    scoreDepthStrength: number,
-  ) => void;
-  applyLiftMapHeatState: (
-    state: CreateLayerSetHeatTraceState,
-    dimUntouched: boolean,
-    heatGamma: number,
-  ) => void;
+  springGeometry: Group;
+  nodeCount: number;
+  springCount: number;
+  setNodesVisible: (visible: boolean) => void;
 }
 
 export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
@@ -82,7 +75,7 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.target.set(4, 0, 4);
+  controls.target.set(0, 0, 0);
 
   const ambient = new AmbientLight("#ffffff", 0.55);
   scene.add(ambient);
@@ -99,7 +92,34 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
   scene.add(axesHelper);
 
   let frameHandle = 0;
+  let lastTime = performance.now();
+  let simulationPaused = false;
+  let simulationTime = 0;
+  let currentSystem: SpringSystem | null = null;
+  let currentSpringBundle: SpringGeometryBundle | null = null;
+  let springStepOptions: SpringStepOptions = {
+    gravity: 1,
+    stiffnessScale: 1,
+    dampingScale: 1,
+    globalDamping: 0.98,
+    boundaryMaxStretchAdd: 0.25,
+    floatMaxStretchAdd: 0.1,
+    packStrength: 1,
+    boundaryZMinSeparation: 1e-3,
+  };
   const renderFrame = () => {
+    const now = performance.now();
+    const dtSeconds = (now - lastTime) / 1000;
+    lastTime = now;
+
+    if (currentSystem && currentSpringBundle) {
+      if (!simulationPaused) {
+        stepSpringSystem(currentSystem, dtSeconds, springStepOptions);
+        simulationTime += dtSeconds;
+      }
+      currentSpringBundle.updateFromSystem(currentSystem);
+    }
+
     controls.update();
     renderer.render(scene, camera);
     frameHandle = window.requestAnimationFrame(renderFrame);
@@ -131,9 +151,7 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
   };
 
   const clear = (sceneGroups: SceneGroups) => {
-    scene.remove(sceneGroups.draftGeometry);
-    scene.remove(sceneGroups.createLayerSetGeometry);
-    scene.remove(sceneGroups.liftMapHeatGeometry);
+    scene.remove(sceneGroups.springGeometry);
   }
 
   const buildSceneGroups = async (
@@ -141,37 +159,55 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
     options: CreateLayerSetOptions = {},
   ): Promise<SceneGroups> => {
     const draft = initDraftFromDrawdown(drawdown);
-    //DRAW THE DRAFT TO START
-    const draftGeometry = createDraftGeometryGroup(draft);
-    draftGeometry.visible = true;
-
-
-    const createLayerSetResult = await createLayerSetWithTrace(
+    const cns = await initContactNeighborhoods(draft.drawdown);
+    const updatedCNs = await updateCNs(cns, wefts(draft.drawdown), warps(draft.drawdown), simVars);
+    const floats = getFloats(wefts(draft.drawdown), warps(draft.drawdown), updatedCNs);
+    const floatScores = await getFloatScores(draft.drawdown, warps(draft.drawdown), wefts(draft.drawdown), options.threshold ?? 0.5);
+    const initialSystem: SpringSystem = {
+      nodes: new Map(),
+      springs: new Map(),
+      nodeToSprings: new Map(),
+      perNodeStartingForce: new Map(),
+    };
+    const system = createSpringSystem(
+      initialSystem,
+      floats,
+      floatScores,
       draft.drawdown,
-      warps(draft.drawdown),
       wefts(draft.drawdown),
-      Math.max(1, Math.floor(options.threshold ?? 15)),
-    );
-    console.log("CREATE LAYER SET RESULT", createLayerSetResult.layerSet);
-    const geometryBundle = createLayerSetGeometry(
-      createLayerSetResult.snapshots,
       warps(draft.drawdown),
-      wefts(draft.drawdown),
+      {
+        perNodeForceMultiplier: options.perNodeForceMultiplier,
+        floatScoreZMultiplier: options.floatScoreZMultiplier,
+        floatSpringShrinkFactor: options.floatSpringShrinkFactor,
+      },
     );
-    const heatBundle = createLiftMapHeatGeometry(
-      createLayerSetResult.snapshots,
-      warps(draft.drawdown),
-      wefts(draft.drawdown),
-    );
+    // Recenter simulation coordinates so orbiting is anchored at the scene origin.
+    const center = new Vector3();
+    let nodeCount = 0;
+    for (const node of system.nodes.values()) {
+      center.add(node.position);
+      nodeCount += 1;
+    }
+    if (nodeCount > 0) {
+      center.multiplyScalar(1 / nodeCount);
+      for (const node of system.nodes.values()) {
+        node.position.sub(center);
+      }
+    }
+    const springBundle = createSpringGeometry(system, {
+      yarnRadiusMultiplier: options.yarnRadiusMultiplier,
+    });
 
+    currentSystem = system;
+    currentSpringBundle = springBundle;
+    simulationTime = 0;
 
     const sceneGroups: SceneGroups = {
-      draftGeometry: draftGeometry,
-      createLayerSetGeometry: geometryBundle.group,
-      liftMapHeatGeometry: heatBundle.group,
-      createLayerSetTrace: createLayerSetResult.trace,
-      applyCreateLayerSetState: geometryBundle.applyCreateLayerSetState,
-      applyLiftMapHeatState: heatBundle.applyHeatState,
+      springGeometry: springBundle.group,
+      nodeCount: system.nodes.size,
+      springCount: system.springs.size,
+      setNodesVisible: springBundle.setNodesVisible,
     }
 
 
@@ -194,7 +230,34 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
     return buildSceneGroups(drawdown, options);
   }
 
-  return { scene, camera, renderer, axesHelper, controls, start, stop, clear, load, loadFromDrawdown };
+  const setSpringStepOptions = (options: Partial<SpringStepOptions>) => {
+    springStepOptions = { ...springStepOptions, ...options };
+  };
+
+  const setSimulationPaused = (paused: boolean) => {
+    simulationPaused = paused;
+  };
+
+  const getSimulationPaused = () => simulationPaused;
+
+  const getSimulationTime = () => simulationTime;
+
+  return {
+    scene,
+    camera,
+    renderer,
+    axesHelper,
+    controls,
+    start,
+    stop,
+    clear,
+    load,
+    loadFromDrawdown,
+    setSpringStepOptions,
+    setSimulationPaused,
+    getSimulationPaused,
+    getSimulationTime,
+  };
 };
 
 

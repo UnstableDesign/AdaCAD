@@ -49,13 +49,11 @@ import { type CreateLayerSetTraceEvent } from "./traceTypes";
 
 
 
-/** ALGORITHMS FOR 4/14 */
-
-
 
 export type LayerSet = Array<Array<CNFloat>>;
 export interface CreateLayerSetBuildResult {
     layerSet: LayerSet;
+    floatScores: Map<number, number>;
     trace: CreateLayerSetTraceEvent[];
     snapshots: Array<Array<CNFloat>>;
 }
@@ -74,7 +72,7 @@ export const normalizeNdx = (n: CNIndex, wefts: number, warps: number): CNIndex 
 });
 
 
-const reconstituteFloats = (layer: Set<string>, floats: Array<CNFloat>, wefts: number, warps: number): Array<CNFloat> => {
+export const reconstituteFloats = (layer: Set<string>, floats: Array<CNFloat>, wefts: number, warps: number): Array<CNFloat> => {
     const updated_floats = [];
 
 
@@ -363,7 +361,7 @@ export const emitLiftPaths = (origin: CNIndex, cnMap: Map<string, { ray: Array<C
  * @returns 
  */
 
-const touchedFloatIdsFromAcnKeys = (
+export const touchedFloatIdsFromAcnKeys = (
     touched: ReadonlySet<string>,
     floats: Array<CNFloat>,
     wefts: number,
@@ -489,82 +487,6 @@ const scoreFloatsWithNext = (floats: Array<CNFloat>, cnMap: Map<string, { ray: A
 }
 
 
-const peelLayerWithTrace = (
-    floats: Array<CNFloat>,
-    wefts: number,
-    warps: number,
-    threshold: number,
-    layerIndex: number,
-    emit: (event: CreateLayerSetTraceEvent) => void,
-): Array<CNFloat> => {
-    const layer: CNIndex[] = [];
-    const searchSet = new Set<string>();
-
-    const full_weft_floats = floats.filter(el => el.face == false && el.right.j - el.left.j == warps - 1);
-    const full_warp_floats = floats.filter(el => el.face == true && el.right.i - el.left.i == wefts - 1);
-
-    if (full_weft_floats.length > 0) {
-        emit({ type: "layer_complete", layer_index: layerIndex, lifted_count: full_weft_floats.length });
-        return full_weft_floats;
-    }
-
-    if (full_warp_floats.length > 0) {
-        emit({ type: "layer_complete", layer_index: layerIndex, lifted_count: full_warp_floats.length });
-        return full_warp_floats;
-    }
-
-    for (const f of floats) {
-        searchSet.add(cnKey(normalizeNdx(f.left, wefts, warps)));
-        searchSet.add(cnKey(normalizeNdx(f.right, wefts, warps)));
-    }
-
-
-    //scramble the order of the search set
-    const scrambledSearchSet = new Set<string>([...searchSet].sort(() => Math.random() - 0.5));
-    const cnMap = buildNextMap(searchSet, floats, threshold, wefts, warps);
-
-    const floatScores = scoreFloatsWithNext(floats, cnMap, searchSet, warps, wefts);
-    emit({
-        type: "float_scores",
-        layer_index: layerIndex,
-        scores: [...floatScores.entries()].map(([float_id, score]) => ({ float_id, score })),
-    });
-
-
-
-
-
-
-
-    for (const startKey of [...scrambledSearchSet]) {
-        emit({ type: "search_start", layer_index: layerIndex, acn_key: startKey });
-        const touched = emitLiftPaths(parseKey(startKey), cnMap, searchSet, wefts, warps);
-        const touchedAcnKeys = [...touched];
-        const touchedFloatIds = touchedFloatIdsFromAcnKeys(touched, floats, wefts, warps);
-        emit({
-            type: "touched_set",
-            layer_index: layerIndex,
-            acn_key: startKey,
-            touched_acn_keys: touchedAcnKeys,
-            touched_float_ids: touchedFloatIds,
-        });
-        const valid = touched.has(cnKey(parseKey(startKey)));
-        emit({ type: "search_result", layer_index: layerIndex, acn_key: startKey, valid });
-        if (valid) {
-            layer.push(parseKey(startKey));
-        }
-    }
-
-    //
-
-    const layerSet = new Set<string>();
-    for (const el of layer) {
-        layerSet.add(cnKey(el));
-    }
-    const result = reconstituteFloats(layerSet, floats, wefts, warps);
-    emit({ type: "layer_complete", layer_index: layerIndex, lifted_count: result.length });
-    return result;
-}
 
 
 //Walks through any warp floats in the new floats list, and marks those warp floats as "heddle down", in teh drawdown (essentially casting them out)
@@ -640,7 +562,7 @@ const isValidWeftFloat = (float: CNFloat, warps: number, assignedACNS: Set<strin
  * @param newFloats 
  * @returns 
  */
-const updateMap = async (dd_warp_co: Drawdown, dd_weft_co: Drawdown, warps: number, wefts: number, newFloats: Array<CNFloat>, assignedACNS: Set<string>) => {
+export const updateMap = async (dd_warp_co: Drawdown, dd_weft_co: Drawdown, warps: number, wefts: number, newFloats: Array<CNFloat>, assignedACNS: Set<string>) => {
 
     const updated_dd_warp_co = castOutWarpFloats(dd_warp_co, newFloats, warps, wefts);
 
@@ -671,7 +593,7 @@ const updateMap = async (dd_warp_co: Drawdown, dd_weft_co: Drawdown, warps: numb
     return { dd_warp_co: updated_dd_warp_co, dd_weft_co: updated_dd_weft_co, all_floats };
 }
 
-const extractACNS = (floats: Array<CNFloat>): Array<CNIndex> => {
+export const extractACNS = (floats: Array<CNFloat>): Array<CNIndex> => {
 
     const acns = [];
     for (const f of floats) {
@@ -693,6 +615,39 @@ export const createLayerSet = async (drawdown: Drawdown, warps: number, wefts: n
     return (await createLayerSetWithTrace(drawdown, warps, wefts, threshold)).layerSet;
 }
 
+
+
+export const getFloatScores = async (drawdown: Drawdown,
+    warps: number,
+    wefts: number,
+    threshold: number,): Promise<Map<number, number>> => {
+
+
+    let emptyCns = await initContactNeighborhoods(drawdown);
+    let cns = await updateCNs(emptyCns, wefts, warps, simVars);
+    let floats = await getFloats(wefts, warps, cns);
+
+    const searchSet = new Set<string>();
+    for (const f of floats) {
+        searchSet.add(cnKey(normalizeNdx(f.left, wefts, warps)));
+        searchSet.add(cnKey(normalizeNdx(f.right, wefts, warps)));
+    }
+
+    const cnMap = buildNextMap(searchSet, floats, threshold, wefts, warps);
+    const floatScores = scoreFloatsWithNext(floats, cnMap, searchSet, warps, wefts);
+    return floatScores;
+
+}
+
+
+/**
+ * Creates a layer set with a trace of the process.
+ * @param drawdown 
+ * @param warps 
+ * @param wefts 
+ * @param threshold 
+ * @returns 
+ */
 export const createLayerSetWithTrace = async (
     drawdown: Drawdown,
     warps: number,
@@ -702,65 +657,28 @@ export const createLayerSetWithTrace = async (
     const layerSet: LayerSet = [];
     const trace: CreateLayerSetTraceEvent[] = [];
     const snapshots: Array<Array<CNFloat>> = [];
-    const assignedACNS = new Set<string>();
-    let dd_warp_co = copyDrawdown(drawdown);
-    let dd_weft_co = copyDrawdown(drawdown);
-    let floats: Array<CNFloat> = [];
 
-    let obj = await updateMap(dd_warp_co, dd_weft_co, warps, wefts, floats, assignedACNS);
-    dd_warp_co = obj.dd_warp_co;
-    dd_weft_co = obj.dd_weft_co;
-    floats = obj.all_floats;
+
+    let emptyCns = await initContactNeighborhoods(drawdown);
+    let cns = await updateCNs(emptyCns, wefts, warps, simVars);
+    let floats = await getFloats(wefts, warps, cns);
+
+
     snapshots.push([...floats]);
     trace.push({ type: "snapshot_set", snapshot_index: 0, layer_index: 0, stage: "initial" });
 
 
-    let loops = 1;
-    while (floats.length > 0 && loops < 10) {
-        const layerIndex = loops - 1;
-        const layer_floats = peelLayerWithTrace(
-            floats,
-            wefts,
-            warps,
-            threshold,
-            layerIndex,
-            (event) => trace.push(event),
-        );
-        layerSet.push(layer_floats);
-
-        for (const cn of extractACNS(layer_floats)) {
-            assignedACNS.add(cnKey(cn));
-        }
-
-
-        //TO DO - run a second pass here to catch any islands
-        //so, check each lifted float, add it's partner and then check all 
-        //neighboring flaoats within a rannge. If they are not marked as lifting, lift them
-
-
-        obj = await updateMap(dd_warp_co, dd_weft_co, warps, wefts, layer_floats, assignedACNS);
-
-        //We need a smarter strategy here to catch layer changes. Some areas should grow, others shouldn't. 
-        //how do we know the difference? 
-
-        dd_warp_co = obj.dd_warp_co;
-        dd_weft_co = obj.dd_weft_co;
-        floats = obj.all_floats;
-        snapshots.push([...floats]);
-        trace.push({
-            type: "snapshot_set",
-            snapshot_index: snapshots.length - 1,
-            layer_index: loops,
-            stage: "post_update",
-        });
-        loops++;
+    const searchSet = new Set<string>();
+    for (const f of floats) {
+        searchSet.add(cnKey(normalizeNdx(f.left, wefts, warps)));
+        searchSet.add(cnKey(normalizeNdx(f.right, wefts, warps)));
     }
 
 
-
-
-
-    return { layerSet, trace, snapshots };
+    //scramble the order of the search set
+    const cnMap = buildNextMap(searchSet, floats, threshold, wefts, warps);
+    const floatScores = scoreFloatsWithNext(floats, cnMap, searchSet, warps, wefts);
+    return { layerSet, trace, snapshots, floatScores: floatScores };
 
 }
 
