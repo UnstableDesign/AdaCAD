@@ -8,6 +8,9 @@ Thumbs.db
 # Dependencies
 node_modules/
 
+# Works in Progress
+/projects/algorithm-visualizer/
+
 # Build outputs
 dist/
 build/
