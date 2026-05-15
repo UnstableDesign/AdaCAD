@@ -25,6 +25,7 @@ export * from './glitchsatin/glitchsatin';
 export * from './imagemap/imagemap';
 export * from './interlace/interlace';
 export * from './interlace_warps/interlace_warps'
+export * from './interlacing_blend/interlacing_blend';
 export * from './invert/invert';
 export * from './join_left/join_left'
 export * from './join_top/join_top'
