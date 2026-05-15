@@ -65,6 +65,10 @@ const guiState = {
   per_node_force_multiplier: 1.0,
   float_score_z_multiplier: 5,
   float_spring_shrink_factor: 0.8,
+  boundary_rest_length: 0.5,
+  weft_rest_length: 1,
+  warp_rest_length: 0.1,
+  max_offset: 2,
 };
 
 const actions = {
@@ -103,6 +107,9 @@ const getCreateLayerSetOptions = () => ({
   perNodeForceMultiplier: Math.max(0, guiState.per_node_force_multiplier),
   floatScoreZMultiplier: Math.max(0, guiState.float_score_z_multiplier),
   floatSpringShrinkFactor: Math.min(1, Math.max(0, guiState.float_spring_shrink_factor)),
+  boundaryRestLength: Math.max(0.01, guiState.boundary_rest_length),
+  weftRestLength: Math.max(0.01, guiState.weft_rest_length),
+  warpRestLength: Math.max(0.01, guiState.warp_rest_length),
 });
 
 const renderSceneGroups = (next: SceneGroups) => {
@@ -138,6 +145,7 @@ runtime
       globalDamping: guiState.spring_global_damping,
       boundaryMaxStretchAdd: guiState.boundary_max_stretch_add,
       floatMaxStretchAdd: guiState.float_max_stretch_add,
+      maxOffset: guiState.max_offset,
     });
   });
 
@@ -232,10 +240,10 @@ gui
   });
 
 gui
-  .add(guiState, "boundary_max_stretch_add", 1, 10, 0.05)
+  .add(guiState, "boundary_max_stretch_add", 1, 100, 0.05)
   .name("Boundary MaxStretch +")
   .onChange((value: number) => {
-    guiState.boundary_max_stretch_add = Math.min(10, Math.max(1, value));
+    guiState.boundary_max_stretch_add = Math.min(100, Math.max(1, value));
     runtime.setSpringStepOptions({ boundaryMaxStretchAdd: guiState.boundary_max_stretch_add });
   });
 
@@ -245,6 +253,14 @@ gui
   .onChange((value: number) => {
     guiState.float_max_stretch_add = Math.min(5, Math.max(1, value));
     runtime.setSpringStepOptions({ floatMaxStretchAdd: guiState.float_max_stretch_add });
+  });
+
+gui
+  .add(guiState, "max_offset", 0, 20, 0.1)
+  .name("Max XY offset")
+  .onChange((value: number) => {
+    guiState.max_offset = Math.min(20, Math.max(0, value));
+    runtime.setSpringStepOptions({ maxOffset: guiState.max_offset });
   });
 
 gui
@@ -298,6 +314,75 @@ gui
   .name("Float Spring Shrink")
   .onFinishChange((value: number) => {
     guiState.float_spring_shrink_factor = Math.min(1, Math.max(0, value));
+    if (currentCustomDrawdown) {
+      loadFromDrawdown(currentCustomDrawdown);
+      return;
+    }
+    if (sceneGroups) {
+      runtime.clear(sceneGroups);
+    }
+    stopPlayback();
+    runtime
+      .load(
+        Math.floor(guiState.draft_id),
+        getCreateLayerSetOptions(),
+      )
+      .then((scenes) => {
+        renderSceneGroups(scenes);
+      });
+  });
+
+gui
+  .add(guiState, "boundary_rest_length", 0.01, 5, 0.01)
+  .name("Boundary Rest Length")
+  .onFinishChange((value: number) => {
+    guiState.boundary_rest_length = Math.max(0.01, value);
+    if (currentCustomDrawdown) {
+      loadFromDrawdown(currentCustomDrawdown);
+      return;
+    }
+    if (sceneGroups) {
+      runtime.clear(sceneGroups);
+    }
+    stopPlayback();
+    runtime
+      .load(
+        Math.floor(guiState.draft_id),
+        getCreateLayerSetOptions(),
+      )
+      .then((scenes) => {
+        renderSceneGroups(scenes);
+      });
+  });
+
+gui
+  .add(guiState, "weft_rest_length", 0.01, 5, 0.01)
+  .name("Weft Rest Length")
+  .onFinishChange((value: number) => {
+    guiState.weft_rest_length = Math.max(0.01, value);
+    if (currentCustomDrawdown) {
+      loadFromDrawdown(currentCustomDrawdown);
+      return;
+    }
+    if (sceneGroups) {
+      runtime.clear(sceneGroups);
+    }
+    stopPlayback();
+    runtime
+      .load(
+        Math.floor(guiState.draft_id),
+        getCreateLayerSetOptions(),
+      )
+      .then((scenes) => {
+        renderSceneGroups(scenes);
+      });
+  });
+
+gui
+  .add(guiState, "warp_rest_length", 0.01, 5, 0.01)
+  .name("Warp Rest Length")
+  .onFinishChange((value: number) => {
+    guiState.warp_rest_length = Math.max(0.01, value);
     if (currentCustomDrawdown) {
       loadFromDrawdown(currentCustomDrawdown);
       return;

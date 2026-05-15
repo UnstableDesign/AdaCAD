@@ -13,7 +13,13 @@ import {
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { DRAFT_LIST } from "./simVars";
 import { simVars } from "./simVars";
-import { createSpringSystem, stepSpringSystem, type SpringStepOptions, type SpringSystem } from "./springSim";
+import {
+  createSpringSystem,
+  snapshotNodeRestXY,
+  stepSpringSystem,
+  type SpringStepOptions,
+  type SpringSystem,
+} from "./springSim";
 import { createSpringGeometry, type SpringGeometryBundle } from "./springAdapter";
 import { getFloatScores } from "./liftMap";
 
@@ -106,6 +112,7 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
     floatMaxStretchAdd: 1.5,
     packStrength: 1,
     boundaryZMinSeparation: 1e-3,
+    maxOffset: 2,
   };
   const renderFrame = () => {
     const now = performance.now();
@@ -195,6 +202,7 @@ export const createSceneRuntime = (container: HTMLElement): SceneRuntime => {
         node.position.sub(center);
       }
     }
+    snapshotNodeRestXY(system);
     const springBundle = createSpringGeometry(system, {
       yarnRadiusMultiplier: options.yarnRadiusMultiplier,
     });

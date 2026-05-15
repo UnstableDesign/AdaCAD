@@ -12,6 +12,8 @@ export type NodeState = {
     force: THREE.Vector3;
     mass: number;
     pinned: boolean;
+    /** Set after layout: reference x/y for clamping; z is unconstrained here. */
+    restXY?: { x: number; y: number };
 };
 
 export type SpringState = {
@@ -23,6 +25,8 @@ export type SpringState = {
     stiffness: number;
     damping: number;
     type: "float" | "boundary" | "weft" | "warp";
+    /** Direction mode for spring response: x/y/z axes, or xz/yz float planes. */
+    springAxis: "x" | "y" | "z" | "xz" | "yz";
     /** Set for boundary springs after build: sign of (b.z − a.z) at snapshot; used to forbid z crossing. */
     boundaryZOrderSign?: 1 | -1;
 };
@@ -39,12 +43,26 @@ export interface SpringBuildOptions {
     perNodeForceMultiplier: number;
     floatScoreZMultiplier: number;
     floatSpringShrinkFactor: number;
+    boundaryRestLength: number;
+    weftRestLength: number;
+    warpRestLength: number;
+    boundaryStiffness: number;
+    weftStiffness: number;
+    warpStiffness: number;
+    floatStiffness: number;
 }
 
 const DEFAULT_BUILD_OPTIONS: SpringBuildOptions = {
     perNodeForceMultiplier: 1,
     floatScoreZMultiplier: 5,
     floatSpringShrinkFactor: 0.8,
+    boundaryRestLength: 0.5,
+    weftRestLength: 1,
+    warpRestLength: 0.1,
+    boundaryStiffness: 1,
+    weftStiffness: 0.5,
+    warpStiffness: 0.5,
+    floatStiffness: 2,
 };
 
 
@@ -61,7 +79,13 @@ const pushToSpringList = (springId: SpringId, system: SpringSystem) => {
 
 
 
-const initSpringSystem = (system: SpringSystem, drawdown: Drawdown, wefts: number, warps: number): SpringSystem => {
+const initSpringSystem = (
+    system: SpringSystem,
+    drawdown: Drawdown,
+    wefts: number,
+    warps: number,
+    options: SpringBuildOptions = DEFAULT_BUILD_OPTIONS,
+): SpringSystem => {
 
 
     system.perNodeStartingForce = new Map();
@@ -110,11 +134,12 @@ const initSpringSystem = (system: SpringSystem, drawdown: Drawdown, wefts: numbe
                 id: `${warpNode.id}-${weftNode.id}`,
                 a: warpNode.id,
                 b: weftNode.id,
-                restLength: 1,
+                restLength: options.boundaryRestLength,
                 maxStretchFactor: 1.0,
-                stiffness: 1,
+                stiffness: options.boundaryStiffness, //softer = more passive
                 damping: 0.1,
                 type: "boundary",
+                springAxis: "z",
             };
 
             system.springs.set(spring.id, spring);
@@ -134,11 +159,12 @@ const initSpringSystem = (system: SpringSystem, drawdown: Drawdown, wefts: numbe
                     id: `${weftNode.id}-${nextWeftNode.id}`,
                     a: weftNode.id,
                     b: nextWeftNode.id,
-                    restLength: 1,
+                    restLength: options.weftRestLength,
                     maxStretchFactor: 1.0,
-                    stiffness: 1,
+                    stiffness: options.weftStiffness,
                     damping: 0.1,
                     type: "weft",
+                    springAxis: "x",
                 };
                 system.springs.set(spring.id, spring);
                 system = pushToSpringList(spring.id, system);
@@ -156,11 +182,12 @@ const initSpringSystem = (system: SpringSystem, drawdown: Drawdown, wefts: numbe
                     id: `${warpNode.id}-${nextWarpNode.id}`,
                     a: warpNode.id,
                     b: nextWarpNode.id,
-                    restLength: 1, //make this less
+                    restLength: options.warpRestLength, //make this less
                     maxStretchFactor: 1.0,
-                    stiffness: 1,
+                    stiffness: options.warpStiffness,
                     damping: 0.1,
                     type: "warp",
+                    springAxis: "y",
                 };
 
                 system.springs.set(spring.id, spring);
@@ -222,11 +249,12 @@ export const addSpringsAtWeftFloats = (
                     id: `${start_weft_node.id}-${right_weft_node.id}`,
                     a: start_weft_node.id,
                     b: right_weft_node.id,
-                    restLength: start_len - shrinkFactor,
+                    restLength: start_len - start_len * shrinkFactor,
                     maxStretchFactor: 1,
-                    stiffness: 1,
+                    stiffness: options.floatStiffness,
                     damping: 0.1,
                     type: "float",
+                    springAxis: "xz",
                 }
                 system.springs.set(spring_left.id, spring_left);
                 system = pushToSpringList(spring_left.id, system);
@@ -240,11 +268,12 @@ export const addSpringsAtWeftFloats = (
                     id: `${left_weft_node.id}-${end_weft_node.id}`,
                     a: left_weft_node.id,
                     b: end_weft_node.id,
-                    restLength: end_len - shrinkFactor,
+                    restLength: end_len - end_len * shrinkFactor,
                     maxStretchFactor: 1,
-                    stiffness: 1,
+                    stiffness: options.floatStiffness,
                     damping: 0.1,
                     type: "float",
+                    springAxis: "xz",
                 }
                 system.springs.set(spring_right.id, spring_right);
                 system = pushToSpringList(spring_right.id, system);
@@ -257,14 +286,14 @@ export const addSpringsAtWeftFloats = (
                 id: `${left_weft_node.id}-${right_weft_node.id}`,
                 a: left_weft_node.id,
                 b: right_weft_node.id,
-                restLength: length - shrinkFactor,
+                restLength: length - length * shrinkFactor,
                 maxStretchFactor: 1,
-                stiffness: 1,
+                stiffness: options.floatStiffness,
                 damping: 0.1,
                 type: "float",
+                springAxis: "xz",
             };
 
-            console.log("adding spring between left and right", float_spring.id);
             system.springs.set(float_spring.id, float_spring);
             system = pushToSpringList(float_spring.id, system);
 
@@ -332,11 +361,12 @@ export const addSpringsAtWarpFloats = (
                     id: `${start_warp_node.id}-${right_warp_node.id}`,
                     a: start_warp_node.id,
                     b: right_warp_node.id,
-                    restLength: start_len - shrinkFactor,
+                    restLength: start_len - start_len * shrinkFactor,
                     maxStretchFactor: 1,
-                    stiffness: 1,
+                    stiffness: options.floatStiffness,
                     damping: 0.1,
                     type: "float",
+                    springAxis: "yz",
                 }
                 console.log("adding warp float spring left to start", spring_left.id);
                 system.springs.set(spring_left.id, spring_left);
@@ -351,11 +381,12 @@ export const addSpringsAtWarpFloats = (
                     id: `${left_warp_node.id}-${end_warp_node.id}`,
                     a: left_warp_node.id,
                     b: end_warp_node.id,
-                    restLength: end_len - shrinkFactor,
+                    restLength: end_len - end_len * shrinkFactor,
                     maxStretchFactor: 1,
-                    stiffness: 1,
+                    stiffness: options.floatStiffness,
                     damping: 0.1,
                     type: "float",
+                    springAxis: "yz",
                 }
                 console.log("adding warp float spring right to end", spring_right.id);
                 system.springs.set(spring_right.id, spring_right);
@@ -369,11 +400,12 @@ export const addSpringsAtWarpFloats = (
                 id: `${left_warp_node.id}-${right_warp_node.id}`,
                 a: left_warp_node.id,
                 b: right_warp_node.id,
-                restLength: length - shrinkFactor,
+                restLength: length - length * shrinkFactor,
                 maxStretchFactor: 1,
-                stiffness: 1,
+                stiffness: options.floatStiffness,
                 damping: 0.1,
                 type: "float",
+                springAxis: "yz",
             };
 
             console.log("adding warp float spring between left and right", float_spring.id);
@@ -401,15 +433,13 @@ export const addSpringsAtWarpFloats = (
 const positionFloatSpringNodes = (
     system: SpringSystem,
     float: CNFloat,
-    floatScores: Map<number, number>,
+    _floatScores: Map<number, number>,
     wefts: number,
     warps: number,
     options: SpringBuildOptions = DEFAULT_BUILD_OPTIONS,
 ) => {
 
     const face = float.face;
-    const float_score = floatScores.get(float.id) ?? 0;
-    const float_score_multiplier = options.floatScoreZMultiplier;
     const ndxList = [];
 
     if (face == true) {
@@ -433,26 +463,27 @@ const positionFloatSpringNodes = (
             continue;
         }
         if (face) {
-            warp_node.position.z = float_score * float_score_multiplier;
-            system.perNodeStartingForce.set(
-                weft_node.id,
-                new THREE.Vector3(0, 0, -10 * options.perNodeForceMultiplier),
-            );
-            system.perNodeStartingForce.set(
-                warp_node.id,
-                new THREE.Vector3(0, 0, 10 * options.perNodeForceMultiplier),
-            );
+            //this had the unintended affect for flattening the fabric. 
+            //  warp_node.position.z = float_score * float_score_multiplier;
+            // system.perNodeStartingForce.set(
+            //     weft_node.id,
+            //     new THREE.Vector3(0, 0, -10 * options.perNodeForceMultiplier),
+            // );
+            // system.perNodeStartingForce.set(
+            //     warp_node.id,
+            //     new THREE.Vector3(0, 0, 10 * options.perNodeForceMultiplier),
+            // );
         } else {
-            weft_node.position.z = float_score * float_score_multiplier;
+            //   weft_node.position.z = float_score * float_score_multiplier;
 
-            system.perNodeStartingForce.set(
-                weft_node.id,
-                new THREE.Vector3(0, 0, 10 * options.perNodeForceMultiplier),
-            );
-            system.perNodeStartingForce.set(
-                warp_node.id,
-                new THREE.Vector3(0, 0, -10 * options.perNodeForceMultiplier),
-            );
+            // system.perNodeStartingForce.set(
+            //     weft_node.id,
+            //     new THREE.Vector3(0, 0, 10 * options.perNodeForceMultiplier),
+            // );
+            // system.perNodeStartingForce.set(
+            //     warp_node.id,
+            //     new THREE.Vector3(0, 0, -10 * options.perNodeForceMultiplier),
+            // );
         }
     }
 
@@ -507,13 +538,11 @@ export const createSpringSystem = (
 ): SpringSystem => {
 
     const buildOptions: SpringBuildOptions = { ...DEFAULT_BUILD_OPTIONS, ...options };
-    const springSystem = initSpringSystem(system, drawdown, wefts, warps);
+    const springSystem = initSpringSystem(system, drawdown, wefts, warps, buildOptions);
     const positionedSpringSystem = setPositions(springSystem, floats, floatScores, wefts, warps, buildOptions);
     const weftFloatEdgesSpringSystem = addSpringsAtWeftFloats(positionedSpringSystem, floats, wefts, warps, buildOptions);
     const warpFloatEdgesSpringSystem = addSpringsAtWarpFloats(weftFloatEdgesSpringSystem, floats, wefts, warps, buildOptions);
     snapshotBoundaryZOrder(warpFloatEdgesSpringSystem);
-    console.log("Float Scores", floatScores);
-    console.log("perNodeStartingForce", [...system.perNodeStartingForce.entries()]);
     return warpFloatEdgesSpringSystem;
 }
 
@@ -527,6 +556,8 @@ export interface SpringStepOptions {
     packStrength: number;
     /** Minimum |b.z − a.z| along the snapshot sign for boundary springs (prevents crossing in z). */
     boundaryZMinSeparation: number;
+    /** Max |x − restX| and |y − restY| per node (same for all); 0 pins x/y to rest. */
+    maxOffset: number;
 }
 
 const DEFAULT_STEP_OPTIONS: SpringStepOptions = {
@@ -538,6 +569,7 @@ const DEFAULT_STEP_OPTIONS: SpringStepOptions = {
     floatMaxStretchAdd: 1.5,
     packStrength: 1.0,
     boundaryZMinSeparation: 1,
+    maxOffset: 2,
 };
 
 const getSpringMaxLength = (spring: SpringState, options: SpringStepOptions): number => {
@@ -557,38 +589,59 @@ const resetForces = (system: SpringSystem) => {
     }
 };
 
-const accumulateSpringForces = (system: SpringSystem, options: SpringStepOptions) => {
-    const delta = new THREE.Vector3();
-    const relVel = new THREE.Vector3();
-    const f = new THREE.Vector3();
+const getAxisDirection = (springAxis: SpringState["springAxis"], out: THREE.Vector3): THREE.Vector3 => {
+    if (springAxis === "x") return out.set(1, 0, 0);
+    if (springAxis === "y") return out.set(0, 1, 0);
+    if (springAxis === "z") return out.set(0, 0, 1);
+    if (springAxis === "xz") return out.set(1, 0, 1).normalize();
+    return out.set(0, 1, 1).normalize();
+};
 
+/** Hooke + damping projected to a configured axis/plane direction. */
+const accumulateOneAxisSpringForces = (
+    a: NodeState,
+    b: NodeState,
+    spring: SpringState,
+    axis: SpringState["springAxis"],
+    options: SpringStepOptions,
+    fscratch: THREE.Vector3,
+    scratchDir: THREE.Vector3,
+    scratchDelta: THREE.Vector3,
+) => {
+    const maxLength = getSpringMaxLength(spring, options);
+    const dir = getAxisDirection(axis, scratchDir);
+    const delta = scratchDelta.subVectors(b.position, a.position);
+    const projectedDist = delta.dot(dir);
+    const dist = Math.abs(projectedDist);
+    if (dist < 1e-20) return;
+
+    const dirSign = Math.sign(projectedDist) || 1;
+    const effectiveDistance = Math.min(dist, maxLength);
+    const stretch = effectiveDistance - spring.restLength;
+    const forceMag = -spring.stiffness * options.stiffnessScale * stretch;
+    const relativeVel = b.velocity.dot(dir) - a.velocity.dot(dir);
+    const dampingMag = -spring.damping * options.dampingScale * relativeVel * dirSign;
+    const total = forceMag + dampingMag;
+
+    fscratch.copy(dir).multiplyScalar(dirSign * total);
+
+    if (!a.pinned) {
+        a.force.add(fscratch);
+    }
+    if (!b.pinned) {
+        b.force.sub(fscratch);
+    }
+};
+
+const accumulateSpringForces = (system: SpringSystem, options: SpringStepOptions) => {
+    const fscratch = new THREE.Vector3();
+    const scratchDir = new THREE.Vector3();
+    const scratchDelta = new THREE.Vector3();
     for (const spring of system.springs.values()) {
         const a = system.nodes.get(spring.a);
         const b = system.nodes.get(spring.b);
         if (!a || !b) continue;
-
-        const maxLength = getSpringMaxLength(spring, options);
-
-        delta.subVectors(b.position, a.position);
-        const dist = delta.length();
-        if (dist === 0) continue;
-
-        const dir = delta.multiplyScalar(1 / dist);
-        const effectiveDistance = Math.min(dist, maxLength);
-        const stretch = effectiveDistance - spring.restLength;
-        const forceMag = -spring.stiffness * options.stiffnessScale * stretch;
-
-        relVel.subVectors(b.velocity, a.velocity);
-        const dampingMag = -spring.damping * options.dampingScale * relVel.dot(dir);
-
-        f.copy(dir).multiplyScalar(forceMag + dampingMag);
-
-        if (!a.pinned) {
-            a.force.add(f);
-        }
-        if (!b.pinned) {
-            b.force.sub(f);
-        }
+        accumulateOneAxisSpringForces(a, b, spring, spring.springAxis, options, fscratch, scratchDir, scratchDelta);
     }
 };
 
@@ -600,6 +653,7 @@ const applyExternalForces = (system: SpringSystem, _options: SpringStepOptions) 
 
 
         // per-node force
+
         const custom = system.perNodeStartingForce.get(node.id);
         if (custom) node.force.add(custom);
     }
@@ -615,6 +669,13 @@ const integrate = (system: SpringSystem, dt: number, options: SpringStepOptions)
         node.velocity.addScaledVector(accel, clampedDt);
         node.velocity.multiplyScalar(options.globalDamping);
         node.position.addScaledVector(node.velocity, clampedDt);
+    }
+};
+
+/** Snapshots each node's current x/y as restXY (call after final layout, e.g. after recenter). */
+export const snapshotNodeRestXY = (system: SpringSystem): void => {
+    for (const node of system.nodes.values()) {
+        node.restXY = { x: node.position.x, y: node.position.y };
     }
 };
 
@@ -661,29 +722,76 @@ const enforceBoundaryZOrder = (system: SpringSystem, options: SpringStepOptions)
     }
 };
 
+/** Each cell's weft node shares the warp node's y (and vy) so row motion stays aligned. */
+const syncWeftYFromWarpPerCell = (system: SpringSystem) => {
+    for (const node of system.nodes.values()) {
+        if (!node.id.endsWith("-warp")) continue;
+        const weftId = node.id.replace(/-warp$/, "-weft");
+        const weft = system.nodes.get(weftId);
+        if (!weft) continue;
+        weft.position.y = node.position.y;
+        weft.velocity.y = node.velocity.y;
+    }
+};
+
+/** Each cell's warp node shares the weft node's x (and vx) so column motion stays aligned. */
+const syncWarpXFromWeftPerCell = (system: SpringSystem) => {
+    for (const node of system.nodes.values()) {
+        if (!node.id.endsWith("-weft")) continue;
+        const warpId = node.id.replace(/-weft$/, "-warp");
+        const warp = system.nodes.get(warpId);
+        if (!warp) continue;
+        warp.position.x = node.position.x;
+        warp.velocity.x = node.velocity.x;
+    }
+};
+
+const enforceXYPlaneBounds = (system: SpringSystem, options: SpringStepOptions) => {
+    const w = options.maxOffset;
+    if (w < 0) return;
+    for (const node of system.nodes.values()) {
+        if (node.pinned) continue;
+        const r = node.restXY;
+        if (!r) continue;
+        const xmin = r.x - w;
+        const xmax = r.x + w;
+        const ymin = r.y - w;
+        const ymax = r.y + w;
+        const nx = Math.min(xmax, Math.max(xmin, node.position.x));
+        const ny = Math.min(ymax, Math.max(ymin, node.position.y));
+        if (nx !== node.position.x) {
+            node.velocity.x = 0;
+        }
+        if (ny !== node.position.y) {
+            node.velocity.y = 0;
+        }
+        node.position.x = nx;
+        node.position.y = ny;
+    }
+};
+
 const enforceMaxStretchConstraints = (system: SpringSystem, options: SpringStepOptions) => {
-    const delta = new THREE.Vector3();
+    const scratchDir = new THREE.Vector3();
+    const scratchDelta = new THREE.Vector3();
     for (const spring of system.springs.values()) {
         const a = system.nodes.get(spring.a);
         const b = system.nodes.get(spring.b);
         if (!a || !b) continue;
 
         const maxLength = getSpringMaxLength(spring, options);
-
-        delta.subVectors(b.position, a.position);
-        const dist = delta.length();
-        if (dist <= maxLength || dist === 0) continue;
-
-        const dir = delta.multiplyScalar(1 / dist);
+        const dir = getAxisDirection(spring.springAxis, scratchDir);
+        const projected = scratchDelta.subVectors(b.position, a.position).dot(dir);
+        const dist = Math.abs(projected);
+        if (dist <= maxLength || dist < 1e-20) continue;
+        const dirSign = Math.sign(projected) || 1;
         const correction = dist - maxLength;
-
         if (!a.pinned && !b.pinned) {
-            a.position.addScaledVector(dir, correction * 0.5);
-            b.position.addScaledVector(dir, -correction * 0.5);
+            a.position.addScaledVector(dir, dirSign * correction * 0.5);
+            b.position.addScaledVector(dir, -dirSign * correction * 0.5);
         } else if (a.pinned && !b.pinned) {
-            b.position.addScaledVector(dir, -correction);
+            b.position.addScaledVector(dir, -dirSign * correction);
         } else if (!a.pinned && b.pinned) {
-            a.position.addScaledVector(dir, correction);
+            a.position.addScaledVector(dir, dirSign * correction);
         }
     }
 };
@@ -696,4 +804,7 @@ export const stepSpringSystem = (system: SpringSystem, dtSeconds: number, opts?:
     integrate(system, dtSeconds, options);
     enforceMaxStretchConstraints(system, options);
     enforceBoundaryZOrder(system, options);
+    enforceXYPlaneBounds(system, options);
+    syncWeftYFromWarpPerCell(system);
+    syncWarpXFromWeftPerCell(system);
 }
