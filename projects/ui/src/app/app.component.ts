@@ -56,7 +56,7 @@ import { MultiselectService } from './mixer/provider/multiselect.service';
 import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
 import { WelcomeComponent } from './core/ui/welcome/welcome.component';
-
+import { AnalyticsService } from './core/provider/analytics.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -91,6 +91,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   cdr = inject(ChangeDetectorRef);
   errorBroadcaster = inject(ErrorBroadcasterService);
+  analyticsService = inject(AnalyticsService);
   private importtodraftSvc = inject(ImporttodraftService);
   title = 'app';
 
@@ -430,8 +431,9 @@ export class AppComponent implements OnInit, OnDestroy {
   initLoginLogoutSequence(user: User) {
     const workspace_has_content = this.ss.hasTimeline();
 
-
-
+    if (user) {
+      this.analyticsService.trackEvent('login_success', { user: user.uid });
+    }
     if (user && workspace_has_content) {
       // WRITE THE FILE INFORMAITON LOCALLY to this USERs DB
       this.saveFile();
@@ -1081,6 +1083,7 @@ export class AppComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: data => {
+          this.analyticsService.trackEvent('load_example', { name: name });
           this.openSnackBar('opening example ' + name)
           this.clearAll();
           const meta = {
