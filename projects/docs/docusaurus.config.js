@@ -11,7 +11,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'AdaCAD',
   tagline: 'an algorithmic and playful approach to drafting',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.ico'
 
 
   // Set the production url of your site here
@@ -53,6 +53,10 @@ const config = {
     [
       '@docusaurus/preset-classic',
       {
+        gtag: {
+          trackingID: 'G-DSD7T81267',
+          anonymizeIP: true,
+        },
         docs: {
           // ... other options for docs plugin
           async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
