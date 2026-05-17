@@ -432,7 +432,7 @@ export class AppComponent implements OnInit, OnDestroy {
     const workspace_has_content = this.ss.hasTimeline();
 
     if (user) {
-      this.analyticsService.trackEvent('login_success', { user: user.uid });
+      this.analyticsService.trackEvent('login_success', { user: user.displayName });
     }
     if (user && workspace_has_content) {
       // WRITE THE FILE INFORMAITON LOCALLY to this USERs DB

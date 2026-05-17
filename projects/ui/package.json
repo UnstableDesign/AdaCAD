@@ -45,6 +45,7 @@
     "firebase": "^12.6.0",
     "jspdf": "^3.0.4",
     "mathjs": "^12.3.2",
+    "ngx-google-analytics": "^14.0.1",
     "normalize-wheel": "^1.0.1",
     "p5": "^2.2.0",
     "rxfire": "^6.0.3",
