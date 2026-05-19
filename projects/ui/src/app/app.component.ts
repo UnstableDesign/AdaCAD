@@ -389,6 +389,8 @@ export class AppComponent implements OnInit, OnDestroy {
     let searchParams = new URLSearchParams(window.location.search);
     if (searchParams.has('ex')) {
       if (this.connection_state) {
+        this.analyticsService.trackEvent('load_example_url', { name: searchParams.get('ex') });
+        this.openSnackBar('Loading Example File: ' + searchParams.get('ex'))
         this.loadExampleAtURL(searchParams.get('ex'))
         history.pushState({ page: 1 }, "AdaCAD.org ", "")
       } else {
@@ -400,6 +402,7 @@ export class AppComponent implements OnInit, OnDestroy {
       //THIS CANNOT RUN IF THE ACCESS TO THE DATABASE IS NOT YET CONFIGURED? 
 
       if (this.connection_state) {
+        this.analyticsService.trackEvent('load_shared_file_url', { id: searchParams.get('share') });
         this.loadFromShare(+searchParams.get('share'))
           .then(res => {
             this.openSnackBar('Loading Shared File #' + searchParams.get('share'))

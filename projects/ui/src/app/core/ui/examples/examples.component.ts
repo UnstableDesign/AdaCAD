@@ -11,6 +11,7 @@ import { ShareObj } from '../../model/datatypes';
 import { ExampleserviceService } from '../../provider/exampleservice.service';
 import { FirebaseService } from '../../provider/firebase.service';
 import { MediaService } from '../../provider/media.service';
+import { AnalyticsService } from '../../provider/analytics.service';
 
 
 @Component({
@@ -25,7 +26,7 @@ export class ExamplesComponent implements OnDestroy {
   private ms = inject(MediaService);
   private dialog = inject(MatDialog);
   dialogRef = inject<MatDialogRef<ExamplesComponent>>(MatDialogRef);
-
+  analyticsService = inject(AnalyticsService);
   @Output() onLoadExample = new EventEmitter<any>();
   @Output() onLoadSharedFile = new EventEmitter<any>();
   @Output() onOpenFileManager = new EventEmitter<any>();
@@ -77,7 +78,7 @@ export class ExamplesComponent implements OnDestroy {
   }
 
   loadExample(filename: string) {
-
+    this.analyticsService.trackEvent('load_example', { name: filename });
     this.onLoadExample.emit(filename);
     this.dialogRef.close();
   }
