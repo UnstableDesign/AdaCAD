@@ -105,8 +105,8 @@
         @for (param of op.params; track param; let i = $index) {
         @if (param.type !== 'p5-canvas') {
         <app-parameter class="param" [param]='param' [opid]='id' [paramid]='i'
-          (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event)
-          (preventDrag)="disableDrag()">
+          (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event) (preventDrag)="disableDrag()"
+          (onExposeParameter)="exposeParameter($event)">
         </app-parameter>
         }
         }
@@ -115,12 +115,11 @@
       <!-- Canvas Parameters Area -->
       <div class="canvas-params-container">
         @for (param of op.params; track param; let i = $index) {
-          @if (param.type === 'p5-canvas') {
-          <app-parameter class="param-canvas" [param]='param' [opid]='id'
-            [paramid]='i' (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event)
-            (preventDrag)=disableDrag()>
-          </app-parameter>
-          }
+        @if (param.type === 'p5-canvas') {
+        <app-parameter class="param-canvas" [param]='param' [opid]='id' [paramid]='i'
+          (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event) (preventDrag)=disableDrag()>
+        </app-parameter>
+        }
         }
       </div>
 

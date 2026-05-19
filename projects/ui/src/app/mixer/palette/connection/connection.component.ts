@@ -7,6 +7,16 @@ import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ZoomService } from '../../../core/provider/zoom.service';
 
+
+
+
+/**
+ * This currently assumes that the only connection that is drawn on screen goes from 
+ * a draft and into an operation. 
+ * 
+ * TO DO: Update this so it can go:
+ * 1. from a function to an operation
+ */
 @Component({
   selector: 'app-connection',
   templateUrl: './connection.component.html',
@@ -25,7 +35,8 @@ export class ConnectionComponent implements OnInit {
   @Input() scale: number;
   @Output() onConnectionRemoved = new EventEmitter<any>();
 
-
+  /** the type of the connection this is */
+  type: 'draft_to_op' | 'function_to_op' | 'function_to_function' | 'draft_to_function';
   /** the id of the node that this connection goes from */
   from: number;
   fromPositionChange: Subscription;
@@ -195,13 +206,16 @@ export class ConnectionComponent implements OnInit {
     });
 
 
-    this.fromDraftChangeSubscription = fromNode.onValueChange.subscribe((el) => {
-      requestAnimationFrame(() => {
-        this.updateFromPosition();
-        this.calculateBounds();
-        this.drawConnection();
+    const from_type = this.tree.getType(this.from);
+    if (from_type === 'draft') {
+      this.fromDraftChangeSubscription = fromNode.onValueChange.subscribe((el) => {
+        requestAnimationFrame(() => {
+          this.updateFromPosition();
+          this.calculateBounds();
+          this.drawConnection();
+        });
       });
-    });
+    }
 
 
 
@@ -434,6 +448,7 @@ export class ConnectionComponent implements OnInit {
 
 
   drawConnection() {
+    console.log("DRAWING CONNECTION ", this.no_draw);
 
     if (this.no_draw) return;
     if (this.svg === null || this.svg == undefined) return;

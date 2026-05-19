@@ -4,7 +4,7 @@ import { AnalyzedImage, Draft, Img, Loom, LoomSettings, OpParamValType, Operatio
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import normalizeWheel from 'normalize-wheel';
 import { Subscription, fromEvent } from 'rxjs';
-import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
+import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, FunctionNode, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { ErrorBroadcasterService } from '../../core/provider/error-broadcaster.service';
 import { FirebaseService } from '../../core/provider/firebase.service';
@@ -24,6 +24,7 @@ import { ConnectionComponent } from './connection/connection.component';
 import { NoteComponent } from './note/note.component';
 import { OperationComponent } from './operation/operation.component';
 import { SubdraftComponent } from './subdraft/subdraft.component';
+import { FunctionComponent } from './function/function.component';
 
 @Component({
   selector: 'app-palette',
@@ -67,6 +68,7 @@ export class PaletteComponent implements OnInit {
   connectionSubscriptions: Array<Subscription> = [];
   noteSubscriptions: Array<Subscription> = [];
   stateSubscriptions: Array<Subscription> = [];
+  functionSubscriptions: Array<Subscription> = [];
 
 
   /**
@@ -841,6 +843,26 @@ export class PaletteComponent implements OnInit {
 
   }
 
+  createFunction(value: number) {
+    const func = this.vc.createComponent(FunctionComponent);
+    const id = this.tree.createNode('func', func.instance, func.hostView);
+
+
+    this.setFunctionSubscriptions(func.instance);
+    func.instance.id = id;
+    func.instance.fn = <FunctionNode>this.tree.getNode(id);
+    func.instance.value = value;
+    let tr = this.calculateInitialLocation();
+    return func.instance;
+  }
+
+  setFunctionSubscriptions(func: FunctionComponent) {
+    // this.functionSubscriptions.push(func.onFunctionMove.subscribe(this.functionMoved.bind(this)));
+    // this.functionSubscriptions.push(func.onFunctionDrop.subscribe(this.functionDropped.bind(this)));
+    // this.functionSubscriptions.push(func.onFunctionStart.subscribe(this.functionStarted.bind(this)));
+    // this.functionSubscriptions.push(func.onDeleteCalled.subscribe(this.onDeleteFunctionCalled.bind(this)));
+  }
+
   /**
    * called when a new operation is added
    * @param op 
@@ -857,8 +879,12 @@ export class PaletteComponent implements OnInit {
     this.operationSubscriptions.push(op.onOpLoaded.subscribe(this.opCompLoaded.bind(this)));
     this.operationSubscriptions.push(op.onOpenInEditor.subscribe(this.openInEditor.bind(this)));
     this.operationSubscriptions.push(op.onNameChanged.subscribe(this.onNameChange.bind(this)));
+    this.operationSubscriptions.push(op.onExposeParameter.subscribe(this.exposeParameter.bind(this)));
 
   }
+
+
+
 
 
   /**
@@ -889,6 +915,9 @@ export class PaletteComponent implements OnInit {
 
     return op.instance;
   }
+
+
+
 
   /**
   
@@ -958,6 +987,19 @@ export class PaletteComponent implements OnInit {
 
   }
 
+
+  exposeParameter(event: any) {
+    console.log("EXPOSE PARAMETER ", event);
+    const func = this.createFunction(event.value);
+    console.log("Created", func)
+    const func_node = this.tree.getNode(func.id);
+    (<FunctionNode>func_node).function = 'identity';
+    (<FunctionNode>func_node).result = event.value;
+    (<FunctionNode>func_node).seed_val = event.value;
+    (<FunctionNode>func_node).dirty = true;
+
+    this.createConnection(func.id, event.opid, event.paramid);
+  }
 
 
   /**

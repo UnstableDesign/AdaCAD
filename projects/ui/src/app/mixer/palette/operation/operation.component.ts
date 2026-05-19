@@ -81,7 +81,7 @@ export class OperationComponent implements OnInit {
   @Output() onOpenInEditor = new EventEmitter<any>();
   @Output() onRedrawOutboundConnections = new EventEmitter<any>();
   @Output() onNameChanged = new EventEmitter<any>();
-
+  @Output() onExposeParameter = new EventEmitter<any>();
 
 
 
@@ -283,6 +283,11 @@ export class OperationComponent implements OnInit {
 
   onDoubleClick(event: any) {
     this.trigger.openMenu();
+  }
+
+  exposeParameter(event: any) {
+    console.log("EXPOSE PARAMETER ", event);
+    this.onExposeParameter.emit({ opid: this.id, paramid: event.id, value: event.value, type: event.type });
   }
 
 

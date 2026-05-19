@@ -8,10 +8,11 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, ConnectionNode, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, ConnectionNode, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, FunctionNode, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
+import { FunctionComponent } from '../../mixer/palette/function/function.component';
 
 
 
@@ -337,7 +338,7 @@ export class TreeService {
    * @param id the current id of the 
    * @returns a map representating any id changes
    */
-  loadNode(type: 'draft' | 'op' | 'cxn', id: number): { prev_id: number, cur_id: number } {
+  loadNode(type: 'draft' | 'op' | 'cxn' | 'func', id: number): { prev_id: number, cur_id: number } {
 
     let node: Node;
     let new_id: number;
@@ -351,6 +352,9 @@ export class TreeService {
         break;
       case 'cxn':
         new_id = this.createNode('cxn', null, null);
+        break;
+      case 'func':
+        new_id = this.createNode('func', null, null);
         break;
     }
 
@@ -548,6 +552,21 @@ export class TreeService {
 
   }
 
+  private createFunctionNode(ref: ViewRef, component: FunctionComponent, funcName: string, result: OpParamValType, seed_val: OpParamValType): FunctionNode {
+    const node: FunctionNode = {
+      type: 'func',
+      ref: ref,
+      id: generateId(8),
+      component: component,
+      function: funcName,
+      result: result,
+      seed_val: seed_val,
+      dirty: false,
+      positionChange: new BehaviorSubject<Point>(null)
+    }
+    return node;
+  }
+
 
   private createDraftNode(ref: ViewRef, component: SubdraftComponent, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, visible: boolean): DraftNode {
 
@@ -629,7 +648,7 @@ export class TreeService {
    * @param component the compoenent instance
    * @returns the id assigned
    */
-  createNode(type: 'draft' | 'op' | 'cxn', component: SubdraftComponent | OperationComponent | ConnectionComponent, ref: ViewRef): number {
+  createNode(type: 'draft' | 'op' | 'cxn' | 'func', component: SubdraftComponent | OperationComponent | ConnectionComponent | FunctionComponent, ref: ViewRef): number {
 
 
     let node: Node;
@@ -643,6 +662,9 @@ export class TreeService {
         break;
       case 'cxn':
         node = this.createConnectionNode(ref, <ConnectionComponent>component);
+        break;
+      case 'func':
+        node = this.createFunctionNode(ref, <FunctionComponent>component, '', -1, -1);
         break;
     }
 
@@ -659,7 +681,7 @@ export class TreeService {
     return node.id;
   }
 
-  getComponent(id: number): SubdraftComponent | ConnectionComponent | OperationComponent {
+  getComponent(id: number): SubdraftComponent | ConnectionComponent | OperationComponent | FunctionComponent {
     const node: Node = this.getNode(id);
     return node.component;
   }
@@ -741,6 +763,11 @@ export class TreeService {
   }
 
 
+  getFunctionParent(func_id: number): number {
+    const tn: TreeNode = this.getTreeNode(func_id);
+    if (tn == null || tn == undefined || tn.parent === null || tn.parent === undefined) return -1;
+    else return tn.parent.node.id;
+  }
   /**
    * get's this subdraft's parent
    * @param sd_id 

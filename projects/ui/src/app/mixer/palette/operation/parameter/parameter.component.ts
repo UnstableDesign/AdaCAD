@@ -59,6 +59,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() paramid: number;
   @Output() onOperationParamChange = new EventEmitter<any>();
   @Output() onFileUpload = new EventEmitter<any>();
+  @Output() onExposeParameter = new EventEmitter<any>();
   @Output() preventDrag = new EventEmitter<any>();
 
   fromUser: boolean = true;
@@ -189,6 +190,10 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.p5Instance) {
       this.p5Instance.remove();
     }
+  }
+
+  exposeParameter() {
+    this.onExposeParameter.emit({ id: this.paramid, value: this.param.value, type: this.param.type });
   }
 
 

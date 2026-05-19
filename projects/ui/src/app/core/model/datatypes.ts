@@ -5,6 +5,7 @@ import { ConnectionComponent } from "../../mixer/palette/connection/connection.c
 import { NoteComponent } from "../../mixer/palette/note/note.component";
 import { OperationComponent } from "../../mixer/palette/operation/operation.component";
 import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.component";
+import { FunctionComponent } from "../../mixer/palette/function/function.component";
 
 
 
@@ -20,10 +21,10 @@ import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.compone
  * @param dirty describes if this needs to be recalcuated or redrawn 
  */
 type BaseNode = {
-  type: 'draft' | 'op' | 'cxn',
+  type: 'draft' | 'op' | 'cxn' | 'func',
   ref: ViewRef,
   id: number, //this will be unique for every instance
-  component: SubdraftComponent | OperationComponent | ConnectionComponent,
+  component: SubdraftComponent | OperationComponent | ConnectionComponent | FunctionComponent,
   dirty: boolean
 }
 
@@ -76,11 +77,18 @@ export type DraftNode = BaseNode & {
 
 }
 
+export type FunctionNode = BaseNode & {
+  function: string,
+  result: OpParamValType,
+  seed_val?: OpParamValType, //the value to give this if it is static
+  positionChange: BehaviorSubject<Point>
+}
+
 
 /**
  * Allows one to use Node as shorthand for any of these types of nodes
  */
-export type Node = BaseNode | OpNode | DraftNode;
+export type Node = BaseNode | OpNode | DraftNode | FunctionNode;
 
 
 export type DraftNodeBroadcast = {

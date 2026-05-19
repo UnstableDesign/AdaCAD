@@ -1,0 +1,20 @@
+<div id="scale-{{id}}" class="function-parent-container selectable-{{!disable_drag}}" cdkDrag
+    (click)="toggleMultiSelection($event, 'click')" [style.z-index]="zndx" [class.no-pointer]="disable_drag"
+    [cdkDragDisabled]="disable_drag" (cdkDragMoved)="dragMove($event)" (cdkDragEnded)="dragEnd($event)"
+    (cdkDragStarted)="dragStart($event)">
+    <div class="topbar" (dblclick)="onDoubleClick()" [class.is_new]="isNew" cdkDragHandle>
+        {{fn?.function || 'Function'}}
+    </div>
+    <div class="function-container">
+
+        <div class="function-name">{{fn?.function || 'Function'}}</div>
+        <div class="function-value">{{fn?.result || '0'}}</div>
+
+        <button mat-raised-button id="{{id}}-out" class="outlet" [class.active]="selecting_connection"
+            [class.outlet_connected]="outlet_connected" matTooltip="connect this draft to an operation"
+            (click)="connectionStarted($event)">
+            <i class="fa-sharp fa-solid fa-circle-down"></i>
+        </button>
+    </div>
+
+</div>
