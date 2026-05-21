@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LiveDrafting</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header class="top-bar">
+      <a class="top-bar-title" href="/">Live Drafting</a>
+      <div class="top-bar-transport" role="group" aria-label="Playback">
+        <button
+          type="button"
+          id="play-btn"
+          class="top-bar-transport-btn top-bar-transport-btn-active"
+        >
+          Play
+        </button>
+        <button type="button" id="pause-btn" class="top-bar-transport-btn">
+          Pause
+        </button>
+        <button type="button" id="step-btn" class="top-bar-transport-btn">
+          Step
+        </button>
+        <button
+          type="button"
+          id="download-btn"
+          class="top-bar-transport-btn"
+          hidden
+        >
+          Download
+        </button>
+        <button
+          type="button"
+          id="load-example-btn"
+          class="top-bar-transport-btn"
+          title="Load a random example sketch"
+        >
+          Example
+        </button>
+        <label class="top-bar-frame-rate" for="frame-rate-input">
+          <span class="top-bar-frame-rate-label">FPS</span>
+          <input
+            type="text"
+            id="frame-rate-input"
+            class="top-bar-frame-rate-input"
+            inputmode="decimal"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </label>
+      </div>
+      <nav class="top-bar-nav" aria-label="Site">
+        <a class="top-bar-link" href="/about.html">About</a>
+        <a
+          class="top-bar-link"
+          href="https://github.com/UnstableDesign/AdaCAD/tree/main/projects/livedrafting"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </nav>
+    </header>
+
+    <canvas id="draft-canvas" aria-hidden="true"></canvas>
+
+    <div id="editor-panel">
+      <div id="editor-mount"></div>
+    </div>
+
+    <div id="error-bar" hidden></div>
+    <div id="run-hint">Ctrl + Shift + Enter to run</div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

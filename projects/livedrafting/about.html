@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Live Drafting</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+
+<body class="about-page">
+  <header class="top-bar">
+    <a class="top-bar-title" href="/">Live Drafting</a>
+    <nav class="top-bar-nav" aria-label="Site">
+      <a class="top-bar-link top-bar-link-active" href="/about.html">About</a>
+      <a class="top-bar-link" href="https://github.com/UnstableDesign/AdaCAD/tree/main/projects/livedrafting"
+        target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </header>
+
+  <main class="about-content">
+    <h1>About Live Drafting</h1>
+    <p> </p>
+    <p>
+      Live Drafting is a <a href="https://hydra.ojack.xyz/">Hydra-style</a> live-coding environment that sits on top of
+      the <a href="https://www.npmjs.com/package/adacad-drafting-lib">AdaCAD weave draft making library</a>.</p>
+
+    Edit TypeScript in the overlay editor. Play, pause or step through your sketch and see the result as a fullscreen
+    draft image behind the code. Pause and download a image of the screen as well as a bitmap of the design for your
+    digital loom. Import into <a href="https://adacad.org/">AdaCAD</a> to further adjust to generate a threading and
+    tie-up for your dobby or shaft loom.
+    </p>
+
+    <p>This has been mostly vibe-coded by Laura Devendorf in Cursor...in less than a day! Mess with it in Github to add
+      new features</p>
+
+
+    <p>
+      Sketches are saved in your browser under
+      <code>livedrafting-sketch</code>. Code runs locally via
+      <code>esbuild-wasm</code> — suitable for creative exploration, not as a
+      security sandbox.
+    </p>
+
+    <section class="available-functions-section">
+      <h2>Available functions</h2>
+      <p>
+        The following functions are available in the editor:
+      </p>
+      <ul>
+        <li><code>twill(raised: number, lowered: number, face: boolean)</code></li>
+        <li><code>satin(repeat: number, shift: number, facing: boolean)</code></li>
+        <li><code>tabby(warps_raised: number, warps_lowered: number, base_pics: number, alt_pics: number)</code></li>
+        <li><code>waffle(float_length: number, binding_rows: number, packing_factor: number)</code></li>
+        <li><code>random(ends: number, pics: number, pcent: number)</code></li>
+        <li><code>interlace(drafts: Draft[], repeats: boolean, weft_oriented: boolean)</code></li>
+        <li><code>shift(draft: Draft, shift_ends: number, shift_pics: number)</code></li>
+        <li><code>tile(draft: Draft, warp_repeats: number, weft_repeats: number, mode: number, offset: number)</code>
+        </li>
+        <li><code>addColors(draft: Draft, weft_colors: number[], warp_colors: number[])</code></li>
+        <li><code>renderCount()</code></li>
+        <li><code>oscillator(min: number, max: number, options?: { frequency?: number; phase?: number })</code></li>
+        <li><code>display(draft: Draft)</code></li>
+      </ul>
+    </section>
+
+    <section class="about-palette-section">
+      <h2>Color palette</h2>
+      <p>
+        Use these indices with <code>addColors()</code> and
+        <code>display(draft, true)</code> for colored drafts.
+      </p>
+      <div id="color-palette-grid" class="color-palette-grid"></div>
+    </section>
+
+    <p>
+      <a class="about-back-link" href="/">Open Live Drafting</a>
+    </p>
+  </main>
+  <script type="module" src="/src/about.ts"></script>
+</body>
+
+</html>
