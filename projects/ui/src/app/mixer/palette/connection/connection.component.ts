@@ -448,7 +448,6 @@ export class ConnectionComponent implements OnInit {
 
 
   drawConnection() {
-    console.log("DRAWING CONNECTION ", this.no_draw);
 
     if (this.no_draw) return;
     if (this.svg === null || this.svg == undefined) return;
@@ -497,6 +496,8 @@ export class ConnectionComponent implements OnInit {
     // this.connector.style.display = 'block';
     this.connector.style.top = (pathEndY + yOffset) + 'px';
     this.connector.style.left = (pathEndX + xOffset) + 'px';
+    console.log("DRAWING CONNECTION ", this.connector.style.top, this.connector.style.left);
+
   }
 
   drawForPrint(canvas, cx, scale: number) {
