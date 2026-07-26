@@ -17,7 +17,7 @@ import {OperationHeader} from '@site/src/components/OperationPage';
 ## Inlets
 - `pattern`: a draft describing the regions you would like to fill (or replace) with the input structure
 - `black cell structure`: the structure to replace all black (warp raised) cells with
-- `white cell structure`: the structure to replace all white (warp raised) interlacements with
+- `white cell structure`: the structure to replace all white (warp lowered) interlacements with
 
 
 ## Application
