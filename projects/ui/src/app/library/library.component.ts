@@ -146,7 +146,7 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   scrollToMaterials() {
     const materialsSection = document.getElementById('materials');
     if (materialsSection) {
-      materialsSection.scrollIntoView({ behavior: 'smooth' });
+      materialsSection.scrollIntoView({ behavior: 'smooth', inline: "nearest" });
     }
   }
 

@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "livedrafting",
+    "live": "livedrafting"
+  },
+  "targets": {},
+  "etags": {}
+}
