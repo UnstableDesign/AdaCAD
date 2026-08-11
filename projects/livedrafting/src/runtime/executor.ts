@@ -1,8 +1,28 @@
 import * as esbuild from "esbuild-wasm";
 import esbuildWasmUrl from "esbuild-wasm/esbuild.wasm?url";
-import { addColors, fill, interlace, join, oscillator, random, renderCount, resize, satin, shift, stretch, symmetry, tabby, tile, twill, waffle } from "./addons";
+import {
+  addColors,
+  fill,
+  oscillator,
+  renderCount,
+  resize,
+  shift,
+  stretch,
+  symmetry,
+  tile,
+} from "./addons";
 import { getOp, call, initDraft, initDraftWithParams } from "./api";
 import { display } from "./display";
+import {
+  draft,
+  interlace,
+  join,
+  random,
+  satin,
+  tabby,
+  twill,
+  waffle,
+} from "./live-draft";
 
 let esbuild_ready: Promise<void> | null = null;
 
@@ -21,22 +41,23 @@ const SANDBOX_NAMES = [
   "display",
   "initDraft",
   "initDraftWithParams",
+  "draft",
   "oscillator",
+  "renderCount",
   "twill",
   "satin",
   "tabby",
   "waffle",
   "random",
   "interlace",
+  "join",
+  "stretch",
   "shift",
   "tile",
-  "renderCount",
   "addColors",
   "resize",
   "symmetry",
-  "stretch",
   "fill",
-  "join",
 ] as const;
 
 const SANDBOX_VALUES = [
@@ -45,22 +66,23 @@ const SANDBOX_VALUES = [
   display,
   initDraft,
   initDraftWithParams,
+  draft,
   oscillator,
+  renderCount,
   twill,
   satin,
   tabby,
   waffle,
   random,
   interlace,
+  join,
+  stretch,
   shift,
   tile,
-  renderCount,
   addColors,
   resize,
   symmetry,
-  stretch,
   fill,
-  join,
 ] as const;
 
 let cached_source: string | null = null;

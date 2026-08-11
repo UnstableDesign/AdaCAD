@@ -147,6 +147,62 @@ body.about-page {
   font-weight: 600;
 }
 
+about-content a,
+about-content a:visited {
+  color: #e8e8e8;
+  text-decoration: none;
+  border-bottom: 1px solid #e8e8e8;
+  transition: border-color 0.3s ease;
+}
+
+about-content a:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+.about-content h3 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.about-functions-list {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+
+
+.about-functions-list li {
+  margin-bottom: 0.35rem;
+}
+
+.about-functions-list code {
+  font-size: 0.85em;
+}
+
+.about-code-sample {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.about-code-sample code {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: pre;
+}
+
+.available-functions-section {
+  margin: 1.5rem 0;
+}
+
 .about-palette-section {
   margin: 1.5rem 0;
 }

@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "build:lib": "npm run build --prefix ../../packages/adacad-drafting-lib",
+    "build:all": "npm run build:lib && npm run build",
+    "preview": "vite preview",
+    "deploy": "npm run build:all && firebase deploy --only hosting",
+    "deploy:preview": "npm run build:all && firebase hosting:channel:deploy preview"
   },
   "dependencies": {
     "@codemirror/commands": "^6.8.1",
@@ -17,6 +21,7 @@
     "esbuild-wasm": "^0.25.12"
   },
   "devDependencies": {
+    "firebase-tools": "^14.15.1",
     "typescript": "^5.9.2",
     "vite": "^7.3.1"
   }

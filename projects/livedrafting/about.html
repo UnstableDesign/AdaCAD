@@ -20,47 +20,88 @@
 
   <main class="about-content">
     <h1>About Live Drafting</h1>
-    <p> </p>
     <p>
       Live Drafting is a <a href="https://hydra.ojack.xyz/">Hydra-style</a> live-coding environment that sits on top of
-      the <a href="https://www.npmjs.com/package/adacad-drafting-lib">AdaCAD weave draft making library</a>.</p>
-
-    Edit TypeScript in the overlay editor. Play, pause or step through your sketch and see the result as a fullscreen
-    draft image behind the code. Pause and download a image of the screen as well as a bitmap of the design for your
-    digital loom. Import into <a href="https://adacad.org/">AdaCAD</a> to further adjust to generate a threading and
-    tie-up for your dobby or shaft loom.
+      the <a href="https://www.npmjs.com/package/adacad-drafting-lib">AdaCAD weave draft making library</a>.
+      Edit TypeScript in the overlay editor. Play, pause, or step through your sketch and see the result as a
+      fullscreen draft image behind the code. Pause and download a color image of the screen as well as a bitmap of the
+      design for your digital loom. Import into <a href="https://adacad.org/">AdaCAD</a> to further adjust and generate
+      a threading and tie-up for your dobby or shaft loom.
     </p>
 
-    <p>This has been mostly vibe-coded by Laura Devendorf in Cursor...in less than a day! Mess with it in Github to add
-      new features</p>
+    <p>
+      This has been mostly vibe-coded by Laura Devendorf in Cursor. The project defines functions that map to calls to
+      the AdaCAD drafting library. Mess with it on
+      <a href="https://github.com/UnstableDesign/AdaCAD/tree/main/projects/livedrafting">GitHub</a> to add new features.
+    </p>
 
 
     <p>
       Sketches are saved in your browser under
       <code>livedrafting-sketch</code>. Code runs locally via
-      <code>esbuild-wasm</code> — suitable for creative exploration, not as a
-      security sandbox.
+      <code>esbuild-wasm</code>.
     </p>
 
     <section class="available-functions-section">
       <h2>Available functions</h2>
       <p>
-        The following functions are available in the editor:
+        Sketches are async TypeScript. Use top-level <code>await</code>. Structure builders return a
+        <code>LiveDraft</code> you can chain (<code>.stretch().fill().display()</code>) or await as a plain
+        <code>Draft</code> for the functional style.
       </p>
-      <ul>
-        <li><code>twill(raised: number, lowered: number, face: boolean)</code></li>
-        <li><code>satin(repeat: number, shift: number, facing: boolean)</code></li>
-        <li><code>tabby(warps_raised: number, warps_lowered: number, base_pics: number, alt_pics: number)</code></li>
-        <li><code>waffle(float_length: number, binding_rows: number, packing_factor: number)</code></li>
-        <li><code>random(ends: number, pics: number, pcent: number)</code></li>
-        <li><code>interlace(drafts: Draft[], repeats: boolean, weft_oriented: boolean)</code></li>
-        <li><code>shift(draft: Draft, shift_ends: number, shift_pics: number)</code></li>
-        <li><code>tile(draft: Draft, warp_repeats: number, weft_repeats: number, mode: number, offset: number)</code>
-        </li>
-        <li><code>addColors(draft: Draft, weft_colors: number[], warp_colors: number[])</code></li>
-        <li><code>renderCount()</code></li>
-        <li><code>oscillator(min: number, max: number, options?: { frequency?: number; phase?: number })</code></li>
-        <li><code>display(draft: Draft)</code></li>
+
+      <h3>Chaining example</h3>
+      <pre class="about-code-sample"><code>const s1 = tabby(osc1, osc1, osc1, osc1);
+const s2 = tabby(osc2, osc2, osc2, osc2);
+
+await waffle(4, 3)
+  .stretch(20, 20)
+  .fill(s1, s2)
+  .addColors([1, 2, 3], [7, 8, 9])
+  .display(true, false);</code></pre>
+
+      <h3>Core (adacad-drafting-lib)</h3>
+      <ul class="about-functions-list">
+        <li><code>getOp(name)</code> — look up an operation</li>
+        <li><code>call(op, params, inlets?)</code> — run an operation</li>
+        <li><code>initDraft()</code> / <code>initDraftWithParams(params)</code></li>
+        <li><code>draft(existing)</code> — wrap a draft for chaining</li>
+        <li><code>display(draft, use_color?, floats?)</code> — draw a raw draft (functional style)</li>
+      </ul>
+
+      <h3>Animation</h3>
+      <ul class="about-functions-list">
+        <li><code>oscillator(min, max, options?)</code> — <code>frequency</code>, <code>phase</code></li>
+        <li><code>renderCount(multiplier?)</code></li>
+      </ul>
+
+      <h3>Structures → <code>LiveDraft</code></h3>
+      <ul class="about-functions-list">
+        <li><code>twill(raised, lowered, offset, binding)</code></li>
+        <li><code>satin(repeat, shift, facing)</code></li>
+        <li><code>tabby(warps_raised, warps_lowered, base_pics, alt_pics)</code></li>
+        <li><code>waffle(float_length, binding_rows, packing_factor)</code></li>
+        <li><code>random(ends, pics, pcent)</code></li>
+        <li><code>interlace(drafts[], repeats?, weft_oriented?)</code></li>
+        <li><code>join(drafts[], repeats?)</code></li>
+      </ul>
+
+      <h3><code>LiveDraft</code> chain methods</h3>
+      <ul class="about-functions-list">
+        <li><code>.stretch(weft, warp)</code> · <code>.shift(ends, pics)</code> ·
+          <code>.symmetry(options, remove_center?)</code></li>
+        <li><code>.addColors(weft_colors, warp_colors)</code> · <code>.tile(...)</code> ·
+          <code>.resize(width, height)</code></li>
+        <li><code>.fill(black, white)</code> — <code>black</code>/<code>white</code> are <code>LiveDraft</code></li>
+        <li><code>.display(use_color?, floats?)</code> — terminal; draws to screen</li>
+      </ul>
+
+      <h3>Functional style (still supported)</h3>
+      <ul class="about-functions-list">
+        <li><code>stretch(draft, …)</code> · <code>shift(draft, …)</code> · <code>symmetry(draft, …)</code></li>
+        <li><code>addColors(draft, …)</code> · <code>tile(draft, …)</code> · <code>resize(draft, …)</code></li>
+        <li><code>fill(pattern, black, white)</code> — each arg is a <code>Draft</code> (e.g.
+          <code>await waffle(4, 3)</code>)</li>
       </ul>
     </section>
 
