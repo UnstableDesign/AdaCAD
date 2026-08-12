@@ -15,7 +15,7 @@ export * from "./crop/crop";
 export * from "./cross_section_view/cross_section_view";
 export * from "./cutout/cutout";
 export * from "./deinterlace/deinterlace";
-export * from "./deinterlace_warps/deinterlace_warps";
+export * from './deinterlace_warps/deinterlace_warps';
 export * from "./diff/diff";
 export * from "./directdrawdown/directdrawdown";
 export * from "./drawdown/drawdown";

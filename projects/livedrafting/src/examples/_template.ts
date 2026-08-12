@@ -10,8 +10,10 @@ export const templateExample: ExampleSketch = {
   id: "so_basic",
   title: "My design title",
   description: "What this example shows",
-  source: `// Your sketch here
-const draft = await twill(3, 3, 0, 0);
-display(draft);
+  source: `// Your sketch here (chain style)
+await twill(3, 3, 0, 0).display();
+
+// Or functional style:
+// display(await twill(3, 3, 0, 0));
 `
 };

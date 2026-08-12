@@ -4,6 +4,7 @@ import { publicTransit } from "./public-transit";
 import { noSignal } from "./no-signal";
 import { waffleRainbow } from "./waffle-rainbow";
 import { driftingTwills } from "./drifting_twills";
+import { waves } from "./waves";
 
 /**
  * All examples eligible for random load on first visit.
@@ -15,6 +16,7 @@ export const EXAMPLE_SKETCHES: ExampleSketch[] = [
   publicTransit,
   waffleRainbow,
   driftingTwills,
+  waves,
 ];
 
 export type { ExampleSketch } from "./types";
