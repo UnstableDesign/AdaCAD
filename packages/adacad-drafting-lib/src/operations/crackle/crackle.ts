@@ -1,13 +1,11 @@
 import {
   getAllDraftsAtInlet,
-  NumParam,
   Operation,
   OperationInlet,
   OperationParam,
   OpInput,
   OpMeta,
   OpParamVal,
-  StringParam,
   BoolParam,
   getOpParamValById,
 } from "..";
@@ -86,8 +84,19 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   const motifs = getAllDraftsAtInlet(op_inputs, 0);
   const paths = getAllDraftsAtInlet(op_inputs, 1);
 
-  if (motifs.length == 0) return Promise.resolve([]);
-  const motif = motifs[0];
+  let motif = null;
+  if (motifs.length == 0) {
+    //use standard 1,2,3,2, motif. 
+    const arr = [
+      [0, 0, 0, 0],
+      [0, 0, 1, 0],
+      [0, 1, 0, 1],
+      [1, 0, 0, 0]
+    ]
+    motif = initDraftFromDrawdown(new Sequence.TwoD(arr).export());
+  } else {
+    motif = motifs[0];
+  }
   const motif_width = warps(motif.drawdown);
   const motif_height = wefts(motif.drawdown);
 
@@ -160,7 +169,7 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                 }
               }
             }
-            for (let incidental of incidentals) {
+            for (const incidental of incidentals) {
               const icol = new Sequence.OneD();
 
               for (let i = 0; i < path_height; ++i) {
