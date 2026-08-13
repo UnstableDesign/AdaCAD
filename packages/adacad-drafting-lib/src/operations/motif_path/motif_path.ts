@@ -17,45 +17,27 @@ import {
 } from "../../draft/draft";
 import { Sequence } from "../../sequence";
 import { defaults } from "../../utils/defaults";
-import { structureOp } from "../categories";
+import { compoundOp } from "../categories";
 
-const name = "crackle";
+const name = "motif_path";
 
 const meta: OpMeta = {
-  displayname: "crackle",
+  displayname: "motif to path",
   advanced: true,
-  categories: [structureOp],
+  categories: [compoundOp],
   authors: ["Alex McLean"],
-  desc: "Creates a 'crackle' weave structure by placing a motif along a path, connected with incidentals.",
+  desc: "Originally inspired by a 'crackle' weave structure. This operation places a motif along a path.",
   // img: 'crackle.png'
 };
 
-//PARAMS
-// const warps: NumParam = {
-//     name: "ends",
-//     type: "number",
-//     min: 1,
-//     max: 128,
-//     value: 32,
-//     dx: "Number of warps",
-// };
-
-// const wefts: NumParam = {
-//     name: "pics",
-//     type: "number",
-//     min: 1,
-//     max: 128,
-//     value: 32,
-//     dx: "Number of wefts",
-// };
 
 const incidentals: BoolParam = {
   name: "Add incidentals",
   type: "boolean",
   truestate: "yes",
   falsestate: "no",
-  value: true,
-  dx: "When selected, will add intermediary warps to connect discontinous picks",
+  value: 1,
+  dx: "When selected, it will ensure that the motif adheres to the rule where each successive warp in the resulting draft can only shift up or down a weft (or shaft) by 1",
 };
 
 const params: OperationParam[] = [incidentals];
@@ -65,7 +47,7 @@ const motif_inlet: OperationInlet = {
   type: "static",
   value: null,
   uses: "draft",
-  dx: "The motif that you want to place. Defaults to the standard crackle weave motif.",
+  dx: "The motif that you want to place. Defaults to the standard crackle weave motif (1,2,3,2).",
   num_drafts: 1,
 };
 
@@ -78,20 +60,21 @@ const path_inlet: OperationInlet = {
   num_drafts: 1,
 };
 
-const inlets = [motif_inlet, path_inlet];
+const inlets = [path_inlet, motif_inlet];
 
 const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
-  const motifs = getAllDraftsAtInlet(op_inputs, 0);
-  const paths = getAllDraftsAtInlet(op_inputs, 1);
+  const motifs = getAllDraftsAtInlet(op_inputs, 1);
+  const paths = getAllDraftsAtInlet(op_inputs, 0);
+  const add_incidentals = getOpParamValById(0, param_vals);
 
   let motif = null;
   if (motifs.length == 0) {
     //use standard 1,2,3,2, motif. 
     const arr = [
-      [0, 0, 0, 0],
-      [0, 0, 1, 0],
+      [1, 0, 0, 0],
       [0, 1, 0, 1],
-      [1, 0, 0, 0]
+      [0, 0, 1, 0],
+      [0, 0, 0, 0]
     ]
     motif = initDraftFromDrawdown(new Sequence.TwoD(arr).export());
   } else {
@@ -107,17 +90,7 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
   const pattern = new Sequence.TwoD();
 
-  let motif_start = 0;
-  let motif_end = 0;
-  for (let my = 0; my < motif_height; ++my) {
-    if (getHeddle(motif.drawdown, my, 0)) {
-      motif_start = my;
-    }
-    if (getHeddle(motif.drawdown, my, motif_width - 1)) {
-      motif_end = my;
-    }
-  }
-  const motif_offset = motif_end - motif_start;
+
   let last_found;
   for (let px = 0; px < path_width; ++px) {
     let path_pos;
@@ -143,17 +116,18 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
           }
           col.push(val);
         }
+
         if (mx === 0 && found !== undefined && last_found !== undefined) {
-          console.log("incidental? now " + found + " vs " + last_found);
+          // console.log("incidental? now " + found + " vs " + last_found);
           if (Math.abs(found - last_found) !== 1) {
             const incidentals = [];
             // We need one or more incidental
             if (found === last_found) {
               // they're the same, so add one in between
-              console.log("same, add one");
+              // console.log("same, add one");
               incidentals.push((found + 1) % path_height);
             } else if (Math.abs(found - last_found) > 1) {
-              console.log("add multiple, shortest path");
+              // console.log("add multiple, shortest path");
               const diff = (found - last_found + path_height) % path_height;
               if (diff <= path_height / 2) {
                 // take the shortest path, up
@@ -169,13 +143,18 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                 }
               }
             }
-            for (const incidental of incidentals) {
-              const icol = new Sequence.OneD();
 
-              for (let i = 0; i < path_height; ++i) {
-                icol.push(i === incidental);
+            // console.log("incidentals: ", incidentals, add_incidentals);
+            if (add_incidentals) {
+              for (const incidental of incidentals) {
+                const icol = new Sequence.OneD();
+
+                for (let i = 0; i < path_height; ++i) {
+                  icol.push(i === incidental);
+                }
+                pattern.pushWarpSequence(icol.val());
+
               }
-              pattern.pushWarpSequence(icol.val());
             }
           }
         }
@@ -187,10 +166,13 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
   return Promise.resolve([{ draft: initDraftFromDrawdown(pattern.export()) }]);
 };
 
-const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
-  const cols: number = <number>getOpParamValById(0, param_vals);
-  const rows: number = <number>getOpParamValById(1, param_vals);
-  return cols * rows <= defaults.max_area ? true : false;
+const sizeCheck = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+  const path = getAllDraftsAtInlet(op_inputs, 0);
+  if (path.length == 0) return true;
+  const dd = path[0].drawdown;
+  const width = warps(dd);
+  const height = wefts(dd);
+  return width * height <= defaults.max_area ? true : false;
 };
 
 const generateName = (param_vals: Array<OpParamVal>): string => {
@@ -198,7 +180,7 @@ const generateName = (param_vals: Array<OpParamVal>): string => {
   return num_up + "/crackle";
 };
 
-export const crackle: Operation = {
+export const motif_path: Operation = {
   name,
   meta,
   params,

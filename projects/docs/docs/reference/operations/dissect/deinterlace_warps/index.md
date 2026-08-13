@@ -1,4 +1,4 @@
-<!-- ---
+---
 title: deinterlace warps
 sidebar_label: deinterlace warps
 sidebar_class_name: dissect opItem
@@ -19,5 +19,5 @@ Not sure, but perhaps it is interesting for the purposes of analyzing a draft st
 adacad id: `deinterlace_warps`
 
 ```ts reference
-https://github.com/UnstableDesign/AdaCAD/tree/main/packages/adacad-drafting-lib/src/operations/deinterlace/deinterlace.ts
-``` -->
+https://github.com/UnstableDesign/AdaCAD/tree/main/packages/adacad-drafting-lib/src/operations/deinterlace_warps/deinterlace_warps.ts
+```
