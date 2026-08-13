@@ -83,6 +83,10 @@ async function captureScreenshots(specificAdaFilesToCapture: Array<string>) {
       .sidenav_mover {
         visibility: hidden !important;
       }
+
+      .header-container{
+        display: none !important;
+      }
     `;
     style.appendChild(document.createTextNode(content));
     const promise = new Promise((resolve, reject) => {

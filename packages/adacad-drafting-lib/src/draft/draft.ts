@@ -166,6 +166,7 @@ export const initDraftWithParams = (params: InitDraftParams): Draft => {
  */
 export const initDraftFromDrawdown = (drawdown: Drawdown): Draft => {
 
+  if (drawdown.length == 0) return initDraft();
 
   const area = drawdown.length * drawdown[0].length;
   if (area > defaults.max_area) console.error(`Draft area is too large to render. Maximum area is ${defaults.max_area} cells.`);

@@ -55,7 +55,8 @@ export type Operation = {
   perform: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => Promise<Array<OpOutput>>,
   generateName: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => string,
   sizeCheck: (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>) => boolean,
-  createSketch?: (op_params: Array<OpParamVal>, updateCallback: (canvasState: CanvasParam['value']) => void, context?: {isParameterChange: boolean, weftColors?: string[], weftMaterialIds?: number[], warpColors?: string[], weftDiameters?: number[], warpDiameters?: number[]}, op_inputs?: Array<OpInput>) => (p: any) => void
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createSketch?: (op_params: Array<OpParamVal>, updateCallback: (canvasState: CanvasParam['value']) => void, context?: { isParameterChange: boolean, weftColors?: string[], weftMaterialIds?: number[], warpColors?: string[], weftDiameters?: number[], warpDiameters?: number[] }, op_inputs?: Array<OpInput>) => (p: any) => void
 }
 
 /**
@@ -87,6 +88,7 @@ export type OperationParam = {
  */
 export type CanvasParam = OperationParam & {
   value: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   }
 }
@@ -116,7 +118,7 @@ export type SelectParam = OperationParam & {
 /**
  * An extension of Param that handles extra requirements for select boolean inputs
  * @param falsestate a description for the user explaining what "false" means in this param
- * @param truestate a description for the user explaining what "false" means in this param
+ * @param truestate a description for the user explaining what "true" means in this param
  */
 export type BoolParam = OperationParam & {
   falsestate: string,
