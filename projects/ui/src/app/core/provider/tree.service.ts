@@ -1317,14 +1317,12 @@ export class TreeService {
 
     }
 
-    console.log("TOUCHED", touched, out);
     const old_draft_objs = out.filter(el => touched.find(subel => subel == el) == undefined);
     const to_delete = old_draft_objs.slice(1);
 
     //now sweep through and see if there are any existing outputs we need to remove
     old_draft_objs.forEach((output) => {
       const dn = <DraftNode>this.getNode(output);
-      console.log("CLEARING DRAFT", output, dn);
       this.clearDraft(dn);
 
     });
@@ -1510,7 +1508,6 @@ export class TreeService {
    */
   async performAndUpdateDownstream(op_ids: Array<number>, excludeFromCanvasReset: number[] = []): Promise<any> {
     const schedule = await this.createSchedule(op_ids);
-    console.log("schedule", schedule);
     for (const op_id of schedule) {
       try {
         await this.performOp(op_id);
@@ -1578,7 +1575,6 @@ export class TreeService {
   async performOp(id: number): Promise<Array<number>> {
     const opnode = <OpNode>this.getNode(id);
 
-    console.log("PERFORMING OP", id);
 
     const op = this.ops.getOp(opnode.name);
     this.errorBroadcaster.clearError(id); //clear before we compute again.
@@ -1595,7 +1591,6 @@ export class TreeService {
     const cleaned_inputs: Array<OpInput> = this.assembleOpInputs(id);
 
     let passes_size_check = op.sizeCheck(param_vals, cleaned_inputs);
-    console.log("PASSES SIZE CHECK", id, passes_size_check);
 
     if (!passes_size_check) {
       const errorStatement = "The " + op.name + " operation is attempting to make a draft that is larger than the maximum allowable value"
@@ -1608,7 +1603,6 @@ export class TreeService {
     try {
 
       const res = await op.perform(param_vals, cleaned_inputs);
-      console.log("RES", res);
       opnode.recomputing.next(false);
       let has_err = res.find(el => el.err !== undefined);
       if (has_err !== undefined) {
@@ -2713,7 +2707,6 @@ export class TreeService {
     dn.draft = draft;
     dn.render_colors = (dn.render_colors === undefined) ? true : dn.render_colors;
     // if (dn.component !== null) (<SubdraftComponent>dn.component).draft = draft;
-    console.log("setDraft", id, draft, flags, broadcast, checkRecompute);
     if (broadcast) this.broadcastDraftNodeValueChange(dn.id, flags);
 
     if (checkRecompute) {
