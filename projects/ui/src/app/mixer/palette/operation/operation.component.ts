@@ -585,6 +585,9 @@ export class OperationComponent implements OnInit {
    * Resets the p5 canvas sketch when a non-canvas parameter changes.
    */
   public triggerCanvasResetIfNeeded(changedParamType: string, isParameterChange: boolean = true): void {
+
+    if (this.op == undefined) return;
+
     const canvasParamIndex = this.op.params.findIndex(p => p.type === 'p5-canvas');
 
     if (canvasParamIndex !== -1 && changedParamType !== 'p5-canvas') {

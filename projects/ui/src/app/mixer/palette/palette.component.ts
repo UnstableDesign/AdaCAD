@@ -505,6 +505,7 @@ export class PaletteComponent implements OnInit {
       let children = this.tree.getNonCxnOutputs(opcomp.id);
       if (children.length > 0) this.vs.setViewer(children[0])
     }).catch(err => {
+      console.log("ERROR PERFORMING AND UPDATING DOWNSTREAM", err);
       this.postOperationErrorMessage(opcomp.id, err);
     });
 
@@ -1647,7 +1648,6 @@ export class PaletteComponent implements OnInit {
    * @returns 
    */
   private async performAndUpdateDownstream(op_id: number, excludeFromCanvasReset: number[] = []): Promise<any> {
-    console.log("Perform and update downstream from palette", op_id);
     await this.tree.performAndUpdateDownstream([op_id], excludeFromCanvasReset);
   }
 

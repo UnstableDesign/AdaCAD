@@ -1508,6 +1508,7 @@ export class TreeService {
    */
   async performAndUpdateDownstream(op_ids: Array<number>, excludeFromCanvasReset: number[] = []): Promise<any> {
     const schedule = await this.createSchedule(op_ids);
+    console.log(schedule)
     for (const op_id of schedule) {
       try {
         await this.performOp(op_id);
@@ -1516,6 +1517,7 @@ export class TreeService {
         return Promise.reject(err);
       }
     }
+
 
     // Trigger canvas resets on p5-canvas ops so they pick up new inlet data
     for (const id of schedule) {
