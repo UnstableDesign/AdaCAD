@@ -219,6 +219,7 @@ export class DraftRenderingComponent implements OnInit {
 
     this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
     this.divWasy = document.getElementById('warp-systems-text-' + this.source + '-' + this.id);
+    this.refreshLoomVisibility(this.tree.getLoomSettings(this.id));
     this.refreshWarpAndWeftSystemNumbering();
     this.refreshOriginMarker();
 
@@ -276,7 +277,12 @@ export class DraftRenderingComponent implements OnInit {
         } else {
           this.view_only = false;
           this.setPencil('toggle');
-          this.setDraftEditSource('drawdown');
+
+          if (this.tree.getLoomSettings(this.id).type !== 'jacquard') {
+            this.setDraftEditSource('loom');
+          } else {
+            this.setDraftEditSource('drawdown');
+          }
           break;
         }
     }
