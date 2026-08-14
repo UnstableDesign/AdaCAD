@@ -115,8 +115,6 @@
   <div [class.outlet_row-draft-visible-false]="!draft_visible" [class.outlet_row]="draft_visible">
 
 
-
-
     <button mat-raised-button id="{{id}}-out" class="outlet" [class.active]="selecting_connection"
       [class.outlet_connected]="outlet_connected" matTooltip="connect this draft to an operation"
       (click)="connectionStarted($event)">

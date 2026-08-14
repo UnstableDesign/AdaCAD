@@ -6,7 +6,7 @@ import { MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Draft } from 'adacad-drafting-lib';
 import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
-import { DraftNode, RenderingFlags } from '../../../core/model/datatypes';
+import { DraftNode, OpNode, RenderingFlags } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
 import { FileService } from '../../../core/provider/file.service';
 import { MaterialsService } from '../../../core/provider/materials.service';
@@ -77,6 +77,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
   use_colors: boolean = true;
 
+
   outlet_connected: boolean = true;
 
   draft_name: string = "";
@@ -121,6 +122,11 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
     this.outlet_connected = (this.tree.getNonCxnOutputs(this.id).length > 0);
+
+
+
+
+
     this.local_zoom = this.tree.getDraftScale(this.id);
     this.draft_visible = this.tree.getDraftVisible(this.id);
 

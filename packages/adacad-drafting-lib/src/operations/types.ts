@@ -220,6 +220,16 @@ export type OpParamValType = number | boolean | string | Img;
 export type OpInletValType = number | string | null;
 
 
+/**
+ * this type has been added to support operations that can do something with the information that is associated with a 
+ * loom meta data associated with a draft, rather than the draft itself. 
+ */
+export type DraftLoomPair = {
+  draft: Draft,
+  loom: Loom | null,
+  loom_settings: LoomSettings
+}
+
 
 /**
  * this is a type that contains and contextualizes a series of inputs to an operation, each inlet on an operation corresponds to one op input
@@ -228,7 +238,7 @@ export type OpInletValType = number | string | null;
  * @param inlet_id the index of the inlet for which the draft is entering upon
  */
 export interface OpInput {
-  drafts: Array<Draft>,
+  drafts: Array<Draft | DraftLoomPair>,
   inlet_params: Array<OpInletValType>,
   inlet_id: number
 }
