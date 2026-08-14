@@ -20,7 +20,7 @@ export type Loom = {
  * @param treadles the number of treadles the user has specified as the max for their loom or -1, if they have no limit
  */
 export type LoomSettings = {
-  type: string,
+  type: 'jacquard' | 'frame' | 'direct',
   epi: number,
   ppi: number,
   units: 'cm' | 'in',
