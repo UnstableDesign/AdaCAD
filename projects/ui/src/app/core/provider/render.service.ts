@@ -12,7 +12,7 @@ import { WorkspaceService } from './workspace.service';
 interface RenderQueueItem {
   type: 'render';
   draft: Draft;
-  loom: Loom;
+  loom: Loom | null;
   loom_settings: LoomSettings;
   canvases: CanvasList;
   rf: RenderingFlags;
@@ -22,7 +22,7 @@ interface RenderQueueItem {
 interface ScaleQueueItem {
   type: 'scale';
   draft: Draft;
-  loom: Loom;
+  loom: Loom | null;
   loom_settings: LoomSettings;
   canvases: CanvasList;
   rf: RenderingFlags;
@@ -78,7 +78,7 @@ export class RenderService {
   }
 
 
-  public addToQueue(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags, type: 'render' | 'scale', onComplete: () => void, scale?: number): RenderQueueItem | null {
+  public addToQueue(draft: Draft, loom: Loom | null, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags, type: 'render' | 'scale', onComplete: () => void, scale?: number): RenderQueueItem | null {
     if (type == 'render') {
       const queueItem: RenderQueueItem = {
         type: 'render',

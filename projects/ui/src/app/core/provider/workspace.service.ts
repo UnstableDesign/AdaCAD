@@ -19,7 +19,7 @@ export class WorkspaceService {
   file_favorites: Array<number> = [];
   min_frames: number = defaults.loom_settings.frames;
   min_treadles: number = defaults.loom_settings.treadles;
-  type: string = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
+  type: 'jacquard' | 'frame' | 'direct' = defaults.loom_settings.type;
   epi: number = defaults.loom_settings.epi;
   ppi: number = defaults.loom_settings.ppi;
   units: 'in' | 'cm' = <'in' | 'cm'>defaults.loom_settings.units;

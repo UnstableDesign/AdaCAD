@@ -338,6 +338,7 @@ export class DraftRenderingComponent implements OnInit {
 
         this.redraw(draft, loom, loom_settings, flags).then(el => {
           this.draftValueChangeCallCount++;
+          this.refreshLoomVisibility(loom_settings);
           this.refreshOriginMarker();
           this.refreshWarpAndWeftSystemNumbering();
           this.redrawComplete.emit(draft); // I need this so that any resulting functions (e.g. recentering, etc, can call after redrawing)
@@ -345,6 +346,21 @@ export class DraftRenderingComponent implements OnInit {
       }
     });
 
+  }
+
+  refreshLoomVisibility(loom_settings: LoomSettings) {
+    if (this.source == 'mixer') {
+      switch (loom_settings.type) {
+        case 'jacquard':
+
+          this.divWesy.style.display = 'block';
+          this.divWasy.style.display = 'block';
+          break;
+        case 'frame':
+          this.divWesy.style.display = 'none';
+          this.divWasy.style.display = 'none';
+      }
+    }
   }
 
   clearSelection() {
@@ -1203,7 +1219,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
   //takes inputs about what to redraw
-  public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
+  public redraw(draft: Draft, loom: Loom | null, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
 
 
     this.isRedrawing = true;
@@ -1230,7 +1246,7 @@ export class DraftRenderingComponent implements OnInit {
 
     if (draft == null) {
       console.error("DRAFT IS NULL", this.id);
-      return;
+      return Promise.resolve(false);
     }
 
     if (this.needsRedraw(rf)) {

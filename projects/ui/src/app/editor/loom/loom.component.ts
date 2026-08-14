@@ -345,7 +345,7 @@ export class LoomComponent implements OnInit, OnDestroy {
 
 
 
-  private onLoomTypeChange(type: string) {
+  private onLoomTypeChange(type: 'jacquard' | 'frame' | 'direct') {
 
     if (this.id == -1) return;
 

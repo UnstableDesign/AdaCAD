@@ -64,7 +64,7 @@ export type ConnectionNode = BaseNode & {
  */
 export type DraftNode = BaseNode & {
   draft: Draft,
-  loom: Loom,
+  loom: Loom | null,
   loom_settings: LoomSettings,
   render_colors: boolean,
   scale: number,

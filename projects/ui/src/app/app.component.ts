@@ -2046,7 +2046,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // }
 
-  selectLoom(value: string) {
+  selectLoom(value: 'jacquard' | 'frame' | 'direct') {
     this.ws.type = value;
     //redraw?
   }

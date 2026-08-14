@@ -1648,14 +1648,14 @@ export class TreeService {
     return draft_comps;
   }
 
-  getLoom(id: number): Loom {
+  getLoom(id: number): Loom | null {
     if (id === -1) return null;
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn === null || dn === undefined) return null;
     return dn.loom;
   }
 
-  setLoom(id: number, loom: Loom, broadcast: boolean = true) {
+  setLoom(id: number, loom: Loom | null, broadcast: boolean = true) {
 
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) {
