@@ -349,18 +349,29 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   refreshLoomVisibility(loom_settings: LoomSettings) {
-    if (this.source == 'mixer') {
-      switch (loom_settings.type) {
-        case 'jacquard':
+    console.log('refreshLoomVisibility', loom_settings);
+    if (this.source == 'mixer' || this.source == 'library') {
+      const divWaSyText = document.getElementById('warp-systems-text-' + this.source + '-' + this.id);
+      divWaSyText?.style.setProperty('display', 'none');
 
-          this.divWesy.style.display = 'block';
-          this.divWasy.style.display = 'block';
-          break;
-        case 'frame':
-          this.divWesy.style.display = 'none';
-          this.divWasy.style.display = 'none';
+      const divWeSyText = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
+      divWeSyText?.style.setProperty('display', 'none');
+
+
+
+      if (loom_settings.type !== 'jacquard') {
+        const treadlingCanvas = document.getElementById('treadling-' + this.source + '-' + this.id);
+        treadlingCanvas?.style.setProperty('display', 'flex');
+        const treadlingCanvasContainer = document.getElementById('treadling-container-' + this.source + '-' + this.id);
+        treadlingCanvasContainer?.style.setProperty('display', 'flex');
+      } else {
+        const treadlingCanvas = document.getElementById('treadling-' + this.source + '-' + this.id);
+        treadlingCanvas?.style.setProperty('display', 'none');
+        const treadlingCanvasContainer = document.getElementById('treadling-container-' + this.source + '-' + this.id);
+        treadlingCanvasContainer?.style.setProperty('display', 'none');
       }
     }
+
   }
 
   clearSelection() {
@@ -1253,6 +1264,7 @@ export class DraftRenderingComponent implements OnInit {
 
       const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
         this.isRedrawing = false;
+        this.refreshLoomVisibility(loom_settings);
         this.refreshOriginMarker();
         this.refreshWarpAndWeftSystemNumbering();
       })
