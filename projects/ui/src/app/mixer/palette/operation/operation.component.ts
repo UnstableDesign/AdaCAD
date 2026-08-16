@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, QueryList, Renderer2, ViewChild, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
@@ -26,6 +26,7 @@ import { ParameterComponent } from './parameter/parameter.component';
   selector: 'app-operation',
   templateUrl: './operation.component.html',
   styleUrls: ['./operation.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CdkDrag, CdkDragHandle, MatButtonModule, InletComponent, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, ParameterComponent, DraftContainerComponent]
 })
 export class OperationComponent implements OnInit {

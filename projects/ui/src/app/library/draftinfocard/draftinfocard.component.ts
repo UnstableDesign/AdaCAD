@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,6 +20,7 @@ import { RenameComponent } from '../../core/ui/rename/rename.component';
   selector: 'app-draftinfocard',
   imports: [ReactiveFormsModule, DownloadComponent, MatSliderModule, MatButtonModule, MatFormField, MatInput, MatIconButton, MatTooltip, DraftRenderingComponent],
   templateUrl: './draftinfocard.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './draftinfocard.component.scss'
 })
 export class DraftinfocardComponent {

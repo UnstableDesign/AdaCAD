@@ -1,4 +1,4 @@
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import { Component, inject, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -15,6 +15,7 @@ import { WorkspaceService } from '../../provider/workspace.service';
   selector: 'app-download',
   imports: [MatMenu, MatButton, MatIconButton, MatMenuTrigger, MatTooltip, MatMenuModule],
   templateUrl: './download.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './download.component.scss'
 })
 export class DownloadComponent {

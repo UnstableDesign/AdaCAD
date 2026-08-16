@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
@@ -29,6 +29,7 @@ import { ZoomService } from '../../../core/provider/zoom.service';
   selector: 'app-draftcontainer',
   templateUrl: './draftcontainer.component.html',
   styleUrls: ['./draftcontainer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatButton, MatMiniFabButton, FormsModule, ReactiveFormsModule, MatSliderModule, MatSliderThumb, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, DraftRenderingComponent]
 })
 export class DraftContainerComponent implements AfterViewInit {

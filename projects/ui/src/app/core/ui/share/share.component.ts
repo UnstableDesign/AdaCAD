@@ -1,6 +1,6 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { NgOptimizedImage } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatButton } from '@angular/material/button';
@@ -26,6 +26,7 @@ import { UploadFormComponent } from '../uploads/upload-form/upload-form.componen
   selector: 'app-share',
   templateUrl: './share.component.html',
   styleUrl: './share.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogTitle, NgOptimizedImage, CdkScrollable, MatDialogContent, MatButton, MatTooltip, MatDivider, MatSlideToggle, MatFormField, MatLabel, MatSelect, ReactiveFormsModule, MatOption, MatHint, MatInput, MatCheckbox, UploadFormComponent, MatDialogActions, MatDialogClose]
 })
 export class ShareComponent {

@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { OperationSearchComponent } from './operation-search.component';
@@ -9,6 +9,7 @@ import { OperationSearchComponent } from './operation-search.component';
   templateUrl: './operation-search.modal.html',
   styleUrls: ['./operation-search.modal.scss'],
   imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, MatDialogClose, OperationSearchComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 export class OperationSearchModal {

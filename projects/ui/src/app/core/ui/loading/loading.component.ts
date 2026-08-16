@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-loading',
   imports: [MatDialogTitle, MatDialogContent],
   templateUrl: './loading.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './loading.component.scss'
 })
 export class LoadingComponent {

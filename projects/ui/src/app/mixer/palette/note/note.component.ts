@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragEnd, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -16,6 +16,7 @@ import { ZoomService } from '../../../core/provider/zoom.service';
   selector: 'app-note',
   templateUrl: './note.component.html',
   styleUrls: ['./note.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CdkDrag, MatButtonModule, CdkDragHandle, MatIconButton, MatTooltip, MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatSuffix, CdkTextareaAutosize]
 })
 export class NoteComponent implements OnInit {

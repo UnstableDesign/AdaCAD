@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -29,6 +29,7 @@ import { SimulationComponent } from './simulation/simulation.component';
   selector: 'app-viewer',
   templateUrl: './viewer.component.html',
   styleUrls: ['./viewer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, MatIconButton, MatButtonModule, MatSlideToggleModule, MatButtonToggleModule, MatExpansionModule, MatFormFieldModule, MatInputModule, MatTooltip, DraftRenderingComponent, SimulationComponent, MatSlider, MatSliderThumb, MatMiniFabButton]
 })
 export class ViewerComponent {

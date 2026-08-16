@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { Bounds } from '../../../core/model/datatypes';
 
@@ -6,6 +6,7 @@ import { Bounds } from '../../../core/model/datatypes';
 @Component({
     selector: 'app-snackbar',
     templateUrl: './snackbar.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./snackbar.component.scss']
 })
 export class SnackbarComponent implements OnInit {

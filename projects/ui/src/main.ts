@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/angular";
 import { enableProdMode, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 
 
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { getAnalytics, provideAnalytics } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
@@ -40,7 +40,7 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideZoneChangeDetection(), importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule),
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore()),
     provideAnalytics(() => getAnalytics()),

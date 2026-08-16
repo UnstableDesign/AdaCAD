@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,6 +26,7 @@ import { SelectionComponent } from './selection/selection.component';
   selector: 'app-draft-rendering',
   templateUrl: './draft-rendering.component.html',
   styleUrl: './draft-rendering.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [SelectionComponent, AsyncPipe, MatButton, ReactiveFormsModule, MatInputModule, MatFormFieldModule]
 })
 

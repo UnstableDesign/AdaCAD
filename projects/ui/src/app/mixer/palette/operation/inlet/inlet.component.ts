@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, UntypedFormControl } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -14,6 +14,7 @@ import { TreeService } from '../../../../core/provider/tree.service';
   selector: 'app-inlet',
   templateUrl: './inlet.component.html',
   styleUrls: ['./inlet.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatButton, MatTooltip, FormsModule]
 })
 export class InletComponent implements OnInit {

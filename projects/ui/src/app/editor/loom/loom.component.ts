@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatDivider } from '@angular/material/divider';
@@ -20,6 +20,7 @@ import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-ren
   selector: 'app-loom',
   templateUrl: './loom.component.html',
   styleUrls: ['./loom.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix, MatDivider]
 })
 export class LoomComponent implements OnInit, OnDestroy {

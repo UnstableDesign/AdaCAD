@@ -1,5 +1,5 @@
 import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Draft, Interlacement, LoomSettings } from 'adacad-drafting-lib';
 import { isUp, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
@@ -19,6 +19,7 @@ import { DraftContainerComponent } from '../draftcontainer/draftcontainer.compon
   selector: 'app-subdraft',
   templateUrl: './subdraft.component.html',
   styleUrls: ['./subdraft.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CdkDrag, CdkDragHandle, DraftContainerComponent]
 })
 

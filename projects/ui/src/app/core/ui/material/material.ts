@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -17,6 +17,7 @@ import { ViewerService } from '../../provider/viewer.service';
   selector: 'app-material',
   templateUrl: './material.html',
   styleUrls: ['./material.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIconButton, MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatSuffix]
 })
 

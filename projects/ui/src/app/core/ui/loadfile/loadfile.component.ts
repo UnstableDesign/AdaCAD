@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
@@ -11,6 +11,7 @@ import { UploadFormComponent } from '../uploads/upload-form/upload-form.componen
   selector: 'app-loadfile',
   templateUrl: './loadfile.component.html',
   styleUrls: ['./loadfile.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogTitle, CdkScrollable, MatDialogContent, UploadFormComponent, MatDialogActions, MatButton, MatDialogClose]
 })
 export class LoadfileComponent {

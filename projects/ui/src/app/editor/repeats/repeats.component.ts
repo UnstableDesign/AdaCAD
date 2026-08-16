@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef, MatDialogTitle } from "@angular/material/dialog";
 
 import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
@@ -21,6 +21,7 @@ import { SystemsService } from '../../core/provider/systems.service';
   selector: 'app-repeats',
   templateUrl: './repeats.component.html',
   styleUrls: ['./repeats.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIconButton, MatDialogTitle, CdkDrag, CdkDragHandle, CdkScrollable, MatDialogContent, MatMiniFabButton, MatTooltip, MatIcon, MatFormField, MatLabel, MatChipGrid, MatChipRow, MatChipRemove, FormsModule, MatAutocompleteTrigger, MatChipInput, ReactiveFormsModule, MatAutocomplete, MatOption]
 })
 

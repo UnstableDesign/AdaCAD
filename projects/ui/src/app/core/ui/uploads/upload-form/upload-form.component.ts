@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -13,6 +13,7 @@ import { UploadService } from '../../../provider/upload.service';
   selector: 'upload-form',
   templateUrl: './upload-form.component.html',
   styleUrls: ['./upload-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatFormField, MatInput, MatProgressBar, MatButton]
 })
 export class UploadFormComponent implements OnInit {

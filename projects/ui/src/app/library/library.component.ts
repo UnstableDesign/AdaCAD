@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -32,6 +32,7 @@ import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component'
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
   imports: [MatButton, MatMenuModule, MatIconButton, MaterialComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {

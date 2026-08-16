@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatMiniFabButton } from '@angular/material/button';
 import { Subscription } from 'rxjs';
 import { ConnectionExistenceChange, ConnectionNode, DraftNode, OpNode, Point } from '../../../core/model/datatypes';
@@ -11,6 +11,7 @@ import { ZoomService } from '../../../core/provider/zoom.service';
   selector: 'app-connection',
   templateUrl: './connection.component.html',
   styleUrls: ['./connection.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatMiniFabButton]
 })
 export class ConnectionComponent implements OnInit {

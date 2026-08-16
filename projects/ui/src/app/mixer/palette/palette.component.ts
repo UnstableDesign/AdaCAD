@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject } from '@angular/core';
+import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AnalyzedImage, Draft, Img, Loom, LoomSettings, OpParamValType, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
@@ -28,6 +28,7 @@ import { SubdraftComponent } from './subdraft/subdraft.component';
 @Component({
   selector: 'app-palette',
   templateUrl: './palette.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./palette.component.scss']
 })
 

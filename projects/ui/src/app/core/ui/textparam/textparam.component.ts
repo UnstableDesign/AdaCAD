@@ -1,6 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -12,6 +12,7 @@ import { StringParam } from 'adacad-drafting-lib';
   selector: 'app-textparam',
   imports: [ReactiveFormsModule, MatDialogModule, DragDropModule, MatInputModule, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, MatHint, MatLabel, MatFormField],
   templateUrl: './textparam.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './textparam.component.scss'
 })
 export class TextparamComponent {

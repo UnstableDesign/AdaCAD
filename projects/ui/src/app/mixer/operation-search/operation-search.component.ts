@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -17,6 +17,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
   templateUrl: './operation-search.component.html',
   styleUrls: ['./operation-search.component.scss'],
   imports: [MatButton, MatTooltip, MatSlideToggleModule, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, AsyncPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 export class OperationSearchComponent implements OnInit {

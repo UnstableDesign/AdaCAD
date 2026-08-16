@@ -1,4 +1,4 @@
-import { Component, enableProdMode, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
+import { Component, enableProdMode, EventEmitter, inject, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material/tooltip';
 import { Draft, initDraftWithParams, initLoom, Loom, LoomSettings } from 'adacad-drafting-lib';
@@ -43,6 +43,7 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   templateUrl: './mixer.component.html',
   styleUrls: ['./mixer.component.scss'],
   providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PaletteComponent, MixerSidebarComponent]
 })
 export class MixerComponent {

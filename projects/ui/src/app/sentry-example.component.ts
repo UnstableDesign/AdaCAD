@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 
 /**
@@ -60,6 +60,7 @@ import * as Sentry from '@sentry/angular';
       Adblockers will prevent errors from being sent to Sentry.
     </p>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: `
     :host {
       display: flex;
