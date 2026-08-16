@@ -11,7 +11,10 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["**/*.spec.ts", "**/*.ts"]
+            "lintFilePatterns": [
+              "**/*.spec.ts",
+              "**/*.ts"
+            ]
           }
         },
         "build": {
@@ -22,9 +25,16 @@
             },
             "index": "src/index.html",
             "tsConfig": "src/tsconfig.app.json",
-            "polyfills": ["src/polyfills.ts"],
-            "assets": ["src/assets", "src/favicon.ico"],
-            "styles": ["src/styles.scss"],
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
+            "assets": [
+              "src/assets",
+              "src/favicon.ico"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
             "scripts": [],
             "extractLicenses": false,
             "sourceMap": true,
@@ -42,7 +52,7 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
+              "sourceMap": true,
               "namedChunks": false,
               "extractLicenses": true,
               "fileReplacements": [
@@ -80,8 +90,13 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [],
-            "styles": ["src/styles.scss"],
-            "assets": ["src/assets", "src/favicon.ico"]
+            "styles": [
+              "src/styles.scss"
+            ],
+            "assets": [
+              "src/assets",
+              "src/favicon.ico"
+            ]
           }
         },
         "deploy": {
@@ -106,6 +121,13 @@
           "options": {
             "protractorConfig": "./protractor.conf.js",
             "devServerTarget": "adacad-weaver:serve"
+          }
+        },
+        "build": {
+          "configurations": {
+            "production": {
+              "sourceMap": true
+            }
           }
         }
       }

@@ -57,11 +57,13 @@ import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
 import { WelcomeComponent } from './core/ui/welcome/welcome.component';
 import { AnalyticsService } from './core/provider/analytics.service';
+import { SentryExample } from './sentry-example.component';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [EventsDirective, DownloadComponent, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, ViewadjustComponent, ViewerComponent, LibraryComponent]
+  imports: [EventsDirective, SentryExample, DownloadComponent, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, ViewadjustComponent, ViewerComponent, LibraryComponent]
 })
 
 
@@ -303,6 +305,10 @@ export class AppComponent implements OnInit, OnDestroy {
     //}else{
     // this.manual_scroll = false;
     // }
+  }
+
+  public throwTestError(): void {
+    throw new Error("Sentry Test Error");
   }
 
 
@@ -2046,7 +2052,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // }
 
-  selectLoom(value: string) {
+  selectLoom(value: 'jacquard' | 'frame' | 'direct') {
     this.ws.type = value;
     //redraw?
   }

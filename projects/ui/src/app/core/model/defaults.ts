@@ -29,7 +29,7 @@ export const defaults = {
     epi: 12,
     ppi: 12,
     units: <'in'>'in',
-    type: 'jacquard'
+    type: 'jacquard' as 'jacquard' | 'frame' | 'direct'
   },
   draft_edit_source: 'loom',
   pencil: 'toggle',

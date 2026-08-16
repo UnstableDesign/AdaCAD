@@ -23,7 +23,8 @@
         <div class="logo"></div>
 
 
-        <span>AdaCAD </span>
+        <span>AdaCAD <button (click)="throwTestError()">Test Sentry Error</button>
+        </span>
 
 
         <button matButton="elevated" color="accent" (click)="openNews()">version
@@ -147,6 +148,7 @@
 
     <div class="ui-left" [style.width.px]="vas.left">
 
+      <app-sentry-example></app-sentry-example>
 
 
       <app-library class="library-container" [class.hide]="selected_editor_mode !== 'library'"

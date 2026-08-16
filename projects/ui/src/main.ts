@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/angular";
 import { enableProdMode, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 
 
@@ -19,6 +20,16 @@ import { AppComponent } from './app/app.component';
 import { CoreModule } from './app/core/core.module';
 import { environment } from './environments/environment';
 
+Sentry.init({
+  dsn: "https://3cf82c759b0d55d1d365c341af388bae@o4511911397949440.ingest.us.sentry.io/4511911408959488",
+  integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+  tracesSampleRate: 1,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1,
+  enableLogs: true,
+  debug: true
+})
+
 if (environment.production) {
   enableProdMode();
 }
@@ -27,7 +38,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideZoneChangeDetection(),importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule),
+    provideZoneChangeDetection(), importProvidersFrom(BrowserModule, AppRoutingModule, CoreModule),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
     provideFirebaseApp(() => initializeApp(environment.firebase)),

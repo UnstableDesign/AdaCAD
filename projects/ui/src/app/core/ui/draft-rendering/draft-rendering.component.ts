@@ -111,7 +111,7 @@ export class DraftRenderingComponent implements OnInit {
   overTimeLimit$: Observable<boolean> = of(false);
   redrawComplete = new EventEmitter();
 
-  selected_loom_type: string = 'frame';
+  selected_loom_type: 'jacquard' | 'frame' | 'direct' = 'jacquard';
 
   //published from the draft node whenever a new draft is set. 
   draftValueChangeSubscription: Subscription;
@@ -331,7 +331,7 @@ export class DraftRenderingComponent implements OnInit {
       this.colSystemMapping = draft !== null ? draft.colSystemMapping.slice() : [];
       this.rowShuttleMapping = draft !== null ? draft.rowShuttleMapping.slice() : [];
       this.rowSystemMapping = draft !== null ? draft.rowSystemMapping.slice() : [];
-      this.selected_loom_type = (loom_settings != null) ? loom_settings.type : 'jacquard';
+      this.selected_loom_type = (loom_settings != null) ? loom_settings.type as 'jacquard' | 'frame' | 'direct' : 'jacquard';
 
       if (draft !== null) {
 

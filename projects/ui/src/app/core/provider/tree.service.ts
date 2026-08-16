@@ -292,7 +292,7 @@ export class TreeService {
 
     if (loom_settings === null || loom_settings == undefined) {
       this.setLoomSettings(entry.cur_id, {
-        type: this.ws.type,
+        type: this.ws.type as 'jacquard' | 'frame' | 'direct',
         epi: this.ws.epi,
         ppi: this.ws.ppi,
         units: this.ws.units,
