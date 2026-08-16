@@ -29,7 +29,6 @@
     "@angular/common": "^21.0.2",
     "@angular/compiler": "^21.0.2",
     "@angular/core": "^21.0.2",
-    "@angular/fire": "^20.0.1",
     "@angular/forms": "^21.0.2",
     "@angular/material": "^21.0.1",
     "@angular/platform-browser": "^21.0.2",
@@ -41,7 +40,7 @@
     "adacad-drafting-lib": "file:../../packages/adacad-drafting-lib",
     "core-js": "^3.6.4",
     "firebase": "^12.6.0",
-    "jspdf": "^3.0.4",
+    "jspdf": "^4.2.1",
     "ngx-google-analytics": "^14.0.1",
     "normalize-wheel": "^1.0.1",
     "p5": "^2.2.0",
@@ -51,8 +50,8 @@
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "0.2100.1",
-    "@angular-devkit/build-angular": "^21.0.1",
+    "@angular-devkit/architect": "^0.2201.4",
+    "@angular-devkit/build-angular": "^22.1.4",
     "@angular/cli": "^21.0.1",
     "@angular/compiler-cli": "^21.0.2",
     "@angular/language-service": "^21.0.2",
@@ -61,7 +60,7 @@
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "eslint": "^8.57.0",
-    "firebase-tools": "^14.15.1",
+    "firebase-tools": "^15.27.0",
     "jasmine-core": "~3.6.0",
     "typescript": "^5.5.4"
   }
