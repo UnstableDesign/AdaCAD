@@ -61,7 +61,7 @@ export class PaletteComponent implements OnInit {
   /**
    * A container that supports the automatic generation and removal of the components inside of it
    */
-  @ViewChild('vc', { read: ViewContainerRef, static: true }) vc: ViewContainerRef;
+  @ViewChild('vc', { read: ViewContainerRef, static: true }) vc!: ViewContainerRef;
 
   subdraftSubscriptions: Array<Subscription> = [];
   operationSubscriptions: Array<Subscription> = [];
@@ -74,7 +74,7 @@ export class PaletteComponent implements OnInit {
    * Subscribes to move event after a touch event is started.
    * @property {Subscription}
    */
-  moveSubscription: Subscription;
+  moveSubscription!: Subscription;
 
   /**
    * flag to determine how conneection should be drawn
@@ -86,7 +86,7 @@ export class PaletteComponent implements OnInit {
  * stores an i and j of the last user selected location within the component
  * @property {Point}
  */
-  last_point: Point;
+  last_point: Point | null = null;
 
   /**
    * triggers a class to handle disabling pointerevents when switching modes
@@ -97,9 +97,9 @@ export class PaletteComponent implements OnInit {
   /**
    * trackable inputs to snackbar
    */
-  snack_message: string;
+  snack_message: string = '';
 
-  snack_bounds: Bounds;
+  snack_bounds: Bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
 
   /**
    * track if shift key is held for cursor grabby hand feedback
@@ -119,7 +119,7 @@ export class PaletteComponent implements OnInit {
   /**
 * stores the bounds of the shape being drawn
 */
-  active_connection: Bounds;
+  active_connection: Bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
 
   /**
    * a reference to the base size of each cell. Zoom in and out only modifies the view, not this base size.
@@ -132,7 +132,7 @@ export class PaletteComponent implements OnInit {
 
   visible_op_inlet: number = -1;
 
-  multi_select_bounds: Bounds;
+  multi_select_bounds: Bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
   hasMultiSelectBounds: boolean = false;
 
 
@@ -162,7 +162,7 @@ export class PaletteComponent implements OnInit {
     const draftRemovedUndoSubscription = this.ss.draftRemovedUndo$.subscribe(action => {
       const dn = <DraftNode>action.node;
       this.pasteSubdraft(dn).then(id => {
-        const outputs_to_update = [];
+        const outputs_to_update: Array<Promise<any>> = [];
         action.outputs.forEach(output => {
           this.createConnection(id, output.to_id, output.inlet_id);
           outputs_to_update.push(this.performAndUpdateDownstream(output.to_id));
@@ -206,7 +206,7 @@ export class PaletteComponent implements OnInit {
      */
     const opRemovedUndoSubscription = this.ss.opRemovedUndo$.subscribe(action => {
 
-      action.media.forEach(el => {
+      action.media?.forEach(el => {
         this.media.addIndexColorMediaInstance(el.id, el.ref, <AnalyzedImage>el.img);
       });
 
@@ -220,7 +220,7 @@ export class PaletteComponent implements OnInit {
 
         return this.performAndUpdateDownstream(id);
       }).then(el => {
-        const outputs_to_update = [];
+        const outputs_to_update: Array<Promise<any>> = [];
         action.outputs.forEach(output => {
           const children = this.tree.getNonCxnOutputs(new_id);
           if (children.length > output.outlet_id) {
@@ -372,8 +372,8 @@ export class PaletteComponent implements OnInit {
    */
   handleScroll(position: Point) {
     this.viewport.setTopLeft(position);
-    const div: HTMLElement = document.getElementById('scrollable-container');
-    if (!div) return;
+    const div: HTMLElement | null = document.getElementById('scrollable-container');
+    if (!div || div === undefined) return;
     div.scrollLeft = this.viewport.getTopLeft().x;
     div.scrollTop = this.viewport.getTopLeft().y;
   }
@@ -383,8 +383,8 @@ export class PaletteComponent implements OnInit {
    * @param diff - the {x, y} offset to pan by in pixels
    */
   handlePan(diff: Point) {
-    const div: HTMLElement = document.getElementById('scrollable-container');
-    if (!div) return;
+    const div: HTMLElement | null = document.getElementById('scrollable-container');
+    if (!div || div === undefined) return;
 
     div.scrollLeft += diff.x;
     div.scrollTop += diff.y;
@@ -401,9 +401,9 @@ export class PaletteComponent implements OnInit {
   handleScrollFromZoom(old_zoom: number) {
     // this.viewport.setTopLeft(position);
     // console.log(old_center, this.viewport.getCenterPoint());
-    const div: HTMLElement = document.getElementById('scrollable-container');
+    const div: HTMLElement | null = document.getElementById('scrollable-container');
 
-    if (!div) {
+    if (!div || div === undefined) {
       return;
     }
 
@@ -426,11 +426,11 @@ export class PaletteComponent implements OnInit {
   handleWindowScroll(data: any) {
 
 
-    const div: HTMLElement = document.getElementById('scrollable-container');
+    const div: HTMLElement | null = document.getElementById('scrollable-container');
 
     if (div === null || div === undefined) return;
 
-    this.viewport.set(div.scrollLeft, div.scrollTop, div.clientWidth, div.clientHeight);
+    this.viewport.set(div.scrollLeft ?? 0, div.scrollTop ?? 0, div.clientWidth ?? 0, div.clientHeight ?? 0);
     //update the canvas to this position
   }
 
@@ -554,12 +554,12 @@ export class PaletteComponent implements OnInit {
    */
   rescale(old_zoom?: number) {
 
-    const view_window: HTMLElement = document.getElementById('scrollable-container');
-    const container: HTMLElement = document.getElementById('palette-scale-container');
+    const view_window: HTMLElement | null = document.getElementById('scrollable-container');
+    const container: HTMLElement | null = document.getElementById('palette-scale-container');
     if (view_window === null || view_window === undefined) return;
 
     //let the top left point of the scroll, this is given in terms of palette scale container.
-    if (container === null) return;
+    if (container === null || container === undefined) return;
 
     const new_zoom = this.zs.getMixerZoom();
 
@@ -684,9 +684,9 @@ export class PaletteComponent implements OnInit {
    * dynamically creates a a note component
    * @returns the created note instance
    */
-  createNote(note: Note): NoteComponent {
+  createNote(note: Note | null): NoteComponent {
 
-    let tl: Point = null;
+    let tl: Point = { x: 0, y: 0 };
 
     const notecomp = this.vc.createComponent(NoteComponent);
     this.setNoteSubscriptions(notecomp.instance);
@@ -768,7 +768,7 @@ export class PaletteComponent implements OnInit {
    * @param d a Draft object for this component to contain
    * @returns the created subdraft instance
    */
-  createSubDraft(d: Draft, loom: Loom, loom_settings: LoomSettings): Promise<SubdraftComponent> {
+  createSubDraft(d: Draft, loom: Loom | null, loom_settings: LoomSettings | null): Promise<SubdraftComponent> {
 
     const component = this.vc.createComponent(SubdraftComponent);
     const id = this.tree.createNode('draft', component.instance, component.hostView);
@@ -875,7 +875,7 @@ export class PaletteComponent implements OnInit {
 
 
 
-    this.tree.loadOpData({ prev_id: -1, cur_id: id }, name, undefined, undefined);
+    this.tree.loadOpData({ prev_id: -1, cur_id: id }, name, [] as Array<any>, [] as Array<any>);
     this.setOperationSubscriptions(op.instance);
 
     op.instance.name = name;
@@ -1012,7 +1012,7 @@ export class PaletteComponent implements OnInit {
 
 
     let d = copyDraft(draftnode.draft);
-    let l = copyLoom(draftnode.loom);
+    let l = draftnode.loom ? copyLoom(draftnode.loom) : null;
     let ls = copyLoomSettings(draftnode.loom_settings);
     d.id = generateId(8);
 
@@ -1074,9 +1074,9 @@ export class PaletteComponent implements OnInit {
     const drafts_out = this.tree.getNonCxnOutputs(id);
     drafts_out.forEach(id => this.vs.checkOnDelete(id));
 
-    const outputs: Array<number> = drafts_out.reduce((acc, el) => {
+    const outputs: Array<number> = drafts_out.reduce((acc: Array<number>, el: number) => {
       return acc.concat(this.tree.getNonCxnOutputs(el));
-    }, []);
+    }, [] as Array<number>);
 
 
     //TODO Make sure this is actually returning all the removed nodes
@@ -1188,14 +1188,14 @@ export class PaletteComponent implements OnInit {
     const operation: Operation = this.ops.getOp(op.name);
 
 
-    let new_tl: Point = null;
+    let new_tl: Point = { x: 0, y: 0 };
 
     const op_topleft = op_comp.getPosition();
     if (this.tree.hasSingleChild(obj.id)) {
       new_tl = { x: op_topleft.x + 200, y: op_topleft.y }
     } else {
       let container = document.getElementById('scale-' + obj.id);
-      new_tl = { x: op_topleft.x + 10 + container.offsetWidth * this.zs.getMixerZoom() / this.default_cell_size, y: op_topleft.y }
+      new_tl = { x: op_topleft.x + 10 + (container?.offsetWidth ?? 0) * this.zs.getMixerZoom() / this.default_cell_size, y: op_topleft.y }
     }
 
     let new_params: Array<OpParamValType> = op.params.slice();
@@ -1294,15 +1294,15 @@ export class PaletteComponent implements OnInit {
     if (id == -1) return;
 
     let sd_container = document.getElementById(id + '-out')
-    if (active) sd_container.style.backgroundColor = "#ff4081";
+    if (active && sd_container) sd_container.style.backgroundColor = "#ff4081";
     else {
       if (this.tree.getNonCxnOutputs(id).length > 0) {
-        sd_container.style.backgroundColor = "black";
-        sd_container.style.color = "white";
+        if (sd_container) sd_container.style.backgroundColor = "black";
+        if (sd_container) sd_container.style.color = "white";
       }
       else {
-        sd_container.style.backgroundColor = "white";
-        sd_container.style.color = "black";
+        if (sd_container) sd_container.style.backgroundColor = "white";
+        if (sd_container) sd_container.style.color = "black";
       }
 
     }
@@ -1345,19 +1345,19 @@ export class PaletteComponent implements OnInit {
 
 
     let parent = document.getElementById('scrollable-container');
-    let parent_rect = parent.getBoundingClientRect();
+    let parent_rect = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
     let sd_container = document.getElementById(obj.id + '-out')
-    let sd_rect = sd_container.getBoundingClientRect();
+    let sd_rect = sd_container?.getBoundingClientRect() ?? { x: 0, y: 0 };
 
     this.setOutletStylingOnConnection(obj.id, true);
 
     const zoom_factor = 1 / this.zs.getMixerZoom();
     //on screen position relative to palette
-    let screenX = sd_rect.x - parent_rect.x + parent.scrollLeft;
+    let screenX = sd_rect.x - parent_rect.x + (parent?.scrollLeft ?? 0);
     let scaledX = screenX * zoom_factor;
 
     //on screen position relative to palette
-    let screenY = sd_rect.y - parent_rect.y + parent.scrollTop;
+    let screenY = sd_rect.y - parent_rect.y + (parent?.scrollTop ?? 0);
     let scaledY = screenY * zoom_factor;
 
     adj = {
@@ -1460,16 +1460,16 @@ export class PaletteComponent implements OnInit {
 
 
     let parent = document.getElementById('scrollable-container');
-    let rect_palette = parent.getBoundingClientRect();
+    let rect_palette = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
 
     const zoom_factor = 1 / this.zs.getMixerZoom();
 
     //on screen position relative to palette
-    let screenX = mouse.x - rect_palette.x + parent.scrollLeft; //position of mouse relative to the palette sidebar - takes scroll into account
+    let screenX = mouse.x - rect_palette.x + (parent?.scrollLeft ?? 0); //position of mouse relative to the palette sidebar - takes scroll into account
     let scaledX = screenX * zoom_factor;
 
     //on screen position relative to palette
-    let screenY = mouse.y - rect_palette.y + parent.scrollTop;
+    let screenY = mouse.y - rect_palette.y + (parent?.scrollTop ?? 0);
     let scaledY = screenY * zoom_factor;
 
 
@@ -1487,13 +1487,13 @@ export class PaletteComponent implements OnInit {
 
 
     const svg = document.getElementById('scratch_svg');
-    svg.style.top = (this.active_connection.topleft.y) + "px";
-    svg.style.left = (this.active_connection.topleft.x) + "px"
+    if (svg) svg.style.top = (this.active_connection.topleft.y) + "px";
+    if (svg) svg.style.left = (this.active_connection.topleft.x) + "px"
 
     const cpOffset = 400;
 
 
-    svg.innerHTML = ' <path d="M 0 0 C 0 ' + cpOffset + ','
+    if (svg) svg.innerHTML = ' <path d="M 0 0 C 0 ' + cpOffset + ','
       + (this.active_connection.width) + ' '
       + (this.active_connection.height - cpOffset) + ', '
       + (this.active_connection.width) + ' '
@@ -1512,7 +1512,7 @@ export class PaletteComponent implements OnInit {
     this.selecting_connection = false;
     this.setOutletStylingOnConnection(this.tree.getOpenConnectionId(), false);
     const svg = document.getElementById('scratch_svg');
-    svg.innerHTML = ' ';
+    if (svg) svg.innerHTML = ' ';
 
     if (!this.tree.hasOpenConnection()) return;
 
@@ -1531,11 +1531,12 @@ export class PaletteComponent implements OnInit {
   calculateInitialLocation(): Point {
 
     const container = document.getElementById('scrollable-container');
-    const container_rect = container.getBoundingClientRect();
+    const container_rect = container?.getBoundingClientRect() ?? { x: 0, y: 0 };
+    const contailer_scroll = { x: container?.scrollLeft ?? 0, y: container?.scrollTop ?? 0 };
 
     let tl = {
-      x: (container.scrollLeft + container_rect.x) * 1 / this.zs.getMixerZoom(),
-      y: (container.scrollTop + container_rect.y) * 1 / this.zs.getMixerZoom(),
+      x: (contailer_scroll.x + container_rect.x) * 1 / this.zs.getMixerZoom(),
+      y: (contailer_scroll.y + container_rect.y) * 1 / this.zs.getMixerZoom(),
     }
 
     //prevent this from getting hidden
@@ -1677,7 +1678,7 @@ export class PaletteComponent implements OnInit {
     //   return acc.concat(ids);
     // }, []); 
 
-    const upstream_cxn = upstream_drafts.reduce((acc, draft) => {
+    const upstream_cxn: Array<number> = upstream_drafts.reduce((acc: Array<number>, draft: number) => {
       return acc.concat(this.tree.getOutputs(draft));
     }, []);
 
@@ -1928,13 +1929,13 @@ export class PaletteComponent implements OnInit {
 
     event.preventDefault();
 
-    const view_window: HTMLElement = document.getElementById('scrollable-container');
-    const container: HTMLElement = document.getElementById('palette-scale-container');
+    const view_window: HTMLElement | null = document.getElementById('scrollable-container');
+    const container: HTMLElement | null = document.getElementById('palette-scale-container');
     if (!view_window || !container) return;
 
     // normalize wheel event across browsers and 
     // input types (mouse vs touchpad)
-    const normalized = normalizeWheel(event);
+    const normalized = normalizeWheel(event as any);
 
     // use spinY for zoom (normalized spin speed, good for zoom)
     // only zoom if we have enough spin to warrant a zoom step
@@ -1998,7 +1999,7 @@ export class PaletteComponent implements OnInit {
    * @param event - The mousedown event
    */
   @HostListener('mousedown', ['$event'])
-  public onStart(event) {
+  public onStart(event: MouseEvent) {
 
 
     if (this.selecting_connection == true) {
@@ -2048,7 +2049,7 @@ export class PaletteComponent implements OnInit {
       event.preventDefault(); // Prevent middle-click scroll behavior and space scrolling
       this.panStarted({ x: event.clientX, y: event.clientY });
       this.moveSubscription =
-        fromEvent(event.target, 'mousemove').subscribe(e => this.onDrag(e));
+        fromEvent(event.target as HTMLElement, 'mousemove').subscribe(e => this.onDrag(e as MouseEvent));
       return;
     }
 
@@ -2060,7 +2061,7 @@ export class PaletteComponent implements OnInit {
       if (isShiftClick) {
         this.hasMultiSelectBounds = true;
         this.multi_select_bounds.topleft = { x: event.clientX, y: event.clientY };
-        this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onMultiSelectDrag(e));
+        this.moveSubscription = fromEvent(event.target as HTMLElement, 'mousemove').subscribe(e => this.onMultiSelectDrag(e as MouseEvent));
 
       } else {
         this.multiselect.clearSelections();
@@ -2073,7 +2074,7 @@ export class PaletteComponent implements OnInit {
 
 
   @HostListener('mousemove', ['$event'])
-  public onMove(event) {
+  public onMove(event: MouseEvent) {
 
     const mouse: Point = {
       x: event.clientX,
@@ -2085,7 +2086,7 @@ export class PaletteComponent implements OnInit {
     }
   }
 
-  onMultiSelectDrag(event) {
+  onMultiSelectDrag(event: MouseEvent) {
     const mouse: Point = { x: event.clientX, y: event.clientY };
 
 
@@ -2108,7 +2109,7 @@ export class PaletteComponent implements OnInit {
    * called form the subscription created on start, checks the index of the location and returns null if its the same
    * @param event the event object
    */
-  onDrag(event) {
+  onDrag(event: MouseEvent) {
 
 
     const mouse: Point = { x: this.viewport.getTopLeft().x + event.clientX, y: this.viewport.getTopLeft().y + event.clientY };
@@ -2134,7 +2135,7 @@ export class PaletteComponent implements OnInit {
    */
   @HostListener('mouseleave', ['$event'])
   @HostListener('mouseup', ['$event'])
-  public onEnd(event) {
+  public onEnd(event: MouseEvent) {
 
 
     this.removeSubscription();
@@ -2146,9 +2147,11 @@ export class PaletteComponent implements OnInit {
 
     // update viewport if panning happened
     if (this.last_point) {
-      const div: HTMLElement = document.getElementById('scrollable-container');
+      const div: HTMLElement | null = document.getElementById('scrollable-container');
       if (div) {
         this.viewport.set(div.scrollLeft, div.scrollTop, div.clientWidth, div.clientHeight);
+      } else {
+        this.viewport.set(0, 0, 0, 0);
       }
 
       // re-enable dragging on nodes after panning
@@ -2162,7 +2165,7 @@ export class PaletteComponent implements OnInit {
     // }
 
     //unset vars that would have been created on press
-    this.last_point = undefined;
+    this.last_point = null;
   }
 
 

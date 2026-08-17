@@ -1204,7 +1204,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
   //takes inputs about what to redraw
-  public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
+  public redraw(draft: Draft, loom: Loom | null, loom_settings: LoomSettings | null, rf: RenderingFlags): Promise<boolean> {
 
 
     this.isRedrawing = true;
@@ -1231,7 +1231,7 @@ export class DraftRenderingComponent implements OnInit {
 
     if (draft == null) {
       console.error("DRAFT IS NULL", this.id);
-      return;
+      return Promise.resolve(false);
     }
 
     if (this.needsRedraw(rf)) {

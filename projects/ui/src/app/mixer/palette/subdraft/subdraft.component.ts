@@ -36,11 +36,11 @@ export class SubdraftComponent implements OnInit {
   private ss = inject(StateService);
 
 
-  @ViewChild('draftcontainer') draftcontainer: DraftContainerComponent;
+  @ViewChild('draftcontainer') draftcontainer!: DraftContainerComponent;
 
-  @Input() id: number;
-  @Input() scale: number;
-  @Input() draft: Draft;
+  @Input() id!: number;
+  @Input() scale!: number;
+  @Input() draft!: Draft;
 
 
   @Output() onSubdraftMove = new EventEmitter<any>();
@@ -61,7 +61,7 @@ export class SubdraftComponent implements OnInit {
 
 
   isNew: boolean = false;
-  dn: DraftNode;
+  dn!: DraftNode;
   private topleft: Point = { x: 0, y: 0 };
 
 
@@ -76,7 +76,7 @@ export class SubdraftComponent implements OnInit {
   /**
    * hold the top left point as an interlacement, independent of scale
    */
-  interlacement: Interlacement;
+  interlacement: Interlacement = { i: 0, j: 0 };
 
   // private _scale: number; 
 
@@ -100,20 +100,18 @@ export class SubdraftComponent implements OnInit {
 
   set_connectable: boolean = false;
 
-  // draft_visible: boolean = true;
-
-  loom_settings: LoomSettings;
+  loom_settings!: LoomSettings;
 
   use_colors: boolean = false;
 
   draft_zoom: number = 1;
 
-  offset: Point = null;
+  offset: Point | null = null;
 
   previous_topleft: Point = { x: 0, y: 0 };
 
-  multiSelectListChangeSubscription: Subscription;
-  multiSelectMoveElementsSubscription: Subscription;
+  multiSelectListChangeSubscription!: Subscription;
+  multiSelectMoveElementsSubscription!: Subscription;
 
   wasDragged: boolean = false;
 
@@ -325,9 +323,9 @@ export class SubdraftComponent implements OnInit {
     this.enableDrag();
   }
 
-  connectionStarted(obj) {
-    let event = obj.event;
-    let childid = obj.id;
+  connectionStarted(obj: { event: string, id: number }) {
+    let event: string = obj.event;
+    let childid: number = obj.id;
 
     if (this.selecting_connection == true) {
       this.selecting_connection = false;
@@ -397,8 +395,8 @@ export class SubdraftComponent implements OnInit {
 
 
     const endPosition = {
-      x: this.topleft.x + size.offsetWidth,
-      y: this.topleft.y + size.offsetHeight,
+      x: this.topleft.x + (size?.offsetWidth ?? 0),
+      y: this.topleft.y + (size?.offsetHeight ?? 0),
     };
 
     if (p.x < this.topleft.x || p.x > endPosition.x) return false;
@@ -457,19 +455,19 @@ export class SubdraftComponent implements OnInit {
    * @param p a point of the absolute poistion of coordinate in question
    * @returns true/false/or null representing the eddle value at this point
    */
-  public resolveToValue(p: Point): boolean {
+  // public resolveToValue(p: Point): boolean {
 
-    const coords = this.resolvePointToNdx(p);
+  //   const coords = this.resolvePointToNdx(p);
 
-    if (coords.i < 0 || coords.j < 0) return null; //this out of range
+  //   if (coords.i < 0 || coords.j < 0) return null; //this out of range
 
-    const draft = this.tree.getDraft(this.id);
+  //   const draft = this.tree.getDraft(this.id);
 
-    if (!draft.drawdown[coords.i][coords.j].is_set) return null;
+  //   if (!draft.drawdown[coords.i][coords.j].is_set) return null;
 
-    return isUp(draft.drawdown, coords.i, coords.j);
+  //   return isUp(draft.drawdown, coords.i, coords.j);
 
-  }
+  // }
 
 
   onDoubleClick() {
@@ -567,21 +565,21 @@ export class SubdraftComponent implements OnInit {
     this.wasDragged = true;
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-' + this.id);
-    let rect_palette = parent.getBoundingClientRect();
+    let rect_palette = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
 
 
     const zoom_factor = 1 / this.zs.getMixerZoom();
 
     //this gives the position of
     let op_topleft_inscale = {
-      x: op_container.offsetLeft,
-      y: op_container.offsetTop
+      x: op_container?.offsetLeft ?? 0,
+      y: op_container?.offsetTop ?? 0
     }
 
 
     let scaled_pointer = {
-      x: ($event.pointerPosition.x - rect_palette.x + parent.scrollLeft) * zoom_factor,
-      y: ($event.pointerPosition.y - rect_palette.y + parent.scrollTop) * zoom_factor,
+      x: ($event.pointerPosition.x - rect_palette.x + (parent?.scrollLeft ?? 0)) * zoom_factor,
+      y: ($event.pointerPosition.y - rect_palette.y + (parent?.scrollTop ?? 0)) * zoom_factor,
     }
 
 
@@ -617,12 +615,21 @@ export class SubdraftComponent implements OnInit {
 
     let op_container = document.getElementById('scale-' + this.id);
 
+    if (op_container) {
+      this.topleft = {
+        x: (op_container.offsetLeft < 0) ? 0 : this.topleft.x,
+        y: (op_container.offsetTop < 0) ? 0 : this.topleft.y,
+      }
+    } else {
 
-    this.topleft = {
-      x: (op_container.offsetLeft < 0) ? 0 : this.topleft.x,
-      y: (op_container.offsetTop < 0) ? 0 : this.topleft.y,
+      this.topleft = {
+        x: 0,
+        y: 0,
 
+      }
     }
+
+
 
     this.setPosition(this.topleft, true);
 
@@ -697,7 +704,7 @@ export class SubdraftComponent implements OnInit {
    * this is emitted from the draft container when something from it's options menu is selected
    * @param e 
    */
-  private designAction(e) {
+  private designAction(e: { event: string, id: number }) {
 
     let event = e.event;
     let id = e.id;

@@ -46,10 +46,10 @@ export class OperationComponent implements OnInit {
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
   @ViewChildren(InletComponent) inletComps!: QueryList<InletComponent>;
   @ViewChildren(DraftContainerComponent) draftContainers!: QueryList<DraftContainerComponent>;
-  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+  @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
 
-  @Input() id: number; //generated from the tree service
-  @Input() name: string;
+  @Input() id!: number; //generated from the tree service
+  @Input() name!: string;
 
 
 
@@ -65,8 +65,8 @@ export class OperationComponent implements OnInit {
    * @param event the mousedown event
    */
 
-  @Input() default_cell: number;
-  @Input() zndx: number;
+  @Input() default_cell!: number;
+  @Input() zndx!: number;
   @Output() onConnectionRemoved = new EventEmitter<any>();
   @Output() onConnectionMove = new EventEmitter<any>();
   @Output() onConnectionStarted = new EventEmitter<any>();
@@ -92,10 +92,8 @@ export class OperationComponent implements OnInit {
   * flag to tell if this is being from a loaded from a saved file
   */
   loaded: boolean = false;
-
-  description: string;
-
-  displayname: string;
+  description: string = '';
+  displayname: string = '';
 
   tooltip: string = "select drafts to input to this operation"
 
@@ -103,9 +101,8 @@ export class OperationComponent implements OnInit {
 
   private topleft: Point = { x: 0, y: 0 };
 
-  op: Operation | DynamicOperation;
-
-  opnode: OpNode;
+  op!: Operation | DynamicOperation;
+  opnode!: OpNode;
 
   // has_connections_in: boolean = false;
   subdraft_visible: boolean = true;
@@ -126,15 +123,14 @@ export class OperationComponent implements OnInit {
 
   selecting_connection: boolean = false;
 
-  offset: Point = null;
-
-  previous_topleft: Point = null;
+  offset: Point = { x: 0, y: 0 };
+  previous_topleft: Point = { x: 0, y: 0 };
 
   hasError: boolean = false;
   errorStatement: string = "";
-  errorSubscription: Subscription;
+  errorSubscription!: Subscription;
 
-  recomputationSubscription: Subscription;
+  recomputationSubscription!: Subscription;
   recomputing: boolean = false;
   suppressNextAnimation: boolean = false;
 
@@ -147,9 +143,9 @@ export class OperationComponent implements OnInit {
   //   this.disable_drag = true;
   // }
 
-  checkChildrenSubscription: Subscription;
-  multiSelectListChangeSubscription: Subscription;
-  multiSelectMoveElementsSubscription: Subscription;
+  checkChildrenSubscription!: Subscription;
+  multiSelectListChangeSubscription!: Subscription;
+  multiSelectMoveElementsSubscription!: Subscription;
 
 
   constructor() {
@@ -288,7 +284,7 @@ export class OperationComponent implements OnInit {
 
 
   setParamFromStateEvent(paramid: number, value: OpParamValType) {
-    this.paramsComps.get(paramid).setValueFromStateEvent(value);
+    this.paramsComps.get(paramid)?.setValueFromStateEvent(value);
   }
 
   getPosition(): Point {
@@ -315,13 +311,13 @@ export class OperationComponent implements OnInit {
     op_container.style.left = this.topleft.x + "px";
   }
 
-  drawForPrint(canvas, cx, scale) {
+  drawForPrint(canvas: HTMLCanvasElement, cx: CanvasRenderingContext2D, scale: number) {
 
     if (canvas === undefined) return;
-    const bounds = document.getElementById('scale-' + this.id);
+    const bounds: HTMLElement | null = document.getElementById('scale-' + this.id);
 
     cx.fillStyle = "#ffffff";
-    cx.fillRect(this.topleft.x, this.topleft.y, bounds.offsetWidth, bounds.offsetHeight);
+    cx.fillRect(this.topleft.x, this.topleft.y, bounds?.offsetWidth ?? 0, bounds?.offsetHeight ?? 0);
 
     cx.fillStyle = "#666666";
     cx.font = this.scale * 2 + "px Verdana";
@@ -433,7 +429,7 @@ export class OperationComponent implements OnInit {
       let child = this.children[0];
       this.vs.setViewer(child);
     } else {
-      this.vs.setViewer(child_id);
+      this.vs.setViewer(child_id ?? -1);
     }
 
     if (e.shiftKey == true) {
@@ -473,20 +469,20 @@ export class OperationComponent implements OnInit {
   async saveAsWif() {
 
     if (this.draftContainers.length > 0) {
-      this.draftContainers.get(0).saveAsWif();
+      this.draftContainers.get(0)?.saveAsWif();
     }
 
   }
 
   async saveAsPrint() {
     if (this.draftContainers.length > 0) {
-      this.draftContainers.get(0).saveAsPrint();
+      this.draftContainers.get(0)?.saveAsPrint();
     }
   }
 
   async saveAsBmp(): Promise<any> {
     if (this.draftContainers.length > 0) {
-      this.draftContainers.get(0).saveAsBmp();
+      this.draftContainers.get(0)?.saveAsBmp();
     }
 
   }
@@ -555,7 +551,7 @@ export class OperationComponent implements OnInit {
     })
   }
 
-  connectionStarted(event) {
+  connectionStarted(event: any) {
     this.onConnectionStarted.emit(event);
 
   }
@@ -640,13 +636,13 @@ export class OperationComponent implements OnInit {
 
         this.hasInlets = opnode.inlets.length > 0;
 
-        if (opnode.name == 'imagemap' || opnode.name == 'bwimagemap') {
+        if (opnode.name === 'imagemap' || opnode.name === 'bwimagemap') {
 
           //update the width and height
           let image_param: Img = <Img>opnode.params[0];
           if (image_param.id != '') {
-            opnode.params[1] = image_param.data.width;
-            opnode.params[2] = image_param.data.height;
+            opnode.params[1] = image_param.data?.width ?? 0;
+            opnode.params[2] = image_param.data?.height ?? 0;
           }
         }
       }
@@ -660,9 +656,7 @@ export class OperationComponent implements OnInit {
     });
   }
 
-  nameChanged(id) {
-
-
+  nameChanged(id: number) {
     this.onNameChanged.emit(id);
   }
 
@@ -675,13 +669,13 @@ export class OperationComponent implements OnInit {
 
 
     const image_div = document.getElementById('param-image-' + this.id);
-    image_div.style.display = 'none';
+    if (image_div) image_div.style.display = 'none';
 
     switch (obj.data.type) {
 
       case 'image':
         if (obj.data.warning !== '') {
-          image_div.style.display = 'flex';
+          if (image_div) image_div.style.display = 'flex';
           this.filewarning = obj.warning;
         } else {
 
@@ -690,22 +684,22 @@ export class OperationComponent implements OnInit {
           obj.inlets.forEach((hex: string) => {
 
             //add any new colors
-            const ndx = opnode.inlets.findIndex(el => (<OpInletValType>el).valueOf() === hex);
+            const ndx = opnode.inlets.findIndex(el => el !== null && el.valueOf() === hex);
             if (ndx === -1) {
               opnode.inlets.push(hex);
             }
           });
 
-          const remove = [];
+          const remove: Array<number> = [];
           //now remove any inlets that no longer have values
           opnode.inlets.forEach((inlet, ndx) => {
             if (inlet === 0) return;
-            const found = obj.inlets.find(el => el === inlet);
+            const found = obj.inlets.find((el: string) => el === inlet?.toString());
             if (found === undefined) {
               remove.push(ndx);
             }
           })
-          remove.forEach(removeid => {
+          remove.forEach((removeid: number) => {
             opnode.inlets.splice(removeid, 1);
           });
 
@@ -723,7 +717,7 @@ export class OperationComponent implements OnInit {
 
   }
 
-  inletLoaded(obj) {
+  inletLoaded(obj: any) {
     obj.opid = this.id;
     this.onInletLoaded.emit(obj);
   }
@@ -754,7 +748,7 @@ export class OperationComponent implements OnInit {
       if (param.type === 'file') {
         const media: Img = <Img>opnode.params[ndx];
         const media_instance = this.mediaService.getMedia(+media.id);
-        change.media.push(media_instance);
+        change.media?.push(media_instance);
       }
     });
 
@@ -781,7 +775,7 @@ export class OperationComponent implements OnInit {
     }
 
     this.previous_topleft = this.topleft;
-    this.offset = null;
+    this.offset = { x: 0, y: 0 };
 
 
   }
@@ -798,7 +792,7 @@ export class OperationComponent implements OnInit {
 
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-' + this.id);
-    let rect_palette = parent.getBoundingClientRect();
+    let rect_palette = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
 
 
     const zoom_factor = 1 / this.zs.getMixerZoom();
@@ -806,13 +800,13 @@ export class OperationComponent implements OnInit {
 
     //this gives the position of top left corner of the div relative to the palette div
     let op_topleft_inscale = {
-      x: op_container.offsetLeft,
-      y: op_container.offsetTop
+      x: op_container?.offsetLeft ?? 0,
+      y: op_container?.offsetTop ?? 0
     }
 
     let scaled_pointer = {
-      x: ($event.pointerPosition.x - rect_palette.x + parent.scrollLeft) * zoom_factor,
-      y: ($event.pointerPosition.y - rect_palette.y + parent.scrollTop) * zoom_factor,
+      x: ($event.pointerPosition.x - rect_palette.x + (parent?.scrollLeft ?? 0)) * zoom_factor,
+      y: ($event.pointerPosition.y - rect_palette.y + (parent?.scrollTop ?? 0)) * zoom_factor,
     }
 
 
@@ -852,8 +846,8 @@ export class OperationComponent implements OnInit {
 
 
     this.topleft = {
-      x: (op_container.offsetLeft < 0) ? 0 : this.topleft.x,
-      y: (op_container.offsetTop < 0) ? 0 : this.topleft.y,
+      x: (op_container?.offsetLeft ?? 0) < 0 ? 0 : this.topleft.x,
+      y: (op_container?.offsetTop ?? 0) < 0 ? 0 : this.topleft.y,
 
     }
     this.setPosition(this.topleft, true);

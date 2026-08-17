@@ -23,22 +23,22 @@ export class InletComponent implements OnInit {
   private ops = inject(OperationService);
 
 
-  @Input() opid: number;
-  @Input() inletid: number;
-  @Input() dynamic: boolean;
+  @Input() opid!: number;
+  @Input() inletid!: number;
+  @Input() dynamic!: boolean;
   @Output() onInputSelected = new EventEmitter<any>();
   @Output() onInputVisibilityChange = new EventEmitter<any>();
   @Output() onConnectionRemoved = new EventEmitter<any>();
   @Output() onInletChange = new EventEmitter<any>();
   @Output() onInletLoaded = new EventEmitter<any>();
 
-  fc: UntypedFormControl;
+  fc!: UntypedFormControl;
   textValidate: any;
-  number_opts: Array<number>;
-  opnode: OpNode;
-  inlet: OperationInlet;
-  selectedValue: number;
-  inlet_desc: string;
+  number_opts!: Array<number>;
+  opnode!: OpNode;
+  inlet!: OperationInlet;
+  selectedValue!: number;
+  inlet_desc!: string;
   show_connection_name: number = -1;
   inlet_open = true;
   show_inlet_desc = false;

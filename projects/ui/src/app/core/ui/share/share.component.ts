@@ -41,7 +41,7 @@ export class ShareComponent {
   private _snackBar = inject(MatSnackBar);
 
   public shared_id: string = '';
-  public share_obj: ShareObj = {
+  public share_obj: ShareObj | null = {
     id: -1,
     license: 'by',
     filename: '',
@@ -52,15 +52,15 @@ export class ShareComponent {
     public: false,
     img: 'none'
   }
-  public share_url: string;
+  public share_url!: string;
   public has_uploaded_image: boolean = false;
 
   public licenses: Array<any> = [];
   public fileid: string;
 
-  public fc: FormControl;
+  public fc!: FormControl;
 
-  public share_in_history: ShareObj;
+  public share_in_history!: ShareObj;
   public replace_img: boolean = false;
 
   workspaceImg: string = '/assets/example_img/placeholder.png';
@@ -97,7 +97,7 @@ export class ShareComponent {
       return this.fb.getShare(+meta.from_share);
     })
       .then(shareobj => {
-        this.share_in_history = shareobj;
+        if (shareobj) this.share_in_history = shareobj;
       })
       .catch(err => console.error(err));
 
@@ -176,6 +176,8 @@ export class ShareComponent {
       return;
     }
 
+    if (this.share_obj === null) return;
+
     // Update share_obj from form values
     this.share_obj.license = this.shareForm.get('license')?.value || 'by';
     this.share_obj.filename = this.shareForm.get('filename')?.value || '';
@@ -184,7 +186,6 @@ export class ShareComponent {
     this.share_obj.owner_url = this.shareForm.get('owner_url')?.value || '';
     this.share_obj.public = this.shareForm.get('public')?.value || false;
 
-    console.log("UPDATE CHANGE ", this.share_obj)
     if (this.shared_id !== '') {
       this.fb.updateSharedFile(this.shared_id.toString(), this.share_obj);
     }
@@ -273,19 +274,19 @@ export class ShareComponent {
     this.replace_img = false;
     this.has_uploaded_image = true;
 
-    if (obj === null || obj[0].ref == null) return;
+    if (obj === null || obj.ref == null) return;
 
-    this.share_obj.img = obj[0].ref;
+    if (this.share_obj) this.share_obj.img = obj.ref;
     this.updateChange();
     // this.drawImage(obj[0].img.data);
 
 
-    this.mediaService.loadImageViaURL(-1, this.share_obj.img).then(url => {
+    this.mediaService.loadImageViaURL(-1, this.share_obj?.img ?? '').then(url => {
       this.workspaceImg = url;
     });
 
     //we don't need to keep this around after the upload
-    this.mediaService.removeInstance(obj[0].id);
+    this.mediaService.removeInstance(obj.id);
 
 
 

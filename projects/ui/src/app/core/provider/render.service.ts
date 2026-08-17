@@ -12,7 +12,7 @@ import { WorkspaceService } from './workspace.service';
 interface RenderQueueItem {
   type: 'render';
   draft: Draft;
-  loom: Loom;
+  loom: Loom | null;
   loom_settings: LoomSettings;
   canvases: CanvasList;
   rf: RenderingFlags;
@@ -22,7 +22,7 @@ interface RenderQueueItem {
 interface ScaleQueueItem {
   type: 'scale';
   draft: Draft;
-  loom: Loom;
+  loom: Loom | null;
   loom_settings: LoomSettings;
   canvases: CanvasList;
   rf: RenderingFlags;
@@ -78,7 +78,7 @@ export class RenderService {
   }
 
 
-  public addToQueue(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags, type: 'render' | 'scale', onComplete: () => void, scale?: number): RenderQueueItem | null {
+  public addToQueue(draft: Draft, loom: Loom | null, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags, type: 'render' | 'scale', onComplete: () => void, scale?: number): RenderQueueItem | null {
     if (type == 'render') {
       const queueItem: RenderQueueItem = {
         type: 'render',
@@ -305,8 +305,14 @@ export class RenderService {
 
     let max_diam = this.ms.getMaxDiameter();
 
-    const warp_mats_cx = warp_mats_canvas.getContext("2d");
-    const warp_systems_cx = warp_sys_canvas.getContext("2d");
+    const warp_mats_cx: CanvasRenderingContext2D | null = warp_mats_canvas.getContext("2d");
+    if (warp_mats_cx == null) {
+      return Promise.resolve('warp materials context is null in drawWarpData')
+    }
+    const warp_systems_cx: CanvasRenderingContext2D | null = warp_sys_canvas.getContext("2d");
+    if (warp_systems_cx == null) {
+      return Promise.resolve('warp systems context is null in drawWarpData')
+    }
 
     if (draft == null) {
       return Promise.resolve('draft null in drawWarpData')
@@ -563,13 +569,17 @@ export class RenderService {
 
 
 
-  public drawThreading(loom: Loom, loom_settings: LoomSettings, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, show_loom: boolean): Promise<string> {
+  public drawThreading(loom: Loom | null, loom_settings: LoomSettings, canvas: HTMLCanvasElement, cell_size: number, pixel_ratio: number, show_loom: boolean): Promise<string> {
 
 
     if (canvas == null || canvas == undefined) {
       return Promise.resolve('canvas null in drawThreading')
     }
-    const threadingCx = canvas.getContext('2d');
+    const threadingCx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+
+    if (threadingCx == null) {
+      return Promise.resolve('threading context is null in drawThreading')
+    }
 
 
     if (loom == null || loom.threading == null) {
@@ -609,7 +619,10 @@ export class RenderService {
     }
 
 
-    const treadlingCx = canvas.getContext('2d');
+    const treadlingCx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+    if (treadlingCx == null) {
+      return Promise.resolve('treadling context is null in drawTreadling')
+    }
     const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
 
     if (loom == null || loom.treadling == null) {
@@ -647,7 +660,10 @@ export class RenderService {
       return Promise.resolve('canvas null in drawTreadling')
     }
 
-    const tieupCx = canvas.getContext('2d');
+    const tieupCx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+    if (tieupCx == null) {
+      return Promise.resolve('tieup context is null in drawTieup')
+    }
     const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
     const frames = Math.max(numFrames(loom), loom_settings.frames);
 
@@ -1236,10 +1252,10 @@ export class RenderService {
    * draw whatever is stored in the draft object to the screen
    * @returns 
    */
-  private async drawDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
+  private async drawDraft(draft: Draft, loom: Loom | null, loom_settings: LoomSettings, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
     const renderStartTime = performance.now();
 
-    let fns = [];
+    let fns: Array<Promise<string>> = [];
 
     let raw_cell_size = this.calculateRawPixelCellSize(draft, 'canvas');
 

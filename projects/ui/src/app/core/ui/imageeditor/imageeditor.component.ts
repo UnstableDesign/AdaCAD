@@ -27,8 +27,8 @@ export class ImageeditorComponent {
 
   media_id: number;
   img: AnalyzedImage;
-  color_table: Array<{ from: number, from_hex: string, to: number, to_hex: string }>;
-  resulting_color_space: Array<{ from: number, from_hex: string, to: number, to_hex: string }>;
+  color_table: Array<{ from: number, from_hex: string, to: number, to_hex: string }> = [];
+  resulting_color_space: Array<{ from: number, from_hex: string, to: number, to_hex: string }> = [];
   editable: boolean = true;
 
   constructor() {
@@ -82,6 +82,7 @@ export class ImageeditorComponent {
     this.resulting_color_space = [];
     unique_colors.forEach(el => {
       let map_entry = mapping.find(meel => meel.to == el)
+      if (map_entry === undefined) return;
       this.resulting_color_space.push({
         from: map_entry.from,
         from_hex: colors[map_entry.from].hex,
@@ -92,14 +93,12 @@ export class ImageeditorComponent {
     })
   }
 
-  mappingChanged(src: number, $event) {
-    console.log("EVENT", src, $event)
+  mappingChanged(src: number, $event: any) {
     let el = this.img.colors_mapping.find(el => el.from == src);
     if (el == undefined) return;
     el.to = $event.value;
 
     this.mediaService.updateIndexColorMediaInstance(this.media_id, this.img);
-
     this.updateColormapping(this.img.colors, this.img.colors_mapping)
   }
 
@@ -116,7 +115,7 @@ export class ImageeditorComponent {
     canvas.height = this.img.height;
 
 
-    ctx.drawImage(this.img.image, 0, 0, this.img.width, this.img.height);
+    if (ctx) ctx.drawImage(this.img.image, 0, 0, this.img.width, this.img.height);
 
 
 

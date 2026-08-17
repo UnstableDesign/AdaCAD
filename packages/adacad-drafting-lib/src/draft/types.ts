@@ -91,7 +91,7 @@ export interface Interlacement {
 export interface InterlacementVal {
   i: number;
   j: number
-  val: boolean;
+  val: boolean | null;
 }
 
 

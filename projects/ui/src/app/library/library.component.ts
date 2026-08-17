@@ -36,9 +36,9 @@ import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component'
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('hiddenCanvas', { static: false }) hiddenCanvas: ElementRef<HTMLCanvasElement>;
-  @ViewChild('csvFileInput', { static: false }) csvFileInput: ElementRef<HTMLInputElement>;
-  @ViewChildren(DraftRenderingComponent) draftRenderings: QueryList<DraftRenderingComponent>;
+  @ViewChild('hiddenCanvas', { static: false }) hiddenCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('csvFileInput', { static: false }) csvFileInput!: ElementRef<HTMLInputElement>;
+  @ViewChildren(DraftRenderingComponent) draftRenderings!: QueryList<DraftRenderingComponent>;
 
   @Output() onWorkspaceRename = new EventEmitter<string>();
   @Output() onDraftNameChange = new EventEmitter<number>();
@@ -57,8 +57,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   private mediaService = inject(MediaService);
   private dialog = inject(MatDialog);
 
-  @ViewChild('materials', { static: false }) materials: MaterialComponent;
-  @ViewChildren(DraftinfocardComponent) draftInfocards: QueryList<DraftinfocardComponent>;
+  @ViewChild('materials', { static: false }) materials!: MaterialComponent;
+  @ViewChildren(DraftinfocardComponent) draftInfocards!: QueryList<DraftinfocardComponent>;
 
   draftsData: Array<{ uid: string, id: number }> = [];
   media: Array<{
@@ -66,21 +66,21 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     used_in: Array<{ id: number, name: string, color: string }>;
   }> = [];
   selectedDraftIds: Set<number> = new Set();
-  private draftRenderingsSubscription: Subscription;
+  private draftRenderingsSubscription!: Subscription;
 
 
   draftInputs: Array<{ id: number; name: string; draft: Draft }> = [];
-  filename: FormControl;
-  fileDescription: FormControl;
-  id: number;
-  from_share: string;
-  time: number;
-  owner: string;
+  filename!: FormControl;
+  fileDescription!: FormControl;
+  id!: number;
+  from_share!: string;
+  time!: number;
+  owner!: string;
   hiddenDrafts: Array<DraftNode> = [];
-  projectOwner: string;
+  projectOwner!: string;
 
-  fileMetaChangeUndoSubscription: Subscription;
-  savedTimeSubscription: Subscription;
+  fileMetaChangeUndoSubscription!: Subscription;
+  savedTimeSubscription!: Subscription;
 
   connection_state = false;
   private connectionSubscription: Subscription;
@@ -693,8 +693,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   async downloadMediaItem(mediaItem: MediaInstance) {
     try {
-      const imageUrl = mediaItem.img.image.src;
-      const imageName = mediaItem.img.name || 'media_item';
+      const imageUrl = mediaItem.img?.image.src || '';
+      const imageName = mediaItem.img?.name || 'media_item';
 
       // Fetch the image
       const response = await fetch(imageUrl);

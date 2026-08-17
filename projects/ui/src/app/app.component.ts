@@ -2,7 +2,7 @@ import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, HostListener, NgZone, OnDestroy, OnInit, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
-import { User } from '@angular/fire/auth';
+import { User } from 'firebase/auth';
 import { FormsModule, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
@@ -178,14 +178,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
         if (this.fb.auth.currentUser) {
           this.user_auth_state = (this.fb.auth.currentUser !== null) ? true : false;
-          this.user_auth_name = (this.fb.auth.currentUser !== null && this.user_auth_state) ? this.fb.auth.currentUser.displayName : '';
+          this.user_auth_name = (this.fb.auth.currentUser !== null && this.user_auth_state) ? this.fb.auth.currentUser.displayName ?? '' : '';
         }
         this.initLoginLogoutSequence(this.fb.auth.currentUser);
 
         //subscribe to the login event and handle what happens in that case 
         this.userAuthSubscription = this.fb.authChangeEvent$.subscribe(user => {
           this.user_auth_state = (user !== null) ? true : false;
-          this.user_auth_name = (user !== null && this.user_auth_state) ? user.displayName : '';
+          this.user_auth_name = (user !== null && this.user_auth_state) ? user.displayName ?? '' : '';
           this.initLoginLogoutSequence(user);
         });
       } else {
@@ -438,7 +438,7 @@ export class AppComponent implements OnInit, OnDestroy {
  * this is called anytime a user event is fired, which will be immediate on load so it may conflict with start workspace
  * @param user 
  */
-  initLoginLogoutSequence(user: User) {
+  initLoginLogoutSequence(user: User | null) {
     const workspace_has_content = this.ss.hasTimeline();
 
     if (user) {

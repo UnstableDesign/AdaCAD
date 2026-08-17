@@ -35,9 +35,9 @@ export class MaterialComponent {
   addmaterial: boolean = false;
 
   // Reactive forms
-  materialsForm: FormGroup;
-  newMaterialForm: FormGroup;
-  allmaterials: Array<Material> = [];
+  materialsForm!: FormGroup;
+  newMaterialForm!: FormGroup;
+  allmaterials!: Array<Material>;
 
   constructor() {
 

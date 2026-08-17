@@ -49,12 +49,12 @@ export class EditorComponent implements OnInit {
   private zs = inject(ZoomService);
 
 
-  @ViewChild(LoomComponent) loom: LoomComponent;
-  @ViewChild(DraftRenderingComponent, { static: true }) weaveRef: DraftRenderingComponent;
-  @ViewChild('drawToolsPanel') drawToolsPanel: MatExpansionPanel;
-  @ViewChild('selectToolsPanel') selectToolsPanel: MatExpansionPanel;
+  @ViewChild(LoomComponent) loom!: LoomComponent;
+  @ViewChild(DraftRenderingComponent, { static: true }) weaveRef!: DraftRenderingComponent;
+  @ViewChild('drawToolsPanel') drawToolsPanel!: MatExpansionPanel;
+  @ViewChild('selectToolsPanel') selectToolsPanel!: MatExpansionPanel;
 
-  @Input() hasFocus: boolean;
+  @Input() hasFocus: boolean = false;
   @Output() saveChanges: any = new EventEmitter();
   @Output() updateMixer: any = new EventEmitter();
   @Output() cloneDraft: any = new EventEmitter();
@@ -66,11 +66,9 @@ export class EditorComponent implements OnInit {
 
   parentOp: string = '';
 
-  actions_modal: MatDialogRef<RepeatsComponent, any>;
+  actions_modal!: MatDialogRef<RepeatsComponent, any>;
 
   copy: Drawdown;
-
-  selected;
 
   collapsed: boolean = false;
 
@@ -91,40 +89,40 @@ export class EditorComponent implements OnInit {
   designActions: Array<any> = [];
 
   // Reactive Forms controls
-  editingModeForm: FormControl; //edit from drawdown or loom
-  pencilForm: FormControl;
-  selectRegionsForm: FormControl;
+  editingModeForm!: FormControl; //edit from drawdown or loom
+  pencilForm!: FormControl;
+  selectRegionsForm!: FormControl;
 
 
 
   pencilMode: 'select' | 'draw' = 'select';
-  pencilModeForm: FormControl;
+  pencilModeForm!: FormControl;
 
 
   dressing_info: Array<{ label: string, value: string }> = [];
 
-  onRedrawCompleteSubscription: Subscription;
+  onRedrawCompleteSubscription!: Subscription;
   onLoad: boolean = false; // a flag used to call teh centering function after the first draw
 
 
-  onDraftValueChangeSubscription: Subscription;
+  onDraftValueChangeSubscription!: Subscription;
 
-  onSelectionEventSubscription: Subscription;
+  onSelectionEventSubscription!: Subscription;
   hasSelection: boolean = false;
   hasCopy: boolean = false;
 
 
   //subscribes to mouse events on the redering
   //this can be used to trigger mode. 
-  draftRenderingEventSubscription: Subscription;
+  draftRenderingEventSubscription!: Subscription;
 
 
-  eventTargetSetSubscription: Subscription;
-  pencilChangeSubscription: Subscription;
+  eventTargetSetSubscription!: Subscription;
+  pencilChangeSubscription!: Subscription;
 
 
-  drawToolsPanelSubscription: Subscription;
-  selectToolsPanelSubscription: Subscription;
+  drawToolsPanelSubscription!: Subscription;
+  selectToolsPanelSubscription!: Subscription;
 
   constructor() {
 
@@ -686,9 +684,9 @@ export class EditorComponent implements OnInit {
    */
   renderChange() {
     this.scale = this.zs.getEditorZoom();
-    const container: HTMLElement = document.getElementById('editor-scale-container');
-    container.style.transform = 'scale(' + this.scale + ')';
-    container.style.transformOrigin = 'left top';
+    const container: HTMLElement | null = document.getElementById('editor-scale-container');
+    if (container) container.style.transform = 'scale(' + this.scale + ')';
+    if (container) container.style.transformOrigin = 'left top';
 
   }
 

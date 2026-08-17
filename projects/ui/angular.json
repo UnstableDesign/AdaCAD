@@ -98,16 +98,6 @@
               "src/favicon.ico"
             ]
           }
-        },
-        "deploy": {
-          "builder": "@angular/fire:deploy",
-          "options": {
-            "prerender": false,
-            "ssr": false,
-            "browserTarget": "adacad-weaver:build:production",
-            "firebaseProject": "adacad-beta-fa4dc",
-            "firebaseHostingSite": "adacad-beta-fa4dc"
-          }
         }
       }
     },

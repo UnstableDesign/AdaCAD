@@ -1,8 +1,9 @@
 import { HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { deleteObject, getDownloadURL, getMetadata, getStorage, ref, uploadBytes, uploadBytesResumable, UploadMetadata } from "@angular/fire/storage";
+import { deleteObject, getDownloadURL, getMetadata, ref, uploadBytes, uploadBytesResumable, UploadMetadata } from 'firebase/storage';
 import { Observable } from 'rxjs';
 import { Upload } from '../model/datatypes';
+import { storage } from './firebase-app';
 import { FirebaseService } from './firebase.service';
 
 const httpOptions = {
@@ -78,7 +79,6 @@ export class UploadService {
     console.log("IN UPLOAD DATA")
     this.uploads.push(upload);
 
-    const storage = getStorage();
     const storageRef = ref(storage, 'uploads/' + id);
     const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
 
@@ -144,7 +144,6 @@ export class UploadService {
   // Get metadata properties
   getDownloadMetaData(id: string): Promise<any> {
 
-    const storage = getStorage();
     return getMetadata(ref(storage, 'uploads/' + id))
       .then((metadata) => {
         return Promise.resolve(metadata)
@@ -155,8 +154,7 @@ export class UploadService {
       });
   }
 
-  getDownloadURL(id: string): Promise<any> {
-    const storage = getStorage();
+  getDownloadURL(id: string): Promise<string> {
     if (id === 'noinput') return Promise.resolve('');
     return getDownloadURL(ref(storage, 'uploads/' + id));
   }
@@ -169,7 +167,6 @@ export class UploadService {
    * @returns 
    */
   getDownloadData(id: string): Promise<any> {
-    const storage = getStorage();
     if (id === 'noinput') return Promise.resolve('');
 
     // console.log("GET DATA AT ", id)
@@ -219,7 +216,6 @@ export class UploadService {
   }
 
   alreadyLoaded(id): Promise<boolean> {
-    const storage = getStorage();
     if (id === 'noinput') return Promise.resolve(false);
 
     return getDownloadURL(ref(storage, 'uploads/' + id))
@@ -261,8 +257,6 @@ export class UploadService {
 
 
   deleteUpload(name: string) {
-
-    const storage = getStorage();
 
     // Create a reference to the file to delete
     const desertRef = ref(storage, 'uploads/' + name);

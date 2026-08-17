@@ -1064,7 +1064,7 @@ export const updateWarpSystemsAndShuttles = (to: Draft, from: Draft): Draft => {
  * @param row the row to insert, or null if row should be blank.
  * @returns 
  */
-export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell>): Drawdown => {
+export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell> | null): Drawdown => {
   i = i + 1;
   if (row === null) {
     row = [];
@@ -1140,7 +1140,7 @@ export const deleteMappingRow = (m: Array<number>, i: number): Array<number> => 
  * @param col - the column to insert or null if it should be a blank column
  * @returns the modified drawdown
  */
-export const insertDrawdownCol = (d: Drawdown, j: number, col: Array<Cell>): Drawdown => {
+export const insertDrawdownCol = (d: Drawdown, j: number, col: Array<Cell> | null): Drawdown => {
 
   if (j === null) j = 0;
 

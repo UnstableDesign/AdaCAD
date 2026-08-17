@@ -41,14 +41,14 @@ export class WorkspaceComponent implements OnInit {
   originOptions: any;
   loomOptions: any;
 
-  oversizeDimForm: FormControl;
-  maxAreaForm: FormControl;
-  originOptionForm: FormControl;
-  loomTypeForm: FormControl;
-  unitsForm: FormControl;
-  hideMixerDraftsForm: FormControl;
-  showAdvancedOperationsForm: FormControl;
-  epiForm: FormControl;
+  oversizeDimForm!: FormControl;
+  maxAreaForm!: FormControl;
+  originOptionForm!: FormControl;
+  loomTypeForm!: FormControl;
+  unitsForm!: FormControl;
+  hideMixerDraftsForm!: FormControl;
+  showAdvancedOperationsForm!: FormControl;
+  epiForm!: FormControl;
 
   constructor() {
 
@@ -112,7 +112,7 @@ export class WorkspaceComponent implements OnInit {
   }
 
 
-  updateOversizeDim(value) {
+  updateOversizeDim(value: number) {
     this.ws.setOversizeRendering(value);
     this.onOversizeRenderingChange.emit();
     this.oversizeDimForm.markAsPristine();
@@ -120,7 +120,7 @@ export class WorkspaceComponent implements OnInit {
 
   }
 
-  updateMaxArea(value) {
+  updateMaxArea(value: number) {
     this.ws.setCurrentDraftSizeLimit(value);
     this.onMaxAreaChange.emit();
     this.maxAreaForm.markAsPristine();

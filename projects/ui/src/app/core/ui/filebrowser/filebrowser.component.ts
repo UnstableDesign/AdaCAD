@@ -13,7 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
-import { FileMeta, ShareObj } from '../../model/datatypes';
+import { FileMeta, ShareObj, UserFile } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { FileService } from '../../provider/file.service';
 import { FirebaseService } from '../../provider/firebase.service';
@@ -58,13 +58,13 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   authSubscription: Subscription;
 
 
-  shared_files = [];
+  shared_files: Array<ShareObj> = [];
   sharedFileSubscription: Subscription;
 
-  user_files = [];
+  user_files: Array<UserFile> = [];
   userFileSubscription: Subscription;
 
-  public_files = [];
+  public_files: Array<ShareObj> = [];
 
   // Separate file lists
   user_files_display: any[] = [];
@@ -138,8 +138,8 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
         fileType: 'user',
         isShared: (this.shared_files.find(el => el.id == file.id) !== undefined),
         displayName: file.meta.name || 'Unknown',
-        displayDate: file.meta.date,
-        sortDate: new Date(file.meta.date)
+        displayDate: file.meta.time ?? 0,
+        sortDate: new Date(file.meta.time ?? 0)
       }));
 
     // Prepare shared files
@@ -148,8 +148,8 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
       fileType: 'shared',
       isPublic: (this.public_files.find(el => el.id == file.id) !== undefined),
       displayName: file.filename || 'Unknown',
-      displayDate: file.date,
-      sortDate: new Date(file.date || 0)
+      displayDate: 0,
+      sortDate: new Date(0)
     }));
 
     // Sort each list separately

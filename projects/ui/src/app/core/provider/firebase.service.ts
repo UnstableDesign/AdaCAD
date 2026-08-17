@@ -1,10 +1,11 @@
-import { inject, Injectable, OnDestroy } from '@angular/core';
-import { Auth, GoogleAuthProvider, signInWithPopup, signOut, User, user } from '@angular/fire/auth';
-import { Database, get, onChildAdded, onChildChanged, onChildRemoved, onValue, orderByChild, query, ref, remove, set, update } from '@angular/fire/database';
+import { inject, Injectable, NgZone, OnDestroy } from '@angular/core';
 import { generateId } from 'adacad-drafting-lib';
-import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { Auth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, Unsubscribe, User } from 'firebase/auth';
+import { get, onChildAdded, onChildChanged, onChildRemoved, onValue, orderByChild, query, ref, remove, set, update } from 'firebase/database';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { FileMeta, FilesState, SaveObj, ShareObj, UserFile } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
+import { auth as firebaseAuth, db as firebaseDb } from './firebase-app';
 
 /**
  * A service to streamline interactions with firebase
@@ -16,7 +17,8 @@ export class FirebaseService implements OnDestroy {
 
 
   //CONNECTIVITY
-  private db = inject(Database);
+  private db = firebaseDb;
+  private ngZone = inject(NgZone);
   private errorBroadcaster = inject(ErrorBroadcasterService);
 
 
@@ -26,18 +28,15 @@ export class FirebaseService implements OnDestroy {
 
 
   //USER AUTHENTICATION
-  auth: Auth = inject(Auth);
-  user$ = user(this.auth);
-  userSubscription: Subscription;
+  auth: Auth = firebaseAuth;
   private authChangeEvent = new Subject<User | null>();
   authChangeEvent$ = this.authChangeEvent.asObservable();
+  private unsubscribeAuth: Unsubscribe;
+  private unsubscribeConnected: Unsubscribe;
 
-
-  // DATABASE
-  private database = inject(Database);
 
   //DATABASE - USER DATA (list of file_ids with metadata, last logged in time)
-  userFilesSubscription: Subscription;
+  private unsubscribeUserFiles: Unsubscribe[] = [];
   private userFilesChangeEvent = new BehaviorSubject<FilesState>(null);
   userFilesChangeEvent$ = this.userFilesChangeEvent.asObservable();
 
@@ -53,7 +52,7 @@ export class FirebaseService implements OnDestroy {
 
   //DATABASE - SHARED DATA (indexed by id, name, img, license, credit, owner uid, owner url, make public)
   sharedFiles = query(ref(this.db, 'shared'));
-  sharedFilesSucscription: Subscription;
+  private unsubscribeSharedFiles: Unsubscribe[] = [];
   private sharedFilesChangeEvent = new BehaviorSubject<FilesState>(null);
   sharedFilesChangeEvent$ = this.sharedFilesChangeEvent.asObservable();
 
@@ -67,7 +66,7 @@ export class FirebaseService implements OnDestroy {
   constructor() {
 
     // CHECK FOR CONNECTION EVENT 
-    onValue(this.connectedRef, (snap) => {
+    this.unsubscribeConnected = onValue(this.connectedRef, this.runInZone((snap) => {
       this.emitConnectionEvent(snap.val())
 
       if (snap.val() === true) {
@@ -75,127 +74,143 @@ export class FirebaseService implements OnDestroy {
       } else {
         console.log("not connected");
       }
-    });
+    }));
 
 
     // CHECK FOR USER EVENTS 
 
-    this.userSubscription = this.user$.subscribe((aUser: User | null) => {
+    this.unsubscribeAuth = onAuthStateChanged(this.auth, this.runInZone((aUser: User | null) => {
       //handle user state changes here. Note, that user will be null if there is no currently logged in user.
       this.emitAuthEvent(aUser);
+      this.detachUserFileListeners();
 
       if (aUser) {
 
-        const userFiles = query(ref(this.database, 'users/' + aUser.uid + '/files'), orderByChild('timestamp'));
+        const userFiles = query(ref(this.db, 'users/' + aUser.uid + '/files'), orderByChild('timestamp'));
 
-        onChildAdded(userFiles, (childsnapshot) => {
+        this.unsubscribeUserFiles.push(
+          onChildAdded(userFiles, this.runInZone((childsnapshot) => {
 
-          if (this.file_list.user.find(el => el.id === parseInt(childsnapshot.key)) === undefined) {
+            if (this.file_list.user.find(el => el.id === parseInt(childsnapshot.key)) === undefined) {
 
-            const meta = childsnapshot.val();
-            var dateFormat = new Date(meta.timestamp);
-            meta.date = dateFormat.toLocaleDateString();
+              const meta = childsnapshot.val();
+              var dateFormat = new Date(meta.timestamp);
+              meta.date = dateFormat.toLocaleDateString();
 
-            const user_file: UserFile = {
-              id: parseInt(childsnapshot.key),
-              meta: meta,
+              const user_file: UserFile = {
+                id: parseInt(childsnapshot.key),
+                meta: meta,
+              }
+              this.file_list.user.unshift(user_file);
             }
-            this.file_list.user.unshift(user_file);
-          }
-          this.emitUserFilesEvent(this.file_list);
+            this.emitUserFilesEvent(this.file_list);
 
-        });
+          })),
 
-        onChildChanged(userFiles, (childsnapshot) => {
+          onChildChanged(userFiles, this.runInZone((childsnapshot) => {
 
-          const ndx = this.file_list.user.findIndex(el => el.id === parseInt(childsnapshot.key));
-          if (ndx !== -1) {
-            const meta = childsnapshot.val();
-            var dateFormat = new Date(meta.timestamp);
-            meta.date = dateFormat.toLocaleDateString();
-            this.file_list.user[ndx].meta = meta;
+            const ndx = this.file_list.user.findIndex(el => el.id === parseInt(childsnapshot.key));
+            if (ndx !== -1) {
+              const meta = childsnapshot.val();
+              var dateFormat = new Date(meta.timestamp);
+              meta.date = dateFormat.toLocaleDateString();
+              this.file_list.user[ndx].meta = meta;
 
-          }
-          this.emitUserFilesEvent(this.file_list);
-        });
+            }
+            this.emitUserFilesEvent(this.file_list);
+          })),
 
-        onChildRemoved(userFiles, (childsnapshot) => {
-          this.file_list.user = this.file_list.user.filter(el => el.id !== parseInt(childsnapshot.key))
-          this.emitUserFilesEvent(this.file_list);
-        });
+          onChildRemoved(userFiles, this.runInZone((childsnapshot) => {
+            this.file_list.user = this.file_list.user.filter(el => el.id !== parseInt(childsnapshot.key))
+            this.emitUserFilesEvent(this.file_list);
+          }))
+        );
       }
-    })
+    }));
 
     //SETUP COLLECTION OF SHARED FILES (DOES NOT REQUIRE LOGIN)
     const sharedFiles = query(ref(this.db, 'shared'));
 
-    onChildAdded(sharedFiles, (childsnapshot) => {
-      let obj: ShareObj = {
-        id: +childsnapshot.key,
-        license: childsnapshot.val().license,
-        owner_uid: childsnapshot.val().owner_uid,
-        owner_url: childsnapshot.val().owner_url,
-        owner_creditline: childsnapshot.val().owner_creditline,
-        filename: childsnapshot.val().filename,
-        desc: childsnapshot.val().desc,
-        img: childsnapshot.val().img,
-        public: childsnapshot.val().public
-      }
+    this.unsubscribeSharedFiles.push(
+      onChildAdded(sharedFiles, this.runInZone((childsnapshot) => {
+        let obj: ShareObj = {
+          id: +childsnapshot.key,
+          license: childsnapshot.val().license,
+          owner_uid: childsnapshot.val().owner_uid,
+          owner_url: childsnapshot.val().owner_url,
+          owner_creditline: childsnapshot.val().owner_creditline,
+          filename: childsnapshot.val().filename,
+          desc: childsnapshot.val().desc,
+          img: childsnapshot.val().img,
+          public: childsnapshot.val().public
+        }
 
-      //mark this as shared in the user's list
-      if (this.auth.currentUser && childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
-        this.file_list.shared.push(obj)
+        //mark this as shared in the user's list
+        if (this.auth.currentUser && childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
+          this.file_list.shared.push(obj)
+          this.emitSharedFilesEvent(this.file_list);
+        }
+        if (childsnapshot.val().public) {
+          this.file_list.public.push(obj);
+          this.emitSharedFilesEvent(this.file_list);
+
+        }
+
+      })),
+
+      onChildChanged(sharedFiles, this.runInZone((childsnapshot) => {
+        let obj: ShareObj = {
+          id: +childsnapshot.key,
+          license: childsnapshot.val().license,
+          owner_uid: childsnapshot.val().owner_uid,
+          owner_url: childsnapshot.val().owner_url,
+          owner_creditline: childsnapshot.val().owner_creditline,
+          filename: childsnapshot.val().filename,
+          desc: childsnapshot.val().desc,
+          img: childsnapshot.val().img,
+          public: childsnapshot.val().public
+        }
+
+        //mark this as shared in the user's list
+        if (childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
+          this.file_list.shared.push(obj);
+          this.emitSharedFilesEvent(this.file_list);
+
+
+        }
+        if (childsnapshot.val().public) {
+          this.file_list.public.push(obj)
+          this.emitSharedFilesEvent(this.file_list);
+
+        }
+
+
+      })),
+
+      //needs to redraw the files list 
+      onChildRemoved(sharedFiles, this.runInZone((removedItem) => {
+
+        this.file_list.shared = this.file_list.shared.filter(el => el.id !== parseInt(removedItem.key))
         this.emitSharedFilesEvent(this.file_list);
-      }
-      if (childsnapshot.val().public) {
-        this.file_list.public.push(obj);
-        this.emitSharedFilesEvent(this.file_list);
-
-      }
-
-    });
-
-    onChildChanged(sharedFiles, (childsnapshot) => {
-      let obj: ShareObj = {
-        id: +childsnapshot.key,
-        license: childsnapshot.val().license,
-        owner_uid: childsnapshot.val().owner_uid,
-        owner_url: childsnapshot.val().owner_url,
-        owner_creditline: childsnapshot.val().owner_creditline,
-        filename: childsnapshot.val().filename,
-        desc: childsnapshot.val().desc,
-        img: childsnapshot.val().img,
-        public: childsnapshot.val().public
-      }
-
-      //mark this as shared in the user's list
-      if (childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
-        this.file_list.shared.push(obj);
-        this.emitSharedFilesEvent(this.file_list);
 
 
-      }
-      if (childsnapshot.val().public) {
-        this.file_list.public.push(obj)
-        this.emitSharedFilesEvent(this.file_list);
-
-      }
-
-
-    });
-
-    //needs to redraw the files list 
-    onChildRemoved(sharedFiles, (removedItem) => {
-
-      this.file_list.shared = this.file_list.shared.filter(el => el.id !== parseInt(removedItem.key))
-      this.emitSharedFilesEvent(this.file_list);
-
-
-    });
+      }))
+    );
 
 
 
 
+  }
+
+  private runInZone<T>(callback: (value: T) => void): (value: T) => void {
+    return (value: T) => {
+      this.ngZone.run(() => callback(value));
+    };
+  }
+
+  private detachUserFileListeners() {
+    this.unsubscribeUserFiles.forEach(unsub => unsub());
+    this.unsubscribeUserFiles = [];
   }
 
 
@@ -599,10 +614,10 @@ export class FirebaseService implements OnDestroy {
 
 
   ngOnDestroy() {
-    // when manually subscribing to an observable remember to unsubscribe in ngOnDestroy
-    this.userSubscription.unsubscribe();
-    this.userFilesSubscription.unsubscribe();
-    this.sharedFilesSucscription.unsubscribe();
+    this.unsubscribeAuth?.();
+    this.unsubscribeConnected?.();
+    this.detachUserFileListeners();
+    this.unsubscribeSharedFiles.forEach(unsub => unsub());
   }
 
 }

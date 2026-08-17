@@ -36,10 +36,10 @@ export class RepeatsComponent implements OnInit {
 
   id: number;
 
-  rowSystemMapping: Array<number>;
-  colSystemMapping: Array<number>;
-  rowShuttleMapping: Array<number>;
-  colShuttleMapping: Array<number>;
+  rowSystemMapping: Array<number> = [];
+  colSystemMapping: Array<number> = [];
+  rowShuttleMapping: Array<number> = [];
+  colShuttleMapping: Array<number> = [];
 
   //chip params
   visible = true;
@@ -70,15 +70,15 @@ export class RepeatsComponent implements OnInit {
   // fruits: string[] = ['Lemon'];
   // allFruits: string[] = ['Apple', 'Lemon', 'Lime', 'Orange', 'Strawberry'];
 
-  @ViewChild('warpSystemInput') warpSystemInput: ElementRef<HTMLInputElement>;
-  @ViewChild('weftSystemInput') weftSystemInput: ElementRef<HTMLInputElement>;
-  @ViewChild('warpShuttleInput') warpShuttleInput: ElementRef<HTMLInputElement>;
-  @ViewChild('weftShuttleInput') weftShuttleInput: ElementRef<HTMLInputElement>;
+  @ViewChild('warpSystemInput') warpSystemInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('weftSystemInput') weftSystemInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('warpShuttleInput') warpShuttleInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('weftShuttleInput') weftShuttleInput!: ElementRef<HTMLInputElement>;
 
-  @ViewChild('auto_wasy') matAutocompleteWasy: MatAutocomplete;
-  @ViewChild('auto_wesy') matAutocompleteWesy: MatAutocomplete;
-  @ViewChild('auto_wash') matAutocompleteWash: MatAutocomplete;
-  @ViewChild('auto_wesh') matAutocompleteWesh: MatAutocomplete;
+  @ViewChild('auto_wasy') matAutocompleteWasy!: MatAutocomplete;
+  @ViewChild('auto_wesy') matAutocompleteWesy!: MatAutocomplete;
+  @ViewChild('auto_wash') matAutocompleteWash!: MatAutocomplete;
+  @ViewChild('auto_wesh') matAutocompleteWesh!: MatAutocomplete;
 
 
   @Output() onUpdateWarpSystems: any = new EventEmitter();

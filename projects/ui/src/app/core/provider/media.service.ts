@@ -84,10 +84,10 @@ export class MediaService {
       id = generateId(8);
     }
 
-    let color_mapping = [];
+    let color_mapping: Array<{ from: number, to: number }> = [];
     if (saved_data !== null) color_mapping = saved_data.color_mapping;
 
-    let colors = [];
+    let colors: Array<Color> = [];
     if (saved_data !== null) colors = saved_data.colors;
 
     let url = "";
@@ -101,7 +101,12 @@ export class MediaService {
     }).then(blob => {
 
       var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
+      var ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+
+      if (ctx == null) {
+        return Promise.reject('context is null in loadIndexedColorFile')
+      }
+
       var image = new Image();
       image.src = url;
       image.crossOrigin = "Anonymous";
@@ -113,15 +118,18 @@ export class MediaService {
         if (image.naturalWidth > 10000) Promise.reject('width error');
         if (image.naturalHeight > 10000) Promise.reject('height error');
 
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        ctx?.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-        var imgdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var imgdata: ImageData | undefined = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+        if (imgdata == undefined) {
+          return Promise.reject('image data is undefined in loadIndexedColorFile')
+        }
 
         const pixels = imgdata.data;
 
         //console.log("Create Pixel Array")
         //process the pixels into meaningful values;
-        const all_colors: Array<any> = [];
+        const all_colors: Array<{ r: number, g: number, b: number, hex: string, black: boolean }> = [];
         for (let i = 0; i < pixels.length; i += 4) {
 
           let r: string = pixels[i].toString(16);
@@ -167,7 +175,15 @@ export class MediaService {
         /**this is expensive, so just do a fast run to make sure the size is okay before we go into this */
 
         if (colors.length == 0) {
-          colors = filterToUniqueValues(seen_vals);
+          const hex_values: Array<string> = seen_vals.map(el => el.hex);
+          const unique_hex_values = filterToUniqueValues(hex_values);
+          colors = unique_hex_values.map(el => {
+            let c: { r: number, g: number, b: number, hex: string, black: boolean } | undefined = seen_vals.find(sel => sel.hex == el);
+            if (c == undefined) {
+              return Promise.reject('color is undefined in loadIndexedColorFile')
+            }
+            return c;
+          });
         }
 
 
@@ -223,8 +239,14 @@ export class MediaService {
     });
   }
 
-  loadImageViaURL(id: number, ref: string): Promise<any> {
+  loadImageViaURL(id: number, ref: string): Promise<string> {
     return this.upSvc.getDownloadURL(ref)
+      .then(url => {
+        return Promise.resolve(url);
+      })
+      .catch(err => {
+        return Promise.reject(err);
+      });
   }
 
   /**

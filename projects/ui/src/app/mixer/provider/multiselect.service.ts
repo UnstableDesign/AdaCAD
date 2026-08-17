@@ -25,7 +25,7 @@ export class MultiselectService {
   selected: Array<MultiSelectElement> = [];
   relative_position: Point = { x: 0, y: 0 };
   relative_position_before: Point = { x: 0, y: 0 };
-  copy: SaveObj;
+  copy: SaveObj | null = null;
   moving_id: number = -1;
 
 
@@ -39,8 +39,8 @@ export class MultiselectService {
   /**
    * publish the event when something changes in the select list. 
    */
-  multiSelectListChange$: BehaviorSubject<Array<number>> = new BehaviorSubject([]);
-  multiSelectMoveElements$: BehaviorSubject<Array<{ id: number, topleft: Point }>> = new BehaviorSubject([]);
+  multiSelectListChange$: BehaviorSubject<Array<number>> = new BehaviorSubject<Array<number>>([]);
+  multiSelectMoveElements$: BehaviorSubject<Array<{ id: number, topleft: Point }>> = new BehaviorSubject<Array<{ id: number, topleft: Point }>>([]);
 
 
   private selected_before: Array<{ id: number, topleft: Point }> = [];
@@ -194,7 +194,10 @@ export class MultiselectService {
 
   getNewPosition(id: number, diff: Point) {
     const f = this.selected.find(el => el.id == id);
-    return { x: f.topleft.x + diff.x, y: f.topleft.y + diff.y }
+    if (f) {
+      return { x: f.topleft.x + diff.x, y: f.topleft.y + diff.y }
+    }
+    return { x: 0, y: 0 };
   }
 
 
@@ -210,8 +213,8 @@ export class MultiselectService {
 
     let node_mirror: Array<Node> = selected_nodes.slice();
 
-    let relevant_connection_ids = [];
-    let relevant_connection_nodes = [];
+    let relevant_connection_ids: Array<number> = [];
+    let relevant_connection_nodes: Array<Node> = [];
 
     selected_nodes.forEach(node => {
 

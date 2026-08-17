@@ -33,7 +33,7 @@ export class ExamplesComponent implements OnDestroy {
   @Output() onOpenFileManager = new EventEmitter<any>();
   local_examples: any;
 
-  sharedFileSubscription: Subscription;
+  sharedFileSubscription!: Subscription;
   community_examples: Array<ShareObj> = [];
   exampleImgs: Array<any> = [];
   placeholderImg: string = '/assets/example_img/placeholder.png'
@@ -53,15 +53,14 @@ export class ExamplesComponent implements OnDestroy {
     this.sharedFileSubscription = this.fb.sharedFilesChangeEvent$.subscribe(files => {
       this.community_examples = files.public.slice();
       this.exampleImgs = [];
-      let img_fns = [];
 
       this.community_examples.forEach(ex => {
-        let img_src = (ex.img !== "none") ? this.ms.loadImageViaURL(-1, ex.img).then(url => { return url }) : '';
-        img_fns.push(img_src);
-      })
+        if (ex.img != "none") {
+          let img_src = (ex.img !== "none") ? this.ms.loadImageViaURL(-1, ex.img).then(url => { return url }) : '';
+          this.exampleImgs.push(img_src);
 
-      Promise.all(img_fns).then(outs => {
-        this.exampleImgs = outs;
+        };
+
       })
 
 

@@ -24,6 +24,7 @@ import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { RenameComponent } from '../core/ui/rename/rename.component';
 import { SimulationComponent } from './simulation/simulation.component';
+import { OpParamVal } from 'adacad-drafting-lib/operations/types.js';
 
 @Component({
   selector: 'app-viewer',
@@ -49,12 +50,12 @@ export class ViewerComponent {
   @Output() onSave: any = new EventEmitter();
   @Output() onForceFocus: any = new EventEmitter();
 
-  @ViewChild(SimulationComponent) sim: SimulationComponent;
-  @ViewChild('view_rendering') view_rendering: DraftRenderingComponent;
+  @ViewChild(SimulationComponent) sim!: SimulationComponent;
+  @ViewChild('view_rendering') view_rendering!: DraftRenderingComponent;
 
   // Reactive form for viewer controls
 
-  draft_canvas: HTMLCanvasElement;
+  draft_canvas: HTMLCanvasElement | undefined;
   draft_name: string = '';
   draft_notes: string = '';
   draft_cx: any;
@@ -71,9 +72,9 @@ export class ViewerComponent {
   before_name: string = '';
   before_notes: string = '';
   idChangeSubscription: Subscription;
-  updateViewerSubscription: Subscription;
-  draftValueChangeSubscription: Subscription;
-  redrawCompleteSubscription: Subscription;
+  updateViewerSubscription: Subscription | undefined;
+  draftValueChangeSubscription: Subscription | undefined;
+  redrawCompleteSubscription: Subscription | undefined;
 
   flag_recenter: boolean = false;
   simControlsVisible: boolean = false;
@@ -105,8 +106,8 @@ export class ViewerComponent {
 
   ngOnDestroy() {
     if (this.redrawCompleteSubscription) this.redrawCompleteSubscription.unsubscribe();
-    this.idChangeSubscription.unsubscribe();
-    this.updateViewerSubscription.unsubscribe();
+    if (this.idChangeSubscription) this.idChangeSubscription.unsubscribe();
+    if (this.updateViewerSubscription) this.updateViewerSubscription.unsubscribe();
     if (this.draftValueChangeSubscription) this.draftValueChangeSubscription.unsubscribe();
 
   }
@@ -499,8 +500,8 @@ export class ViewerComponent {
     //if we are looking at the back face, invert and flip the draft
     if (!front) {
       const invert_op = this.ops.getOp('invert');
-      const params = [];
-      const drafts = [{
+      const params: Array<OpParamVal> = [];
+      const drafts: Array<any> = [{
         drafts: [draft],
         inlet_id: 0,
         inlet_params: []
@@ -509,7 +510,7 @@ export class ViewerComponent {
       return invert_op.perform(params, drafts).then(manipulated_draft => {
         const dd = manipulated_draft[0].draft;
         const flip_op = this.ops.getOp('flip');
-        const flip_params = [{
+        const flip_params: Array<OpParamVal> = [{
           param: flip_op.params[0],
           val: 1
         },
@@ -534,8 +535,6 @@ export class ViewerComponent {
 
 
     } else {
-      console.log("REDRAW CALLED FROM VIEW RENDERING")
-
       return this.view_rendering.redraw(draft, loom, loom_settings, flags).then(el => {
         return Promise.resolve(true);
       })

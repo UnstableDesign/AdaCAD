@@ -45,9 +45,9 @@ export class DraftContainerComponent implements AfterViewInit {
   private zs = inject(ZoomService);
 
 
-  @Input() id;
-  @Input() hasParent;
-  @Input() selecting_connection;
+  @Input() id!: number;
+  @Input() hasParent!: boolean;
+  @Input() selecting_connection!: boolean;
   @Output() connectionSelected = new EventEmitter();
   @Output() onDuplicateCalled = new EventEmitter();
   @Output() onDeleteCalled = new EventEmitter();
@@ -58,9 +58,9 @@ export class DraftContainerComponent implements AfterViewInit {
   @Output() onNameChanged = new EventEmitter();
 
   @ViewChild('bitmapImage') bitmap: any;
-  @ViewChild('draft_rendering') draft_rendering:
+  @ViewChild('draft_rendering') draft_rendering!:
     DraftRenderingComponent;
-  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+  @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
 
 
 
@@ -70,9 +70,8 @@ export class DraftContainerComponent implements AfterViewInit {
 
   exceeds_size: boolean = false;
 
-  warps: number;
-
-  wefts: number;
+  warps!: number;
+  wefts!: number;
 
   draft_visible: boolean = true;
 
@@ -85,7 +84,7 @@ export class DraftContainerComponent implements AfterViewInit {
   local_zoom: number = 1;
 
   // Reactive Forms control
-  localZoomForm: FormControl;
+  localZoomForm!: FormControl;
 
   current_view: string = 'draft';
 
@@ -93,9 +92,9 @@ export class DraftContainerComponent implements AfterViewInit {
 
   showingIdChangeSubscription: Subscription;
 
-  redrawCompleteSubscription: Subscription;
+  redrawCompleteSubscription!: Subscription;
 
-  draftValueChangeSubscription: Subscription;
+  draftValueChangeSubscription!: Subscription;
 
 
   constructor() {
@@ -165,10 +164,10 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
 
-  rename(event) {
+  rename(event: any) {
 
     const dialogRef = this.dialog.open(RenameComponent, {
-      data: { id: this.id }
+      data: { id: this.id ?? -1 }
     });
 
     dialogRef.afterClosed().subscribe(obj => {
@@ -192,7 +191,7 @@ export class DraftContainerComponent implements AfterViewInit {
       targetNode.classList.remove('on_view');
     }
 
-    if (this.id == this.vs.getPin()) {
+    if (this.id == this.vs.getViewerId()) {
       targetNode.classList.add('has_pin');
     } else {
       targetNode.classList.remove('has_pin');
@@ -224,7 +223,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
     const targetNode = document.getElementById("drawdown-mixer-" + this.id);
     const config = { attributes: true, characterData: true, childList: false, subtree: false };
-    const callback = (mutationList, observer) => {
+    const callback = (mutationList: any, observer: any) => {
       for (const mutation of mutationList) {
         //changed this to only listen on height because it was triggering for too many attributes
         if (mutation.type === "attributes" && mutation.attributeName === "height") {
@@ -279,11 +278,11 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
 
-  nameFocusOut(event) {
+  nameFocusOut(event: any) {
   }
 
-  connectionStarted(event) {
-    this.connectionSelected.emit({ event: event, id: this.id });
+  connectionStarted(event: any) {
+    this.connectionSelected.emit({ event: event, id: this.id ?? -1 });
   }
 
   hasPin(): boolean {
@@ -339,8 +338,12 @@ export class DraftContainerComponent implements AfterViewInit {
     }
 
     //pushes to the queue
-    this.draft_rendering.redraw(draft, loom, loom_settings, flags).then(el => {
+    return this.draft_rendering.redraw(draft, loom, loom_settings, flags).then(el => {
       this.onDrawdownSizeChanged.emit(this.id);
+      return Promise.resolve(true);
+    }).catch(err => {
+      console.error('Error force drawing draft', err);
+      return Promise.reject(err);
     });
 
 
@@ -410,15 +413,15 @@ export class DraftContainerComponent implements AfterViewInit {
 
   }
 
-  async designActionChange(e) {
+  async designActionChange(e: string) {
 
     switch (e) {
       case 'duplicate':
-        this.onDuplicateCalled.emit({ event: e, id: this.id });
+        this.onDuplicateCalled.emit({ event: e, id: this.id ?? -1 });
         break;
 
       case 'delete':
-        this.onDeleteCalled.emit({ event: e, id: this.id });
+        this.onDeleteCalled.emit({ event: e, id: this.id ?? -1 });
         break;
 
 

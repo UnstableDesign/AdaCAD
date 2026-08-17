@@ -64,7 +64,7 @@ export type ConnectionNode = BaseNode & {
  */
 export type DraftNode = BaseNode & {
   draft: Draft,
-  loom: Loom,
+  loom: Loom | null,
   loom_settings: LoomSettings,
   render_colors: boolean,
   scale: number,
@@ -313,7 +313,7 @@ export type MediaInstance = {
   id: number;
   ref: string;
   type: 'image' | 'indexed_color_image'; //currently we only support images
-  img: SingleImage | AnalyzedImage;
+  img: SingleImage | AnalyzedImage | null;
 }
 
 
@@ -579,8 +579,8 @@ type MultiMoveEvent = {
 type ParamEvent = {
   opid: number,
   paramid: number,
-  before: OpParamValType,
-  after: OpParamValType
+  before: OpParamValType | null,
+  after: OpParamValType | null
 }
 
 type NumberEvent = {
@@ -680,8 +680,8 @@ export type NoteStateChange = StateChangeEvent & {
 export type NoteStateMove = NoteStateChange & MoveEvent;
 export type NoteValueChange = NoteStateChange & {
   id: number,
-  before: Note,
-  after: Note
+  before: Note | null,
+  after: Note | null
 }
 
 export type MaterialsStateChange = StateChangeEvent & {

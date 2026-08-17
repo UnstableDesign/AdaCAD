@@ -50,14 +50,14 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   materialsService = inject(MaterialsService);
 
 
-  fc: UntypedFormControl;
-  opnode: OpNode;
+  fc!: UntypedFormControl;
+  opnode!: OpNode;
 
   name: any;
 
-  @Input() param: NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam | CanvasParam;
-  @Input() opid: number;
-  @Input() paramid: number;
+  @Input() param!: NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam | CanvasParam;
+  @Input() opid!: number;
+  @Input() paramid!: number;
   @Output() onOperationParamChange = new EventEmitter<any>();
   @Output() onFileUpload = new EventEmitter<any>();
   @Output() preventDrag = new EventEmitter<any>();
@@ -67,8 +67,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   has_image_uploaded: boolean = false;
   filewarning: string = '';
 
-  @ViewChild('autosize') autosize: CdkTextareaAutosize;
-  @ViewChild('p5canvasContainer') p5canvasContainer: ElementRef;
+  @ViewChild('autosize') autosize!: CdkTextareaAutosize;
+  @ViewChild('p5canvasContainer') p5canvasContainer!: ElementRef;
 
 
   private p5Instance: any;
@@ -358,7 +358,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
     this.has_image_uploaded = false;
 
     this.mediaService.removeInstance(+img.id)
-    this.opnode.params[this.paramid] = { id: '0', data: null as AnalyzedImage };
+    this.opnode.params[this.paramid] = { id: '0', data: null };
     this.onOperationParamChange.emit({ id: this.paramid, value: this.opnode.params[this.paramid], type: this.param.type });
 
   }
@@ -374,7 +374,6 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   handleFile(obj: Array<MediaInstance>) {
 
-    //ADD TEH CHANGE HERE
 
 
     this.filewarning = "";

@@ -268,7 +268,7 @@ export class TreeService {
    * @param loom the loom to associate with this node
    * @returns the created draft node and the entry associated with this
    */
-  loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
+  loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom | null, loom_settings: LoomSettings | null, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
 
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
@@ -1655,7 +1655,7 @@ export class TreeService {
     return dn.loom;
   }
 
-  setLoom(id: number, loom: Loom, broadcast: boolean = true) {
+  setLoom(id: number, loom: Loom | null, broadcast: boolean = true) {
 
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) {
@@ -2642,10 +2642,10 @@ export class TreeService {
     const node: NodeComponentProxy = {
       node_id: id,
       type: 'draft',
-      topleft: null
+      topleft: { x: 0, y: 0 }
     }
 
-    const draft_node: DraftNodeProxy = {
+    const draft_node = {
       node_id: id,
       draft_id: draft.id,
       ud_name: '',
@@ -2713,7 +2713,7 @@ export class TreeService {
 
     if (checkRecompute) {
       const outlets = this.getNonCxnOutputs(id);
-      const performOps = [];
+      const performOps: Array<Promise<any>> = [];
       outlets.forEach(outlet => {
         performOps.push(this.performAndUpdateDownstream([outlet]));
       });

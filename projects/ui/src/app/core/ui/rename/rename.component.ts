@@ -26,7 +26,7 @@ export class RenameComponent {
   id: number;
   ud_name: string;
   gen_name: string;
-  draft: Draft = null
+  draft: Draft | null = null;
   notes: string;
   nameForm = new FormControl('');
   notesForm = new FormControl('');
@@ -64,9 +64,12 @@ export class RenameComponent {
 
     let beforeName = this.tree.getDraftName(this.id);
     let beforeNotes = this.tree.getDraftNotes(this.id);
+    const draft = this.tree.getDraft(this.id);
 
-    this.tree.getDraft(this.id).ud_name = this.nameForm.value;
-    this.tree.getDraft(this.id).notes = this.notesForm.value;
+    if (draft) {
+      draft.ud_name = this.nameForm.value ?? '';
+      draft.notes = this.notesForm.value ?? '';
+    }
 
 
 
@@ -80,8 +83,11 @@ export class RenameComponent {
 
 
 
-    this.draft.ud_name = this.nameForm.value;
-    this.draft.notes = this.notesForm.value;
+    if (draft) {
+      draft.ud_name = this.nameForm.value ?? '';
+      draft.notes = this.notesForm.value ?? '';
+    }
+
     const flags: DraftNodeBroadcastFlags = {
       meta: true,
       draft: false,
@@ -89,8 +95,7 @@ export class RenameComponent {
       loom_settings: false,
       materials: false
     };
-    this.tree.setDraft(this.id, this.draft, flags, true, true);
-
+    if (this.draft) this.tree.setDraft(this.id, this.draft, flags, true, true);
     this.dialogRef.close();
     this.nameForm.markAsPristine();
     this.notesForm.markAsPristine();

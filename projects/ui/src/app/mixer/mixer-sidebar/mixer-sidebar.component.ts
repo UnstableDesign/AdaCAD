@@ -15,14 +15,14 @@ import { OperationSearchModal } from '../operation-search/operation-search.modal
   standalone: true
 })
 export class MixerSidebarComponent {
-  @Input() is_fullscreen: boolean;
+  @Input() is_fullscreen: boolean = false;
   @Output() addOperation = new EventEmitter<string>();
   @Output() addDraft = new EventEmitter<void>();
   @Output() createNote = new EventEmitter<void>();
 
   private dialog = inject(MatDialog);
 
-  @ViewChild(OperationSearchComponent) operationSearch: OperationSearchComponent;
+  @ViewChild(OperationSearchComponent) operationSearch!: OperationSearchComponent;
 
   /** sidebar state */
   isCollapsed: boolean = false;

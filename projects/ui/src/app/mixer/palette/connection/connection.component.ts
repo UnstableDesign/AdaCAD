@@ -22,21 +22,21 @@ export class ConnectionComponent implements OnInit {
 
 
 
-  @Input() id: number;
-  @Input() scale: number;
+  @Input() id!: number;
+  @Input() scale!: number;
   @Output() onConnectionRemoved = new EventEmitter<any>();
 
 
   /** the id of the node that this connection goes from */
-  from: number;
-  fromPositionChange: Subscription;
+  from!: number;
+  fromPositionChange!: Subscription;
 
   /** the id of the node that this connection goes to */
-  to: number;
-  toPositionChange: Subscription;
+  to!: number;
+  toPositionChange!: Subscription;
 
-  private b_from: Point;
-  private b_to: Point;
+  private b_from: Point = { x: 0, y: 0 };
+  private b_to: Point = { x: 0, y: 0 };
 
 
   disable_drag: boolean = true;
@@ -47,12 +47,12 @@ export class ConnectionComponent implements OnInit {
   width: number = 0;
   height: number = 0;
 
-  svg: SVGSVGElement;
-  path_main: SVGPathElement;
-  connector: HTMLElement;
+  svg: SVGSVGElement | undefined;
+  path_main: SVGPathElement | undefined;
+  connector: HTMLElement | undefined;
   anim: any;
 
-  no_draw: boolean;
+  no_draw: boolean = false;
 
   path_text: string = '';
 
@@ -64,12 +64,10 @@ export class ConnectionComponent implements OnInit {
   downstream: boolean = false;
   recomputing: boolean = false;
 
-  upstreamSubscription: Subscription;
-  downstreamSubscription: Subscription;
-  fromDraftChangeSubscription: Subscription;
-
-
-  recomputingSubscription: Subscription;
+  upstreamSubscription!: Subscription;
+  downstreamSubscription!: Subscription;
+  fromDraftChangeSubscription!: Subscription;
+  recomputingSubscription!: Subscription;
 
 
   constructor() {
@@ -127,11 +125,12 @@ export class ConnectionComponent implements OnInit {
     this.svg = document.createElementNS(ns, "svg");
     this.path_main = document.createElementNS(ns, "path");
     this.svg.appendChild(this.path_main);
-    document.getElementById("scale-" + this.id).appendChild(this.svg);
+    const svg_container = document.getElementById("scale-" + this.id);
+    if (svg_container) svg_container.appendChild(this.svg);
 
 
     //this.svg = document.getElementById('svg-'+this.id.toString());
-    this.connector = document.getElementById('connector-' + this.id.toString());
+    this.connector = document.getElementById('connector-' + this.id.toString()) ?? undefined;
 
     this.anim = this.path_main.animate(
       [
@@ -277,7 +276,7 @@ export class ConnectionComponent implements OnInit {
   private updateToPosition(inlet_id: number, arr_id: number) {
 
     let parent = document.getElementById('scrollable-container');
-    let parent_rect = parent.getBoundingClientRect();
+    let parent_rect = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
     let to_container = document.getElementById("inlet" + this.to + "-" + inlet_id + "-" + arr_id);
 
     if (to_container == null || to_container == undefined) return;
@@ -287,11 +286,11 @@ export class ConnectionComponent implements OnInit {
     const zoom_factor = 1 / this.zs.getMixerZoom();
 
     //on screen position relative to palette
-    let screenX = to_rect.x - parent_rect.x + parent.scrollLeft;
+    let screenX = to_rect.x - parent_rect.x + (parent?.scrollLeft ?? 0);
     let scaledX = screenX * zoom_factor;
 
     //on screen position relative to palette
-    let screenY = to_rect.y - parent_rect.y + parent.scrollTop;
+    let screenY = to_rect.y - parent_rect.y + (parent?.scrollTop ?? 0);
     let scaledY = screenY * zoom_factor;
 
 
@@ -324,7 +323,7 @@ export class ConnectionComponent implements OnInit {
    */
   private updateFromPosition() {
     let parent = document.getElementById('scrollable-container');
-    let parent_rect = parent.getBoundingClientRect();
+    let parent_rect = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
     let sd_element = document.getElementById(this.from + '-out');
 
 
@@ -333,11 +332,11 @@ export class ConnectionComponent implements OnInit {
     let sd_container = sd_element.getBoundingClientRect();
     const zoom_factor = 1 / this.zs.getMixerZoom();
     //on screen position relative to palette
-    let screenX = sd_container.x - parent_rect.x + parent.scrollLeft;
+    let screenX = sd_container.x - parent_rect.x + (parent?.scrollLeft ?? 0);
     let scaledX = screenX * zoom_factor;
 
     //on screen position relative to palette
-    let screenY = sd_container.y - parent_rect.y + parent.scrollTop;
+    let screenY = sd_container.y - parent_rect.y + (parent?.scrollTop ?? 0);
     let scaledY = screenY * zoom_factor;
 
 
@@ -379,9 +378,9 @@ export class ConnectionComponent implements OnInit {
     this.topleft = { x: Math.min(p1.x, p2.x), y: Math.min(p1.y, p2.y) };
 
     let cxn_container = document.getElementById('scale-' + this.id);
-    cxn_container.style.transform = 'none'; //negate angulars default positioning mechanism
-    cxn_container.style.top = this.topleft.y + "px";
-    cxn_container.style.left = this.topleft.x + "px";
+    if (cxn_container) cxn_container.style.transform = 'none'; //negate angulars default positioning mechanism
+    if (cxn_container) cxn_container.style.top = this.topleft.y + "px";
+    if (cxn_container) cxn_container.style.left = this.topleft.x + "px";
 
     this.width = bottomright.x - this.topleft.x + 2; //add two so a line is drawn when horiz or vert
     this.height = bottomright.y - this.topleft.y + 2;
@@ -471,7 +470,7 @@ export class ConnectionComponent implements OnInit {
 
 
 
-    this.path_main.setAttribute("d", path);
+    if (this.path_main) this.path_main.setAttribute("d", path);
 
     // Draw the stub line from path end to the actual inlet
     // this.line_stub.setAttribute("x1", pathEndX + "");
@@ -481,11 +480,11 @@ export class ConnectionComponent implements OnInit {
 
     // Position connector button at the inlet (in the opening)
     // this.connector.style.display = 'block';
-    this.connector.style.top = (pathEndY + yOffset) + 'px';
-    this.connector.style.left = (pathEndX + xOffset) + 'px';
+    if (this.connector) this.connector.style.top = (pathEndY + yOffset) + 'px';
+    if (this.connector) this.connector.style.left = (pathEndX + xOffset) + 'px';
   }
 
-  drawForPrint(canvas, cx, scale: number) {
+  drawForPrint(canvas: HTMLCanvasElement, cx: CanvasRenderingContext2D, scale: number) {
 
     // cx.beginPath();
     // cx.strokeStyle = "#ff4081";

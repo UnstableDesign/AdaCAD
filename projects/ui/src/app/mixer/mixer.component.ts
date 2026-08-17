@@ -2,7 +2,7 @@ import { Component, enableProdMode, EventEmitter, inject, Input, Output, ViewChi
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material/tooltip';
 import { Draft, initDraftWithParams, initLoom, Loom, LoomSettings } from 'adacad-drafting-lib';
-import { DraftExistenceChange, DraftNode, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, OpNode, Point } from '../core/model/datatypes';
+import { DraftExistenceChange, DraftNode, DraftNodeProxy, NodeComponentProxy, Note, NoteValueChange, OpExistenceChanged, OpNode, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { FileService } from '../core/provider/file.service';
 import { NotesService } from '../core/provider/notes.service';
@@ -61,10 +61,10 @@ export class MixerComponent {
 
 
 
-  @ViewChild(PaletteComponent) palette: PaletteComponent;
-  @ViewChild(MixerSidebarComponent) sidebar: MixerSidebarComponent;
+  @ViewChild(PaletteComponent) palette!: PaletteComponent;
+  @ViewChild(MixerSidebarComponent) sidebar!: MixerSidebarComponent;
 
-  @Input() is_fullscreen: boolean;
+  @Input() is_fullscreen: boolean = false;
   @Output() onOpenInEditor: any = new EventEmitter();
   @Output() onPerformOperationError: any = new EventEmitter();
 
@@ -266,7 +266,7 @@ export class MixerComponent {
   }
 
 
-  changeDesignMode(mode) {
+  changeDesignMode(mode: any) {
     // this.palette.changeDesignMode(mode);
   }
 
@@ -462,7 +462,7 @@ export class MixerComponent {
    * Called internally when loading files
    * @param note 
    */
-  public createNote(note) {
+  public createNote(note: Note | null) {
     this.palette.createNote(note);
   }
 
@@ -521,7 +521,7 @@ export class MixerComponent {
     const centerPoint = comp.getPosition();
 
 
-    const view_window: HTMLElement = document.getElementById('scrollable-container');
+    const view_window: HTMLElement | null = document.getElementById('scrollable-container');
     if (view_window === null || view_window === undefined) return;
 
     // Set the new zoom value

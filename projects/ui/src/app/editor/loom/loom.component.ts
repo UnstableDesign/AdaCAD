@@ -29,21 +29,21 @@ export class LoomComponent implements OnInit, OnDestroy {
   ws = inject(WorkspaceService);
   ss = inject(StateService);
 
-  @Input('id') id;
-  @Input('draftRendering') draftRendering: DraftRenderingComponent;
+  @Input('id') id!: number;
+  @Input('draftRendering') draftRendering!: DraftRenderingComponent;
 
   @Output() unsetSelection: any = new EventEmitter();
   // @Output() drawdownUpdated: any = new EventEmitter();
 
-  loomForm: FormGroup;
+  loomForm!: FormGroup;
   density_units;
   loomtypes;
   enabled: boolean = false;
-  before: DraftNodeState;
+  before!: DraftNodeState;
   required_frames: number = defaults.loom_settings.frames;
   required_treadles: number = defaults.loom_settings.treadles;
 
-  draftValueChangeSubscription: Subscription;
+  draftValueChangeSubscription!: Subscription;
   view_only: boolean = false;
 
 
@@ -204,7 +204,7 @@ export class LoomComponent implements OnInit, OnDestroy {
         const utils = getLoomUtilByType(loom_settings.type);
         loom = (utils.insertIntoThreading != null) ? utils.insertIntoThreading(loom, ndx, -1) : loom;
 
-        draft.drawdown = insertDrawdownCol(draft.drawdown, ndx, null);
+        draft.drawdown = insertDrawdownCol(draft.drawdown, ndx, []);
         draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, ndx, 0);
         draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, ndx, 0);
 
@@ -299,7 +299,7 @@ export class LoomComponent implements OnInit, OnDestroy {
       for (var i = 0; i < diff; i++) {
         let ndx = wefts(draft.drawdown);
 
-        draft.drawdown = insertDrawdownRow(draft.drawdown, ndx, null);
+        draft.drawdown = insertDrawdownRow(draft.drawdown, ndx, []);
         draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, ndx, 1)
         draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, ndx, 0);
         const utils = getLoomUtilByType(loom_settings.type);
