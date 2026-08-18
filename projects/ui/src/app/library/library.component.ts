@@ -423,9 +423,11 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     // Download each draft sequentially to avoid browser blocking multiple downloads
     for (const draftId of downloadList) {
       try {
+        const draft = this.tree.getDraft(draftId);
+        if (draft == null) return Promise.reject(new Error('Draft not found'));
         await saveAsBmp(
           canvas,
-          this.tree.getDraft(draftId),
+          draft,
           this.ws.selected_origin_option,
           this.ms,
           this.fs

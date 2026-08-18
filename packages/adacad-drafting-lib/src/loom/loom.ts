@@ -48,7 +48,7 @@ export const initLoom = (warps: number, wefts: number, frames: number, treadles:
 }
 
 
-export const copyLoom = (l: Loom): Loom | null => {
+export const copyLoom = (l: Loom | null): Loom | null => {
   if (l == null || l == undefined) return null;
   const copy_loom = {
     threading: l.threading.slice(),

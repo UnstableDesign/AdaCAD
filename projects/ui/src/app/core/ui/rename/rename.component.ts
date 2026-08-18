@@ -36,9 +36,17 @@ export class RenameComponent {
 
     this.id = data.id;
     this.draft = this.tree.getDraft(this.id);
-    this.ud_name = this.draft.ud_name;
-    this.gen_name = this.draft.gen_name;
-    this.notes = this.draft.notes || '';
+
+
+    if (this.draft !== null) {
+      this.ud_name = this.draft.ud_name;
+      this.gen_name = this.draft.gen_name;
+      this.notes = this.draft.notes || '';
+    } else {
+      this.ud_name = '';
+      this.gen_name = '';
+      this.notes = '';
+    }
 
 
 

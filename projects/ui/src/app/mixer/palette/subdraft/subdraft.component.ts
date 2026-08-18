@@ -428,12 +428,15 @@ export class SubdraftComponent implements OnInit {
    */
   public resolvePointToNdx(p: Point): Interlacement {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return { i: -1, j: -1 };
+    const warpnum = warps(draft?.drawdown) ?? 0;
+    const weftnum = wefts(draft?.drawdown) ?? 0;
 
     let i = Math.floor((p.y - this.topleft.y) / this.scale);
     let j = Math.floor((p.x - this.topleft.x) / this.scale);
 
-    if (i < 0 || i >= wefts(draft.drawdown)) i = -1;
-    if (j < 0 || j >= warps(draft.drawdown)) j = -1;
+    if (i < 0 || i >= weftnum) i = -1;
+    if (j < 0 || j >= warpnum) j = -1;
 
     return { i: i, j: j };
 
@@ -482,6 +485,7 @@ export class SubdraftComponent implements OnInit {
   redrawExistingDraft() {
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     this.draftcontainer.draft_visible = this.tree.getDraftVisible(this.id);
     this.draftcontainer.forceDrawDraft(draft);
     this.draftcontainer.draft_name = this.tree.getDraftName(this.id);

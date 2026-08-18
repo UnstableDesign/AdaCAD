@@ -127,7 +127,7 @@ export class WorkspaceService {
 
   }
 
-  loadWorkspace(data) {
+  loadWorkspace(data: any) {
     this.min_frames = data.min_frames ?? defaults.loom_settings.frames;
     this.min_treadles = data.min_treadles ?? defaults.loom_settings.treadles;
     this.type = data.type ?? defaults.loom_settings.type;

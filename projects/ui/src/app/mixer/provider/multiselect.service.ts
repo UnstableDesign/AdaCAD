@@ -207,21 +207,21 @@ export class MultiselectService {
    */
   copySelections(): Promise<SaveObj> {
 
-    let selected_nodes: Array<Node> = this.selected
+    let selected_nodes = this.selected
       .map(el => this.tree.getNode(el.id))
-      .filter(el => el.type !== 'cxn') //filter out connections because we will add these in later
+      .filter(el => el !== null && el !== undefined && el?.type !== 'cxn') //filter out connections because we will add these in later
 
-    let node_mirror: Array<Node> = selected_nodes.slice();
+    let node_mirror = selected_nodes.slice();
 
     let relevant_connection_ids: Array<number> = [];
     let relevant_connection_nodes: Array<Node> = [];
 
     selected_nodes.forEach(node => {
 
-      node_mirror = node_mirror.filter(el => el.id !== node.id);
+      node_mirror = node_mirror.filter(el => el !== null && el !== undefined && el?.id !== node?.id);
 
       node_mirror.forEach(mirror => {
-        let cxns = this.tree.getConnectionsBetween(node.id, mirror.id);
+        let cxns = this.tree.getConnectionsBetween(node?.id ?? -1, mirror?.id ?? -1);
 
         cxns.forEach(cxn => {
           if (cxn !== -1 && relevant_connection_ids.find(el => el == cxn) === undefined) relevant_connection_ids.push(cxn)
@@ -230,11 +230,11 @@ export class MultiselectService {
 
     });
 
-    relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el));
+    relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el)).filter(el => el !== null && el !== undefined);
     let all_nodes = selected_nodes.concat(relevant_connection_nodes);
 
 
-    return this.fs.saver.copy(all_nodes.map(el => el.id))
+    return this.fs.saver.copy(all_nodes.map(el => el?.id ?? -1))
       .then(ada => {
         this.copy = ada;
         return Promise.resolve(ada);

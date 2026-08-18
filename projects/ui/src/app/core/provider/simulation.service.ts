@@ -3,6 +3,7 @@ import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getColorForSim, getDiameter } from 'adacad-drafting-lib/material/material.js';
 import { CNFloat, computeSimulationData, ContactNeighborhood, getFlatVtxList, SimulationData, SimulationVars, WeftPath, YarnVertex } from 'adacad-drafting-lib/simulation';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { Bounds } from '../model/datatypes';
 import { defaults } from '../model/defaults';
 
@@ -136,10 +137,10 @@ export class SimulationService {
 
 
 
-  public snapToX(controls) {
-    controls.target = new THREE.Vector3(200, 0, 0);
-    controls.update();
-  }
+  // public snapToX(controls: THREE.OrbitControls) {
+  //   controls.target = new THREE.Vector3(200, 0, 0);
+  //   controls.update();
+  // }
 
 
 
@@ -181,7 +182,7 @@ export class SimulationService {
 
 
   //** renders the current for simData in this class */
-  public redraw(selection: Bounds, simData: SimulationData, simVars: SimulationVars, scene: THREE.scene): Promise<THREE.Scene> {
+  public redraw(selection: Bounds, simData: SimulationData, simVars: SimulationVars, scene: THREE.Scene): Promise<THREE.Scene> {
     console.log("REDRAWING SIM DATA ")
 
     scene.clear();
@@ -223,7 +224,7 @@ export class SimulationService {
 
 
 
-  drawAxis(boundary_vtx: any, scene: THREE.scene) {
+  drawAxis(boundary_vtx: any, scene: THREE.Scene) {
 
     console.log("BOUNDARY VTX is ", boundary_vtx)
 
@@ -325,7 +326,7 @@ export class SimulationService {
    * @param vtx2 
    * @returns 
    */
-  getDirectionality(vtx1: YarnVertex, vtx2: YarnVertex): boolean {
+  getDirectionality(vtx1: YarnVertex, vtx2: YarnVertex): boolean | null {
     if (vtx1 === null) return true;
     if (vtx1.ndx.i < vtx2.ndx.i) return null; //moving upward
     if (vtx1.ndx.j < vtx2.ndx.j) return true;
@@ -340,16 +341,15 @@ export class SimulationService {
 
 
 
-  getOrientationVector(vtx0: YarnVertex, vtx1: YarnVertex, vtx2: YarnVertex, warp_spacing: number, diameter: number): { orientation_1: THREE.Vector3, orientation_2: THREE.Vector3 } {
+  getOrientationVector(vtx0: YarnVertex | null, vtx1: YarnVertex, vtx2: YarnVertex, warp_spacing: number, diameter: number): { orientation_1: THREE.Vector3, orientation_2: THREE.Vector3 } {
 
+    if (vtx0 == null) return { orientation_1: new THREE.Vector3(0, 0, 0), orientation_2: new THREE.Vector3(0, 0, 0) };
 
     const last_directionality = this.getDirectionality(vtx0, vtx1);
     const directionality = this.getDirectionality(vtx1, vtx2);
     const control_point_len = warp_spacing / 2;
 
-    const last_float = this.getFloatLength(vtx0, vtx1);
-    const this_float = this.getFloatLength(vtx1, vtx2);
-    const orientation = vtx1.orientation;
+
     //we are on the  edge of the draft about to move up a row
     if (directionality == null) {
       //at an edge
@@ -398,7 +398,7 @@ export class SimulationService {
    * @param scene 
    * @param simdata 
    */
-  drawYarns(simdata: SimulationData, simVars: SimulationVars, selection: Bounds, boundary_vtx: any, scene: THREE.scene) {
+  drawYarns(simdata: SimulationData, simVars: SimulationVars, selection: Bounds, boundary_vtx: any, scene: THREE.Scene) {
 
     this.warp_scene = new THREE.Group();
     this.warp_scene.name = 'warp-scene'
@@ -409,7 +409,7 @@ export class SimulationService {
 
     // WARPS
     simdata.warps.forEach(path => {
-      let pts = [];
+      let pts: Array<THREE.Vector3> = [];
       path.vtxs.forEach(vtx => {
         if (vtx.vtx.x !== undefined) {
           pts.push(new THREE.Vector3(vtx.vtx.x, vtx.vtx.y, vtx.vtx.z));
@@ -451,13 +451,13 @@ export class SimulationService {
     simdata.wefts.forEach(path => {
 
       if (path.vtxs.length >= 2) {
-        const curvePath = new THREE.CurvePath();
+        const curvePath = new THREE.CurvePath<THREE.Vector3>();
 
         const material_id = path.material;
         let diameter = getDiameter(material_id, simVars.ms);
         let color = getColorForSim(material_id, simVars.ms)
 
-        let pts = [];
+        let pts: Array<THREE.Vector3> = [];
 
         //GET POINTS
 
@@ -467,9 +467,9 @@ export class SimulationService {
           //vtx0 is the vertex we last drew (used to calibrate directionality)
           //vtxy is the start of vertex in a pair of verticies that is currently being drawn
           //vtx2 is the ending  vertex in a pair of verticies that is currently being drawn
-          const vtx0 = (x > 0) ? path.vtxs[x - 1] : null;
-          const vtx1 = path.vtxs[x];
-          const vtx2 = path.vtxs[x + 1];
+          const vtx0: YarnVertex | null = (x > 0) ? path.vtxs[x - 1] : null;
+          const vtx1: YarnVertex = path.vtxs[x];
+          const vtx2: YarnVertex = path.vtxs[x + 1];
 
           // const geometry = new THREE.BoxGeometry(diameter, diameter, diameter);
           // const cube = new THREE.Mesh(geometry, material);
@@ -481,8 +481,10 @@ export class SimulationService {
 
           const cp1 = new THREE.Vector3(vtx1.vtx.x + o_vecs.orientation_1.x, vtx1.vtx.y + o_vecs.orientation_1.y, vtx1.vtx.z + o_vecs.orientation_1.z);
           const cp2 = new THREE.Vector3(vtx2.vtx.x + o_vecs.orientation_2.x, vtx2.vtx.y + o_vecs.orientation_2.y, vtx2.vtx.z + o_vecs.orientation_2.z);
+          const vtx1_vec = new THREE.Vector3(vtx1.vtx.x, vtx1.vtx.y, vtx1.vtx.z);
+          const vtx2_vec = new THREE.Vector3(vtx2.vtx.x, vtx2.vtx.y, vtx2.vtx.z);
 
-          const curve = new THREE.CubicBezierCurve3(vtx1.vtx, cp1, cp2, vtx2.vtx);
+          const curve = new THREE.CubicBezierCurve3(vtx1_vec, cp1, cp2, vtx2_vec);
           curvePath.add(curve);
           const points = curve.getPoints(50);
           pts = pts.concat(points);
@@ -655,7 +657,7 @@ export class SimulationService {
 
 
 
-  applyOrientationConversion(object, boundary_vtx) {
+  applyOrientationConversion(object: THREE.Object3D, boundary_vtx: { min_x: number, max_x: number, min_y: number, max_y: number }) {
     const trans = new THREE.Matrix4();
 
     let width = boundary_vtx.max_x - boundary_vtx.min_x;

@@ -194,8 +194,8 @@ export class MaterialComponent {
 
 
       dn.forEach(dn => {
-        dn.draft.rowShuttleMapping = updateMaterialIds(dn.draft.rowShuttleMapping, map, 0);
-        dn.draft.colShuttleMapping = updateMaterialIds(dn.draft.colShuttleMapping, map, 0);
+        if (dn.draft !== null) dn.draft.rowShuttleMapping = updateMaterialIds(dn.draft.rowShuttleMapping, map, 0);
+        if (dn.draft !== null) dn.draft.colShuttleMapping = updateMaterialIds(dn.draft.colShuttleMapping, map, 0);
 
       });
 

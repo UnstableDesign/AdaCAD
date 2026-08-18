@@ -304,8 +304,8 @@ export class StateService {
       case 'CREATED':
         this.noteCreatedUndoSubject.next({
           type: 'REMOVE',
-          before: (<NoteValueChange>change).before,
-          after: (<NoteValueChange>change).after,
+          before: (<NoteValueChange>change).before ?? null,
+          after: (<NoteValueChange>change).after ?? null,
           id: (<NoteValueChange>change).id
         });
         break;

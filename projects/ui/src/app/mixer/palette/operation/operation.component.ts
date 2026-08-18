@@ -734,10 +734,13 @@ export class OperationComponent implements OnInit {
   delete() {
     const operation = this.operations.getOp(this.name);
     const opnode = this.tree.getOpNode(this.id);
+
+    const node = this.tree.getNode(this.id);
+    if (node == null) return;
     const change: OpExistenceChanged = {
       originator: 'OP',
       type: 'REMOVED',
-      node: this.tree.getNode(this.id),
+      node: node,
       inputs: this.tree.getInwardConnectionProxies(this.id),
       outputs: this.tree.getOutwardConnectionProxies(this.id)
     }

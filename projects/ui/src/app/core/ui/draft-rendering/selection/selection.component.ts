@@ -207,6 +207,8 @@ export class SelectionComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
+    if (draft == null) return;
+    if (loom == null) return;
 
     const screen_i = this.getStartingRowIndex();
     const draft_j = this.getStartingColIndex();
@@ -485,9 +487,11 @@ export class SelectionComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    const loom_util = getLoomUtilByType(loom_settings.type);
+    const loom_util = getLoomUtilByType(loom_settings?.type ?? 'jacquard');
 
     if (loom_util === undefined) return;
+    if (draft == null) return;
+    if (loom_settings == null) return;
 
     let pattern: Array<number> = [];
     let mapping: Array<number> = [];
@@ -519,24 +523,24 @@ export class SelectionComponent implements OnInit {
             break;
 
           case 'threading-' + this.source + "-" + this.id:
-            if (loom_util.pasteThreading) loom_util.pasteThreading(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
-            this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+            if (loom_util.pasteThreading && loom != null) loom_util.pasteThreading(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.saveAction.emit(before);
               });
             break;
           case 'tieups-' + this.source + "-" + this.id:
 
-            if (loom_util.pasteTieup) loom_util.pasteTieup(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
-            this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+            if (loom_util.pasteTieup && loom != null) loom_util.pasteTieup(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.saveAction.emit(before);
               });
             break;
           case 'treadling-' + this.source + "-" + this.id:
-            if (loom_util.pasteTreadling) loom_util.pasteTreadling(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            if (loom_util.pasteTreadling && loom != null) loom_util.pasteTreadling(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
 
-            this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+            if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.saveAction.emit(before);
               });
@@ -749,6 +753,8 @@ export class SelectionComponent implements OnInit {
     this.selectionEventSubject.next('started');
     this.hide_actions = true;
     const draft = this.tree.getDraft(this.id);
+
+    if (draft == null) return;
     this.cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     this.cell_size = this.cell_size / this.render.pixel_ratio;
 
@@ -776,7 +782,7 @@ export class SelectionComponent implements OnInit {
 
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-
+    if (loom_settings == null) return;
 
     this.start = start;
     this.hide_parent = false;
@@ -784,11 +790,11 @@ export class SelectionComponent implements OnInit {
     switch (target.id) {
 
       case 'treadling-' + this.source + "-" + this.id:
-        this.width = Math.max(numTreadles(loom), loom_settings.treadles);
+        this.width = (loom != null) ? Math.max(numTreadles(loom), loom_settings.treadles) : 0;
         break;
 
       case 'threading-' + this.source + "-" + this.id:
-        this.height = Math.max(numFrames(loom), loom_settings.frames);
+        this.height = (loom != null) ? Math.max(numFrames(loom), loom_settings.frames) : 0;
         break;
 
       case 'weft-system-' + this.source + "-" + this.id:

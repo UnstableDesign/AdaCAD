@@ -17,8 +17,8 @@ const httpOptions = {
 export class UploadService {
   private fb = inject(FirebaseService)
 
-  uploadProgress: Observable<number>;
-  progress: number;
+  uploadProgress!: Observable<number>;
+  progress!: number;
   imageToShow: any;
   uploads: Array<Upload> = []; //hold a list of all the uploads so we can delete at end. 
 
@@ -51,7 +51,7 @@ export class UploadService {
       let reader = new FileReader();
 
       reader.onload = function (event) {
-        let data = event.target.result;
+        let data = event.target?.result;
         console.log("GET HASH ", data)
         let ret: any = data;
         if (data) {
@@ -121,7 +121,7 @@ export class UploadService {
 
     //const id = Math.random().toString(36).substring(2);
     let id = '';
-    let metadata: UploadMetadata = null;
+    let metadata: UploadMetadata;
     let uid = (this.fb.auth.currentUser) ? this.fb.auth.currentUser.uid : -1;
     return this.getHash(upload)
       .then(hash => {
@@ -215,7 +215,7 @@ export class UploadService {
       });
   }
 
-  alreadyLoaded(id): Promise<boolean> {
+  alreadyLoaded(id: string): Promise<boolean> {
     if (id === 'noinput') return Promise.resolve(false);
 
     return getDownloadURL(ref(storage, 'uploads/' + id))

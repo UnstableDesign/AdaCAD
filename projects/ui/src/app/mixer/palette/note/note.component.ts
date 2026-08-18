@@ -229,7 +229,8 @@ export class NoteComponent implements OnInit {
 
 
   //called from an undo event
-  updateValues(note: Note) {
+  updateValues(note: Note | null) {
+    if (note == null) return;
     this.note.title = note.title;
     this.note.text = note.text;
     this.note.imageurl = note.imageurl;

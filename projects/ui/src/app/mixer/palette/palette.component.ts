@@ -169,7 +169,7 @@ export class PaletteComponent implements OnInit {
         });
         return Promise.all(outputs_to_update);
       }).catch(error => {
-        this.postOperationErrorMessage(dn.component.id, error);
+        this.postOperationErrorMessage(dn.component?.id ?? -1, error);
       });
     })
 
@@ -184,7 +184,7 @@ export class PaletteComponent implements OnInit {
     //Subscribe to state events that are triggered by undo/redo
     const paramChangeFromStateSubscription = this.ss.opParamChangeUndo$.subscribe(action => {
       const op = this.tree.getOpNode(action.opid);
-      if (op && op.component) (<OperationComponent>op.component).setParamFromStateEvent(action.paramid, action.value);
+      if (op && op.component && action.value !== null) (<OperationComponent>op.component).setParamFromStateEvent(action.paramid, action.value);
     });
 
     const opCreatedUndoSubscription = this.ss.opCreatedUndo$.subscribe(action => {
@@ -237,7 +237,7 @@ export class PaletteComponent implements OnInit {
     })
 
     const cxnCreatedUndoSubscription = this.ss.connectionCreatedUndo$.subscribe(action => {
-      this.removeConnection({ id: action.node.id });
+      if (action.node !== null) this.removeConnection({ id: action.node.id });
     })
 
     const cxnRemovedUndoSubscription = this.ss.connectionRemovedUndo$.subscribe(action => {
@@ -438,7 +438,8 @@ export class PaletteComponent implements OnInit {
    * removes the view associate with this view ref
    * @param ref 
    */
-  removeFromViewContainer(ref: ViewRef) {
+  removeFromViewContainer(ref: ViewRef | null) {
+    if (ref == null) return;
     const ndx: number = this.vc.indexOf(ref);
     if (ndx !== -1) this.vc.remove(ndx);
     // else console.log('Error: view ref not found for removal', ref);
@@ -788,8 +789,11 @@ export class PaletteComponent implements OnInit {
   }
 
   createSubDraftFromEditedDetail(id: number): Promise<SubdraftComponent> {
-    const node: Node = this.tree.getNode(id);
+    const node = this.tree.getNode(id);
+    if (node == null) return Promise.reject(new Error('Node not found'));
     const subdraft = this.vc.createComponent(SubdraftComponent);
+    const draft = this.tree.getDraft(id);
+    if (draft == null) return Promise.reject(new Error('Draft not found'));
     this.setSubdraftSubscriptions(subdraft.instance);
 
     node.component = subdraft.instance;
@@ -797,7 +801,7 @@ export class PaletteComponent implements OnInit {
 
     subdraft.instance.id = id;
     subdraft.instance.dn = <DraftNode>this.tree.getNode(id);
-    subdraft.instance.draft = this.tree.getDraft(id);
+    subdraft.instance.draft = draft;
     subdraft.instance.scale = this.zs.getMixerZoom();
 
     return Promise.resolve(subdraft.instance);
@@ -811,6 +815,7 @@ export class PaletteComponent implements OnInit {
   loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy) {
     const component = this.vc.createComponent(SubdraftComponent);
     const node = this.tree.getNode(id)
+    if (node == null) return;
     node.component = component.instance;
     node.ref = component.hostView;
     const subdraft: SubdraftComponent = component.instance;
@@ -950,7 +955,7 @@ export class PaletteComponent implements OnInit {
   loadConnection(id: number) {
     const cxn = this.vc.createComponent(ConnectionComponent);
     const node = this.tree.getNode(id);
-
+    if (node == null) return;
     node.component = cxn.instance;
     this.setConnectionSubscriptions(cxn.instance);
     node.ref = cxn.hostView;
@@ -1010,7 +1015,7 @@ export class PaletteComponent implements OnInit {
   pasteSubdraft(draftnode: DraftNode): Promise<number> {
     //create a new idea for this draft node: 
 
-
+    if (draftnode.draft == null) return Promise.reject(new Error('Draft is null in paste subdraft'));
     let d = copyDraft(draftnode.draft);
     let l = draftnode.loom ? copyLoom(draftnode.loom) : null;
     let ls = copyLoomSettings(draftnode.loom_settings);
@@ -1154,10 +1159,12 @@ export class PaletteComponent implements OnInit {
 
     if (id === null || id == -1) return;
 
+    const tn = this.tree.getNode(id);
+    if (tn == null) return;
     const change: DraftExistenceChange = {
       originator: 'DRAFT',
       type: 'REMOVED',
-      node: this.tree.getNode(id),
+      node: tn,
       inputs: [],
       outputs: this.tree.getOutwardConnectionProxies(id)
     }
@@ -1836,13 +1843,14 @@ export class PaletteComponent implements OnInit {
     const sd: number = this.tree.getOpenConnectionId();
 
 
-
-
     const cxn = this.createConnection(sd, obj.id, obj.ndx);
+    const cxn_node = this.tree.getNode(cxn.id);
+    if (cxn_node == null) return;
+
     const change: ConnectionExistenceChange = {
       originator: 'CONNECTION',
       type: 'CREATED',
-      node: this.tree.getNode(cxn.id),
+      node: cxn_node,
       inputs: [{ from_id: sd, inlet_id: 0 }],
       outputs: [{ identity: 'OP', outlet_id: 0, to_id: obj.id, inlet_id: obj.ndx }]
     }
@@ -1883,16 +1891,18 @@ export class PaletteComponent implements OnInit {
     let to = this.tree.getConnectionOutputWithIndex(obj.id);
     let from = this.tree.getConnectionInput(obj.id);
 
+    if (to !== null) {
+      const to_delete = this.tree.removeConnectionNodeById(obj.id);
+      to_delete.forEach(node => this.removeFromViewContainer(node.ref));
+    }
 
-    const to_delete = this.tree.removeConnectionNodeById(obj.id);
-    to_delete.forEach(node => this.removeFromViewContainer(node.ref));
 
     // if(to_delete.length > 0) console.log("Error: Removing Connection triggered other deletions");
 
     this.processConnectionEnd();
     this.setOutletStylingOnConnection(from, false);
 
-    if (this.tree.getType(to.id) === "op") {
+    if (to !== null && this.tree.getType(to.id) === "op") {
       try {
         await this.performAndUpdateDownstream(to.id);
         this.vs.updateViewer();

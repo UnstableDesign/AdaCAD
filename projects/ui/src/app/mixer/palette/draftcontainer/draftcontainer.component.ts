@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Draft } from 'adacad-drafting-lib';
+import { Draft, getLoomUtilByType } from 'adacad-drafting-lib';
 import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { DraftNode, RenderingFlags } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
@@ -23,6 +23,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { Subscription } from 'rxjs';
 import { StateService } from '../../../core/provider/state.service';
 import { ZoomService } from '../../../core/provider/zoom.service';
+import { defaults } from '../../../core/model/defaults';
 
 
 @Component({
@@ -138,14 +139,14 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
     this.draftValueChangeSubscription = dn.onValueChange.subscribe(el => {
-      this.updateDraftInfo(el.draft);
+      if (el.draft !== null) this.updateDraftInfo(el.draft);
     });
 
 
     // this.forceDrawDraft(draft);
     this.localZoomChange(this.local_zoom);
 
-    this.updateDraftInfo(dn.draft);
+    if (dn.draft !== null) this.updateDraftInfo(dn.draft);
     this.startSizeObserver();
 
     this.globalZoomUndo = 1 / this.zs.getMixerZoom();
@@ -338,7 +339,7 @@ export class DraftContainerComponent implements AfterViewInit {
     }
 
     //pushes to the queue
-    return this.draft_rendering.redraw(draft, loom, loom_settings, flags).then(el => {
+    return this.draft_rendering.redraw(draft, loom, loom_settings ?? defaults.loom_settings, flags).then(el => {
       this.onDrawdownSizeChanged.emit(this.id);
       return Promise.resolve(true);
     }).catch(err => {
@@ -366,16 +367,36 @@ export class DraftContainerComponent implements AfterViewInit {
   async saveAsWif() {
 
     let draft = this.tree.getDraft(this.id);
+    if (draft == null) return Promise.reject(new Error('Draft not found'));
     let loom = this.tree.getLoom(this.id);
-    let loom_settings = this.tree.getLoomSettings(this.id);
-    saveAsWif(this.fs, draft, loom, loom_settings)
+    let loom_settings = this.tree.getLoomSettings(this.id) ?? defaults.loom_settings;
+
+
+    if (loom == null) {
+      const utils = getLoomUtilByType('direct');
+      if (utils.computeLoomFromDrawdown) utils.computeLoomFromDrawdown(draft.drawdown, defaults.loom_settings)
+        .then(loom => {
+          saveAsWif(this.fs, draft, loom, loom_settings)
+        })
+        .catch(err => {
+          console.error('Error computing loom from drawdown', err);
+          return Promise.reject(err);
+        });
+
+    } else {
+      saveAsWif(this.fs, draft, loom, loom_settings)
+
+    }
+
+
+
 
 
   }
 
   async saveAsPrint() {
     let draft = this.tree.getDraft(this.id);
-
+    if (draft == null) return Promise.reject(new Error('Draft not found'));
     let floats = (this.current_view == 'draft') ? false : true;
     let color = (this.current_view == 'visual') ? true : false;
 
@@ -408,7 +429,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
     let b = this.bitmap.nativeElement;
     let draft = this.tree.getDraft(this.id);
-
+    if (draft == null) return Promise.reject(new Error('Draft not found'));
     saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
 
   }

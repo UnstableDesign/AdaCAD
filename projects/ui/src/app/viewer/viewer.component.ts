@@ -25,6 +25,7 @@ import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-render
 import { RenameComponent } from '../core/ui/rename/rename.component';
 import { SimulationComponent } from './simulation/simulation.component';
 import { OpParamVal } from 'adacad-drafting-lib/operations/types.js';
+import { defaults } from 'adacad-drafting-lib/utils/defaults.js';
 
 @Component({
   selector: 'app-viewer',
@@ -226,13 +227,16 @@ export class ViewerComponent {
     const draft = this.tree.getDraft(id);
     if (draft == null) return;
 
-    this.before_name = getDraftName(this.tree.getDraft(id));
+
+    this.before_name = getDraftName(draft);
     this.before_notes = this.tree.getDraftNotes(id);
     this.draft_name = this.before_name;
     this.draft_notes = this.before_notes;
     this.warps = warps(draft.drawdown);
     this.wefts = wefts(draft.drawdown);
-    this.epiUnits = this.tree.getLoomSettings(id).units === 'in' ? 'ends / inch' : 'ends / 10cm';
+    const loom_settings = this.tree.getLoomSettings(id);
+    if (loom_settings == null) this.epiUnits = defaults.loom_settings.units;
+    else this.epiUnits = loom_settings.units === 'in' ? 'ends / inch' : 'ends / 10cm';
 
 
 
@@ -470,9 +474,11 @@ export class ViewerComponent {
    */
   public forceRedraw(front: boolean = true): Promise<any> {
 
-    const draft: Draft = this.tree.getDraft(this.vs.getViewerId());
+    const draft: Draft | null = this.tree.getDraft(this.vs.getViewerId());
+    if (draft == null) return Promise.resolve(false);
     const loom = this.tree.getLoom(this.vs.getViewerId());
     const loom_settings = this.tree.getLoomSettings(this.vs.getViewerId());
+    if (loom_settings == null) return Promise.resolve(false);
 
     if (draft == null || draft == undefined) {
       this.clearView();

@@ -85,6 +85,7 @@ export class ConnectionComponent implements OnInit {
 
 
     const treenode = this.tree.getTreeNode(this.id);
+    if (treenode == null) return;
     const from_io = treenode.inputs[0];
     const to_io = treenode.outputs[0];
 
@@ -94,8 +95,6 @@ export class ConnectionComponent implements OnInit {
 
     this.no_draw = this.tree.getType(this.from) === 'op' && this.tree.hasSingleChild(this.from);
     this.show_disconnect = !(this.tree.getType(this.from) === 'op' && !(this.tree.hasSingleChild(this.from)));
-
-    this.updatePathText()
 
     const connectionNode = <ConnectionNode>this.tree.getNode(this.id);
 
@@ -156,6 +155,7 @@ export class ConnectionComponent implements OnInit {
 
 
     let to_withdata = this.tree.getConnectionOutputWithIndex(this.id);
+    if (to_withdata == null) return;
     this.to = to_withdata.id;
     this.from = this.tree.getConnectionInput(this.id);
 
@@ -186,6 +186,7 @@ export class ConnectionComponent implements OnInit {
       if (pos === null) return;
       let to_withdata = this.tree.getConnectionOutputWithIndex(this.id);
 
+      if (to_withdata == null) return;
       // Defer DOM read until after browser has updated
       requestAnimationFrame(() => {
         this.updateToPosition(to_withdata.inlet, to_withdata.arr);
@@ -225,10 +226,13 @@ export class ConnectionComponent implements OnInit {
     let to = this.tree.getConnectionOutputWithIndex(this.id);
     let from = this.tree.getConnectionInput(this.id);
 
+    if (to == null) return;
+    const cxn_node = this.tree.getNode(this.id);
+    if (cxn_node == null) return;
     const change: ConnectionExistenceChange = {
       originator: 'CONNECTION',
       type: 'REMOVED',
-      node: this.tree.getNode(this.id),
+      node: cxn_node,
       inputs: [{ from_id: from, inlet_id: 0 }],
       outputs: [{ identity: 'OP', outlet_id: 0, to_id: to.id, inlet_id: to.inlet }]
     }
@@ -238,24 +242,24 @@ export class ConnectionComponent implements OnInit {
   }
 
 
-  updatePathText() {
-    const treenode = this.tree.getTreeNode(this.id);
-    //  const from_io = treenode.inputs[0];
-    const to_io = treenode.outputs[0];
-    //  const from = from_io.tn.node.id;
-    const to = to_io.tn.node.id;
-    if (this.tree.getNode(to).type == "op") {
-      //    const from_node = <DraftNode> this.tree.getNode(from);
-      const op_node = <OpNode>this.tree.getNode(to);
-      const op_info = this.ops.getOp(op_node.name);
-      const inlet = this.tree.getInletOfCxn(op_node.id, this.id);
-      if (op_info.inlets[inlet] !== undefined && op_info.inlets[inlet].uses !== 'draft') {
-        this.path_text = "inlet uses only " + op_info.inlets[inlet].uses;
-      }
-      else this.path_text = "";
+  // updatePathText() {
+  //   const treenode = this.tree.getTreeNode(this.id);
+  //   //  const from_io = treenode.inputs[0];
+  //   const to_io = treenode?.outputs[0];
+  //   //  const from = from_io.tn.node.id;
+  //   const to = to_io?.tn.node.id;
+  //   if (to !== undefined && this.tree.getNode(to)?.type == "op") {
+  //     //    const from_node = <DraftNode> this.tree.getNode(from);
+  //     const op_node = <OpNode>this.tree.getNode(to);
+  //     const op_info = this.ops.getOp(op_node.name);
+  //     const inlet = this.tree.getInletOfCxn(op_node.id, this.id);
+  //     if (op_info.inlets[inlet] !== undefined && op_info.inlets[inlet].uses !== 'draft') {
+  //       this.path_text = "inlet uses only " + op_info.inlets[inlet].uses;
+  //     }
+  //     else this.path_text = "";
 
-    }
-  }
+  //   }
+  // }
 
 
 
@@ -310,7 +314,8 @@ export class ConnectionComponent implements OnInit {
   */
   refreshConnection() {
     this.updateFromPosition();
-    let to = this.tree.getConnectionOutputWithIndex(this.id)
+    let to = this.tree.getConnectionOutputWithIndex(this.id);
+    if (to == null) return;
     this.updateToPosition(to.inlet, to.arr);
     this.calculateBounds();
     this.drawConnection();

@@ -21,9 +21,9 @@ import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.compone
  */
 type BaseNode = {
   type: 'draft' | 'op' | 'cxn',
-  ref: ViewRef,
+  ref: ViewRef | null,
   id: number, //this will be unique for every instance
-  component: SubdraftComponent | OperationComponent | ConnectionComponent,
+  component: SubdraftComponent | OperationComponent | ConnectionComponent | null,
   dirty: boolean
 }
 
@@ -63,7 +63,7 @@ export type ConnectionNode = BaseNode & {
  * @param valueChange$ an observable to subscribe to the draft when it changes
  */
 export type DraftNode = BaseNode & {
-  draft: Draft,
+  draft: Draft | null,
   loom: Loom | null,
   loom_settings: LoomSettings,
   render_colors: boolean,
@@ -71,7 +71,7 @@ export type DraftNode = BaseNode & {
   visible: boolean,
   mark_for_deletion: boolean,
   onValueChange: BehaviorSubject<DraftNodeBroadcast>, //called anytime a value on this draft is set
-  canvases: CanvasList,
+  canvases: CanvasList | null,
   positionChange: BehaviorSubject<Point>
 
 }
@@ -85,8 +85,8 @@ export type Node = BaseNode | OpNode | DraftNode;
 
 export type DraftNodeBroadcast = {
   id: number,
-  draft: Draft,
-  loom: Loom,
+  draft: Draft | null,
+  loom: Loom | null,
   loom_settings: LoomSettings,
   flags: DraftNodeBroadcastFlags
 }
@@ -268,10 +268,10 @@ export interface DraftNodeProxy {
   ud_name: string;
   gen_name: string;
   notes: string;
-  draft: Draft;
-  compressed_draft: CompressedDraft;
+  draft: Draft | null;
+  compressed_draft: CompressedDraft | null;
   draft_visible: boolean;
-  loom: Loom;
+  loom: Loom | null;
   loom_settings: LoomSettings;
   render_colors: boolean;
   scale: number;
@@ -442,7 +442,7 @@ export interface IOTuple {
 */
 export interface TreeNode {
   node: Node,
-  parent: TreeNode,
+  parent: TreeNode | null,
   inputs: Array<IOTuple>,
   outputs: Array<IOTuple>
 }
@@ -550,9 +550,9 @@ export type ShareObj = {
  * @param loom_settings the loom settings object
  */
 export interface DraftNodeState {
-  draft: Draft;
+  draft: Draft | null;
   draft_visible: boolean;
-  loom: Loom;
+  loom: Loom | null;
   loom_settings: LoomSettings;
   scale: number;
 }
@@ -704,8 +704,8 @@ export type FileMetaStateAction = StateAction & {
 }
 
 export type NoteAction = StateAction & {
-  before: Note,
-  after: Note,
+  before: Note | null,
+  after: Note | null,
   id: number
 }
 
@@ -719,11 +719,11 @@ export type MoveAction = StateAction & {
 export type ParamAction = StateAction & {
   opid: number,
   paramid: number,
-  value: OpParamValType
+  value: OpParamValType | null
 }
 
 export type NodeAction = StateAction & {
-  node: Node,
+  node: Node | null,
   inputs: Array<InwardConnectionProxy>,
   outputs: Array<OutwardConnectionProxy>,
   media?: Array<MediaInstance>

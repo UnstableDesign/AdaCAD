@@ -107,10 +107,12 @@ export class MixerComponent {
     const outputs = this.tree.getNonCxnOutputs(id);
     if (outputs.length > 0) this.vs.setViewer(outputs[0]);
 
+    const node = this.tree.getNode(id);
+    if (node == null) return;
     const change: OpExistenceChanged = {
       originator: 'OP',
       type: 'CREATED',
-      node: this.tree.getNode(id),
+      node: node,
       inputs: this.tree.getInwardConnectionProxies(id),
       outputs: this.tree.getOutwardConnectionProxies(id)
     }
@@ -149,11 +151,12 @@ export class MixerComponent {
 
       this.palette.createSubDraft(draft, loom, loom_settings).then(instance => {
         instance.isNew = true;
-
+        const node = this.tree.getNode(instance.id);
+        if (node == null) return Promise.reject(new Error('Node not found'));
         const change: DraftExistenceChange = {
           originator: 'DRAFT',
           type: 'CREATED',
-          node: this.tree.getNode(instance.id),
+          node: node,
           inputs: [],
           outputs: []
         }
@@ -175,10 +178,12 @@ export class MixerComponent {
       .then(instance => {
         console.log("CREATED NEW DRAFT", instance);
         instance.isNew = true;
+        const node = this.tree.getNode(instance.id);
+        if (node == null) return Promise.reject(new Error('Node not found'));
         const change: DraftExistenceChange = {
           originator: 'DRAFT',
           type: 'CREATED',
-          node: this.tree.getNode(instance.id),
+          node: node,
           inputs: [],
           outputs: []
         }

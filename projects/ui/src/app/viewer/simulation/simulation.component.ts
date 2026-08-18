@@ -297,7 +297,9 @@ export class SimulationComponent implements OnInit, OnDestroy {
       this.simVars.max_theta = formValues.maxTheta * Math.PI / 180;
     }
     if (formValues.warpSpacing !== undefined && formValues.warpSpacing !== this.simVars.warp_spacing) {
-      let loom_settings = copyLoomSettings(this.tree.getLoomSettings(this.id));
+      let orig_loom_settings = this.tree.getLoomSettings(this.id);
+      if (orig_loom_settings == null) orig_loom_settings = defaults.loom_settings;
+      let loom_settings = copyLoomSettings(orig_loom_settings);
       loom_settings.epi = formValues.warpSpacing;
       this.simVars.warp_spacing = convertEPItoMM(loom_settings);
     }
@@ -357,7 +359,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (this.draftChangeSubscription) this.draftChangeSubscription.unsubscribe();
 
     this.draftChangeSubscription = draftNode.onValueChange.subscribe(draftNodeBroadcast => {
-      console.log("SIM ON DRAFT CHANGE", draftNodeBroadcast);
       if (draftNodeBroadcast.loom_settings == null) {
         draftNodeBroadcast.loom_settings = {
           type: 'jacquard',
@@ -370,7 +371,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
       }
       this.simVars.warp_spacing = convertEPItoMM(draftNodeBroadcast.loom_settings);
       this.updateSimFormValues();
-      this.recalcAndRenderSimData(draftNodeBroadcast.draft);
+      if (draftNodeBroadcast.draft !== null) this.recalcAndRenderSimData(draftNodeBroadcast.draft);
     });
   }
 
@@ -401,8 +402,8 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (draft == null) draft = this.tree.getDraft(this.id);
     this.selection_bounds = {
       topleft: { x: 0, y: 0 },
-      width: warps(draft.drawdown),
-      height: wefts(draft.drawdown)
+      width: warps(draft?.drawdown ?? []),
+      height: wefts(draft?.drawdown ?? [])
     }
   }
 

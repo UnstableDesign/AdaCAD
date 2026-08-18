@@ -185,7 +185,7 @@ export class EditorComponent implements OnInit {
     });
 
     this.eventTargetSetSubscription = this.weaveRef.eventTargetSet$.subscribe(target => {
-      this.eventTargetSet(target);
+      if (target) this.eventTargetSet(target);
     });
 
     this.pencilChangeSubscription = this.weaveRef.pencilChange$.subscribe(pencil => {
@@ -268,7 +268,7 @@ export class EditorComponent implements OnInit {
         break;
       case 'treadling':
 
-        switch (loom_settings.type) {
+        switch (loom_settings?.type) {
           case 'direct':
             this.designActions.forEach(action => {
               action.enabled = true;
@@ -415,7 +415,7 @@ export class EditorComponent implements OnInit {
    */
   createNewDraft() {
     //copy over the loom settings
-    const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id) ?? defaults.loom_settings;
     const draft = this.tree.getDraft(this.id);
     const obj = {
       type: loom_settings.type,
@@ -424,8 +424,8 @@ export class EditorComponent implements OnInit {
       units: loom_settings.units,
       frames: loom_settings.frames,
       treadles: loom_settings.treadles,
-      warps: warps(draft.drawdown),
-      wefts: wefts(draft.drawdown),
+      warps: draft != null ? warps(draft.drawdown) : 1,
+      wefts: draft != null ? wefts(draft.drawdown) : 1,
       origin: 'newdraft'
     }
 
@@ -439,7 +439,7 @@ export class EditorComponent implements OnInit {
   createDraftCopy(id: number) {
 
     //copy over the loom settings
-    const old_loom_settings: LoomSettings = this.tree.getLoomSettings(id);
+    const old_loom_settings: LoomSettings = this.tree.getLoomSettings(id) ?? defaults.loom_settings;
     const loom_settings = {
       type: old_loom_settings.type,
       epi: old_loom_settings.epi,
@@ -498,6 +498,7 @@ export class EditorComponent implements OnInit {
 
     this.id = id;
     const draft = this.tree.getDraft(id);
+    if (draft == null) return;
     const draftNode = this.tree.getNode(id) as DraftNode;
     let ls = this.tree.getLoomSettings(id);
 
@@ -514,7 +515,7 @@ export class EditorComponent implements OnInit {
     }
 
 
-    if (ls.type === 'jacquard') {
+    if (ls !== null && ls.type === 'jacquard') {
       this.weaveRef.setDraftEditSource('drawdown');
     } else {
       this.weaveRef.setDraftEditSource('loom');
@@ -563,6 +564,11 @@ export class EditorComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+
+
+    if (draft == null) return;
+    if (loom_settings == null) return;
+
     const flags: RenderingFlags = {
       u_drawdown: true,
       u_threading: true,
@@ -699,7 +705,7 @@ export class EditorComponent implements OnInit {
 
     const loom_settings = this.tree.getLoomSettings(this.id);
 
-    if (loom_settings.type !== 'jacquard') {
+    if (loom_settings !== null && loom_settings.type !== 'jacquard') {
 
       if (this.weaveRef.isSelectedDraftEditSource('drawdown')) {
         this.weaveRef.setDraftEditSource('drawdown');

@@ -101,7 +101,9 @@ export class DraftinfocardComponent {
 
   refreshData() {
     const draft = this.tree.getDraft(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
+    if (draft == null) return;
+    let loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) loom_settings = appDefaults.loom_settings;
     this.nameForm.setValue(getDraftName(draft), { emitEvent: false });
     this.notesForm.setValue(draft.notes || '', { emitEvent: false });
     this.epiForm.setValue(loom_settings.epi || libDefaults.loom_settings.epi, { emitEvent: false });
@@ -162,6 +164,7 @@ export class DraftinfocardComponent {
     let out_ops = out_cxns.map(o => this.tree.getConnectionOutputWithIndex(o.tn.node.id));
 
     out_ops.forEach(o => {
+      if (o == null) return;
       let op_node = this.tree.getOpNode(o.id);
       let op_obj = this.ops.getOp(op_node.name);
 

@@ -321,7 +321,7 @@ export const isSet = (d: Drawdown, i: number, j: number): boolean => {
  * @param bool the value (true for up, false for down, null for unset)
  * @returns 
  */
-export const setHeddle = (d: Drawdown, i: number, j: number, bool: boolean): Drawdown => {
+export const setHeddle = (d: Drawdown, i: number, j: number, bool: boolean | null): Drawdown => {
   d[i][j] = setCellValue(d[i][j], bool);
   return d;
 }
