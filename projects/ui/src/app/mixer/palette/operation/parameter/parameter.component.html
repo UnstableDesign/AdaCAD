@@ -5,16 +5,16 @@
   <div class="number_input">
     <mat-form-field>
       <mat-label>{{param.name}}</mat-label>
-      <input matInput [formControl]="fc" type="number" [name]=param.name [min]=param.min [max]=param.max step=1>
+      <input matInput [formControl]="fc" type="number" [name]=param.name [min]=param_min [max]=param_max step=1>
       @if (fc.invalid && (fc.dirty || fc.touched)) {
       @if (fc.hasError('required')) {
-      <mat-error>a value between {{param.min}} and {{param.max}} is required</mat-error>
+      <mat-error>a value between {{param_min}} and {{param_max}} is required</mat-error>
       }
       @if (fc.hasError('min')) {
-      <mat-error>value must be greater than {{param.min}}</mat-error>
+      <mat-error>value must be greater than {{param_min}}</mat-error>
       }
       @if (fc.hasError('max')) {
-      <mat-error>value must be less than {{param.max}}</mat-error>
+      <mat-error>value must be less than {{param_max}}</mat-error>
       }
       }
     </mat-form-field>
@@ -34,8 +34,8 @@
   <div class="select-input">
     <mat-form-field>
       <mat-label>{{param.name}}</mat-label>
-      <mat-select [panelWidth]="auto" [formControl]="fc">
-        @for (opt of param.selectlist; track opt) {
+      <mat-select [formControl]="fc">
+        @for (opt of param_selectlist; track opt) {
         <mat-option [value]="opt.value">
           {{opt.name}}
         </mat-option>
@@ -49,12 +49,12 @@
   <div class="boolean-input">
     <mat-form-field>
       <mat-label>{{param.name}}</mat-label>
-      <mat-select [panelWidth]="auto" [formControl]="fc">
+      <mat-select [formControl]="fc">
         <mat-option [value]="1">
-          {{param.truestate}}
+          {{true_state_langauge}}
         </mat-option>
         <mat-option [value]="0">
-          {{param.falsestate}}
+          {{false_state_langauge}}
         </mat-option>
       </mat-select>
     </mat-form-field>
@@ -80,7 +80,7 @@
     <div class="form-and-warning">
       <button mat-raised-button [class.show]="has_image_uploaded" [class.hide]="!has_image_uploaded"
         (click)="replaceImage()">Replace Image</button>
-      <upload-form [class.show]="!has_image_uploaded" [class.hide]="has_image_uploaded" type="init" multiple="false"
+      <upload-form [class.show]="!has_image_uploaded" [class.hide]="has_image_uploaded" type="init" [multiple]="false"
         accepts=".jpg,.png,.bmp" type="indexed_color_image" (onData)="handleFile($event)"
         (onError)="handleError($event)" class="upload-form-box">
       </upload-form>

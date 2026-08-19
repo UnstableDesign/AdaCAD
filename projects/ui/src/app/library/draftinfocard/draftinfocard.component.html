@@ -2,7 +2,7 @@
 
     <div class="draft-info-card-header">
         <div class="draft-info-card-header-name">
-            <mat-form-field appearance="filled">
+            <mat-form-field appearance="fill">
                 <input matInput [formControl]="nameForm" (keyup.enter)="saveName()">
             </mat-form-field>
             @if((nameForm.dirty)) {
@@ -89,10 +89,10 @@
                 <div class="density">
                     <div class="data-label">density (epi/ppi)</div>
                     <div class="density-inputs">
-                        <mat-form-field appearance="filled">
+                        <mat-form-field appearance="fill">
                             <input matInput [formControl]="epiForm" type="number" min="0">
                         </mat-form-field>
-                        <mat-form-field appearance="filled">
+                        <mat-form-field appearance="fill">
                             <input matInput [formControl]="ppiForm" type="number" min="0">
                         </mat-form-field>
                         <div class="density-input-units">{{densityUnits}}</div>
@@ -105,7 +105,7 @@
 
 
             <div class="draft-actions">
-                <app-download origin="library" [ids]="[id]" [workspaceName]=""></app-download>
+                <app-download origin="library" [ids]="[id]" workspaceName=""></app-download>
                 <button matButton matTooltip="open the draft in the editor" (click)="openDraftInEditor()"><i
                         class="fa-solid fa-pen-to-square"></i></button>
                 <button matButton matTooltip="open the draft in the mixer" (click)="openDraftInMixer()"><i

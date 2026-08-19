@@ -171,7 +171,7 @@ export class MixerComponent {
   /**
  * called when the app needs to make a draft for the draft editor or when an "add draft" button as been clicked from the draft editor
  */
-  createNewDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings): Promise<number> {
+  createNewDraft(draft: Draft, loom: Loom | null, loom_settings: LoomSettings | null): Promise<number> {
 
     console.log("CREATING NEW DRAFT", draft, loom, loom_settings);
     return this.palette.createSubDraft(draft, loom, loom_settings)
@@ -488,7 +488,8 @@ export class MixerComponent {
   }
 
 
-  public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy) {
+  public loadSubDraft(id: number, d: Draft | undefined, nodep: NodeComponentProxy | undefined, draftp: DraftNodeProxy | undefined) {
+    if (d === undefined || nodep === undefined || draftp === undefined) return;
     this.palette.loadSubDraft(id, d, nodep, draftp);
   }
 

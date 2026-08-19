@@ -33,7 +33,7 @@ export class SubdraftComponent implements OnInit {
   private multiselect = inject(MultiselectService);
   private vs = inject(ViewerService);
   zs = inject(ZoomService);
-  private ss = inject(StateService);
+  ss = inject(StateService);
 
 
   @ViewChild('draftcontainer') draftcontainer!: DraftContainerComponent;
@@ -708,7 +708,7 @@ export class SubdraftComponent implements OnInit {
    * this is emitted from the draft container when something from it's options menu is selected
    * @param e 
    */
-  private designAction(e: { event: string, id: number }) {
+  public designAction(e: { event: string, id: number }) {
 
     let event = e.event;
     let id = e.id;

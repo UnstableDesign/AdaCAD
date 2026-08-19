@@ -96,10 +96,12 @@ export class DraftRenderingComponent implements OnInit {
 
   //use this to set the current width of the warp text. This will change with the warp canvas changes
   warp_text_div_width: string = '1000px';
+  cell_size: number = defaults.draft_detail_cell_size;
 
   //use this to set the current width of the warp text. This will change with the warp canvas changes
   weft_text_div_height: string = '1000px';
 
+  epi: number = defaults.loom_settings.epi;
   pencil = 'toggle'; //toggle, up, down, unset, material
   draft_edit_source = 'drawdown'; //drawdown, loom
   use_sizes: boolean = false;
@@ -336,7 +338,7 @@ export class DraftRenderingComponent implements OnInit {
 
       if (draft !== null) {
 
-
+        this.epi = loom_settings?.epi ?? defaults.loom_settings.epi;
         this.redraw(draft, loom, loom_settings, flags).then(el => {
           this.draftValueChangeCallCount++;
           this.refreshOriginMarker();
@@ -381,6 +383,7 @@ export class DraftRenderingComponent implements OnInit {
 
     let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     cell_size = cell_size / this.render.pixel_ratio;
+    this.cell_size = cell_size;
     const parentContainer = highlightRow?.parentElement;
     const rect = parentContainer?.getBoundingClientRect() ?? { left: 0, top: 0 };
     //event page X is the mouse in absolute terms, rect left is the corner of the parent container

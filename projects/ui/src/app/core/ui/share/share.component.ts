@@ -176,6 +176,7 @@ export class ShareComponent {
       return;
     }
 
+
     if (this.share_obj === null) return;
 
     // Update share_obj from form values
@@ -201,6 +202,10 @@ export class ShareComponent {
     }
 
 
+  }
+
+  handleError(event: any) {
+    console.log("ERROR", event)
   }
 
   generateLink() {

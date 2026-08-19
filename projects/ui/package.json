@@ -15,12 +15,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build && npm run sentry:sourcemaps",
+    "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "publish": "firebase target:apply hosting adacad5 adacad-5 && firebase deploy",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org atlas-institute --project javascript-angular ./dist && sentry-cli sourcemaps upload --org atlas-institute --project javascript-angular ./dist"
+    "publish": "firebase target:apply hosting adacad5 adacad-5 && firebase deploy"
   },
   "private": true,
   "dependencies": {

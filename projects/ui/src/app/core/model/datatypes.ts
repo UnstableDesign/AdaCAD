@@ -268,8 +268,8 @@ export interface DraftNodeProxy {
   ud_name: string;
   gen_name: string;
   notes: string;
-  draft: Draft | null;
-  compressed_draft: CompressedDraft | null;
+  draft?: Draft;
+  compressed_draft?: CompressedDraft;
   draft_visible: boolean;
   loom: Loom | null;
   loom_settings: LoomSettings;

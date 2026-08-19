@@ -26,7 +26,6 @@ import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { LoomComponent } from './loom/loom.component';
-import { RepeatsComponent } from './repeats/repeats.component';
 
 @Component({
   selector: 'app-editor',
@@ -66,7 +65,6 @@ export class EditorComponent implements OnInit {
 
   parentOp: string = '';
 
-  actions_modal!: MatDialogRef<RepeatsComponent, any>;
 
   copy: Drawdown;
 
@@ -77,12 +75,13 @@ export class EditorComponent implements OnInit {
   draftelement: any;
 
   draftname: string = "";
+  loomtype: 'jacquard' | 'frame' | 'direct' = 'jacquard';
 
   scrollingSubscription: any;
 
   draw_modes: Array<{ value: string, viewValue: string, icon: string, id: number, color: string, size: number }> = [];
 
-  current_view = 'draft';
+  current_view: 'draft' | 'structure' | 'visual' | 'sim' = 'draft';
 
   scale: number = 0;
 

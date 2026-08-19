@@ -17,7 +17,7 @@ import { UploadService } from '../../../provider/upload.service';
   imports: [MatFormField, MatInput, MatProgressBar, MatButton]
 })
 export class UploadFormComponent implements OnInit {
-  private upSvc = inject(UploadService);
+  public upSvc = inject(UploadService);
   private httpClient = inject(HttpClient);
   private mediaSvc = inject(MediaService);
   private importtodraftSvc = inject(ImporttodraftService);

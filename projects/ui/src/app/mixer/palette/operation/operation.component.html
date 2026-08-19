@@ -21,8 +21,8 @@
         @for (input of opnode.inlets; track input; let i = $index) {
         <div class="input-group">
           <app-inlet [opid]='id' [inletid]='i' [dynamic]='is_dynamic_op' (onInputSelected)="inputSelected($event)"
-            (onInputVisibilityChange)="visibilityChange($event)" (onConnectionRemoved)="removeConnectionTo($event)"
-            (onInletChange)="onInletChange($event)" (onInletLoaded)="inletLoaded($event)"></app-inlet>
+            (onInputVisibilityChange)="visibilityChange($event)" (onInletChange)="onInletChange($event)"
+            (onInletLoaded)="inletLoaded($event)"></app-inlet>
         </div>
         }
 
@@ -131,7 +131,7 @@
 
         <app-draftcontainer class="draftrendering from_operation" [id]="child_id" [hasParent]="true"
           (click)="toggleSelection($event, child_id)" (connectionSelected)="connectionStarted($event)"
-          (onDuplicateCalled)="designActionChange($event)" (onDeleteCalled)="designActionChange($event)"
+          (onDuplicateCalled)="duplicate()" (onDeleteCalled)="delete()"
           (onDrawdownSizeChanged)="updateOutboundConnections($event)"
           (onDraftVisibilityChanged)="updateOutboundConnections($event)" (onNameChanged)="nameChanged($event)">
         </app-draftcontainer>

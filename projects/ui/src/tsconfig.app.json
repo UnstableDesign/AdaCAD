@@ -2,8 +2,9 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/app",
-    "baseUrl": "./",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "files": [
     "main.ts",
@@ -16,9 +17,10 @@
     "extendedDiagnostics": {
       "checks": {
         "nullishCoalescingNotNullable": "suppress",
-        "optionalChainNotNullable": "suppress"
+        "optionalChainNotNullable": "suppress",
+        "invalidBananaInBox": "warning"
       }
     },
-    "strictTemplates": false
+    "strictTemplates": true
   }
 }

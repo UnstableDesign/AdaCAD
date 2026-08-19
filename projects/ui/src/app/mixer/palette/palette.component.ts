@@ -784,7 +784,23 @@ export class PaletteComponent implements OnInit {
     subdraft.scale = this.zs.getMixerZoom();
     subdraft.setPosition(this.calculateInitialLocation(), true);
 
-    return this.tree.loadDraftData({ prev_id: -1, cur_id: id }, d, loom, loom_settings, true, 1, true)
+
+    const dp: DraftNodeProxy = {
+      draft: d,
+      loom: loom,
+      loom_settings: loom_settings ?? defaults.loom_settings,
+      render_colors: true,
+      scale: this.zs.getMixerZoom(),
+      draft_visible: true,
+      node_id: id,
+      draft_id: id,
+      ud_name: d.ud_name ?? '',
+      gen_name: d.gen_name ?? defaults.draft_name,
+      notes: d.notes ?? ''
+    }
+
+
+    return this.tree.loadDraftData({ prev_id: -1, cur_id: id }, dp)
       .then(d => {
         return Promise.resolve(subdraft);
       })
@@ -823,14 +839,10 @@ export class PaletteComponent implements OnInit {
     const subdraft: SubdraftComponent = component.instance;
     this.setSubdraftSubscriptions(subdraft);
 
-
-
-
-
     subdraft.id = id;
     subdraft.dn = <DraftNode>this.tree.getNode(id);
-    subdraft.scale = this.zs.getMixerZoom();
-    subdraft.use_colors = true;
+    subdraft.scale = draftp?.scale ?? this.zs.getMixerZoom();
+    subdraft.use_colors = draftp?.render_colors ?? true;
     subdraft.draft = d;
     subdraft.parent_id = this.tree.getSubdraftParent(id);
 

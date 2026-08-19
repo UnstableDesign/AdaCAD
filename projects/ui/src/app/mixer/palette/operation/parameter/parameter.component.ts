@@ -5,7 +5,7 @@ import { MatOption } from '@angular/material/autocomplete';
 import { MatButton, MatFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { MatError, MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpInput, OpParamVal, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { MediaInstance, OpNode, OpStateParamChange } from '../../../../core/model/datatypes';
@@ -39,7 +39,7 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } }
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [MatFormField, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatButton, UploadFormComponent]
+  imports: [MatFormField, MatError, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatButton, UploadFormComponent]
 })
 export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   tree = inject(TreeService);
@@ -66,6 +66,11 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   has_image_uploaded: boolean = false;
   filewarning: string = '';
+  true_state_langauge: string = '';
+  false_state_langauge: string = '';
+  param_selectlist: Array<{ value: any, name: string }> = [];
+  param_max: number = 0;
+  param_min: number = 0;
 
   @ViewChild('autosize') autosize!: CdkTextareaAutosize;
   @ViewChild('p5canvasContainer') p5canvasContainer!: ElementRef;
@@ -84,6 +89,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
 
     switch (this.param.type) {
       case 'number':
+        this.param_min = (<NumParam>this.param).min;
+        this.param_max = (<NumParam>this.param).max;
         this.fc = new UntypedFormControl(
 
           this.opnode.params[this.paramid] ?? this.param.value,
@@ -101,6 +108,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
         break;
 
       case 'boolean':
+        this.true_state_langauge = (<BoolParam>this.param).truestate;
+        this.false_state_langauge = (<BoolParam>this.param).falsestate;
         this.fc = new UntypedFormControl(
           this.opnode.params[this.paramid] ?? this.param.value);
         this.fc.valueChanges.subscribe(val => {
@@ -109,7 +118,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
         break;
 
       case 'select':
-
+        this.param_selectlist = (<SelectParam>this.param).selectlist;
         this.fc = new UntypedFormControl(this.opnode.params[this.paramid] ?? this.param.value);
         this.fc.valueChanges.subscribe(val => {
           this.onParamChange(val);

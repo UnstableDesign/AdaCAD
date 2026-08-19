@@ -53,7 +53,7 @@ export class MediaService {
    * @param to_load the indexed color image object as it is saved. 
    * @returns 
    */
-  loadMediaFromFileLoad(to_load: Array<{ id: number, ref: string, data: any }>): Promise<any> {
+  loadMediaFromFileLoad(to_load: Array<{ id: number, ref: string, data?: any }>): Promise<any> {
     console.log("LOAD MEDIA FROM FILE LOAD", to_load, this.current.slice());
     const fns = to_load
       .filter(el => el.ref !== '')

@@ -89,11 +89,15 @@
   <h2>Media</h2>
   <div class="media-grid">
     @for (mediaItem of media; track mediaItem.media.id) {
+    @if(mediaItem.media.img) {
     <div class="media-card">
       <div class="media-thumbnail">
         <img [src]="mediaItem.media.img.image.src" [alt]="mediaItem.media.img.name || 'Media item'"
           (error)="$event.target.style.display='none'">
       </div>
+
+
+
       <div class="media-info">
         <div class="media-name">{{ mediaItem.media.img.name || 'Unnamed Media' }}</div>
         <div class="media-type">
@@ -123,9 +127,12 @@
             <i class="fas fa-trash"></i>
           </button>
           }
+
         </div>
       </div>
+
     </div>
+    }
     }
   </div>
   @if (media.length === 0) {

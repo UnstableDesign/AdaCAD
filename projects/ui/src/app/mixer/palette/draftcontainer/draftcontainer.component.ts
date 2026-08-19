@@ -87,7 +87,7 @@ export class DraftContainerComponent implements AfterViewInit {
   // Reactive Forms control
   localZoomForm!: FormControl;
 
-  current_view: string = 'draft';
+  current_view: 'draft' | 'structure' | 'visual' | 'sim' = 'draft';
 
   size_observer: any;
 
@@ -332,9 +332,9 @@ export class DraftContainerComponent implements AfterViewInit {
       u_warp_mats: true,
       u_weft_sys: true,
       u_weft_mats: true,
-      use_floats: (this.current_view == 'color'),
+      use_floats: (this.current_view == 'visual'),
       use_colors: (this.current_view != 'draft'),
-      show_loom: (this.current_view == 'loom'),
+      show_loom: loom !== null,
       use_sizes: false
     }
 

@@ -16,6 +16,7 @@ import { ViewerService } from '../../core/provider/viewer.service';
 import { DownloadComponent } from '../../core/ui/download/download.component';
 import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-rendering.component';
 import { RenameComponent } from '../../core/ui/rename/rename.component';
+import { WorkspaceService } from '../../core/provider/workspace.service';
 @Component({
   selector: 'app-draftinfocard',
   imports: [ReactiveFormsModule, DownloadComponent, MatSliderModule, MatButtonModule, MatFormField, MatInput, MatIconButton, MatTooltip, DraftRenderingComponent],
@@ -52,6 +53,7 @@ export class DraftinfocardComponent {
   inputList: Array<{ uid: string, op_name: string, inlet_name: string, type: string, value: string, category_color: string }> = [];
   parent: { uid: string, op_name: string, type: string, category_color: string } = { uid: '', op_name: '', type: '', category_color: '' };
   densityUnits: string = '';
+  workspaceName: string = '';
 
 
   @Input() id!: number;
@@ -67,7 +69,6 @@ export class DraftinfocardComponent {
 
 
     console.log("DRAFT INFO CARD INIT", this.id);
-
 
     this.localZoomForm = new FormControl(this.tree.getDraftScale(this.id));
     this.localZoomForm.valueChanges.subscribe(value => {

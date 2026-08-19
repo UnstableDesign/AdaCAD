@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatOption } from '@angular/material/autocomplete';
 import { MatDivider } from '@angular/material/divider';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { MatError, MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { LoomSettings } from 'adacad-drafting-lib';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, Draft, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from 'adacad-drafting-lib/draft';
@@ -21,7 +21,7 @@ import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-ren
   templateUrl: './loom.component.html',
   styleUrls: ['./loom.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix, MatDivider]
+  imports: [ReactiveFormsModule, MatError, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix, MatDivider]
 })
 export class LoomComponent implements OnInit, OnDestroy {
   private tree = inject(TreeService);

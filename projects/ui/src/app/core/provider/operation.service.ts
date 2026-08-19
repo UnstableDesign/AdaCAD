@@ -128,9 +128,9 @@ export class OperationService {
     return op.meta.advanced ?? false;
   }
 
-  getOpDescription(opname: string) {
+  getOpDescription(opname: string): string {
     const op = this.ops.find(op => op.name == opname);
-    if (op == undefined) return [];
+    if (op == undefined) return '';
     return op.meta.desc;
   }
 

@@ -142,7 +142,8 @@ export class MaterialComponent {
 
 
 
-  diameterChange(id: number, diameter: number) {
+  diameterChange(id: number | null, diameter: number | null) {
+    if (id === null || diameter === null) return;
     const material = this.ms.getShuttle(id);
     if (material === null) return;
     material.diameter = diameter;
@@ -152,7 +153,8 @@ export class MaterialComponent {
     // this.vs.updateViewer();
   }
 
-  notesChange(id: number, notes: string) {
+  notesChange(id: number | null, notes: string | null) {
+    if (id === null || notes === null) return;
     const material = this.ms.getShuttle(id);
     if (material === null) return;
     material.notes = notes;

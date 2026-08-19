@@ -271,19 +271,30 @@ export class TreeService {
    * @param loom the loom to associate with this node
    * @returns the created draft node and the entry associated with this
    */
-  loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom | null, loom_settings: LoomSettings | null, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
+  loadDraftData(entry: { prev_id: number, cur_id: number }, draft_proxy: DraftNodeProxy | undefined): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
 
+    if (draft_proxy === undefined || draft_proxy.draft === undefined) {
+      return Promise.reject("draft is undefined");
+    }
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
     if (nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id " + entry.cur_id);
 
     const draftNode: DraftNode = <DraftNode>nodes[0];
 
-    draftNode.dirty = true;
+    const draft = draft_proxy.draft;
+    draftNode.id = entry.cur_id;
     draft.id = entry.cur_id;
-    draft.gen_name = draft.gen_name ?? 'drafty';
-    draft.ud_name = draft.ud_name ?? '';
-    draft.notes = draft.notes ?? '';
+    draft.gen_name = draft_proxy.gen_name ?? 'drafty';
+    draft.ud_name = draft_proxy.ud_name ?? '';
+    draft.notes = draft_proxy.notes ?? '';
+    const loom = draft_proxy.loom ?? null;
+    const loom_settings = draft_proxy.loom_settings;
+    draftNode.loom_settings = loom_settings;
+    draftNode.loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
+
+
+
 
     const flags: DraftNodeBroadcastFlags = {
       meta: true,
@@ -293,20 +304,7 @@ export class TreeService {
       materials: true
     };
 
-    if (loom_settings === null || loom_settings == undefined) {
-      this.setLoomSettings(entry.cur_id, {
-        type: this.ws.type as 'jacquard' | 'frame' | 'direct',
-        epi: this.ws.epi,
-        ppi: this.ws.ppi,
-        units: this.ws.units,
-        frames: this.ws.min_frames,
-        treadles: this.ws.min_treadles
-      }, false);
 
-    } else {
-      draftNode.loom_settings = loom_settings;
-      draftNode.loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
-    }
 
 
     if (loom === null || loom == undefined || loom_settings?.type === "jacquard") {
@@ -315,14 +313,9 @@ export class TreeService {
       this.setLoom(entry.cur_id, copyLoom(loom), false);
     }
 
-    if (render_colors === undefined || render_colors === null) draftNode.render_colors = false;
-    else draftNode.render_colors = render_colors;
-
-    if (scale === undefined || scale === null) draftNode.scale = 1;
-    else draftNode.scale = scale;
-
-    if (draft_visible == undefined || draft_visible == null) draftNode.visible = true;
-    else draftNode.visible = draft_visible;
+    draftNode.render_colors = draft_proxy.render_colors ?? false;
+    draftNode.scale = draft_proxy.scale ?? 1;
+    draftNode.visible = draft_proxy.draft_visible ?? true;
 
     this.setDraft(entry.cur_id, copyDraft(draft), flags, true, false);
 
@@ -1355,7 +1348,20 @@ export class TreeService {
         const id = this.createNode('draft', null, null);
         const cxn = this.createNode('cxn', null, null);
         this.addConnection(parent, i, id, 0, cxn);
-        new_draft_fns.push(this.loadDraftData({ prev_id: -1, cur_id: id }, outputs[i].draft, (outputs[i].loom ?? null), (outputs[i].loom_settings ?? null), true, 1, !this.ws.hide_mixer_drafts));
+        const dp: DraftNodeProxy = {
+          draft: outputs[i].draft,
+          loom: outputs[i].loom ?? null,
+          loom_settings: outputs[i].loom_settings ?? appDefaults.loom_settings,
+          render_colors: true,
+          scale: 1,
+          draft_visible: true,
+          node_id: id,
+          draft_id: id,
+          ud_name: outputs[i].draft.ud_name ?? '',
+          gen_name: outputs[i].draft.gen_name ?? defaults.draft_name,
+          notes: outputs[i].draft.notes ?? ''
+        }
+        new_draft_fns.push(this.loadDraftData({ prev_id: -1, cur_id: id }, dp));
         touched.push(id);
       }
 
@@ -2637,14 +2643,14 @@ export class TreeService {
           ud_name: draft_node_draft.ud_name,
           gen_name: draft_node_draft.gen_name,
           notes: draft_node_draft.notes || '',
-          draft: null,
-          compressed_draft: (this.hasParent(node.id)) ? null : compressDraft(draft_node_draft),
           draft_visible: ((<DraftNode>node).visible == undefined) ? !this.ws.hide_mixer_drafts : (<DraftNode>node).visible,
           loom: (loom_export === null || this.hasParent(node.id)) ? null : loom_export,
           loom_settings: node.loom_settings,
           render_colors: ((<DraftNode>node).render_colors == undefined) ? true : (<DraftNode>node).render_colors,
           scale: ((<DraftNode>node).scale == undefined) ? 1 : (<DraftNode>node).scale
         }
+        if (!this.hasParent(node.id)) { savable.compressed_draft = compressDraft(draft_node_draft); }
+
         objs.push(savable);
       }
 

@@ -15,7 +15,7 @@
       </mat-expansion-panel-header>
 
 
-      @if (loom.type !== 'jacquard') {
+      @if (loomtype !== 'jacquard') {
 
       <mat-label>
         Drafting Style
@@ -211,7 +211,7 @@
 
 
   <div class="scale-container" id="editor-scale-container">
-    <app-draft-rendering id="editor_draft_rendering" #weaveRef source="editor" [id]="id" scale="1" [view_only]="false"
+    <app-draft-rendering #weaveRef source="editor" [id]="id" [scale]="1" [view_only]="false"
       [current_view]="current_view" (onNewSelection)="updateSelection($event)" (onDrawdownUpdated)="drawdownUpdated()">
     </app-draft-rendering>
   </div>

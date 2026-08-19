@@ -13,8 +13,8 @@ import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { AnalyzedImage, Img, Loom, LoomSettings, generateId, interpolate, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
-import { Draft, copyDraft, createCell, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
+import { AnalyzedImage, Color, Img, Loom, LoomSettings, generateId, interpolate, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
+import { Draft, compressDraft, copyDraft, createCell, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
 import { convertLoom, copyLoom, copyLoomSettings, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
@@ -56,6 +56,7 @@ import { ViewerComponent } from './viewer/viewer.component';
 import { WelcomeComponent } from './core/ui/welcome/welcome.component';
 import { AnalyticsService } from './core/provider/analytics.service';
 import { mergeBounds } from './core/model/helper';
+import { C, S } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-root',
@@ -88,7 +89,6 @@ export class AppComponent implements OnInit, OnDestroy {
   vs = inject(ViewerService);
   vers = inject(VersionService);
   zs = inject(ZoomService);
-  sls = inject(ScreenshotLayoutService);
   private zone = inject(NgZone);
   cdr = inject(ChangeDetectorRef);
   errorBroadcaster = inject(ErrorBroadcasterService);
@@ -97,12 +97,12 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'app';
 
 
-  @ViewChild(LibraryComponent) library: LibraryComponent;
-  @ViewChild(MixerComponent) mixer: MixerComponent;
-  @ViewChild(EditorComponent) editor: EditorComponent;
-  @ViewChild(ViewerComponent) viewer: ViewerComponent;
-  @ViewChild(ViewadjustComponent) viewadjust: ViewadjustComponent;
-  @ViewChild(LoadingComponent) loadingComponent: MatDialogRef<LoadingComponent>;
+  @ViewChild(LibraryComponent) library!: LibraryComponent;
+  @ViewChild(MixerComponent) mixer!: MixerComponent;
+  @ViewChild(EditorComponent) editor!: EditorComponent;
+  @ViewChild(ViewerComponent) viewer!: ViewerComponent;
+  @ViewChild(ViewadjustComponent) viewadjust!: ViewadjustComponent;
+  @ViewChild(LoadingComponent) loadingComponent!: MatDialogRef<LoadingComponent>;
 
 
   //modals to manage
@@ -136,14 +136,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   current_version: string;
 
-  filename_form: UntypedFormControl;
-  zoom_form: UntypedFormControl;
+  filename_form!: UntypedFormControl;
+  zoom_form!: UntypedFormControl;
 
   private snackBar = inject(MatSnackBar);
 
   user_auth_state = false;
   user_auth_name = '';
-  private userAuthSubscription: Subscription;
+  private userAuthSubscription!: Subscription;
 
 
   connection_state = false;
@@ -154,7 +154,7 @@ export class AppComponent implements OnInit, OnDestroy {
   stateSubscriptions: Array<Subscription> = [];
 
   errorBroadcastSubscription: Subscription;
-  zoomChangeSubscription: Subscription;
+  zoomChangeSubscription!: Subscription;
 
 
   wifImportedSubscription: Subscription;
@@ -215,6 +215,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const draftStateNameChangeSubscription = this.ss.draftNameChangeUndo$.subscribe(action => {
       const draft = this.tree.getDraft((<RenameAction>action).id);
+      if (draft === undefined || draft === null) return;
       draft.ud_name = (<RenameAction>action).before.name;
       this.updateDraftName((<RenameAction>action).id);
 
@@ -396,7 +397,13 @@ export class AppComponent implements OnInit, OnDestroy {
       if (this.connection_state) {
         this.analyticsService.trackEvent('load_example_url', { name: searchParams.get('ex') });
         this.openSnackBar('Loading Example File: ' + searchParams.get('ex'))
-        this.loadExampleAtURL(searchParams.get('ex'))
+        const example_id = searchParams.get('ex') ?? -1;
+        if (example_id === -1) {
+          this.openSnackBar('ERROR: we cannot find an example with id: ' + searchParams.get('ex'))
+          this.loadBlankFile()
+          return false;
+        }
+        this.loadExampleAtURL(example_id)
         history.pushState({ page: 1 }, "AdaCAD.org ", "")
       } else {
         this.openSnackBar('You Must be Connected to the Internet to Load this Example')
@@ -408,7 +415,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
       if (this.connection_state) {
         this.analyticsService.trackEvent('load_shared_file_url', { id: searchParams.get('share') });
-        this.loadFromShare(+searchParams.get('share'))
+        const share_id = searchParams.get('share') ?? -1;
+        if (share_id === -1) {
+          this.openSnackBar('ERROR: we cannot find a shared file with id: ' + searchParams.get('share'))
+          this.loadBlankFile()
+          return false;
+        }
+        this.loadFromShare(+share_id)
           .then(res => {
             this.openSnackBar('Loading Shared File #' + searchParams.get('share'))
             return true;
@@ -421,8 +434,10 @@ export class AppComponent implements OnInit, OnDestroy {
         history.pushState({ page: 1 }, "AdaCAD.org ", "")
       } else {
         this.openSnackBar('You Must be Connected to the Internet to Load this Shared File')
-
       }
+      return true;
+    } else {
+      return false;
     }
 
   }
@@ -506,9 +521,13 @@ export class AppComponent implements OnInit, OnDestroy {
    * or opening the draft editor with a draft that has a parent (and therefore, a copy is created)
    * @param obj 
    */
-  createNewDraftOnMixer(draft: Draft, loom: Loom | null, loom_settings: LoomSettings): Promise<number> {
+  createNewDraftOnMixer(draft: Draft | null | undefined, loom: Loom | null | undefined, loom_settings: LoomSettings | null | undefined): Promise<number> {
 
-    return this.mixer.createNewDraft(copyDraft(draft), loom, loom_settings);
+    if (draft !== undefined && draft !== null) {
+      return this.mixer.createNewDraft(copyDraft(draft), loom ?? null, loom_settings ?? null);
+    } else {
+      return Promise.reject(new Error('Draft is undefined or null'));
+    }
 
   }
 
@@ -605,35 +624,38 @@ export class AppComponent implements OnInit, OnDestroy {
 
   draftImported(lr: LoadResponse) {
     let draft_id = -1;
-    lr.data.draft_nodes.forEach(dn => {
-      this.createNewDraftOnMixer(dn.draft, dn.loom, dn.loom_settings).then(id => {
-        draft_id = id;
+    lr.data.draft_nodes
+      .forEach(dn => {
+        this.createNewDraftOnMixer(dn.draft, dn.loom, dn.loom_settings).then(id => {
+          draft_id = id;
 
-        const flags: DraftNodeBroadcastFlags = {
-          meta: true,
-          draft: false,
-          loom: false,
-          loom_settings: false,
-          materials: false
-        }
+          const flags: DraftNodeBroadcastFlags = {
+            meta: true,
+            draft: false,
+            loom: false,
+            loom_settings: false,
+            materials: false
+          }
 
-        const draft = this.tree.getDraft(id);
-        draft.gen_name = lr.meta.name;
-        this.tree.setDraft(id, draft, flags)
-
-
-        this.saveFile();
-        this.library.refreshDrafts();
+          const draft = this.tree.getDraft(id);
+          if (draft !== undefined && draft !== null) {
+            draft.gen_name = lr.meta.name;
+            this.tree.setDraft(id, draft, flags)
+          }
 
 
-        if (this.selected_editor_mode == 'editor') {
-          this.vs.setViewer(draft_id);
-          this.editor.loadDraft(draft_id);
-        }
-      }).catch(err => {
-        console.error(err);
+          this.saveFile();
+          this.library.refreshDrafts();
+
+
+          if (this.selected_editor_mode == 'editor') {
+            this.vs.setViewer(draft_id);
+            this.editor.loadDraft(draft_id);
+          }
+        }).catch(err => {
+          console.error(err);
+        });
       });
-    });
 
 
 
@@ -803,10 +825,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.processFileData(result.data, 'paste').then(idmap => {
 
       //after we have processed the data, we need to now relink any images that were duplicated in the process. 
-      let image_id_map = [];
+      let image_id_map: Array<{ from: number, to: number }> = [];
       result.data.indexed_image_data.forEach(image => {
-        let media_item: MediaInstance = this.media.duplicateIndexedColorImageInstance(image.id);
-        image_id_map.push({ from: image.id, to: media_item.id })
+        let media_item: MediaInstance | null = this.media.duplicateIndexedColorImageInstance(image.id);
+        if (media_item !== null) image_id_map.push({ from: image.id, to: media_item.id })
       })
 
 
@@ -821,10 +843,10 @@ export class AppComponent implements OnInit, OnDestroy {
             let entry = image_id_map.find(el => el.from == +from.id);
 
             if (entry !== undefined) {
-              let img_instance: MediaInstance = this.media.getMedia(entry.to);
+              let img_instance: MediaInstance | null = this.media.getMedia(entry.to);
               //this is just setting it locally, it needs to set the actual operation
               let op_node = this.tree.getOpNode(op.node_id);
-              op_node.params[ndx] = { id: entry.to.toString(), data: <AnalyzedImage>img_instance.img };
+              if (op_node !== null && img_instance !== null) op_node.params[ndx] = { id: entry.to.toString(), data: <AnalyzedImage>img_instance.img };
 
             }
           }
@@ -938,7 +960,11 @@ export class AppComponent implements OnInit, OnDestroy {
       if (node.type == 'draft') {
         let d = this.tree.getDraft(node.id);
         let loom = this.tree.getLoom(node.id);
-        return !isDraftDirty(d, loom);
+        if (d !== undefined && d != null && loom !== undefined && loom != null) {
+          return !isDraftDirty(d, loom);
+        } else {
+          return false;
+        }
       } else {
         return false;
       }
@@ -1194,6 +1220,7 @@ export class AppComponent implements OnInit, OnDestroy {
             return { tn: input_in_map.cur_id, ndx: 0 };
           } else {
             console.error("could not find matching node");
+            return { tn: -1, ndx: 0 };
           }
 
         } else {
@@ -1202,6 +1229,7 @@ export class AppComponent implements OnInit, OnDestroy {
             return { tn: input_in_map.cur_id, ndx: input.ndx };
           } else {
             console.error("could not find matching node");
+            return { tn: -1, ndx: 0 };
           }
         }
 
@@ -1231,10 +1259,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
       const new_tn: TreeNodeProxy = {
-        node: id_map.find(el => el.prev_id === tn.node).cur_id,
-        parent: (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent).cur_id,
-        inputs: input_list,
-        outputs: output_list
+        node: id_map.find(el => el.prev_id === tn.node)?.cur_id ?? -1,
+        parent: (tn.parent === null || tn.parent === -1) ? -1 : id_map.find(el => el.prev_id === tn.parent)?.cur_id ?? -1,
+        inputs: input_list ?? [],
+        outputs: output_list ?? []
       }
 
       //console.log("new tn is ", new_tn);
@@ -1359,7 +1387,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
 
-    this.filebrowser_modal.componentInstance.onLoadFromDB.subscribe(event => {
+    this.filebrowser_modal.componentInstance.onLoadFromDB.subscribe((event: any) => {
       this.openSnackBar('loading file from database')
       this.loadFromDB(event)
         .catch(err => {
@@ -1368,15 +1396,15 @@ export class AppComponent implements OnInit, OnDestroy {
         });
     });
 
-    this.filebrowser_modal.componentInstance.onCreateFile.subscribe(event => {
+    this.filebrowser_modal.componentInstance.onCreateFile.subscribe((event: any) => {
       this.loadBlankFile()
     });
 
-    this.filebrowser_modal.componentInstance.onDuplicateFile.subscribe(event => {
+    this.filebrowser_modal.componentInstance.onDuplicateFile.subscribe((event: any) => {
       this.duplicateFileInDB(event);
     });
 
-    this.filebrowser_modal.componentInstance.onLoadMostRecent.subscribe(event => {
+    this.filebrowser_modal.componentInstance.onLoadMostRecent.subscribe((event: any) => {
       this.openSnackBar('Loading Most Recent File')
       this.loadMostRecent()
         .catch(err => {
@@ -1422,14 +1450,14 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.example_modal != undefined && this.example_modal.componentInstance != null) return;
 
     this.example_modal = this.dialog.open(ExamplesComponent, { data: {} });
-    this.example_modal.componentInstance.onLoadExample.subscribe(event => {
+    this.example_modal.componentInstance.onLoadExample.subscribe((event: any) => {
       this.loadExampleAtURL(event)
     });
 
-    this.example_modal.componentInstance.onLoadSharedFile.subscribe(event => {
+    this.example_modal.componentInstance.onLoadSharedFile.subscribe((event: any) => {
       this.loadFromShare(event);
     });
-    this.example_modal.componentInstance.onOpenFileManager.subscribe(event => {
+    this.example_modal.componentInstance.onOpenFileManager.subscribe((event: any) => {
       this.openAdaFiles('load');
     });
 
@@ -1442,39 +1470,39 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.workspace_modal = this.dialog.open(WorkspaceComponent, { data: {} });
 
-    this.workspace_modal.componentInstance.onOversizeRenderingChange.subscribe(event => {
+    this.workspace_modal.componentInstance.onOversizeRenderingChange.subscribe((event: any) => {
       this.forceRedraw();
     })
 
-    this.workspace_modal.componentInstance.onMaxAreaChange.subscribe(event => {
+    this.workspace_modal.componentInstance.onMaxAreaChange.subscribe((event: any) => {
       this.tree.performAndUpdateDownstream([]).then(out => {
         this.forceRedraw();
       })
     })
 
-    this.workspace_modal.componentInstance.onOptimizeWorkspace.subscribe(event => {
+    this.workspace_modal.componentInstance.onOptimizeWorkspace.subscribe((event: any) => {
       this.optimizeWorkspace();
     });
-    this.workspace_modal.componentInstance.onAdvanceOpsChange.subscribe(event => {
+    this.workspace_modal.componentInstance.onAdvanceOpsChange.subscribe((event: any) => {
       this.setAdvancedOperations();
     });
 
-    this.workspace_modal.componentInstance.onLoomTypeOverride.subscribe(event => {
+    this.workspace_modal.componentInstance.onLoomTypeOverride.subscribe((event: any) => {
       this.overrideLoomTypes();
     });
 
-    this.workspace_modal.componentInstance.onDensityUnitOverride.subscribe(event => {
+    this.workspace_modal.componentInstance.onDensityUnitOverride.subscribe((event: any) => {
       this.overrideDensityUnits();
     });
 
-    this.workspace_modal.componentInstance.onDraftVisibilityChange.subscribe(event => {
+    this.workspace_modal.componentInstance.onDraftVisibilityChange.subscribe((event: any) => {
       this.overrideDraftVisibility();
     });
 
-    this.workspace_modal.componentInstance.onOperationSettingsChange.subscribe(event => {
+    this.workspace_modal.componentInstance.onOperationSettingsChange.subscribe((event: any) => {
       this.mixer.refreshOperations();
     });
-    this.workspace_modal.componentInstance.onOriginChange.subscribe(event => {
+    this.workspace_modal.componentInstance.onOriginChange.subscribe((event: any) => {
       this.originChange();
     });
 
@@ -1494,7 +1522,7 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.upload_modal.afterClosed().subscribe(loadResponse => {
+    this.upload_modal.afterClosed().subscribe((loadResponse: any) => {
       if (loadResponse !== undefined && loadResponse != true)
         this.loadNewFile(loadResponse, 'openFile');
       this.upload_modal = undefined;
@@ -1530,7 +1558,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const updated_settings = copyLoomSettings(dn.loom_settings);
       updated_settings.type = this.ws.type;
       settings.push(updated_settings);
-      fns.push(convertLoom(dn.draft.drawdown, dn.loom, dn.loom_settings, updated_settings))
+      if (dn !== null && dn.draft !== null && dn.draft !== undefined && dn.loom !== null && dn.loom_settings !== null) fns.push(convertLoom(dn.draft.drawdown, dn.loom, dn.loom_settings, updated_settings))
     });
 
     Promise.all(fns).then(outs => {
@@ -1585,6 +1613,113 @@ export class AppComponent implements OnInit, OnDestroy {
 
 
 
+  reattachDraftsToSeedNodes(seednodes: Array<{ prev_id: number, cur_id: number }>, nodes: Array<NodeComponentProxy>, draft_nodes: Array<DraftNodeProxy>): Array<{ entry: any, node_proxy: NodeComponentProxy, draft_proxy: DraftNodeProxy }> {
+    //attach the drafts back to the seed nodes to which they belong
+    let ls: LoomSettings = {
+      frames: this.ws.min_frames ?? defaults.loom_settings.frames,
+      treadles: this.ws.min_treadles ?? defaults.loom_settings.treadles,
+      epi: this.ws.epi ?? defaults.loom_settings.epi,
+      ppi: this.ws.ppi ?? defaults.loom_settings.ppi,
+      units: this.ws.units ?? defaults.loom_settings.units,
+      type: this.ws.type ?? defaults.loom_settings.type
+    }
+    const seeds: Array<{ entry: any, node_proxy: NodeComponentProxy, draft_proxy: DraftNodeProxy }> = [];
+
+    seednodes.forEach(sn => {
+      const node_proxy = nodes.find(node => node.node_id === sn.prev_id);
+      if (node_proxy === undefined) {
+        console.error("could not find node with id in nodes list");
+      } else {
+        const draft_proxy = draft_nodes.find(draft => draft.draft_id === node_proxy.node_id);
+
+        if (draft_proxy === undefined) {
+
+          const d = initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
+          d.id = sn.cur_id;
+
+          const created_draft_proxy: DraftNodeProxy = {
+            node_id: node_proxy.node_id,
+            ud_name: '',
+            gen_name: defaults.draft_name,
+            draft_id: sn.cur_id,
+            draft: d,
+            loom: null,
+            notes: '',
+            loom_settings: ls,
+            render_colors: false,
+            scale: 1,
+            draft_visible: true
+          }
+
+
+          seeds.push({ entry: sn, node_proxy: node_proxy, draft_proxy: created_draft_proxy });
+
+
+        } else {
+
+
+          const d = (draft_proxy.draft) ? copyDraft(draft_proxy.draft) : initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
+          d.id = (sn.cur_id);
+
+          let loom;
+          if (draft_proxy.loom) {
+            console.log('[processFileData] Copying loom from located draft, draft_id:', draft_proxy.draft_id);
+            console.log('[processFileData] Source loom:', {
+              threading: draft_proxy.loom.threading,
+              treadling: draft_proxy.loom.treadling,
+              tieup: draft_proxy.loom.tieup
+            });
+            if (draft_proxy.loom_settings.type !== "jacquard") {
+              loom = copyLoom(draft_proxy.loom);
+            } else {
+              loom = null;
+            }
+          } else {
+            console.log('[processFileData] No loom found in located draft, instantiating new loom');
+            console.log('[processFileData] Loom parameters:', {
+              warps: warps(d.drawdown),
+              wefts: wefts(d.drawdown),
+              frames: ls.frames,
+              treadles: ls.treadles
+            });
+            if (ls.type !== "jacquard") {
+              loom = initLoom(warps(d.drawdown), wefts(d.drawdown), ls.frames, ls.treadles);
+              console.log('[processFileData] Instantiated new loom:', {
+                threading: loom.threading,
+                treadling: loom.treadling,
+                tieup: loom.tieup
+              });
+            } else {
+              loom = null;
+            }
+
+          }
+
+          const created_draft_proxy: DraftNodeProxy = {
+            node_id: node_proxy.node_id,
+            ud_name: draft_proxy.ud_name ?? '',
+            gen_name: draft_proxy.gen_name ?? defaults.draft_name,
+            draft_id: sn.cur_id,
+            draft: d,
+            loom: loom,
+            loom_settings: draft_proxy.loom_settings ?? ls,
+            render_colors: draft_proxy.render_colors ?? false,
+            scale: draft_proxy.scale ?? 1,
+            notes: draft_proxy.notes ?? '',
+            draft_visible: draft_proxy.draft_visible ?? true
+          }
+
+          seeds.push({ entry: sn, node_proxy: node_proxy, draft_proxy: created_draft_proxy });
+        }
+      }
+
+    });
+
+
+    return seeds;
+
+  }
+
   prepAndLoadFile(ada: SaveObj, meta: FileMeta, src: string): Promise<any> {
     console.log('[prepAndLoadFile] Prepping and loading file:', ada);
     this.clearAll();
@@ -1597,366 +1732,210 @@ export class AppComponent implements OnInit, OnDestroy {
   /** 
    * Take a fileObj returned from the fileservice and process
    */
-  async processFileData(data: SaveObj, name: string): Promise<Array<{ prev_id: number, cur_id: number }>> {
+  async processFileData(data: SaveObj, name: string): Promise<Array<{ cur_id: number, prev_id: number }>> {
 
 
-    let entry_mapping: Array<{ prev_id: number, cur_id: number }> = [];
+
     this.openLoadingAnimation(name)
 
 
+    try {
+      //1. filter any operations with a parameter of type file, and load the associated file. 
+      const images_to_load: Array<{ id: number, ref: string, data?: { colors: Array<Color>, color_mapping: Array<{ from: number, to: number }> } }> = [];
 
+      if (data.type !== 'partial') {
+        //only load in new files if this is a true load event, if it is pasting from exisitng files, it doesn't need to re-analyze the images. 
+        if (sameOrNewerVersion(data.version, '4.1.7')) {
+          //LOAD THE NEW FILE OBJECT
+          data.indexed_image_data.forEach(el => {
+            const repeated_image = images_to_load.find(repeat_el => repeat_el.ref === el.ref);
+            const to_load = { id: el.id, ref: el.ref, data: { colors: el.colors, color_mapping: el.color_mapping } };
+            if (repeated_image === undefined) images_to_load.push(to_load);
+          })
 
+        } else {
+          data.ops.forEach(op => {
+            const internal_op = this.ops.getOp(op.name);
+            if (internal_op === undefined || internal_op == null || internal_op.params === undefined) return;
+            const param_types = internal_op.params.map(el => el.type);
+            param_types.forEach((p, ndx) => {
+              //older version stored the media object reference in the parameter
+              if (p == 'file') {
+                const repeated_image = images_to_load.find(repeat_el => repeat_el.ref === op.params[ndx]);
+                if (repeated_image === undefined) {
+                  let new_id = generateId(8);
+                  images_to_load.push({ id: new_id, ref: op.params[ndx] });
+                  op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
 
-
-    // console.log("PROCESSING ", data)
-
-    //1. filter any operations with a parameter of type file, and load the associated file. 
-    const images_to_load = [];
-
-    if (data.type !== 'partial') {
-      //only load in new files if this is a true load event, if it is pasting from exisitng files, it doesn't need to re-analyze the images. 
-      if (sameOrNewerVersion(data.version, '4.1.7')) {
-        //LOAD THE NEW FILE OBJECT
-        data.indexed_image_data.forEach(el => {
-          const repeated_image = images_to_load.find(repeat_el => repeat_el.ref === el.ref);
-          if (repeated_image === undefined) images_to_load.push({ id: el.id, ref: el.ref, data: { colors: el.colors, color_mapping: el.color_mapping } });
-        })
-
-      } else {
-        data.ops.forEach(op => {
-          const internal_op = this.ops.getOp(op.name);
-          if (internal_op === undefined || internal_op == null || internal_op.params === undefined) return;
-          const param_types = internal_op.params.map(el => el.type);
-          param_types.forEach((p, ndx) => {
-            //older version stored the media object reference in the parameter
-            if (p == 'file') {
-              const repeated_image = images_to_load.find(repeat_el => repeat_el.ref === op.params[ndx]);
-              if (repeated_image === undefined) {
-                let new_id = generateId(8);
-                images_to_load.push({ id: new_id, ref: op.params[ndx], data: null });
-                op.params[ndx] = new_id; //convert the value stored in memory to the instance id. 
-
-              } else {
-                op.params[ndx] = repeated_image.id;
+                } else {
+                  op.params[ndx] = repeated_image.id;
+                }
               }
+            });
+          })
+
+        }
+      }
+
+
+
+
+      await this.media.loadMediaFromFileLoad(images_to_load ?? []);
+
+      const correctedOps = await this.tree.replaceOutdatedOps(data.ops ?? []);
+      console.log('[processFileData] Corrected ops:', correctedOps);
+      data.ops = correctedOps;
+      const id_map: Array<{ prev_id: number, cur_id: number }> = await this.loadNodes(data.nodes);
+      const treenodes = await this.loadTreeNodes(id_map, data.tree ?? []);
+
+
+      const seednodes: Array<{ prev_id: number, cur_id: number }> = treenodes
+        .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
+        .map(tn => tn.entry);
+
+      const seeds = this.reattachDraftsToSeedNodes(seednodes, data.nodes ?? [], data.draft_nodes ?? []);
+
+      // Validate seed draft sizes before loading
+      const valid_seeds: Array<{ entry: any, draft_proxy: DraftNodeProxy }> = [];
+      const invalid_seeds: Array<{ entry: any, draft_proxy: any }> = [];
+
+
+
+      seeds.forEach(seed => {
+
+        const area = warps(seed.draft_proxy.draft?.drawdown ?? []) * wefts(seed.draft_proxy.draft?.drawdown ?? []);
+        if (area > this.ws.max_draft_input_area) {
+          console.error(`[processFileData] Seed draft ${seed.draft_proxy.draft_id} (prev_id: ${seed.entry.prev_id}) is too large: ${area} > ${this.ws.max_draft_input_area}`);
+          invalid_seeds.push(seed);
+        } else {
+          valid_seeds.push(seed);
+        }
+      });
+
+      if (invalid_seeds.length > 0) {
+        const errorMessage = `Cannot load file: ${invalid_seeds.length} seed draft(s) exceed maximum size (${this.ws.max_draft_input_area}). Draft IDs: ${invalid_seeds.map(s => s.draft_proxy.draft_id).join(', ')}`;
+        console.error('[processFileData]', errorMessage);
+        return Promise.reject(errorMessage);
+      }
+
+      const seed_fns = valid_seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft_proxy));
+
+      const op_fns = data.ops.map(op => {
+        const entry = id_map.find(el => el.prev_id == op.node_id);
+        if (entry != undefined && entry != null) return this.tree.loadOpData(entry, op.name, op.params, op.inlets);
+        return Promise.resolve(null);
+      });
+
+      await Promise.all([seed_fns, op_fns]);
+
+      await this.tree.validateNodes();
+      const startTime = performance.now();
+      await this.tree.performAndUpdateDownstream([]);
+      const duration = performance.now() - startTime;
+      console.log(`[processFileData] Performance time: ${duration}ms`);
+
+
+      //delete any nodes that no longer need to exist
+      this.tree.getDraftNodes()
+        .filter(el => el.draft === null || el.draft === undefined)
+        .forEach(el => {
+          if (this.tree.hasParent(el.id)) {
+            el.draft = initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
+            el.draft.id = el.id;
+          } else {
+            this.tree.removeNode(el.id);
+          }
+        });
+
+
+      //this loads the UI with all the other elements that aren't seed drafts
+      this.tree.nodes.forEach(node => {
+
+        if (!(node.component === null || node.component === undefined)) return;
+
+        const entry = id_map.find(el => el.cur_id === node.id);
+        if (entry === undefined) return;
+        switch (node.type) {
+          case 'draft':
+            if (!this.tree.hasParent(node.id)) {
+              const d = this.tree.getDraft(node.id);
+              const ncp: NodeComponentProxy | undefined = data.nodes.find(el => el.node_id === entry.prev_id);
+              const dn: DraftNodeProxy | undefined = data.draft_nodes.find(el => el.node_id === entry.prev_id);
+              const created_node = this.tree.getNode(node.id) as DraftNode;
+              if (d !== undefined && d != null && ncp !== undefined && ncp != null && dn !== undefined && dn != null) {
+                d.ud_name = dn.ud_name ?? '';
+                d.gen_name = dn.gen_name ?? defaults.draft_name;
+                d.notes = dn.notes ?? '';
+                created_node.loom_settings = copyLoomSettings(dn.loom_settings ?? defaults.loom_settings);
+                created_node.loom = copyLoom(dn.loom ?? null);
+                created_node.render_colors = dn.render_colors ?? true;
+                created_node.scale = dn.scale ?? 1;
+                dn.draft_visible = dn.draft_visible ?? true;
+                dn.draft = d;
+                dn.scale = dn.scale ?? 1;
+                this.mixer.loadSubDraft(node.id, d, ncp, dn);
+                if (dn.loom_settings !== undefined && dn.loom_settings !== null) {
+                  this.tree.setLoomSettings(created_node.id, copyLoomSettings(dn.loom_settings), false);
+                }
+
+
+              }
+
+
+
             }
-          });
-        })
+            break;
+          case 'op':
+            const op = this.tree.getOpNode(node.id);
+            const ncp = data.nodes.find(el => el.node_id === entry.prev_id);
+            if (op != undefined && op != null) this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, ncp?.topleft ?? { x: 0, y: 0 });
+            break;
+          case 'cxn':
+
+            //only load UI for connections that go from draft to operation
+            let froms = this.tree.getInputs(node.id);
+            if (froms.length > 0 && this.tree.getNode(froms[0])?.type === 'draft') this.mixer.loadConnection(node.id)
+            break;
+        }
+      });
+
+
+
+      //this is breaking on large files, disable because I also don't think it's needed anymore
+      this.tree.getOpNodes().forEach(op => {
+        (<OperationComponent>op.component).updateChildren(this.tree.getNonCxnOutputs(op.id));
+      });
+
+
+      data.notes.forEach(note => {
+        this.mixer.createNote(note);
+      });
+
+
+      const renderStartTime = performance.now();
+      this.mixer.refreshOperations();
+      this.mixer.renderChange();
+      this.editor.renderChange();
+
+      const renderDuration = performance.now() - renderStartTime;
+      console.log(`[processFileData] Render time: ${renderDuration}ms`);
+      this.closeLoadingAnimation();
+
+
+      return Promise.resolve(id_map);
+
+    } catch (err: any) {
+      console.error("[LOAD] ERROR:", err);
+      this.openSnackBar('ERROR: there was a problem loading this file:' + err)
+      this.closeLoadingAnimation();
+      this.clearAll();
+      //if it was an operation size error, remove the offending operation and try again. 
+      if (err.includes('size check failed')) {
+        const offending_op = this.tree.getOpNode(err.split(' ')[1]);
 
       }
+      return Promise.reject(err);
     }
-
-
-    console.log('[prepAndLoadFile] Draft nodes count:', data.draft_nodes?.length || 0);
-    console.log('[prepAndLoadFile] Draft nodes data:', data.draft_nodes);
-    if (data.draft_nodes && data.draft_nodes.length > 0) {
-      data.draft_nodes.forEach((draftNode, index) => {
-        console.log(`[prepAndLoadFile] Draft node ${index}:`, {
-          draft_id: draftNode.draft_id,
-          draft: draftNode.draft,
-          loom: draftNode.loom,
-          loom_settings: draftNode.loom_settings,
-          render_colors: draftNode.render_colors,
-          scale: draftNode.scale,
-          draft_visible: draftNode.draft_visible
-        });
-      });
-    }
-    if (data.ops && data.ops.length > 0) {
-      data.ops.forEach((op, index) => {
-        console.log(`[prepAndLoadFile] Operation ${index}:`, {
-          node_id: op.node_id,
-          name: op.name,
-          params: op.params,
-          inlets: op.inlets
-        });
-      });
-    }
-
-
-
-
-
-    return this.media.loadMediaFromFileLoad(images_to_load).then(el => {
-      //2. check the op names, if any op names are old, relink the newer version of that operation. If not match is found, replaces with Rect. 
-      // console.log("REPLACE OUTDATED OPS")
-      console.log('[processFileData] Replacing outdated ops:', data.ops.slice());
-      return this.tree.replaceOutdatedOps(data.ops);
-    })
-      .then(correctedOps => {
-        console.log('[processFileData] Corrected ops:', correctedOps);
-        data.ops = correctedOps;
-        //console.log(" LOAD NODES")
-        return this.loadNodes(data.nodes)
-      })
-      .then(id_map => {
-        entry_mapping = id_map;
-        // console.log(" LOADED TREE Nodes ", this.tree.nodes, id_map)
-        return this.loadTreeNodes(id_map, data.tree);
-      })
-      .then(treenodes => {
-        const seednodes: Array<{ prev_id: number, cur_id: number }> = treenodes
-          .filter(tn => this.tree.isSeedDraft(tn.tn.node.id))
-          .map(tn => tn.entry);
-
-        //attach teh drafts back to the seed nodes to which they belong
-        const seeds: Array<{ entry, id, draft, loom, loom_settings, render_colors, scale, draft_visible }> = seednodes
-          .filter(sn => data.nodes.find(node => node.node_id === sn.prev_id) !== undefined)
-          .map(sn => {
-
-            //this should always be true since we filterd out undefined nodes
-            const draft_node = data.nodes.find(node => node.node_id === sn.prev_id);
-
-            let ls: LoomSettings = {
-              frames: this.ws.min_frames ?? defaults.loom_settings.frames,
-              treadles: this.ws.min_treadles ?? defaults.loom_settings.treadles,
-              epi: this.ws.epi ?? defaults.loom_settings.epi,
-              ppi: this.ws.ppi ?? defaults.loom_settings.ppi,
-              units: this.ws.units ?? defaults.loom_settings.units,
-              type: this.ws.type ?? defaults.loom_settings.type
-            }
-
-
-            const located_draft: DraftNodeProxy = data.draft_nodes.find(draft => draft.draft_id === draft_node.node_id);
-
-            //if this happens it means that there is a node that is marked as a seed draft (probably an error) that does not have any 
-            //associated draft data. 
-            if (located_draft === undefined) {
-              console.error("could not find draft with id in draft list");
-              const d = initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
-              d.id = sn.cur_id;
-              return {
-                entry: sn,
-                id: sn.cur_id,
-                draft: d,
-                loom: null,
-                loom_settings: ls,
-                render_colors: false,
-                scale: 1,
-                draft_visible: true
-              }
-            }
-            else {
-              const d = (located_draft.draft) ? copyDraft(located_draft.draft) : initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
-              d.id = (sn.cur_id);
-
-              let loom;
-              if (located_draft.loom) {
-                console.log('[processFileData] Copying loom from located draft, draft_id:', located_draft.draft_id);
-                console.log('[processFileData] Source loom:', {
-                  threading: located_draft.loom.threading,
-                  treadling: located_draft.loom.treadling,
-                  tieup: located_draft.loom.tieup
-                });
-                if (located_draft.loom_settings.type !== "jacquard") {
-                  loom = copyLoom(located_draft.loom);
-                } else {
-                  loom = null;
-                }
-              } else {
-                console.log('[processFileData] No loom found in located draft, instantiating new loom');
-                console.log('[processFileData] Loom parameters:', {
-                  warps: warps(d.drawdown),
-                  wefts: wefts(d.drawdown),
-                  frames: ls.frames,
-                  treadles: ls.treadles
-                });
-                if (ls.type !== "jacquard") {
-                  loom = initLoom(warps(d.drawdown), wefts(d.drawdown), ls.frames, ls.treadles);
-                  console.log('[processFileData] Instantiated new loom:', {
-                    threading: loom.threading,
-                    treadling: loom.treadling,
-                    tieup: loom.tieup
-                  });
-                } else {
-                  loom = null;
-                }
-
-              }
-
-              return {
-                entry: sn,
-                id: sn.cur_id,
-                draft: d,
-                loom: loom,
-                loom_settings: (located_draft.loom_settings) ? copyLoomSettings(located_draft.loom_settings) : ls,
-                render_colors: located_draft.render_colors ?? false,
-                scale: located_draft.scale ?? 1,
-                draft_visible: located_draft.draft_visible ?? true
-              }
-            }
-          });
-
-        // Validate seed draft sizes before loading
-        const valid_seeds: Array<{ entry, id, draft, loom, loom_settings, render_colors, scale, draft_visible }> = [];
-        const invalid_seeds: Array<{ entry, id, draft }> = [];
-
-        seeds.forEach(seed => {
-          const area = warps(seed.draft.drawdown) * wefts(seed.draft.drawdown);
-          if (area > this.ws.max_draft_input_area) {
-            console.error(`[processFileData] Seed draft ${seed.id} (prev_id: ${seed.entry.prev_id}) is too large: ${area} > ${this.ws.max_draft_input_area}`);
-            invalid_seeds.push({ entry: seed.entry, id: seed.id, draft: seed.draft });
-          } else {
-            valid_seeds.push(seed);
-          }
-        });
-
-        if (invalid_seeds.length > 0) {
-          const errorMessage = `Cannot load file: ${invalid_seeds.length} seed draft(s) exceed maximum size (${this.ws.max_draft_input_area}). Draft IDs: ${invalid_seeds.map(s => s.id).join(', ')}`;
-          console.error('[processFileData]', errorMessage);
-          return Promise.reject(errorMessage);
-        }
-
-        const seed_fns = valid_seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft, seed.loom, seed.loom_settings, seed.render_colors, seed.scale, seed.draft_visible));
-
-        const op_fns = data.ops.map(op => {
-          const entry = entry_mapping.find(el => el.prev_id == op.node_id);
-          if (entry != undefined && entry != null) return this.tree.loadOpData(entry, op.name, op.params, op.inlets);
-          return Promise.resolve(null);
-        });
-
-        return Promise.all([seed_fns, op_fns]);
-
-      })
-      .then(el => {
-        return this.tree.validateNodes();
-      })
-      .then(el => {
-        const startTime = performance.now();
-        return this.tree.performAndUpdateDownstream([]).then(result => {
-          const duration = performance.now() - startTime;
-          return result;
-        });
-      })
-      .then(el => {
-        //delete any nodes that no longer need to exist
-
-        this.tree.getDraftNodes()
-          .filter(el => el.draft === null)
-          .forEach(el => {
-            if (this.tree.hasParent(el.id)) {
-              el.draft = initDraftWithParams({ warps: 1, wefts: 1, drawdown: [[createCell(false)]] });
-              el.draft.id = el.id;
-            } else {
-              this.tree.removeNode(el.id);
-            }
-          })
-      })
-      .then(el => {
-
-        return this.tree.nodes.forEach(node => {
-
-          if (!(node.component === null || node.component === undefined)) return;
-
-          const entry = entry_mapping.find(el => el.cur_id === node.id);
-          if (entry === undefined) return;
-          switch (node.type) {
-            case 'draft':
-              if (!this.tree.hasParent(node.id)) {
-                const d = this.tree.getDraft(node.id);
-                const ncp = data.nodes.find(el => el.node_id === entry.prev_id);
-                const dn = data.draft_nodes.find(el => el.node_id === entry.prev_id);
-                if (d != undefined && d != null && ncp != undefined && ncp != null && dn != undefined && dn != null) this.mixer.loadSubDraft(node.id, d, ncp, dn);
-              }
-              break;
-            case 'op':
-              const op = this.tree.getOpNode(node.id);
-              const ncp = data.nodes.find(el => el.node_id === entry.prev_id);
-              if (op != undefined && op != null) this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, ncp?.topleft ?? { x: 0, y: 0 });
-              break;
-            case 'cxn':
-
-              //only load UI for connections that go from draft to operation
-              let froms = this.tree.getInputs(node.id);
-              if (froms.length > 0 && this.tree.getNode(froms[0])?.type === 'draft') this.mixer.loadConnection(node.id)
-              break;
-          }
-        })
-
-
-      })
-      .then(el => {
-
-        //NOW GO THOUGH ALL DRAFT NODES and ADD IN DATA THAT IS REQUIRED
-        data.draft_nodes
-          .forEach(np => {
-            const new_id = entry_mapping.find(el => el.prev_id === np.node_id);
-
-            if (new_id !== undefined) {
-              const node = this.tree.getNode(new_id.cur_id);
-              if (node !== undefined && node !== null) {
-                const d = (<DraftNode>node).draft;
-                if (d != undefined && d != null) {
-                  d.gen_name = np.gen_name ?? 'drafty';
-                  d.ud_name = np.ud_name ?? '';
-                  d.notes = np.notes ?? '';
-                }
-
-                (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;
-                (<DraftNode>node).loom = (np.loom) ? copyLoom(np.loom) : null;
-                (<DraftNode>node).render_colors = np.render_colors ?? true;
-                (<DraftNode>node).visible = np.draft_visible ?? true;
-                (<DraftNode>node).scale = np.scale ?? 1
-              } else {
-                console.error("a node with the updated id was not found in the tree" + new_id);
-              }
-            } else {
-              console.error("a new id for node not found" + np.node_id);
-            }
-          })
-
-        //this is breaking on large files, disable because I also don't think it's needed anymore
-        this.tree.getOpNodes().forEach(op => {
-          (<OperationComponent>op.component).updateChildren(this.tree.getNonCxnOutputs(op.id));
-        })
-
-
-        data.notes.forEach(note => {
-          this.mixer.createNote(note);
-        });
-
-
-      })
-      .then(res => {
-        const renderStartTime = performance.now();
-
-
-        //make sure the sidebar settings for operations are set
-        this.mixer.refreshOperations();
-
-        //set scale 
-        this.mixer.renderChange();
-
-        this.editor.renderChange();
-
-        const renderDuration = performance.now() - renderStartTime;
-        this.closeLoadingAnimation();
-
-        return Promise.resolve(entry_mapping)
-      })
-      .catch(err => {
-        console.error("[LOAD] ERROR:", err);
-        this.openSnackBar('ERROR: there was a problem loading this file:' + err)
-
-        //TO DO ADD ERROR STATEMENT
-        this.closeLoadingAnimation();
-        this.clearAll();
-
-
-
-        //if it was an operation size error, remove the offending operation and try again. 
-        if (err.includes('size check failed')) {
-          const offending_op = this.tree.getOpNode(err.split(' ')[1]);
-
-        }
-
-        return Promise.reject(err)
-      });
-
-
-
-
-
 
   }
 
