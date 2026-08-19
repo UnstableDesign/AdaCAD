@@ -47,7 +47,12 @@ export class NoteComponent implements OnInit {
   before: Note | null = null;
 
   ngOnInit() {
-    this.note = this.notes.get(this.id);
+    const temp_note = this.notes.get(this.id);
+    if (temp_note == null) {
+      console.error("Note not found for id: ", this.id);
+      return;
+    }
+    this.note = temp_note
 
     this.before = this.notes.copyNote(this.note);
 

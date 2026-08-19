@@ -126,7 +126,7 @@ export class RepeatsComponent implements OnInit {
 
 
     for (var i = 0; i < this.ms.getShuttles().length; i++) {
-      let s_name = this.ms.getShuttle(i).name.toLowerCase();
+      let s_name = (this.ms.getShuttle(i)?.name ?? '').toLowerCase();
       if (s_name.localeCompare(s.toLowerCase()) === 0) return i;
     }
     return -1;

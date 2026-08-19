@@ -261,12 +261,12 @@ export class PaletteComponent implements OnInit {
 
     const noteUpdatedUndoSubscription = this.ss.noteUpdatedUndo$.subscribe(action => {
       const note = this.notes.get(action.id);
-      note.component.updateValues(action.before);
+      if (note && note.component) note.component.updateValues(action.before);
     });
 
     const noteMoveUndoSubscription = this.ss.noteMoveUndo$.subscribe(action => {
       const note = this.notes.get(action.id);
-      note.component.setPosition(action.before);
+      if (note && note.component) note.component.setPosition(action.before);
     });
 
 
@@ -755,7 +755,9 @@ export class PaletteComponent implements OnInit {
   deleteNote(id: number) {
     const note = this.notes.get(id);
     if (note === undefined) return;
-    this.removeFromViewContainer(note.ref);
+    if (note && note.ref) {
+      this.removeFromViewContainer(note.ref);
+    }
     this.notes.delete(id);
   }
 
@@ -1211,7 +1213,7 @@ export class PaletteComponent implements OnInit {
       if (param.type == 'file') {
         let old_media_id = (<Img>op.params[i]).id;
         let new_media_item = this.media.duplicateIndexedColorImageInstance(+old_media_id);
-        new_params[i] = { id: new_media_item.id.toString(), data: <AnalyzedImage>new_media_item.img }
+        if (new_media_item !== null) new_params[i] = { id: new_media_item.id.toString(), data: <AnalyzedImage>new_media_item.img }
       }
     })
 

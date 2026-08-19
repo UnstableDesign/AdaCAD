@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { defaults, generateId, Loom, LoomSettings, Material, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { createCell, Draft, Drawdown, initDraftFromDrawdown, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, initLoom, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
-import { DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
+import { DraftNode, DraftNodeProxy, Fileloader, FileMeta, FileSaver, LoadResponse, OpComponentProxy, SaveObj, StatusMessage } from '../model/datatypes';
 import { loadDraftFromFile, loadLoomFromFile } from '../model/helper';
 import { getBool, getColorTable, getColToShuttleMapping, getInt, getLiftPlan, getRowToShuttleMapping, getString, getSubstringAfter, getThreading, getTieups, getTreadling } from '../model/wif';
 import { ImporttodraftService } from './importtodraft.service';
@@ -41,8 +41,8 @@ export class FileService {
 
 
   status: Array<StatusMessage> = [];
-  loader: Fileloader = null;
-  saver: FileSaver = null;
+  loader: Fileloader;
+  saver: FileSaver;
 
   constructor() {
 
@@ -94,13 +94,13 @@ export class FileService {
           }
         }
 
-        const loom_elements = []
-        const loom_fns = []
-        const draft_elements = [];
-        const draft_fns = [];
+        const loom_elements: Array<any> = [];
+        const loom_fns: Array<Promise<any>> = [];
+        const draft_elements: Array<any> = [];
+        const draft_fns: Array<Promise<any>> = [];
 
         if (!sameOrNewerVersion(version, '3.4.9')) {
-          data.nodes.forEach(node => {
+          data.nodes.forEach((node: any) => {
             if (node.bounds !== undefined) node.topleft = node.bounds.topleft;
           })
         }
@@ -157,11 +157,11 @@ export class FileService {
 
 
           data.nodes
-            .filter(el => el.type === 'draft')
-            .forEach(async node => {
+            .filter((el: any) => el.type === 'draft')
+            .forEach(async (node: any) => {
 
-              const loom = data.looms.find(loom => loom.draft_id === node.node_id);
-              const draft = data.drafts.find(draft => draft.id === node.node_id);
+              const loom = data.looms.find((loom: any) => loom.draft_id === node.node_id);
+              const draft = data.drafts.find((draft: any) => draft.id === node.node_id);
 
 
               const dn: DraftNodeProxy = {
@@ -264,7 +264,7 @@ export class FileService {
 
             let ops_new: Array<OpComponentProxy> = [];
             if (data.ops !== undefined) {
-              ops_new = data.ops.map(single_op_data => {
+              ops_new = data.ops.map((single_op_data: OpComponentProxy) => {
                 const op: OpComponentProxy = {
                   node_id: single_op_data.node_id,
                   name: single_op_data.name,
@@ -320,9 +320,9 @@ export class FileService {
         }
 
         const loom_elements = []
-        const loom_fns = []
-        const draft_elements = [];
-        const draft_fns = [];
+        const loom_fns: Array<Promise<{ id: number, loom: Loom | null }>> = [];
+        const draft_elements: Array<DraftNodeProxy> = [];
+        const draft_fns: Array<Promise<{ id: number, draft: Draft }>> = [];
 
         draft_nodes = data.draft_nodes;
 
@@ -352,7 +352,7 @@ export class FileService {
           .then(res => {
 
             for (let i = 0; i < loom_elements.length; i++) {
-              draft_elements[i].loom = res[i];
+              draft_elements[i].loom = res[i].loom;
             }
 
             draft_nodes
@@ -381,7 +381,7 @@ export class FileService {
 
 
             if (data.ops !== undefined) {
-              ops = data.ops.map(data => {
+              ops = data.ops.map((data: OpComponentProxy) => {
                 const op: OpComponentProxy = {
                   node_id: data.node_id,
                   name: data.name,
@@ -397,8 +397,6 @@ export class FileService {
 
             const envt: SaveObj = {
               version: '0.0.0',
-              workspace: null,
-              zoom: null,
               type: 'partial',
               nodes: (data.nodes === undefined) ? [] : data.nodes,
               tree: (data.tree === undefined) ? [] : data.tree,
@@ -524,6 +522,8 @@ export class FileService {
 
 
         const utils = getLoomUtilByType(loom_settings.type);
+        if (utils === undefined) return Promise.reject("failed to get loom util by type");
+        if (utils.computeDrawdownFromLoom === undefined) return Promise.reject("failed to compute drawdown from loom");
         return utils.computeDrawdownFromLoom(loom).then(drawdown => {
 
 
@@ -586,11 +586,8 @@ export class FileService {
 
           const envt: SaveObj = {
             version: '0.0.0',
-            workspace: null,
-            zoom: null,
             type: 'wif',
             nodes: [],
-            tree: null,
             draft_nodes: [dnp],
             notes: [],
             ops: [],
@@ -655,6 +652,7 @@ export class FileService {
               drawdown[i][j] = createCell(false);
             }
           }
+          if (ctx === null || ctx === undefined) return Promise.reject("failed to get context");
           ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
           var imgdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -690,11 +688,8 @@ export class FileService {
 
           const envt: SaveObj = {
             version: '0.0.0',
-            workspace: null,
-            zoom: null,
             type: 'wif',
             nodes: [],
-            tree: null,
             draft_nodes: [dnp],
             notes: [],
             ops: [],
@@ -734,8 +729,6 @@ export class FileService {
         const out: SaveObj = {
           type: 'partial',
           version: this.vs.currentVersion(),
-          workspace: null,
-          zoom: null,
           nodes: this.tree.exportNodesForSaving(),
           tree: this.tree.exportTreeForSaving(),
           draft_nodes: await this.tree.exportDraftNodeProxiesForSaving(),
@@ -748,7 +741,7 @@ export class FileService {
         //now filter out things that aren't relevant
         out.nodes = out.nodes.filter(node => include.find(el => el == node.node_id) !== undefined);
         out.nodes.forEach(node => { node.topleft = { x: node.topleft.x + 50, y: node.topleft.y + 50 } });
-        out.tree = out.tree.filter(tn => include.find(el => el == tn.node) !== undefined);
+        out.tree = out.tree?.filter(tn => include.find(el => el == tn.node) !== undefined);
         out.draft_nodes = out.draft_nodes.filter(dn => include.find(el => el == dn.node_id) !== undefined);
         out.ops = out.ops.filter(op => include.find(el => el == op.node_id) !== undefined)
 
@@ -788,8 +781,11 @@ export class FileService {
         if (loom === null) {
 
           //force loom type to something with shafts;
-          loom_settings.type = 'frame';
-          loom = await getLoomUtilByType(loom_settings.type).computeLoomFromDrawdown(draft.drawdown, loom_settings);
+
+          const utils = getLoomUtilByType('frame');
+          if (utils === undefined) return Promise.reject("failed to get loom util by type");
+          if (utils.computeLoomFromDrawdown === undefined) return Promise.reject("failed to compute loom from drawdown");
+          loom = await utils.computeLoomFromDrawdown(draft.drawdown, loom_settings);
 
         }
 
@@ -824,7 +820,7 @@ export class FileService {
         fileContents += "[WARP]\nThreads=";
         fileContents += warps(draft.drawdown).toString();
 
-        var warpColors = [];
+        var warpColors: Array<number> = [];
         for (var i = 0; i < draft.colShuttleMapping.length; i++) {
           if (!warpColors.includes(draft.colShuttleMapping[i])) {
             warpColors.push(draft.colShuttleMapping[i]);
@@ -837,7 +833,7 @@ export class FileService {
         // WEFT
         fileContents += "\n[WEFT]\nThreads=";
         fileContents += wefts(draft.drawdown).toString();
-        var weftColors = [];
+        var weftColors: Array<number> = [];
         for (var i = 0; i < draft.colShuttleMapping.length; i++) {
           if (!weftColors.includes(draft.colShuttleMapping[i])) {
             weftColors.push(draft.colShuttleMapping[i]);
@@ -853,7 +849,7 @@ export class FileService {
           fileContents += "\n[TIEUP]\n";
 
 
-          var treadles = [];
+          var treadles: Array<number> = [];
           for (var i = 0; i < loom.tieup.length; i++) {
             for (var j = 0; j < loom.tieup[i].length; j++) {
               if (loom.tieup[i][j] && !treadles.includes(j)) {
@@ -962,7 +958,8 @@ export class FileService {
 
       },
       png: async (canvas: HTMLCanvasElement): Promise<string> => {
-        const blob: Blob = await new Promise(resolve => canvas.toBlob(resolve));
+        const blob: Blob | null = await new Promise(resolve => canvas.toBlob(resolve));
+        if (blob === null) return Promise.reject("failed to create blob");
         return Promise.resolve(URL.createObjectURL(blob));
       },
       jpg: async (canvas: HTMLCanvasElement): Promise<string> => {

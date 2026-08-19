@@ -26,7 +26,7 @@ export class ImageeditorComponent {
 
 
   media_id: number;
-  img: AnalyzedImage;
+  img: AnalyzedImage | null = null;
   color_table: Array<{ from: number, from_hex: string, to: number, to_hex: string }> = [];
   resulting_color_space: Array<{ from: number, from_hex: string, to: number, to_hex: string }> = [];
   editable: boolean = true;
@@ -42,10 +42,13 @@ export class ImageeditorComponent {
 
     this.media_id = obj.media_id;
     const media_item = this.mediaService.getMedia(this.media_id);
-    this.img = <AnalyzedImage>media_item.img;
+    if (media_item !== null) {
+      this.img = <AnalyzedImage>media_item.img;
+      this.parseColorTable(this.img.colors, this.img.colors_mapping);
+      this.updateColormapping(this.img.colors, this.img.colors_mapping);
+    }
 
-    this.parseColorTable(this.img.colors, this.img.colors_mapping);
-    this.updateColormapping(this.img.colors, this.img.colors_mapping);
+
 
   }
 
@@ -94,6 +97,7 @@ export class ImageeditorComponent {
   }
 
   mappingChanged(src: number, $event: any) {
+    if (this.img === null) return;
     let el = this.img.colors_mapping.find(el => el.from == src);
     if (el == undefined) return;
     el.to = $event.value;
@@ -109,7 +113,7 @@ export class ImageeditorComponent {
     const canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('preview_canvas');
     const ctx = canvas.getContext('2d');
 
-
+    if (this.img === null) return;
 
     canvas.width = this.img.width;
     canvas.height = this.img.height;

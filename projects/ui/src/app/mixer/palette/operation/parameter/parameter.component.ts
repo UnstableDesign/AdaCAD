@@ -317,10 +317,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   async openImageEditor() {
 
     const opnode = this.tree.getOpNode(this.opid);
-    let obj: MediaInstance = this.mediaService.getMedia(+(<Img>opnode.params[this.paramid]).id);
-    console.log("MEDIA SERVICE CONTAINS ", obj, this.mediaService.current.slice(), opnode.params[this.paramid]);
-
-
+    let obj = this.mediaService.getMedia(+(<Img>opnode.params[this.paramid]).id);
     if (obj === undefined || obj === null) return;
 
 
@@ -328,7 +325,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
     dialogRef.afterClosed().subscribe(nothing => {
 
       let updated_media = this.mediaService.getMedia(+(<Img>this.opnode.params[this.paramid]).id)
-      this.onParamChange({ id: (<Img>this.opnode.params[this.paramid]).id, data: <AnalyzedImage>updated_media.img });
+      if (updated_media !== null) this.onParamChange({ id: (<Img>this.opnode.params[this.paramid]).id, data: <AnalyzedImage>updated_media.img });
     });
   }
 

@@ -125,7 +125,8 @@ export class MaterialComponent {
     const max_diameter = this.ms.getMaxDiameter();
     materialsArray.controls.forEach((control, index) => {
       const material = this.ms.getShuttle(control.get('id')?.value);
-      control.get('icon_size')?.setValue(interpolate(material.diameter / max_diameter, { min: defaults.min_material_icon_size, max: defaults.max_material_icon_size }), { emitEvent: false });
+      if (material === null) return;
+      control.get('icon_size')?.setValue(interpolate(material?.diameter / max_diameter, { min: defaults.min_material_icon_size, max: defaults.max_material_icon_size }), { emitEvent: false });
     });
   }
 
@@ -134,6 +135,7 @@ export class MaterialComponent {
   onNameChange(id: number, name: string) {
 
     const material = this.ms.getShuttle(id);
+    if (material === null) return;
     material.name = name;
     this.ms.setMaterial(id, material);
   }
@@ -142,6 +144,7 @@ export class MaterialComponent {
 
   diameterChange(id: number, diameter: number) {
     const material = this.ms.getShuttle(id);
+    if (material === null) return;
     material.diameter = diameter;
     this.save();
     this.ms.setMaterial(id, material);
@@ -151,6 +154,7 @@ export class MaterialComponent {
 
   notesChange(id: number, notes: string) {
     const material = this.ms.getShuttle(id);
+    if (material === null) return;
     material.notes = notes;
     this.ms.setMaterial(id, material);
   }
@@ -165,6 +169,7 @@ export class MaterialComponent {
   materialColorChange(id: number, e: any) {
     console.log("materialColorChange", id, e);
     const material = this.ms.getShuttle(id);
+    if (material === null) return;
     material.color = e;
     material.rgb = hexToRgb(e);
 

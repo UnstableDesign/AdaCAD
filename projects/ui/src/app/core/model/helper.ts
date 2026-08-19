@@ -87,19 +87,19 @@ export const loadDraftFromFile = (data: any, version: string, src: string): Prom
 * returns the loom as well as the draft_id that this loom is linked with 
 * @param data 
 */
-export const loadLoomFromFile = (loom: any, version: string, id: number): Promise<{ loom: Loom, id: number }> => {
+export const loadLoomFromFile = (loom: any, version: string, id: number): Promise<{ loom: Loom | null, id: number }> => {
     console.log('[loadLoomFromFile] Loading loom from file, id:', id, 'version:', version);
     console.log('[loadLoomFromFile] Raw loom data:', loom);
 
     if (loom == null) {
         console.log('[loadLoomFromFile] Loom is null, returning null');
-        return Promise.resolve(null);
+        return Promise.resolve({ loom: null, id: id });
     }
 
     if (!sameOrNewerVersion(version, '3.4.5')) {
         console.log('[loadLoomFromFile] Version < 3.4.5, converting old treadling style');
         //tranfer the old treadling style on looms to the new style updated in 3.4.5
-        loom.treadling = loom.treadling.map(treadle_id => {
+        loom.treadling = loom.treadling.map((treadle_id: number) => {
             if (treadle_id == -1) return [];
             else return [treadle_id];
         });
@@ -359,18 +359,21 @@ export const saveAsBmp = async (el: any, draft: Draft, selected_origin_option: n
 
 /**
  * given a list of Bounds objects, this function will merge the bounds such that the top left point represents the top-most and left-most of the values and the width and height contain all values
- * @param list 
- * @returns 
+ * @param list
+ * @returns
  */
-export const mergeBounds = (list: Array<Bounds>): Bounds | null => {
+export const mergeBounds = (list: Array<Bounds | null>): Bounds | null => {
 
     list = list.filter(el => el !== null && el !== undefined);
     if (list.length == 0) return null;
 
     const first = list.pop();
+    if (first === undefined || first === null) return null;
+
 
     const tlbr = list.reduce((acc, val) => {
 
+        if (val === null || val === undefined) return acc;
         if (val.topleft.x < acc.topleft.x) acc.topleft.x = val.topleft.x;
         if (val.topleft.y < acc.topleft.y) acc.topleft.y = val.topleft.y;
         if (val.topleft.x + val.width > acc.botright.x) acc.botright.x = val.topleft.x + val.width;

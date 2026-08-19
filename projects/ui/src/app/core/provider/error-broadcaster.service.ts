@@ -52,7 +52,7 @@ export class ErrorBroadcasterService {
 
   isErrorAffected(node_id: number): boolean {
 
-    const all_affected: Array<number> = this.originatingNodes.reduce((acc, el) => {
+    const all_affected: Array<number> = this.originatingNodes.reduce((acc: Array<number>, el: ErrorStatement) => {
       if (el.affected_nodes !== undefined) {
         el.affected_nodes.forEach(node => acc.push(node));
       }
@@ -64,13 +64,13 @@ export class ErrorBroadcasterService {
     return false;
   }
 
-  getErrorLabel(node_id): string {
+  getErrorLabel(node_id: number): string {
     let node = this.originatingNodes.find(el => el.id == node_id);
     if (node !== undefined) return node.label;
     return "";
   }
 
-  getErrorType(node_id): ErrorType {
+  getErrorType(node_id: number): ErrorType {
     let node = this.originatingNodes.find(el => el.id == node_id);
     if (node !== undefined) return node.type;
     return 'OTHER';

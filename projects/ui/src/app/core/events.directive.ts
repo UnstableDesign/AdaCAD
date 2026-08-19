@@ -43,7 +43,7 @@ export class EventsDirective {
 
 
   @HostListener('window:keydown', ['$event'])
-  public keyEventDetected(e) {
+  public keyEventDetected(e: any) {
 
     // ignore arrow keys if user is in an input field
     const isInputField = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;

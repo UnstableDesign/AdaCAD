@@ -20,7 +20,6 @@ import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
 import { Bounds, DraftNode, DraftNodeBroadcastFlags, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
-import { mergeBounds } from './core/model/helper';
 import { ErrorBroadcasterService } from './core/provider/error-broadcaster.service';
 import { FileService } from './core/provider/file.service';
 import { FirebaseService } from './core/provider/firebase.service';
@@ -29,7 +28,6 @@ import { MaterialsService } from './core/provider/materials.service';
 import { MediaService } from './core/provider/media.service';
 import { NotesService } from './core/provider/notes.service';
 import { OperationService } from './core/provider/operation.service';
-import { ScreenshotLayoutService } from './core/provider/screenshot-layout.service';
 import { StateService } from './core/provider/state.service';
 import { SystemsService } from './core/provider/systems.service';
 import { TreeService } from './core/provider/tree.service';
@@ -57,14 +55,14 @@ import { ViewportService } from './mixer/provider/viewport.service';
 import { ViewerComponent } from './viewer/viewer.component';
 import { WelcomeComponent } from './core/ui/welcome/welcome.component';
 import { AnalyticsService } from './core/provider/analytics.service';
-import { SentryExample } from './sentry-example.component';
+import { mergeBounds } from './core/model/helper';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [EventsDirective, SentryExample, DownloadComponent, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, ViewadjustComponent, ViewerComponent, LibraryComponent]
+  imports: [EventsDirective, DownloadComponent, MatToolbar, MatButton, MatIconButton, MatMenuTrigger, MatMenu, MatMenuItem, MatButtonToggleGroup, FormsModule, MatButtonToggle, MatTooltip, MixerComponent, CdkScrollable, EditorComponent, MatSlider, MatSliderThumb, MatInput, ReactiveFormsModule, ViewadjustComponent, ViewerComponent, LibraryComponent]
 })
 
 
@@ -1813,7 +1811,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
         const op_fns = data.ops.map(op => {
           const entry = entry_mapping.find(el => el.prev_id == op.node_id);
-          return this.tree.loadOpData(entry, op.name, op.params, op.inlets);
+          if (entry != undefined && entry != null) return this.tree.loadOpData(entry, op.name, op.params, op.inlets);
+          return Promise.resolve(null);
         });
 
         return Promise.all([seed_fns, op_fns]);
@@ -1854,18 +1853,22 @@ export class AppComponent implements OnInit, OnDestroy {
           switch (node.type) {
             case 'draft':
               if (!this.tree.hasParent(node.id)) {
-                this.mixer.loadSubDraft(node.id, this.tree.getDraft(node.id), data.nodes.find(el => el.node_id === entry.prev_id), data.draft_nodes.find(el => el.node_id === entry.prev_id));
+                const d = this.tree.getDraft(node.id);
+                const ncp = data.nodes.find(el => el.node_id === entry.prev_id);
+                const dn = data.draft_nodes.find(el => el.node_id === entry.prev_id);
+                if (d != undefined && d != null && ncp != undefined && ncp != null && dn != undefined && dn != null) this.mixer.loadSubDraft(node.id, d, ncp, dn);
               }
               break;
             case 'op':
               const op = this.tree.getOpNode(node.id);
-              this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, data.nodes.find(el => el.node_id === entry.prev_id).topleft);
+              const ncp = data.nodes.find(el => el.node_id === entry.prev_id);
+              if (op != undefined && op != null) this.mixer.loadOperation(op.id, op.name, op.params, op.inlets, ncp?.topleft ?? { x: 0, y: 0 });
               break;
             case 'cxn':
 
               //only load UI for connections that go from draft to operation
               let froms = this.tree.getInputs(node.id);
-              if (froms.length > 0 && this.tree.getNode(froms[0]).type === 'draft') this.mixer.loadConnection(node.id)
+              if (froms.length > 0 && this.tree.getNode(froms[0])?.type === 'draft') this.mixer.loadConnection(node.id)
               break;
           }
         })
@@ -1881,10 +1884,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
             if (new_id !== undefined) {
               const node = this.tree.getNode(new_id.cur_id);
-              if (node !== undefined) {
-                (<DraftNode>node).draft.gen_name = np.gen_name ?? 'drafty';
-                (<DraftNode>node).draft.ud_name = np.ud_name ?? '';
-                (<DraftNode>node).draft.notes = np.notes ?? '';
+              if (node !== undefined && node !== null) {
+                const d = (<DraftNode>node).draft;
+                if (d != undefined && d != null) {
+                  d.gen_name = np.gen_name ?? 'drafty';
+                  d.ud_name = np.ud_name ?? '';
+                  d.notes = np.notes ?? '';
+                }
+
                 (<DraftNode>node).loom_settings = (np.loom_settings) ? copyLoomSettings(np.loom_settings) : defaults.loom_settings;
                 (<DraftNode>node).loom = (np.loom) ? copyLoom(np.loom) : null;
                 (<DraftNode>node).render_colors = np.render_colors ?? true;
@@ -2155,7 +2162,7 @@ export class AppComponent implements OnInit, OnDestroy {
   zoomToFit(useCentering = false, padding = 0) {
 
     if (this.selected_editor_mode == 'mixer') {
-      const view_window: HTMLElement = document.getElementById('scrollable-container');
+      const view_window: HTMLElement | null = document.getElementById('scrollable-container');
       if (view_window === null || view_window === undefined) return;
 
 
@@ -2166,7 +2173,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
       const b_nodes = this.tree.getNodeBoundingBox(node_list);
       const n_nodes = this.notes.getNoteBoundingBox(note_list);
-      const bounds = mergeBounds([b_nodes, n_nodes]);
+      const bounds: Bounds | null = mergeBounds([b_nodes, n_nodes]);
 
       if (bounds == null) return;
 

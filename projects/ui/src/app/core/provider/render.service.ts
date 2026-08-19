@@ -46,7 +46,7 @@ export class RenderService {
 
   view_front: boolean;
 
-  zoom: number;
+  zoom: number = 1;
 
   draft_cell_size: number;
 
@@ -95,7 +95,9 @@ export class RenderService {
 
 
     } else {
-      this.queue.push({ type: 'scale', draft, loom, loom_settings, canvases, rf, scale, onComplete });
+      if (scale) {
+        this.queue.push({ type: 'scale', draft, loom, loom_settings, canvases, rf, scale, onComplete });
+      }
       return null;
     }
   }
@@ -198,12 +200,12 @@ export class RenderService {
 
   }
 
-  calculatePixelsPerMM(draft, out_format: string, loom_settings: LoomSettings, height: number): number {
+  calculatePixelsPerMM(draft: Draft, out_format: string, loom_settings: LoomSettings, height: number): number {
 
 
     let pixels_per_mm = defaults.draft_detail_cell_size;
     let width = warps(draft.drawdown) * convertEPItoMM(loom_settings);
-    let max_bound = Math.max(width, height);
+    let max_bound = Math.max(width, height || 1);
     let area = width * height;
     let ratio_square = Math.pow(this.pixel_ratio, 2);
     let num_array_values = area * Math.pow(defaults.draft_detail_cell_size, 2) * 4 * ratio_square;
@@ -236,6 +238,12 @@ export class RenderService {
     }
     const weft_systems_cx = weft_systems_canvas.getContext("2d");
     const weft_mats_cx = weft_mats_canvas.getContext("2d");
+    if (weft_systems_cx == null) {
+      return Promise.resolve('weft systems context is null in drawWeftData')
+    }
+    if (weft_mats_cx == null) {
+      return Promise.resolve('weft materials context is null in drawWeftData')
+    }
     let max_diam = this.ms.getMaxDiameter();
 
     if (draft == null) {
@@ -522,6 +530,7 @@ export class RenderService {
         break;
 
     }
+    return [0, 0, 0, 0, 0, 0];
   }
 
   /**
@@ -1128,28 +1137,44 @@ export class RenderService {
   clear(canvases: CanvasList): Promise<CanvasList> {
 
     let drawdownCx = canvases.drawdown.getContext('2d');
-    drawdownCx.clearRect(0, 0, drawdownCx.canvas.width, drawdownCx.canvas.height);
+    if (drawdownCx) {
+      drawdownCx.clearRect(0, 0, drawdownCx.canvas.width, drawdownCx.canvas.height);
+    }
 
     let threadingCx = canvases.threading.getContext('2d');
-    threadingCx.clearRect(0, 0, threadingCx.canvas.width, threadingCx.canvas.height)
+    if (threadingCx) {
+      threadingCx.clearRect(0, 0, threadingCx.canvas.width, threadingCx.canvas.height)
+    }
 
     let tieupCx = canvases.tieup.getContext('2d');
-    tieupCx.clearRect(0, 0, tieupCx.canvas.width, tieupCx.canvas.height)
+    if (tieupCx) {
+      tieupCx.clearRect(0, 0, tieupCx.canvas.width, tieupCx.canvas.height)
+    }
 
     let treadlingCx = canvases.treadling.getContext('2d');
-    treadlingCx.clearRect(0, 0, treadlingCx.canvas.width, treadlingCx.canvas.height)
+    if (treadlingCx) {
+      treadlingCx.clearRect(0, 0, treadlingCx.canvas.width, treadlingCx.canvas.height)
+    }
 
     let warpMatCx = canvases.warp_mats.getContext('2d');
-    warpMatCx.clearRect(0, 0, warpMatCx.canvas.width, warpMatCx.canvas.height)
+    if (warpMatCx) {
+      warpMatCx.clearRect(0, 0, warpMatCx.canvas.width, warpMatCx.canvas.height)
+    }
 
     let warpSysCx = canvases.warp_systems.getContext('2d');
-    warpSysCx.clearRect(0, 0, warpSysCx.canvas.width, warpSysCx.canvas.height)
+    if (warpSysCx) {
+      warpSysCx.clearRect(0, 0, warpSysCx.canvas.width, warpSysCx.canvas.height)
+    }
 
     let weftMatCx = canvases.weft_mats.getContext('2d');
-    weftMatCx.clearRect(0, 0, weftMatCx.canvas.width, weftMatCx.canvas.height)
+    if (weftMatCx) {
+      weftMatCx.clearRect(0, 0, weftMatCx.canvas.width, weftMatCx.canvas.height)
+    }
 
     let weftSysCx = canvases.weft_systems.getContext('2d');
-    weftSysCx.clearRect(0, 0, weftSysCx.canvas.width, weftSysCx.canvas.height)
+    if (weftSysCx) {
+      weftSysCx.clearRect(0, 0, weftSysCx.canvas.width, weftSysCx.canvas.height)
+    }
 
 
     return Promise.resolve(canvases);
@@ -1239,6 +1264,9 @@ export class RenderService {
 
   clearCanvas(canvas: HTMLCanvasElement): Promise<string> {
     const canvasCx = canvas.getContext('2d');
+    if (canvasCx == null) {
+      return Promise.resolve('canvas context was null');
+    }
     canvasCx.clearRect(0, 0, canvasCx.canvas.width, canvasCx.canvas.height);
     canvasCx.canvas.width = 0;
     canvasCx.canvas.height = 0;
@@ -1277,19 +1305,19 @@ export class RenderService {
       fns = fns.concat(this.drawWeftData(draft, raw_cell_size, raw_cell_size, canvases.weft_systems, canvases.weft_mats));
     }
 
-    if (rf.u_threading) {
+    if (rf.u_threading && loom !== null) {
       fns = fns.concat(this.drawThreading(loom, loom_settings, canvases.threading, raw_cell_size, raw_cell_size, rf.show_loom));
     } else {
       if (loom_settings.type === 'jacquard') fns = fns.concat(this.clearCanvas(canvases.threading));
     }
 
-    if (rf.u_treadling) {
+    if (rf.u_treadling && loom !== null) {
       fns = fns.concat(this.drawTreadling(loom, loom_settings, canvases.treadling, raw_cell_size, raw_cell_size, rf.show_loom));
     } else {
       if (loom_settings.type === 'jacquard') { fns = fns.concat(this.clearCanvas(canvases.treadling)); }
     }
 
-    if (rf.u_tieups) {
+    if (rf.u_tieups && loom !== null) {
       fns = fns.concat(this.drawTieups(loom, loom_settings, canvases.tieup, raw_cell_size, raw_cell_size, rf.show_loom));
     } else {
       if (loom_settings.type === 'jacquard') fns = fns.concat(this.clearCanvas(canvases.tieup));
@@ -1318,7 +1346,7 @@ export class RenderService {
    * @param factor 
    * @param canvases 
    */
-  private async rescaleCanvases(draft: Draft, loom: Loom, loom_settings: LoomSettings, factor: number, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
+  private async rescaleCanvases(draft: Draft, loom: Loom | null, loom_settings: LoomSettings, factor: number, canvases: CanvasList, rf: RenderingFlags): Promise<boolean> {
     let raw_cell_size = this.calculateRawPixelCellSize(draft, 'canvas');
     const css_cell_size = raw_cell_size / this.pixel_ratio;
 

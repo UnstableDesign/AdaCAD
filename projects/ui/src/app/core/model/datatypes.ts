@@ -210,10 +210,10 @@ export interface Note {
   topleft: Point,
   title: string;
   text: string;
-  ref: ViewRef;
+  ref?: ViewRef;
   color: string;
-  component: NoteComponent;
-  imageurl: string;
+  component?: NoteComponent;
+  imageurl?: string;
   width: number;
   height: number;
 }
@@ -330,11 +330,11 @@ export type IndexedColorMediaProxy = {
  */
 export interface SaveObj {
   version: string,
-  workspace: any,
-  zoom: ZoomProxy,
+  workspace?: any,
+  zoom?: ZoomProxy,
   type: 'mixer' | 'partial' | 'wif',
   nodes: Array<NodeComponentProxy>,
-  tree: Array<TreeNodeProxy>,
+  tree?: Array<TreeNodeProxy>,
   draft_nodes: Array<DraftNodeProxy>,
   ops: Array<OpComponentProxy>,
   notes: Array<Note>,

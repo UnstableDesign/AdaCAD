@@ -751,7 +751,7 @@ export class OperationComponent implements OnInit {
       if (param.type === 'file') {
         const media: Img = <Img>opnode.params[ndx];
         const media_instance = this.mediaService.getMedia(+media.id);
-        change.media?.push(media_instance);
+        if (media_instance !== null) change.media?.push(media_instance);
       }
     });
 

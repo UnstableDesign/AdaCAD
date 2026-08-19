@@ -89,8 +89,8 @@ export const getLiftPlan = (e: string, wefts: number): Array<Array<number>> => {
     var line = e.substring(startIndex, endIndex);
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
-        var weft = +(line.match(/[0-9]*/));
-        var all_treadles = (line.match(/=[0-9]*/)[0].substring(1));
+        var weft = +(line.match(/[0-9]*/) ?? 0);
+        var all_treadles = (line.match(/=[0-9]*/)?.[0]?.substring(1) ?? '');
         var treadle_list = all_treadles.split(',');
         for (let i = 0; i < treadle_list.length; i++) {
             if (+(treadle_list[i]) > 0) {
@@ -122,8 +122,8 @@ export const getTreadling = (e: string, wefts: number): Array<Array<number>> => 
     var line = e.substring(startIndex, endIndex);
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
-        var weft = +(line.match(/[0-9]*/));
-        var all_treadles = (line.match(/=[0-9]*/)[0].substring(1));
+        var weft = +(line.match(/[0-9]*/) ?? 0);
+        var all_treadles = (line.match(/=[0-9]*/)?.[0]?.substring(1) ?? '');
         var treadle_list = all_treadles.split(',');
         for (let i = 0; i < treadle_list.length; i++) {
             if (+(treadle_list[i]) > 0) {
@@ -154,8 +154,8 @@ export const getThreading = (e: string, warps: number): Array<number> => {
     var line = e.substring(startIndex, endIndex);
     console.log("LINE", line);
     while (line.match(/[0-9]*=[0-9]*/) != null) {
-        var warp = +(line.match(/[0-9]*/));
-        var frame = +(line.match(/=[0-9]*/)[0].substring(1));
+        var warp = +(line.match(/[0-9]*/) ?? 0);
+        var frame = +(line.match(/=[0-9]*/)?.[0]?.substring(1) ?? 0);
         console.log("GET THREADING value", warp, frame);
         threading[warps - warp] = frame - 1;
         startIndex = endIndex + 1;
@@ -180,8 +180,8 @@ export const getTieups = (e: string, frames: number, treadles: number): Array<Ar
     var line = e.substring(startIndex, endIndex);
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
-        var treadle = +(line.match(/[0-9]*/));
-        var firstFrame = +(line.match(/=[0-9]*/)[0].substring(1));
+        var treadle = +(line.match(/[0-9]*/) ?? 0);
+        var firstFrame = +(line.match(/=[0-9]*/)?.[0]?.substring(1) ?? 0);
         tieups[firstFrame - 1][treadle - 1] = true;
         var restOfFrames = line.match(/,[0-9]/g);
         if (restOfFrames != null) {
@@ -213,11 +213,11 @@ export const getColorTable = (e: string, min: number, max: number): Array<Materi
     var line = e.substring(startIndex, endIndex);
 
     while (line.match(/[0-9]*=[0-9]*,[0-9]*,[0-9]*/) != null) {
-        var id = +(line.match(/[0-9]*/));
-        var redNum = +(line.match(/=[0-9]*/)[0].substring(1));
+        var id = +(line.match(/[0-9]*/) ?? 0);
+        var redNum = +(line.match(/=[0-9]*/)?.[0]?.substring(1) ?? 0);
         var greenAndBlue = line.match(/,[0-9]*/g);
-        var greenNum = +(greenAndBlue[0].substring(1));
-        var blueNum = +(greenAndBlue[1].substring(1));
+        var greenNum = +(greenAndBlue?.[0]?.substring(1) ?? 0);
+        var blueNum = +(greenAndBlue?.[1]?.substring(1) ?? 0);
 
         var hex = "#";
 
@@ -277,8 +277,8 @@ export const getColToShuttleMapping = (e: string, warps: number): Array<number> 
     var line = e.substring(startIndex, endIndex);
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
-        var warp = +(line.match(/[0-9]*/));
-        var color = +(line.match(/=[0-9]*/)[0].substring(1));
+        var warp = +(line.match(/[0-9]*/) ?? 0);
+        var color = +(line.match(/=[0-9]*/)?.[0]?.substring(1) ?? 0);
         colToShuttleMapping[warp - 1] = color;
         startIndex = endIndex + 1;
         endIndex = e.substring(startIndex).indexOf(endOfLineChar) + startIndex;
@@ -306,9 +306,9 @@ export const getRowToShuttleMapping = (e: string, wefts: number): Array<number> 
     var endIndex = (e.substring(startIndex)).indexOf(endOfLineChar) + startIndex;
     var line = e.substring(startIndex, endIndex);
 
-    while (line.match(/[0-9]*=[0-9]*/) != null) {
-        var weft = +(line.match(/[0-9]*/));
-        var color = +(line.match(/=[0-9]*/)[0].substring(1));
+    while (line.match(/[0-9]*=[0-9]*/) != null && line.match(/[0-9]*=[0-9]*/) != undefined) {
+        var weft = +(line.match(/[0-9]*/) ?? 0);
+        var color = +(line.match(/=[0-9]*/)?.[0]?.substring(1) ?? 0);
         rowToShuttleMapping[weft - 1] = color;
         startIndex = endIndex + 1;
         endIndex = e.substring(startIndex).indexOf(endOfLineChar) + startIndex;

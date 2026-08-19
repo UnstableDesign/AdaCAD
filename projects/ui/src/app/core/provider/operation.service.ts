@@ -48,7 +48,7 @@ export class OperationService {
 
   getOp(name: string): Operation | DynamicOperation {
     const op = this.ops.find(el => el.name == name);
-    if (op == undefined) return null;
+    if (op == undefined) return this.ops.find(el => el.name == 'rectangle')!;
 
     if (!op.params.some(p => p.type === 'p5-canvas')) return op;
 

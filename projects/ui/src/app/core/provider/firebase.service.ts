@@ -6,7 +6,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { FileMeta, FilesState, SaveObj, ShareObj, UserFile } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { auth as firebaseAuth, db as firebaseDb } from './firebase-app';
-
+import { defaults as appDefaults } from '../model/defaults';
 /**
  * A service to streamline interactions with firebase
  */
@@ -37,7 +37,7 @@ export class FirebaseService implements OnDestroy {
 
   //DATABASE - USER DATA (list of file_ids with metadata, last logged in time)
   private unsubscribeUserFiles: Unsubscribe[] = [];
-  private userFilesChangeEvent = new BehaviorSubject<FilesState>(null);
+  private userFilesChangeEvent = new BehaviorSubject<FilesState>({ user: [], shared: [], public: [] });
   userFilesChangeEvent$ = this.userFilesChangeEvent.asObservable();
 
 
@@ -53,7 +53,7 @@ export class FirebaseService implements OnDestroy {
   //DATABASE - SHARED DATA (indexed by id, name, img, license, credit, owner uid, owner url, make public)
   sharedFiles = query(ref(this.db, 'shared'));
   private unsubscribeSharedFiles: Unsubscribe[] = [];
-  private sharedFilesChangeEvent = new BehaviorSubject<FilesState>(null);
+  private sharedFilesChangeEvent = new BehaviorSubject<FilesState>({ user: [], shared: [], public: [] });
   sharedFilesChangeEvent$ = this.sharedFilesChangeEvent.asObservable();
 
 
@@ -91,14 +91,16 @@ export class FirebaseService implements OnDestroy {
         this.unsubscribeUserFiles.push(
           onChildAdded(userFiles, this.runInZone((childsnapshot) => {
 
-            if (this.file_list.user.find(el => el.id === parseInt(childsnapshot.key)) === undefined) {
+            if (childsnapshot === undefined || childsnapshot === null) return;
+            const added_key: string = childsnapshot.key ?? '';
+            if (this.file_list.user.find(el => el.id === parseInt(added_key)) === undefined) {
 
               const meta = childsnapshot.val();
               var dateFormat = new Date(meta.timestamp);
               meta.date = dateFormat.toLocaleDateString();
 
               const user_file: UserFile = {
-                id: parseInt(childsnapshot.key),
+                id: parseInt(added_key),
                 meta: meta,
               }
               this.file_list.user.unshift(user_file);
@@ -109,7 +111,8 @@ export class FirebaseService implements OnDestroy {
 
           onChildChanged(userFiles, this.runInZone((childsnapshot) => {
 
-            const ndx = this.file_list.user.findIndex(el => el.id === parseInt(childsnapshot.key));
+            if (childsnapshot === undefined || childsnapshot === null) return;
+            const ndx = this.file_list.user.findIndex(el => el.id === parseInt(childsnapshot.key ?? '0'));
             if (ndx !== -1) {
               const meta = childsnapshot.val();
               var dateFormat = new Date(meta.timestamp);
@@ -121,7 +124,9 @@ export class FirebaseService implements OnDestroy {
           })),
 
           onChildRemoved(userFiles, this.runInZone((childsnapshot) => {
-            this.file_list.user = this.file_list.user.filter(el => el.id !== parseInt(childsnapshot.key))
+            if (childsnapshot === undefined || childsnapshot === null) return;
+            const removed_key: string = childsnapshot.key ?? '';
+            this.file_list.user = this.file_list.user.filter(el => el.id !== parseInt(removed_key))
             this.emitUserFilesEvent(this.file_list);
           }))
         );
@@ -133,8 +138,9 @@ export class FirebaseService implements OnDestroy {
 
     this.unsubscribeSharedFiles.push(
       onChildAdded(sharedFiles, this.runInZone((childsnapshot) => {
+        if (childsnapshot === undefined || childsnapshot === null) return;
         let obj: ShareObj = {
-          id: +childsnapshot.key,
+          id: +(childsnapshot.key ?? 0),
           license: childsnapshot.val().license,
           owner_uid: childsnapshot.val().owner_uid,
           owner_url: childsnapshot.val().owner_url,
@@ -159,8 +165,10 @@ export class FirebaseService implements OnDestroy {
       })),
 
       onChildChanged(sharedFiles, this.runInZone((childsnapshot) => {
+
+        if (childsnapshot === undefined || childsnapshot === null) return;
         let obj: ShareObj = {
-          id: +childsnapshot.key,
+          id: +(childsnapshot.key ?? 0),
           license: childsnapshot.val().license,
           owner_uid: childsnapshot.val().owner_uid,
           owner_url: childsnapshot.val().owner_url,
@@ -172,7 +180,7 @@ export class FirebaseService implements OnDestroy {
         }
 
         //mark this as shared in the user's list
-        if (childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
+        if (childsnapshot.val().owner_uid == this.auth.currentUser?.uid || -1) {
           this.file_list.shared.push(obj);
           this.emitSharedFilesEvent(this.file_list);
 
@@ -190,7 +198,9 @@ export class FirebaseService implements OnDestroy {
       //needs to redraw the files list 
       onChildRemoved(sharedFiles, this.runInZone((removedItem) => {
 
-        this.file_list.shared = this.file_list.shared.filter(el => el.id !== parseInt(removedItem.key))
+        const removed_key: string = removedItem.key ?? '';
+        if (removedItem.key === undefined || removedItem.key === null) return;
+        this.file_list.shared = this.file_list.shared.filter(el => el.id !== parseInt(removed_key))
         this.emitSharedFilesEvent(this.file_list);
 
 
@@ -254,7 +264,7 @@ export class FirebaseService implements OnDestroy {
    */
 
   getUsername(): string {
-    return this.auth.currentUser.displayName;
+    return (this.auth.currentUser?.displayName ?? 'no current user');
   }
 
   logout() {
@@ -335,7 +345,7 @@ export class FirebaseService implements OnDestroy {
     //do a quick correction for any undefined loom settings
     cur_state.draft_nodes.forEach(dn => {
       if (dn.loom_settings == undefined) {
-        dn.loom_settings = null;
+        dn.loom_settings = appDefaults.loom_settings;
       }
     })
 
@@ -375,7 +385,9 @@ export class FirebaseService implements OnDestroy {
 
 
   private writeFileMetaData(meta: FileMeta): Promise<boolean> {
-    let user_path = ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + meta.id);
+    const current_user = this.auth.currentUser;
+    if (current_user === undefined || current_user === null) return Promise.reject("no current user");
+    let user_path = ref(this.db, 'users/' + current_user.uid + '/files/' + meta.id);
 
 
     if (meta.from_share == undefined || meta.from_share == null) meta.from_share = '';
@@ -398,7 +410,9 @@ export class FirebaseService implements OnDestroy {
    * @returns 
    */
   renameUserFile(meta: FileMeta): Promise<boolean> {
-    let user_path = ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + meta.id);
+    const current_user = this.auth.currentUser;
+    if (current_user === undefined || current_user === null) return Promise.reject("no current user");
+    let user_path = ref(this.db, 'users/' + current_user.uid + '/files/' + meta.id);
 
 
     if (meta.from_share == undefined || meta.from_share == null) meta.from_share = '';
@@ -474,7 +488,9 @@ export class FirebaseService implements OnDestroy {
    */
   getFileMeta(fileid: number): Promise<FileMeta> {
 
-    const file_path = ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + fileid);
+    const current_user = this.auth.currentUser;
+    if (current_user === undefined || current_user === null) return Promise.reject("no current user");
+    const file_path = ref(this.db, 'users/' + current_user.uid + '/files/' + fileid);
     return get(file_path).then((meta) => {
 
       if (meta.exists()) {
@@ -504,7 +520,10 @@ export class FirebaseService implements OnDestroy {
   removeFile(fileid: number) {
 
     remove(ref(this.db, `filedata/${fileid}`));
-    remove(ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + fileid));
+
+    const current_user = this.auth.currentUser;
+    if (current_user === undefined || current_user === null) return;
+    remove(ref(this.db, 'users/' + current_user.uid + '/files/' + fileid));
 
   }
 
@@ -580,11 +599,14 @@ export class FirebaseService implements OnDestroy {
    */
   removeSharedFile(file_id: string): Promise<boolean> {
 
+    const current_user = this.auth.currentUser;
+
+    if (current_user === undefined || current_user === null) return Promise.reject("no current user");
     let int_id: number = +file_id;
     remove(ref(this.db, `shared/${file_id}`)).catch(err => { return Promise.reject(err) })
 
     return this.getFileMeta(int_id).then(meta => {
-      return update(ref(this.db, 'users/' + this.auth.currentUser.uid + '/files/' + file_id), { name: meta.name + "(previously shared)" })
+      return update(ref(this.db, 'users/' + current_user.uid + '/files/' + file_id), { name: meta.name + "(previously shared)" })
         .then(val => { return Promise.resolve(true) })
         .catch(err => { return Promise.reject(err) })
     })
@@ -600,6 +622,7 @@ export class FirebaseService implements OnDestroy {
  * @param user 
  */
   getMostRecentFileIdFromUser(): Promise<number> {
+    if (this.auth.currentUser === undefined || this.auth.currentUser === null) return Promise.reject("no current user");
     const user_ref = ref(this.db, `users/${this.auth.currentUser.uid}`);
     return get(user_ref).then((userdata) => {
       if (userdata.exists()) {

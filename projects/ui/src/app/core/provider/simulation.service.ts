@@ -3,9 +3,10 @@ import { Draft, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getColorForSim, getDiameter } from 'adacad-drafting-lib/material/material.js';
 import { CNFloat, computeSimulationData, ContactNeighborhood, getFlatVtxList, SimulationData, SimulationVars, WeftPath, YarnVertex } from 'adacad-drafting-lib/simulation';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Bounds } from '../model/datatypes';
 import { defaults } from '../model/defaults';
+import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
 
 @Injectable({
   providedIn: 'root'
@@ -18,19 +19,20 @@ export class SimulationService {
    */
 
 
-  renderer;
-  scene; camera;
-  controls;
-  gui;
-  particles;
-  springs;
-  warp_layer_map_scene: any;
-  weft_layer_map_scene: any;
-  warp_scene: any;
-  weft_scene: any;
-  axis_scene: any;
-  topo_scene: any;
-  draft_scene: any;
+  renderer!: THREE.WebGLRenderer;
+  scene!: THREE.Scene;
+  camera!: THREE.Camera;
+  controls!: OrbitControls;
+  gui!: GUI;
+  particles!: Array<any>;
+  springs!: Array<any>;
+  warp_layer_map_scene!: THREE.Group;
+  weft_layer_map_scene!: THREE.Group;
+  warp_scene!: THREE.Object3D;
+  weft_scene!: THREE.Object3D;
+  axis_scene!: THREE.Object3D;
+  topo_scene!: THREE.Group;
+  draft_scene!: THREE.Group;
 
 
   constructor() {
@@ -137,10 +139,10 @@ export class SimulationService {
 
 
 
-  // public snapToX(controls: THREE.OrbitControls) {
-  //   controls.target = new THREE.Vector3(200, 0, 0);
-  //   controls.update();
-  // }
+  public snapToX(controls: OrbitControls) {
+    controls.target = new THREE.Vector3(200, 0, 0);
+    controls.update();
+  }
 
 
 
@@ -162,7 +164,9 @@ export class SimulationService {
       let color = getColorForSim(material_id, simVars.ms);
       const render_color = new THREE.Color(color);
       let warp_render = this.scene.getObjectByName('warp-' + j);
-      warp_render.material.color.set(render_color);
+      if (warp_render && warp_render instanceof THREE.Mesh) {
+        warp_render.material.color.set(render_color);
+      }
 
     })
 
@@ -170,7 +174,9 @@ export class SimulationService {
       let color = getColorForSim(material_id, simVars.ms);
       const render_color = new THREE.Color(color);
       let weft_render = this.scene.getObjectByName('weft-' + j);
-      weft_render.material.color.set(render_color);
+      if (weft_render && weft_render instanceof THREE.Mesh) {
+        weft_render.material.color.set(render_color);
+      }
 
     })
 
@@ -657,7 +663,7 @@ export class SimulationService {
 
 
 
-  applyOrientationConversion(object: THREE.Object3D, boundary_vtx: { min_x: number, max_x: number, min_y: number, max_y: number }) {
+  applyOrientationConversion(object: THREE.Object3D, boundary_vtx: { min_x: number, max_x: number, min_y: number, max_y: number }): THREE.Object3D {
     const trans = new THREE.Matrix4();
 
     let width = boundary_vtx.max_x - boundary_vtx.min_x;
