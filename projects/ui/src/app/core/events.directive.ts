@@ -32,7 +32,7 @@ export class EventsDirective {
   @Output() onEditorModeChange: any = new EventEmitter();
 
   @HostListener('window:resize', ['$event'])
-  onResize(event) {
+  onResize(event: any) {
     this.vas.updateFromWindowResize(event.target.innerWidth);
     this.onWindowResize.emit();
   }
@@ -51,7 +51,7 @@ export class EventsDirective {
     // arrow key panning
     if (!isInputField && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
       const panAmount = 50; // pixels
-      const direction = {
+      const direction: any = {
         'ArrowUp': { x: 0, y: -panAmount },
         'ArrowDown': { x: 0, y: panAmount },
         'ArrowLeft': { x: -panAmount, y: 0 },

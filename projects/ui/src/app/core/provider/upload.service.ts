@@ -50,7 +50,7 @@ export class UploadService {
     return new Promise((resolve, reject) => {
       let reader = new FileReader();
 
-      reader.onload = function (event) {
+      reader.onload = function (event: any) {
         let data = event.target?.result;
         console.log("GET HASH ", data)
         let ret: any = data;
@@ -176,7 +176,7 @@ export class UploadService {
       .then((url) => {
         const xhr = new XMLHttpRequest();
         xhr.responseType = 'blob';
-        xhr.onload = (event) => {
+        xhr.onload = (event: any) => {
           const blob = xhr.response;
 
         };
