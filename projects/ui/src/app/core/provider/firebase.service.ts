@@ -488,21 +488,21 @@ export class FirebaseService implements OnDestroy {
    */
   getFileMeta(fileid: number): Promise<FileMeta> {
 
+
     const current_user = this.auth.currentUser;
     if (current_user === undefined || current_user === null) return Promise.reject("no current user");
     const file_path = ref(this.db, 'users/' + current_user.uid + '/files/' + fileid);
     return get(file_path).then((meta) => {
 
       if (meta.exists()) {
-        let obj = {
+        let obj: FileMeta = {
           id: fileid,
           desc: meta.val().desc,
-          last_opened: meta.val().last_opened,
+          time: meta.val().timestamp,
           name: meta.val().name,
-          timestamp: meta.val().timestamp,
           from_share: (meta.val().from_share == undefined) ? '' : meta.val().from_share,
           share_owner: (meta.val().share_owner == undefined) ? '' : meta.val().share_owner,
-        }
+        };
         return Promise.resolve(obj);
       } else {
         return Promise.reject("No meta data found for file id " + fileid)

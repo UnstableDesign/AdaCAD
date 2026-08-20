@@ -409,6 +409,7 @@ export class FileService {
               id: -1,
               name: 'paste',
               desc: 'a file represeting copied information',
+              time: 0,
               from_share: '',
               share_owner: ''
 
@@ -596,6 +597,7 @@ export class FileService {
             id: -1,
             name: data.name + ' (wif import)',
             desc: 'a file representing imported wif information from ' + data.name,
+            time: 0,
             from_share: '',
             share_owner: ''
 
@@ -697,6 +699,7 @@ export class FileService {
             id: -1,
             name: data.name + ' (bitmap import)',
             desc: 'a file representing imported bitmap information from ' + data.name,
+            time: 0,
             from_share: '',
             share_owner: ''
 

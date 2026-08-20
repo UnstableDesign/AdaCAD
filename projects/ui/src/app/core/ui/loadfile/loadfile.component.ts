@@ -83,6 +83,7 @@ export class LoadfileComponent {
           id: -1,
           name: e.name,
           desc: '',
+          time: 0,
           from_share: '',
           share_owner: ''
         }

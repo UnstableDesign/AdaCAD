@@ -377,7 +377,7 @@ export class AppComponent implements OnInit, OnDestroy {
     (window as any).loadAdaFileJson = async (adaSaveObjJson: SaveObj) => {
       this.clearAll();
 
-      const loadResponse = await this.fs.loader.ada(adaSaveObjJson, { name: 'untitled', id: 0, desc: '', from_share: '', share_owner: '' }, 'upload');
+      const loadResponse = await this.fs.loader.ada(adaSaveObjJson, { name: 'untitled', id: 0, desc: '', time: 0, from_share: '', share_owner: '' }, 'upload');
       return this.loadNewFile(loadResponse, 'openFile');
     };
 
@@ -797,6 +797,7 @@ export class AppComponent implements OnInit, OnDestroy {
                   id: generateId(8),
                   name: 'filename not found',
                   desc: '',
+                  time: 0,
                   from_share: '',
                   share_owner: ''
                 }
@@ -999,6 +1000,7 @@ export class AppComponent implements OnInit, OnDestroy {
       id: -1,
       name: '',
       desc: '',
+      time: 0,
       from_share: shareid.toString(),
       share_owner: ''
     };
@@ -1054,6 +1056,7 @@ export class AppComponent implements OnInit, OnDestroy {
       id: generateId(8),
       name: 'blank workspace',
       desc: '',
+      time: 0,
       from_share: '',
       share_owner: ''
     }
@@ -1075,6 +1078,7 @@ export class AppComponent implements OnInit, OnDestroy {
       id: generateId(8),
       name: 'welcome',
       desc: '',
+      time: 0,
       from_share: '',
       share_owner: ''
     }
@@ -1121,9 +1125,10 @@ export class AppComponent implements OnInit, OnDestroy {
           this.openSnackBar('opening example ' + name)
           this.clearAll();
           const meta = {
-            id: -1,
+            id: generateId(8),
             name: name,
             desc: '',
+            time: 0,
             from_share: '',
             share_owner: 'AdaCAD Examples'
           }
@@ -1204,44 +1209,48 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   async loadTreeNodes(id_map: Array<{ prev_id: number, cur_id: number }>, tns: Array<TreeNodeProxy>): Promise<Array<{ tn: TreeNode, entry: { prev_id: number, cur_id: number } }>> {
 
+    const functions: Array<Promise<{ tn: TreeNode, entry: { prev_id: number, cur_id: number } }>> = [];
 
-    const updated_tnp: Array<TreeNodeProxy> = tns.map(tn => {
+
+    tns.forEach(tn => {
 
       //we need these here because firebase does not store arrays of size 0
       if (tn.inputs === undefined) tn.inputs = [];
       if (tn.outputs === undefined) tn.outputs = [];
 
+      const input_list: Array<any> = [];
+      const output_list: Array<any> = [];
+      console.log("tn is ", tn.node, tn.parent, tn.inputs.map(el => el.tn), tn.outputs.map(el => el.tn));
 
-      const input_list = tn.inputs.map(input => {
+
+      tn.inputs.forEach(input => {
+        console.log("input is ", input, typeof input);
+
         if (typeof input === 'number') {
           const input_in_map = id_map.find(el => el.prev_id === input);
 
           if (input_in_map !== undefined) {
-            return { tn: input_in_map.cur_id, ndx: 0 };
+            input_list.push({ tn: input_in_map.cur_id, ndx: 0 });
           } else {
             console.error("could not find matching node");
-            return { tn: -1, ndx: 0 };
           }
 
         } else {
           const input_in_map = id_map.find(el => el.prev_id === input.tn);
           if (input_in_map !== undefined) {
-            return { tn: input_in_map.cur_id, ndx: input.ndx };
+            input_list.push({ tn: input_in_map.cur_id, ndx: input.ndx });
           } else {
             console.error("could not find matching node");
-            return { tn: -1, ndx: 0 };
           }
         }
-
-
       });
-
-      const output_list: Array<any> = tn.outputs.map(output => {
+      tn.outputs.forEach(output => {
+        console.log("output is ", output, typeof output);
         //handle files of old type, before inputs were broken into two fields
         if (typeof output === 'number') {
           const output_map = id_map.find(el => el.prev_id === output);
           if (output_map !== undefined) {
-            return { tn: output_map.cur_id, ndx: 0 };
+            output_list.push({ tn: output_map.cur_id, ndx: 0 });
           } else {
             console.error("could not find matching node");
           }
@@ -1250,12 +1259,13 @@ export class AppComponent implements OnInit, OnDestroy {
           const output_map = id_map.find(el => el.prev_id === output.tn);
 
           if (output_map !== undefined) {
-            return { tn: output_map.cur_id, ndx: output.ndx };
+            output_list.push({ tn: output_map.cur_id, ndx: output.ndx });
           } else {
             console.error("could not find matching node");
           }
         }
       });
+
 
 
       const new_tn: TreeNodeProxy = {
@@ -1265,11 +1275,11 @@ export class AppComponent implements OnInit, OnDestroy {
         outputs: output_list ?? []
       }
 
-      //console.log("new tn is ", new_tn);
-      return new_tn;
-    })
 
-    const functions = updated_tnp.map(tn => this.tree.loadTreeNodeData(id_map, tn.node, tn.parent, tn.inputs, tn.outputs));
+      functions.push(this.tree.loadTreeNodeData(id_map, new_tn.node, new_tn.parent, new_tn.inputs, new_tn.outputs));
+    });
+
+
     return Promise.all(functions);
 
   }
@@ -1786,7 +1796,10 @@ export class AppComponent implements OnInit, OnDestroy {
       console.log('[processFileData] Corrected ops:', correctedOps);
       data.ops = correctedOps;
       const id_map: Array<{ prev_id: number, cur_id: number }> = await this.loadNodes(data.nodes);
+
+      console.log('[treeNodesInFile] Tree nodes:', data.tree);
       const treenodes = await this.loadTreeNodes(id_map, data.tree ?? []);
+      console.log('[treeNodesCreated] Tree nodes:', treenodes);
 
 
       const seednodes: Array<{ prev_id: number, cur_id: number }> = treenodes
@@ -1827,6 +1840,8 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
       await Promise.all([seed_fns, op_fns]);
+
+      this.tree.PrintTree();
 
       await this.tree.validateNodes();
       const startTime = performance.now();

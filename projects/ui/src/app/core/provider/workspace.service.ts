@@ -51,6 +51,7 @@ export class WorkspaceService {
     id: -1,
     name: 'no name',
     desc: '',
+    time: 0,
     from_share: '',
     share_owner: ''
 
@@ -68,7 +69,6 @@ export class WorkspaceService {
 
 
   public setCurrentFile(meta: FileMeta) {
-    console.log("SETTING CURRENT FILE ", meta)
     this.current_file = meta;
     this.onFileOpen.next(meta);
     this.onFilenameUpdated.next(meta.name);

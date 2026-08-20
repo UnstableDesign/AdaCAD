@@ -500,7 +500,8 @@ export type FileMeta = {
   id: number,
   name: string,
   desc: string,
-  time?: number,
+  time: number,
+  date?: string,
   from_share: string,
   share_owner: string
 }

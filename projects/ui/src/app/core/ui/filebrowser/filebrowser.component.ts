@@ -129,17 +129,16 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
    */
   combineAndSortFiles(): void {
 
-
     // Prepare user files
     const userFiles = this.user_files
-      .filter(file => (this.shared_files.find(el => el.id == file.id) === undefined))
+      .filter(file => (this.shared_files.find(el => el.id == file.id) === undefined)) //get the files that are not shared
       .map(file => ({
         ...file,
         fileType: 'user',
         isShared: (this.shared_files.find(el => el.id == file.id) !== undefined),
         displayName: file.meta.name || 'Unknown',
-        displayDate: file.meta.time ?? 0,
-        sortDate: new Date(file.meta.time ?? 0)
+        displayDate: file.meta.date ?? 0,
+        sortDate: new Date(file.meta.date ?? 0)
       }));
 
     // Prepare shared files
@@ -148,8 +147,8 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
       fileType: 'shared',
       isPublic: (this.public_files.find(el => el.id == file.id) !== undefined),
       displayName: file.filename || 'Unknown',
-      displayDate: 0,
-      sortDate: new Date(0)
+      displayDate: (this.user_files.find(el => el.id == file.id)?.meta.date ?? 0),
+      sortDate: new Date(this.user_files.find(el => el.id == file.id)?.meta.date ?? 0)
     }));
 
     // Sort each list separately

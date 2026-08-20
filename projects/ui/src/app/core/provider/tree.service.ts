@@ -530,6 +530,7 @@ export class TreeService {
 
   async loadTreeNodeData(id_map: { prev_id: number, cur_id: number }[], node_id: number, parent_id: number, inputs: Array<{ tn: number, ndx: number }>, outputs: Array<{ tn: number, ndx: number }>): Promise<{ tn: TreeNode, entry: { prev_id: number, cur_id: number } }> {
 
+
     const entry = id_map.find((el: { prev_id: number, cur_id: number }) => el.cur_id === node_id);
     if (entry == undefined) return Promise.reject('Entry not found in loadTreeNodeData');
 
@@ -541,16 +542,20 @@ export class TreeService {
 
     inputs.forEach((input: { tn: number, ndx: number }) => {
       if (input.tn !== undefined) {
-        const tn = this.getTreeNode(input.tn);
-        if (tn !== null) tn.inputs.push({ tn, ndx: input.ndx });
-      }
+        const in_tn = this.getTreeNode(input.tn);
+        if (in_tn !== null) tn.inputs.push({ tn: in_tn, ndx: input.ndx });
+        else console.error("Tree node not found in loadTreeNodeData", input.tn);
+      } else console.error("Input is undefined in loadTreeNodeData", input);
     });
 
     outputs.forEach((output: { tn: number, ndx: number }) => {
       if (output.tn !== undefined) {
-        const tn = this.getTreeNode(output.tn);
-        if (tn !== null) tn.outputs.push({ tn, ndx: output.ndx });
-      }
+        const out_tn = this.getTreeNode(output.tn);
+        if (out_tn !== null) {
+          tn.outputs.push({ tn: out_tn, ndx: output.ndx });
+        }
+        else console.error("Tree node not found in loadTreeNodeData", output.tn);
+      } else console.error("Output is undefined in loadTreeNodeData", output);
     });
 
 
@@ -1025,7 +1030,9 @@ export class TreeService {
     let ops: Array<number> = [];
     const tn = this.getTreeNode(id);
     if (tn == null) return [];
-    if (tn.inputs.length > 0) {
+    if (tn.inputs.length == 0) return [];
+    else {
+
       tn.inputs.forEach(el => {
         if (el.tn.node.type === 'op') {
           ops.push(el.tn.node.id);
@@ -1499,7 +1506,7 @@ export class TreeService {
    * @returns 
    */
   public createSchedule(op_ids?: Array<number> | null): Promise<Array<number>> {
-
+    console.log('[createSchedule] Op IDs:', op_ids);
 
 
     let lineage = [];
@@ -1924,7 +1931,7 @@ export class TreeService {
   getTreeNode(id: number): TreeNode | null {
     const found = this.tree.find(el => el.node.id === id);
     if (found === undefined) {
-      console.error("Tree node for ", id, "not found");
+      console.log("Tree node not found in getTreeNode", id);
       return null;
     }
     return found;
@@ -2451,7 +2458,7 @@ export class TreeService {
    * returns the ids of the total set of operations that, when performed, will chain down to the other operations
    */
   getTopLevelOps(): Array<number> {
-
+    console.log('[getTopLevelOps] Nodes:', this.nodes);
     return this.nodes
       .filter(el => el.type === "op")
       .filter(el => this.getUpstreamOperations(el.id).length === 0)
@@ -2501,6 +2508,47 @@ export class TreeService {
 
 
 
+  }
+
+  /**
+   * Prints the tree structure to the console, labeling each node with its id.
+   * Starts from nodes with no inputs and walks down through outputs.
+   */
+  PrintTree(): void {
+    const roots = this.tree.filter(tn => tn.inputs.length === 0);
+    if (roots.length === 0) {
+      console.log('(empty tree)');
+      return;
+    }
+
+    const visited = new Set<number>();
+    const lines: Array<string> = [];
+
+    console.log('Printing tree...');
+    console.log('Roots:', roots.map(tn => tn.node.id));
+
+    const walk = (tn: TreeNode, prefix: string, is_last: boolean) => {
+      const id = tn.node.id;
+      const type = tn.node.type
+      const branch = prefix === '' ? '' : (is_last ? '└── ' : '├── ');
+      const already_visited = visited.has(id);
+      lines.push(`${prefix}${branch}${id} (${type})${already_visited ? ' (cycle)' : ''}`);
+
+      if (already_visited) return;
+      visited.add(id);
+
+      const children = tn.outputs.map(io => io.tn);
+      const child_prefix = prefix === '' ? '' : prefix + (is_last ? '    ' : '│   ');
+      children.forEach((child, i) => {
+        walk(child, child_prefix, i === children.length - 1);
+      });
+    };
+
+    roots.forEach((root, i) => {
+      walk(root, '', i === roots.length - 1);
+    });
+
+    console.log(lines.join('\n'));
   }
 
   /**
