@@ -15,11 +15,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && npm run sentry:sourcemaps",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "publish": "firebase target:apply hosting adacad5 adacad-5 && firebase deploy"
+    "publish": "firebase target:apply hosting adacad5 adacad-5 && firebase deploy",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org atlas-institute --project javascript-angular ./dist && sentry-cli sourcemaps upload --org atlas-institute --project javascript-angular ./dist"
   },
   "private": true,
   "dependencies": {
@@ -35,6 +36,7 @@
     "@angular/router": "^22.1.2",
     "@fortawesome/fontawesome-free": "^6.4.0",
     "@sentry/angular": "^10.70.0",
+    "@sentry/cli": "^2.58.6",
     "adacad-drafting-lib": "file:../../packages/adacad-drafting-lib",
     "core-js": "^3.6.4",
     "firebase": "^12.6.0",

@@ -12,6 +12,8 @@ import { AppComponent } from './app/app.component';
 
 Sentry.init({
   dsn: environment.sentry.dsn,
+  enabled: environment.production,
+  environment: environment.production ? 'production' : 'development',
   integrations: [
     Sentry.feedbackIntegration({
       // Additional SDK configuration goes in here, for example:
@@ -21,8 +23,8 @@ Sentry.init({
   dataCollection: {
     // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
     // https://docs.sentry.io/platforms/javascript/guides/angular/configuration/options/#dataCollection
-    // userInfo: false,
-    // httpBodies: []
+    userInfo: false,
+    httpBodies: []
 
   }
 });
