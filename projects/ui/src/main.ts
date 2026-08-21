@@ -1,9 +1,5 @@
-import { enableProdMode, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
-import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
-import { AppRoutingModule, routes } from './app/app-routing.module';
-import { CoreModule } from './app/core/core.module';
+import { enableProdMode } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
 import './app/core/provider/firebase-app';
 import { environment } from './environments/environment';
 import * as Sentry from "@sentry/angular";

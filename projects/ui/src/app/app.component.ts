@@ -307,11 +307,6 @@ export class AppComponent implements OnInit, OnDestroy {
     // }
   }
 
-  public throwTestError(): void {
-    throw new Error("Sentry Test Error");
-  }
-
-
 
   ngOnInit() {
 
