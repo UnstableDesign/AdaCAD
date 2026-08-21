@@ -386,6 +386,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
 
+
+
   /**
    *called on Application Init. Checks the params and loads any content 
    * passed in the URL. If this laods, it will push the timeline state. 
