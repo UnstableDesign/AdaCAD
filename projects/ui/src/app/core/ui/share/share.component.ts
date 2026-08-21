@@ -13,7 +13,7 @@ import { MatSelect } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { MediaInstance, ShareObj } from '../../model/datatypes';
+import { FileMeta, MediaInstance, SaveObj, ShareObj } from '../../model/datatypes';
 import { defaults, licenses } from '../../model/defaults';
 import { FileService } from '../../provider/file.service';
 import { FirebaseService } from '../../provider/firebase.service';
@@ -41,17 +41,15 @@ export class ShareComponent {
   private _snackBar = inject(MatSnackBar);
 
   public shared_id: string = '';
-  public share_obj: ShareObj | null = {
-    id: -1,
-    license: 'by',
-    filename: '',
-    desc: '',
-    owner_uid: (this.fb.auth.currentUser) ? this.fb.auth.currentUser.uid : 'anon',
-    owner_creditline: (this.fb.auth.currentUser) ? 'created by ' + this.fb.auth.currentUser.displayName : '',
-    owner_url: '',
-    public: false,
-    img: 'none'
-  }
+  public share_obj!: ShareObj;
+
+  public defaultCreditline: string = '';
+  public license: FormControl = new FormControl('by');
+  public filename: FormControl = new FormControl('');
+  public desc: FormControl = new FormControl('');
+  public owner_creditline: FormControl = new FormControl('');
+  public owner_url: FormControl = new FormControl('');
+  public public: FormControl = new FormControl(false);
   public share_url!: string;
   public has_uploaded_image: boolean = false;
 
@@ -65,8 +63,6 @@ export class ShareComponent {
 
   workspaceImg: string = '/assets/example_img/placeholder.png';
 
-  shareForm: FormGroup;
-
   constructor() {
     const data = this.data;
 
@@ -75,34 +71,56 @@ export class ShareComponent {
     this.licenses = licenses;
 
     // Initialize reactive form with default values
-    const defaultCreditline = (this.fb.auth.currentUser) ? 'created by ' + this.fb.auth.currentUser.displayName : '';
-    this.shareForm = new FormGroup({
-      license: new FormControl('by'),
-      filename: new FormControl(''),
-      desc: new FormControl(''),
-      owner_creditline: new FormControl(defaultCreditline),
-      owner_url: new FormControl(''),
-      public: new FormControl(false)
-    });
+  }
 
-    // Subscribe to form value changes
-    this.shareForm.valueChanges.subscribe(() => {
+  ngOnInit() {
+
+    this.defaultCreditline = (this.fb.auth.currentUser) ? 'created by ' + this.fb.auth.currentUser.displayName : '';
+
+
+
+
+    // Subscribe to form value changes - updateChange disabled on text files to prevent database writes on keystroke
+    this.license.valueChanges.subscribe(() => {
       this.updateChange();
     });
 
 
-    //CHECK IF THIS WAS, AT ANY POINT, LOADED FROM A SHARED FILE (which data is held in workspace)
-    this.fb.getFileMeta(+this.fileid).then(meta => {
-      if (meta.from_share == '') return;
-      return this.fb.getShare(+meta.from_share);
-    })
-      .then(shareobj => {
-        if (shareobj) this.share_in_history = shareobj;
-      })
-      .catch(err => console.error(err));
+    this.filename.valueChanges.subscribe(() => {
+      this.share_obj.filename = this.filename.value;
+      //this.updateChange();
+    });
 
 
 
+    this.desc.valueChanges.subscribe(() => {
+      this.share_obj.desc = this.desc.value;
+      //this.updateChange();
+    });
+    this.owner_creditline.valueChanges.subscribe(() => {
+      this.share_obj.owner_creditline = this.owner_creditline.value;
+      // this.updateChange();
+    });
+    this.owner_url.valueChanges.subscribe(() => {
+      this.share_obj.owner_url = this.owner_url.value;
+      // this.updateChange();
+    });
+    this.public.valueChanges.subscribe(() => {
+      this.share_obj.public = this.public.value;
+      this.updateChange();
+    });
+
+    const default_share_obj: ShareObj = {
+      id: -1,
+      license: 'by',
+      owner_uid: (this.fb.auth.currentUser) ? this.fb.auth.currentUser.uid : 'anon',
+      owner_creditline: this.defaultCreditline,
+      owner_url: '',
+      public: false,
+      img: 'none',
+      filename: '',
+      desc: ''
+    }
 
 
     this.fb.getShare(+this.fileid)
@@ -113,15 +131,46 @@ export class ShareComponent {
           this.shared_id = this.fileid.toString();
           this.updateSettings(share_obj);
           this.share_url = defaults.share_url_base + this.fileid;
+        } else {
+          this.shared_id = '';
+          this.share_obj = default_share_obj;
+          this.updateSettings(default_share_obj);
+          this.share_url = defaults.share_url_base + this.fileid;
         }
       }).catch(no_obj => {
-        this.share_obj = null;
+        console.log("no object", no_obj);
+        this.shared_id = '';
+        this.share_obj = default_share_obj;
+        this.updateSettings(default_share_obj);
+        this.share_url = defaults.share_url_base + this.fileid;
       });
 
 
 
 
 
+  }
+
+
+  saveFilename() {
+    this.updateChange();
+    this.filename.markAsPristine();
+  }
+
+
+  saveDesc() {
+    this.updateChange();
+    this.desc.markAsPristine();
+  }
+
+  saveOwnerCreditline() {
+    this.updateChange();
+    this.owner_creditline.markAsPristine();
+  }
+
+  saveOwnerUrl() {
+    this.updateChange();
+    this.owner_url.markAsPristine();
   }
 
   ngAfterViewInit() {
@@ -142,14 +191,13 @@ export class ShareComponent {
    */
   updateSettings(share_obj: ShareObj) {
     // Update form values from share_obj
-    this.shareForm.patchValue({
-      license: share_obj.license || 'by',
-      filename: share_obj.filename || '',
-      desc: share_obj.desc || '',
-      owner_creditline: share_obj.owner_creditline || '',
-      owner_url: share_obj.owner_url || '',
-      public: share_obj.public || false,
-    }, { emitEvent: false }); // Don't trigger valueChanges when setting initial values
+
+    this.license.setValue(share_obj.license, { emitEvent: false });
+    this.filename.setValue(share_obj.filename, { emitEvent: false });
+    this.desc.setValue(share_obj.desc, { emitEvent: false });
+    this.owner_creditline.setValue(share_obj.owner_creditline, { emitEvent: false });
+    this.owner_url.setValue(share_obj.owner_url, { emitEvent: false });
+    this.public.setValue(share_obj.public, { emitEvent: false });
 
     if (share_obj.img !== 'none') {
       this.mediaService.loadImageViaURL(-1, share_obj.img).then(url => {
@@ -172,23 +220,15 @@ export class ShareComponent {
   }
 
   updateChange() {
-    if (!this.shareForm || !this.shareForm.valid) {
-      return;
-    }
-
 
     if (this.share_obj === null) return;
 
-    // Update share_obj from form values
-    this.share_obj.license = this.shareForm.get('license')?.value || 'by';
-    this.share_obj.filename = this.shareForm.get('filename')?.value || '';
-    this.share_obj.desc = this.shareForm.get('desc')?.value || '';
-    this.share_obj.owner_creditline = this.shareForm.get('owner_creditline')?.value || '';
-    this.share_obj.owner_url = this.shareForm.get('owner_url')?.value || '';
-    this.share_obj.public = this.shareForm.get('public')?.value || false;
 
     if (this.shared_id !== '') {
-      this.fb.updateSharedFile(this.shared_id.toString(), this.share_obj);
+      console.log("updating shared file", this.shared_id, this.share_obj);
+      this.fb.updateSharedFile(this.shared_id.toString(), this.share_obj).catch(err => {
+        console.error("ERROR", err)
+      });
     }
   }
 
@@ -208,27 +248,19 @@ export class ShareComponent {
     console.log("ERROR", event)
   }
 
-  generateLink() {
+  async generateLink() {
 
-    console.log("GENERATE LINK ", this.fileid)
-    let int_id: number = +this.fileid;
+    try {
+      let int_id: number = +this.fileid;
 
-    this.fb.getFileMeta(int_id).then(meta => {
-      console.log("FOT FILE META", meta)
-      return Promise.all([this.file_serv.saver.ada(), meta])
-
-    }).then(so => {
-      //add the current time to the author list entry 
-      console.log("IN DUPLICATE ", so);
-      return Promise.all([this.fb.duplicate(so[0].file, so[1]), so[1]])
-    }).then(id_and_meta => {
-      console.log("ID AND META ", id_and_meta)
-      this.shared_id = id_and_meta[0].toString();
+      const meta = await this.fb.getFileMeta(int_id);
+      const file: { json: string, file: SaveObj } = await this.file_serv.saver.ada();
+      const duplicate_id = await this.fb.duplicate(file.file, meta);
       this.share_obj = {
         id: +this.shared_id,
         license: 'by',
-        filename: id_and_meta[1].name,
-        desc: id_and_meta[1].desc,
+        filename: meta.name,
+        desc: meta.desc,
         owner_uid: (this.fb.auth.currentUser) ? this.fb.auth.currentUser.uid : 'anon',
         owner_creditline: (this.fb.auth.currentUser) ? 'created by ' + this.fb.auth.currentUser.displayName : '',
         owner_url: '',
@@ -236,27 +268,36 @@ export class ShareComponent {
         img: 'none'
       }
 
-      // Update form with initial values
-      this.shareForm.patchValue({
-        license: this.share_obj.license,
-        filename: this.share_obj.filename,
-        desc: this.share_obj.desc,
-        owner_creditline: this.share_obj.owner_creditline,
-        owner_url: this.share_obj.owner_url,
-        public: this.share_obj.public
-      }, { emitEvent: false });
 
-      return this.fb.createSharedFile(this.shared_id, this.share_obj)
-    }).then(share_data => {
-      this.share_url = defaults.share_url_base + this.shared_id;
-    }).catch(err => {
-      console.log("ERROR", err)
-    })
+      this.shared_id = duplicate_id.toString();
+      this.updateChange();
+
+      return this.fb.createSharedFile(this.shared_id, this.share_obj);
+
+    }
+    catch (err) {
+      console.error("ERROR", err)
+    }
 
   }
 
   removeLink() {
-    this.fb.removeSharedFile(this.fileid);
+    this.fb.removeSharedFile(this.fileid).catch(err => {
+      console.error("ERROR", err)
+    });
+    this.shared_id = '';
+    this.share_obj = {
+      id: -1,
+      license: 'by',
+      filename: '',
+      desc: '',
+      owner_uid: 'anon',
+      owner_creditline: '',
+      owner_url: '',
+      public: false,
+      img: 'none',
+    }
+    this.updateSettings(this.share_obj);
   }
 
   replaceImg() {

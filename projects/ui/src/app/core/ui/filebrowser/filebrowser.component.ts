@@ -98,6 +98,7 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
     this.sharedFileSubscription = this.fb.sharedFilesChangeEvent$.subscribe(curfiles => {
       this.shared_files = (curfiles) ? curfiles.shared : [];
       this.public_files = (curfiles) ? curfiles.public : [];
+      console.log("shared files", curfiles, this.shared_files);
       this.combineAndSortFiles();
     })
 

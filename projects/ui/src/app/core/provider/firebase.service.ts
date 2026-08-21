@@ -153,11 +153,21 @@ export class FirebaseService implements OnDestroy {
 
         //mark this as shared in the user's list
         if (this.auth.currentUser && childsnapshot.val().owner_uid == this.auth.currentUser.uid) {
-          this.file_list.shared.push(obj)
+          const found_index = this.file_list.shared.findIndex(el => el.id === obj.id);
+          if (found_index === -1) {
+            this.file_list.shared.push(obj)
+          } else {
+            this.file_list.shared[found_index] = obj;
+          }
           this.emitSharedFilesEvent(this.file_list);
         }
         if (childsnapshot.val().public) {
-          this.file_list.public.push(obj);
+          const found_index = this.file_list.public.findIndex(el => el.id === obj.id);
+          if (found_index === -1) {
+            this.file_list.public.push(obj)
+          } else {
+            this.file_list.public[found_index] = obj;
+          }
           this.emitSharedFilesEvent(this.file_list);
 
         }
@@ -181,13 +191,23 @@ export class FirebaseService implements OnDestroy {
 
         //mark this as shared in the user's list
         if (childsnapshot.val().owner_uid == this.auth.currentUser?.uid || -1) {
-          this.file_list.shared.push(obj);
+          const found_index = this.file_list.shared.findIndex(el => el.id === obj.id);
+          if (found_index === -1) {
+            this.file_list.shared.push(obj)
+          } else {
+            this.file_list.shared[found_index] = obj;
+          }
           this.emitSharedFilesEvent(this.file_list);
 
 
         }
         if (childsnapshot.val().public) {
-          this.file_list.public.push(obj)
+          const found_index = this.file_list.public.findIndex(el => el.id === obj.id);
+          if (found_index === -1) {
+            this.file_list.public.push(obj)
+          } else {
+            this.file_list.public[found_index] = obj;
+          }
           this.emitSharedFilesEvent(this.file_list);
 
         }
