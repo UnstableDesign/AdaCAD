@@ -1144,13 +1144,15 @@ export const insertDrawdownCol = (d: Drawdown, j: number, col: Array<Cell> | nul
 
   if (j === null) j = 0;
 
-  if (col == null) {
+  if (col == null || col.length == 0) {
     col = [];
     for (let i = 0; i < wefts(d); i++) {
       col.push(createCell(false));
     }
   }
+
   for (let ndx = 0; ndx < wefts(d); ndx++) {
+    console.log("Inserting drawdown col", d[ndx].slice(), j, col[ndx]);
     d[ndx].splice(j, 0, createCell(getCellValue(col[ndx])));
   }
   return d;
