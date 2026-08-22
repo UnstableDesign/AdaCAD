@@ -193,7 +193,6 @@ export class LoomComponent implements OnInit, OnDestroy {
 
   private warpNumChange(num: number): Promise<boolean> {
 
-
     const draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
@@ -209,7 +208,6 @@ export class LoomComponent implements OnInit, OnDestroy {
         let ndx = warps(draft.drawdown);
         const utils = getLoomUtilByType(loom_settings.type);
         loom = (utils.insertIntoThreading != null && loom != null) ? utils.insertIntoThreading(loom, ndx, -1) : loom;
-
         draft.drawdown = insertDrawdownCol(draft.drawdown, ndx, []);
         draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, ndx, 0);
         draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, ndx, 0);

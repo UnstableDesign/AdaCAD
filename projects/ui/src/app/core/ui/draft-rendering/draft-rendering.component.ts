@@ -1368,7 +1368,7 @@ export class DraftRenderingComponent implements OnInit {
     const loom_settings = this.tree.getLoomSettings(this.id);
     if (loom_settings == null) return;
 
-    draft.drawdown = insertDrawdownRow(draft.drawdown, i, null);
+    draft.drawdown = insertDrawdownRow(draft.drawdown, i, []);
     draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, i, 1);
     draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, i, 0);
     const utils = getLoomUtilByType(loom_settings.type);
@@ -1479,7 +1479,7 @@ export class DraftRenderingComponent implements OnInit {
     const loom_settings = this.tree.getLoomSettings(this.id);
     if (loom_settings == null) return;
 
-    draft.drawdown = insertDrawdownCol(draft.drawdown, j, null);
+    draft.drawdown = insertDrawdownCol(draft.drawdown, j, []);
     draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, j, 0);
     draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, j, 0);
     const utils = getLoomUtilByType(loom_settings.type);

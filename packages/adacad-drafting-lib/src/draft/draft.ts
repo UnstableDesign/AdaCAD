@@ -1064,9 +1064,9 @@ export const updateWarpSystemsAndShuttles = (to: Draft, from: Draft): Draft => {
  * @param row the row to insert, or null if row should be blank.
  * @returns 
  */
-export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell> | null): Drawdown => {
+export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell>): Drawdown => {
   i = i + 1;
-  if (row === null) {
+  if (row.length === 0) {
     row = [];
     for (let j = 0; j < warps(d); j++) {
       row.push(createCell(false));
@@ -1140,11 +1140,11 @@ export const deleteMappingRow = (m: Array<number>, i: number): Array<number> => 
  * @param col - the column to insert or null if it should be a blank column
  * @returns the modified drawdown
  */
-export const insertDrawdownCol = (d: Drawdown, j: number, col: Array<Cell> | null): Drawdown => {
+export const insertDrawdownCol = (d: Drawdown, j: number, col: Array<Cell>): Drawdown => {
 
   if (j === null) j = 0;
 
-  if (col == null || col.length == 0) {
+  if (col.length == 0) {
     col = [];
     for (let i = 0; i < wefts(d); i++) {
       col.push(createCell(false));
@@ -1152,7 +1152,6 @@ export const insertDrawdownCol = (d: Drawdown, j: number, col: Array<Cell> | nul
   }
 
   for (let ndx = 0; ndx < wefts(d); ndx++) {
-    console.log("Inserting drawdown col", d[ndx].slice(), j, col[ndx]);
     d[ndx].splice(j, 0, createCell(getCellValue(col[ndx])));
   }
   return d;

@@ -11,10 +11,10 @@ Sentry.init({
   enabled: environment.production,
   environment: environment.production ? 'production' : 'development',
   integrations: [
-    Sentry.feedbackIntegration({
-      // Additional SDK configuration goes in here, for example:
-      colorScheme: "system",
-    }),
+    // Sentry.feedbackIntegration({
+    //   // Additional SDK configuration goes in here, for example:
+    //   colorScheme: "system",
+    // }),
   ],
   dataCollection: {
     // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
