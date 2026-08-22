@@ -57,6 +57,7 @@ import { WelcomeComponent } from './core/ui/welcome/welcome.component';
 import { AnalyticsService } from './core/provider/analytics.service';
 import { mergeBounds } from './core/model/helper';
 import { C, S } from '@angular/cdk/keycodes';
+import * as Sentry from '@sentry/angular';
 
 @Component({
   selector: 'app-root',
@@ -2001,7 +2002,14 @@ export class AppComponent implements OnInit, OnDestroy {
         const nullppi = this.tree.getDraftNodes().filter(el => el.loom_settings.ppi === undefined);
         return this.fb.updateFile(so.file, this.ws.getCurrentFile());
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        this.openSnackBar('ERROR: there was a problem saving this file:' + err);
+        Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
+          tags: { area: 'saveFile' },
+          extra: { fileId: this.ws.getCurrentFile()?.id },
+        });
+      });
   }
 
 
