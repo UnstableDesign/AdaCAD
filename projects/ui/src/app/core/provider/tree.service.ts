@@ -48,14 +48,20 @@ export class TreeService {
   async replaceOutdatedOps(nodes: Array<any>): Promise<Array<any>> {
 
     const correctedNodes = nodes.map(node => {
-      if (this.ops.getOp(node.name) === null) {
-        const op = this.ops.getOpByOldName(node.name);
+      if (this.ops.getOp(node.name) === undefined) {
+        const op = this.ops.getOpByOldName(node.name) as Operation;
+        if (op == undefined) {
+          console.error('operation not found', node.name);
+          return this.ops.getOp('rectangle') as Operation;
+        }
+        console.error("op name changed from", node.name, "to", op.name);
         node.name = op.name
         node.inlets = op.inlets;
       }
       return node;
     });
 
+    console.log("correctedNodes", correctedNodes);
     return Promise.resolve(correctedNodes);
   }
 
@@ -65,10 +71,12 @@ export class TreeService {
   async validateNodes(): Promise<boolean> {
 
 
+
     const err_ops: Array<Node> = this.nodes
       .filter(el => el.type === "op")
       .filter(el => this.ops.getOp((<OpNode>el).name) === undefined)
 
+    console.log("err_ops", err_ops);
     //console.error("found invalid op nodes", err_ops);
 
 
@@ -155,7 +163,7 @@ export class TreeService {
 
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
-    let op = this.ops.getOp(name);
+    let op: Operation | DynamicOperation | undefined = this.ops.getOp(name);
 
     if (nodes.length !== 1) {
       return Promise.reject("found 0 or more than 1 nodes at id " + entry.cur_id);
@@ -163,20 +171,11 @@ export class TreeService {
 
     const node = nodes[0];
 
-    if (op === undefined || op === null) {
+    if (op === undefined) {
       return Promise.reject("no op of name:" + name + " exists");
 
     }
 
-
-
-    if (params === undefined) {
-      params = [];
-    }
-
-    if (params === undefined) {
-      inlets = [];
-    }
 
     const param_types = op.params.map(el => el.type);
 
@@ -196,7 +195,8 @@ export class TreeService {
       }
     });
 
-    const default_param_values = this.ops.getOp(name).params.map(el => el.value);
+
+    const default_param_values = op.params.map(el => el.value);
 
     //this gets teh default values for the opration
     //this overwrites some of those with any value that has been previous added
@@ -205,7 +205,11 @@ export class TreeService {
       else return p;
     });
 
-    const default_inlet_values = this.ops.getOp(name).inlets.map(el => el.value);
+    const default_inlet_values = this.ops.getOp(name)?.inlets.map(el => el.value);
+    if (default_inlet_values == undefined) {
+      console.error('operation not found', name);
+      return Promise.reject(new Error('operation not found'));
+    }
 
     if (inlets === undefined || inlets.length == 0) {
       inlets = default_inlet_values.slice();
@@ -846,9 +850,9 @@ export class TreeService {
       return false; //these two things are already directly connected
     }
 
-
-
-    const has_room = (this.getInputs(id).length < (<OperationComponent>this.getComponent(id)).op.inlets[inlet].num_drafts || (<OperationComponent>this.getComponent(id)).op.inlets[inlet].num_drafts == -1);
+    const name = (<OperationComponent>this.getComponent(id))?.op?.name ?? '';
+    const op = this.ops.getOp(name);
+    const has_room = (op !== undefined && (this.getInputs(id).length < op.inlets[inlet].num_drafts || op.inlets[inlet].num_drafts == -1));
     if (!has_room) return false;
 
     if (parent_op === -1 && has_room) return true; //if you don't have a parent and there is room, go for it
@@ -1315,7 +1319,11 @@ export class TreeService {
 
     const touched: Array<number> = [];
     const opnode: OpNode = this.getOpNode(parent);
-    const op: Operation = this.ops.getOp(opnode.name);
+    const op: Operation | undefined = this.ops.getOp(opnode.name);
+    if (op == undefined) {
+      console.error('operation not found', opnode.name);
+      return Promise.reject(new Error('operation not found'));
+    }
     const new_draft_fns = [];
 
 
@@ -1566,7 +1574,6 @@ export class TreeService {
    */
   async performAndUpdateDownstream(op_ids: Array<number>, excludeFromCanvasReset: number[] = []): Promise<any> {
     const schedule = await this.createSchedule(op_ids);
-    console.log(schedule)
     for (const op_id of schedule) {
       try {
         await this.performOp(op_id);
@@ -1639,7 +1646,7 @@ export class TreeService {
     const op = this.ops.getOp(opnode.name);
     this.errorBroadcaster.clearError(id); //clear before we compute again.
 
-    if (op === null || op === undefined) return Promise.reject("Operation is null")
+    if (op === undefined) return Promise.reject("Operation is null")
 
     const param_vals = op.params.map((param, ndx) => {
       return {
@@ -1931,7 +1938,7 @@ export class TreeService {
   getTreeNode(id: number): TreeNode | null {
     const found = this.tree.find(el => el.node.id === id);
     if (found === undefined) {
-      console.log("Tree node not found in getTreeNode", id);
+      if (id !== -1) console.error("Tree node not found in getTreeNode", id);
       return null;
     }
     return found;
@@ -2458,7 +2465,6 @@ export class TreeService {
    * returns the ids of the total set of operations that, when performed, will chain down to the other operations
    */
   getTopLevelOps(): Array<number> {
-    console.log('[getTopLevelOps] Nodes:', this.nodes);
     return this.nodes
       .filter(el => el.type === "op")
       .filter(el => this.getUpstreamOperations(el.id).length === 0)
@@ -2984,6 +2990,10 @@ export class TreeService {
     this.getOpNodes().forEach(op_node => {
       if (op_node.name !== "") {
         const op = this.ops.getOp(op_node.name);
+        if (op == undefined) {
+          console.error('operation not found', op_node.name);
+          return;
+        }
         let cleaned_params = op.params.map((param_template, ndx) => {
           if (param_template.type == 'file') {
             return +(<Img>op_node.params[ndx]).id;

@@ -834,6 +834,10 @@ export class AppComponent implements OnInit, OnDestroy {
       result.data.ops.forEach(op => {
 
         let op_base = this.ops.getOp(op.name);
+        if (op_base == undefined) {
+          console.error('operation not found', op.name);
+          return;
+        }
         op_base.params.forEach((param, ndx) => {
 
           if (param.type == 'file') {
@@ -1218,11 +1222,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
       const input_list: Array<any> = [];
       const output_list: Array<any> = [];
-      console.log("tn is ", tn.node, tn.parent, tn.inputs.map(el => el.tn), tn.outputs.map(el => el.tn));
 
 
       tn.inputs.forEach(input => {
-        console.log("input is ", input, typeof input);
 
         if (typeof input === 'number') {
           const input_in_map = id_map.find(el => el.prev_id === input);
@@ -1243,7 +1245,6 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       });
       tn.outputs.forEach(output => {
-        console.log("output is ", output, typeof output);
         //handle files of old type, before inputs were broken into two fields
         if (typeof output === 'number') {
           const output_map = id_map.find(el => el.prev_id === output);
@@ -1764,7 +1765,7 @@ export class AppComponent implements OnInit, OnDestroy {
         } else {
           data.ops.forEach(op => {
             const internal_op = this.ops.getOp(op.name);
-            if (internal_op === undefined || internal_op == null || internal_op.params === undefined) return;
+            if (internal_op === undefined || internal_op.params === undefined) return;
             const param_types = internal_op.params.map(el => el.type);
             param_types.forEach((p, ndx) => {
               //older version stored the media object reference in the parameter
@@ -1831,15 +1832,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
       const seed_fns = valid_seeds.map(seed => this.tree.loadDraftData(seed.entry, seed.draft_proxy));
 
-      const op_fns = data.ops.map(op => {
+      const op_fns: Array<Promise<any>> = [];
+      data.ops.forEach(op => {
         const entry = id_map.find(el => el.prev_id == op.node_id);
-        if (entry != undefined && entry != null) return this.tree.loadOpData(entry, op.name, op.params, op.inlets);
-        return Promise.resolve(null);
+        if (entry != undefined && entry != null) {
+          op_fns.push(this.tree.loadOpData(entry, op.name, op.params, op.inlets));
+        }
       });
 
-      await Promise.all([seed_fns, op_fns]);
 
-      this.tree.PrintTree();
+      await Promise.all(seed_fns);
+      await Promise.all(op_fns);
 
       await this.tree.validateNodes();
       const startTime = performance.now();

@@ -46,9 +46,9 @@ export class OperationService {
   }
 
 
-  getOp(name: string): Operation | DynamicOperation {
+  getOp(name: string): Operation | DynamicOperation | undefined {
     const op = this.ops.find(el => el.name == name);
-    if (op == undefined) return this.ops.find(el => el.name == 'rectangle')!;
+    if (op == undefined) return op;
 
     if (!op.params.some(p => p.type === 'p5-canvas')) return op;
 
@@ -77,7 +77,7 @@ export class OperationService {
     const old_name = this.ops.filter(el => this.hasOldName(el, name));
 
     if (old_name.length == 0) {
-      return this.getOp('rectangle');
+      return this.getOp('rectangle') as Operation;
     } else {
       return old_name[0];
     }
@@ -86,7 +86,6 @@ export class OperationService {
 
 
   getOpClassifications(): Array<OperationClassification> {
-
     return this.classification;
   }
 

@@ -181,7 +181,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     if (this.param.type === 'p5-canvas' && this.p5canvasContainer) {
       const op = this.ops.getOp(this.opnode.name);
-      if (op === null || op === undefined) return;
+      if (op === undefined) return;
 
       const initialParamVals = op.params.map((param, ndx) => {
         return { param: param, val: this.opnode.params[ndx] }

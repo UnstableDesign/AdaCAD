@@ -50,6 +50,10 @@ export class InletComponent implements OnInit {
 
 
     const op = this.ops.getOp(this.opnode.name);
+    if (op == undefined) {
+      console.error('operation not found', this.opnode.name);
+      return;
+    }
 
     this.number_opts = [];
     for (let i = 1; i < 50; i++) {

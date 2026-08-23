@@ -99,10 +99,11 @@ export class OperationComponent implements OnInit {
 
   disable_drag: boolean = false;
 
+
   private topleft: Point = { x: 0, y: 0 };
 
-  op!: Operation | DynamicOperation;
-  opnode!: OpNode;
+  op: Operation | DynamicOperation | undefined = undefined;
+  opnode: OpNode | undefined = undefined;
 
   // has_connections_in: boolean = false;
   subdraft_visible: boolean = true;
@@ -177,13 +178,28 @@ export class OperationComponent implements OnInit {
 
   ngOnInit() {
 
-    this.op = this.operations.getOp(this.name);
+
+    if (this.name == undefined) {
+      this.description = '';
+      this.displayname = this.name;
+      this.color = '#000';
+
+
+      console.error('operation not found', this.name);
+      return;
+    }
+    const op = this.operations.getOp(this.name);
+    if (op == undefined) {
+      console.error('operation not found', this.name);
+      return;
+    }
+    this.op = op;
     this.opnode = <OpNode>this.tree.getNode(this.id);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
     this.description = this.op.meta.desc ?? '';
     this.displayname = this.op.meta.displayname ?? this.name;
 
-    if (this.op.meta.categories !== undefined && this.op.meta.categories.length > 0) {
+    if (this.op !== undefined && this.op.meta.categories !== undefined && this.op.meta.categories.length > 0) {
       const active_cat = this.op.meta.categories[0];
       this.color = active_cat.color;
     }
@@ -210,13 +226,35 @@ export class OperationComponent implements OnInit {
 
   }
 
+  /**
+   * this is an explicit call to set the operation to handle the case when ngOnInit runs before 
+   * the operation has been set. 
+   * @param name 
+   */
+  setOperation(name: string) {
+    const op = this.operations.getOp(this.name);
+    if (op == undefined) return;
+    this.op = op;
+    this.name = name;
+    this.opnode = <OpNode>this.tree.getNode(this.id);
+    this.is_dynamic_op = this.operations.isDynamic(this.name);
+    this.description = this.op.meta.desc ?? '';
+    this.displayname = this.op.meta.displayname ?? this.name;
+
+    if (this.op.meta.categories !== undefined && this.op.meta.categories.length > 0) {
+      const active_cat = this.op.meta.categories[0];
+      this.color = active_cat.color;
+    }
+
+  }
+
   ngAfterViewInit() {
 
     // const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     // if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
 
     this.viewInit = true;
-    this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
+    if (this.op !== undefined && this.opnode !== undefined) this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
 
     this.setPosition(this.topleft, true);
 
@@ -296,11 +334,11 @@ export class OperationComponent implements OnInit {
     this.topleft = { x: pos.x, y: pos.y };
 
     if (emit) {
-      this.opnode.positionChange.next(this.topleft);
+      if (this.opnode !== undefined && this.opnode.positionChange !== undefined) this.opnode.positionChange.next(this.topleft);
       const children = this.tree.getNonCxnOutputs(this.id);
       children.forEach(child => {
         const childNode = <DraftNode | OpNode>this.tree.getNode(child);
-        childNode.positionChange.next(this.topleft);
+        if (childNode !== undefined) childNode.positionChange.next(this.topleft);
       });
     }
 
@@ -325,7 +363,7 @@ export class OperationComponent implements OnInit {
     let datastring: string = this.name + " // ";
     let opnode = this.tree.getOpNode(this.id);
 
-    this.op.params.forEach((p, ndx) => {
+    this.op?.params.forEach((p, ndx) => {
       datastring = datastring + p.name + ": " + opnode.params[ndx] + ", ";
     });
 
@@ -563,7 +601,7 @@ export class OperationComponent implements OnInit {
   openHelpDialog() {
 
     let regex = new RegExp(' ', 'g');
-    let op_name_format = this.op.name.replace(regex, '_');
+    let op_name_format = this.op?.name.replace(regex, '_') ?? '';
     window.open('https://docs.adacad.org/docs/reference/operations/' + op_name_format, '_blank');
 
 
@@ -592,7 +630,7 @@ export class OperationComponent implements OnInit {
       const currentParamVals = this.op.params.map((param, ndx) => {
         return {
           param: param,
-          val: this.opnode.params[ndx]
+          val: this.opnode?.params[ndx] ?? 0
         }
       })
 
@@ -611,12 +649,12 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onParamChange(obj: { id: number, value: any, type: string; }) {
-    const opnode = <OpNode>this.tree.getNode(this.id);
-    const original_inlets = this.opnode.inlets.slice();
+    const original_inlets = this.opnode?.inlets.slice();
 
     if (this.is_dynamic_op) {
 
       const opnode = <OpNode>this.tree.getNode(this.id);
+      if (opnode == undefined || this.opnode == undefined) return;
       const op = <DynamicOperation>this.operations.getOp(opnode.name);
 
       if (op.dynamic_param_id === obj.id) {
@@ -713,7 +751,7 @@ export class OperationComponent implements OnInit {
         break;
     }
 
-    this.onOperationParamChange.emit({ id: this.id, type: obj.data.type, prior_inlet_vals: this.opnode.inlets.slice() });
+    this.onOperationParamChange.emit({ id: this.id, type: obj.data.type, prior_inlet_vals: this.opnode?.inlets?.slice() ?? [] });
 
   }
 
@@ -728,7 +766,7 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onInletChange(obj: any) {
-    this.onOperationParamChange.emit({ id: this.id, type: 'inlet', prior_inlet_vals: this.opnode.inlets.slice() });
+    this.onOperationParamChange.emit({ id: this.id, type: 'inlet', prior_inlet_vals: this.opnode?.inlets?.slice() ?? [] });
   }
 
   delete() {
@@ -745,9 +783,9 @@ export class OperationComponent implements OnInit {
       outputs: this.tree.getOutwardConnectionProxies(this.id)
     }
 
-    if (operation.params.find(el => el.type === 'file')) change.media = [];
+    if (operation?.params.find(el => el.type === 'file')) change.media = [];
 
-    operation.params.forEach((param, ndx) => {
+    operation?.params.forEach((param, ndx) => {
       if (param.type === 'file') {
         const media: Img = <Img>opnode.params[ndx];
         const media_instance = this.mediaService.getMedia(+media.id);

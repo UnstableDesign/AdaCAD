@@ -342,7 +342,11 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
         if ((<Img>param).id !== undefined) {
           let media_item = this.media.find(el => el.media.id == +(<Img>param).id);
           if (media_item !== undefined) {
-            const meta = this.ops.getOp(op.name).meta;
+            const meta = this.ops.getOp(op.name)?.meta;
+            if (meta == undefined) {
+              console.error('operation meta not found', op.name);
+              return;
+            }
             const name = meta.displayname;
             const color = (meta.categories.length > 0) ? this.ops.getCatColor(meta.categories[0].name) : '#000';
             let used_in: { id: number, name: string, color: string } = { id: op.id, name, color };

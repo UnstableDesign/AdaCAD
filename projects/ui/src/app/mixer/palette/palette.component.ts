@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AnalyzedImage, Draft, Img, Loom, LoomSettings, OpParamValType, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
+import { AnalyzedImage, Draft, Img, Loom, LoomSettings, OpInletValType, OpParamValType, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import normalizeWheel from 'normalize-wheel';
 import { Subscription, fromEvent } from 'rxjs';
@@ -894,7 +894,7 @@ export class PaletteComponent implements OnInit {
 
 
 
-    this.tree.loadOpData({ prev_id: -1, cur_id: id }, name, [] as Array<any>, [] as Array<any>);
+    this.tree.loadOpData({ prev_id: -1, cur_id: id }, name, [], []);
     this.setOperationSubscriptions(op.instance);
 
     op.instance.name = name;
@@ -905,7 +905,7 @@ export class PaletteComponent implements OnInit {
 
     let tr = this.calculateInitialLocation();
     (<OperationComponent>op.instance).setPosition({ x: tr.x, y: tr.y }, true);
-
+    (<OperationComponent>op.instance).setOperation(name);
 
 
     return op.instance;
@@ -918,8 +918,7 @@ export class PaletteComponent implements OnInit {
   * @params params the input data to be used in this operation
   * @returns the id of the node this has been assigned to
   */
-  loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft: Point) {
-
+  loadOperation(id: number, name: string, params: Array<OpParamValType>, inlets: Array<OpInletValType>, topleft: Point) {
     const component = this.vc.createComponent<OperationComponent>(OperationComponent);
     const node: OpNode = <OpNode>this.tree.getNode(id)
     node.component = component.instance;
@@ -928,14 +927,14 @@ export class PaletteComponent implements OnInit {
     const op: OperationComponent = component.instance;
 
     this.setOperationSubscriptions(op);
-
-    op.name = name;
     op.id = id;
+    op.name = name;
     op.zndx = this.layers.createLayer();
     op.default_cell = this.default_cell_size;
     op.opnode = node;
     op.setPosition({ x: topleft.x, y: topleft.y }, true);
     op.loaded = true;
+    op.setOperation(name);
 
 
   }
@@ -952,7 +951,6 @@ export class PaletteComponent implements OnInit {
 
 
 
-    console.log("DUPLICATING OPERATION ", name, params, topleft, inlets);
 
     const op: OperationComponent = this.createOperation(name);
     this.tree.setOpParams(op.id, params.slice(), inlets.slice());
@@ -1083,6 +1081,7 @@ export class PaletteComponent implements OnInit {
 
     const op_node = this.tree.getOpNode(id);
     const op_base = this.ops.getOp(op_node.name);
+    if (op_base == undefined) return;
     op_base.params.forEach((param, ndx) => {
       if (param.type == 'file') {
         //remove the media file associated 
@@ -1206,7 +1205,11 @@ export class PaletteComponent implements OnInit {
 
     const op = this.tree.getOpNode(obj.id);
     const op_comp = <OperationComponent>this.tree.getComponent(obj.id);
-    const operation: Operation = this.ops.getOp(op.name);
+    const operation: Operation | undefined = this.ops.getOp(op.name);
+    if (operation == undefined) {
+      console.error('operation not found', op.name);
+      return;
+    };
 
 
     let new_tl: Point = { x: 0, y: 0 };

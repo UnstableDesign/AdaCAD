@@ -169,14 +169,19 @@ export class DraftinfocardComponent {
       let op_node = this.tree.getOpNode(o.id);
       let op_obj = this.ops.getOp(op_node.name);
 
+      if (op_obj == undefined) {
+        console.error('operation not found', op_node.name);
+        return;
+      }
+
       this.inputList.push(
         {
           uid: Math.random().toString(36).substring(2, 15),
-          op_name: op_obj.meta.displayname || op_node.name,
-          inlet_name: op_obj.inlets[o.inlet]?.name || 'n/a',
-          type: op_obj.inlets[o.inlet]?.type || 'n/a',
+          op_name: op_obj?.meta.displayname || op_node.name,
+          inlet_name: op_obj?.inlets[o.inlet]?.name || 'n/a',
+          type: op_obj?.inlets[o.inlet]?.type || 'n/a',
           value: op_node.inlets[o.inlet]?.toString() || 'n/a',
-          category_color: this.ops.getCatColor(op_obj.meta.categories[0].name) || '#000'
+          category_color: this.ops.getCatColor(op_obj?.meta.categories[0].name) || '#000'
         });
     });
 
@@ -197,6 +202,15 @@ export class DraftinfocardComponent {
     } else {
       let op_node = this.tree.getOpNode(parent);
       let op_obj = this.ops.getOp(op_node.name);
+      if (op_obj == undefined) {
+        console.error('operation not found', op_node.name);
+        return {
+          uid: Math.random().toString(36).substring(2, 15),
+          op_name: 'n/a',
+          type: 'operation',
+          category_color: '#000000'
+        };
+      }
       let categories = op_obj.meta.categories;
       const color = (categories == undefined || categories.length == 0) ? '#000000' : this.ops.getCatColor(categories[0].name);
 
@@ -204,7 +218,7 @@ export class DraftinfocardComponent {
         uid: Math.random().toString(36).substring(2, 15),
         op_name: op_obj.meta.displayname || op_node.name,
         type: 'operation',
-        category_color: this.ops.getCatColor(this.ops.getOp(op_node.name).meta.categories[0].name) || '#000000'
+        category_color: this.ops.getCatColor(op_obj.meta.categories[0].name) || '#000000'
       };
     }
   }

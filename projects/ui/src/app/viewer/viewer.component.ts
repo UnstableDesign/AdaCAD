@@ -506,6 +506,7 @@ export class ViewerComponent {
     //if we are looking at the back face, invert and flip the draft
     if (!front) {
       const invert_op = this.ops.getOp('invert');
+      if (invert_op == undefined) return Promise.reject(new Error('invert operation not found'));
       const params: Array<OpParamVal> = [];
       const drafts: Array<any> = [{
         drafts: [draft],
@@ -516,6 +517,7 @@ export class ViewerComponent {
       return invert_op.perform(params, drafts).then(manipulated_draft => {
         const dd = manipulated_draft[0].draft;
         const flip_op = this.ops.getOp('flip');
+        if (flip_op == undefined) return Promise.reject(new Error('flip operation not found'));
         const flip_params: Array<OpParamVal> = [{
           param: flip_op.params[0],
           val: 1

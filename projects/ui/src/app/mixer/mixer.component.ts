@@ -494,7 +494,7 @@ export class MixerComponent {
   }
 
   loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft: Point) {
-    this.palette.loadOperation(id, name, params, inlets, topleft)
+    this.palette.loadOperation(id, name, params ?? [], inlets ?? [], topleft)
   }
 
   loadConnection(id: number) {

@@ -327,7 +327,7 @@ export class SelectionComponent implements OnInit {
 
     const copy_draft = initDraftWithParams({ warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy });
 
-    let op: Operation | null = null;
+    let op: Operation | undefined = undefined;
     let drafts: Array<OpInput> = [];
     let params: Array<OpParamVal> = [];
 
@@ -337,6 +337,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'erase':
         op = this.ops.getOp('rectangle');
+        if (op == undefined) return Promise.reject(new Error('rectangle operation not found'));
         params = [{
           param: op.params[1],
           val: warps(this.copy)
@@ -363,6 +364,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'flip_x':
         op = this.ops.getOp('flip');
+        if (op == undefined) return Promise.reject(new Error('flip operation not found'));
         params = [{
           param: op.params[1],
           val: 0
@@ -379,6 +381,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'flip_y':
         op = this.ops.getOp('flip');
+        if (op == undefined) return Promise.reject(new Error('flip operation not found'));
         params = [{
           param: op.params[0],
           val: 1
@@ -396,6 +399,7 @@ export class SelectionComponent implements OnInit {
 
       case 'shift_left':
         op = this.ops.getOp('shift');
+        if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
           val: -1
@@ -412,6 +416,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'shift_up':
         op = this.ops.getOp('shift');
+        if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
           val: 0
@@ -428,6 +433,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'shift_right':
         op = this.ops.getOp('shift');
+        if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
           val: 1
@@ -444,6 +450,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'shift_down':
         op = this.ops.getOp('shift');
+        if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
           val: 0
@@ -459,7 +466,7 @@ export class SelectionComponent implements OnInit {
         }]
         break;
       default:
-        op = null;
+        op = undefined;
         break;
     }
     if (op) {

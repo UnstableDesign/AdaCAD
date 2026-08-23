@@ -139,7 +139,9 @@ export class FileService {
                 draft_elements.push(el);
               }
 
-              if (el.loom !== null && el.loom !== undefined) {
+
+              console.log("Loading loom", el.loom, el.loom_settings, el.loom_settings?.type);
+              if (el.loom !== null && el.loom !== undefined && (el.loom_settings === undefined || el.loom_settings.type !== 'jacquard')) {
                 loom_fns.push(loadLoomFromFile(el.loom, version, el.draft_id));
                 loom_elements.push(el);
               }

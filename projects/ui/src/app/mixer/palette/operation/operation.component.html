@@ -18,7 +18,7 @@
 
 
       <div class="cxn-row" cdkDragHandle>
-        @for (input of opnode.inlets; track input; let i = $index) {
+        @for (input of opnode?.inlets ?? []; track input; let i = $index) {
         <div class="input-group">
           <app-inlet [opid]='id' [inletid]='i' [dynamic]='is_dynamic_op' (onInputSelected)="inputSelected($event)"
             (onInputVisibilityChange)="visibilityChange($event)" (onInletChange)="onInletChange($event)"
@@ -102,7 +102,7 @@
       </div>
 
       <div class="params">
-        @for (param of op.params; track param; let i = $index) {
+        @for (param of op?.params ?? []; track param; let i = $index) {
         @if (param.type !== 'p5-canvas') {
         <app-parameter class="param" [param]='param' [opid]='id' [paramid]='i'
           (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event)
@@ -114,7 +114,7 @@
 
       <!-- Canvas Parameters Area -->
       <div class="canvas-params-container">
-        @for (param of op.params; track param; let i = $index) {
+        @for (param of op?.params ?? []; track param; let i = $index) {
         @if (param.type === 'p5-canvas') {
         <app-parameter class="param-canvas" [param]='param' [opid]='id' [paramid]='i'
           (onOperationParamChange)=onParamChange($event) (onFileUpload)=handleFile($event) (preventDrag)=disableDrag()>
