@@ -367,6 +367,7 @@ export class LoomComponent implements OnInit, OnDestroy {
 
   private onLoomTypeChange(type: 'jacquard' | 'frame' | 'direct') {
 
+    console.log("ON LOOM TYPE CHANGE ", type, this.id);
     if (this.id == -1) return;
 
     const draft = this.tree.getDraft(this.id);
@@ -374,7 +375,6 @@ export class LoomComponent implements OnInit, OnDestroy {
     const loom_settings = this.tree.getLoomSettings(this.id);
 
     if (draft == null) return;
-    if (loom == null) return;
     if (loom_settings == null) return;
 
     const new_settings: LoomSettings = copyLoomSettings(loom_settings);
@@ -382,7 +382,7 @@ export class LoomComponent implements OnInit, OnDestroy {
 
 
     convertLoom(draft.drawdown, loom, loom_settings, new_settings).then(loom => {
-
+      console.log("CONVERT LOOM ", loom);
       this.tree.setLoom(this.id, loom, false);
       this.tree.setLoomSettings(this.id, new_settings, true);
       this.addStateChange();

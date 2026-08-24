@@ -1,4 +1,4 @@
-import { Draft, Loom, LoomSettings, sameOrNewerVersion } from "adacad-drafting-lib";
+import { Draft, getLoomUtilByType, Loom, LoomSettings, sameOrNewerVersion } from "adacad-drafting-lib";
 import { Cell, Drawdown, flipDraft, getDraftAsImage, getDraftName, initDraft, unpackDrawdownFromArray, unpackDrawdownFromBitArray, warps, wefts } from "adacad-drafting-lib/draft";
 import { jsPDF } from "jspdf";
 import { FileService } from "../provider/file.service";
@@ -29,9 +29,13 @@ const parseSavedDrawdown = (dd: Array<Array<Cell>>): Drawdown => {
  * creates a draft object from saved data. Handles different forms of saved drafts. 
  * @param data : a draft node object from the saved file
  */
-export const loadDraftFromFile = (data: any, version: string, src: string): Promise<{ draft: Draft, id: number }> => {
+export const loadDraftFromFile = async (data: any, loom: Loom | null | undefined, loom_settings: LoomSettings | null | undefined, version: string, src: string): Promise<{ draft: Draft, id: number }> => {
+    console.log("LOADING DRAFT FROM FILE ", data, loom, loom_settings, version, src);
     const draft: Draft = initDraft();
 
+    const has_valid_loom = loom !== null && loom !== undefined;
+    const has_valid_loom_settings = loom_settings !== null && loom_settings !== undefined;
+    const loomtype = has_valid_loom_settings ? loom_settings.type : 'jacquard';
 
     if (data.id !== undefined) draft.id = data.id;
 
@@ -47,18 +51,35 @@ export const loadDraftFromFile = (data: any, version: string, src: string): Prom
     }
 
 
-
     if (version === undefined || version === null || !sameOrNewerVersion(version, '3.4.5')) {
         draft.drawdown = parseSavedDrawdown(data.pattern);
     } else {
         if (data.super_compressed_drawdown !== undefined) {
             draft.drawdown = unpackDrawdownFromBitArray(data.super_compressed_drawdown, data.warps, data.wefts)
+        } else if (data.compressed_drawdown === undefined && has_valid_loom) {
+            console.log("recreating drawdown from loom ", loom, loomtype);
+            //handle the case where we saved the loom only 
+            const utils = getLoomUtilByType(loomtype);
+            if (utils.computeDrawdownFromLoom !== undefined) {
+
+                try {
+                    draft.drawdown = await utils.computeDrawdownFromLoom(loom)
+                } catch (error) {
+                    console.error("Error computing drawdown from loom", error);
+                    draft.drawdown = [];
+                }
+            } else {
+                draft.drawdown = [];
+            }
+
+
+
         } else if (data.compressed_drawdown !== undefined) {
-
-            // console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
-
-
             let compressed: Uint8ClampedArray;
+
+            console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
+
+
             if (src == 'upload') {
                 compressed = new Uint8ClampedArray(data.compressed_drawdown);
             } else {

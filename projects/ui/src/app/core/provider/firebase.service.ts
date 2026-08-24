@@ -1,9 +1,9 @@
 import { inject, Injectable, NgZone, OnDestroy } from '@angular/core';
-import { generateId } from 'adacad-drafting-lib';
+import { generateId, warps, wefts } from 'adacad-drafting-lib';
 import { Auth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, Unsubscribe, User } from 'firebase/auth';
-import { get, onChildAdded, onChildChanged, onChildRemoved, onValue, orderByChild, query, ref, remove, set, update } from 'firebase/database';
+import { DatabaseReference, DataSnapshot, equalTo, get, onChildAdded, onChildChanged, onChildRemoved, onValue, orderByChild, push, query, ref, remove, set, update } from 'firebase/database';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { FileMeta, FilesState, SaveObj, ShareObj, UserFile } from '../model/datatypes';
+import { DraftNodeProxy, FileMeta, FilesState, SaveObj, ShareObj, UserFile } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { auth as firebaseAuth, db as firebaseDb } from './firebase-app';
 import { defaults as appDefaults } from '../model/defaults';
@@ -388,17 +388,78 @@ export class FirebaseService implements OnDestroy {
   }
 
 
+
+  private writeLowDataItems(fileid: number, partial: any): Promise<boolean> {
+    const filepath_base = ref(this.db, 'filedata/' + fileid + '/ada/');
+
+    return update(filepath_base, partial)
+      .then(success => { return Promise.resolve(true) })
+      .catch(err => { return Promise.reject(err) })
+  }
+
+  /**
+   * this function writes each seed draft individually in order to prevent unneccessary write too large errors
+   * @param fileid 
+   * @param drafts 
+   * @returns 
+   */
+  private async writeDrafts(fileid: number, drafts: Array<DraftNodeProxy>): Promise<any> {
+
+    console.log("WRITING DRAFTS ", drafts);
+    if (drafts === undefined || drafts === null || drafts.length === 0) return Promise.resolve(true);
+
+    drafts.forEach((draft: DraftNodeProxy) => {
+      if (draft.compressed_draft !== undefined) {
+        const size = draft.compressed_draft.warps * draft.compressed_draft.wefts;
+        if (size > 100000) {
+          if (draft.loom_settings !== undefined && draft.loom !== null && draft.loom_settings.type != 'jacquard') {
+            draft.compressed_draft.compressed_drawdown = [];
+          } else {
+            this.errorBroadcaster.postError(-1, 'FILE_ERROR', "a Draft is too large to write");
+          }
+        }
+      }
+    });
+
+
+
+
+    //get a list of the current drafts
+    const draft_ref = ref(this.db, 'filedata/' + fileid + '/ada/draft_nodes/');
+    return set(draft_ref, drafts)
+      .then(success => { return Promise.resolve(true) })
+      .catch(err => { return Promise.reject(err) })
+
+  }
+
+  /**
+   * break this into groups
+   * @param fileid 
+   * @param cur_state 
+   * @returns 
+   */
   private writeFileData(fileid: number, cur_state: SaveObj): Promise<boolean> {
 
-    const filepath_ref = ref(this.db, 'filedata/' + fileid);
-    return set(filepath_ref, { ada: cur_state })
-      .then(res => {
-        return Promise.resolve(true);
-      })
-      .catch(err => {
-        console.error(err);
-        return Promise.reject(err);
-      })
+
+    //save the small things:
+    const small_things = {
+      version: cur_state.version,
+      workspace: cur_state.workspace,
+      zoom: cur_state.zoom,
+      type: cur_state.type,
+      nodes: cur_state.nodes,
+      tree: cur_state.tree,
+      ops: cur_state.ops,
+      notes: cur_state.notes,
+      materials: cur_state.materials,
+      indexed_image_data: cur_state.indexed_image_data,
+    }
+
+    const small_things_fn = this.writeLowDataItems(fileid, small_things);
+    const drafts_fn = this.writeDrafts(fileid, cur_state.draft_nodes);
+    return Promise.all([small_things_fn, drafts_fn])
+      .then(success => { return Promise.resolve(true) })
+      .catch(err => { return Promise.reject(err) })
   }
 
 
@@ -463,9 +524,9 @@ export class FirebaseService implements OnDestroy {
 
 
   /**
- * gets the share Object at a given id
- * @returns the file data
- */
+  * gets the share Object at a given id
+  * @returns the file data
+  */
   getShare(fileid: number): Promise<ShareObj> {
     return get(ref(this.db, `shared/${fileid}`))
       .then((shareobj) => {
@@ -532,11 +593,11 @@ export class FirebaseService implements OnDestroy {
   }
 
   /**
- * calls when a file is selected to be deleted from the files list
- * deletes all references to the file and then deletes from the users file list
- * @param fileid 
- * @returns 
- */
+  * calls when a file is selected to be deleted from the files list
+  * deletes all references to the file and then deletes from the users file list
+  * @param fileid 
+  * @returns 
+  */
   removeFile(fileid: number) {
 
     remove(ref(this.db, `filedata/${fileid}`));
@@ -638,9 +699,9 @@ export class FirebaseService implements OnDestroy {
 
 
   /**
- * checks to see if this user has an id already saved for their last used file
- * @param user 
- */
+  * checks to see if this user has an id already saved for their last used file
+  * @param user 
+  */
   getMostRecentFileIdFromUser(): Promise<number> {
     if (this.auth.currentUser === undefined || this.auth.currentUser === null) return Promise.reject("no current user");
     const user_ref = ref(this.db, `users/${this.auth.currentUser.uid}`);

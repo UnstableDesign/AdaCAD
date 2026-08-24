@@ -75,7 +75,6 @@ export class EditorComponent implements OnInit {
   draftelement: any;
 
   draftname: string = "";
-  loomtype: 'jacquard' | 'frame' | 'direct' = 'jacquard';
 
   scrollingSubscription: any;
 

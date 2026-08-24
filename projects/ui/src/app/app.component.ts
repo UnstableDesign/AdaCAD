@@ -2003,6 +2003,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fs.saver.ada()
       .then(so => {
         const nullppi = this.tree.getDraftNodes().filter(el => el.loom_settings.ppi === undefined);
+        console.log("in save, so.file", so.file);
         return this.fb.updateFile(so.file, this.ws.getCurrentFile());
       })
       .catch(err => {

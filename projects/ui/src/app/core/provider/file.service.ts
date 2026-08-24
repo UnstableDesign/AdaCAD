@@ -132,10 +132,11 @@ export class FileService {
               }
 
               if (el.draft == undefined && el.compressed_draft !== undefined && el.compressed_draft !== null) {
-                draft_fns.push(loadDraftFromFile(el.compressed_draft, version, src));
+                console.log("LOADING COMPRESSED DRAFT ", el.compressed_draft, el.loom, el.loom_settings, version, src);
+                draft_fns.push(loadDraftFromFile(el.compressed_draft, el.loom, el.loom_settings, version, src));
                 draft_elements.push(el);
               } else if (el.draft !== null && el.draft !== undefined) {
-                draft_fns.push(loadDraftFromFile(el.draft, version, src));
+                draft_fns.push(loadDraftFromFile(el.draft, el.loom, el.loom_settings, version, src));
                 draft_elements.push(el);
               }
 
@@ -199,7 +200,7 @@ export class FileService {
               draft_nodes.push(dn);
 
               if (draft !== null && draft !== undefined) {
-                draft_fns.push(loadDraftFromFile(draft, version, 'db'));
+                draft_fns.push(loadDraftFromFile(draft, loom, draft.loom_settings, version, 'db'));
 
                 if (loom !== null && loom !== undefined) {
                   loom_fns.push(loadLoomFromFile(loom, version, draft.id));
@@ -328,7 +329,7 @@ export class FileService {
 
         draft_nodes.forEach(el => {
           if (el.compressed_draft !== null && el.compressed_draft !== undefined) {
-            draft_fns.push(loadDraftFromFile(el.compressed_draft, version, 'db'));
+            draft_fns.push(loadDraftFromFile(el.compressed_draft, el.loom, el.loom_settings, version, 'db'));
             draft_elements.push(el);
 
             if (el.loom !== null && el.loom !== undefined) {
