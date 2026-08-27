@@ -50,7 +50,7 @@ export class MultiselectService {
    * when drag starts, we need to store a copy of the current state so we can undo it later
    */
   dragStart(id: number) {
-
+    console.log("MULTI SELECT DRAG START", id);
     this.moving_id = id;
     this.selected_before = [];
     this.selected.forEach(el => {
@@ -125,54 +125,31 @@ export class MultiselectService {
 
       this.selected = this.selected.filter(el => el.id != id);
       this.multiSelectListChange$.next(this.selected.map(el => el.id));
-      // container = <HTMLElement>document.getElementById("scale-" + id);
-      // container.classList.remove('multiselected');
 
-      //remove the children as well 
-      // if (type === 'op') {
-      //   const cxn_outs = this.tree.getOutputs(id);
-      //   cxn_outs.forEach(o => {
-      //     this.selected = this.selected.filter(el => el.id != o);
-      //     const child = this.tree.getConnectionOutput(o);
-      //     container = <HTMLElement>document.getElementById("scale-" + child);
-      //     if (container !== null) container.classList.remove('multiselected');
-      //     this.selected = this.selected.filter(el => el.id != child);
-      //   });
-      // }
 
       return false;
     } else {
 
       this.selected.push({ id, topleft, positionUpdate: new BehaviorSubject<Point>(topleft) });
       this.multiSelectListChange$.next(this.selected.map(el => el.id));
-      // container = <HTMLElement>document.getElementById("scale-" + id);
-      // if (container !== null) container.classList.add('multiselected');
-      //remove the children as well 
-      //  if (type == 'op') {
-      // const cxn_outs = this.tree.getOutputs(id);
-      // cxn_outs.forEach(o => {
-      // let tl = this.tree.getComponent(o).topleft;
-      // this.selected.push({id: o, topleft: tl });
-      // const child = this.tree.getConnectionOutput(o);
-      // tl = this.tree.getComponent(child).topleft;
-      // this.selected.push({id: child, topleft: tl });
-      // container = <HTMLElement> document.getElementById("scale-"+child);
-      // if(container !== null)  container.classList.add('multiselected');
-      // } );
-      //} else if (type == 'draft') {
-      //  const parent = this.tree.getSubdraftParent(id);
-      // if (parent !== -1) {
-      //   let tl = this.tree.getComponent(parent).topleft;
-      //   this.selected.push({ id: parent, topleft: tl });
-      //   container = <HTMLElement>document.getElementById("scale-" + parent);
-      //   if (container !== null) container.classList.add('multiselected');
 
-      // }
-      //}
       return true;
     }
   }
 
+
+  addSelection(id: number, topleft: Point) {
+    if (this.selected.find(el => el.id == id) === undefined) {
+      this.selected.push({ id, topleft, positionUpdate: new BehaviorSubject<Point>(topleft) });
+      this.multiSelectListChange$.next(this.selected.map(el => el.id));
+    }
+  }
+
+
+  removeSelection(id: number) {
+    this.selected = this.selected.filter(el => el.id != id);
+    this.multiSelectListChange$.next(this.selected.map(el => el.id));
+  }
 
 
   clearSelections() {

@@ -132,6 +132,7 @@ export class PaletteComponent implements OnInit {
 
   visible_op_inlet: number = -1;
 
+  multi_select_origin: Point = { x: 0, y: 0 };
   multi_select_bounds: Bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
   hasMultiSelectBounds: boolean = false;
 
@@ -2087,8 +2088,28 @@ export class PaletteComponent implements OnInit {
 
       if (isShiftClick) {
         this.hasMultiSelectBounds = true;
-        this.multi_select_bounds.topleft = { x: event.clientX, y: event.clientY };
+        let parent = document.getElementById('scrollable-container');
+        let rect_palette = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
+        const zoom_factor = 1 / this.zs.getMixerZoom();
+
+        let mouse = {
+          x: (event.clientX - rect_palette.x + (parent?.scrollLeft ?? 0)) * zoom_factor,
+          y: (event.clientY - rect_palette.y + (parent?.scrollTop ?? 0)) * zoom_factor,
+        }
+
+
+
+        this.multi_select_origin = { x: mouse.x, y: mouse.y };
+        this.multi_select_bounds.topleft = { x: mouse.x, y: mouse.y };
         this.moveSubscription = fromEvent(event.target as HTMLElement, 'mousemove').subscribe(e => this.onMultiSelectDrag(e as MouseEvent));
+
+        const all_comps = this.tree.getComponents();
+        all_comps.filter(comp => comp !== null && comp !== undefined).forEach(comp => {
+          const div = document.getElementById('scale-' + comp.id);
+          if (div) {
+            div.style.pointerEvents = 'none';
+          }
+        });
 
       } else {
         this.multiselect.clearSelections();
@@ -2114,18 +2135,34 @@ export class PaletteComponent implements OnInit {
   }
 
   onMultiSelectDrag(event: MouseEvent) {
-    const mouse: Point = { x: event.clientX, y: event.clientY };
 
+    ///
+    let parent = document.getElementById('scrollable-container');
+    let rect_palette = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
+    const zoom_factor = 1 / this.zs.getMixerZoom();
 
-    if (mouse.x < this.multi_select_bounds.topleft.x) {
-      this.multi_select_bounds.topleft.x = mouse.x;
+    let mouse = {
+      x: (event.clientX - rect_palette.x + (parent?.scrollLeft ?? 0)) * zoom_factor,
+      y: (event.clientY - rect_palette.y + (parent?.scrollTop ?? 0)) * zoom_factor,
     }
-    if (mouse.y < this.multi_select_bounds.topleft.y) {
-      this.multi_select_bounds.topleft.y = mouse.y;
-    }
 
-    this.multi_select_bounds.width = Math.abs(mouse.x - this.multi_select_bounds.topleft.x);
-    this.multi_select_bounds.height = Math.abs(mouse.y - this.multi_select_bounds.topleft.y);
+
+
+    this.multi_select_bounds.topleft.x = Math.min(this.multi_select_origin.x, mouse.x);
+    this.multi_select_bounds.topleft.y = Math.min(this.multi_select_origin.y, mouse.y);
+    this.multi_select_bounds.width = Math.abs(this.multi_select_origin.x - mouse.x);
+    this.multi_select_bounds.height = Math.abs(mouse.y - this.multi_select_origin.y);
+
+    //select everythign within this range: 
+    let components = this.tree.getComponentsInBounds(this.multi_select_bounds);
+    components.forEach(comp => {
+      this.multiselect.addSelection(comp.id, comp.getPosition() ?? { x: 0, y: 0 });
+    });
+
+    let outofbounds = this.tree.getComponentsOutOfBounds(components);
+    outofbounds.forEach(comp => {
+      if (this.multiselect.isSelected(comp.id)) this.multiselect.removeSelection(comp.id);
+    });
 
   }
 
@@ -2165,7 +2202,6 @@ export class PaletteComponent implements OnInit {
   public onEnd(event: MouseEvent) {
 
 
-    this.removeSubscription();
 
     // reset middle mouse state
     if (event.button === 1 || event.type === 'mouseleave') {
@@ -2184,15 +2220,26 @@ export class PaletteComponent implements OnInit {
       // re-enable dragging on nodes after panning
       this.unfreezePaletteObjects();
     }
-
-    // if (this.hasMultiSelectBounds) {
-    //   this.hasMultiSelectBounds = false;
-    //   this.multi_select_bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
-    //   this.multiselect.clearSelections();
-    // }
-
     //unset vars that would have been created on press
     this.last_point = null;
+    if (event.type === 'mouseleave') return;
+    this.removeSubscription();
+
+
+    if (this.hasMultiSelectBounds) {
+      this.hasMultiSelectBounds = false;
+      this.multi_select_origin = { x: 0, y: 0 };
+      this.multi_select_bounds = { topleft: { x: 0, y: 0 }, width: 0, height: 0 };
+      const all_comps = this.tree.getComponents().filter(comp => comp !== null && comp !== undefined);
+      all_comps.forEach(comp => {
+        const div = document.getElementById('scale-' + comp.id);
+        if (div) {
+          div.style.pointerEvents = 'auto';
+        }
+      });
+    }
+
+
   }
 
 

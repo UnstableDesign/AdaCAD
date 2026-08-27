@@ -1039,6 +1039,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .then(res => {
         const ada = <SaveObj>res[0];
         const meta = <FileMeta>res[1];
+        console.log("LOADING FROM DB", ada, meta);
         return this.prepAndLoadFile(ada, meta, 'db')
       })
       .catch(err => {

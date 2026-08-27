@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChil
 import { Draft, Interlacement, LoomSettings } from 'adacad-drafting-lib';
 import { isUp, warps, wefts } from 'adacad-drafting-lib/draft';
 import { Subscription } from 'rxjs';
-import { DraftNode, DraftStateMove, Point } from '../../../core/model/datatypes';
+import { Bounds, DraftNode, DraftStateMove, Point } from '../../../core/model/datatypes';
 import { StateService } from '../../../core/provider/state.service';
 import { TreeService } from '../../../core/provider/tree.service';
 import { ViewerService } from '../../../core/provider/viewer.service';
@@ -372,6 +372,16 @@ export class SubdraftComponent implements OnInit {
 
   getPosition(): Point {
     return this.topleft;
+  }
+
+  getBounds(): Bounds {
+    const bounds: HTMLElement | null = document.getElementById('scale-' + this.id);
+
+    return {
+      topleft: this.topleft,
+      width: bounds?.offsetWidth ?? 0,
+      height: bounds?.offsetHeight ?? 0
+    }
   }
 
 

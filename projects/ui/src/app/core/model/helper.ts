@@ -57,7 +57,6 @@ export const loadDraftFromFile = async (data: any, loom: Loom | null | undefined
         if (data.super_compressed_drawdown !== undefined) {
             draft.drawdown = unpackDrawdownFromBitArray(data.super_compressed_drawdown, data.warps, data.wefts)
         } else if (data.compressed_drawdown === undefined && has_valid_loom) {
-            console.log("recreating drawdown from loom ", loom, loomtype);
             //handle the case where we saved the loom only 
             const utils = getLoomUtilByType(loomtype);
             if (utils.computeDrawdownFromLoom !== undefined) {
@@ -76,8 +75,6 @@ export const loadDraftFromFile = async (data: any, loom: Loom | null | undefined
 
         } else if (data.compressed_drawdown !== undefined) {
             let compressed: Uint8ClampedArray;
-
-            console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
 
 
             if (src == 'upload') {
@@ -317,6 +314,25 @@ export const saveAsColoringPage = async (el: any, draft: Draft, ms: MaterialsSer
 
     return Promise.resolve();
 
+}
+
+/**
+ * determines if two rectangles overlap at any point. Rectangles are described by their top left
+ * point along with a width and height, with y increasing downward (screen coordinates).
+ * Rectangles that only share an edge or a corner are considered intersecting.
+ * @param a the first rectangle
+ * @param b the second rectangle
+ * @returns true if the two rectangles share at least one point
+ */
+export const boundsIntersect = (a: Bounds, b: Bounds): boolean => {
+    const a_right = a.topleft.x + a.width;
+    const a_bottom = a.topleft.y + a.height;
+    const b_right = b.topleft.x + b.width;
+    const b_bottom = b.topleft.y + b.height;
+    return a.topleft.x <= b_right &&
+        b.topleft.x <= a_right &&
+        a.topleft.y <= b_bottom &&
+        b.topleft.y <= a_bottom;
 }
 
 export const saveAsPng = async (el: any, draft: Draft, selected_origin_option: number, ms: MaterialsService, fs: FileService) => {

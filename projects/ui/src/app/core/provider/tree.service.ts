@@ -14,6 +14,7 @@ import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
 import { U } from '@angular/cdk/keycodes';
 import { defaults as appDefaults } from '../../core/model/defaults';
+import { boundsIntersect } from '../model/helper';
 
 
 
@@ -695,6 +696,36 @@ export class TreeService {
     return this.nodes[ndx];
   }
 
+
+  /**
+   * assumes a list of in bounds components, returns the components that are not in bounds
+   * @param inBounds 
+   * @returns 
+   */
+  getComponentsOutOfBounds(inBounds: Array<SubdraftComponent | OperationComponent>): Array<SubdraftComponent | OperationComponent> {
+
+    let candidates: Array<SubdraftComponent | OperationComponent> = this.nodes
+      .filter(node => this.getType(node.id) === 'draft' || this.getType(node.id) === 'op')
+      .map(node => node.component as SubdraftComponent | OperationComponent)
+      .filter(node => node !== null)
+      .filter(node => inBounds.find(el => el.id === node.id) === undefined);
+    return candidates;
+  }
+
+
+  /**
+   * a function to see if the current selection bounds and the bounds of a component intersect at any point
+   * @param bounds 
+   * @returns 
+   */
+  getComponentsInBounds(bounds: Bounds): Array<SubdraftComponent | OperationComponent> {
+    let candidates: Array<SubdraftComponent | OperationComponent> = this.nodes
+      .filter(node => this.getType(node.id) === 'draft' || this.getType(node.id) === 'op')
+      .map(node => node.component as SubdraftComponent | OperationComponent)
+      .filter(node => node !== null)
+      .filter(node => boundsIntersect(bounds, node.getBounds()));
+    return candidates;
+  }
 
 
   /**

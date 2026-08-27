@@ -6,7 +6,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Img, Operation, OpInletValType, OpParamValType } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
-import { DraftNode, IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
+import { Bounds, DraftNode, IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { ErrorBroadcasterService } from '../../../core/provider/error-broadcaster.service';
 import { MediaService } from '../../../core/provider/media.service';
 import { OperationService } from '../../../core/provider/operation.service';
@@ -370,6 +370,16 @@ export class OperationComponent implements OnInit {
     cx.fillText(datastring, this.topleft.x + 5, this.topleft.y + 25);
 
 
+  }
+
+  getBounds(): Bounds {
+    const bounds: HTMLElement | null = document.getElementById('scale-' + this.id);
+
+    return {
+      topleft: this.topleft,
+      width: bounds?.offsetWidth ?? 0,
+      height: bounds?.offsetHeight ?? 0
+    }
   }
 
 
@@ -803,6 +813,8 @@ export class OperationComponent implements OnInit {
 
     this.duplicateOp.emit({ id: this.id });
   }
+
+
 
 
 
