@@ -129,6 +129,7 @@ export const getAllDraftsAtInletByLabel = (op_inputs: Array<OpInput>, inlet_valu
 
 
 export const assembleDraftsAndLoomsFromOpInput = (op_input: OpInput): Array<{ draft: Draft, loom: Loom | null, loom_settings: LoomSettings | null }> => {
+    if (op_input === null || op_input === undefined) return [];
     const assembled = op_input.drafts.map((draft, ndx) => {
         let loom = null;
         if (op_input.looms !== undefined && ndx < op_input.looms.length) loom = op_input.looms[ndx];

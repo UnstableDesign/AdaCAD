@@ -92,7 +92,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
   }
 
   const loom_settings: LoomSettings = {
-    type: 'direct',
+    type: 'frame',
     frames: wefts(threading_draft.drawdown),
     treadles: warps(treadling_draft.drawdown),
     units: 'in',

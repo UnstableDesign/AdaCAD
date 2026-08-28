@@ -14,6 +14,7 @@ export * from "./complex_twill/complex_twill";
 export * from "./crop/crop";
 export * from "./cross_section_view/cross_section_view";
 export * from "./cutout/cutout";
+export * from "./convert_loom/convert_loom";
 export * from "./deinterlace/deinterlace";
 export * from './deinterlace_warps/deinterlace_warps';
 export * from "./diff/diff";

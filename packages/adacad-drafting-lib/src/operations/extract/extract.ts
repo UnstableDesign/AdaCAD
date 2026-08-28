@@ -8,7 +8,7 @@ import { OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput, Selec
 const name = "extract";
 
 const meta: OpMeta = {
-    displayname: 'extract data from a draft',
+    displayname: 'extract loom data',
     desc: 'creates a new drawdown based on the threading, treadlings, tieup or lift plan of an input draft',
     img: 'extract.png',
     advanced: true,
@@ -20,7 +20,7 @@ const meta: OpMeta = {
 const datasource: SelectParam = {
     name: 'datasource',
     type: 'select',
-    value: 'threading',
+    value: 0,
     dx: 'the data source to extract',
     selectlist: [{ name: 'threading', value: 0 }, { name: 'treadling/lift plan', value: 1 }, { name: 'tieup', value: 2 }]
 }
@@ -52,11 +52,15 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
     const loom_settings = drafts_and_looms[0].loom_settings;
     if (loom == null || loom_settings == null) return Promise.resolve([]);
 
+
+    const frames = Math.max(numFrames(loom), loom_settings.frames);
+    const treadles = Math.max(numTreadles(loom), loom_settings.treadles);
+
     let d: Draft;
     switch (source) {
         //threading
         case 0:
-            d = initDraftWithParams({ warps: loom.threading.length, wefts: numFrames(loom), drawdown: [[createCell(false)]] });
+            d = initDraftWithParams({ warps: loom.threading.length, wefts: frames, drawdown: [[createCell(false)]] });
 
             loom.threading.forEach((frame_num, ndx) => {
                 if (frame_num >= 0) {
@@ -69,11 +73,11 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
         //treadling/lift plan
         case 1:
 
-            d = initDraftWithParams({ warps: numTreadles(loom), wefts: loom.treadling.length, drawdown: [[createCell(false)]] });
+            d = initDraftWithParams({ warps: treadles, wefts: loom.treadling.length, drawdown: [[createCell(false)]] });
             loom.treadling.forEach((treadling_row, weft_ndx) => {
-                treadling_row.forEach((threading_cell, warp_ndx) => {
+                treadling_row.forEach((threading_cell) => {
                     if (threading_cell >= 0) {
-                        setCellValue(d.drawdown[weft_ndx][warp_ndx], true);
+                        setCellValue(d.drawdown[weft_ndx][threading_cell], true);
                     }
                 });
             });
@@ -81,14 +85,23 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
         //tieup
         case 2:
-            d = initDraftWithParams({ warps: numTreadles(loom), wefts: numFrames(loom), drawdown: [[createCell(false)]] });
-            loom.tieup.forEach((tieup_row, weft_ndx) => {
-                tieup_row.forEach((tieup_cell, warp_ndx) => {
-                    if (tieup_cell == true) {
-                        setCellValue(d.drawdown[weft_ndx][warp_ndx], true);
-                    }
+            //return null if there is 
+            d = initDraftWithParams({ warps: treadles, wefts: frames, drawdown: [[createCell(false)]] });
+
+            if (loom_settings.type == "direct") {
+                const max_dim = Math.max(frames, treadles);
+                for (let i = 0; i < max_dim; i++) {
+                    if (i < wefts(d.drawdown) && i < warps(d.drawdown)) setCellValue(d.drawdown[i][i], true);
+                }
+            } else {
+                loom.tieup.forEach((tieup_row, weft_ndx) => {
+                    tieup_row.forEach((tieup_cell, warp_ndx) => {
+                        if (tieup_cell !== undefined && tieup_cell !== null && tieup_cell) {
+                            if (weft_ndx < wefts(d.drawdown) && warp_ndx < warps(d.drawdown)) setCellValue(d.drawdown[weft_ndx][warp_ndx], true);
+                        }
+                    });
                 });
-            });
+            }
             return Promise.resolve([{ draft: d }]);
 
         default:
@@ -113,6 +126,7 @@ const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>):
 }
 
 const sizeCheck = (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>): boolean => {
+    if (op_inputs.length == 0) return true;
     const drafts_and_looms = assembleDraftsAndLoomsFromOpInput(op_inputs[0]);
     const source = <number>getOpParamValById(0, op_settings);
 
