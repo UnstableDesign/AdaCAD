@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject, ChangeDetectionStrategy, ElementRef } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -220,8 +220,9 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-    this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id) as HTMLElement;
-    this.divWasy = document.getElementById('warp-systems-text-' + this.source + '-' + this.id) as HTMLElement;
+    this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
+    this.divWasy = document.getElementById('warp-systems-text-' + this.source + '-' + this.id);
+    this.refreshLoomVisibility(this.tree.getLoomSettings(this.id));
     this.refreshWarpAndWeftSystemNumbering();
     this.refreshOriginMarker();
 
@@ -279,7 +280,12 @@ export class DraftRenderingComponent implements OnInit {
         } else {
           this.view_only = false;
           this.setPencil('toggle');
-          this.setDraftEditSource('drawdown');
+
+          if (this.tree.getLoomSettings(this.id).type !== 'jacquard') {
+            this.setDraftEditSource('loom');
+          } else {
+            this.setDraftEditSource('drawdown');
+          }
           break;
         }
     }
@@ -334,19 +340,46 @@ export class DraftRenderingComponent implements OnInit {
       this.colSystemMapping = draft !== null ? draft.colSystemMapping.slice() : [];
       this.rowShuttleMapping = draft !== null ? draft.rowShuttleMapping.slice() : [];
       this.rowSystemMapping = draft !== null ? draft.rowSystemMapping.slice() : [];
-      this.selected_loom_type = (loom_settings != null) ? loom_settings.type as 'jacquard' | 'frame' | 'direct' : 'jacquard';
+      this.selected_loom_type = (loom_settings != null) ? loom_settings.type : 'jacquard';
 
       if (draft !== null) {
 
-        this.epi = loom_settings?.epi ?? defaults.loom_settings.epi;
+
         this.redraw(draft, loom, loom_settings, flags).then(el => {
           this.draftValueChangeCallCount++;
+          this.refreshLoomVisibility(loom_settings);
           this.refreshOriginMarker();
           this.refreshWarpAndWeftSystemNumbering();
           this.redrawComplete.emit(draft); // I need this so that any resulting functions (e.g. recentering, etc, can call after redrawing)
         });
       }
     });
+
+  }
+
+  refreshLoomVisibility(loom_settings: LoomSettings) {
+    console.log('refreshLoomVisibility', loom_settings);
+    if (this.source == 'mixer' || this.source == 'library') {
+      const divWaSyText = document.getElementById('warp-systems-text-' + this.source + '-' + this.id);
+      divWaSyText?.style.setProperty('display', 'none');
+
+      const divWeSyText = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
+      divWeSyText?.style.setProperty('display', 'none');
+
+
+
+      if (loom_settings.type !== 'jacquard') {
+        const treadlingCanvas = document.getElementById('treadling-' + this.source + '-' + this.id);
+        treadlingCanvas?.style.setProperty('display', 'flex');
+        const treadlingCanvasContainer = document.getElementById('treadling-container-' + this.source + '-' + this.id);
+        treadlingCanvasContainer?.style.setProperty('display', 'flex');
+      } else {
+        const treadlingCanvas = document.getElementById('treadling-' + this.source + '-' + this.id);
+        treadlingCanvas?.style.setProperty('display', 'none');
+        const treadlingCanvasContainer = document.getElementById('treadling-container-' + this.source + '-' + this.id);
+        treadlingCanvasContainer?.style.setProperty('display', 'none');
+      }
+    }
 
   }
 
@@ -383,20 +416,19 @@ export class DraftRenderingComponent implements OnInit {
 
     let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     cell_size = cell_size / this.render.pixel_ratio;
-    this.cell_size = cell_size;
-    const parentContainer = highlightRow?.parentElement;
-    const rect = parentContainer?.getBoundingClientRect() ?? { left: 0, top: 0 };
+    const parentContainer = highlightRow.parentElement;
+    const rect = parentContainer.getBoundingClientRect();
     //event page X is the mouse in absolute terms, rect left is the corner of the parent container
     //so event.client - rect gives us the distance of the mouse within the parent container. 
     //when we set the div, we have to consider the scale so we divide by scale 
     const x = (event.clientX - rect.left) / this.zs.getEditorZoom();
     const y = (event.clientY - rect.top) / this.zs.getEditorZoom();
 
-    if (highlightRow) highlightRow.style.top = `${y - cell_size / 2}px`;
-    if (highlightCol) highlightCol.style.left = `${x - cell_size / 2}px`;
+    highlightRow.style.top = `${y - cell_size / 2}px`;
+    highlightCol.style.left = `${x - cell_size / 2}px`;
 
-    if (highlightRow) highlightRow.style.display = 'block';
-    if (highlightCol) highlightCol.style.display = 'block';
+    highlightRow.style.display = 'block';
+    highlightCol.style.display = 'block';
     // highlightRow.style.top = `${currentPos.i * this.render.calculateCellSize(draft) * this.scale}px`;
     // highlightCol.style.left = `${currentPos.j * this.render.calculateCellSize(draft) * this.scale}px`;
   }
@@ -706,7 +738,6 @@ export class DraftRenderingComponent implements OnInit {
 
   private getEventPosition(event: MouseEvent): Interlacement {
     const draft = this.tree.getDraft(this.id);
-    if (draft == null) return { i: -1, j: -1 };
     let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     cell_size = cell_size / this.render.pixel_ratio;
     var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
@@ -1265,6 +1296,7 @@ export class DraftRenderingComponent implements OnInit {
 
       const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
         this.isRedrawing = false;
+        this.refreshLoomVisibility(loom_settings);
         this.refreshOriginMarker();
         this.refreshWarpAndWeftSystemNumbering();
       })
