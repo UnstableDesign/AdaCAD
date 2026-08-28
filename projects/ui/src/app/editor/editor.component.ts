@@ -156,8 +156,8 @@ export class EditorComponent implements OnInit {
     // Subscribe to editing mode changes
     this.editingModeForm.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined && this.weaveRef) {
-        this.weaveRef.setDraftEditSource(value);
-        this.swapEditingStyleClicked();
+        this.weaveRef.setDraftEditSource(value, true);
+        //this.swapEditingStyleClicked();
       }
     });
 
@@ -512,13 +512,22 @@ export class EditorComponent implements OnInit {
       this.weaveRef.view_only = false;
     }
 
-
-    if (ls !== null && ls.type === 'jacquard') {
-      this.weaveRef.setDraftEditSource('drawdown');
+    let edit_source = 'drawdown';
+    if (draftNode.draft_editing_source !== undefined) {
+      edit_source = draftNode.draft_editing_source;
+      this.weaveRef.setDraftEditSource(draftNode.draft_editing_source);
     } else {
-      this.weaveRef.setDraftEditSource('loom');
+      if (ls !== null && ls.type === 'jacquard') {
+        edit_source = 'drawdown';
+        this.weaveRef.setDraftEditSource('drawdown');
+      } else {
+        edit_source = 'loom';
+        this.weaveRef.setDraftEditSource('loom');
+      }
     }
-    this.editingModeForm.setValue(this.weaveRef.draft_edit_source, { emitEvent: false });
+
+
+    this.editingModeForm.setValue(edit_source, { emitEvent: false });
 
 
 
@@ -698,24 +707,24 @@ export class EditorComponent implements OnInit {
 
 
 
-  swapEditingStyleClicked() {
-    if (this.id == -1) return;
+  // swapEditingStyleClicked() {
+  //   if (this.id == -1) return;
 
-    const loom_settings = this.tree.getLoomSettings(this.id);
+  //   const loom_settings = this.tree.getLoomSettings(this.id);
 
-    if (loom_settings !== null && loom_settings.type !== 'jacquard') {
+  //   if (loom_settings !== null && loom_settings.type !== 'jacquard') {
 
-      if (this.weaveRef.isSelectedDraftEditSource('drawdown')) {
-        this.weaveRef.setDraftEditSource('drawdown');
-      } else {
-        this.weaveRef.setDraftEditSource('loom');
-      }
+  //     if (this.weaveRef.isSelectedDraftEditSource('drawdown')) {
+  //       this.weaveRef.setDraftEditSource('drawdown');
+  //     } else {
+  //       this.weaveRef.setDraftEditSource('loom');
+  //     }
 
-    } else {
-      this.weaveRef.setDraftEditSource('drawdown');
-    }
+  //   } else {
+  //     this.weaveRef.setDraftEditSource('drawdown');
+  //   }
 
-  }
+  // }
 
   /**
    * Adjusts the scale of the rendering such that the entire view is visible and as large as possible

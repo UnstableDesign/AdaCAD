@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +8,7 @@ import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-
 import { Drawdown, createCell, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getCellValue, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { BehaviorSubject, Observable, Subscription, fromEvent, of, skip } from 'rxjs';
-import { CanvasList, DraftNode, DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
+import { CanvasList, DraftEditingSource, DraftNode, DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { FileService } from '../../provider/file.service';
 import { MaterialsService } from '../../provider/materials.service';
@@ -26,6 +26,7 @@ import { SelectionComponent } from './selection/selection.component';
   selector: 'app-draft-rendering',
   templateUrl: './draft-rendering.component.html',
   styleUrl: './draft-rendering.component.scss',
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [SelectionComponent, AsyncPipe, MatButton, ReactiveFormsModule, MatInputModule, MatFormFieldModule]
 })
@@ -46,7 +47,7 @@ export class DraftRenderingComponent implements OnInit {
   private state = inject(StateService);
 
 
-  @ViewChild('bitmapImage') bitmap!: ElementRef<HTMLImageElement>;
+  @ViewChild('bitmapImage') bitmap!: HTMLCanvasElement;
   @ViewChild('selection', { read: SelectionComponent, static: true }) selection!: SelectionComponent;
 
   @Input('id') id: number = -1;
@@ -75,7 +76,7 @@ export class DraftRenderingComponent implements OnInit {
 
   moveSubscription!: Subscription;
 
-
+  draft_edit_source: DraftEditingSource = 'drawdown';
   divWesy!: HTMLElement;
   divWasy!: HTMLElement;
 
@@ -103,7 +104,6 @@ export class DraftRenderingComponent implements OnInit {
 
   epi: number = defaults.loom_settings.epi;
   pencil = 'toggle'; //toggle, up, down, unset, material
-  draft_edit_source = 'drawdown'; //drawdown, loom
   use_sizes: boolean = false;
   selected_material_id: number = 0; //if material is set an pencil
 
@@ -154,7 +154,10 @@ export class DraftRenderingComponent implements OnInit {
     }
   }
 
-  setDraftEditSource(draft_edit_source: string) {
+  setDraftEditSource(draft_edit_source: DraftEditingSource, update_node: boolean = false) {
+    if (update_node) {
+      this.tree.setDraftEditingSource(this.id, draft_edit_source);
+    }
     this.draft_edit_source = draft_edit_source;
   }
 
@@ -182,6 +185,8 @@ export class DraftRenderingComponent implements OnInit {
 
     if (this.source == 'viewer' || this.source == 'editor') this.ignoreOversize = true;
 
+
+    console.log('draft_edit_source', this.draft_edit_source);
     this.materialColorChangeSubscription = this.ms.materialColorChange.pipe(skip(1)).subscribe(id => {
       this.forceRedraw();
     });
@@ -220,11 +225,26 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-    this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
-    this.divWasy = document.getElementById('warp-systems-text-' + this.source + '-' + this.id);
-    this.refreshLoomVisibility(this.tree.getLoomSettings(this.id));
+    this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id) as HTMLElement;
+    this.divWasy = document.getElementById('warp-systems-text-' + this.source + '-' + this.id) as HTMLElement;
+    this.refreshLoomVisibility(this.tree.getLoomSettings(this.id) ?? defaults.loom_settings);
     this.refreshWarpAndWeftSystemNumbering();
     this.refreshOriginMarker();
+
+    const dn = this.tree.getNode(this.id) as DraftNode;
+    // #region agent log
+    fetch('http://127.0.0.1:7745/ingest/8a3a3863-50d7-4694-a2bc-5ab01a56c184', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'baf675' }, body: JSON.stringify({ sessionId: 'baf675', hypothesisId: 'H2,H4,H5', location: 'draft-rendering.component.ts:232', message: 'ngAfterViewInit read of node source', data: { source: this.source, id: this.id, node_found: dn != null, node_editing_source: dn?.draft_editing_source ?? 'UNDEFINED', selected_loom_type: this.selected_loom_type, current_field_value: this.draft_edit_source }, timestamp: Date.now() }) }).catch(() => { });
+    // #endregion
+    if (dn == null) return;
+    if (dn.draft_editing_source !== undefined) {
+      this.draft_edit_source = dn.draft_editing_source;
+    } else {
+      if (this.selected_loom_type === 'jacquard') {
+        this.draft_edit_source = 'drawdown';
+      } else {
+        this.draft_edit_source = 'loom';
+      }
+    }
 
 
   }
@@ -251,18 +271,36 @@ export class DraftRenderingComponent implements OnInit {
   }
 
 
+  getNodeSource(id: number): string {
+    let node = this.tree.getNode(id) as DraftNode;
+    if (node == null) return 'null';
+    return node.draft_editing_source as DraftEditingSource ?? 'undefined';
+  }
+
 
   setDefaultEditingMode(source: 'editor' | 'viewer' | 'library' | 'mixer') {
+
+    let node = this.tree.getNode(this.id) as DraftNode;
+    // #region agent log
+    fetch('http://127.0.0.1:7745/ingest/8a3a3863-50d7-4694-a2bc-5ab01a56c184', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'baf675' }, body: JSON.stringify({ sessionId: 'baf675', hypothesisId: 'H1,H2,H4,H5', location: 'draft-rendering.component.ts:277', message: 'setDefaultEditingMode entry', data: { source, id: this.id, node_found: node != null, node_editing_source: node?.draft_editing_source ?? 'UNDEFINED', has_parent: this.tree.hasParent(this.id), selected_loom_type: this.selected_loom_type, loom_settings_type: this.tree.getLoomSettings(this.id)?.type ?? 'UNDEFINED', field_before: this.draft_edit_source }, timestamp: Date.now() }) }).catch(() => { });
+    // #endregion
+    if (node == null) return;
+
+
     switch (source) {
       case 'editor':
         this.view_only = false;
         this.setPencil('toggle');
-
-        if (this.selected_loom_type === 'jacquard') {
-          this.setDraftEditSource('drawdown');
+        if (node.draft_editing_source !== undefined) {
+          this.setDraftEditSource(node.draft_editing_source);
         } else {
-          this.setDraftEditSource('loom');
+          if (this.selected_loom_type === 'jacquard') {
+            this.setDraftEditSource('drawdown');
+          } else {
+            this.setDraftEditSource('loom');
+          }
         }
+
         break;
       case 'viewer':
       case 'library':
@@ -275,16 +313,28 @@ export class DraftRenderingComponent implements OnInit {
         if (this.tree.hasParent(this.id)) {
           this.view_only = true;
           this.setPencil('select');
-          this.setDraftEditSource('drawdown');
+          if (node.draft_editing_source !== undefined) {
+            this.setDraftEditSource(node.draft_editing_source);
+          } else {
+            if (this.selected_loom_type === 'jacquard') {
+              this.setDraftEditSource('drawdown');
+            } else {
+              this.setDraftEditSource('loom');
+            }
+          }
           break;
         } else {
           this.view_only = false;
           this.setPencil('toggle');
 
-          if (this.tree.getLoomSettings(this.id).type !== 'jacquard') {
-            this.setDraftEditSource('loom');
+          if (node.draft_editing_source !== undefined) {
+            this.setDraftEditSource(node.draft_editing_source);
           } else {
-            this.setDraftEditSource('drawdown');
+            if (this.selected_loom_type === 'jacquard') {
+              this.setDraftEditSource('drawdown');
+            } else {
+              this.setDraftEditSource('loom');
+            }
           }
           break;
         }
@@ -301,7 +351,6 @@ export class DraftRenderingComponent implements OnInit {
 
     let node = this.tree.getNode(id) as DraftNode;
     this.selected_loom_type = this.tree.getLoomSettings(this.id)?.type as 'jacquard' | 'frame' | 'direct' ?? 'jacquard';
-
 
     this.setDefaultEditingMode(this.source);
 
@@ -340,7 +389,7 @@ export class DraftRenderingComponent implements OnInit {
       this.colSystemMapping = draft !== null ? draft.colSystemMapping.slice() : [];
       this.rowShuttleMapping = draft !== null ? draft.rowShuttleMapping.slice() : [];
       this.rowSystemMapping = draft !== null ? draft.rowSystemMapping.slice() : [];
-      this.selected_loom_type = (loom_settings != null) ? loom_settings.type : 'jacquard';
+      this.selected_loom_type = (loom_settings != null) ? loom_settings.type as 'jacquard' | 'frame' | 'direct' : 'jacquard';
 
       if (draft !== null) {
 
@@ -358,14 +407,12 @@ export class DraftRenderingComponent implements OnInit {
   }
 
   refreshLoomVisibility(loom_settings: LoomSettings) {
-    console.log('refreshLoomVisibility', loom_settings);
     if (this.source == 'mixer' || this.source == 'library') {
       const divWaSyText = document.getElementById('warp-systems-text-' + this.source + '-' + this.id);
       divWaSyText?.style.setProperty('display', 'none');
 
       const divWeSyText = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
       divWeSyText?.style.setProperty('display', 'none');
-
 
 
       if (loom_settings.type !== 'jacquard') {
@@ -413,10 +460,11 @@ export class DraftRenderingComponent implements OnInit {
 
     const highlightRow = document.getElementById('highlight-row-editor');
     const highlightCol = document.getElementById('highlight-col-editor');
-
+    if (highlightRow == null || highlightCol == null) return;
     let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     cell_size = cell_size / this.render.pixel_ratio;
     const parentContainer = highlightRow.parentElement;
+    if (parentContainer == null) return;
     const rect = parentContainer.getBoundingClientRect();
     //event page X is the mouse in absolute terms, rect left is the corner of the parent container
     //so event.client - rect gives us the distance of the mouse within the parent container. 
@@ -738,6 +786,7 @@ export class DraftRenderingComponent implements OnInit {
 
   private getEventPosition(event: MouseEvent): Interlacement {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return { i: -1, j: -1 };
     let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     cell_size = cell_size / this.render.pixel_ratio;
     var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
@@ -1264,6 +1313,7 @@ export class DraftRenderingComponent implements OnInit {
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom | null, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
 
+    console.log("REDRAW CALLED", rf);
 
     this.isRedrawing = true;
 
@@ -1288,7 +1338,6 @@ export class DraftRenderingComponent implements OnInit {
     //if (this.oversize && this.ignoreOversize) this.ignoreOversize = false;
 
     if (draft == null) {
-      console.error("DRAFT IS NULL", this.id);
       return Promise.resolve(false);
     }
 

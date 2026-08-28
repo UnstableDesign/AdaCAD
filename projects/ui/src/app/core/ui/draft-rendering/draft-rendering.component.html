@@ -1,6 +1,7 @@
 <div class="draft-container {{source}} origin{{ws.selected_origin_option}}"
   id="draft-scale-container-{{source}}-{{id}}">
 
+  SOURCE {{draft_edit_source}} {{getNodeSource(id)}}
 
 
   @if (isRedrawing && (overTimeLimit$ | async)) {

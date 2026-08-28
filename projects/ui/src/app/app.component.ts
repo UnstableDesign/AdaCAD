@@ -18,7 +18,7 @@ import { Draft, compressDraft, copyDraft, createCell, getDraftName, initDraftWit
 import { convertLoom, copyLoom, copyLoomSettings, initLoom } from 'adacad-drafting-lib/loom';
 import { Subscription, catchError } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
-import { Bounds, DraftNode, DraftNodeBroadcastFlags, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
+import { Bounds, DraftEditingSource, DraftNode, DraftNodeBroadcastFlags, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
 import { ErrorBroadcasterService } from './core/provider/error-broadcaster.service';
 import { FileService } from './core/provider/file.service';
@@ -1657,6 +1657,7 @@ export class AppComponent implements OnInit, OnDestroy {
             notes: '',
             loom_settings: ls,
             render_colors: false,
+            draft_editing_source: 'drawdown',
             scale: 1,
             draft_visible: true
           }
@@ -1705,6 +1706,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
           }
 
+          let editing_source: DraftEditingSource;
+          if (draft_proxy.draft_editing_source == undefined || draft_proxy.draft_editing_source == null) {
+            if (loom != null && loom != undefined) {
+              editing_source = 'loom';
+            } else {
+              editing_source = 'drawdown';
+            }
+          } else {
+            editing_source = draft_proxy.draft_editing_source;
+          }
+
+
           const created_draft_proxy: DraftNodeProxy = {
             node_id: node_proxy.node_id,
             ud_name: draft_proxy.ud_name ?? '',
@@ -1716,7 +1729,8 @@ export class AppComponent implements OnInit, OnDestroy {
             render_colors: draft_proxy.render_colors ?? false,
             scale: draft_proxy.scale ?? 1,
             notes: draft_proxy.notes ?? '',
-            draft_visible: draft_proxy.draft_visible ?? true
+            draft_visible: draft_proxy.draft_visible ?? true,
+            draft_editing_source: editing_source,
           }
 
           seeds.push({ entry: sn, node_proxy: node_proxy, draft_proxy: created_draft_proxy });

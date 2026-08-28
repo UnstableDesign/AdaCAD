@@ -8,7 +8,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, ConnectionNode, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, ConnectionNode, DraftEditingSource, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
@@ -297,7 +297,7 @@ export class TreeService {
     const loom_settings = draft_proxy.loom_settings;
     draftNode.loom_settings = loom_settings;
     draftNode.loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
-
+    draftNode.draft_editing_source = draft_proxy.draft_editing_source ?? 'drawdown';
 
 
 
@@ -323,6 +323,10 @@ export class TreeService {
     draftNode.visible = draft_proxy.draft_visible ?? true;
 
     this.setDraft(entry.cur_id, copyDraft(draft), flags, true, false);
+
+    // #region agent log
+    fetch('http://127.0.0.1:7745/ingest/8a3a3863-50d7-4694-a2bc-5ab01a56c184', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'baf675' }, body: JSON.stringify({ sessionId: 'baf675', hypothesisId: 'H1', location: 'tree.service.ts:326', message: 'loadDraftData complete', data: { cur_id: entry.cur_id, prev_id: entry.prev_id, proxy_editing_source: draft_proxy.draft_editing_source ?? 'UNDEFINED', node_editing_source_after: draftNode.draft_editing_source ?? 'UNDEFINED', loom_type: loom_settings?.type }, timestamp: Date.now() }) }).catch(() => { });
+    // #endregion
 
     return Promise.resolve({ dn: draftNode, entry });
   }
@@ -2688,6 +2692,7 @@ export class TreeService {
       draft_visible: node.visible,
       loom: (node.loom !== null && node.loom !== undefined) ? copyLoom(node.loom) : null,
       loom_settings: copyLoomSettings(node.loom_settings),
+      draft_editing_source: node.draft_editing_source ?? 'drawdown',
       scale: node.scale
     }
   }
@@ -2732,7 +2737,8 @@ export class TreeService {
           loom: (loom_export === null || this.hasParent(node.id)) ? null : loom_export,
           loom_settings: node.loom_settings,
           render_colors: ((<DraftNode>node).render_colors == undefined) ? true : (<DraftNode>node).render_colors,
-          scale: ((<DraftNode>node).scale == undefined) ? 1 : (<DraftNode>node).scale
+          scale: ((<DraftNode>node).scale == undefined) ? 1 : (<DraftNode>node).scale,
+          draft_editing_source: node.draft_editing_source ?? 'drawdown'
         }
         if (!this.hasParent(node.id)) { savable.compressed_draft = compressDraft(draft_node_draft); }
 
@@ -2890,6 +2896,15 @@ export class TreeService {
         return Promise.reject(err);
       });
     }
+  }
+
+  setDraftEditingSource(id: number, draft_edit_source: DraftEditingSource) {
+    const dn = <DraftNode>this.getNode(id);
+    // #region agent log
+    fetch('http://127.0.0.1:7745/ingest/8a3a3863-50d7-4694-a2bc-5ab01a56c184', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'baf675' }, body: JSON.stringify({ sessionId: 'baf675', hypothesisId: 'H3', location: 'tree.service.ts:2897', message: 'setDraftEditingSource write', data: { id, incoming: draft_edit_source, node_found: dn != null, previous: dn?.draft_editing_source ?? 'UNDEFINED', caller: (new Error().stack ?? '').split('\n').slice(2, 6).map(s => s.trim()).join(' | ') }, timestamp: Date.now() }) }).catch(() => { });
+    // #endregion
+    if (dn == null) return;
+    dn.draft_editing_source = draft_edit_source;
   }
 
 

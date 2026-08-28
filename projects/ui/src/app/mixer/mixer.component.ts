@@ -203,7 +203,22 @@ export class MixerComponent {
    */
   onFocus(edited_draft_id: number) {
 
+
+
     if (edited_draft_id == -1 || edited_draft_id == null) return;
+
+
+    const dn = this.tree.getNode(edited_draft_id);
+    if (dn == null) return;
+    if (dn.type == 'draft') {
+      const draft = <DraftNode>dn;
+      const comp = <SubdraftComponent>draft.component;
+      if (comp == null) return;
+      comp.redrawExistingDraft();
+    }
+
+
+
 
     // const sd: SubdraftComponent = <SubdraftComponent>this.tree.getComponent(edited_draft_id);
     // if (sd !== null && sd !== undefined) sd.redrawExistingDraft();

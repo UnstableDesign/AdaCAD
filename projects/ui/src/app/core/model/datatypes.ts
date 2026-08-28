@@ -50,6 +50,9 @@ export type ConnectionNode = BaseNode & {
 }
 
 
+export type DraftEditingSource = 'loom' | 'drawdown';
+
+
 /***
  * a DraftNode is an extension of BaseNode that includes additional params
  * @param draft the active draft at this node
@@ -66,6 +69,7 @@ export type DraftNode = BaseNode & {
   draft: Draft | null,
   loom: Loom | null,
   loom_settings: LoomSettings,
+  draft_editing_source?: DraftEditingSource,
   render_colors: boolean,
   scale: number,
   visible: boolean,
@@ -88,6 +92,7 @@ export type DraftNodeBroadcast = {
   draft: Draft | null,
   loom: Loom | null,
   loom_settings: LoomSettings,
+  draft_editing_source?: DraftEditingSource,
   flags: DraftNodeBroadcastFlags
 }
 
@@ -98,6 +103,7 @@ export type DraftNodeBroadcastFlags = {
   draft: boolean, //the drawdown, or system mappings
   loom: boolean, //the loom itself
   loom_settings: boolean //the loom settings,
+  draft_editing_source?: DraftEditingSource, //the source of the draft editing
   materials: boolean //the rowShuttle or colShuttle mappings
 }
 
@@ -273,6 +279,7 @@ export interface DraftNodeProxy {
   draft_visible: boolean;
   loom: Loom | null;
   loom_settings: LoomSettings;
+  draft_editing_source?: DraftEditingSource;
   render_colors: boolean;
   scale: number;
 }
@@ -555,6 +562,7 @@ export interface DraftNodeState {
   draft_visible: boolean;
   loom: Loom | null;
   loom_settings: LoomSettings;
+  draft_editing_source: DraftEditingSource;
   scale: number;
 }
 

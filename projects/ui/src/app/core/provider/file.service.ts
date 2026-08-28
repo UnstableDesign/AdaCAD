@@ -132,7 +132,6 @@ export class FileService {
               }
 
               if (el.draft == undefined && el.compressed_draft !== undefined && el.compressed_draft !== null) {
-                console.log("LOADING COMPRESSED DRAFT ", el.compressed_draft, el.loom, el.loom_settings, version, src);
                 draft_fns.push(loadDraftFromFile(el.compressed_draft, el.loom, el.loom_settings, version, src));
                 draft_elements.push(el);
               } else if (el.draft !== null && el.draft !== undefined) {
@@ -141,7 +140,6 @@ export class FileService {
               }
 
 
-              console.log("Loading loom", el.loom, el.loom_settings, el.loom_settings?.type);
               if (el.loom !== null && el.loom !== undefined && (el.loom_settings === undefined || el.loom_settings.type !== 'jacquard')) {
                 loom_fns.push(loadLoomFromFile(el.loom, version, el.draft_id));
                 loom_elements.push(el);
