@@ -20,6 +20,7 @@ export * from "./diff/diff";
 export * from "./directdrawdown/directdrawdown";
 export * from "./drawdown/drawdown";
 export * from "./_erase_blank/erase_blank";
+export * from "./extract/extract";
 export * from "./fill/fill";
 export * from "./flip/flip";
 export * from "./glitchsatin/glitchsatin";

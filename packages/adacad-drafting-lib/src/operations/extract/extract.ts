@@ -132,4 +132,4 @@ const sizeCheck = (op_settings: Array<OpParamVal>, op_inputs: Array<OpInput>): b
     return true;
 }
 
-export const drawdown: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
+export const extract: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };
