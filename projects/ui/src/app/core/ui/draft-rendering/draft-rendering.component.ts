@@ -232,8 +232,7 @@ export class DraftRenderingComponent implements OnInit {
     this.refreshOriginMarker();
 
     const dn = this.tree.getNode(this.id) as DraftNode;
-    // #region agent log
-    fetch('http://127.0.0.1:7745/ingest/8a3a3863-50d7-4694-a2bc-5ab01a56c184', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'baf675' }, body: JSON.stringify({ sessionId: 'baf675', hypothesisId: 'H2,H4,H5', location: 'draft-rendering.component.ts:232', message: 'ngAfterViewInit read of node source', data: { source: this.source, id: this.id, node_found: dn != null, node_editing_source: dn?.draft_editing_source ?? 'UNDEFINED', selected_loom_type: this.selected_loom_type, current_field_value: this.draft_edit_source }, timestamp: Date.now() }) }).catch(() => { });
+
     // #endregion
     if (dn == null) return;
     if (dn.draft_editing_source !== undefined) {
@@ -281,8 +280,7 @@ export class DraftRenderingComponent implements OnInit {
   setDefaultEditingMode(source: 'editor' | 'viewer' | 'library' | 'mixer') {
 
     let node = this.tree.getNode(this.id) as DraftNode;
-    // #region agent log
-    fetch('http://127.0.0.1:7745/ingest/8a3a3863-50d7-4694-a2bc-5ab01a56c184', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'baf675' }, body: JSON.stringify({ sessionId: 'baf675', hypothesisId: 'H1,H2,H4,H5', location: 'draft-rendering.component.ts:277', message: 'setDefaultEditingMode entry', data: { source, id: this.id, node_found: node != null, node_editing_source: node?.draft_editing_source ?? 'UNDEFINED', has_parent: this.tree.hasParent(this.id), selected_loom_type: this.selected_loom_type, loom_settings_type: this.tree.getLoomSettings(this.id)?.type ?? 'UNDEFINED', field_before: this.draft_edit_source }, timestamp: Date.now() }) }).catch(() => { });
+
     // #endregion
     if (node == null) return;
 

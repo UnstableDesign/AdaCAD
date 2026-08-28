@@ -324,9 +324,6 @@ export class TreeService {
 
     this.setDraft(entry.cur_id, copyDraft(draft), flags, true, false);
 
-    // #region agent log
-    fetch('http://127.0.0.1:7745/ingest/8a3a3863-50d7-4694-a2bc-5ab01a56c184', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'baf675' }, body: JSON.stringify({ sessionId: 'baf675', hypothesisId: 'H1', location: 'tree.service.ts:326', message: 'loadDraftData complete', data: { cur_id: entry.cur_id, prev_id: entry.prev_id, proxy_editing_source: draft_proxy.draft_editing_source ?? 'UNDEFINED', node_editing_source_after: draftNode.draft_editing_source ?? 'UNDEFINED', loom_type: loom_settings?.type }, timestamp: Date.now() }) }).catch(() => { });
-    // #endregion
 
     return Promise.resolve({ dn: draftNode, entry });
   }
@@ -2908,9 +2905,7 @@ export class TreeService {
 
   setDraftEditingSource(id: number, draft_edit_source: DraftEditingSource) {
     const dn = <DraftNode>this.getNode(id);
-    // #region agent log
-    fetch('http://127.0.0.1:7745/ingest/8a3a3863-50d7-4694-a2bc-5ab01a56c184', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'baf675' }, body: JSON.stringify({ sessionId: 'baf675', hypothesisId: 'H3', location: 'tree.service.ts:2897', message: 'setDraftEditingSource write', data: { id, incoming: draft_edit_source, node_found: dn != null, previous: dn?.draft_editing_source ?? 'UNDEFINED', caller: (new Error().stack ?? '').split('\n').slice(2, 6).map(s => s.trim()).join(' | ') }, timestamp: Date.now() }) }).catch(() => { });
-    // #endregion
+
     if (dn == null) return;
     dn.draft_editing_source = draft_edit_source;
   }
