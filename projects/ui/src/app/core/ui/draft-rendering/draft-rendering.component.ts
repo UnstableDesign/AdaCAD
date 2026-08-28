@@ -544,7 +544,8 @@ export class DraftRenderingComponent implements OnInit {
 
     switch (this.pencil) {
       case 'select':
-        this.selection.onSelectStop(true);
+        //tuned this out to allow for nicer multi-select behavior
+        // this.selection.onSelectStop(true);
         break;
       case 'up':
       case 'down':

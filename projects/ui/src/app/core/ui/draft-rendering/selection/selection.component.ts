@@ -207,8 +207,8 @@ export class SelectionComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
+
     if (draft == null) return;
-    if (loom == null) return;
 
     const screen_i = this.getStartingRowIndex();
     const draft_j = this.getStartingColIndex();
@@ -273,13 +273,16 @@ export class SelectionComponent implements OnInit {
             temp_copy[i][j] = isUp(draft.drawdown, draft_row, col);
             break;
           case 'threading-' + this.source + "-" + this.id:
+            if (loom == null) return;
             temp_copy[i][j] = (loom.threading[col] === screen_row);
 
             break;
           case 'treadling-' + this.source + "-" + this.id:
+            if (loom == null) return;
             temp_copy[i][j] = (loom.treadling[screen_row].find(el => el === col) !== undefined);
             break;
           case 'tieups-' + this.source + "-" + this.id:
+            if (loom == null) return;
             temp_copy[i][j] = loom.tieup[screen_row][col];
             break;
           case 'warp-systems-' + this.source + "-" + this.id:
@@ -324,9 +327,10 @@ export class SelectionComponent implements OnInit {
    */
   public applyManipulation(op_name: string): Promise<Drawdown> {
 
-
+    console.log('applyManipulation', op_name);
     const copy_draft = initDraftWithParams({ warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy });
 
+    console.log('copy_draft', copy_draft);
     let op: Operation | undefined = undefined;
     let drafts: Array<OpInput> = [];
     let params: Array<OpParamVal> = [];
@@ -402,7 +406,7 @@ export class SelectionComponent implements OnInit {
         if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
-          val: -1
+          val: 1
         },
         {
           param: op.params[1],
@@ -436,7 +440,7 @@ export class SelectionComponent implements OnInit {
         if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
-          val: 1
+          val: -1
         },
         {
           param: op.params[1],
@@ -489,6 +493,7 @@ export class SelectionComponent implements OnInit {
 
 
   public onPaste(type: string) {
+    console.log('onPaste', type);
     const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
@@ -507,6 +512,7 @@ export class SelectionComponent implements OnInit {
     //manipulate the copy in any way required 
     this.applyManipulation(type)
       .then(manipulated_copy => {
+        console.log('manipulated_copy', manipulated_copy);
         this.copy = manipulated_copy;
         this.selectionEventSubject.next('copy');
 
