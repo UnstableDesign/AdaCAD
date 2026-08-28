@@ -224,11 +224,15 @@ export type OpInletValType = number | string | null;
 /**
  * this is a type that contains and contextualizes a series of inputs to an operation, each inlet on an operation corresponds to one op input
  * @param drafts the drafts (from zero to multiple) associated with this input
+ * @param looms the looms (from zero to multiple) associated with this input
+ * @param loom_settings the loom settings (from zero to multiple) associated with the drafts
  * @param params the parameters associated with this input
  * @param inlet_id the index of the inlet for which the draft is entering upon
  */
 export interface OpInput {
   drafts: Array<Draft>,
+  looms?: Array<Loom>,
+  loom_settings?: Array<LoomSettings>,
   inlet_params: Array<OpInletValType>,
   inlet_id: number
 }

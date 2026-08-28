@@ -2,6 +2,7 @@ import { Draft, getDraftName } from "../draft";
 import { clothOp, colorEffectsOp, compoundOp, computeOp, dissectOp, draftingStylesOp, helperOp, structureOp, transformationOp } from "./categories";
 import { OpCategory, Operation, OpParamValType, OpInput, OpParamVal, OperationInlet, OpInletValType, DynamicOperation, OpOutput } from "./types";
 import * as Operations from '../operations/operation_list';
+import { Loom, LoomSettings } from "../loom";
 
 
 /**
@@ -124,6 +125,18 @@ export const getAllDraftsAtInletByLabel = (op_inputs: Array<OpInput>, inlet_valu
 
         return op_inputs[input_id].drafts;
     }
+}
+
+
+export const assembleDraftsAndLoomsFromOpInput = (op_input: OpInput): Array<{ draft: Draft, loom: Loom | null, loom_settings: LoomSettings | null }> => {
+    const assembled = op_input.drafts.map((draft, ndx) => {
+        let loom = null;
+        if (op_input.looms !== undefined && ndx < op_input.looms.length) loom = op_input.looms[ndx];
+        let loom_settings = null;
+        if (op_input.loom_settings !== undefined && ndx < op_input.loom_settings.length) loom_settings = op_input.loom_settings[ndx];
+        return { draft, loom, loom_settings };
+    });
+    return assembled;
 }
 
 
