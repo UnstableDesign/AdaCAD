@@ -24,12 +24,12 @@ export class TextparamComponent {
   stringparam: StringParam;
   value: string;
   fc: FormControl;
-  original: String;
+  lastSavedValue: String;
 
   constructor() {
     this.stringparam = <StringParam>this.data.param;
     this.value = <string>this.data.val;
-    this.original = this.value;
+    this.lastSavedValue = this.value;
     this.fc = new FormControl(this.value, [Validators.required, Validators.pattern(this.stringparam.regex)]);
   }
 
@@ -38,15 +38,24 @@ export class TextparamComponent {
       this.value = val ? val.replace(/[\r\n]/g, '') : val;
       this.fc.setValue(this.value, { emitEvent: false });
     });
+
+    this.dialogRef.backdropClick().subscribe(() => {
+      this.dialogRef.close(this.lastSavedValue);
+    });
   }
 
+
+
+
   save() {
+    this.lastSavedValue = this.value;
     this.onUpdate.emit(this.value);
   }
 
 
+
   close() {
-    this.dialogRef.close(this.value);
+    this.dialogRef.close(this.lastSavedValue);
   }
 
   onFileSelected(event: Event): void {

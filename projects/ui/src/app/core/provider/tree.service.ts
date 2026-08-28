@@ -1652,17 +1652,25 @@ export class TreeService {
     const all_inputs = this.getInputsWithNdx(opId);
     const opnode = this.getOpNode(opId);
 
-    const draft_id_to_ndx: Array<{ ndx: number, draft: Draft | null }> = [];
+    const draft_id_to_ndx: Array<{ ndx: number, draft: Draft | null, loom: Loom | null, loom_settings: LoomSettings | null }> = [];
     all_inputs.filter(el => this.isValidIOTuple(el))
       .forEach((el) => {
         const draft_tn = el.tn.inputs[0].tn;
-        draft_id_to_ndx.push({ ndx: el.ndx, draft: (<DraftNode>draft_tn.node).draft ?? null });
+        draft_id_to_ndx.push(
+          {
+            ndx: el.ndx,
+            draft: (<DraftNode>draft_tn.node).draft ?? null,
+            loom: (<DraftNode>draft_tn.node).loom ?? null,
+            loom_settings: (<DraftNode>draft_tn.node).loom_settings ?? null
+          });
       });
 
     return draft_id_to_ndx
       .filter(el => el !== undefined && el.draft !== null && el.draft !== undefined)
       .map(el => ({
         drafts: (el.draft !== null && el.draft !== undefined) ? [el.draft] : [],
+        looms: (el.loom !== null && el.loom !== undefined) ? [el.loom] : [],
+        loom_settings: (el.loom_settings !== null && el.loom_settings !== undefined) ? [el.loom_settings] : [],
         inlet_id: el.ndx,
         inlet_params: [opnode.inlets[el.ndx]]
       }));

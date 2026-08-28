@@ -317,6 +317,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
       this.onParamChange(text);
     });
 
+
+
     dialogRef.afterClosed().subscribe(text => {
       this.onParamChange(text);
     });

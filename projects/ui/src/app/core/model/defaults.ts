@@ -43,7 +43,7 @@ export const defaults = {
 
   //THRESHOLDS
   force_jacquard_threshold: 10000,
-  oversize_dim_threshold: 2500, //50 x 50
+  oversize_dim_threshold: 10000, //100 x 100
   max_simulation_area: 10000,
   largest_lcm_factor: 500,
 
