@@ -31,34 +31,30 @@
 
   }
   @if (param.type == 'select') {
-  <div>
-    <mat-form-field class="select-input">
-      <mat-label>{{param.name}}</mat-label>
-      <mat-select panelWidth="fit-content" [formControl]="fc">
-        @for (opt of param_selectlist; track opt) {
-        <mat-option [value]="opt.value">
-          {{opt.name}}
-        </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  </div>
+  <mat-form-field class="select-input">
+    <mat-label>{{param.name}}</mat-label>
+    <mat-select panelWidth="" [formControl]="fc">
+      @for (opt of param_selectlist; track opt) {
+      <mat-option [value]="opt.value">
+        {{opt.name}}
+      </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
   }
 
   @if (param.type == 'boolean') {
-  <div class="boolean-input">
-    <mat-form-field class="boolean-input">
-      <mat-label>{{param.name}}</mat-label>
-      <mat-select panelWidth="fit-content" [formControl]="fc">
-        <mat-option [value]="1">
-          {{true_state_langauge}}
-        </mat-option>
-        <mat-option [value]="0">
-          {{false_state_langauge}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
+  <mat-form-field class="boolean-input">
+    <mat-label>{{param.name}}</mat-label>
+    <mat-select panelWidth="fit-content" [formControl]="fc">
+      <mat-option [value]="1">
+        {{true_state_langauge}}
+      </mat-option>
+      <mat-option [value]="0">
+        {{false_state_langauge}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
   }
 
   @if (param.type == 'string') {

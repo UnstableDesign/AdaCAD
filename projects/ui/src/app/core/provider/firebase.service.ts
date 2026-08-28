@@ -29,7 +29,7 @@ export class FirebaseService implements OnDestroy {
 
   //USER AUTHENTICATION
   auth: Auth = firebaseAuth;
-  private authChangeEvent = new Subject<User | null>();
+  private authChangeEvent = new BehaviorSubject<User | null>(null);
   authChangeEvent$ = this.authChangeEvent.asObservable();
   private unsubscribeAuth: Unsubscribe;
   private unsubscribeConnected: Unsubscribe;

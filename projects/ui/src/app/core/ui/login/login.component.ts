@@ -44,12 +44,13 @@ export class LoginComponent implements OnInit {
   loginGoogle() {
 
 
-    this.fb.login().then(logged_in => {
-      this.dialogRef.close('Log In Via Google Success!');
-      //consider opening the file browser here. 
-    }, not_logged_in => {
-      console.log(Error)
-    });
+    this.fb.login().then(
+      () => this.dialogRef.close('Log In Via Google Success!'),
+      (err) => {
+        console.error('LOGIN FAILED', err?.code, err?.message, err);
+        this.error = err?.code ?? 'unknown error';
+      }
+    );
 
   }
 

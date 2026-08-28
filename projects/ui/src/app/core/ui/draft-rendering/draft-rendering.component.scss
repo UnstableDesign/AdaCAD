@@ -311,6 +311,8 @@
 //   display: none;
 // }
 
+
+
 .threading-tieup-container.editable-loom {
   opacity: 1;
   cursor: pointer;
@@ -325,9 +327,27 @@
 
 }
 
+
+.threading-tieup-container.editable-loom.loomtype-direct.mixer {
+
+  .tieups-editor {
+    opacity: 1;
+  }
+
+}
+
+
+.threading-tieup-container.editable-loom.mixer {
+  opacity: 1;
+}
+
 .threading-tieup-container.editable-drawdown {
   opacity: .2;
   cursor: not-allowed;
+}
+
+.threading-tieup-container.editable-drawdown.mixer {
+  opacity: 1;
 }
 
 
@@ -531,6 +551,15 @@
 
 }
 
+.drawdown-container.editable-loom.mixer {
+
+  .drawdown-editor {
+    opacity: 1;
+  }
+
+}
+
+
 .drawdown-container.editable-drawdown {
   .treadling-editor {
     opacity: .2;
@@ -541,6 +570,15 @@
     opacity: 1;
     cursor: pointer;
   }
+
+}
+
+
+.drawdown-container.editable-drawdown.mixer {
+  .treadling-editor {
+    opacity: 1;
+  }
+
 
 }
 

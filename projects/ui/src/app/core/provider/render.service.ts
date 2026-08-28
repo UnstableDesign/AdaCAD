@@ -46,7 +46,6 @@ export class RenderService {
 
   view_front: boolean;
 
-  zoom: number = 1;
 
   draft_cell_size: number;
 

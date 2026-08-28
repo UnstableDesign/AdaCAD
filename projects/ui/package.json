@@ -39,7 +39,7 @@
     "@sentry/cli": "^2.58.6",
     "adacad-drafting-lib": "file:../../packages/adacad-drafting-lib",
     "core-js": "^3.6.4",
-    "firebase": "^12.6.0",
+    "firebase": "^12.18.0",
     "jspdf": "^4.2.1",
     "ngx-google-analytics": "^14.0.1",
     "normalize-wheel": "^1.0.1",
