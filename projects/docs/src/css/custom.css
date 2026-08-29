@@ -10,6 +10,13 @@
   }
 
 
+  .refitems {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1em;
+  }
+
 
   .markdown {
 
@@ -98,6 +105,12 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+.refitems {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1em;
+}
 
 
 .space-mono-regular {

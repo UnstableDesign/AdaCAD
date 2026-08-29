@@ -14,11 +14,11 @@ Overall interface feedback and development of the Bitfield Operation
 - [Annet Couwenberg, Maryland Institute College of Art](http://www.annetcouwenberg.com)
 - [Belinda Rose, Belinda Rose Weave](http://www.belindarose.co.uk)
 - [Elizabeth Meiklejohn](http://elizabethmeiklejohn.com):
-Speculating on Future features and inspired the [lattice structure](../learn/examples/lattice-tutorial.md) example. 
+Speculating on Future features and inspired the [lattice structure](../learn/tutorials/lattice-tutorial.md) example. 
 - [Jane Patrick and Barry Schacht, Schacht Spindle Company, Inc](http://www.schachtspindle.com)
 - [Julia Wright, Unspun](http://www.juliawright.studio)
 - [Kathryn Walters](http://kmwalters.com):
-Inspired and co-developed the <OpLink name="notation"/> operation as well as [Animated Linen](../learn/examples/hygromorphic-linen.md) examples. 
+Inspired and co-developed the <OpLink name="notation"/> operation as well as [Animated Linen](../learn/tutorials/hygromorphic-linen.md) examples. 
 - [Marianne Fairbanks, UW Madison](http://mariannefairbanks.com):
 Inspired and co-developed <OpLink name="combos"/> operation. 
 - Mark Schafer

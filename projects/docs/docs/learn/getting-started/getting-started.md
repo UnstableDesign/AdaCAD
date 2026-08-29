@@ -2,10 +2,12 @@
 sidebar_position: 1
 ---
 
+import {ReferenceItem} from '@site/src/components/ReferenceItem';
+
 # Getting Started
 
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/xS_DZB3A7yY?si=GE9Hq41VJQLuSLg0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 
 <div class="emph">
 At a high level, using AdaCAD involves the following steps: 
@@ -20,21 +22,110 @@ At a high level, using AdaCAD involves the following steps:
 4. **Contribute:** We'd love to see what you made and to share it with the community. The best way to do this is to join the [AdaCAD Discord Community](https://discord.com/invite/Be7ukQcvrC) and share it via the 'project sharing' channel. Alternatively, you can email your design and creation to unstabledesignlab@gmail.com or share it on Instagram by tagging [#adacad](https://www.instagram.com/explore/tags/adacad/). 
 
 
-:::tip
 
-Prefer learning by doing? Pick a project in our [tutorials](../tutorials/index.md) section to follow and learn.
+# Suggested Step-by-Step Introduction
 
-:::
+### 1. Download, Print, Fold, and Reference our Project Zine
+The zine will give you a quick reference for key concepts and features of the interface. The zine covers [key concepts](../key-concepts/) in tandem with an [interface guide](../../reference/interface/)
+
+<div class="refitems">
+
+<ReferenceItem
+  name='project zine'
+  img={require('@site/docs/learn/getting-started/img/zine.png').default}
+  url={require('@site/docs/learn/getting-started/img/AdaCAD-zine-A3.pdf').default}
+>
+a printable folding booklet intended to be used as a quick reference when learning AdaCAD.
+
+</ReferenceItem>
+</div>
+
+
+### 2. Watch and Follow Along with our Make your First Workspace Workshop 
+This workshop will introduce you to our interface, including both the workspace and draft editor, and help you create your first [dataflow](../../reference/glossary/dataflow.md).
+
+<div class="refitems">
+<ReferenceItem
+  name='workshop recording'
+  img={require('@site/docs/learn/getting-started/img/getting_started_video.png').default}
+  url='@site/docs/learn/workshops-and-events#getting-started-with-adacad'
+>
+a recording of the virtual workshop. 
+</ReferenceItem>
+
+<ReferenceItem
+  name='follow along worksheet'
+  img={require('@site/docs/learn/getting-started/img/gettingstartedactivity.png').default}
+  url={require('@site/docs/learn/getting-started/img/GettingStartedPDF.pdf').default}
+>
+This worksheet pairs with the online workshop, giving you an overview of the steps and links to resources you might need along the way.
+
+</ReferenceItem>
+</div>
+
+
+### 3. Weave Your Own Adventure 
+Once you grasp the basics, the workflow might change based on your equipment and desires. We outline a few different pathways, and resources for those pathways below. 
+
+#### References for TC2 Looms
+<div class="refitems">
+<ReferenceItem
+  name='format files to weave on a TC2'
+  img={require('@site/docs/learn/tutorials/img/tc2_square.jpg').default}
+  url='@site/docs/learn/tutorials/weave_TC2/'
+>
+a guide to formatting, exporting, and weaving AdaCAD files on a TC2 loom. 
+</ReferenceItem>
+
+<ReferenceItem
+  name='figured weaving'
+  img={require('@site/docs/learn/tutorials/img/figured_square.png').default}
+  url='@site/docs/learn/tutorials/figured_weaving_tc2/'
+>
+a workshop/tutorial focused on created figured weaving drafts in AdaCAD 
+</ReferenceItem>
+
+<ReferenceItem
+  name='designing with multi weft/warp systems'
+  img={require('@site/docs/learn/tutorials/img/multi-layer_notation1.jpeg').default}
+  url='@site/docs/learn/tutorials/multi-layer/'
+>
+a tutorial for advanced weavers focused on color blending via multiple weft and warp systems. 
+</ReferenceItem>
+<ReferenceItem
+  name='sharing our research weaving force sensors'
+  img={require('@site/docs/learn/tutorials/img/force_pocket.jpg').default}
+  url='@site/docs/learn/tutorials/forcepocket/'
+>
+a tutorial for advanced weavers focused on color blending via multiple weft and warp systems. 
+</ReferenceItem>
+
+<!-- placeholder for reference to working across photoshop -->
+
+</div>
+
+
+#### Format for Floor or Dobby Looms
+
+<div class="refitems">
+<ReferenceItem
+  name='format files to weave on a Dobby or floor loom'
+  img={require('@site/docs/learn/tutorials/img/weave_square.png').default}
+  url='@site/docs/learn/tutorials/weave_avl/'
+>
+a guide to formatting, exporting, and weaving AdaCAD files as .WIF files to weave on other looms, specifically an AVL Dobby Loom. 
+</ReferenceItem>
+
+<ReferenceItem
+  name='designing block threading workshop'
+  img={require('@site/docs/learn/tutorials/img/harness_feature.png').default}
+  url='@site/docs/learn/tutorials/block_threading/'
+>
+follow along our workshop on how AdaCAD can be used to create block threading and treadling patterns
+</ReferenceItem>
+
+</div>
 
 
 
-## More Learning Resources 
-To make AdaCAD accessible to weavers and other weave-curious folks, we do our best to develop content that shows both how to use AdaCAD and offers exciting examples and artifacts generated in our research lab. Here are a few other resources you might look to for instruction: 
 
-- [Unstable Design Lab YouTube Channel](https://www.youtube.com/playlist?list=PLy2lIjrar_02XiqfJG8kLpeWOyCtDXeFJ)
-- [Explore AdaCAD Tutorials](../tutorials/index.md)
-- [Explore Research Projects via AdaCAD](../examples/index.md)
-- [Join and Browse Conversations in the AdaCAD Discord Community](https://discord.com/invite/Be7ukQcvrC) 
-- [Lookup Unknown or Confusing Terms in the Glossary](../../reference/glossary/index.md)
-- [Explore the Features of the Interface](../../reference/interface/index.md)
-- [Explore All the Current Operations](../../reference/operations/index.md)

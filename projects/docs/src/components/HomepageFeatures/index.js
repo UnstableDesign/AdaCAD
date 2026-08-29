@@ -51,7 +51,7 @@ const FeatureList = [
     url: '/docs/reference/operations/',
     description: (
       <>
-        Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a>, <a href="/docs/reference/glossary">concepts</a>, <a href="/docs/reference/interface">interface features</a> and <a href="/docs/learn/examples">stories</a>.
+        Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a>, <a href="/docs/reference/glossary">concepts</a>, <a href="/docs/reference/interface">interface features</a> and <a href="/docs/learn/tutorials">stories</a>.
       </>
     ),
   },

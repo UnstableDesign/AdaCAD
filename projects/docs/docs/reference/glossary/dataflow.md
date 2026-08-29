@@ -27,7 +27,7 @@ If you do need to make edits to a draft created in the dataflow you must open th
 ## More Resources
 
 - Follow step-by-step instructions for creating common dataflows in [Tutorials](../../learn/tutorials/figured_weaving_tc2.md). 
-- Learn about advanced dataflows we created to support our projects in [Examples](../../learn/examples/lattice-tutorial.md). 
+- Learn about advanced dataflows we created to support our projects in [Tutorials](../../learn/tutorials/lattice-tutorial.md). 
 - if you like programming, explore how [you can write your own operations](../../develop/makeanoperation.md).
 - want to explore link between algorithms and draft making? Feel free to [download our paper that describes drafting, structures, and operations in the context of making woven force sensors](../../about/resources/introtoweavestructure.pdf). Pages 3 - 11 include a workbook for people to follow to learn for themselves. 
 - To better understand the potential benefits of designing with dataflows you can read our [2023 publication, AdaCAD: Parametric Design as a New Form of Notation for Complex Weaving](../../about/research.md#adacad-parametric-design-as-a-new-form-of-notation-for-complex-weaving-chi-2023). 

@@ -5,7 +5,7 @@ const ProjectList = [
     {
         title: 'Lattice Structures',
         url: 'lattice-tutorial',
-        img: require('@site/docs/learn/examples/img/lattice_preview.jpg').default,
+        img: require('@site/docs/learn/tutorials/img/lattice_preview.jpg').default,
         description: (
             <>
                 Explores multi-layered structures that interlock into a lattice.
@@ -17,7 +17,7 @@ const ProjectList = [
     },
     {
         title: 'Moisture Activated Shape Changing Cloth',
-        img: require('@site/docs/learn/examples/img/animatedlinen_preview.png').default,
+        img: require('@site/docs/learn/tutorials/img/animatedlinen_preview.png').default,
         url: 'hygromorphic-linen',
         description: (
             <>
@@ -30,7 +30,7 @@ const ProjectList = [
     },
     {
         title: 'Force Sensing Cloth',
-        img: require('@site/docs/learn/examples/img/aftr_chat.jpg').default,
+        img: require('@site/docs/learn/tutorials/img/aftr_chat.jpg').default,
         url: 'forcepocket',
         description: (
             <>

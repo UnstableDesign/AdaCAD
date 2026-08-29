@@ -10,7 +10,8 @@ export const OpLink = (props) => {
 
     const name = props.name;
     const op = getOp(name);
-    if (op == null) {
+    if (op == undefined) {
+        console.error('operation not found', name);
         return (name);
     } else {
         const cat_name = (op.meta.categories) ? op.meta.categories[0].name : 'uncategorized';
