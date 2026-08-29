@@ -3,18 +3,31 @@
 The AdaCAD interface is organized into different parts, each which control a different set of features
  </div>
 
+<!-- TODO (screenshot): img/interface_tour.jpeg is from AdaCAD 4 and is out of date. It is missing the library design mode in the topbar toggle, and still shows the removed fa-palette materials button. Re-capture with all three design modes labeled. -->
+
 ![file](./img/interface_tour.jpeg)
 
 These parts consist of: 
 
 - [**topbar**](./topbar): for controlling application-wide functions and settings such as loading and saving files, changing preferences, viewing examples, and logging in and out. 
-- [**viewer**](./viewer): for controlling application-wide functions and settings such as loading and saving files, changing preferences, viewing examples, and logging in and out. 
 - [**workspace**](./workspace): for designing and editing dataflows that generate drafts
+- [**library**](./library): for managing everything in your file, including its drafts, uploaded images, and materials
 - [**draft editor**](./draft_editor): for designing and editing individual drafts using a point paper drafting style
+- [**viewer**](./viewer): for looking at the draft you have selected, whether as a draft, a structure, a color pattern, or a 3D simulation
 
+The workspace, library, and draft editor are the three **design modes**, and you switch between them using the toggle in the middle of the topbar. The viewer is not a mode; it stays on the right of the screen at all times, so whichever mode you are in, you can see a rendering of the draft you have selected.
 
 
 ## Video Tour
+
+:::info
+
+The video below was made for AdaCAD 4. The workflow it demonstrates still holds, but the interface has changed since: AdaCAD 5 added the [library](./library) design mode, moved the materials library into it, and reworked the [draft editor's](./draft_editor) sidebar. We will record an updated tour soon.
+
+:::
+
+<!-- TODO (video): record an interface tour for AdaCAD 5 and add it as a new default tab above the AdaCAD 4 tab below. -->
+
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

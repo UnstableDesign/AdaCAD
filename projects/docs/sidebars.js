@@ -227,6 +227,7 @@ const sidebars = {
       items: [
         'reference/interface/topbar',
         'reference/interface/workspace',
+        'reference/interface/library',
         'reference/interface/draft_editor',
         'reference/interface/viewer'
       ]
