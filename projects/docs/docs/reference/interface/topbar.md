@@ -3,7 +3,6 @@
 The topbar consists of a series of menus and functions that manage the AdaCAD application overall. 
 </div>
 
-<!-- TODO (screenshot): img/topbar_key.jpeg is from AdaCAD 4 and is out of date. It still shows the fa-palette "Add/Edit Materials" button, which has been removed, and is missing the fa-question help menu. Re-capture and re-letter as: (a) version, (b) application settings and support, (c) design mode toggle, (d) account. -->
 
 ![file](./img/topbar_key.jpeg)
 The topbar is split into several regions, and we'll explain the function of each region below: 

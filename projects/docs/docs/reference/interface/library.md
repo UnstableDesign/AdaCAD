@@ -10,6 +10,10 @@ You enter the library by clicking the <FAIcon icon="fa-solid fa-book-open" size=
 
 <!-- TODO (screenshot): capture a labeled overview of Library mode as img/library_key.jpeg, with regions lettered a-e to match the sections below: (a) project info, (b) media, (c) drafts, (d) a single draft info card, (e) materials. -->
 
+![file](./img/library_key.jpeg)
+![file](./img/library_key2.jpeg)
+
+
 ## a. Project Info
 
 The panel at the top of the library describes the workspace file as a whole.
@@ -49,9 +53,34 @@ This section lists every draft in the workspace as a grid of [draft info cards](
 
 If the workspace has no drafts, this section reads *No drafts in this workspace.*
 
-## d. Draft Info Cards
+
+
+## d. Materials
+
+The materials library lists every yarn or color available to use in this workspace. In earlier versions of AdaCAD this lived behind a palette icon on the topbar; it now lives here.
+
+Every material has:
+
+- **name**: a label for the yarn, such as "cotton 8/2 red".
+- **color**: a color picker. This color is what gets drawn when the material is used in the [viewer's](./viewer.md) color pattern and simulation renderings, and it is the color you paint with when you use a material pencil in the [draft editor](./draft_editor.md#b-editing-tools).
+- **diameter**: the thickness of the yarn in millimeters. This affects how the yarn is drawn in the simulation and in the viewer's "actual" size rendering.
+- **Add Notes**: free text for anything else you want to record about the yarn, such as a supplier or a fiber content.
+- <FAIcon icon="fa-solid fa-trash" size="1x" /> a delete button, available as long as more than one material remains.
+
+Below the list, the **Add New Material** row has the same fields plus a <FAIcon icon="fa-solid fa-plus" size="1x" /> button to add the new material to the library.
+
+Two buttons above the list let you move a material palette between workspaces or spreadsheets:
+
+- <FAIcon icon="fa-solid fa-download" size="1x" /> **Export Materials as CSV**: downloads the current material list as a spreadsheet.
+- <FAIcon icon="fa-solid fa-upload" size="1x" /> **Import Materials from CSV**: replaces the current material list with one loaded from a spreadsheet. AdaCAD will ask you to confirm before replacing your existing materials.
+
+
+
+## Draft Info Cards
 
 Each card represents one draft. Clicking anywhere on a card selects that draft, which loads it into the [viewer](./viewer.md) on the right of the screen. The selected card is outlined so you can tell which one you are looking at.
+
+![file](./img/library_infocard.jpeg)
 
 ### Information shown on a card
 
@@ -70,22 +99,3 @@ Each card represents one draft. Clicking anywhere on a card selects that draft, 
 - **.BMP**: a shortcut that immediately downloads the draft as a bitmap, without opening the menu.
 - <FAIcon icon="fa-solid fa-pen-to-square" size="1x" /> **open the draft in the editor**: switches to the [draft editor](./draft_editor.md) with this draft loaded.
 - <FAIcon icon="fa-solid fa-code-branch" size="1x" /> **open the draft in the mixer**: switches to the [workspace](./workspace.md) and scrolls to this draft's node.
-
-## e. Materials
-
-The materials library lists every yarn or color available to use in this workspace. In earlier versions of AdaCAD this lived behind a palette icon on the topbar; it now lives here.
-
-Every material has:
-
-- **name**: a label for the yarn, such as "cotton 8/2 red".
-- **color**: a color picker. This color is what gets drawn when the material is used in the [viewer's](./viewer.md) color pattern and simulation renderings, and it is the color you paint with when you use a material pencil in the [draft editor](./draft_editor.md#b-editing-tools).
-- **diameter**: the thickness of the yarn in millimeters. This affects how the yarn is drawn in the simulation and in the viewer's "actual" size rendering.
-- **Add Notes**: free text for anything else you want to record about the yarn, such as a supplier or a fiber content.
-- <FAIcon icon="fa-solid fa-trash" size="1x" /> a delete button, available as long as more than one material remains.
-
-Below the list, the **Add New Material** row has the same fields plus a <FAIcon icon="fa-solid fa-plus" size="1x" /> button to add the new material to the library.
-
-Two buttons above the list let you move a material palette between workspaces or spreadsheets:
-
-- <FAIcon icon="fa-solid fa-download" size="1x" /> **Export Materials as CSV**: downloads the current material list as a spreadsheet.
-- <FAIcon icon="fa-solid fa-upload" size="1x" /> **Import Materials from CSV**: replaces the current material list with one loaded from a spreadsheet. AdaCAD will ask you to confirm before replacing your existing materials.

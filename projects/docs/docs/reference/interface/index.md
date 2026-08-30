@@ -20,13 +20,6 @@ The workspace, library, and draft editor are the three **design modes**, and you
 
 ## Video Tour
 
-:::info
-
-The video below was made for AdaCAD 4. The workflow it demonstrates still holds, but the interface has changed since: AdaCAD 5 added the [library](./library) design mode, moved the materials library into it, and reworked the [draft editor's](./draft_editor) sidebar. We will record an updated tour soon.
-
-:::
-
-<!-- TODO (video): record an interface tour for AdaCAD 5 and add it as a new default tab above the AdaCAD 4 tab below. -->
 
 
 import Tabs from '@theme/Tabs';
@@ -35,7 +28,11 @@ import TabItem from '@theme/TabItem';
 
 
 <Tabs>
-<TabItem value="adacad4" label="AdaCAD 4" default>
+<TabItem value="adacad5" label="AdaCAD 5" default>
+Here is an early video we made when we just released AdaCAD 5. Some things have been updated since then but it is a good place to see what's new.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KAzg3NRexmw?si=MRtez1sRY99BnTqv" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</TabItem>
+<TabItem value="adacad4" label="AdaCAD 4" >
 
 
  We created the following video to introduce you to the interface for AdaCAD 4:

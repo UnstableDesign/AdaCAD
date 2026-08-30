@@ -32,7 +32,7 @@ const draft_inlet: OperationInlet = {
     type: 'static',
     value: null,
     uses: "draft",
-    dx: 'the draft from which to extract data',
+    dx: 'the draft and loom to convert',
     num_drafts: 1
 }
 
@@ -48,8 +48,11 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
     if (drafts_and_looms.length == 0) return Promise.resolve([]);
     const draft = drafts_and_looms[0].draft;
     if (draft == null) return Promise.resolve([]);
+
+
     const loom = drafts_and_looms[0].loom;
     const loom_settings = drafts_and_looms[0].loom_settings;
+
     if (loom == null || loom_settings == null) return Promise.resolve([]);
 
     if (loom_settings.type == 'jacquard') {
@@ -58,22 +61,29 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
     let converted_loom;
     let converted_loom_settings;
+
     switch (dest) {
         //convert to frame
         case 0:
+            if (loom_settings.type == 'frame') {
+                return Promise.resolve([{ draft: draft, loom: loom, loom_settings: loom_settings }]);
+            }
             converted_loom = convertLiftPlanToTieup(loom, loom_settings);
             converted_loom_settings = copyLoomSettings(loom_settings);
             converted_loom_settings.type = 'frame';
-            break;
+            return Promise.resolve([{ draft: draft, loom: converted_loom, loom_settings: converted_loom_settings }]);
         case 1:
+            if (loom_settings.type == 'direct') {
+                return Promise.resolve([{ draft: draft, loom: loom, loom_settings: loom_settings }]);
+            }
             converted_loom = convertTieupToLiftPlan(loom, loom_settings);
             converted_loom_settings = copyLoomSettings(loom_settings);
             converted_loom_settings.type = 'direct';
-            break;
-        default:
             return Promise.resolve([{ draft: draft, loom: converted_loom, loom_settings: converted_loom_settings }]);
+        default:
+            return Promise.resolve([])
+
     }
-    return Promise.resolve([])
 
 
 

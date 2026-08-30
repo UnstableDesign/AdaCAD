@@ -24,6 +24,9 @@ So we crop them and the outputs are saved to the same same directory that housed
 
 
 Temp Workaround: 
+
 the font-size on the warp and weft systems isn't calculating correctly, potentially due to device
 ratio. So, before I run this, I go into ui/core/provider/render.service and change the font size to 
 40px Arial for both the warp and weft data. 
+
+Also, increase max auto-load size to something bigger than 100x100
