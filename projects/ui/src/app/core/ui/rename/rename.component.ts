@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
@@ -14,6 +14,7 @@ import { TreeService } from '../../provider/tree.service';
   selector: 'app-rename',
   templateUrl: './rename.component.html',
   styleUrl: './rename.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogTitle, ReactiveFormsModule, CdkScrollable, MatDialogContent, MatFormField, MatLabel, MatInput, MatDialogActions, MatButton, MatDialogClose]
 })
 export class RenameComponent {
@@ -25,7 +26,7 @@ export class RenameComponent {
   id: number;
   ud_name: string;
   gen_name: string;
-  draft: Draft = null
+  draft: Draft | null = null;
   notes: string;
   nameForm = new FormControl('');
   notesForm = new FormControl('');
@@ -35,9 +36,17 @@ export class RenameComponent {
 
     this.id = data.id;
     this.draft = this.tree.getDraft(this.id);
-    this.ud_name = this.draft.ud_name;
-    this.gen_name = this.draft.gen_name;
-    this.notes = this.draft.notes || '';
+
+
+    if (this.draft !== null) {
+      this.ud_name = this.draft.ud_name;
+      this.gen_name = this.draft.gen_name;
+      this.notes = this.draft.notes || '';
+    } else {
+      this.ud_name = '';
+      this.gen_name = '';
+      this.notes = '';
+    }
 
 
 
@@ -63,9 +72,12 @@ export class RenameComponent {
 
     let beforeName = this.tree.getDraftName(this.id);
     let beforeNotes = this.tree.getDraftNotes(this.id);
+    const draft = this.tree.getDraft(this.id);
 
-    this.tree.getDraft(this.id).ud_name = this.nameForm.value;
-    this.tree.getDraft(this.id).notes = this.notesForm.value;
+    if (draft) {
+      draft.ud_name = this.nameForm.value ?? '';
+      draft.notes = this.notesForm.value ?? '';
+    }
 
 
 
@@ -79,8 +91,11 @@ export class RenameComponent {
 
 
 
-    this.draft.ud_name = this.nameForm.value;
-    this.draft.notes = this.notesForm.value;
+    if (draft) {
+      draft.ud_name = this.nameForm.value ?? '';
+      draft.notes = this.notesForm.value ?? '';
+    }
+
     const flags: DraftNodeBroadcastFlags = {
       meta: true,
       draft: false,
@@ -88,8 +103,7 @@ export class RenameComponent {
       loom_settings: false,
       materials: false
     };
-    this.tree.setDraft(this.id, this.draft, flags, true, true);
-
+    if (this.draft) this.tree.setDraft(this.id, this.draft, flags, true, true);
     this.dialogRef.close();
     this.nameForm.markAsPristine();
     this.notesForm.markAsPristine();

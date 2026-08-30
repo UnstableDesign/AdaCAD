@@ -1,8 +1,9 @@
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import { Component, inject, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Draft } from 'adacad-drafting-lib';
+import { defaults as appDefaults } from '../../../core/model/defaults';
+import { Draft, getLoomUtilByType } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
 import { saveAsBmp, saveAsColoringPage, saveAsPng, saveAsPrint, saveAsWif } from '../../model/helper';
 import { FileService } from '../../provider/file.service';
@@ -15,6 +16,7 @@ import { WorkspaceService } from '../../provider/workspace.service';
   selector: 'app-download',
   imports: [MatMenu, MatButton, MatIconButton, MatMenuTrigger, MatTooltip, MatMenuModule],
   templateUrl: './download.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './download.component.scss'
 })
 export class DownloadComponent {
@@ -26,11 +28,11 @@ export class DownloadComponent {
   private ws = inject(WorkspaceService);
   private ms = inject(MaterialsService);
   private sys_serve = inject(SystemsService);
-  @Input() origin: string; //where is this being called from
-  @Input() ids: Array<number>; //which id's are currently selected
-  @Input() workspaceName: string; //the metadata for the workspace
+  @Input() origin!: string; //where is this being called from
+  @Input() ids!: Array<number>; //which id's are currently selected
+  @Input() workspaceName!: string; //the metadata for the workspace
 
-  workspaceNameSubscription: Subscription;
+  workspaceNameSubscription!: Subscription;
 
 
   ngOnInit() {
@@ -84,7 +86,8 @@ export class DownloadComponent {
 
 
     this.ids.forEach(id => {
-      let draft: Draft = this.tree.getDraft(id);
+      let draft = this.tree.getDraft(id);
+      if (draft == null) return;
       let b = this.bitmap.nativeElement;
 
       switch (format) {
@@ -109,7 +112,14 @@ export class DownloadComponent {
         case 'wif':
           let loom = this.tree.getLoom(id);
           let loom_settings = this.tree.getLoomSettings(id);
-          saveAsWif(this.fs, draft, loom, loom_settings)
+          if (loom != null) saveAsWif(this.fs, draft, loom, loom_settings ?? appDefaults.loom_settings)
+          else {
+            const utils = getLoomUtilByType('direct');
+            if (utils.computeLoomFromDrawdown) utils.computeLoomFromDrawdown(draft.drawdown, appDefaults.loom_settings)
+              .then(loom => {
+                saveAsWif(this.fs, draft, loom, loom_settings ?? appDefaults.loom_settings)
+              })
+          }
           break;
       }
 

@@ -1,8 +1,6 @@
 <div class="draft-container {{source}} origin{{ws.selected_origin_option}}"
   id="draft-scale-container-{{source}}-{{id}}">
 
-
-
   @if (isRedrawing && (overTimeLimit$ | async)) {
   <div class="loading-overlay">
     <div class="loading">
@@ -133,7 +131,8 @@
     </div>
 
 
-    <div class="treadling-container 
+    <div id=treadling-container-{{source}}-{{id}} class="treadling-container 
+  
       {{source}}
       loomtype-{{selected_loom_type}}
       treadling-canvas">
@@ -174,10 +173,10 @@
             }
           </div>
           <div class="weft_actions">
-            <span class="weft_insert" (click)="insertRow(j, i)">
+            <span class="weft_insert" (click)="insertRow(j)">
               <i class="fa fa-plus-circle"></i>
             </span>
-            <span class="weft_clone" (click)="cloneRow(j, i);">
+            <span class="weft_clone" (click)="cloneRow(j);">
               <i class="fa fa-clone"></i>
             </span>
             <span class="weft_delete" (click)="deleteRow(j);">

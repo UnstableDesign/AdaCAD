@@ -25,7 +25,7 @@ export class MultiselectService {
   selected: Array<MultiSelectElement> = [];
   relative_position: Point = { x: 0, y: 0 };
   relative_position_before: Point = { x: 0, y: 0 };
-  copy: SaveObj;
+  copy: SaveObj | null = null;
   moving_id: number = -1;
 
 
@@ -39,8 +39,8 @@ export class MultiselectService {
   /**
    * publish the event when something changes in the select list. 
    */
-  multiSelectListChange$: BehaviorSubject<Array<number>> = new BehaviorSubject([]);
-  multiSelectMoveElements$: BehaviorSubject<Array<{ id: number, topleft: Point }>> = new BehaviorSubject([]);
+  multiSelectListChange$: BehaviorSubject<Array<number>> = new BehaviorSubject<Array<number>>([]);
+  multiSelectMoveElements$: BehaviorSubject<Array<{ id: number, topleft: Point }>> = new BehaviorSubject<Array<{ id: number, topleft: Point }>>([]);
 
 
   private selected_before: Array<{ id: number, topleft: Point }> = [];
@@ -50,7 +50,7 @@ export class MultiselectService {
    * when drag starts, we need to store a copy of the current state so we can undo it later
    */
   dragStart(id: number) {
-
+    console.log("MULTI SELECT DRAG START", id);
     this.moving_id = id;
     this.selected_before = [];
     this.selected.forEach(el => {
@@ -125,54 +125,31 @@ export class MultiselectService {
 
       this.selected = this.selected.filter(el => el.id != id);
       this.multiSelectListChange$.next(this.selected.map(el => el.id));
-      // container = <HTMLElement>document.getElementById("scale-" + id);
-      // container.classList.remove('multiselected');
 
-      //remove the children as well 
-      // if (type === 'op') {
-      //   const cxn_outs = this.tree.getOutputs(id);
-      //   cxn_outs.forEach(o => {
-      //     this.selected = this.selected.filter(el => el.id != o);
-      //     const child = this.tree.getConnectionOutput(o);
-      //     container = <HTMLElement>document.getElementById("scale-" + child);
-      //     if (container !== null) container.classList.remove('multiselected');
-      //     this.selected = this.selected.filter(el => el.id != child);
-      //   });
-      // }
 
       return false;
     } else {
 
       this.selected.push({ id, topleft, positionUpdate: new BehaviorSubject<Point>(topleft) });
       this.multiSelectListChange$.next(this.selected.map(el => el.id));
-      // container = <HTMLElement>document.getElementById("scale-" + id);
-      // if (container !== null) container.classList.add('multiselected');
-      //remove the children as well 
-      //  if (type == 'op') {
-      // const cxn_outs = this.tree.getOutputs(id);
-      // cxn_outs.forEach(o => {
-      // let tl = this.tree.getComponent(o).topleft;
-      // this.selected.push({id: o, topleft: tl });
-      // const child = this.tree.getConnectionOutput(o);
-      // tl = this.tree.getComponent(child).topleft;
-      // this.selected.push({id: child, topleft: tl });
-      // container = <HTMLElement> document.getElementById("scale-"+child);
-      // if(container !== null)  container.classList.add('multiselected');
-      // } );
-      //} else if (type == 'draft') {
-      //  const parent = this.tree.getSubdraftParent(id);
-      // if (parent !== -1) {
-      //   let tl = this.tree.getComponent(parent).topleft;
-      //   this.selected.push({ id: parent, topleft: tl });
-      //   container = <HTMLElement>document.getElementById("scale-" + parent);
-      //   if (container !== null) container.classList.add('multiselected');
 
-      // }
-      //}
       return true;
     }
   }
 
+
+  addSelection(id: number, topleft: Point) {
+    if (this.selected.find(el => el.id == id) === undefined) {
+      this.selected.push({ id, topleft, positionUpdate: new BehaviorSubject<Point>(topleft) });
+      this.multiSelectListChange$.next(this.selected.map(el => el.id));
+    }
+  }
+
+
+  removeSelection(id: number) {
+    this.selected = this.selected.filter(el => el.id != id);
+    this.multiSelectListChange$.next(this.selected.map(el => el.id));
+  }
 
 
   clearSelections() {
@@ -194,7 +171,10 @@ export class MultiselectService {
 
   getNewPosition(id: number, diff: Point) {
     const f = this.selected.find(el => el.id == id);
-    return { x: f.topleft.x + diff.x, y: f.topleft.y + diff.y }
+    if (f) {
+      return { x: f.topleft.x + diff.x, y: f.topleft.y + diff.y }
+    }
+    return { x: 0, y: 0 };
   }
 
 
@@ -204,21 +184,21 @@ export class MultiselectService {
    */
   copySelections(): Promise<SaveObj> {
 
-    let selected_nodes: Array<Node> = this.selected
+    let selected_nodes = this.selected
       .map(el => this.tree.getNode(el.id))
-      .filter(el => el.type !== 'cxn') //filter out connections because we will add these in later
+      .filter(el => el !== null && el !== undefined && el?.type !== 'cxn') //filter out connections because we will add these in later
 
-    let node_mirror: Array<Node> = selected_nodes.slice();
+    let node_mirror = selected_nodes.slice();
 
-    let relevant_connection_ids = [];
-    let relevant_connection_nodes = [];
+    let relevant_connection_ids: Array<number> = [];
+    let relevant_connection_nodes: Array<Node> = [];
 
     selected_nodes.forEach(node => {
 
-      node_mirror = node_mirror.filter(el => el.id !== node.id);
+      node_mirror = node_mirror.filter(el => el !== null && el !== undefined && el?.id !== node?.id);
 
       node_mirror.forEach(mirror => {
-        let cxns = this.tree.getConnectionsBetween(node.id, mirror.id);
+        let cxns = this.tree.getConnectionsBetween(node?.id ?? -1, mirror?.id ?? -1);
 
         cxns.forEach(cxn => {
           if (cxn !== -1 && relevant_connection_ids.find(el => el == cxn) === undefined) relevant_connection_ids.push(cxn)
@@ -227,11 +207,11 @@ export class MultiselectService {
 
     });
 
-    relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el));
+    relevant_connection_nodes = relevant_connection_ids.map(el => this.tree.getNode(el)).filter(el => el !== null && el !== undefined);
     let all_nodes = selected_nodes.concat(relevant_connection_nodes);
 
 
-    return this.fs.saver.copy(all_nodes.map(el => el.id))
+    return this.fs.saver.copy(all_nodes.map(el => el?.id ?? -1))
       .then(ada => {
         this.copy = ada;
         return Promise.resolve(ada);

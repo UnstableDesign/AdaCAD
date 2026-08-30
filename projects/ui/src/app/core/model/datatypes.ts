@@ -21,9 +21,9 @@ import { SubdraftComponent } from "../../mixer/palette/subdraft/subdraft.compone
  */
 type BaseNode = {
   type: 'draft' | 'op' | 'cxn',
-  ref: ViewRef,
+  ref: ViewRef | null,
   id: number, //this will be unique for every instance
-  component: SubdraftComponent | OperationComponent | ConnectionComponent,
+  component: SubdraftComponent | OperationComponent | ConnectionComponent | null,
   dirty: boolean
 }
 
@@ -50,6 +50,9 @@ export type ConnectionNode = BaseNode & {
 }
 
 
+export type DraftEditingSource = 'loom' | 'drawdown';
+
+
 /***
  * a DraftNode is an extension of BaseNode that includes additional params
  * @param draft the active draft at this node
@@ -63,15 +66,16 @@ export type ConnectionNode = BaseNode & {
  * @param valueChange$ an observable to subscribe to the draft when it changes
  */
 export type DraftNode = BaseNode & {
-  draft: Draft,
-  loom: Loom,
+  draft: Draft | null,
+  loom: Loom | null,
   loom_settings: LoomSettings,
+  draft_editing_source?: DraftEditingSource,
   render_colors: boolean,
   scale: number,
   visible: boolean,
   mark_for_deletion: boolean,
   onValueChange: BehaviorSubject<DraftNodeBroadcast>, //called anytime a value on this draft is set
-  canvases: CanvasList,
+  canvases: CanvasList | null,
   positionChange: BehaviorSubject<Point>
 
 }
@@ -85,9 +89,10 @@ export type Node = BaseNode | OpNode | DraftNode;
 
 export type DraftNodeBroadcast = {
   id: number,
-  draft: Draft,
-  loom: Loom,
+  draft: Draft | null,
+  loom: Loom | null,
   loom_settings: LoomSettings,
+  draft_editing_source?: DraftEditingSource,
   flags: DraftNodeBroadcastFlags
 }
 
@@ -98,6 +103,7 @@ export type DraftNodeBroadcastFlags = {
   draft: boolean, //the drawdown, or system mappings
   loom: boolean, //the loom itself
   loom_settings: boolean //the loom settings,
+  draft_editing_source?: DraftEditingSource, //the source of the draft editing
   materials: boolean //the rowShuttle or colShuttle mappings
 }
 
@@ -210,10 +216,10 @@ export interface Note {
   topleft: Point,
   title: string;
   text: string;
-  ref: ViewRef;
+  ref?: ViewRef;
   color: string;
-  component: NoteComponent;
-  imageurl: string;
+  component?: NoteComponent;
+  imageurl?: string;
   width: number;
   height: number;
 }
@@ -268,11 +274,12 @@ export interface DraftNodeProxy {
   ud_name: string;
   gen_name: string;
   notes: string;
-  draft: Draft;
-  compressed_draft: CompressedDraft;
+  draft?: Draft;
+  compressed_draft?: CompressedDraft;
   draft_visible: boolean;
-  loom: Loom;
+  loom: Loom | null;
   loom_settings: LoomSettings;
+  draft_editing_source?: DraftEditingSource;
   render_colors: boolean;
   scale: number;
 }
@@ -313,7 +320,7 @@ export type MediaInstance = {
   id: number;
   ref: string;
   type: 'image' | 'indexed_color_image'; //currently we only support images
-  img: SingleImage | AnalyzedImage;
+  img: SingleImage | AnalyzedImage | null;
 }
 
 
@@ -330,11 +337,11 @@ export type IndexedColorMediaProxy = {
  */
 export interface SaveObj {
   version: string,
-  workspace: any,
-  zoom: ZoomProxy,
+  workspace?: any,
+  zoom?: ZoomProxy,
   type: 'mixer' | 'partial' | 'wif',
   nodes: Array<NodeComponentProxy>,
-  tree: Array<TreeNodeProxy>,
+  tree?: Array<TreeNodeProxy>,
   draft_nodes: Array<DraftNodeProxy>,
   ops: Array<OpComponentProxy>,
   notes: Array<Note>,
@@ -442,7 +449,7 @@ export interface IOTuple {
 */
 export interface TreeNode {
   node: Node,
-  parent: TreeNode,
+  parent: TreeNode | null,
   inputs: Array<IOTuple>,
   outputs: Array<IOTuple>
 }
@@ -500,7 +507,8 @@ export type FileMeta = {
   id: number,
   name: string,
   desc: string,
-  time?: number,
+  time: number,
+  date?: string,
   from_share: string,
   share_owner: string
 }
@@ -550,10 +558,11 @@ export type ShareObj = {
  * @param loom_settings the loom settings object
  */
 export interface DraftNodeState {
-  draft: Draft;
+  draft: Draft | null;
   draft_visible: boolean;
-  loom: Loom;
+  loom: Loom | null;
   loom_settings: LoomSettings;
+  draft_editing_source: DraftEditingSource;
   scale: number;
 }
 
@@ -579,8 +588,8 @@ type MultiMoveEvent = {
 type ParamEvent = {
   opid: number,
   paramid: number,
-  before: OpParamValType,
-  after: OpParamValType
+  before: OpParamValType | null,
+  after: OpParamValType | null
 }
 
 type NumberEvent = {
@@ -680,8 +689,8 @@ export type NoteStateChange = StateChangeEvent & {
 export type NoteStateMove = NoteStateChange & MoveEvent;
 export type NoteValueChange = NoteStateChange & {
   id: number,
-  before: Note,
-  after: Note
+  before: Note | null,
+  after: Note | null
 }
 
 export type MaterialsStateChange = StateChangeEvent & {
@@ -704,8 +713,8 @@ export type FileMetaStateAction = StateAction & {
 }
 
 export type NoteAction = StateAction & {
-  before: Note,
-  after: Note,
+  before: Note | null,
+  after: Note | null,
   id: number
 }
 
@@ -719,11 +728,11 @@ export type MoveAction = StateAction & {
 export type ParamAction = StateAction & {
   opid: number,
   paramid: number,
-  value: OpParamValType
+  value: OpParamValType | null
 }
 
 export type NodeAction = StateAction & {
-  node: Node,
+  node: Node | null,
   inputs: Array<InwardConnectionProxy>,
   outputs: Array<OutwardConnectionProxy>,
   media?: Array<MediaInstance>

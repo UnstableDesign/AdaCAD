@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -13,34 +13,35 @@ import { UploadService } from '../../../provider/upload.service';
   selector: 'upload-form',
   templateUrl: './upload-form.component.html',
   styleUrls: ['./upload-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatFormField, MatInput, MatProgressBar, MatButton]
 })
 export class UploadFormComponent implements OnInit {
-  private upSvc = inject(UploadService);
+  public upSvc = inject(UploadService);
   private httpClient = inject(HttpClient);
   private mediaSvc = inject(MediaService);
   private importtodraftSvc = inject(ImporttodraftService);
 
-  @Input() type: string; //'single_image', 'ada', or 'bitmap_collection'
-  @Input() multiple: boolean;
-  @Input() accepts: string;
-  @Input() source: string = 'mixer'; //'mixer', 'share'
+  @Input() type!: string; //'single_image', 'ada', or 'bitmap_collection'
+  @Input() multiple!: boolean;
+  @Input() accepts!: string;
+  @Input() source!: string; //'mixer', 'share'
 
 
   progress: number = 0;
-  selectedFiles: FileList;
+  selectedFiles!: FileList;
   uploading: boolean = false;
   imageToShow: any;
-  downloadid: string;
+  downloadid!: string;
 
-  @ViewChild('uploadImage') canvas: ElementRef;
+  @ViewChild('uploadImage') canvas!: ElementRef;
 
   @Output() onData: any = new EventEmitter();
   @Output() onError: any = new EventEmitter();
 
 
 
-  detectFiles(event) {
+  detectFiles(event: any) {
     this.selectedFiles = event.target.files;
   }
 
@@ -57,7 +58,7 @@ export class UploadFormComponent implements OnInit {
           }
           this.onData.emit(obj);
           this.uploading = false;
-          this.selectedFiles = null;
+          this.selectedFiles = new FileList();
           this.upSvc.deleteUpload(upload.name);
 
         })
@@ -92,13 +93,13 @@ export class UploadFormComponent implements OnInit {
 
       this.onData.emit(uploaded);
       this.uploading = false;
-      this.selectedFiles = null;
+      this.selectedFiles = new FileList();
 
     }).catch(e => {
       console.error("error uploading image", e);
       this.onError.emit(e);
       this.uploading = false;
-      this.selectedFiles = null;
+      this.selectedFiles = new FileList();
     });
   }
 
@@ -115,13 +116,16 @@ export class UploadFormComponent implements OnInit {
     let uploadList = [];
     if (this.multiple) {
       for (let i = 0; i < this.selectedFiles.length; i++) {
-        let file: File = this.selectedFiles.item(i);
-        let fileType = file.name.split(".").pop();
-        let fileName = file.name.split(".")[0];
-        uploadList.push({ file: file, fileName: fileName, fileType: fileType });
+        let file: File | null = this.selectedFiles.item(i);
+        if (file) {
+          let fileType = file.name.split(".").pop();
+          let fileName = file.name.split(".")[0];
+          uploadList.push({ file: file, fileName: fileName, fileType: fileType });
+        }
       }
     } else {
-      uploadList.push({ file: this.selectedFiles.item(0), fileName: this.selectedFiles.item(0).name.split(".")[0], fileType: this.selectedFiles.item(0).name.split(".").pop() });
+      const first_file = this.selectedFiles.item(0);
+      uploadList.push({ file: first_file as File, fileName: first_file?.name.split(".")[0] ?? '', fileType: first_file?.name.split(".").pop() ?? '' });
     }
 
 
@@ -130,7 +134,7 @@ export class UploadFormComponent implements OnInit {
         $key: '',
         file: uploadObj.file,
         name: uploadObj.fileName,
-        fileType: uploadObj.fileType,
+        fileType: uploadObj.fileType as string,
         url: '',
         progress: 0,
         createdAt: new Date()
@@ -155,28 +159,28 @@ export class UploadFormComponent implements OnInit {
           break;
 
         case 'wif':
-          this.importtodraftSvc.uploadWif(upload, uploadObj.file).then(
+          this.importtodraftSvc.uploadWif(upload, uploadObj.file as File).then(
             res => {
               this.onData.emit();
               this.uploading = false;
-              this.selectedFiles = null;
+              this.selectedFiles = new FileList();
             }).catch(e => {
               this.onError.emit(e);
               this.uploading = false;
-              this.selectedFiles = null;
+              this.selectedFiles = new FileList();
             });
           break;
 
         case 'bitmap':
-          this.importtodraftSvc.uploadBitmap(upload, uploadObj.file, uploadObj.fileType).then(
+          this.importtodraftSvc.uploadBitmap(upload, uploadObj.file as File, uploadObj.fileType as string).then(
             res => {
               this.onData.emit(res);
               this.uploading = false;
-              this.selectedFiles = null;
+              this.selectedFiles = new FileList();
             }).catch(e => {
               this.onError.emit(e);
               this.uploading = false;
-              this.selectedFiles = null;
+              this.selectedFiles = new FileList();
             });
           break;
 

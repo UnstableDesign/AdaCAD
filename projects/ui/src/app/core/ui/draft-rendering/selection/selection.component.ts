@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Drawdown, Interlacement, OpInput, OpParamVal, Operation } from 'adacad-drafting-lib';
 import { createBlankDrawdown, createCell, generateMappingFromPattern, getCellValue, initDraftWithParams, isUp, pasteIntoDrawdown, setCellValue, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
@@ -16,6 +16,7 @@ import { ZoomService } from '../../../provider/zoom.service';
   selector: 'app-selection',
   templateUrl: './selection.component.html',
   styleUrls: ['./selection.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: []
 })
 export class SelectionComponent implements OnInit {
@@ -27,9 +28,9 @@ export class SelectionComponent implements OnInit {
   zs = inject(ZoomService);
 
 
-  @Input('id') id: number;
-  @Input('source') source: string;
-  @Input('scale') scale: number;
+  @Input('id') id!: number;
+  @Input('source') source!: string;
+  @Input('scale') scale!: number;
   @Input('draft_edit_source') draft_edit_source: string = 'drawdown';
   @Output() onSelectionEnd: any = new EventEmitter();
   @Output() forceRedraw: any = new EventEmitter();
@@ -40,9 +41,9 @@ export class SelectionComponent implements OnInit {
   //core selection variables
   private start: Interlacement;
   private end: Interlacement;
-  public width: number;
-  public height: number;
-  public target: HTMLElement;
+  public width: number = 0;
+  public height: number = 0;
+  public target: HTMLElement | null = null;
 
   public design_actions: Array<any>;
   screen_width: number;
@@ -59,25 +60,25 @@ export class SelectionComponent implements OnInit {
   has_copy: boolean = false;
   copy: Drawdown = [];
 
-  selectionEl: HTMLElement = null;
-  selectionMeta: HTMLElement = null;
-  selectionContainerEl: HTMLElement = null;
+  selectionEl: HTMLElement | null = null;
+  selectionMeta: HTMLElement | null = null;
+  selectionContainerEl: HTMLElement | null = null;
 
 
-  copyEl: HTMLElement = null;
-  copyContainerEl: HTMLElement = null;
+  copyEl: HTMLElement | null = null;
+  copyContainerEl: HTMLElement | null = null;
   copyWidth: number = 0;
   copyHeight: number = 0;
   copyStart: Interlacement = { i: 0, j: 0 };
   copyEnd: Interlacement = { i: 0, j: 0 };
 
-  size_row: HTMLElement = null;
-  action_row: HTMLElement = null;
+  size_row: HTMLElement | null = null;
+  action_row: HTMLElement | null = null;
 
   /**
   * reference to the parent div
   */
-  parent: HTMLElement;
+  parent: HTMLElement | null = null;
 
 
   selectionEventSubject: BehaviorSubject<'none' | 'started' | 'dragging' | 'stopped' | 'copy'> = new BehaviorSubject<'none' | 'started' | 'dragging' | 'stopped' | 'copy'>('none');
@@ -184,7 +185,7 @@ export class SelectionComponent implements OnInit {
 
   }
 
-  fillEvent(id) {
+  fillEvent(id: number) {
     var obj: any = {};
     obj.id = id;
   }
@@ -196,9 +197,9 @@ export class SelectionComponent implements OnInit {
    */
   public copyArea() {
 
-    this.target.parentNode.appendChild(this.copyContainerEl);
-    var style = window.getComputedStyle(this.target.parentElement);
-    this.copyContainerEl.style.margin = style.padding;
+    if (this.target && this.copyContainerEl) this.target.parentNode?.appendChild(this.copyContainerEl);
+    var style = window.getComputedStyle(this.target?.parentElement ?? document.body);
+    if (this.copyContainerEl) this.copyContainerEl.style.margin = style.padding;
 
     this.has_copy = true;
     this.copyStart = { i: this.start.i, j: this.start.j };
@@ -206,6 +207,8 @@ export class SelectionComponent implements OnInit {
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
+
+    if (draft == null) return;
 
     const screen_i = this.getStartingRowIndex();
     const draft_j = this.getStartingColIndex();
@@ -270,13 +273,16 @@ export class SelectionComponent implements OnInit {
             temp_copy[i][j] = isUp(draft.drawdown, draft_row, col);
             break;
           case 'threading-' + this.source + "-" + this.id:
+            if (loom == null) return;
             temp_copy[i][j] = (loom.threading[col] === screen_row);
 
             break;
           case 'treadling-' + this.source + "-" + this.id:
+            if (loom == null) return;
             temp_copy[i][j] = (loom.treadling[screen_row].find(el => el === col) !== undefined);
             break;
           case 'tieups-' + this.source + "-" + this.id:
+            if (loom == null) return;
             temp_copy[i][j] = loom.tieup[screen_row][col];
             break;
           case 'warp-systems-' + this.source + "-" + this.id:
@@ -319,12 +325,13 @@ export class SelectionComponent implements OnInit {
    * @param op_name 
    * @returns a promise for a drawdown
    */
-  public applyManipulation(op_name): Promise<Drawdown> {
+  public applyManipulation(op_name: string): Promise<Drawdown> {
 
-
+    console.log('applyManipulation', op_name);
     const copy_draft = initDraftWithParams({ warps: warps(this.copy), wefts: wefts(this.copy), drawdown: this.copy });
 
-    let op: Operation;
+    console.log('copy_draft', copy_draft);
+    let op: Operation | undefined = undefined;
     let drafts: Array<OpInput> = [];
     let params: Array<OpParamVal> = [];
 
@@ -334,6 +341,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'erase':
         op = this.ops.getOp('rectangle');
+        if (op == undefined) return Promise.reject(new Error('rectangle operation not found'));
         params = [{
           param: op.params[1],
           val: warps(this.copy)
@@ -360,6 +368,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'flip_x':
         op = this.ops.getOp('flip');
+        if (op == undefined) return Promise.reject(new Error('flip operation not found'));
         params = [{
           param: op.params[1],
           val: 0
@@ -376,6 +385,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'flip_y':
         op = this.ops.getOp('flip');
+        if (op == undefined) return Promise.reject(new Error('flip operation not found'));
         params = [{
           param: op.params[0],
           val: 1
@@ -393,9 +403,10 @@ export class SelectionComponent implements OnInit {
 
       case 'shift_left':
         op = this.ops.getOp('shift');
+        if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
-          val: -1
+          val: 1
         },
         {
           param: op.params[1],
@@ -409,6 +420,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'shift_up':
         op = this.ops.getOp('shift');
+        if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
           val: 0
@@ -425,9 +437,10 @@ export class SelectionComponent implements OnInit {
         break;
       case 'shift_right':
         op = this.ops.getOp('shift');
+        if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
-          val: 1
+          val: -1
         },
         {
           param: op.params[1],
@@ -441,6 +454,7 @@ export class SelectionComponent implements OnInit {
         break;
       case 'shift_down':
         op = this.ops.getOp('shift');
+        if (op == undefined) return Promise.reject(new Error('shift operation not found'));
         params = [{
           param: op.params[0],
           val: 0
@@ -456,32 +470,40 @@ export class SelectionComponent implements OnInit {
         }]
         break;
       default:
+        op = undefined;
         break;
     }
-    return op.perform(params, drafts)
-      .then(manipulated_draft => {
+    if (op) {
+      return op.perform(params, drafts)
+        .then(manipulated_draft => {
 
-        if (manipulated_draft.length == 0) return Promise.reject('no draft returned')
-        const dd = manipulated_draft[0].draft.drawdown;
+          if (manipulated_draft.length == 0) return Promise.reject('no draft returned')
+          const dd = manipulated_draft[0].draft.drawdown;
 
-        return Promise.resolve(dd)
-      })
-
-
-
-
+          return Promise.resolve(dd)
+        })
+        .catch(err => {
+          return Promise.reject(err);
+        });
+    }
+    return Promise.resolve(this.copy);
 
 
   }
 
 
   public onPaste(type: string) {
+    console.log('onPaste', type);
     const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-    const loom_util = getLoomUtilByType(loom_settings.type);
+    const loom_util = getLoomUtilByType(loom_settings?.type ?? 'jacquard');
+
+    if (loom_util === undefined) return;
+    if (draft == null) return;
+    if (loom_settings == null) return;
 
     let pattern: Array<number> = [];
     let mapping: Array<number> = [];
@@ -490,6 +512,7 @@ export class SelectionComponent implements OnInit {
     //manipulate the copy in any way required 
     this.applyManipulation(type)
       .then(manipulated_copy => {
+        console.log('manipulated_copy', manipulated_copy);
         this.copy = manipulated_copy;
         this.selectionEventSubject.next('copy');
 
@@ -513,24 +536,24 @@ export class SelectionComponent implements OnInit {
             break;
 
           case 'threading-' + this.source + "-" + this.id:
-            loom_util.pasteThreading(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
-            this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+            if (loom_util.pasteThreading && loom != null) loom_util.pasteThreading(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.saveAction.emit(before);
               });
             break;
           case 'tieups-' + this.source + "-" + this.id:
 
-            loom_util.pasteTieup(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
-            this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+            if (loom_util.pasteTieup && loom != null) loom_util.pasteTieup(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.saveAction.emit(before);
               });
             break;
           case 'treadling-' + this.source + "-" + this.id:
-            loom_util.pasteTreadling(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
+            if (loom_util.pasteTreadling && loom != null) loom_util.pasteTreadling(loom, this.copy, { i: this.getStartingRowIndex(), j: this.getStartingColIndex(), val: null }, this.getWidth(), this.getHeight());
 
-            this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+            if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
               .then(draft => {
                 this.saveAction.emit(before);
               });
@@ -743,6 +766,8 @@ export class SelectionComponent implements OnInit {
     this.selectionEventSubject.next('started');
     this.hide_actions = true;
     const draft = this.tree.getDraft(this.id);
+
+    if (draft == null) return;
     this.cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     this.cell_size = this.cell_size / this.render.pixel_ratio;
 
@@ -753,24 +778,24 @@ export class SelectionComponent implements OnInit {
     this.updateActions(this.target.id);
 
 
-    this.target.parentNode.appendChild(this.selectionContainerEl);
+    if (this.target && this.selectionContainerEl) this.target.parentNode?.appendChild(this.selectionContainerEl);
 
 
     //pad the selection container to match the padding of the parent. 
-    var style = window.getComputedStyle(this.target.parentElement);
+    var style = window.getComputedStyle(this.target.parentElement ?? document.body);
     var matrix = new WebKitCSSMatrix(style.transform);
-    this.size_row.style.transform = 'matrix(' + matrix.a + ',' + matrix.b + ',' + matrix.c + ',' + matrix.d + ',' + matrix.e + ',' + matrix.f + ')';
+    if (this.size_row) this.size_row.style.transform = 'matrix(' + matrix.a + ',' + matrix.b + ',' + matrix.c + ',' + matrix.d + ',' + matrix.e + ',' + matrix.f + ')';
 
 
     //make sure the transform is applied to correct the origination of the text and action icons
-    this.selectionContainerEl.style.padding = style.padding;
+    if (this.selectionContainerEl) this.selectionContainerEl.style.padding = style.padding;
 
 
 
 
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-
+    if (loom_settings == null) return;
 
     this.start = start;
     this.hide_parent = false;
@@ -778,11 +803,11 @@ export class SelectionComponent implements OnInit {
     switch (target.id) {
 
       case 'treadling-' + this.source + "-" + this.id:
-        this.width = Math.max(numTreadles(loom), loom_settings.treadles);
+        this.width = (loom != null) ? Math.max(numTreadles(loom), loom_settings.treadles) : 0;
         break;
 
       case 'threading-' + this.source + "-" + this.id:
-        this.height = Math.max(numFrames(loom), loom_settings.frames);
+        this.height = (loom != null) ? Math.max(numFrames(loom), loom_settings.frames) : 0;
         break;
 
       case 'weft-system-' + this.source + "-" + this.id:
@@ -825,7 +850,7 @@ export class SelectionComponent implements OnInit {
   onSelectDrag(pos: Interlacement): boolean {
 
 
-    if (this.target === undefined) return;
+    if (this.target === null || this.target === undefined) return false;
 
 
     // if(pos.si > this.render.visibleRows.length){
@@ -862,6 +887,7 @@ export class SelectionComponent implements OnInit {
 
     this.recalculateSize()
     this.redraw();
+    return true;
   }
 
   /**
@@ -950,15 +976,15 @@ export class SelectionComponent implements OnInit {
     this.copyHeight = 0;
     this.copyStart = { i: 0, j: 0 };
     this.copyEnd = { i: 0, j: 0 };
-    this.copyContainerEl.style.display = 'none';
-    this.copyEl.style.display = 'none';
+    if (this.copyContainerEl) this.copyContainerEl.style.display = 'none';
+    if (this.copyEl) this.copyEl.style.display = 'none';
   }
 
   unsetParameters() {
     if (this.target !== null && this.target !== undefined) {
       this.selectionEventSubject.next('none');
-      let parent = this.selectionContainerEl.parentNode;
-      if (parent !== null && parent !== undefined) parent.removeChild(this.selectionContainerEl)
+      let parent = this.selectionContainerEl?.parentNode;
+      if (parent !== null && parent !== undefined && this.selectionContainerEl) parent.removeChild(this.selectionContainerEl)
     }
 
     this.has_selection = false;
@@ -984,8 +1010,8 @@ export class SelectionComponent implements OnInit {
     return Math.min(this.start.j, this.end.j);
   }
 
-  setTarget(t) {
-    this.target = t;
+  setTarget(t: HTMLElement) {
+    if (t) this.target = t;
   }
 
   getTarget() {
@@ -994,7 +1020,7 @@ export class SelectionComponent implements OnInit {
 
 
   getTargetId() {
-    if (this.target !== undefined) return this.target.id;
+    if (this.target !== null && this.target !== undefined) return this.target.id;
     return undefined;
   }
 
@@ -1041,7 +1067,7 @@ export class SelectionComponent implements OnInit {
         this.selectionContainerEl.style.left = in_div_left + "px";
         this.selectionEl.style.width = this.screen_width * this.scale - 5 + "px";
         this.selectionEl.style.height = this.screen_height * this.scale - 5 + "px";
-        this.selectionMeta.style.scale = this.scale + "";
+        if (this.selectionMeta) this.selectionMeta.style.scale = this.scale + "";
       }
 
     } else {

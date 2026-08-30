@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
@@ -17,6 +17,7 @@ import { ViewerService } from '../../provider/viewer.service';
   selector: 'app-material',
   templateUrl: './material.html',
   styleUrls: ['./material.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatIconButton, MatFormField, MatLabel, MatInput, ReactiveFormsModule, MatSuffix]
 })
 
@@ -34,9 +35,9 @@ export class MaterialComponent {
   addmaterial: boolean = false;
 
   // Reactive forms
-  materialsForm: FormGroup;
-  newMaterialForm: FormGroup;
-  allmaterials: Array<Material> = [];
+  materialsForm!: FormGroup;
+  newMaterialForm!: FormGroup;
+  allmaterials!: Array<Material>;
 
   constructor() {
 
@@ -124,7 +125,8 @@ export class MaterialComponent {
     const max_diameter = this.ms.getMaxDiameter();
     materialsArray.controls.forEach((control, index) => {
       const material = this.ms.getShuttle(control.get('id')?.value);
-      control.get('icon_size')?.setValue(interpolate(material.diameter / max_diameter, { min: defaults.min_material_icon_size, max: defaults.max_material_icon_size }), { emitEvent: false });
+      if (material === null) return;
+      control.get('icon_size')?.setValue(interpolate(material?.diameter / max_diameter, { min: defaults.min_material_icon_size, max: defaults.max_material_icon_size }), { emitEvent: false });
     });
   }
 
@@ -133,14 +135,17 @@ export class MaterialComponent {
   onNameChange(id: number, name: string) {
 
     const material = this.ms.getShuttle(id);
+    if (material === null) return;
     material.name = name;
     this.ms.setMaterial(id, material);
   }
 
 
 
-  diameterChange(id: number, diameter: number) {
+  diameterChange(id: number | null, diameter: number | null) {
+    if (id === null || diameter === null) return;
     const material = this.ms.getShuttle(id);
+    if (material === null) return;
     material.diameter = diameter;
     this.save();
     this.ms.setMaterial(id, material);
@@ -148,8 +153,10 @@ export class MaterialComponent {
     // this.vs.updateViewer();
   }
 
-  notesChange(id: number, notes: string) {
+  notesChange(id: number | null, notes: string | null) {
+    if (id === null || notes === null) return;
     const material = this.ms.getShuttle(id);
+    if (material === null) return;
     material.notes = notes;
     this.ms.setMaterial(id, material);
   }
@@ -164,6 +171,7 @@ export class MaterialComponent {
   materialColorChange(id: number, e: any) {
     console.log("materialColorChange", id, e);
     const material = this.ms.getShuttle(id);
+    if (material === null) return;
     material.color = e;
     material.rgb = hexToRgb(e);
 
@@ -193,8 +201,8 @@ export class MaterialComponent {
 
 
       dn.forEach(dn => {
-        dn.draft.rowShuttleMapping = updateMaterialIds(dn.draft.rowShuttleMapping, map, 0);
-        dn.draft.colShuttleMapping = updateMaterialIds(dn.draft.colShuttleMapping, map, 0);
+        if (dn.draft !== null) dn.draft.rowShuttleMapping = updateMaterialIds(dn.draft.rowShuttleMapping, map, 0);
+        if (dn.draft !== null) dn.draft.colShuttleMapping = updateMaterialIds(dn.draft.colShuttleMapping, map, 0);
 
       });
 

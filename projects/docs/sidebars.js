@@ -56,8 +56,8 @@ const sidebars = {
     {
       type: 'category',
       label: 'Key Concepts',
-      collapsed: false,
-      collapsible: false,
+      collapsed: true,
+      collapsible: true,
       link: { type: 'doc', id: 'learn/key-concepts/key-concepts' },
       items: [
         'reference/glossary/parametric-design',
@@ -76,7 +76,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Tutorials',
-      collapsed: false,
+      collapsed: true,
       collapsible: true,
       link: { type: 'doc', id: 'learn/tutorials/index' },
       items: [
@@ -86,22 +86,17 @@ const sidebars = {
         'learn/tutorials/draft-as-graphic',
         'learn/tutorials/data-weaving',
         'learn/tutorials/weave_tc2',
-        'learn/tutorials/weave_avl'
+        'learn/tutorials/weave_avl',
+        'learn/tutorials/lattice-tutorial',
+        'learn/tutorials/hygromorphic-linen',
+        'learn/tutorials/forcepocket',
       ],
     },
     {
-      type: 'category',
-      label: 'Our Projects',
-      collapsed: true,
-      collapsible: true,
-      link: { type: 'doc', id: 'learn/examples/index' },
-      items: [
-        'learn/examples/lattice-tutorial',
-        'learn/examples/hygromorphic-linen',
-        'learn/examples/forcepocket',
-      ],
+      type: 'doc',
+      id: 'learn/faq', // document ID
+      label: 'FAQ', // sidebar label
     },
-
     {
       type: 'html',
       value: 'Reference',
@@ -232,6 +227,7 @@ const sidebars = {
       items: [
         'reference/interface/topbar',
         'reference/interface/workspace',
+        'reference/interface/library',
         'reference/interface/draft_editor',
         'reference/interface/viewer'
       ]

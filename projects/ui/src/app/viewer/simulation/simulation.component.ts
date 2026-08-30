@@ -1,13 +1,14 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatLabel } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Draft, LoomSettings, SimulationData, convertEPItoMM, copyLoomSettings, warps, wefts } from 'adacad-drafting-lib';
 import { SimulationVars } from 'adacad-drafting-lib/simulation';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Bounds, DraftNode } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { MaterialsService } from '../../core/provider/materials.service';
@@ -19,6 +20,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
   selector: 'app-simulation',
   templateUrl: './simulation.component.html',
   styleUrls: ['./simulation.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ReactiveFormsModule, MatSidenavModule, MatSlideToggleModule, MatLabel]
 })
 export class SimulationComponent implements OnInit, OnDestroy {
@@ -29,32 +31,36 @@ export class SimulationComponent implements OnInit, OnDestroy {
   ws = inject(WorkspaceService);
 
 
-  @Input('id') id;
-  @Input('new_draft_flag$') new_draft_flag$;
+  @Input('id') id!: number;
+  @Input('new_draft_flag$') new_draft_flag$!: Observable<boolean>;
   @Output() onExpanded = new EventEmitter();
 
-  renderer;
-  scene;
-  camera;
-  controls;
-  gui;
+  renderer!: THREE.WebGLRenderer;
+  scene!: THREE.Scene;
+  camera!: THREE.PerspectiveCamera;
+  controls!: OrbitControls;
+  gui!: GUI;
   sim_expanded: boolean = false;
   hasFocus: boolean = false;
 
-  simVars: SimulationVars = null;
-  simData: SimulationData = null;
-  public simControls: FormGroup = null;
+  simVars: SimulationVars;
+  simData: SimulationData | null = null;
+  public simControls!: FormGroup;
 
   tanFOV: number = 0;
   originalHeight: number = 0;
-  dirty: boolean; //flags the need to recompute 
-  selection_bounds: Bounds = null;
+  dirty: boolean = false; //flags the need to recompute 
+  selection_bounds: Bounds = {
+    topleft: { x: 0, y: 0 },
+    width: 0,
+    height: 0
+  };
   render_size_error: boolean = false;
 
-  viewadjustSubscription: Subscription;
-  materialColorChangeSubscription: Subscription;
-  materialDiameterChangeSubscription: Subscription;
-  draftChangeSubscription: Subscription;
+  viewadjustSubscription: Subscription | null = null;
+  materialColorChangeSubscription: Subscription | null = null;
+  materialDiameterChangeSubscription: Subscription | null = null;
+  draftChangeSubscription: Subscription | null = null;
 
 
   constructor(
@@ -100,14 +106,16 @@ export class SimulationComponent implements OnInit, OnDestroy {
         treadles: this.ws.min_treadles
       }
     }
-    this.simControls.patchValue({
-      warpSpacing: ls.epi,
-      liftLimit: this.simVars.lift_limit,
-      pack: this.simVars.pack,
-      mass: this.simVars.mass,
-      maxTheta: this.simVars.max_theta * 180 / Math.PI,
-      weftsAsWritten: (this.simVars.wefts_as_written) ? "true" : "false",
-    }, { emitEvent: false });
+    if (this.simControls) {
+      this.simControls.patchValue({
+        warpSpacing: ls.epi,
+        liftLimit: this.simVars?.lift_limit ?? 4,
+        pack: this.simVars?.pack ?? defaults.pack,
+        mass: this.simVars?.mass ?? 150,
+        maxTheta: this.simVars?.max_theta ?? Math.PI / 12 * 180 / Math.PI,
+        weftsAsWritten: (this.simVars?.wefts_as_written) ? "true" : "false",
+      }, { emitEvent: false });
+    }
   }
 
 
@@ -261,18 +269,9 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
 
 
-  handleSimulateChange(value) {
-
-
-
+  handleSimulateChange() {
     this.redrawCurrentSim();
-
   }
-
-
-
-
-
 
   updateSimParameters(formValues: any) {
 
@@ -298,7 +297,9 @@ export class SimulationComponent implements OnInit, OnDestroy {
       this.simVars.max_theta = formValues.maxTheta * Math.PI / 180;
     }
     if (formValues.warpSpacing !== undefined && formValues.warpSpacing !== this.simVars.warp_spacing) {
-      let loom_settings = copyLoomSettings(this.tree.getLoomSettings(this.id));
+      let orig_loom_settings = this.tree.getLoomSettings(this.id);
+      if (orig_loom_settings == null) orig_loom_settings = defaults.loom_settings;
+      let loom_settings = copyLoomSettings(orig_loom_settings);
       loom_settings.epi = formValues.warpSpacing;
       this.simVars.warp_spacing = convertEPItoMM(loom_settings);
     }
@@ -333,7 +334,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
     // document.body.removeChild(this.renderer.domElement);
     if (this.scene) this.scene.clear();
-    if (this.scene && this.scene.children) this.scene.children.forEach(childMesh => {
+    if (this.scene && this.scene.children) this.scene.children.forEach((childMesh: any) => {
       if (childMesh.geometry !== undefined) childMesh.geometry.dispose();
       if (childMesh.texture !== undefined) childMesh.texture.dispose();
       if (childMesh.material !== undefined) childMesh.material.dispose();
@@ -358,7 +359,6 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (this.draftChangeSubscription) this.draftChangeSubscription.unsubscribe();
 
     this.draftChangeSubscription = draftNode.onValueChange.subscribe(draftNodeBroadcast => {
-      console.log("SIM ON DRAFT CHANGE", draftNodeBroadcast);
       if (draftNodeBroadcast.loom_settings == null) {
         draftNodeBroadcast.loom_settings = {
           type: 'jacquard',
@@ -371,7 +371,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
       }
       this.simVars.warp_spacing = convertEPItoMM(draftNodeBroadcast.loom_settings);
       this.updateSimFormValues();
-      this.recalcAndRenderSimData(draftNodeBroadcast.draft);
+      if (draftNodeBroadcast.draft !== null) this.recalcAndRenderSimData(draftNodeBroadcast.draft);
     });
   }
 
@@ -391,18 +391,19 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
 
   /** if we are in the sim mode, and the viewer id changes */
-  onNewDraftLoaded(id: number): Promise<any> {
-    if (id === -1) return;
+  onNewDraftLoaded(id: number): Promise<void> {
+    if (id === -1) return Promise.resolve();
     this.subscribeToDraftUpdates(id);
+    return Promise.resolve();
   }
 
 
-  resetSelectionBounds(draft: Draft) {
+  resetSelectionBounds(draft: Draft | null) {
     if (draft == null) draft = this.tree.getDraft(this.id);
     this.selection_bounds = {
       topleft: { x: 0, y: 0 },
-      width: warps(draft.drawdown),
-      height: wefts(draft.drawdown)
+      width: warps(draft?.drawdown ?? []),
+      height: wefts(draft?.drawdown ?? [])
     }
   }
 
@@ -483,8 +484,14 @@ export class SimulationComponent implements OnInit, OnDestroy {
         this.simData = null;
         console.error("Gen Sim Data Returned Error", err);
         this.render_size_error = true;
-        document.getElementById('sizeerror').style.display = "block"
-        document.getElementById('simulation_container').style.display = "none"
+        const div_sizeerror = document.getElementById('sizeerror');
+        if (div_sizeerror) {
+          div_sizeerror.style.display = "block";
+        }
+        const div_simulation_container = document.getElementById('simulation_container');
+        if (div_simulation_container) {
+          div_simulation_container.style.display = "none";
+        }
       })
   }
 
@@ -497,7 +504,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
     // Calculate bounding box of all objects in the scene
     const box = new THREE.Box3();
-    const objects = this.scene.children.filter(child => {
+    const objects = this.scene.children.filter((child: { type: string; }) => {
       // Only include meshes and groups, exclude lights
       return child.type === 'Mesh' || child.type === 'Group' || child.type === 'Line';
     });
@@ -505,7 +512,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (objects.length === 0) return;
 
     // Expand box to include all objects
-    objects.forEach(object => {
+    objects.forEach((object: any) => {
       box.expandByObject(object);
     });
 

@@ -1,4 +1,4 @@
-import { Draft, Loom, LoomSettings, sameOrNewerVersion } from "adacad-drafting-lib";
+import { Draft, getLoomUtilByType, Loom, LoomSettings, sameOrNewerVersion } from "adacad-drafting-lib";
 import { Cell, Drawdown, flipDraft, getDraftAsImage, getDraftName, initDraft, unpackDrawdownFromArray, unpackDrawdownFromBitArray, warps, wefts } from "adacad-drafting-lib/draft";
 import { jsPDF } from "jspdf";
 import { FileService } from "../provider/file.service";
@@ -29,9 +29,13 @@ const parseSavedDrawdown = (dd: Array<Array<Cell>>): Drawdown => {
  * creates a draft object from saved data. Handles different forms of saved drafts. 
  * @param data : a draft node object from the saved file
  */
-export const loadDraftFromFile = (data: any, version: string, src: string): Promise<{ draft: Draft, id: number }> => {
+export const loadDraftFromFile = async (data: any, loom: Loom | null | undefined, loom_settings: LoomSettings | null | undefined, version: string, src: string): Promise<{ draft: Draft, id: number }> => {
+    console.log("LOADING DRAFT FROM FILE ", data, loom, loom_settings, version, src);
     const draft: Draft = initDraft();
 
+    const has_valid_loom = loom !== null && loom !== undefined;
+    const has_valid_loom_settings = loom_settings !== null && loom_settings !== undefined;
+    const loomtype = has_valid_loom_settings ? loom_settings.type : 'jacquard';
 
     if (data.id !== undefined) draft.id = data.id;
 
@@ -47,18 +51,32 @@ export const loadDraftFromFile = (data: any, version: string, src: string): Prom
     }
 
 
-
     if (version === undefined || version === null || !sameOrNewerVersion(version, '3.4.5')) {
         draft.drawdown = parseSavedDrawdown(data.pattern);
     } else {
         if (data.super_compressed_drawdown !== undefined) {
             draft.drawdown = unpackDrawdownFromBitArray(data.super_compressed_drawdown, data.warps, data.wefts)
+        } else if (data.compressed_drawdown === undefined && has_valid_loom) {
+            //handle the case where we saved the loom only 
+            const utils = getLoomUtilByType(loomtype);
+            if (utils.computeDrawdownFromLoom !== undefined) {
+
+                try {
+                    draft.drawdown = await utils.computeDrawdownFromLoom(loom)
+                } catch (error) {
+                    console.error("Error computing drawdown from loom", error);
+                    draft.drawdown = [];
+                }
+            } else {
+                draft.drawdown = [];
+            }
+
+
+
         } else if (data.compressed_drawdown !== undefined) {
-
-            // console.log("UNPACKING", data.compressed_drawdown, data.warps, data.wefts);
-
-
             let compressed: Uint8ClampedArray;
+
+
             if (src == 'upload') {
                 compressed = new Uint8ClampedArray(data.compressed_drawdown);
             } else {
@@ -87,19 +105,19 @@ export const loadDraftFromFile = (data: any, version: string, src: string): Prom
 * returns the loom as well as the draft_id that this loom is linked with 
 * @param data 
 */
-export const loadLoomFromFile = (loom: any, version: string, id: number): Promise<{ loom: Loom, id: number }> => {
+export const loadLoomFromFile = (loom: any, version: string, id: number): Promise<{ loom: Loom | null, id: number }> => {
     console.log('[loadLoomFromFile] Loading loom from file, id:', id, 'version:', version);
     console.log('[loadLoomFromFile] Raw loom data:', loom);
 
     if (loom == null) {
         console.log('[loadLoomFromFile] Loom is null, returning null');
-        return Promise.resolve(null);
+        return Promise.resolve({ loom: null, id: id });
     }
 
     if (!sameOrNewerVersion(version, '3.4.5')) {
         console.log('[loadLoomFromFile] Version < 3.4.5, converting old treadling style');
         //tranfer the old treadling style on looms to the new style updated in 3.4.5
-        loom.treadling = loom.treadling.map(treadle_id => {
+        loom.treadling = loom.treadling.map((treadle_id: number) => {
             if (treadle_id == -1) return [];
             else return [treadle_id];
         });
@@ -298,6 +316,25 @@ export const saveAsColoringPage = async (el: any, draft: Draft, ms: MaterialsSer
 
 }
 
+/**
+ * determines if two rectangles overlap at any point. Rectangles are described by their top left
+ * point along with a width and height, with y increasing downward (screen coordinates).
+ * Rectangles that only share an edge or a corner are considered intersecting.
+ * @param a the first rectangle
+ * @param b the second rectangle
+ * @returns true if the two rectangles share at least one point
+ */
+export const boundsIntersect = (a: Bounds, b: Bounds): boolean => {
+    const a_right = a.topleft.x + a.width;
+    const a_bottom = a.topleft.y + a.height;
+    const b_right = b.topleft.x + b.width;
+    const b_bottom = b.topleft.y + b.height;
+    return a.topleft.x <= b_right &&
+        b.topleft.x <= a_right &&
+        a.topleft.y <= b_bottom &&
+        b.topleft.y <= a_bottom;
+}
+
 export const saveAsPng = async (el: any, draft: Draft, selected_origin_option: number, ms: MaterialsService, fs: FileService) => {
     let context = el.getContext('2d');
     el.width = warps(draft.drawdown);
@@ -359,18 +396,21 @@ export const saveAsBmp = async (el: any, draft: Draft, selected_origin_option: n
 
 /**
  * given a list of Bounds objects, this function will merge the bounds such that the top left point represents the top-most and left-most of the values and the width and height contain all values
- * @param list 
- * @returns 
+ * @param list
+ * @returns
  */
-export const mergeBounds = (list: Array<Bounds>): Bounds | null => {
+export const mergeBounds = (list: Array<Bounds | null>): Bounds | null => {
 
     list = list.filter(el => el !== null && el !== undefined);
     if (list.length == 0) return null;
 
     const first = list.pop();
+    if (first === undefined || first === null) return null;
+
 
     const tlbr = list.reduce((acc, val) => {
 
+        if (val === null || val === undefined) return acc;
         if (val.topleft.x < acc.topleft.x) acc.topleft.x = val.topleft.x;
         if (val.topleft.y < acc.topleft.y) acc.topleft.y = val.topleft.y;
         if (val.topleft.x + val.width > acc.botright.x) acc.botright.x = val.topleft.x + val.width;

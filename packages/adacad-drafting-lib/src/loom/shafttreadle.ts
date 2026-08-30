@@ -141,7 +141,7 @@ export const frame_utils: LoomUtil = {
     }
 
 
-    loom.tieup[ndx.i][ndx.j] = ndx.val;
+    loom.tieup[ndx.i][ndx.j] = ndx.val ?? false;
     return loom;
 
   },

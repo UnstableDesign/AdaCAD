@@ -68,7 +68,6 @@ function ExtraContent(props) {
 
 
 function FeatureContent({ img, url, title, desc, extra }) {
-    console.log({ extra })
 
     return (
         <div className={`${styles.featureCard} card`}>

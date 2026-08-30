@@ -68,7 +68,7 @@
           <i class="fa-solid fa-file"></i> download as .WIF file
         </button>
         @if (!hasParent) {
-        <button mat-menu-item matTooltip="Delete" [name]="delete" (click)="designActionChange('delete')">
+        <button mat-menu-item matTooltip="Delete" name="delete" (click)="designActionChange('delete')">
           <i class="fa-solid fa-times"></i> delete
         </button>
         }

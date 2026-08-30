@@ -12,7 +12,8 @@ const FeatureList = [
                 Use data to create and manipulate drafts.
             </>
         ),
-        operations: ['undulatewefts', 'sample_width', 'sample_length', 'fill']
+        operations: ['undulatewefts', 'sample_width', 'sample_length', 'fill'],
+        collaborators: []
     },
     {
         title: 'Using Drafts as Graphics',
@@ -23,7 +24,8 @@ const FeatureList = [
                 Strategies for using interesting looking drafts as graphics in cloth.
             </>
         ),
-        operations: ['bitfield', 'stretch', 'interlace', 'fill']
+        operations: ['bitfield', 'stretch', 'interlace', 'fill'],
+        collaborators: []
     },
     {
         title: 'Blend Colors with Layers',
@@ -35,7 +37,8 @@ const FeatureList = [
 
             </>
         ),
-        operations: ['notation', 'satin', 'stretch']
+        operations: ['notation', 'satin', 'stretch'],
+        collaborators: []
     },
     {
         title: 'Figured Weaving',
@@ -46,7 +49,8 @@ const FeatureList = [
                 Create drafts by filling regions of an image with shaded weave structures.
             </>
         ),
-        operations: ['imagemap', 'shaded_satin', 'rectangle']
+        operations: ['imagemap', 'shaded_satin', 'rectangle'],
+        collaborators: []
     },
     {
         title: 'Generating Threading Sequences',
@@ -57,7 +61,8 @@ const FeatureList = [
                 Create, modify and play with drawdowns created by threadings composed of different blocks.
             </>
         ),
-        operations: ['warp_profile', 'rotate', 'drawdown']
+        operations: ['warp_profile', 'rotate', 'drawdown'],
+        collaborators: []
     },
     {
         title: 'Generate Drafts to Weave on a TC2',
@@ -68,7 +73,8 @@ const FeatureList = [
                 A simple dataflow for testing structures on that can be woven on a TC2 Digital Jacquard Loom.
             </>
         ),
-        operations: ['waffle', 'tabby', 'rectangle', 'selvedge']
+        operations: ['waffle', 'tabby', 'rectangle', 'selvedge'],
+        collaborators: []
     },
     {
         title: 'Generate Drafts to Weave on a CompuDobby',
@@ -79,9 +85,51 @@ const FeatureList = [
                 Using the Draft Editor to generate .WIF files for weaving on an AVL CompuDobby loom.
             </>
         ),
-        operations: []
+        operations: [],
+        collaborators: []
     },
+    {
+        title: 'Lattice Structures',
+        url: 'lattice-tutorial',
+        img: require('@site/docs/learn/tutorials/img/lattice_preview.jpg').default,
+        description: (
+            <>
+                Explores multi-layered structures that interlock into a lattice.
+
+            </>
+        ),
+        operations: ['notation', 'sample_width', 'splice_in_wefts'],
+        collaborators: [{ url: '', text: 'Elizabeth Meiklejohn' }]
+    },
+    {
+        title: 'Moisture Activated Shape Changing Cloth',
+        img: require('@site/docs/learn/tutorials/img/animatedlinen_preview.png').default,
+        url: 'hygromorphic-linen',
+        description: (
+            <>
+                Explores how to combine different S and Z twisting yarns to create texture effects
+            </>
+        ),
+        operations: ['assign_systems', 'sample_width', 'glitchsatin'],
+        collaborators: [{ url: '', text: 'Kathryn Walters' }, { url: '', text: 'Deanna Gelosi' }]
+
+    },
+    {
+        title: 'Force Sensing Cloth',
+        img: require('@site/docs/learn/tutorials/img/aftr_chat.jpg').default,
+        url: 'forcepocket',
+        description: (
+            <>
+                Our design features the use of a woven pocket structure filled with conductive felt.
+            </>
+        ),
+        operations: ['assign_systems', 'overlay_multiple'],
+        collaborators: []
+    }
 ];
+
+
+
 
 function OperationsContent({ operations }) {
     if (operations.length > 0)
@@ -98,23 +146,43 @@ function OperationsContent({ operations }) {
         )
 }
 
+function CollaboratorList({ collaborators }) {
+    if (collaborators.length > 0)
+        return (
 
-function FeatureContent({ img, url, title, description, operations }) {
+            <div className={styles.opLinks}>
+                <h4>In collaboration with
+
+                    {collaborators.map((name) => (
+                        <> {name.text} </>
+                    ))}
+                </h4>
+            </div>
+
+        )
+}
+
+
+function FeatureContent({ img, url, title, description, operations, collaborators }) {
     return (
         <div className={`${styles.featureCard} card`}>
-            <div className={styles.cardLeft}>
-                {<a href={url}><img src={img}></img></a>}
-            </div>
-            <div className="text--left padding-horiz--md">
-                <div className={styles.titleDesc}>
-                    <h2><a href={url}>{title}</a></h2>
-                    <h3 className={styles.desc}>{description}</h3>
+            <div className={styles.featureContainer}>
+                <div className={styles.cardLeft}>
+                    {<a href={url}><img src={img}></img></a>}
                 </div>
-                <OperationsContent operations={operations}></OperationsContent>
+                <div className={styles.cardRight}>
+                    <div className={styles.titleDesc}>
+                        <h2><a href={url}>{title}</a></h2>
+                        <CollaboratorList collaborators={collaborators}></CollaboratorList>
+                        <h3 className={styles.desc}>{description}</h3>
+                    </div>
+                    <OperationsContent operations={operations}></OperationsContent>
+                </div>
             </div>
         </div>
     );
 }
+
 
 export default function TutorialFeatures() {
     return (

@@ -1,8 +1,8 @@
-import { Component, enableProdMode, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
+import { Component, enableProdMode, EventEmitter, inject, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions } from '@angular/material/tooltip';
 import { Draft, initDraftWithParams, initLoom, Loom, LoomSettings } from 'adacad-drafting-lib';
-import { DraftExistenceChange, DraftNode, DraftNodeProxy, NodeComponentProxy, NoteValueChange, OpExistenceChanged, OpNode, Point } from '../core/model/datatypes';
+import { DraftExistenceChange, DraftNode, DraftNodeProxy, NodeComponentProxy, Note, NoteValueChange, OpExistenceChanged, OpNode, Point } from '../core/model/datatypes';
 import { defaults } from '../core/model/defaults';
 import { FileService } from '../core/provider/file.service';
 import { NotesService } from '../core/provider/notes.service';
@@ -43,6 +43,7 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
   templateUrl: './mixer.component.html',
   styleUrls: ['./mixer.component.scss'],
   providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PaletteComponent, MixerSidebarComponent]
 })
 export class MixerComponent {
@@ -60,10 +61,10 @@ export class MixerComponent {
 
 
 
-  @ViewChild(PaletteComponent) palette: PaletteComponent;
-  @ViewChild(MixerSidebarComponent) sidebar: MixerSidebarComponent;
+  @ViewChild(PaletteComponent) palette!: PaletteComponent;
+  @ViewChild(MixerSidebarComponent) sidebar!: MixerSidebarComponent;
 
-  @Input() is_fullscreen: boolean;
+  @Input() is_fullscreen: boolean = false;
   @Output() onOpenInEditor: any = new EventEmitter();
   @Output() onPerformOperationError: any = new EventEmitter();
 
@@ -106,10 +107,12 @@ export class MixerComponent {
     const outputs = this.tree.getNonCxnOutputs(id);
     if (outputs.length > 0) this.vs.setViewer(outputs[0]);
 
+    const node = this.tree.getNode(id);
+    if (node == null) return;
     const change: OpExistenceChanged = {
       originator: 'OP',
       type: 'CREATED',
-      node: this.tree.getNode(id),
+      node: node,
       inputs: this.tree.getInwardConnectionProxies(id),
       outputs: this.tree.getOutwardConnectionProxies(id)
     }
@@ -148,11 +151,12 @@ export class MixerComponent {
 
       this.palette.createSubDraft(draft, loom, loom_settings).then(instance => {
         instance.isNew = true;
-
+        const node = this.tree.getNode(instance.id);
+        if (node == null) return Promise.reject(new Error('Node not found'));
         const change: DraftExistenceChange = {
           originator: 'DRAFT',
           type: 'CREATED',
-          node: this.tree.getNode(instance.id),
+          node: node,
           inputs: [],
           outputs: []
         }
@@ -167,17 +171,19 @@ export class MixerComponent {
   /**
  * called when the app needs to make a draft for the draft editor or when an "add draft" button as been clicked from the draft editor
  */
-  createNewDraft(draft: Draft, loom: Loom, loom_settings: LoomSettings): Promise<number> {
+  createNewDraft(draft: Draft, loom: Loom | null, loom_settings: LoomSettings | null): Promise<number> {
 
     console.log("CREATING NEW DRAFT", draft, loom, loom_settings);
     return this.palette.createSubDraft(draft, loom, loom_settings)
       .then(instance => {
         console.log("CREATED NEW DRAFT", instance);
         instance.isNew = true;
+        const node = this.tree.getNode(instance.id);
+        if (node == null) return Promise.reject(new Error('Node not found'));
         const change: DraftExistenceChange = {
           originator: 'DRAFT',
           type: 'CREATED',
-          node: this.tree.getNode(instance.id),
+          node: node,
           inputs: [],
           outputs: []
         }
@@ -197,7 +203,22 @@ export class MixerComponent {
    */
   onFocus(edited_draft_id: number) {
 
+
+
     if (edited_draft_id == -1 || edited_draft_id == null) return;
+
+
+    const dn = this.tree.getNode(edited_draft_id);
+    if (dn == null) return;
+    if (dn.type == 'draft') {
+      const draft = <DraftNode>dn;
+      const comp = <SubdraftComponent>draft.component;
+      if (comp == null) return;
+      comp.redrawExistingDraft();
+    }
+
+
+
 
     // const sd: SubdraftComponent = <SubdraftComponent>this.tree.getComponent(edited_draft_id);
     // if (sd !== null && sd !== undefined) sd.redrawExistingDraft();
@@ -265,7 +286,7 @@ export class MixerComponent {
   }
 
 
-  changeDesignMode(mode) {
+  changeDesignMode(mode: any) {
     // this.palette.changeDesignMode(mode);
   }
 
@@ -461,7 +482,7 @@ export class MixerComponent {
    * Called internally when loading files
    * @param note 
    */
-  public createNote(note) {
+  public createNote(note: Note | null) {
     this.palette.createNote(note);
   }
 
@@ -482,12 +503,13 @@ export class MixerComponent {
   }
 
 
-  public loadSubDraft(id: number, d: Draft, nodep: NodeComponentProxy, draftp: DraftNodeProxy) {
+  public loadSubDraft(id: number, d: Draft | undefined, nodep: NodeComponentProxy | undefined, draftp: DraftNodeProxy | undefined) {
+    if (d === undefined || nodep === undefined || draftp === undefined) return;
     this.palette.loadSubDraft(id, d, nodep, draftp);
   }
 
   loadOperation(id: number, name: string, params: Array<any>, inlets: Array<any>, topleft: Point) {
-    this.palette.loadOperation(id, name, params, inlets, topleft)
+    this.palette.loadOperation(id, name, params ?? [], inlets ?? [], topleft)
   }
 
   loadConnection(id: number) {
@@ -520,7 +542,7 @@ export class MixerComponent {
     const centerPoint = comp.getPosition();
 
 
-    const view_window: HTMLElement = document.getElementById('scrollable-container');
+    const view_window: HTMLElement | null = document.getElementById('scrollable-container');
     if (view_window === null || view_window === undefined) return;
 
     // Set the new zoom value

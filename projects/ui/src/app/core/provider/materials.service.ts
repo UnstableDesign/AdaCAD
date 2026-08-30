@@ -104,21 +104,22 @@ export class MaterialsService {
    */
   getColor(index: number) {
 
-    const s: Material = this.getShuttle(index);
+    const s = this.getShuttle(index);
     if (s === null) return "#ffffff";
     return (s.color);
   }
 
   getRGB(index: number) {
-    const s: Material = this.getShuttle(index);
+    const s = this.getShuttle(index);
+    if (s === undefined || s === null) return { r: 0, g: 0, b: 0 };
     return s.rgb;
   }
 
 
-  getDiameter(index: number) {
+  getDiameter(index: number): number {
 
-    const s: Material = this.getShuttle(index);
-    if (s === null) return 1;
+    const s = this.getShuttle(index);
+    if (s === undefined || s === null) return 1;
 
     return s.diameter;
   }
@@ -154,9 +155,9 @@ export class MaterialsService {
   }
 
 
-  getShuttle(id: number): Material {
+  getShuttle(id: number): Material | null {
     const ndx: number = this.materials.findIndex(el => el.id === id);
-    if (ndx != -1) return this.copyMaterial(this.materials[ndx]);
+    if (ndx != -1 || ndx !== undefined) return this.copyMaterial(this.materials[ndx]);
     return null;
   }
 
@@ -183,14 +184,14 @@ export class MaterialsService {
   }
 
 
-  getNextShuttle(id: number): Material {
+  getNextShuttle(id: number): Material | null {
     let ndx: number = 0;
-    if (id === undefined || id === null) ndx = this.getFirstShuttle().id;
+    if (id === undefined || id === null) ndx = (this.getFirstShuttle()?.id ?? 0);
     else ndx = this.materials.findIndex(el => el.id === id)
 
     if (ndx === -1) {
       console.error("material with id", id, "not found");
-      return this.getFirstShuttle();
+      return this.getFirstShuttle() ?? null;
     } else {
       return this.materials[(ndx + 1) % this.materials.length];
     }
@@ -205,7 +206,7 @@ export class MaterialsService {
     return this.materials;
   }
 
-  getFirstShuttle(): Material {
+  getFirstShuttle(): Material | null {
     if (this.materials.length === 0) {
       console.error("no materials loaded");
       return null;

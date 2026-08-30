@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnDestroy, OnInit, Output, QueryList, ViewChild, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -32,12 +32,13 @@ import { DraftinfocardComponent } from './draftinfocard/draftinfocard.component'
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss'],
   imports: [MatButton, MatMenuModule, MatIconButton, MaterialComponent, ReactiveFormsModule, FormsModule, MatFormField, MatLabel, MatError, MatInput, MatTooltip, MatChipsModule, DraftinfocardComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('hiddenCanvas', { static: false }) hiddenCanvas: ElementRef<HTMLCanvasElement>;
-  @ViewChild('csvFileInput', { static: false }) csvFileInput: ElementRef<HTMLInputElement>;
-  @ViewChildren(DraftRenderingComponent) draftRenderings: QueryList<DraftRenderingComponent>;
+  @ViewChild('hiddenCanvas', { static: false }) hiddenCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('csvFileInput', { static: false }) csvFileInput!: ElementRef<HTMLInputElement>;
+  @ViewChildren(DraftRenderingComponent) draftRenderings!: QueryList<DraftRenderingComponent>;
 
   @Output() onWorkspaceRename = new EventEmitter<string>();
   @Output() onDraftNameChange = new EventEmitter<number>();
@@ -56,8 +57,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
   private mediaService = inject(MediaService);
   private dialog = inject(MatDialog);
 
-  @ViewChild('materials', { static: false }) materials: MaterialComponent;
-  @ViewChildren(DraftinfocardComponent) draftInfocards: QueryList<DraftinfocardComponent>;
+  @ViewChild('materials', { static: false }) materials!: MaterialComponent;
+  @ViewChildren(DraftinfocardComponent) draftInfocards!: QueryList<DraftinfocardComponent>;
 
   draftsData: Array<{ uid: string, id: number }> = [];
   media: Array<{
@@ -65,21 +66,21 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     used_in: Array<{ id: number, name: string, color: string }>;
   }> = [];
   selectedDraftIds: Set<number> = new Set();
-  private draftRenderingsSubscription: Subscription;
+  private draftRenderingsSubscription!: Subscription;
 
 
   draftInputs: Array<{ id: number; name: string; draft: Draft }> = [];
-  filename: FormControl;
-  fileDescription: FormControl;
-  id: number;
-  from_share: string;
-  time: number;
-  owner: string;
+  filename!: FormControl;
+  fileDescription!: FormControl;
+  id!: number;
+  from_share!: string;
+  time!: number;
+  owner!: string;
   hiddenDrafts: Array<DraftNode> = [];
-  projectOwner: string;
+  projectOwner!: string;
 
-  fileMetaChangeUndoSubscription: Subscription;
-  savedTimeSubscription: Subscription;
+  fileMetaChangeUndoSubscription!: Subscription;
+  savedTimeSubscription!: Subscription;
 
   connection_state = false;
   private connectionSubscription: Subscription;
@@ -341,7 +342,11 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
         if ((<Img>param).id !== undefined) {
           let media_item = this.media.find(el => el.media.id == +(<Img>param).id);
           if (media_item !== undefined) {
-            const meta = this.ops.getOp(op.name).meta;
+            const meta = this.ops.getOp(op.name)?.meta;
+            if (meta == undefined) {
+              console.error('operation meta not found', op.name);
+              return;
+            }
             const name = meta.displayname;
             const color = (meta.categories.length > 0) ? this.ops.getCatColor(meta.categories[0].name) : '#000';
             let used_in: { id: number, name: string, color: string } = { id: op.id, name, color };
@@ -422,9 +427,11 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
     // Download each draft sequentially to avoid browser blocking multiple downloads
     for (const draftId of downloadList) {
       try {
+        const draft = this.tree.getDraft(draftId);
+        if (draft == null) return Promise.reject(new Error('Draft not found'));
         await saveAsBmp(
           canvas,
-          this.tree.getDraft(draftId),
+          draft,
           this.ws.selected_origin_option,
           this.ms,
           this.fs
@@ -692,8 +699,8 @@ export class LibraryComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   async downloadMediaItem(mediaItem: MediaInstance) {
     try {
-      const imageUrl = mediaItem.img.image.src;
-      const imageName = mediaItem.img.name || 'media_item';
+      const imageUrl = mediaItem.img?.image.src || '';
+      const imageName = mediaItem.img?.name || 'media_item';
 
       // Fetch the image
       const response = await fetch(imageUrl);

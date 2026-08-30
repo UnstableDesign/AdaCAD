@@ -1,0 +1,45 @@
+.featureCard {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 31%;
+    padding: 1em;
+    color: var(--ifm-color-content);
+
+}
+
+.featureContainer {
+    display: flex;
+    height: max-content;
+}
+
+
+
+
+
+.learningResources {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+
+
+.desc {
+    line-height: normal;
+    font-size: 1.3em !important;
+}
+
+.titleDesc {
+    padding-bottom: 1em;
+}
+
+.operations {}
+
+.opLinks {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+    flex-wrap: wrap;
+}

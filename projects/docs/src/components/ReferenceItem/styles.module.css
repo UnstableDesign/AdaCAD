@@ -1,0 +1,35 @@
+.referenceBlock {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    padding: 1em;
+    color: var(--ifm-color-content);
+    margin-bottom: 1em;
+
+    font-size: .8em;
+
+
+    h3 {
+        padding: 0;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin: 0
+    }
+
+}
+
+
+.referenceImg {
+    height: 200px;
+    object-fit: cover;
+    margin-right: 1em;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+
+.referenceBlockContent {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}

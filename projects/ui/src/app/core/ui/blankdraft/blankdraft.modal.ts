@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { defaults } from '../../model/defaults';
   selector: 'app-blankdraft',
   templateUrl: './blankdraft.modal.html',
   styleUrls: ['./blankdraft.modal.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogTitle, CdkScrollable, MatError, MatDialogContent, FormsModule, MatFormField, MatLabel, MatInput, MatDialogActions, MatButton, MatDialogClose, ReactiveFormsModule]
 })
 export class BlankdraftModal implements OnInit {

@@ -1,8 +1,9 @@
 import { HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { deleteObject, getDownloadURL, getMetadata, getStorage, ref, uploadBytes, uploadBytesResumable, UploadMetadata } from "@angular/fire/storage";
+import { deleteObject, getDownloadURL, getMetadata, ref, uploadBytes, uploadBytesResumable, UploadMetadata } from 'firebase/storage';
 import { Observable } from 'rxjs';
 import { Upload } from '../model/datatypes';
+import { storage } from './firebase-app';
 import { FirebaseService } from './firebase.service';
 
 const httpOptions = {
@@ -16,8 +17,8 @@ const httpOptions = {
 export class UploadService {
   private fb = inject(FirebaseService)
 
-  uploadProgress: Observable<number>;
-  progress: number;
+  uploadProgress!: Observable<number>;
+  progress!: number;
   imageToShow: any;
   uploads: Array<Upload> = []; //hold a list of all the uploads so we can delete at end. 
 
@@ -49,8 +50,8 @@ export class UploadService {
     return new Promise((resolve, reject) => {
       let reader = new FileReader();
 
-      reader.onload = function (event) {
-        let data = event.target.result;
+      reader.onload = function (event: any) {
+        let data = event.target?.result;
         console.log("GET HASH ", data)
         let ret: any = data;
         if (data) {
@@ -78,7 +79,6 @@ export class UploadService {
     console.log("IN UPLOAD DATA")
     this.uploads.push(upload);
 
-    const storage = getStorage();
     const storageRef = ref(storage, 'uploads/' + id);
     const uploadTask = uploadBytesResumable(storageRef, upload.file, metadata);
 
@@ -121,7 +121,7 @@ export class UploadService {
 
     //const id = Math.random().toString(36).substring(2);
     let id = '';
-    let metadata: UploadMetadata = null;
+    let metadata: UploadMetadata;
     let uid = (this.fb.auth.currentUser) ? this.fb.auth.currentUser.uid : -1;
     return this.getHash(upload)
       .then(hash => {
@@ -144,7 +144,6 @@ export class UploadService {
   // Get metadata properties
   getDownloadMetaData(id: string): Promise<any> {
 
-    const storage = getStorage();
     return getMetadata(ref(storage, 'uploads/' + id))
       .then((metadata) => {
         return Promise.resolve(metadata)
@@ -155,8 +154,7 @@ export class UploadService {
       });
   }
 
-  getDownloadURL(id: string): Promise<any> {
-    const storage = getStorage();
+  getDownloadURL(id: string): Promise<string> {
     if (id === 'noinput') return Promise.resolve('');
     return getDownloadURL(ref(storage, 'uploads/' + id));
   }
@@ -169,7 +167,6 @@ export class UploadService {
    * @returns 
    */
   getDownloadData(id: string): Promise<any> {
-    const storage = getStorage();
     if (id === 'noinput') return Promise.resolve('');
 
     // console.log("GET DATA AT ", id)
@@ -179,7 +176,7 @@ export class UploadService {
       .then((url) => {
         const xhr = new XMLHttpRequest();
         xhr.responseType = 'blob';
-        xhr.onload = (event) => {
+        xhr.onload = (event: any) => {
           const blob = xhr.response;
 
         };
@@ -218,8 +215,7 @@ export class UploadService {
       });
   }
 
-  alreadyLoaded(id): Promise<boolean> {
-    const storage = getStorage();
+  alreadyLoaded(id: string): Promise<boolean> {
     if (id === 'noinput') return Promise.resolve(false);
 
     return getDownloadURL(ref(storage, 'uploads/' + id))
@@ -261,8 +257,6 @@ export class UploadService {
 
 
   deleteUpload(name: string) {
-
-    const storage = getStorage();
 
     // Create a reference to the file to delete
     const desertRef = ref(storage, 'uploads/' + name);

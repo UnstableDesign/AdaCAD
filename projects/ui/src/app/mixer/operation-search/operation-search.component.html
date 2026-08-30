@@ -24,7 +24,7 @@
 
       @for (op_names of classification.ops; track op_names) {
       <button mat-stroked-button class="operation" [style.background-color]="classification.color"
-        (click)="onAddOperation(op_names.name)" [matTooltip]="ops.getOpDescription(op_names.name)">
+        (click)="onAddOperation(op_names.name)" [matTooltip]="ops.getOpDescription(op_names.name) ?? ''">
         @if (op_names.advanced) {
         <span><i class="fa-regular fa-star"></i></span>
         }

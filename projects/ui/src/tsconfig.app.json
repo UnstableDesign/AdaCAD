@@ -2,8 +2,9 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/app",
-    "baseUrl": "./",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "files": [
     "main.ts",
@@ -11,5 +12,15 @@
   ],
   "include": [
     "src/**/*.d.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress",
+        "invalidBananaInBox": "warning"
+      }
+    },
+    "strictTemplates": true
+  }
 }

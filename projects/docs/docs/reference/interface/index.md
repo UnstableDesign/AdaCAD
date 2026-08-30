@@ -3,18 +3,24 @@
 The AdaCAD interface is organized into different parts, each which control a different set of features
  </div>
 
+<!-- TODO (screenshot): img/interface_tour.jpeg is from AdaCAD 4 and is out of date. It is missing the library design mode in the topbar toggle, and still shows the removed fa-palette materials button. Re-capture with all three design modes labeled. -->
+
 ![file](./img/interface_tour.jpeg)
 
 These parts consist of: 
 
 - [**topbar**](./topbar): for controlling application-wide functions and settings such as loading and saving files, changing preferences, viewing examples, and logging in and out. 
-- [**viewer**](./viewer): for controlling application-wide functions and settings such as loading and saving files, changing preferences, viewing examples, and logging in and out. 
 - [**workspace**](./workspace): for designing and editing dataflows that generate drafts
+- [**library**](./library): for managing everything in your file, including its drafts, uploaded images, and materials
 - [**draft editor**](./draft_editor): for designing and editing individual drafts using a point paper drafting style
+- [**viewer**](./viewer): for looking at the draft you have selected, whether as a draft, a structure, a color pattern, or a 3D simulation
 
+The workspace, library, and draft editor are the three **design modes**, and you switch between them using the toggle in the middle of the topbar. The viewer is not a mode; it stays on the right of the screen at all times, so whichever mode you are in, you can see a rendering of the draft you have selected.
 
 
 ## Video Tour
+
+
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -22,7 +28,11 @@ import TabItem from '@theme/TabItem';
 
 
 <Tabs>
-<TabItem value="adacad4" label="AdaCAD 4" default>
+<TabItem value="adacad5" label="AdaCAD 5" default>
+Here is an early video we made when we just released AdaCAD 5. Some things have been updated since then but it is a good place to see what's new.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KAzg3NRexmw?si=MRtez1sRY99BnTqv" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</TabItem>
+<TabItem value="adacad4" label="AdaCAD 4" >
 
 
  We created the following video to introduce you to the interface for AdaCAD 4:

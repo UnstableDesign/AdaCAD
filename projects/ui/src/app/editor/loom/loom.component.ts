@@ -1,9 +1,9 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatDivider } from '@angular/material/divider';
 import { MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { MatError, MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { LoomSettings } from 'adacad-drafting-lib';
 import { deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, Draft, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, warps, wefts } from 'adacad-drafting-lib/draft';
@@ -20,7 +20,8 @@ import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-ren
   selector: 'app-loom',
   templateUrl: './loom.component.html',
   styleUrls: ['./loom.component.scss'],
-  imports: [ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix, MatDivider]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [ReactiveFormsModule, MatError, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatSuffix, MatDivider]
 })
 export class LoomComponent implements OnInit, OnDestroy {
   private tree = inject(TreeService);
@@ -28,21 +29,21 @@ export class LoomComponent implements OnInit, OnDestroy {
   ws = inject(WorkspaceService);
   ss = inject(StateService);
 
-  @Input('id') id;
-  @Input('draftRendering') draftRendering: DraftRenderingComponent;
+  @Input('id') id!: number;
+  @Input('draftRendering') draftRendering!: DraftRenderingComponent;
 
   @Output() unsetSelection: any = new EventEmitter();
   // @Output() drawdownUpdated: any = new EventEmitter();
 
-  loomForm: FormGroup;
+  loomForm!: FormGroup;
   density_units;
   loomtypes;
   enabled: boolean = false;
-  before: DraftNodeState;
+  before!: DraftNodeState;
   required_frames: number = defaults.loom_settings.frames;
   required_treadles: number = defaults.loom_settings.treadles;
 
-  draftValueChangeSubscription: Subscription;
+  draftValueChangeSubscription!: Subscription;
   view_only: boolean = false;
 
 
@@ -125,20 +126,23 @@ export class LoomComponent implements OnInit, OnDestroy {
    * @param loom 
    * @param loom_settings 
    */
-  private updateFormValues(draft?: Draft, loom?: Loom, loom_settings?: LoomSettings) {
+  private updateFormValues(draft?: Draft | null, loom?: Loom | null, loom_settings?: LoomSettings | null) {
 
-    if (!draft) draft = this.tree.getDraft(this.id);
+    if (!draft) draft = this.tree.getDraft(this.id) as Draft | null;
     if (!loom) loom = this.tree.getLoom(this.id);
     if (!loom_settings) loom_settings = this.tree.getLoomSettings(this.id);
 
+
+    if (draft == null) return;
+    if (loom_settings == null) return;
     if (this.loomForm) {
       const widthValue = (draft !== null && loom_settings) ? calcWidth(draft.drawdown, loom_settings) : 0;
       const lengthValue = (draft !== null && loom_settings) ? calcLength(draft.drawdown, loom_settings) : 0;
 
       this.loomForm.patchValue({
         loomtype: (loom_settings !== null) ? loom_settings.type : defaults.loom_settings.type,
-        warps: (draft !== null) ? warps(draft.drawdown) : 0,
-        wefts: (draft !== null) ? wefts(draft.drawdown) : 0,
+        warps: (draft != null) ? warps(draft.drawdown) : 0,
+        wefts: (draft != null) ? wefts(draft.drawdown) : 0,
         units: (loom_settings !== null) ? loom_settings.units : defaults.loom_settings.units,
         epi: (loom_settings !== null) ? loom_settings.epi : defaults.loom_settings.epi,
         width: parseFloat(widthValue.toFixed(3)),
@@ -189,10 +193,12 @@ export class LoomComponent implements OnInit, OnDestroy {
 
   private warpNumChange(num: number): Promise<boolean> {
 
-
     const draft = this.tree.getDraft(this.id);
     let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+
+    if (draft == null) return Promise.resolve(false);
+    if (loom_settings == null) return Promise.resolve(false);
 
 
     if (num > warps(draft.drawdown)) {
@@ -201,9 +207,8 @@ export class LoomComponent implements OnInit, OnDestroy {
 
         let ndx = warps(draft.drawdown);
         const utils = getLoomUtilByType(loom_settings.type);
-        loom = (utils.insertIntoThreading != null) ? utils.insertIntoThreading(loom, ndx, -1) : loom;
-
-        draft.drawdown = insertDrawdownCol(draft.drawdown, ndx, null);
+        loom = (utils.insertIntoThreading != null && loom != null) ? utils.insertIntoThreading(loom, ndx, -1) : loom;
+        draft.drawdown = insertDrawdownCol(draft.drawdown, ndx, []);
         draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, ndx, 0);
         draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, ndx, 0);
 
@@ -215,7 +220,7 @@ export class LoomComponent implements OnInit, OnDestroy {
         let ndx = warps(draft.drawdown) - 1;
 
         const utils = getLoomUtilByType(loom_settings.type);
-        loom = (utils.deleteFromThreading != null) ? utils.deleteFromThreading(loom, ndx) : loom;
+        loom = (utils.deleteFromThreading != null && loom != null) ? utils.deleteFromThreading(loom, ndx) : loom;
         draft.drawdown = deleteDrawdownCol(draft.drawdown, ndx);
         draft.colShuttleMapping = deleteMappingCol(draft.colShuttleMapping, ndx);
         draft.colSystemMapping = deleteMappingCol(draft.colSystemMapping, ndx);
@@ -230,13 +235,15 @@ export class LoomComponent implements OnInit, OnDestroy {
           return Promise.resolve(true);
         })
 
-    } else {
+    } else if (loom != null) {
       return this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
 
           return Promise.resolve(true);
         })
 
+    } else {
+      return Promise.resolve(false);
     }
 
 
@@ -254,6 +261,10 @@ export class LoomComponent implements OnInit, OnDestroy {
     this.warpNumChange(value).then(completed => {
       const draft = this.tree.getDraft(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
+
+
+      if (draft == null) return;
+      if (loom_settings == null) return;
       const w = calcWidth(draft.drawdown, loom_settings);
       this.loomForm?.get('width')?.setValue(w, { emitEvent: false });
       this.addStateChange();
@@ -277,6 +288,10 @@ export class LoomComponent implements OnInit, OnDestroy {
     this.weftNumChange(value).then(out => {
       const draft = this.tree.getDraft(this.id);
       const loom_settings = this.tree.getLoomSettings(this.id);
+
+      if (draft == null) return;
+      if (loom_settings == null) return;
+
       const length = calcLength(draft.drawdown, loom_settings);
       this.loomForm?.get('length')?.setValue(length, { emitEvent: false });
       this.addStateChange();
@@ -290,6 +305,9 @@ export class LoomComponent implements OnInit, OnDestroy {
     let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
 
+    if (draft == null) return Promise.resolve(false);
+    if (loom_settings == null) return Promise.resolve(false);
+
     //console.log("Draft", draft.drawdown.slice(), e.wefts)
 
     if (num > wefts(draft.drawdown)) {
@@ -298,11 +316,11 @@ export class LoomComponent implements OnInit, OnDestroy {
       for (var i = 0; i < diff; i++) {
         let ndx = wefts(draft.drawdown);
 
-        draft.drawdown = insertDrawdownRow(draft.drawdown, ndx, null);
+        draft.drawdown = insertDrawdownRow(draft.drawdown, ndx, []);
         draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, ndx, 1)
         draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, ndx, 0);
         const utils = getLoomUtilByType(loom_settings.type);
-        loom = (utils.insertIntoTreadling != null) ? utils.insertIntoTreadling(loom, ndx, []) : loom;
+        loom = (utils.insertIntoTreadling != null && loom != null) ? utils.insertIntoTreadling(loom, ndx, []) : loom;
       }
     } else {
 
@@ -313,7 +331,7 @@ export class LoomComponent implements OnInit, OnDestroy {
         draft.rowShuttleMapping = deleteMappingRow(draft.rowShuttleMapping, ndx)
         draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping, ndx)
         const utils = getLoomUtilByType(loom_settings.type);
-        loom = (utils.deleteFromTreadling != null) ? utils.deleteFromTreadling(loom, ndx) : loom;
+        loom = (utils.deleteFromTreadling != null && loom != null) ? utils.deleteFromTreadling(loom, ndx) : loom;
 
       }
 
@@ -325,7 +343,7 @@ export class LoomComponent implements OnInit, OnDestroy {
         .then(loom => {
           return Promise.resolve(true);
         })
-    } else {
+    } else if (loom != null) {
 
       return this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
@@ -339,26 +357,32 @@ export class LoomComponent implements OnInit, OnDestroy {
           this.tree.setDraft(this.id, draft, flags, true, true);
           return Promise.resolve(true);
         })
+    } else {
+      return Promise.resolve(false);
     }
   }
 
 
 
 
-  private onLoomTypeChange(type: string) {
+  private onLoomTypeChange(type: 'jacquard' | 'frame' | 'direct') {
 
+    console.log("ON LOOM TYPE CHANGE ", type, this.id);
     if (this.id == -1) return;
 
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
 
+    if (draft == null) return;
+    if (loom_settings == null) return;
+
     const new_settings: LoomSettings = copyLoomSettings(loom_settings);
     new_settings.type = type;
 
 
     convertLoom(draft.drawdown, loom, loom_settings, new_settings).then(loom => {
-
+      console.log("CONVERT LOOM ", loom);
       this.tree.setLoom(this.id, loom, false);
       this.tree.setLoomSettings(this.id, new_settings, true);
       this.addStateChange();
@@ -384,7 +408,9 @@ export class LoomComponent implements OnInit, OnDestroy {
   private onTreadlesChange(value: number) {
     //validate the input
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
     const loom = this.tree.getLoom(this.id);
+    if (loom == null) return;
 
     if (!value || value < 2) {
       value = 2;
@@ -416,7 +442,9 @@ export class LoomComponent implements OnInit, OnDestroy {
 
   private onFramesChange(value: number) {
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
     const loom = this.tree.getLoom(this.id);
+    if (loom == null) return;
     const draft = this.tree.getDraft(this.id);
 
     if (!value || value < 2) {
@@ -450,10 +478,13 @@ export class LoomComponent implements OnInit, OnDestroy {
 
   private onUnitsChange(value: string) {
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
     loom_settings.units = value as "in" | "cm";
     this.tree.setLoomSettings(this.id, loom_settings);
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
+    if (loom_settings == null) return;
     this.loomForm?.get('width')?.setValue(calcWidth(draft.drawdown, loom_settings), { emitEvent: false });
     this.loomForm?.get('length')?.setValue(calcLength(draft.drawdown, loom_settings), { emitEvent: false });
 
@@ -475,7 +506,7 @@ export class LoomComponent implements OnInit, OnDestroy {
     const epi = this.loomForm?.get('epi')?.value || defaults.loom_settings.epi;
     const currentWarps = this.loomForm?.get('warps')?.value || defaults.warps;
 
-    var new_warps = (loom_settings.units === "in")
+    var new_warps = (loom_settings?.units === "in")
       ? Math.ceil(value * epi) :
       Math.ceil((10 * currentWarps / value));
 
@@ -502,7 +533,7 @@ export class LoomComponent implements OnInit, OnDestroy {
     const ppi = this.loomForm?.get('ppi')?.value || defaults.loom_settings.ppi;
     const currentWefts = this.loomForm?.get('wefts')?.value || defaults.wefts;
 
-    var new_wefts = (loom_settings.units === "in")
+    var new_wefts = (loom_settings?.units === "in")
       ? Math.ceil(value * ppi) :
       Math.ceil((10 * currentWefts / value));
 
@@ -527,7 +558,8 @@ export class LoomComponent implements OnInit, OnDestroy {
       value = 1;
       this.loomForm?.get('ppi')?.setValue(value, { emitEvent: false });
     }
-
+    if (draft == null) return;
+    if (loom_settings == null) return;
     loom_settings.ppi = value;
     this.loomForm?.get('length')?.setValue(calcLength(draft.drawdown, loom_settings), { emitEvent: false });
     this.addStateChange();
@@ -538,6 +570,7 @@ export class LoomComponent implements OnInit, OnDestroy {
     if (this.id == -1) return;
 
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
 
     if (!value || value < 0) {
       value = 1;
@@ -546,6 +579,7 @@ export class LoomComponent implements OnInit, OnDestroy {
 
     loom_settings.epi = value;
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     this.loomForm?.get('width')?.setValue(calcWidth(draft.drawdown, loom_settings), { emitEvent: false });
     this.addStateChange();
 

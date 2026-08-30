@@ -19,7 +19,7 @@ export class WorkspaceService {
   file_favorites: Array<number> = [];
   min_frames: number = defaults.loom_settings.frames;
   min_treadles: number = defaults.loom_settings.treadles;
-  type: string = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
+  type: 'jacquard' | 'frame' | 'direct' = defaults.loom_settings.type; //'rigid', 'direct', 'frame', 'jacquard'
   epi: number = defaults.loom_settings.epi;
   ppi: number = defaults.loom_settings.ppi;
   units: 'in' | 'cm' = <'in' | 'cm'>defaults.loom_settings.units;
@@ -51,6 +51,7 @@ export class WorkspaceService {
     id: -1,
     name: 'no name',
     desc: '',
+    time: 0,
     from_share: '',
     share_owner: ''
 
@@ -68,7 +69,6 @@ export class WorkspaceService {
 
 
   public setCurrentFile(meta: FileMeta) {
-    console.log("SETTING CURRENT FILE ", meta)
     this.current_file = meta;
     this.onFileOpen.next(meta);
     this.onFilenameUpdated.next(meta.name);
@@ -98,7 +98,7 @@ export class WorkspaceService {
 
   getWorkspaceLoomSettings(): LoomSettings {
     const ls: LoomSettings = {
-      type: this.type,
+      type: this.type as 'jacquard' | 'frame' | 'direct',
       epi: this.epi,
       ppi: this.ppi,
       frames: this.min_frames,
@@ -127,7 +127,7 @@ export class WorkspaceService {
 
   }
 
-  loadWorkspace(data) {
+  loadWorkspace(data: any) {
     this.min_frames = data.min_frames ?? defaults.loom_settings.frames;
     this.min_treadles = data.min_treadles ?? defaults.loom_settings.treadles;
     this.type = data.type ?? defaults.loom_settings.type;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { ScrollDispatcher } from '@angular/cdk/overlay';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,12 +26,12 @@ import { WorkspaceService } from '../core/provider/workspace.service';
 import { ZoomService } from '../core/provider/zoom.service';
 import { DraftRenderingComponent } from '../core/ui/draft-rendering/draft-rendering.component';
 import { LoomComponent } from './loom/loom.component';
-import { RepeatsComponent } from './repeats/repeats.component';
 
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatAccordion, MatTabsModule, MatButtonModule, MatTooltip, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatLabel, MatButtonToggleGroup, MatButtonToggle, FormsModule, ReactiveFormsModule, LoomComponent, DraftRenderingComponent]
 })
 export class EditorComponent implements OnInit {
@@ -48,12 +48,12 @@ export class EditorComponent implements OnInit {
   private zs = inject(ZoomService);
 
 
-  @ViewChild(LoomComponent) loom: LoomComponent;
-  @ViewChild(DraftRenderingComponent, { static: true }) weaveRef: DraftRenderingComponent;
-  @ViewChild('drawToolsPanel') drawToolsPanel: MatExpansionPanel;
-  @ViewChild('selectToolsPanel') selectToolsPanel: MatExpansionPanel;
+  @ViewChild(LoomComponent) loom!: LoomComponent;
+  @ViewChild(DraftRenderingComponent, { static: true }) weaveRef!: DraftRenderingComponent;
+  @ViewChild('drawToolsPanel') drawToolsPanel!: MatExpansionPanel;
+  @ViewChild('selectToolsPanel') selectToolsPanel!: MatExpansionPanel;
 
-  @Input() hasFocus: boolean;
+  @Input() hasFocus: boolean = false;
   @Output() saveChanges: any = new EventEmitter();
   @Output() updateMixer: any = new EventEmitter();
   @Output() cloneDraft: any = new EventEmitter();
@@ -65,11 +65,8 @@ export class EditorComponent implements OnInit {
 
   parentOp: string = '';
 
-  actions_modal: MatDialogRef<RepeatsComponent, any>;
 
   copy: Drawdown;
-
-  selected;
 
   collapsed: boolean = false;
 
@@ -83,47 +80,47 @@ export class EditorComponent implements OnInit {
 
   draw_modes: Array<{ value: string, viewValue: string, icon: string, id: number, color: string, size: number }> = [];
 
-  current_view = 'draft';
+  current_view: 'draft' | 'structure' | 'visual' | 'sim' = 'draft';
 
   scale: number = 0;
 
   designActions: Array<any> = [];
 
   // Reactive Forms controls
-  editingModeForm: FormControl; //edit from drawdown or loom
-  pencilForm: FormControl;
-  selectRegionsForm: FormControl;
+  editingModeForm!: FormControl; //edit from drawdown or loom
+  pencilForm!: FormControl;
+  selectRegionsForm!: FormControl;
 
 
 
   pencilMode: 'select' | 'draw' = 'select';
-  pencilModeForm: FormControl;
+  pencilModeForm!: FormControl;
 
 
   dressing_info: Array<{ label: string, value: string }> = [];
 
-  onRedrawCompleteSubscription: Subscription;
+  onRedrawCompleteSubscription!: Subscription;
   onLoad: boolean = false; // a flag used to call teh centering function after the first draw
 
 
-  onDraftValueChangeSubscription: Subscription;
+  onDraftValueChangeSubscription!: Subscription;
 
-  onSelectionEventSubscription: Subscription;
+  onSelectionEventSubscription!: Subscription;
   hasSelection: boolean = false;
   hasCopy: boolean = false;
 
 
   //subscribes to mouse events on the redering
   //this can be used to trigger mode. 
-  draftRenderingEventSubscription: Subscription;
+  draftRenderingEventSubscription!: Subscription;
 
 
-  eventTargetSetSubscription: Subscription;
-  pencilChangeSubscription: Subscription;
+  eventTargetSetSubscription!: Subscription;
+  pencilChangeSubscription!: Subscription;
 
 
-  drawToolsPanelSubscription: Subscription;
-  selectToolsPanelSubscription: Subscription;
+  drawToolsPanelSubscription!: Subscription;
+  selectToolsPanelSubscription!: Subscription;
 
   constructor() {
 
@@ -159,8 +156,8 @@ export class EditorComponent implements OnInit {
     // Subscribe to editing mode changes
     this.editingModeForm.valueChanges.subscribe(value => {
       if (value !== null && value !== undefined && this.weaveRef) {
-        this.weaveRef.setDraftEditSource(value);
-        this.swapEditingStyleClicked();
+        this.weaveRef.setDraftEditSource(value, true);
+        //this.swapEditingStyleClicked();
       }
     });
 
@@ -186,7 +183,7 @@ export class EditorComponent implements OnInit {
     });
 
     this.eventTargetSetSubscription = this.weaveRef.eventTargetSet$.subscribe(target => {
-      this.eventTargetSet(target);
+      if (target) this.eventTargetSet(target);
     });
 
     this.pencilChangeSubscription = this.weaveRef.pencilChange$.subscribe(pencil => {
@@ -269,7 +266,7 @@ export class EditorComponent implements OnInit {
         break;
       case 'treadling':
 
-        switch (loom_settings.type) {
+        switch (loom_settings?.type) {
           case 'direct':
             this.designActions.forEach(action => {
               action.enabled = true;
@@ -416,7 +413,7 @@ export class EditorComponent implements OnInit {
    */
   createNewDraft() {
     //copy over the loom settings
-    const loom_settings = this.tree.getLoomSettings(this.id);
+    const loom_settings = this.tree.getLoomSettings(this.id) ?? defaults.loom_settings;
     const draft = this.tree.getDraft(this.id);
     const obj = {
       type: loom_settings.type,
@@ -425,8 +422,8 @@ export class EditorComponent implements OnInit {
       units: loom_settings.units,
       frames: loom_settings.frames,
       treadles: loom_settings.treadles,
-      warps: warps(draft.drawdown),
-      wefts: wefts(draft.drawdown),
+      warps: draft != null ? warps(draft.drawdown) : 1,
+      wefts: draft != null ? wefts(draft.drawdown) : 1,
       origin: 'newdraft'
     }
 
@@ -440,7 +437,7 @@ export class EditorComponent implements OnInit {
   createDraftCopy(id: number) {
 
     //copy over the loom settings
-    const old_loom_settings: LoomSettings = this.tree.getLoomSettings(id);
+    const old_loom_settings: LoomSettings = this.tree.getLoomSettings(id) ?? defaults.loom_settings;
     const loom_settings = {
       type: old_loom_settings.type,
       epi: old_loom_settings.epi,
@@ -499,6 +496,7 @@ export class EditorComponent implements OnInit {
 
     this.id = id;
     const draft = this.tree.getDraft(id);
+    if (draft == null) return;
     const draftNode = this.tree.getNode(id) as DraftNode;
     let ls = this.tree.getLoomSettings(id);
 
@@ -514,13 +512,22 @@ export class EditorComponent implements OnInit {
       this.weaveRef.view_only = false;
     }
 
-
-    if (ls.type === 'jacquard') {
-      this.weaveRef.setDraftEditSource('drawdown');
+    let edit_source = 'drawdown';
+    if (draftNode.draft_editing_source !== undefined) {
+      edit_source = draftNode.draft_editing_source;
+      this.weaveRef.setDraftEditSource(draftNode.draft_editing_source);
     } else {
-      this.weaveRef.setDraftEditSource('loom');
+      if (ls !== null && ls.type === 'jacquard') {
+        edit_source = 'drawdown';
+        this.weaveRef.setDraftEditSource('drawdown');
+      } else {
+        edit_source = 'loom';
+        this.weaveRef.setDraftEditSource('loom');
+      }
     }
-    this.editingModeForm.setValue(this.weaveRef.draft_edit_source, { emitEvent: false });
+
+
+    this.editingModeForm.setValue(edit_source, { emitEvent: false });
 
 
 
@@ -564,6 +571,11 @@ export class EditorComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+
+
+    if (draft == null) return;
+    if (loom_settings == null) return;
+
     const flags: RenderingFlags = {
       u_drawdown: true,
       u_threading: true,
@@ -685,9 +697,9 @@ export class EditorComponent implements OnInit {
    */
   renderChange() {
     this.scale = this.zs.getEditorZoom();
-    const container: HTMLElement = document.getElementById('editor-scale-container');
-    container.style.transform = 'scale(' + this.scale + ')';
-    container.style.transformOrigin = 'left top';
+    const container: HTMLElement | null = document.getElementById('editor-scale-container');
+    if (container) container.style.transform = 'scale(' + this.scale + ')';
+    if (container) container.style.transformOrigin = 'left top';
 
   }
 
@@ -695,24 +707,24 @@ export class EditorComponent implements OnInit {
 
 
 
-  swapEditingStyleClicked() {
-    if (this.id == -1) return;
+  // swapEditingStyleClicked() {
+  //   if (this.id == -1) return;
 
-    const loom_settings = this.tree.getLoomSettings(this.id);
+  //   const loom_settings = this.tree.getLoomSettings(this.id);
 
-    if (loom_settings.type !== 'jacquard') {
+  //   if (loom_settings !== null && loom_settings.type !== 'jacquard') {
 
-      if (this.weaveRef.isSelectedDraftEditSource('drawdown')) {
-        this.weaveRef.setDraftEditSource('drawdown');
-      } else {
-        this.weaveRef.setDraftEditSource('loom');
-      }
+  //     if (this.weaveRef.isSelectedDraftEditSource('drawdown')) {
+  //       this.weaveRef.setDraftEditSource('drawdown');
+  //     } else {
+  //       this.weaveRef.setDraftEditSource('loom');
+  //     }
 
-    } else {
-      this.weaveRef.setDraftEditSource('drawdown');
-    }
+  //   } else {
+  //     this.weaveRef.setDraftEditSource('drawdown');
+  //   }
 
-  }
+  // }
 
   /**
    * Adjusts the scale of the rendering such that the entire view is visible and as large as possible

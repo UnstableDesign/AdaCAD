@@ -23,7 +23,7 @@
         <div class="logo"></div>
 
 
-        <span>AdaCAD </span>
+        <span>AdaCAD</span>
 
 
         <button matButton="elevated" color="accent" (click)="openNews()">version
@@ -152,8 +152,7 @@
       <app-library class="library-container" [class.hide]="selected_editor_mode !== 'library'"
         [class.show]="selected_editor_mode === 'library'" #library id="library" cdkScrollable
         (onOpenInEditor)="openInEditor($event)" (onOpenInMixer)="openInMixer($event)"
-        (onDraftNameChange)="updateDraftName($event)" (onWorkspaceRename)="renameWorkspaceFromLibrary($event)"
-        (onImportCalled)="import($event)">
+        (onDraftNameChange)="updateDraftName($event)" (onWorkspaceRename)="renameWorkspaceFromLibrary($event)">
       </app-library>
 
 

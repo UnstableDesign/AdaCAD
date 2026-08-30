@@ -8,10 +8,13 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, ConnectionNode, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, ConnectionNode, DraftEditingSource, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
+import { U } from '@angular/cdk/keycodes';
+import { defaults as appDefaults } from '../../core/model/defaults';
+import { boundsIntersect } from '../model/helper';
 
 
 
@@ -46,14 +49,20 @@ export class TreeService {
   async replaceOutdatedOps(nodes: Array<any>): Promise<Array<any>> {
 
     const correctedNodes = nodes.map(node => {
-      if (this.ops.getOp(node.name) === null) {
-        const op = this.ops.getOpByOldName(node.name);
+      if (this.ops.getOp(node.name) === undefined) {
+        const op = this.ops.getOpByOldName(node.name) as Operation;
+        if (op == undefined) {
+          console.error('operation not found', node.name);
+          return this.ops.getOp('rectangle') as Operation;
+        }
+        console.error("op name changed from", node.name, "to", op.name);
         node.name = op.name
         node.inlets = op.inlets;
       }
       return node;
     });
 
+    console.log("correctedNodes", correctedNodes);
     return Promise.resolve(correctedNodes);
   }
 
@@ -63,10 +72,12 @@ export class TreeService {
   async validateNodes(): Promise<boolean> {
 
 
+
     const err_ops: Array<Node> = this.nodes
       .filter(el => el.type === "op")
       .filter(el => this.ops.getOp((<OpNode>el).name) === undefined)
 
+    console.log("err_ops", err_ops);
     //console.error("found invalid op nodes", err_ops);
 
 
@@ -93,7 +104,7 @@ export class TreeService {
    */
   broadcastDraftNodeValueChange(id: number, flags: DraftNodeBroadcastFlags) {
     const node = this.getNode(id);
-    if (node.type === 'draft') {
+    if (node !== null && node.type === 'draft') {
       const draft = (<DraftNode>node).draft;
       const size = draft ? `${warps(draft.drawdown)}x${wefts(draft.drawdown)}` : 'null';
 
@@ -121,10 +132,10 @@ export class TreeService {
     const param_type = op.params[param_id].type
     const opnode = this.getOpNode(opid);
 
-    if (!this.ops.isDynamic(name)) return;
+    if (!this.ops.isDynamic(name)) return [];
 
 
-    if (op.dynamic_param_id !== param_id) return;
+    if (op.dynamic_param_id !== param_id) return [];
 
 
     let param_vals: Array<OpParamVal> = opnode.params.map((el, ndx) => {
@@ -153,7 +164,7 @@ export class TreeService {
 
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
-    let op = this.ops.getOp(name);
+    let op: Operation | DynamicOperation | undefined = this.ops.getOp(name);
 
     if (nodes.length !== 1) {
       return Promise.reject("found 0 or more than 1 nodes at id " + entry.cur_id);
@@ -161,20 +172,11 @@ export class TreeService {
 
     const node = nodes[0];
 
-    if (op === undefined || op === null) {
+    if (op === undefined) {
       return Promise.reject("no op of name:" + name + " exists");
 
     }
 
-
-
-    if (params === undefined) {
-      params = [];
-    }
-
-    if (params === undefined) {
-      inlets = [];
-    }
 
     const param_types = op.params.map(el => el.type);
 
@@ -194,7 +196,8 @@ export class TreeService {
       }
     });
 
-    const default_param_values = this.ops.getOp(name).params.map(el => el.value);
+
+    const default_param_values = op.params.map(el => el.value);
 
     //this gets teh default values for the opration
     //this overwrites some of those with any value that has been previous added
@@ -203,7 +206,11 @@ export class TreeService {
       else return p;
     });
 
-    const default_inlet_values = this.ops.getOp(name).inlets.map(el => el.value);
+    const default_inlet_values = this.ops.getOp(name)?.inlets.map(el => el.value);
+    if (default_inlet_values == undefined) {
+      console.error('operation not found', name);
+      return Promise.reject(new Error('operation not found'));
+    }
 
     if (inlets === undefined || inlets.length == 0) {
       inlets = default_inlet_values.slice();
@@ -237,11 +244,12 @@ export class TreeService {
    */
   updateLooms() {
     this.getDraftNodes().forEach(dn => {
-
-      const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-      loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings).then(loom => {
-        dn.loom = loom;
-      });
+      if (dn.draft !== null) {
+        const loom_utils = getLoomUtilByType(dn.loom_settings?.type ?? 'jacquard');
+        if (loom_utils.computeLoomFromDrawdown !== undefined) loom_utils.computeLoomFromDrawdown(dn.draft.drawdown, dn.loom_settings).then(loom => {
+          dn.loom = loom;
+        });
+      }
     });
 
   }
@@ -268,19 +276,30 @@ export class TreeService {
    * @param loom the loom to associate with this node
    * @returns the created draft node and the entry associated with this
    */
-  loadDraftData(entry: { prev_id: number, cur_id: number }, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, draft_visible: boolean): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
+  loadDraftData(entry: { prev_id: number, cur_id: number }, draft_proxy: DraftNodeProxy | undefined): Promise<{ dn: DraftNode, entry: { prev_id: number, cur_id: number } }> {
 
+    if (draft_proxy === undefined || draft_proxy.draft === undefined) {
+      return Promise.reject("draft is undefined");
+    }
 
     const nodes = this.nodes.filter(el => el.id === entry.cur_id);
     if (nodes.length !== 1) return Promise.reject("found 0 or more than 1 nodes at id " + entry.cur_id);
 
     const draftNode: DraftNode = <DraftNode>nodes[0];
 
-    draftNode.dirty = true;
+    const draft = draft_proxy.draft;
+    draftNode.id = entry.cur_id;
     draft.id = entry.cur_id;
-    draft.gen_name = draft.gen_name ?? 'drafty';
-    draft.ud_name = draft.ud_name ?? '';
-    draft.notes = draft.notes ?? '';
+    draft.gen_name = draft_proxy.gen_name ?? 'drafty';
+    draft.ud_name = draft_proxy.ud_name ?? '';
+    draft.notes = draft_proxy.notes ?? '';
+    const loom = draft_proxy.loom ?? null;
+    const loom_settings = draft_proxy.loom_settings;
+    draftNode.loom_settings = loom_settings;
+    draftNode.loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
+    draftNode.draft_editing_source = draft_proxy.draft_editing_source ?? 'drawdown';
+
+
 
     const flags: DraftNodeBroadcastFlags = {
       meta: true,
@@ -290,38 +309,21 @@ export class TreeService {
       materials: true
     };
 
-    if (loom_settings === null || loom_settings == undefined) {
-      this.setLoomSettings(entry.cur_id, {
-        type: this.ws.type,
-        epi: this.ws.epi,
-        ppi: this.ws.ppi,
-        units: this.ws.units,
-        frames: this.ws.min_frames,
-        treadles: this.ws.min_treadles
-      }, false);
-
-    } else {
-      draftNode.loom_settings = loom_settings;
-      draftNode.loom_settings.ppi = loom_settings.ppi ?? defaults.loom_settings.ppi;
-    }
 
 
-    if (loom === null || loom == undefined || loom_settings.type === "jacquard") {
+
+    if (loom === null || loom == undefined || loom_settings?.type === "jacquard") {
       this.setLoom(entry.cur_id, null, false);
     } else {
       this.setLoom(entry.cur_id, copyLoom(loom), false);
     }
 
-    if (render_colors === undefined || render_colors === null) draftNode.render_colors = false;
-    else draftNode.render_colors = render_colors;
-
-    if (scale === undefined || scale === null) draftNode.scale = 1;
-    else draftNode.scale = scale;
-
-    if (draft_visible == undefined || draft_visible == null) draftNode.visible = true;
-    else draftNode.visible = draft_visible;
+    draftNode.render_colors = draft_proxy.render_colors ?? false;
+    draftNode.scale = draft_proxy.scale ?? 1;
+    draftNode.visible = draft_proxy.draft_visible ?? true;
 
     this.setDraft(entry.cur_id, copyDraft(draft), flags, true, false);
+
 
     return Promise.resolve({ dn: draftNode, entry });
   }
@@ -364,6 +366,7 @@ export class TreeService {
   getConnectionsInvolving(node_id: number): { from: number, to: number } {
 
     const tn = this.getTreeNode(node_id);
+    if (tn == null) return { from: -1, to: -1 };
     if (tn.outputs.length !== 1) console.error("connection node has more than one to");
     if (tn.inputs.length !== 1) console.error("connection node has more than one from");
 
@@ -379,7 +382,7 @@ export class TreeService {
    * @param cxn_id 
    * @param returns the position index of the cxn or -1 if not found
    */
-  getInletOfCxn(op_id: number, cxn_id): number {
+  getInletOfCxn(op_id: number, cxn_id: number): number {
     const inputs = this.getInputsWithNdx(op_id);
     const ndx: Array<number> = inputs
       .filter(el => el.tn.node.id === cxn_id)
@@ -420,14 +423,14 @@ export class TreeService {
         let prior_val = prior_inlet_vals[iotuple.ndx];
 
         let new_ndx = opnode.inlets.findIndex(el => {
-          let new_string = el.toString();
+          let new_string = el?.toString() ?? '';
           return new_string.includes(prior_val.toString());
         });
 
 
         if (new_ndx == -1) {
           this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
-          viewRefs.push(iotuple.tn.node.ref)
+          if (iotuple.tn.node.ref !== null) viewRefs.push(iotuple.tn.node.ref);
         } else {
           iotuple.ndx = new_ndx;
         }
@@ -452,8 +455,8 @@ export class TreeService {
 
     drafts.forEach(did => {
       let draft = <DraftNode>this.getNode(did);
-      if (draft.mark_for_deletion) {
-        viewRefs.push(draft.ref);
+      if (draft !== null && draft.mark_for_deletion) {
+        if (draft.ref !== null) viewRefs.push(draft.ref);
         this.removeConnectionNode(id, did, 0);
         this.removeSubdraftNode(did);
       }
@@ -500,12 +503,14 @@ export class TreeService {
   }
 
   setNodeComponent(id: number, c: SubdraftComponent | OperationComponent | ConnectionComponent) {
-    const node: Node = this.getNode(id);
+    const node = this.getNode(id);
+    if (node == null) return;
     node.component = c;
   }
 
   setNodeViewRef(id: number, v: ViewRef) {
-    const node: Node = this.getNode(id);
+    const node = this.getNode(id);
+    if (node == null) return;
     node.ref = v;
   }
 
@@ -529,33 +534,50 @@ export class TreeService {
    * @returns an object that holds the tree node as well as its associated map entry
    */
 
-  async loadTreeNodeData(id_map: any, node_id: number, parent_id: number, inputs: Array<{ tn: number, ndx: number }>, outputs: Array<{ tn: number, ndx: number }>): Promise<{ tn: TreeNode, entry: { prev_id: number, cur_id: number } }> {
+  async loadTreeNodeData(id_map: { prev_id: number, cur_id: number }[], node_id: number, parent_id: number, inputs: Array<{ tn: number, ndx: number }>, outputs: Array<{ tn: number, ndx: number }>): Promise<{ tn: TreeNode, entry: { prev_id: number, cur_id: number } }> {
 
-    const entry = id_map.find(el => el.cur_id === node_id);
 
-    const tn: TreeNode = this.getTreeNode(node_id);
-    tn.parent = (parent_id === -1) ? null : this.getTreeNode(parent_id);
-    tn.inputs = inputs
-      .filter(input => input !== undefined)
-      .map(input => { return { tn: this.getTreeNode(input.tn), ndx: input.ndx } });
-    tn.outputs = outputs
-      .filter(output => output !== undefined)
-      .map(output => {
-        return { tn: this.getTreeNode(output.tn), ndx: output.ndx }
-      });
+    const entry = id_map.find((el: { prev_id: number, cur_id: number }) => el.cur_id === node_id);
+    if (entry == undefined) return Promise.reject('Entry not found in loadTreeNodeData');
+
+    const tn = this.getTreeNode(node_id);
+    if (tn == null) return Promise.reject('Tree node not found in loadTreeNodeData');
+
+    const parent = this.getTreeNode(parent_id);
+    tn.parent = (parent_id === -1) ? null : parent;
+
+    inputs.forEach((input: { tn: number, ndx: number }) => {
+      if (input.tn !== undefined) {
+        const in_tn = this.getTreeNode(input.tn);
+        if (in_tn !== null) tn.inputs.push({ tn: in_tn, ndx: input.ndx });
+        else console.error("Tree node not found in loadTreeNodeData", input.tn);
+      } else console.error("Input is undefined in loadTreeNodeData", input);
+    });
+
+    outputs.forEach((output: { tn: number, ndx: number }) => {
+      if (output.tn !== undefined) {
+        const out_tn = this.getTreeNode(output.tn);
+        if (out_tn !== null) {
+          tn.outputs.push({ tn: out_tn, ndx: output.ndx });
+        }
+        else console.error("Tree node not found in loadTreeNodeData", output.tn);
+      } else console.error("Output is undefined in loadTreeNodeData", output);
+    });
+
+
     return Promise.resolve({ tn, entry });
 
 
   }
 
 
-  private createDraftNode(ref: ViewRef, component: SubdraftComponent, draft: Draft, loom: Loom, loom_settings: LoomSettings, render_colors: boolean, scale: number, visible: boolean): DraftNode {
+  private createDraftNode(ref: ViewRef | null, component: SubdraftComponent | null, draft: Draft | null, loom: Loom | null, loom_settings: LoomSettings | null, render_colors: boolean, scale: number, visible: boolean): DraftNode {
 
     const dnb: DraftNodeBroadcast = {
       id: generateId(8),
       draft: draft,
-      loom: loom,
-      loom_settings: loom_settings,
+      loom: loom ?? null,
+      loom_settings: loom_settings ?? appDefaults.loom_settings,
       flags: {
         meta: true,
         draft: true,
@@ -573,19 +595,19 @@ export class TreeService {
       dirty: false,
       draft: draft,
       loom: loom,
-      loom_settings: loom_settings,
+      loom_settings: loom_settings ?? appDefaults.loom_settings,
       render_colors: render_colors,
       scale: scale,
       visible: visible,
       mark_for_deletion: false,
       onValueChange: new BehaviorSubject<DraftNodeBroadcast>(dnb),
       canvases: null,
-      positionChange: new BehaviorSubject<Point>(null)
+      positionChange: new BehaviorSubject<Point>({ x: 0, y: 0 })
     }
     return node;
   }
 
-  createOpNode(ref: ViewRef, component: OperationComponent, name: string, params: Array<any>, inlets: Array<any>): OpNode {
+  createOpNode(ref: ViewRef | null, component: OperationComponent, name: string, params: Array<any>, inlets: Array<any>): OpNode {
     const node: OpNode = {
       type: 'op',
       ref: ref,
@@ -597,12 +619,12 @@ export class TreeService {
       name: name,
       recomputing: new BehaviorSubject<boolean>(false),
       checkChildren: new BehaviorSubject<boolean>(true),
-      positionChange: new BehaviorSubject<Point>(null)
+      positionChange: new BehaviorSubject<Point>({ x: 0, y: 0 })
     }
     return node;
   }
 
-  private createConnectionNode(ref: ViewRef, component: ConnectionComponent): ConnectionNode {
+  private createConnectionNode(ref: ViewRef | null, component: ConnectionComponent): ConnectionNode {
 
     const recomputing = new BehaviorSubject<boolean>(false);
     const upstreamOfSelected = new BehaviorSubject<boolean>(false);
@@ -629,7 +651,7 @@ export class TreeService {
    * @param component the compoenent instance
    * @returns the id assigned
    */
-  createNode(type: 'draft' | 'op' | 'cxn', component: SubdraftComponent | OperationComponent | ConnectionComponent, ref: ViewRef): number {
+  createNode(type: 'draft' | 'op' | 'cxn', component: SubdraftComponent | OperationComponent | ConnectionComponent | null, ref: ViewRef | null): number {
 
 
     let node: Node;
@@ -659,8 +681,9 @@ export class TreeService {
     return node.id;
   }
 
-  getComponent(id: number): SubdraftComponent | ConnectionComponent | OperationComponent {
-    const node: Node = this.getNode(id);
+  getComponent(id: number): SubdraftComponent | ConnectionComponent | OperationComponent | null {
+    const node = this.getNode(id);
+    if (node == null) return null;
     return node.component;
   }
 
@@ -668,12 +691,42 @@ export class TreeService {
     return this.nodes.map(node => node.component);
   }
 
-  getNode(id: number): Node {
+  getNode(id: number): Node | null {
     const ndx: number = this.getNodeIndex(id);
     if (ndx === -1) return null;
     return this.nodes[ndx];
   }
 
+
+  /**
+   * assumes a list of in bounds components, returns the components that are not in bounds
+   * @param inBounds 
+   * @returns 
+   */
+  getComponentsOutOfBounds(inBounds: Array<SubdraftComponent | OperationComponent>): Array<SubdraftComponent | OperationComponent> {
+
+    let candidates: Array<SubdraftComponent | OperationComponent> = this.nodes
+      .filter(node => this.getType(node.id) === 'draft' || this.getType(node.id) === 'op')
+      .map(node => node.component as SubdraftComponent | OperationComponent)
+      .filter(node => node !== null)
+      .filter(node => inBounds.find(el => el.id === node.id) === undefined);
+    return candidates;
+  }
+
+
+  /**
+   * a function to see if the current selection bounds and the bounds of a component intersect at any point
+   * @param bounds 
+   * @returns 
+   */
+  getComponentsInBounds(bounds: Bounds): Array<SubdraftComponent | OperationComponent> {
+    let candidates: Array<SubdraftComponent | OperationComponent> = this.nodes
+      .filter(node => this.getType(node.id) === 'draft' || this.getType(node.id) === 'op')
+      .map(node => node.component as SubdraftComponent | OperationComponent)
+      .filter(node => node !== null)
+      .filter(node => boundsIntersect(bounds, node.getBounds()));
+    return candidates;
+  }
 
 
   /**
@@ -730,13 +783,14 @@ export class TreeService {
 
   getType(id: number): string {
 
-    const node: Node = this.getNode(id);
+    const node = this.getNode(id);
     if (node == null) return 'null'
     return node.type;
   }
 
-  getViewRef(id: number): ViewRef {
-    const node: Node = this.getNode(id);
+  getViewRef(id: number): ViewRef | null {
+    const node = this.getNode(id);
+    if (node == null) return null;
     return node.ref;
   }
 
@@ -747,7 +801,7 @@ export class TreeService {
    * @returns the parent's id, or -1 if it has no parent
    */
   getSubdraftParent(sd_id: number): number {
-    const tn: TreeNode = this.getTreeNode(sd_id);
+    const tn = this.getTreeNode(sd_id);
     if (tn == null || tn == undefined || tn.parent === null || tn.parent === undefined) return -1;
     else return tn.parent.node.id;
   }
@@ -762,7 +816,8 @@ export class TreeService {
    * @returns an array of id's for the immediatly connected connections
    */
   getNodeConnections(id: number): Array<number> {
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return [];
     const out_node: Array<Node> = tn.outputs.map(el => el.tn.node);
     const out_cxn: Array<Node> = out_node.filter(el => el.type === 'cxn');
     const in_node: Array<Node> = tn.inputs.map(el => el.tn.node);
@@ -779,7 +834,8 @@ export class TreeService {
    */
   getNodesToUpdateOnMove(id: number) {
 
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return [];
     let to_check: Array<number> = [id];
 
     if (this.isMultipleParent(id) || this.isSibling(id)) return to_check;
@@ -788,11 +844,11 @@ export class TreeService {
     if (tn.parent !== null) to_check.push(tn.parent.node.id);
 
     //add the child this node generated if there is one. 
-    const outputs: Array<TreeNode> = this.getNonCxnOutputs(id).map(el => this.getTreeNode(el));
+    const outputs: Array<TreeNode> = this.getNonCxnOutputs(id).map(el => this.getTreeNode(el)).filter(el => el !== null);
 
 
-    const has_parents: Array<TreeNode> = outputs.filter(el => (el.parent !== null));
-    const is_child: Array<number> = has_parents.filter(el => (el.parent.node.id === id)).map(el => el.node.id);
+    const has_parents: Array<TreeNode> = outputs.filter(el => (el?.parent !== null));
+    const is_child: Array<number> = has_parents.filter(el => (el?.parent?.node.id === id)).map(el => el.node.id);
 
     if (is_child.length > 0) to_check = to_check.concat(is_child);
 
@@ -826,9 +882,9 @@ export class TreeService {
       return false; //these two things are already directly connected
     }
 
-
-
-    const has_room = (this.getInputs(id).length < (<OperationComponent>this.getComponent(id)).op.inlets[inlet].num_drafts || (<OperationComponent>this.getComponent(id)).op.inlets[inlet].num_drafts == -1);
+    const name = (<OperationComponent>this.getComponent(id))?.op?.name ?? '';
+    const op = this.ops.getOp(name);
+    const has_room = (op !== undefined && (this.getInputs(id).length < op.inlets[inlet].num_drafts || op.inlets[inlet].num_drafts == -1));
     if (!has_room) return false;
 
     if (parent_op === -1 && has_room) return true; //if you don't have a parent and there is room, go for it
@@ -845,7 +901,8 @@ export class TreeService {
    * @returns a boolean 
    */
   isParent(id: number): boolean {
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return false;
     return (tn.outputs.length > 0);
   }
 
@@ -855,8 +912,9 @@ export class TreeService {
    * @returns a boolean 
    */
   isSeedDraft(id: number): boolean {
-    const tn: TreeNode = this.getTreeNode(id);
-    return (this.getType(id) === "draft" && tn.inputs.length === 0);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return false;
+    return (this.getType(id) === "draft" && tn?.inputs.length === 0);
   }
 
   /**
@@ -865,7 +923,8 @@ export class TreeService {
  * @returns a boolean 
  */
   hasSingleChild(id: number): boolean {
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return false;
     return (tn.outputs.length === 1);
   }
 
@@ -876,12 +935,13 @@ export class TreeService {
    * @returns a boolean 
    */
   opHasHiddenChild(id: number): boolean {
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
     const outs = this.getNonCxnOutputs(id);
 
     if (outs.length === 0) return false;
 
     const child_id = outs.shift();
+    if (child_id == null) return false;
     let child_visible = this.getDraftVisible(child_id);
     return !child_visible;
   }
@@ -895,7 +955,8 @@ export class TreeService {
    * @returns a boolean 
    */
   isMultipleParent(id: number): boolean {
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return false;
     return (tn.outputs.length > 1);
   }
 
@@ -909,8 +970,9 @@ export class TreeService {
 
     if (a_id === b_id) return false;
 
-    const atn: TreeNode = this.getTreeNode(a_id);
-    const btn: TreeNode = this.getTreeNode(b_id);
+    const atn = this.getTreeNode(a_id);
+    const btn = this.getTreeNode(b_id);
+    if (atn == null || btn == null) return false;
     if (atn.parent == null || btn.parent == null) return false;
     return (atn.parent.node.id === btn.parent.node.id);
   }
@@ -921,9 +983,10 @@ export class TreeService {
  * @returns a boolean 
  */
   isSibling(id: number): boolean {
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return false;
     if (tn.parent == null) return false;
-    return (this.getTreeNode(tn.parent.node.id).outputs.length > 1);
+    return ((this.getTreeNode(tn.parent.node.id)?.outputs.length ?? 0) > 1);
   }
 
 
@@ -936,7 +999,8 @@ export class TreeService {
   getDownstreamOperations(id: number): Array<number> {
 
     let ops: Array<number> = [];
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return [];
     if (tn.outputs.length > 0) {
 
       tn.outputs.forEach(el => {
@@ -962,7 +1026,8 @@ export class TreeService {
   getAllDownstreamNodes(id: number): Array<number> {
 
     let nodes: Array<number> = [];
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return [];
     if (tn.outputs.length > 0) {
 
       tn.outputs.forEach(el => {
@@ -975,7 +1040,8 @@ export class TreeService {
 
   getAllUpstreamNodes(id: number): Array<number> {
     let nodes: Array<number> = [];
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return [];
     if (tn.inputs.length > 0) {
       tn.inputs.forEach(el => {
         nodes.push(el.tn.node.id);
@@ -998,9 +1064,11 @@ export class TreeService {
   getUpstreamOperations(id: number): Array<number> {
 
     let ops: Array<number> = [];
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn = this.getTreeNode(id);
+    if (tn == null) return [];
+    if (tn.inputs.length == 0) return [];
+    else {
 
-    if (tn.inputs.length > 0) {
       tn.inputs.forEach(el => {
         if (el.tn.node.type === 'op') {
           ops.push(el.tn.node.id);
@@ -1021,8 +1089,8 @@ export class TreeService {
  */
   getUpstreamDrafts(id: number): Array<number> {
     let ops: Array<number> = [];
-    const tn: TreeNode = this.getTreeNode(id);
-
+    const tn = this.getTreeNode(id);
+    if (tn == null) return [];
     if (tn.inputs.length > 0) {
       tn.inputs.forEach(el => {
         if (el.tn.node.type == 'draft') {
@@ -1043,7 +1111,7 @@ export class TreeService {
 
 
     const deleted: Array<Node> = [];
-    if (id === undefined) return;
+    if (id === undefined) return [];
 
 
 
@@ -1057,7 +1125,7 @@ export class TreeService {
     const ops_out: Array<number> = this.getNonCxnOutputs(id); //get all 
 
     //get all the output connections of those subdrafts
-    const op_in_cxns: Array<number> = ops_in.reduce((acc, el) => {
+    const op_in_cxns: Array<number> = ops_in.reduce((acc: Array<number>, el) => {
       return acc.concat(this.getInputs(el))
     }, []);
 
@@ -1067,24 +1135,29 @@ export class TreeService {
     // console.log("OPSs out", ops_out);
     // console.log("op connections in", op_in_cxns);
 
-    deleted.push(this.removeNode(id));
+    const removed = this.removeNode(id);
+    if (removed !== null && removed !== undefined) deleted.push(removed);
 
     cxns_in.forEach(el => {
-      deleted.push(this.removeNode(el));
+      const removed = this.removeNode(el);
+      if (removed !== null && removed !== undefined) deleted.push(removed);
     });
 
     cxns_out.forEach(el => {
-      deleted.push(this.removeNode(el));
+      const removed = this.removeNode(el);
+      if (removed !== null && removed !== undefined) deleted.push(removed);
     });
 
 
     ops_in.forEach(el => {
-      deleted.push(this.removeNode(el));
+      const removed = this.removeNode(el);
+      if (removed !== null && removed !== undefined) deleted.push(removed);
     });
 
 
     op_in_cxns.forEach(el => {
-      deleted.push(this.removeNode(el));
+      const removed = this.removeNode(el);
+      if (removed !== null && removed !== undefined) deleted.push(removed);
     });
     // deleted.concat(sds_in.map(el => this.removeNode(el)));
     // deleted.concat(cxns_in.map(el => {return this.removeNode(el)}));
@@ -1105,7 +1178,7 @@ export class TreeService {
 
 
     const deleted: Array<Node> = [];
-    if (id === undefined) return;
+    if (id === undefined) return [];
 
 
     //get any input subdrafts and connections
@@ -1118,7 +1191,7 @@ export class TreeService {
     const sds_out: Array<number> = this.getNonCxnOutputs(id); //get all 
 
     //get all the output connections of those subdrafts
-    const sds_out_cxns: Array<number> = sds_out.reduce((acc, el) => {
+    const sds_out_cxns: Array<number> = sds_out.reduce((acc: Array<number>, el) => {
       return acc.concat(this.getOutputs(el))
     }, []);
 
@@ -1128,24 +1201,29 @@ export class TreeService {
     // console.log("SDs out", sds_out);
     // console.log("sd connections out", sds_out_cxns);
 
-    deleted.push(this.removeNode(id));
+    const removed = this.removeNode(id);
+    if (removed !== null && removed !== undefined) deleted.push(removed);
 
     cxns_in.forEach(el => {
-      deleted.push(this.removeNode(el));
+      const removed = this.removeNode(el);
+      if (removed !== null && removed !== undefined) deleted.push(removed);
     });
 
     cxns_out.forEach(el => {
-      deleted.push(this.removeNode(el));
+      const removed = this.removeNode(el);
+      if (removed !== null && removed !== undefined) deleted.push(removed);
     });
 
 
     sds_out.forEach(el => {
-      deleted.push(this.removeNode(el));
+      const removed = this.removeNode(el);
+      if (removed !== null && removed !== undefined) deleted.push(removed);
     });
 
 
     sds_out_cxns.forEach(el => {
-      deleted.push(this.removeNode(el));
+      const removed = this.removeNode(el);
+      if (removed !== null && removed !== undefined) deleted.push(removed);
     });
     return deleted;
 
@@ -1165,9 +1243,11 @@ export class TreeService {
     const cxn_id: number = this.getConnectionAtInlet(from, to, inletid);
 
     const deleted: Array<Node> = [];
-    if (cxn_id === undefined) return;
+    if (cxn_id === undefined || cxn_id == null) return [];
 
-    deleted.push(this.removeNode(cxn_id));
+
+    const removed = this.removeNode(cxn_id);
+    if (removed !== null && removed !== undefined) deleted.push(removed);
 
     return deleted;
 
@@ -1178,9 +1258,10 @@ export class TreeService {
 
 
     const deleted: Array<Node> = [];
-    if (cxn_id === undefined) return;
+    if (cxn_id === undefined || cxn_id == null) return [];
 
-    deleted.push(this.removeNode(cxn_id));
+    const removed = this.removeNode(cxn_id);
+    if (removed !== null && removed !== undefined) deleted.push(removed);
 
     return deleted;
 
@@ -1193,16 +1274,15 @@ export class TreeService {
    * @param id the id of the node to be removed
    * @returns the node it removed
    */
-  removeNode(id: number): Node {
+  removeNode(id: number): Node | null {
 
 
     const deleted: Array<Node> = [];
 
-    const node: Node = this.getNode(id);
+    const node = this.getNode(id);
+    if (node == null || node == undefined) return null;
+
     deleted.push(node);
-    if (node === undefined) return;
-
-
     this.removeNodeTreeAssociations(node.id);
 
     const ndx: number = this.getNodeIndex(id);
@@ -1271,7 +1351,11 @@ export class TreeService {
 
     const touched: Array<number> = [];
     const opnode: OpNode = this.getOpNode(parent);
-    const op: Operation = this.ops.getOp(opnode.name);
+    const op: Operation | undefined = this.ops.getOp(opnode.name);
+    if (op == undefined) {
+      console.error('operation not found', opnode.name);
+      return Promise.reject(new Error('operation not found'));
+    }
     const new_draft_fns = [];
 
 
@@ -1292,8 +1376,8 @@ export class TreeService {
         let cxn_child = this.getOutputs(active_tn_tuple.tn.node.id);
         if (cxn_child.length > 0) {
           outputs[i].draft.gen_name = op.generateName(param_vals, inputs)
-          if (outputs[i].loom !== undefined) this.setLoom(cxn_child[0], outputs[i].loom, false)
-          if (outputs[i].loom_settings !== undefined) this.setLoomSettings(cxn_child[0], outputs[i].loom_settings, false)
+          if (outputs[i].loom !== undefined) this.setLoom(cxn_child[0], outputs[i].loom ?? null, false)
+          if (outputs[i].loom_settings !== undefined) this.setLoomSettings(cxn_child[0], outputs[i].loom_settings ?? appDefaults.loom_settings, false)
 
           const flags: DraftNodeBroadcastFlags = {
             meta: true,
@@ -1311,7 +1395,20 @@ export class TreeService {
         const id = this.createNode('draft', null, null);
         const cxn = this.createNode('cxn', null, null);
         this.addConnection(parent, i, id, 0, cxn);
-        new_draft_fns.push(this.loadDraftData({ prev_id: -1, cur_id: id }, outputs[i].draft, (outputs[i].loom ?? null), (outputs[i].loom_settings ?? null), true, 1, !this.ws.hide_mixer_drafts));
+        const dp: DraftNodeProxy = {
+          draft: outputs[i].draft,
+          loom: outputs[i].loom ?? null,
+          loom_settings: outputs[i].loom_settings ?? appDefaults.loom_settings,
+          render_colors: true,
+          scale: 1,
+          draft_visible: true,
+          node_id: id,
+          draft_id: id,
+          ud_name: outputs[i].draft.ud_name ?? '',
+          gen_name: outputs[i].draft.gen_name ?? defaults.draft_name,
+          notes: outputs[i].draft.notes ?? ''
+        }
+        new_draft_fns.push(this.loadDraftData({ prev_id: -1, cur_id: id }, dp));
         touched.push(id);
       }
 
@@ -1339,7 +1436,8 @@ export class TreeService {
         const ids = drafts_loaded.map(el => el.entry.cur_id);
         ids.forEach((id, ndx) => {
           let d = this.getDraft(id);
-          d.gen_name = op.generateName(param_vals, inputs);
+          if (d == null) console.error("draft is null in update drafts from results");
+          if (d !== null) d.gen_name = op.generateName(param_vals, inputs);
           const dn = <DraftNode>this.getNode(id);
           const flags: DraftNodeBroadcastFlags = {
             meta: true,
@@ -1348,7 +1446,7 @@ export class TreeService {
             loom_settings: true,
             materials: true
           };
-          this.setDraft(dn.id, d, flags, true, false);
+          if (d !== null) this.setDraft(dn.id, d, flags, true, false);
           dn.dirty = true;
         })
 
@@ -1367,7 +1465,7 @@ export class TreeService {
   async recomputeDraftChildren(id: number) {
     const dn = <DraftNode>this.getNode(id);
     const children = this.getNonCxnOutputs(id);
-    const opList = [];
+    const opList: Array<number> = [];
     children.forEach(child => {
       const op = this.getOpNode(child);
       op.dirty = true;
@@ -1419,7 +1517,7 @@ export class TreeService {
   public getNextGeneration(parents: Array<{ op_id: number, start_time: number, generation: number }>, generation: number, lineage: Array<{ op_id: number, start_time: number, generation: number }>): { next_generation: Array<{ op_id: number, start_time: number, generation: number }>, lineage: Array<{ op_id: number, start_time: number, generation: number }> } {
 
 
-    const next_generation = [];
+    const next_generation: Array<{ op_id: number, start_time: number, generation: number }> = [];
     parents.forEach(parent => {
       const drafts = this.getNonCxnOutputs(parent.op_id);
       drafts.forEach(draft => {
@@ -1448,7 +1546,7 @@ export class TreeService {
    * @returns 
    */
   public createSchedule(op_ids?: Array<number> | null): Promise<Array<number>> {
-
+    console.log('[createSchedule] Op IDs:', op_ids);
 
 
     let lineage = [];
@@ -1508,7 +1606,6 @@ export class TreeService {
    */
   async performAndUpdateDownstream(op_ids: Array<number>, excludeFromCanvasReset: number[] = []): Promise<any> {
     const schedule = await this.createSchedule(op_ids);
-    console.log(schedule)
     for (const op_id of schedule) {
       try {
         await this.performOp(op_id);
@@ -1537,7 +1634,7 @@ export class TreeService {
     const draft_tn = io.tn.inputs[0].tn;
     const cxn_tn = io.tn;
     const type = draft_tn.node.type;
-    const draft: Draft = (<DraftNode>draft_tn.node).draft;
+    const draft: Draft | null = (<DraftNode>draft_tn.node).draft;
     if (draft === null || draft === undefined) return false;
     if (wefts(draft.drawdown) == 0 || warps(draft.drawdown) == 0) return false;
     return true;
@@ -1552,20 +1649,28 @@ export class TreeService {
     const all_inputs = this.getInputsWithNdx(opId);
     const opnode = this.getOpNode(opId);
 
-    const draft_id_to_ndx = [];
+    const draft_id_to_ndx: Array<{ ndx: number, draft: Draft | null, loom: Loom | null, loom_settings: LoomSettings | null }> = [];
     all_inputs.filter(el => this.isValidIOTuple(el))
       .forEach((el) => {
         const draft_tn = el.tn.inputs[0].tn;
-        draft_id_to_ndx.push({ ndx: el.ndx, draft: (<DraftNode>draft_tn.node).draft });
+        draft_id_to_ndx.push(
+          {
+            ndx: el.ndx,
+            draft: (<DraftNode>draft_tn.node).draft ?? null,
+            loom: (<DraftNode>draft_tn.node).loom ?? null,
+            loom_settings: (<DraftNode>draft_tn.node).loom_settings ?? null
+          });
       });
 
     return draft_id_to_ndx
+      .filter(el => el !== undefined && el.draft !== null && el.draft !== undefined)
       .map(el => ({
-        drafts: [el.draft],
+        drafts: (el.draft !== null && el.draft !== undefined) ? [el.draft] : [],
+        looms: (el.loom !== null && el.loom !== undefined) ? [el.loom] : [],
+        loom_settings: (el.loom_settings !== null && el.loom_settings !== undefined) ? [el.loom_settings] : [],
         inlet_id: el.ndx,
         inlet_params: [opnode.inlets[el.ndx]]
-      }))
-      .filter(el => el !== undefined);
+      }));
   }
 
 
@@ -1581,7 +1686,7 @@ export class TreeService {
     const op = this.ops.getOp(opnode.name);
     this.errorBroadcaster.clearError(id); //clear before we compute again.
 
-    if (op === null || op === undefined) return Promise.reject("Operation is null")
+    if (op === undefined) return Promise.reject("Operation is null")
 
     const param_vals = op.params.map((param, ndx) => {
       return {
@@ -1607,7 +1712,7 @@ export class TreeService {
       const res = await op.perform(param_vals, cleaned_inputs);
       opnode.recomputing.next(false);
       let has_err = res.find(el => el.err !== undefined);
-      if (has_err !== undefined) {
+      if (has_err !== undefined && has_err.err !== undefined) {
         this.errorBroadcaster.postError(id, 'OTHER', has_err.err, this.getDownstreamOperations(id));
         return Promise.reject(has_err.err);
       }
@@ -1648,14 +1753,13 @@ export class TreeService {
     return draft_comps;
   }
 
-  getLoom(id: number): Loom {
-    if (id === -1) return null;
+  getLoom(id: number): Loom | null {
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn === null || dn === undefined) return null;
     return dn.loom;
   }
 
-  setLoom(id: number, loom: Loom, broadcast: boolean = true) {
+  setLoom(id: number, loom: Loom | null, broadcast: boolean = true) {
 
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) {
@@ -1677,15 +1781,21 @@ export class TreeService {
 
 
   recomputeDrawdown(id: number, loom: Loom, loom_settings: LoomSettings, broadcast: boolean = true): Promise<Draft> {
+    if (loom == null) return Promise.reject('Loom is null');
+
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn !== null && dn !== undefined) {
       if (loom_settings.type == 'jacquard') {
+        if (dn.draft == null) return Promise.reject('Draft is null in recomputeDrawdown');
         return Promise.resolve(dn.draft);
       } else {
         const utils = getLoomUtilByType(loom_settings.type);
 
+        if (utils === undefined || utils === null) return Promise.reject('Invalid loom type');
+        if (utils.computeDrawdownFromLoom === undefined) return Promise.reject('Invalid loom type');
         return utils.computeDrawdownFromLoom(loom)
           .then(drawdown => {
+            if (dn.draft == null) return Promise.reject('Draft is null in recomputeDrawdown');
             dn.draft.drawdown = drawdown;
             const flags: DraftNodeBroadcastFlags = {
               meta: false,
@@ -1701,6 +1811,9 @@ export class TreeService {
 
       }
 
+    }
+    else {
+      return Promise.reject('Draft node not found');
     }
   }
 
@@ -1719,11 +1832,16 @@ export class TreeService {
           materials: false
         };
         if (broadcast) this.broadcastDraftNodeValueChange(dn.id, flags);
+        if (dn.draft == null) return Promise.reject('Draft is null in setLoomAndRecomputeDrawdown');
         return Promise.resolve(dn.draft);
       } {
-        const utils = getLoomUtilByType(loom_settings.type);
+        const utils = getLoomUtilByType(loom_settings?.type);
+        if (utils === undefined || utils === null) return Promise.reject('Invalid loom type');
+        if (utils.computeDrawdownFromLoom === undefined) return Promise.reject('Invalid loom type');
+
         return utils.computeDrawdownFromLoom(loom)
           .then(drawdown => {
+            if (dn.draft == null) return Promise.reject('Draft is null in setLoomAndRecomputeDrawdown');
             dn.draft.drawdown = drawdown;
             const flags: DraftNodeBroadcastFlags = {
               meta: false,
@@ -1739,11 +1857,12 @@ export class TreeService {
 
       }
 
+    } else {
+      return Promise.reject('Draft node not found');
     }
   }
 
-  getLoomSettings(id: number): LoomSettings {
-    if (id === -1) return null;
+  getLoomSettings(id: number): LoomSettings | null {
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn === null || dn === undefined) return null;
     return dn.loom_settings;
@@ -1765,10 +1884,10 @@ export class TreeService {
 
   getLooms(): Array<Loom> {
     const dns = this.getDraftNodes();
-    return dns.map(el => el.loom);
+    return dns.map(el => el.loom).filter(el => el !== null);
   }
 
-  getDraft(id: number): Draft {
+  getDraft(id: number): Draft | null {
     const dn: DraftNode = <DraftNode>this.getNode(id);
     if (dn === null || dn === undefined) return null;
     return dn.draft;
@@ -1793,7 +1912,7 @@ export class TreeService {
     return dn.scale;
   }
 
-  getConnectionNode(id: number): ConnectionNode {
+  getConnectionNode(id: number): ConnectionNode | null {
     const cn: ConnectionNode = <ConnectionNode>this.getNode(id);
     if (cn === null || cn === undefined) return null;
     return cn;
@@ -1823,11 +1942,14 @@ export class TreeService {
 
   getUnusuedConnections(): Array<number> {
     const comps: Array<Node> = this.nodes.filter(el => el.type === 'cxn');
-    const nodes: Array<TreeNode> = comps.map(el => this.getTreeNode(el.id));
+    const nodes: Array<TreeNode | null> = comps.map(el => this.getTreeNode(el.id));
     const to_delete: Array<TreeNode> = [];
 
 
     nodes.forEach(el => {
+
+      if (el == null) return;
+
       if (el.inputs.length === 0 || el.outputs.length === 0) {
         to_delete.push(el);
         return;
@@ -1853,11 +1975,11 @@ export class TreeService {
    * @param id the idea of the node (not the tree node id) 
    * @returns 
    */
-  getTreeNode(id: number): TreeNode {
+  getTreeNode(id: number): TreeNode | null {
     const found = this.tree.find(el => el.node.id === id);
     if (found === undefined) {
-      console.error("Tree node for ", id, "not found");
-      return undefined;
+      if (id !== -1) console.error("Tree node not found in getTreeNode", id);
+      return null;
     }
     return found;
   }
@@ -1871,18 +1993,18 @@ export class TreeService {
    */
   addConnection(from: number, from_ndx: number, to: number, to_ndx: number, cxn: number): Array<number> {
 
-    let from_tn: TreeNode = this.getTreeNode(from);
-    let to_tn: TreeNode = this.getTreeNode(to);
-    const cxn_tn: TreeNode = this.getTreeNode(cxn);
+    let from_tn: TreeNode | null = this.getTreeNode(from);
+    let to_tn: TreeNode | null = this.getTreeNode(to);
+    const cxn_tn: TreeNode | null = this.getTreeNode(cxn);
 
-    from_tn.outputs.push({ tn: cxn_tn, ndx: from_ndx });
+    if (from_tn !== null && cxn_tn !== null) from_tn.outputs.push({ tn: cxn_tn, ndx: from_ndx });
 
-    cxn_tn.inputs = [{ tn: from_tn, ndx: 0 }];
-    cxn_tn.outputs = [{ tn: to_tn, ndx: 0 }];
+    if (cxn_tn !== null && from_tn !== null) cxn_tn.inputs = [{ tn: from_tn, ndx: 0 }];
+    if (cxn_tn !== null && to_tn !== null) cxn_tn.outputs = [{ tn: to_tn, ndx: 0 }];
 
-    to_tn.inputs.push({ tn: cxn_tn, ndx: to_ndx });
+    if (to_tn !== null && cxn_tn !== null) to_tn.inputs.push({ tn: cxn_tn, ndx: to_ndx });
 
-    if (from_tn.node.type === 'op') to_tn.parent = from_tn;
+    if (from_tn !== null && to_tn !== null && from_tn.node.type === 'op') to_tn.parent = from_tn;
     return this.getNonCxnInputs(to);
 
   }
@@ -1892,12 +2014,13 @@ export class TreeService {
    * @returns an array of the subdraft ids connected to this operation
    */
   setSubdraftParent(sd: number, op: number) {
-    const sd_tn: TreeNode = this.getTreeNode(sd);
+    const sd_tn: TreeNode | null = this.getTreeNode(sd);
+    if (sd_tn == null) return;
+
     if (op == -1) {
       sd_tn.parent = null;
-
     } else {
-      const op_tn: TreeNode = this.getTreeNode(op);
+      const op_tn: TreeNode | null = this.getTreeNode(op);
       sd_tn.parent = op_tn;
 
     }
@@ -1915,7 +2038,8 @@ export class TreeService {
    * @param id the id to delete 
    */
   private removeNodeTreeAssociations(id: number) {
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn: TreeNode | null = this.getTreeNode(id);
+    if (tn == null) return;
     if (tn === undefined) return;
 
     //travel to all the trreenode's inputs, and erase this from their output
@@ -1934,13 +2058,14 @@ export class TreeService {
   }
 
   //finds the connection compoment associated with the subdraft sd
-  getConnectionComponentFromSubdraft(sd_id: number): ConnectionComponent {
+  getConnectionComponentFromSubdraft(sd_id: number): ConnectionComponent | undefined {
 
-    const sd_node: TreeNode = this.getTreeNode(sd_id);
+    const sd_node: TreeNode | null = this.getTreeNode(sd_id);
+    if (sd_node == null) return undefined;
     if (sd_node.outputs.length == 0) {
-      return null;
+      return undefined;
     } else if (sd_node.outputs.length > 1) {
-      return null;
+      return undefined;
     }
 
     const cxn_node = sd_node.outputs[0].tn.node;
@@ -1983,7 +2108,7 @@ export class TreeService {
 
     if (from === to) return [];
 
-    let trace = [];
+    let trace: Array<number> = [];
     let from_children = this.getAllDownstreamNodes(from);
     from_children.forEach(child => {
       let child_children = this.getAllDownstreamNodes(child);
@@ -2038,12 +2163,12 @@ export class TreeService {
 
     const set_a = this.nodes
       .filter(el => el.type === 'cxn')
-      .filter(el => (this.getOutputs(el.id).find(treenode_id => this.getTreeNode(treenode_id).node.id === a)))
+      .filter(el => (this.getOutputs(el.id).find(treenode_id => this.getTreeNode(treenode_id)?.node.id === a)))
       .filter(el => (this.getInputsWithNdx(el.id).find(ip => ip.tn.node.id === b)));
 
     const set_b = this.nodes
       .filter(el => el.type === 'cxn')
-      .filter(el => (this.getOutputs(el.id).find(treenode_id => this.getTreeNode(treenode_id).node.id === b)))
+      .filter(el => (this.getOutputs(el.id).find(treenode_id => this.getTreeNode(treenode_id)?.node.id === b)))
       .filter(el => (this.getInputsWithNdx(el.id).find(ip => ip.tn.node.id === a)));
 
     const combined = set_a.concat(set_b);
@@ -2067,7 +2192,8 @@ export class TreeService {
    * @returns a boolean describing if an input exists
    */
   hasInput(id: number): boolean {
-    const tn: TreeNode = this.getTreeNode(id);
+    const tn: TreeNode | null = this.getTreeNode(id);
+    if (tn == null) return false;
     return (tn.inputs.length > 0)
   }
 
@@ -2079,6 +2205,7 @@ export class TreeService {
     const inputs: Array<number> = this.getInputs(id);
     const id_list: Array<number> = inputs
       .map(id => (this.getNode(id)))
+      .filter(node => node !== null && node !== undefined)
       .filter(node => node.type === 'cxn')
       .map(node => this.getConnectionInput(node.id))
     // const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): -1);
@@ -2114,11 +2241,12 @@ export class TreeService {
    */
   getOpInputs(id: number): Array<number> {
     const inputs: Array<number> = this.getInputs(id);
-    const node_list: Array<Node> = inputs.map(id => (this.getNode(id)));
+    const node_list: Array<Node> = inputs.map(id => (this.getNode(id))).filter(el => el !== null && el !== undefined);
     //const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): node.id);
     const id_list: Array<number> = node_list
       .filter(node => node.type === 'cxn')
       .map(node => this.getNode(this.getConnectionInput(node.id)))
+      .filter(node => node !== null && node !== undefined)
       .filter(node => node.type === 'op')
       .map(node => node.id)
     return id_list;
@@ -2130,11 +2258,12 @@ export class TreeService {
    */
   getDraftInputs(id: number): Array<number> {
     const inputs: Array<number> = this.getInputs(id);
-    const node_list: Array<Node> = inputs.map(id => (this.getNode(id)));
+    const node_list: Array<Node> = inputs.map(id => (this.getNode(id))).filter(el => el !== null && el !== undefined);
     //const id_list:Array<number> = node_list.map(node => (node.type === 'cxn') ? this.getConnectionInput(node.id): node.id);
     const id_list: Array<number> = node_list
       .filter(node => node.type === 'cxn')
       .map(node => this.getNode(this.getConnectionInput(node.id)))
+      .filter(node => node !== null && node !== undefined)
       .filter(node => node.type === 'draft')
       .map(node => node.id)
     return id_list;
@@ -2146,9 +2275,8 @@ export class TreeService {
   */
   getNonCxnOutputs(id: number): Array<number> {
     const outputs: Array<number> = this.getOutputs(id);
-    const node_list: Array<Node> = outputs.map(id => (this.getNode(id)));
+    const node_list: Array<Node> = outputs.map(id => (this.getNode(id))).filter(el => el !== null && el !== undefined);
     const id_list: Array<number> = node_list
-      .map(node => (this.getNode(node.id)))
       .filter(node => node.type === 'cxn')
       .map(node => this.getConnectionOutput(node.id))
     return id_list;
@@ -2163,7 +2291,7 @@ export class TreeService {
    */
   getOperationToOperationConnections(op_id: number): Array<number> {
     const subdrafts: Array<number> = this.getNonCxnOutputs(op_id);
-    const ops = subdrafts.reduce((acc, el) => {
+    const ops = subdrafts.reduce((acc: Array<number>, el: number) => {
       return acc.concat(this.getOutputs(el));
     }, []);
     return ops;
@@ -2191,9 +2319,8 @@ export class TreeService {
   */
   getDraftOutputs(id: number): Array<number> {
     const outputs: Array<number> = this.getOutputs(id);
-    const node_list: Array<Node> = outputs.map(id => (this.getNode(id)));
+    const node_list: Array<Node> = outputs.map(id => (this.getNode(id))).filter(el => el !== null && el !== undefined);
     const id_list: Array<number> = node_list
-      .map(node => (this.getNode(node.id)))
       .filter(node => node.type === 'cxn')
       .map(node => this.getConnectionOutput(node.id))
       .filter(node => this.getType(node) === 'draft');
@@ -2203,14 +2330,14 @@ export class TreeService {
 
   getInputs(node_id: number): Array<number> {
     const tn = this.getTreeNode(node_id);
-    if (tn === undefined) return [];
+    if (tn === undefined || tn == null) return [];
     const input_ids: Array<number> = tn.inputs.map(child => child.tn.node.id);
     return input_ids;
   }
 
   getInputsWithNdx(node_id: number): Array<IOTuple> {
     const tn = this.getTreeNode(node_id);
-    if (tn === undefined) return [];
+    if (tn === undefined || tn == null) return [];
     return tn.inputs;
   }
 
@@ -2221,7 +2348,7 @@ export class TreeService {
    */
   getOutputsWithNdx(node_id: number): Array<IOTuple> {
     const tn = this.getTreeNode(node_id);
-    if (tn === undefined) return [];
+    if (tn === undefined || tn == null) return [];
     return tn.outputs;
   }
 
@@ -2307,28 +2434,30 @@ export class TreeService {
 
   getInputsAtNdx(node_id: number, inlet_ndx: number): Array<IOTuple> {
     const tn = this.getTreeNode(node_id);
-    if (tn === undefined) return [];
+    if (tn === undefined || tn == null) return [];
     return tn.inputs.filter(el => el.ndx == inlet_ndx);
   }
 
   getConnectionInput(node_id: number): number {
     const tn = this.getTreeNode(node_id);
+    if (tn == null) return -1;
     const input_ids: Array<number> = tn.inputs.map(child => child.tn.node.id);
     return input_ids[0];
   }
 
   getOutputs(node_id: number): Array<number> {
     const tn = this.getTreeNode(node_id);
-    if (tn === undefined) return [];
-    const ids: Array<number> = tn.outputs.map(child => child.tn.node.id);
+    if (tn === undefined || tn == null) return [];
+    const ids: Array<number> = tn.outputs.map(child => child.tn.node.id).filter(id => id !== undefined && id !== null);
     return ids;
   }
 
 
   getConnectionOutput(node_id: number): number {
     const tn = this.getTreeNode(node_id);
+    if (tn == null) return -1;
     const output_ids: Array<number> = tn.outputs.map(child => child.tn.node.id);
-    return output_ids.pop();
+    return output_ids.pop() ?? -1; //if there is no output, return -1
   }
 
 
@@ -2339,8 +2468,9 @@ export class TreeService {
    * @param cxn_id 
    * @returns an object storing the id, the inlet_ndx, and the array_ndx (where there is multiple values in one inlet)
    */
-  getConnectionOutputWithIndex(cxn_id: number): { id: number, inlet: number, arr: number } {
+  getConnectionOutputWithIndex(cxn_id: number): { id: number, inlet: number, arr: number } | null {
     const tn = this.getTreeNode(cxn_id);
+    if (tn == null) return null;
     let found = null;
 
     //a connectino only have one output, so this in 
@@ -2350,7 +2480,7 @@ export class TreeService {
     output_tns.forEach(output_tn => {
 
 
-      let has_connection: IOTuple = output_tn.inputs.find(input => input.tn.node.id === cxn_id);
+      let has_connection: IOTuple | undefined = output_tn.inputs.find(input => input.tn.node.id === cxn_id);
 
       if (has_connection !== undefined) {
 
@@ -2375,7 +2505,6 @@ export class TreeService {
    * returns the ids of the total set of operations that, when performed, will chain down to the other operations
    */
   getTopLevelOps(): Array<number> {
-
     return this.nodes
       .filter(el => el.type === "op")
       .filter(el => this.getUpstreamOperations(el.id).length === 0)
@@ -2390,8 +2519,8 @@ export class TreeService {
     return this.nodes
       .filter(el => el.type === "draft")
       .map(el => this.getTreeNode(el.id))
-      .filter(el => el.parent === null)
-      .map(el => el.node.id);
+      .filter(el => el !== null && el.parent === null)
+      .map(el => el?.node.id ?? -1);
 
 
 
@@ -2404,7 +2533,8 @@ export class TreeService {
 
     let children: Array<number> = [];
     parents.forEach(parent => {
-      const tn: TreeNode = this.getTreeNode(parent);
+      const tn: TreeNode | null = this.getTreeNode(parent);
+      if (tn == null) return;
       children = children.concat(tn.outputs.map(io => io.tn.node.id));
     });
 
@@ -2424,6 +2554,47 @@ export class TreeService {
 
 
 
+  }
+
+  /**
+   * Prints the tree structure to the console, labeling each node with its id.
+   * Starts from nodes with no inputs and walks down through outputs.
+   */
+  PrintTree(): void {
+    const roots = this.tree.filter(tn => tn.inputs.length === 0);
+    if (roots.length === 0) {
+      console.log('(empty tree)');
+      return;
+    }
+
+    const visited = new Set<number>();
+    const lines: Array<string> = [];
+
+    console.log('Printing tree...');
+    console.log('Roots:', roots.map(tn => tn.node.id));
+
+    const walk = (tn: TreeNode, prefix: string, is_last: boolean) => {
+      const id = tn.node.id;
+      const type = tn.node.type
+      const branch = prefix === '' ? '' : (is_last ? '└── ' : '├── ');
+      const already_visited = visited.has(id);
+      lines.push(`${prefix}${branch}${id} (${type})${already_visited ? ' (cycle)' : ''}`);
+
+      if (already_visited) return;
+      visited.add(id);
+
+      const children = tn.outputs.map(io => io.tn);
+      const child_prefix = prefix === '' ? '' : prefix + (is_last ? '    ' : '│   ');
+      children.forEach((child, i) => {
+        walk(child, child_prefix, i === children.length - 1);
+      });
+    };
+
+    roots.forEach((root, i) => {
+      walk(root, '', i === roots.length - 1);
+    });
+
+    console.log(lines.join('\n'));
   }
 
   /**
@@ -2498,7 +2669,7 @@ export class TreeService {
 
   restoreDraftNodeState(id: number, state: DraftNodeState) {
     const node: DraftNode = <DraftNode>this.getNode(id);
-    node.draft = copyDraft(state.draft);
+    node.draft = (state.draft !== null) ? copyDraft(state.draft) : null;
     node.visible = state.draft_visible;
     node.loom = copyLoom(state.loom);
     node.loom_settings = copyLoomSettings(state.loom_settings);
@@ -2522,10 +2693,11 @@ export class TreeService {
   getDraftNodeState(id: number): DraftNodeState {
     const node: DraftNode = <DraftNode>this.getNode(id);
     return {
-      draft: copyDraft(node.draft),
+      draft: (node.draft !== null) ? copyDraft(node.draft) : null,
       draft_visible: node.visible,
-      loom: copyLoom(node.loom),
+      loom: (node.loom !== null && node.loom !== undefined) ? copyLoom(node.loom) : null,
       loom_settings: copyLoomSettings(node.loom_settings),
+      draft_editing_source: node.draft_editing_source ?? 'drawdown',
       scale: node.scale
     }
   }
@@ -2545,32 +2717,36 @@ export class TreeService {
     this.getDraftNodes().forEach(node => {
 
 
-      let loom_export: Loom = null;
+      let loom_export: Loom | null = null;
+      let draft_node_loom: Loom | null = (<DraftNode>node).loom;
 
-      if ((<DraftNode>node).loom !== null && (<DraftNode>node).loom !== undefined) {
+      if (draft_node_loom !== null && draft_node_loom !== undefined) {
         loom_export = {
-          threading: (<DraftNode>node).loom.threading.slice(),
-          tieup: (<DraftNode>node).loom.tieup.slice(),
-          treadling: this.adjustTreadlingForSaving((<DraftNode>node).loom.treadling)
+          threading: draft_node_loom.threading.slice(),
+          tieup: draft_node_loom.tieup.slice(),
+          treadling: this.adjustTreadlingForSaving(draft_node_loom.treadling)
         }
       }
-      if ((<DraftNode>node).draft !== null && (<DraftNode>node).draft !== undefined) {
+
+      const draft_node_draft = (<DraftNode>node).draft;
+      if (draft_node_draft !== null && draft_node_draft !== undefined) {
 
 
         const savable: DraftNodeProxy = {
           node_id: node.id,
-          draft_id: (<DraftNode>node).draft.id,
-          ud_name: (<DraftNode>node).draft.ud_name,
-          gen_name: (<DraftNode>node).draft.gen_name,
-          notes: (<DraftNode>node).draft.notes || '',
-          draft: null,
-          compressed_draft: (this.hasParent(node.id)) ? null : compressDraft((<DraftNode>node).draft),
+          draft_id: draft_node_draft.id,
+          ud_name: draft_node_draft.ud_name,
+          gen_name: draft_node_draft.gen_name,
+          notes: draft_node_draft.notes || '',
           draft_visible: ((<DraftNode>node).visible == undefined) ? !this.ws.hide_mixer_drafts : (<DraftNode>node).visible,
           loom: (loom_export === null || this.hasParent(node.id)) ? null : loom_export,
           loom_settings: node.loom_settings,
           render_colors: ((<DraftNode>node).render_colors == undefined) ? true : (<DraftNode>node).render_colors,
-          scale: ((<DraftNode>node).scale == undefined) ? 1 : (<DraftNode>node).scale
+          scale: ((<DraftNode>node).scale == undefined) ? 1 : (<DraftNode>node).scale,
+          draft_editing_source: node.draft_editing_source ?? 'drawdown'
         }
+        if (!this.hasParent(node.id)) { savable.compressed_draft = compressDraft(draft_node_draft); }
+
         objs.push(savable);
       }
 
@@ -2642,10 +2818,10 @@ export class TreeService {
     const node: NodeComponentProxy = {
       node_id: id,
       type: 'draft',
-      topleft: null
+      topleft: { x: 0, y: 0 }
     }
 
-    const draft_node: DraftNodeProxy = {
+    const draft_node = {
       node_id: id,
       draft_id: draft.id,
       ud_name: '',
@@ -2675,7 +2851,9 @@ export class TreeService {
   }
 
   setDirty(id: number) {
-    this.getNode(id).dirty = true;
+    const node = this.getNode(id);
+    if (node == null) return;
+    node.dirty = true;
 
   }
 
@@ -2685,7 +2863,7 @@ export class TreeService {
     }
 
     const node = this.getNode(id);
-    if (node === undefined) {
+    if (node === undefined || node === null) {
       console.error("no node found at ", id);
       return;
     }
@@ -2713,7 +2891,7 @@ export class TreeService {
 
     if (checkRecompute) {
       const outlets = this.getNonCxnOutputs(id);
-      const performOps = [];
+      const performOps: Array<Promise<any>> = [];
       outlets.forEach(outlet => {
         performOps.push(this.performAndUpdateDownstream([outlet]));
       });
@@ -2723,6 +2901,13 @@ export class TreeService {
         return Promise.reject(err);
       });
     }
+  }
+
+  setDraftEditingSource(id: number, draft_edit_source: DraftEditingSource) {
+    const dn = <DraftNode>this.getNode(id);
+
+    if (dn == null) return;
+    dn.draft_editing_source = draft_edit_source;
   }
 
 
@@ -2738,7 +2923,7 @@ export class TreeService {
    * @param temp the draft to add
    * @param loom_settings  the settings that should govern the loom generated
    */
-  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings, broadcast: boolean = true, recompute: boolean = true): Promise<Loom> {
+  setDraftAndRecomputeLoom(id: number, temp: Draft, loom_settings: LoomSettings, broadcast: boolean = true, recompute: boolean = true): Promise<Loom | null> {
 
     const dn = <DraftNode>this.getNode(id);
     let ud_name = getDraftName(temp);
@@ -2781,7 +2966,7 @@ export class TreeService {
    * @param temp the draft to add
    * @param loom_settings  the settings that should govern the loom generated
    */
-  recomputeLoom(id: number, draft: Draft, loom_settings: LoomSettings, broadcast: boolean = true): Promise<Loom> {
+  recomputeLoom(id: number, draft: Draft, loom_settings: LoomSettings, broadcast: boolean = true): Promise<Loom | null> {
 
     const dn = <DraftNode>this.getNode(id);
 
@@ -2797,7 +2982,8 @@ export class TreeService {
     }
 
     const loom_utils = getLoomUtilByType(dn.loom_settings.type);
-    return loom_utils.computeLoomFromDrawdown(draft.drawdown, loom_settings)
+    if (loom_utils.computeLoomFromDrawdown === undefined) return Promise.resolve(null);
+    return loom_utils.computeLoomFromDrawdown(draft.drawdown, dn.loom_settings)
       .then(loom => {
         dn.loom = loom;
         const flags: DraftNodeBroadcastFlags = {
@@ -2820,6 +3006,10 @@ export class TreeService {
    */
   setDraftPattern(id: number, pattern: Drawdown, broadcast: boolean = true) {
     const dn = <DraftNode>this.getNode(id);
+    if (dn.draft == null) {
+      console.error("Draft is null in setDraftPattern");
+      return;
+    }
     dn.draft.drawdown = pattern.slice();
     //  (<SubdraftComponent>dn.component).draft = dn.draft;
     //   dn.dirty = true;
@@ -2849,6 +3039,10 @@ export class TreeService {
     this.getOpNodes().forEach(op_node => {
       if (op_node.name !== "") {
         const op = this.ops.getOp(op_node.name);
+        if (op == undefined) {
+          console.error('operation not found', op_node.name);
+          return;
+        }
         let cleaned_params = op.params.map((param_template, ndx) => {
           if (param_template.type == 'file') {
             return +(<Img>op_node.params[ndx]).id;

@@ -40,7 +40,7 @@ export class MediaService {
       .filter(el => el.ref !== '')
       .filter(el => !this.isAlreadyLoaded(el.id))
       .map(el => {
-        if (el.type == 'indexed_color_image') return this.loadIndexedColorFile(el.id, el.ref, null)
+        if (el.type == 'indexed_color_image') return this.loadIndexedColorFile(el.id, el.ref)
         else return this.loadImage(el.id, el.ref)
       });
     return Promise.all(fns);
@@ -53,7 +53,7 @@ export class MediaService {
    * @param to_load the indexed color image object as it is saved. 
    * @returns 
    */
-  loadMediaFromFileLoad(to_load: Array<{ id: number, ref: string, data: any }>): Promise<any> {
+  loadMediaFromFileLoad(to_load: Array<{ id: number, ref: string, data?: any }>): Promise<any> {
     console.log("LOAD MEDIA FROM FILE LOAD", to_load, this.current.slice());
     const fns = to_load
       .filter(el => el.ref !== '')
@@ -68,7 +68,7 @@ export class MediaService {
   /** 
    * gets the media object from firebase storage
   */
-  async processMedia(url): Promise<any> {
+  async processMedia(url: string): Promise<any> {
     return await this.httpClient.get(url, { responseType: 'blob' }).toPromise();
   }
 
@@ -78,17 +78,17 @@ export class MediaService {
    * @param data an object containing any color or color_mapping data that has already been stored for this item
    * @returns 
    */
-  loadIndexedColorFile(id: number, ref: string, saved_data: { colors: Array<any>, color_mapping: Array<any> }): Promise<MediaInstance> {
+  loadIndexedColorFile(id: number, ref: string, saved_data?: { colors: Array<any>, color_mapping: Array<any> }): Promise<MediaInstance> {
 
     if (id == -1) {
       id = generateId(8);
     }
 
-    let color_mapping = [];
-    if (saved_data !== null) color_mapping = saved_data.color_mapping;
+    let color_mapping: Array<{ from: number, to: number }> = [];
+    if (saved_data !== undefined) color_mapping = saved_data.color_mapping;
 
-    let colors = [];
-    if (saved_data !== null) colors = saved_data.colors;
+    let colors: Array<Color> = [];
+    if (saved_data !== undefined) colors = saved_data.colors;
 
     let url = "";
 
@@ -101,7 +101,12 @@ export class MediaService {
     }).then(blob => {
 
       var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
+      var ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
+
+      if (ctx == null) {
+        return Promise.reject('context is null in loadIndexedColorFile')
+      }
+
       var image = new Image();
       image.src = url;
       image.crossOrigin = "Anonymous";
@@ -113,15 +118,18 @@ export class MediaService {
         if (image.naturalWidth > 10000) Promise.reject('width error');
         if (image.naturalHeight > 10000) Promise.reject('height error');
 
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        ctx?.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-        var imgdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var imgdata: ImageData | undefined = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+        if (imgdata == undefined) {
+          return Promise.reject('image data is undefined in loadIndexedColorFile')
+        }
 
         const pixels = imgdata.data;
 
         //console.log("Create Pixel Array")
         //process the pixels into meaningful values;
-        const all_colors: Array<any> = [];
+        const all_colors: Array<{ r: number, g: number, b: number, hex: string, black: boolean }> = [];
         for (let i = 0; i < pixels.length; i += 4) {
 
           let r: string = pixels[i].toString(16);
@@ -167,7 +175,15 @@ export class MediaService {
         /**this is expensive, so just do a fast run to make sure the size is okay before we go into this */
 
         if (colors.length == 0) {
-          colors = filterToUniqueValues(seen_vals);
+          const hex_values: Array<string> = seen_vals.map(el => el.hex);
+          const unique_hex_values = filterToUniqueValues(hex_values);
+          colors = unique_hex_values.map(el => {
+            let c: { r: number, g: number, b: number, hex: string, black: boolean } | undefined = seen_vals.find(sel => sel.hex == el);
+            if (c == undefined) {
+              return Promise.reject('color is undefined in loadIndexedColorFile') as any;
+            }
+            return c as Color;
+          });
         }
 
 
@@ -182,8 +198,8 @@ export class MediaService {
           let cur_i = 0;
           let cur_j = 0;
           image_map_flat.forEach((id, ndx) => {
-            cur_i = Math.floor(ndx / imgdata.width);
-            cur_j = ndx % imgdata.width;
+            cur_i = Math.floor(ndx / (imgdata?.width ?? 1));
+            cur_j = ndx % (imgdata?.width ?? 1);
 
             if (cur_i >= image_map.length) image_map.push([]);
             image_map[cur_i][cur_j] = id;
@@ -223,8 +239,14 @@ export class MediaService {
     });
   }
 
-  loadImageViaURL(id: number, ref: string): Promise<any> {
+  loadImageViaURL(id: number, ref: string): Promise<string> {
     return this.upSvc.getDownloadURL(ref)
+      .then(url => {
+        return Promise.resolve(url);
+      })
+      .catch(err => {
+        return Promise.reject(err);
+      });
   }
 
   /**
@@ -251,6 +273,9 @@ export class MediaService {
 
       var canvas = document.createElement('canvas');
       var ctx = canvas.getContext('2d');
+      if (ctx === null) {
+        return Promise.reject('context is null in loadImage')
+      }
       var image = new Image();
       image.src = url;
       image.crossOrigin = "Anonymous";
@@ -259,22 +284,26 @@ export class MediaService {
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
 
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-        var imgdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        if (ctx) {
+          ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+          var imgdata = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
 
-        var obj: SingleImage = {
-          name: 'placeholder',
-          data: imgdata,
-          image: image,
-          width: imgdata.width,
-          height: imgdata.height,
-          type: 'image',
-          warning: ''
+          var obj: SingleImage = {
+            name: 'placeholder',
+            data: imgdata,
+            image: image,
+            width: imgdata.width,
+            height: imgdata.height,
+            type: 'image',
+            warning: ''
+          }
+
+
+          return Promise.resolve(obj);
+        } else {
+          return Promise.reject('context is null in loadImage')
         }
-
-
-        return Promise.resolve(obj);
       }).then(imageobj => {
 
         if (imageobj == null) {
@@ -401,7 +430,7 @@ export class MediaService {
   }
 
 
-  duplicateIndexedColorImageInstance(id: number): MediaInstance {
+  duplicateIndexedColorImageInstance(id: number): MediaInstance | null {
     let i = this.getMedia(id);
     if (i == null) return null;
     let image_copy: AnalyzedImage = this.copyIndexedImage(<AnalyzedImage>i.img);
@@ -419,7 +448,7 @@ export class MediaService {
   }
 
 
-  getMedia(id: number): MediaInstance {
+  getMedia(id: number): MediaInstance | null {
     //console.log("HAS MEDIA ", id)
     let obj = this.current.find(el => el.id == id);
     if (obj === undefined) return null;

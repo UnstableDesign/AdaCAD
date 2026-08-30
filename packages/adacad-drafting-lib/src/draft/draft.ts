@@ -321,7 +321,7 @@ export const isSet = (d: Drawdown, i: number, j: number): boolean => {
  * @param bool the value (true for up, false for down, null for unset)
  * @returns 
  */
-export const setHeddle = (d: Drawdown, i: number, j: number, bool: boolean): Drawdown => {
+export const setHeddle = (d: Drawdown, i: number, j: number, bool: boolean | null): Drawdown => {
   d[i][j] = setCellValue(d[i][j], bool);
   return d;
 }
@@ -1066,7 +1066,7 @@ export const updateWarpSystemsAndShuttles = (to: Draft, from: Draft): Draft => {
  */
 export const insertDrawdownRow = (d: Drawdown, i: number, row: Array<Cell>): Drawdown => {
   i = i + 1;
-  if (row === null) {
+  if (row.length === 0) {
     row = [];
     for (let j = 0; j < warps(d); j++) {
       row.push(createCell(false));
@@ -1144,12 +1144,13 @@ export const insertDrawdownCol = (d: Drawdown, j: number, col: Array<Cell>): Dra
 
   if (j === null) j = 0;
 
-  if (col == null) {
+  if (col.length == 0) {
     col = [];
     for (let i = 0; i < wefts(d); i++) {
       col.push(createCell(false));
     }
   }
+
   for (let ndx = 0; ndx < wefts(d); ndx++) {
     d[ndx].splice(j, 0, createCell(getCellValue(col[ndx])));
   }

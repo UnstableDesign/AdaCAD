@@ -66,7 +66,7 @@
         <div class="sim-slider-dx"></div>
       </div>
 
-      <div class="sim-slider-container" [class.active]="sim.simControls.get('mass').touched">
+      <div class="sim-slider-container" [class.active]="sim.simControls.get('mass')?.touched">
 
         <div class="sim-slider-label">
           <mat-label for="mass">Mass (g)</mat-label>
@@ -80,7 +80,7 @@
         <div class="sim-slider-dx"></div>
       </div>
 
-      <div class="sim-slider-container" [class.active]="sim.simControls.get('maxTheta').touched">
+      <div class="sim-slider-container" [class.active]="sim.simControls.get('maxTheta')?.touched">
 
         <div class="sim-slider-label">
           <mat-label for="maxTheta">Yarn Drooping (°)</mat-label>
@@ -94,7 +94,7 @@
         <div class="sim-slider-dx"></div>
       </div>
 
-      <div class="sim-slider-container" [class.active]="sim.simControls.get('warpSpacing').touched">
+      <div class="sim-slider-container" [class.active]="sim.simControls.get('warpSpacing')?.touched">
 
         <div class="sim-slider-label">
           <mat-label for="warpSpacing">Warp-Density ({{epiUnits}})</mat-label>
@@ -109,7 +109,7 @@
       </div>
 
 
-      <div class="sim-slider-container" [class.active]="sim.simControls.get('weftsAsWritten').touched">
+      <div class="sim-slider-container" [class.active]="sim.simControls.get('weftsAsWritten')?.touched">
         <div class="toggle-group-wrapper">
           <mat-button-toggle-group hideSingleSelectionIndicator formControlName="weftsAsWritten" appearance="standard"
             class="collapsible-toggle-group">
@@ -224,7 +224,7 @@
         [id]="vs.getViewerId()" [view_only]="true" [scale]="scale" [current_view]="vs.current_view">
       </app-draft-rendering>
 
-      <app-simulation [class.hidden]="vs.current_view != 'sim'" #sim id="sim_viewer" [id]="vs.getViewerId()">
+      <app-simulation [class.hidden]="vs.current_view != 'sim'" #sim [id]="vs.getViewerId()">
       </app-simulation>
 
 

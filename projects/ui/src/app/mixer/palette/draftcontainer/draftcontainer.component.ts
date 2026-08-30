@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton, MatIconButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSliderThumb } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Draft } from 'adacad-drafting-lib';
+import { Draft, getLoomUtilByType } from 'adacad-drafting-lib';
 import { getDraftName, warps, wefts } from 'adacad-drafting-lib/draft';
 import { DraftNode, RenderingFlags } from '../../../core/model/datatypes';
 import { saveAsBmp, saveAsPrint, saveAsWif } from '../../../core/model/helper';
@@ -23,12 +23,14 @@ import { MatSliderModule } from '@angular/material/slider';
 import { Subscription } from 'rxjs';
 import { StateService } from '../../../core/provider/state.service';
 import { ZoomService } from '../../../core/provider/zoom.service';
+import { defaults } from '../../../core/model/defaults';
 
 
 @Component({
   selector: 'app-draftcontainer',
   templateUrl: './draftcontainer.component.html',
   styleUrls: ['./draftcontainer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatButton, MatMiniFabButton, FormsModule, ReactiveFormsModule, MatSliderModule, MatSliderThumb, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, DraftRenderingComponent]
 })
 export class DraftContainerComponent implements AfterViewInit {
@@ -44,9 +46,9 @@ export class DraftContainerComponent implements AfterViewInit {
   private zs = inject(ZoomService);
 
 
-  @Input() id;
-  @Input() hasParent;
-  @Input() selecting_connection;
+  @Input() id!: number;
+  @Input() hasParent!: boolean;
+  @Input() selecting_connection!: boolean;
   @Output() connectionSelected = new EventEmitter();
   @Output() onDuplicateCalled = new EventEmitter();
   @Output() onDeleteCalled = new EventEmitter();
@@ -57,9 +59,9 @@ export class DraftContainerComponent implements AfterViewInit {
   @Output() onNameChanged = new EventEmitter();
 
   @ViewChild('bitmapImage') bitmap: any;
-  @ViewChild('draft_rendering') draft_rendering:
+  @ViewChild('draft_rendering') draft_rendering!:
     DraftRenderingComponent;
-  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+  @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
 
 
 
@@ -69,9 +71,8 @@ export class DraftContainerComponent implements AfterViewInit {
 
   exceeds_size: boolean = false;
 
-  warps: number;
-
-  wefts: number;
+  warps!: number;
+  wefts!: number;
 
   draft_visible: boolean = true;
 
@@ -84,17 +85,17 @@ export class DraftContainerComponent implements AfterViewInit {
   local_zoom: number = 1;
 
   // Reactive Forms control
-  localZoomForm: FormControl;
+  localZoomForm!: FormControl;
 
-  current_view: string = 'draft';
+  current_view: 'draft' | 'structure' | 'visual' | 'sim' = 'draft';
 
   size_observer: any;
 
   showingIdChangeSubscription: Subscription;
 
-  redrawCompleteSubscription: Subscription;
+  redrawCompleteSubscription!: Subscription;
 
-  draftValueChangeSubscription: Subscription;
+  draftValueChangeSubscription!: Subscription;
 
 
   constructor() {
@@ -138,14 +139,14 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
     this.draftValueChangeSubscription = dn.onValueChange.subscribe(el => {
-      this.updateDraftInfo(el.draft);
+      if (el.draft !== null) this.updateDraftInfo(el.draft);
     });
 
 
     // this.forceDrawDraft(draft);
     this.localZoomChange(this.local_zoom);
 
-    this.updateDraftInfo(dn.draft);
+    if (dn.draft !== null) this.updateDraftInfo(dn.draft);
     this.startSizeObserver();
 
     this.globalZoomUndo = 1 / this.zs.getMixerZoom();
@@ -164,10 +165,10 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
 
-  rename(event) {
+  rename(event: any) {
 
     const dialogRef = this.dialog.open(RenameComponent, {
-      data: { id: this.id }
+      data: { id: this.id ?? -1 }
     });
 
     dialogRef.afterClosed().subscribe(obj => {
@@ -191,7 +192,7 @@ export class DraftContainerComponent implements AfterViewInit {
       targetNode.classList.remove('on_view');
     }
 
-    if (this.id == this.vs.getPin()) {
+    if (this.id == this.vs.getViewerId()) {
       targetNode.classList.add('has_pin');
     } else {
       targetNode.classList.remove('has_pin');
@@ -223,7 +224,7 @@ export class DraftContainerComponent implements AfterViewInit {
 
     const targetNode = document.getElementById("drawdown-mixer-" + this.id);
     const config = { attributes: true, characterData: true, childList: false, subtree: false };
-    const callback = (mutationList, observer) => {
+    const callback = (mutationList: any, observer: any) => {
       for (const mutation of mutationList) {
         //changed this to only listen on height because it was triggering for too many attributes
         if (mutation.type === "attributes" && mutation.attributeName === "height") {
@@ -278,11 +279,11 @@ export class DraftContainerComponent implements AfterViewInit {
 
 
 
-  nameFocusOut(event) {
+  nameFocusOut(event: any) {
   }
 
-  connectionStarted(event) {
-    this.connectionSelected.emit({ event: event, id: this.id });
+  connectionStarted(event: any) {
+    this.connectionSelected.emit({ event: event, id: this.id ?? -1 });
   }
 
   hasPin(): boolean {
@@ -331,15 +332,19 @@ export class DraftContainerComponent implements AfterViewInit {
       u_warp_mats: true,
       u_weft_sys: true,
       u_weft_mats: true,
-      use_floats: (this.current_view == 'color'),
+      use_floats: (this.current_view == 'visual'),
       use_colors: (this.current_view != 'draft'),
-      show_loom: (this.current_view == 'loom'),
+      show_loom: loom !== null,
       use_sizes: false
     }
 
     //pushes to the queue
-    this.draft_rendering.redraw(draft, loom, loom_settings, flags).then(el => {
+    return this.draft_rendering.redraw(draft, loom, loom_settings ?? defaults.loom_settings, flags).then(el => {
       this.onDrawdownSizeChanged.emit(this.id);
+      return Promise.resolve(true);
+    }).catch(err => {
+      console.error('Error force drawing draft', err);
+      return Promise.reject(err);
     });
 
 
@@ -362,16 +367,36 @@ export class DraftContainerComponent implements AfterViewInit {
   async saveAsWif() {
 
     let draft = this.tree.getDraft(this.id);
+    if (draft == null) return Promise.reject(new Error('Draft not found'));
     let loom = this.tree.getLoom(this.id);
-    let loom_settings = this.tree.getLoomSettings(this.id);
-    saveAsWif(this.fs, draft, loom, loom_settings)
+    let loom_settings = this.tree.getLoomSettings(this.id) ?? defaults.loom_settings;
+
+
+    if (loom == null) {
+      const utils = getLoomUtilByType('direct');
+      if (utils.computeLoomFromDrawdown) utils.computeLoomFromDrawdown(draft.drawdown, defaults.loom_settings)
+        .then(loom => {
+          saveAsWif(this.fs, draft, loom, loom_settings)
+        })
+        .catch(err => {
+          console.error('Error computing loom from drawdown', err);
+          return Promise.reject(err);
+        });
+
+    } else {
+      saveAsWif(this.fs, draft, loom, loom_settings)
+
+    }
+
+
+
 
 
   }
 
   async saveAsPrint() {
     let draft = this.tree.getDraft(this.id);
-
+    if (draft == null) return Promise.reject(new Error('Draft not found'));
     let floats = (this.current_view == 'draft') ? false : true;
     let color = (this.current_view == 'visual') ? true : false;
 
@@ -404,20 +429,20 @@ export class DraftContainerComponent implements AfterViewInit {
 
     let b = this.bitmap.nativeElement;
     let draft = this.tree.getDraft(this.id);
-
+    if (draft == null) return Promise.reject(new Error('Draft not found'));
     saveAsBmp(b, draft, this.ws.selected_origin_option, this.ms, this.fs)
 
   }
 
-  async designActionChange(e) {
+  async designActionChange(e: string) {
 
     switch (e) {
       case 'duplicate':
-        this.onDuplicateCalled.emit({ event: e, id: this.id });
+        this.onDuplicateCalled.emit({ event: e, id: this.id ?? -1 });
         break;
 
       case 'delete':
-        this.onDeleteCalled.emit({ event: e, id: this.id });
+        this.onDeleteCalled.emit({ event: e, id: this.id ?? -1 });
         break;
 
 

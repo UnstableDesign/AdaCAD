@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { loom_types, density_units } from '../../model/defaults';
 import { MatFormField, MatInput, MatLabel, MatSuffix } from '@angular/material/input';
@@ -9,6 +9,7 @@ import { WorkspaceService } from '../../provider/workspace.service';
   selector: 'app-loomsettings',
   imports: [MatFormField, MatLabel, MatSelect, MatInput, MatSuffix, MatOption, ReactiveFormsModule, FormsModule, MatSelectModule],
   templateUrl: './loomsettings.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './loomsettings.component.scss',
 })
 export class LoomsettingsComponent {

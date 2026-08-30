@@ -26,7 +26,7 @@ export class NotesService {
 
   createNote(tl: Point, component: NoteComponent, ref: ViewRef, note: any): number {
 
-    let gennote: Note = null;
+    let gennote: Note;
     if (note == null) {
       gennote = {
         id: generateId(8),
@@ -39,7 +39,6 @@ export class NotesService {
         ref: ref,
         color: "#FFFF00",
         component: component,
-        imageurl: null,
         width: 200,
         height: 200
       }
@@ -61,7 +60,7 @@ export class NotesService {
         ref: ref,
         color: (note.color !== undefined) ? note.color : "#FFFF00",
         component: component,
-        imageurl: (note.imageurl !== undefined) ? note.imageurl : null,
+        imageurl: (note.imageurl !== undefined) ? note.imageurl : undefined,
         width: (note.width !== undefined) ? note.width : 200,
         height: (note.height !== undefined) ? note.height : 200,
       }
@@ -99,9 +98,6 @@ export class NotesService {
       title: "",
       text: "",
       color: "#FFFF00",
-      ref: null,
-      component: null,
-      imageurl: null,
       width: 200,
       height: 200
     }
@@ -112,11 +108,11 @@ export class NotesService {
   }
 
   getComponents(): Array<NoteComponent> {
-    return this.notes.map(el => el.component);
+    return this.notes.map(el => el.component).filter(el => el !== undefined);
   }
 
   getRefs(): Array<ViewRef> {
-    return this.notes.map(el => el.ref);
+    return this.notes.map(el => el.ref).filter(el => el !== undefined);
   }
 
   exportForSaving(): Array<any> {
@@ -209,8 +205,8 @@ export class NotesService {
    * @param id 
    * @returns the note object or undefined if not found
    */
-  get(id: number): Note {
-    return this.notes.find(el => el.id == id);
+  get(id: number): Note | null {
+    return this.notes.find(el => el.id == id) || null;
   }
 
   delete(id: number) {
@@ -219,18 +215,24 @@ export class NotesService {
 
   setColor(id: number, color: string) {
     let note = this.get(id);
-    note.color = color;
+    if (note !== null) {
+      note.color = color;
+    }
   }
 
   setPosition(id: number, topleft: Point) {
     let note = this.get(id);
-    note.topleft.x = topleft.x;
-    note.topleft.y = topleft.y
+    if (note) {
+      note.topleft.x = topleft.x;
+      note.topleft.y = topleft.y
 
+    }
   }
 
-  getNoteIdList() {
-    return this.notes.map(note => note.id);
+  getNoteIdList(): Array<number> {
+    return this.notes
+      .filter(note => note !== null)
+      .map(note => note.id)
   }
 
 

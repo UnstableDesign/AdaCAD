@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatButton } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { MatButton } from '@angular/material/button';
   selector: 'app-welcome',
   templateUrl: './welcome.component.html',
   styleUrl: './welcome.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatDialogActions, MatDialogClose]
 })
 export class WelcomeComponent {

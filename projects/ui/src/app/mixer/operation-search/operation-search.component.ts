@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
@@ -17,6 +17,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
   templateUrl: './operation-search.component.html',
   styleUrls: ['./operation-search.component.scss'],
   imports: [MatButton, MatTooltip, MatSlideToggleModule, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, AsyncPipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 export class OperationSearchComponent implements OnInit {
@@ -28,7 +29,7 @@ export class OperationSearchComponent implements OnInit {
   /** variables for operation search */
   classifications: Array<OperationClassification> = [];
   op_tree: any = [];
-  filteredOptions: Observable<any>;
+  filteredOptions!: Observable<any>;
   searchForm: FormControl;
   search_error: any;
 
@@ -59,7 +60,7 @@ export class OperationSearchComponent implements OnInit {
   }
 
   makeOperationsList() {
-    function alphabetical(a, b) {
+    function alphabetical(a: any, b: any) {
       if (a.display_name < b.display_name) {
         return -1;
       }
@@ -100,9 +101,9 @@ export class OperationSearchComponent implements OnInit {
     const value = this.searchForm.value.toLowerCase();
 
     //run the filter function again without the classification titles
-    let tree = this.op_tree.reduce((acc, classification) => {
+    let tree = this.op_tree.reduce((acc: any, classification: any) => {
       return acc.concat(classification.ops
-        .filter(option => option.display_name.toLowerCase().includes(value)));
+        .filter((option: any) => option.display_name.toLowerCase().includes(value)));
     }, []);
 
     if (tree.length > 0) {
@@ -115,17 +116,17 @@ export class OperationSearchComponent implements OnInit {
   private _filter(value: string): any[] {
     const filterValue = value.toLowerCase();
 
-    let tree = this.op_tree.map(classification => {
+    let tree = this.op_tree.map((classification: any) => {
       return {
         class_name: classification.class_name,
         description: classification.description,
         color: classification.color,
         ops: classification.ops
-          .filter(option => option.display_name.toLowerCase().includes(filterValue))
+          .filter((option: any) => option.display_name.toLowerCase().includes(filterValue))
       }
     });
 
-    tree = tree.filter(classification => classification.ops.length > 0);
+    tree = tree.filter((classification: any) => classification.ops.length > 0);
 
     if (tree.length == 0) {
       this.search_error = "no operations match this search"

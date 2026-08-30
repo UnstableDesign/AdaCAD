@@ -15,7 +15,14 @@
       "node_modules/@types"
     ],
     "module": "es2020",
-    "baseUrl": "./",
     "useDefineForClassFields": false
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true,
+    "extendedDiagnostics": {
+      "checks": {
+        "invalidBananaInBox": "warning"
+      }
+    }
   }
 }

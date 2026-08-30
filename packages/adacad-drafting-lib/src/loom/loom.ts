@@ -48,7 +48,7 @@ export const initLoom = (warps: number, wefts: number, frames: number, treadles:
 }
 
 
-export const copyLoom = (l: Loom): Loom | null => {
+export const copyLoom = (l: Loom | null): Loom | null => {
   if (l == null || l == undefined) return null;
   const copy_loom = {
     threading: l.threading.slice(),
@@ -105,9 +105,9 @@ export const calcLength = (drawdown: Drawdown, loom_settings: LoomSettings): num
 }
 
 
-export const convertLoom = (drawdown: Drawdown, l: Loom, from_ls: LoomSettings, to_ls: LoomSettings): Promise<Loom | null> => {
+export const convertLoom = (drawdown: Drawdown, l: Loom | null, from_ls: LoomSettings, to_ls: LoomSettings): Promise<Loom | null> => {
 
-  //if the loom is null, force the previous type to jcquard
+  //if the loom is null, force the previous type to jacquard
   if (l == null) {
     from_ls.type = 'jacquard'
   }
@@ -136,6 +136,7 @@ export const convertLoom = (drawdown: Drawdown, l: Loom, from_ls: LoomSettings, 
     return Promise.resolve(null);
   } else if (from_ls.type == 'direct' && to_ls.type == 'frame') {
     // from direct-tie to floor
+    if (l == null) return Promise.reject("loom is null in convert direct to frame");
     const new_l = convertLiftPlanToTieup(l, to_ls);
     return Promise.resolve(new_l);
   } else if (from_ls.type === 'frame' && to_ls.type === 'jacquard') {
@@ -143,6 +144,7 @@ export const convertLoom = (drawdown: Drawdown, l: Loom, from_ls: LoomSettings, 
   } else if (from_ls.type == 'frame' && to_ls.type == 'direct') {
     // from floor to direct
     //THIS IS BROKEN
+    if (l == null) return Promise.reject("loom is null in convert frame to direct");
     const converted_loom = convertTieupToLiftPlan(l, to_ls);
     return Promise.resolve(converted_loom);
   }

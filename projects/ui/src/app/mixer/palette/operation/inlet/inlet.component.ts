@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, UntypedFormControl } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -14,6 +14,7 @@ import { TreeService } from '../../../../core/provider/tree.service';
   selector: 'app-inlet',
   templateUrl: './inlet.component.html',
   styleUrls: ['./inlet.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatButton, MatTooltip, FormsModule]
 })
 export class InletComponent implements OnInit {
@@ -22,22 +23,22 @@ export class InletComponent implements OnInit {
   private ops = inject(OperationService);
 
 
-  @Input() opid: number;
-  @Input() inletid: number;
-  @Input() dynamic: boolean;
+  @Input() opid!: number;
+  @Input() inletid!: number;
+  @Input() dynamic!: boolean;
   @Output() onInputSelected = new EventEmitter<any>();
   @Output() onInputVisibilityChange = new EventEmitter<any>();
   @Output() onConnectionRemoved = new EventEmitter<any>();
   @Output() onInletChange = new EventEmitter<any>();
   @Output() onInletLoaded = new EventEmitter<any>();
 
-  fc: UntypedFormControl;
+  fc!: UntypedFormControl;
   textValidate: any;
-  number_opts: Array<number>;
-  opnode: OpNode;
-  inlet: OperationInlet;
-  selectedValue: number;
-  inlet_desc: string;
+  number_opts!: Array<number>;
+  opnode!: OpNode;
+  inlet!: OperationInlet;
+  selectedValue!: number;
+  inlet_desc!: string;
   show_connection_name: number = -1;
   inlet_open = true;
   show_inlet_desc = false;
@@ -49,6 +50,10 @@ export class InletComponent implements OnInit {
 
 
     const op = this.ops.getOp(this.opnode.name);
+    if (op == undefined) {
+      console.error('operation not found', this.opnode.name);
+      return;
+    }
 
     this.number_opts = [];
     for (let i = 1; i < 50; i++) {

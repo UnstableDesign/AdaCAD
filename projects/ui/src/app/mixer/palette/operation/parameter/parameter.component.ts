@@ -1,11 +1,11 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatButton, MatFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { MatError, MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { AnalyzedImage, BoolParam, CodeParam, CanvasParam, FileParam, Img, NumParam, OpInput, OpParamVal, OpParamValType, SelectParam, StringParam } from 'adacad-drafting-lib';
 import { MediaInstance, OpNode, OpStateParamChange } from '../../../../core/model/datatypes';
@@ -38,7 +38,8 @@ export function regexValidator(nameRe: RegExp): ValidatorFn {
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { floatLabel: 'always' } }
   ],
-  imports: [MatFormField, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatButton, UploadFormComponent]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [MatFormField, MatError, MatFabButton, TextFieldModule, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatSelect, MatOption, MatButton, UploadFormComponent]
 })
 export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   tree = inject(TreeService);
@@ -49,14 +50,14 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   materialsService = inject(MaterialsService);
 
 
-  fc: UntypedFormControl;
-  opnode: OpNode;
+  fc!: UntypedFormControl;
+  opnode!: OpNode;
 
   name: any;
 
-  @Input() param: NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam | CanvasParam;
-  @Input() opid: number;
-  @Input() paramid: number;
+  @Input() param!: NumParam | StringParam | SelectParam | BoolParam | FileParam | CodeParam | CanvasParam;
+  @Input() opid!: number;
+  @Input() paramid!: number;
   @Output() onOperationParamChange = new EventEmitter<any>();
   @Output() onFileUpload = new EventEmitter<any>();
   @Output() preventDrag = new EventEmitter<any>();
@@ -65,9 +66,14 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   has_image_uploaded: boolean = false;
   filewarning: string = '';
+  true_state_langauge: string = '';
+  false_state_langauge: string = '';
+  param_selectlist: Array<{ value: any, name: string }> = [];
+  param_max: number = 0;
+  param_min: number = 0;
 
-  @ViewChild('autosize') autosize: CdkTextareaAutosize;
-  @ViewChild('p5canvasContainer') p5canvasContainer: ElementRef;
+  @ViewChild('autosize') autosize!: CdkTextareaAutosize;
+  @ViewChild('p5canvasContainer') p5canvasContainer!: ElementRef;
 
 
   private p5Instance: any;
@@ -83,6 +89,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
 
     switch (this.param.type) {
       case 'number':
+        this.param_min = (<NumParam>this.param).min;
+        this.param_max = (<NumParam>this.param).max;
         this.fc = new UntypedFormControl(
 
           this.opnode.params[this.paramid] ?? this.param.value,
@@ -100,6 +108,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
         break;
 
       case 'boolean':
+        this.true_state_langauge = (<BoolParam>this.param).truestate;
+        this.false_state_langauge = (<BoolParam>this.param).falsestate;
         this.fc = new UntypedFormControl(
           this.opnode.params[this.paramid] ?? this.param.value);
         this.fc.valueChanges.subscribe(val => {
@@ -108,7 +118,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
         break;
 
       case 'select':
-
+        this.param_selectlist = (<SelectParam>this.param).selectlist;
         this.fc = new UntypedFormControl(this.opnode.params[this.paramid] ?? this.param.value);
         this.fc.valueChanges.subscribe(val => {
           this.onParamChange(val);
@@ -171,7 +181,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     if (this.param.type === 'p5-canvas' && this.p5canvasContainer) {
       const op = this.ops.getOp(this.opnode.name);
-      if (op === null || op === undefined) return;
+      if (op === undefined) return;
 
       const initialParamVals = op.params.map((param, ndx) => {
         return { param: param, val: this.opnode.params[ndx] }
@@ -307,6 +317,8 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
       this.onParamChange(text);
     });
 
+
+
     dialogRef.afterClosed().subscribe(text => {
       this.onParamChange(text);
     });
@@ -316,10 +328,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
   async openImageEditor() {
 
     const opnode = this.tree.getOpNode(this.opid);
-    let obj: MediaInstance = this.mediaService.getMedia(+(<Img>opnode.params[this.paramid]).id);
-    console.log("MEDIA SERVICE CONTAINS ", obj, this.mediaService.current.slice(), opnode.params[this.paramid]);
-
-
+    let obj = this.mediaService.getMedia(+(<Img>opnode.params[this.paramid]).id);
     if (obj === undefined || obj === null) return;
 
 
@@ -327,7 +336,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
     dialogRef.afterClosed().subscribe(nothing => {
 
       let updated_media = this.mediaService.getMedia(+(<Img>this.opnode.params[this.paramid]).id)
-      this.onParamChange({ id: (<Img>this.opnode.params[this.paramid]).id, data: <AnalyzedImage>updated_media.img });
+      if (updated_media !== null) this.onParamChange({ id: (<Img>this.opnode.params[this.paramid]).id, data: <AnalyzedImage>updated_media.img });
     });
   }
 
@@ -357,7 +366,7 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
     this.has_image_uploaded = false;
 
     this.mediaService.removeInstance(+img.id)
-    this.opnode.params[this.paramid] = { id: '0', data: null as AnalyzedImage };
+    this.opnode.params[this.paramid] = { id: '0', data: null };
     this.onOperationParamChange.emit({ id: this.paramid, value: this.opnode.params[this.paramid], type: this.param.type });
 
   }
@@ -373,7 +382,6 @@ export class ParameterComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   handleFile(obj: Array<MediaInstance>) {
 
-    //ADD TEH CHANGE HERE
 
 
     this.filewarning = "";

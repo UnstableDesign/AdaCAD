@@ -1,11 +1,11 @@
-import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatInput } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltip } from '@angular/material/tooltip';
-import { getDraftName, defaults as libDefaults, warps, wefts } from 'adacad-drafting-lib';
+import { defaults, getDraftName, defaults as libDefaults, warps, wefts } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
 import { DraftNode, DraftStateNameOrNotesChange } from '../../core/model/datatypes';
 import { defaults as appDefaults } from '../../core/model/defaults';
@@ -16,16 +16,18 @@ import { ViewerService } from '../../core/provider/viewer.service';
 import { DownloadComponent } from '../../core/ui/download/download.component';
 import { DraftRenderingComponent } from '../../core/ui/draft-rendering/draft-rendering.component';
 import { RenameComponent } from '../../core/ui/rename/rename.component';
+import { WorkspaceService } from '../../core/provider/workspace.service';
 @Component({
   selector: 'app-draftinfocard',
   imports: [ReactiveFormsModule, DownloadComponent, MatSliderModule, MatButtonModule, MatFormField, MatInput, MatIconButton, MatTooltip, DraftRenderingComponent],
   templateUrl: './draftinfocard.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './draftinfocard.component.scss'
 })
 export class DraftinfocardComponent {
 
 
-  @ViewChild('draftRendering') draftRendering: DraftRenderingComponent;
+  @ViewChild('draftRendering') draftRendering!: DraftRenderingComponent;
 
   private tree = inject(TreeService);
   private ss = inject(StateService);
@@ -39,34 +41,34 @@ export class DraftinfocardComponent {
   epiForm = new FormControl<number>(0);
   ppiForm = new FormControl<number>(0);
   selectBoxForm = new FormControl<boolean>(false);
-  localZoomForm;
+  localZoomForm!: FormControl;
 
   selectedInViewer: boolean = false;
 
-  loomUnits = null;
-  loomType = null;
+  loomUnits: 'cm' | 'in' = defaults.loom_settings.units as 'cm' | 'in';
+  loomType: 'jacquard' | 'frame' | 'direct' = defaults.loom_settings.type as 'jacquard' | 'frame' | 'direct';
   warpnum = 0;
   weftnum = 0;
   oversize = false;
   inputList: Array<{ uid: string, op_name: string, inlet_name: string, type: string, value: string, category_color: string }> = [];
-  parent: { uid: string, op_name: string, type: string, category_color: string }
-  densityUnits: string;
+  parent: { uid: string, op_name: string, type: string, category_color: string } = { uid: '', op_name: '', type: '', category_color: '' };
+  densityUnits: string = '';
+  workspaceName: string = '';
 
 
-  @Input() id: number;
+  @Input() id!: number;
   @Output() onDraftSelectionChange = new EventEmitter<number>();
   @Output() onDraftRename = new EventEmitter<number>();
   @Output() onOpenInEditor = new EventEmitter<number>();
   @Output() onOpenInMixer = new EventEmitter<number>();
 
 
-  viewerSubscription: Subscription;
+  viewerSubscription!: Subscription;
 
   ngOnInit() {
 
 
     console.log("DRAFT INFO CARD INIT", this.id);
-
 
     this.localZoomForm = new FormControl(this.tree.getDraftScale(this.id));
     this.localZoomForm.valueChanges.subscribe(value => {
@@ -100,7 +102,9 @@ export class DraftinfocardComponent {
 
   refreshData() {
     const draft = this.tree.getDraft(this.id);
-    const loom_settings = this.tree.getLoomSettings(this.id);
+    if (draft == null) return;
+    let loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) loom_settings = appDefaults.loom_settings;
     this.nameForm.setValue(getDraftName(draft), { emitEvent: false });
     this.notesForm.setValue(draft.notes || '', { emitEvent: false });
     this.epiForm.setValue(loom_settings.epi || libDefaults.loom_settings.epi, { emitEvent: false });
@@ -109,7 +113,7 @@ export class DraftinfocardComponent {
     this.selectBoxForm.setValue(false, { emitEvent: false });
     this.loomUnits = loom_settings.units || libDefaults.loom_settings.units;
     this.densityUnits = this.loomUnits === 'in' ? 'ends / inch' : 'ends / 10cm';
-    this.loomType = loom_settings.type || libDefaults.loom_settings.type;
+    this.loomType = loom_settings.type as 'jacquard' | 'frame' | 'direct' || libDefaults.loom_settings.type as 'jacquard' | 'frame' | 'direct';
     this.warpnum = warps(draft.drawdown) || -1;
     this.weftnum = wefts(draft.drawdown) || -1;
     this.oversize = (this.warpnum > appDefaults.oversize_dim_threshold || this.weftnum > appDefaults.oversize_dim_threshold) ? true : false;
@@ -161,17 +165,23 @@ export class DraftinfocardComponent {
     let out_ops = out_cxns.map(o => this.tree.getConnectionOutputWithIndex(o.tn.node.id));
 
     out_ops.forEach(o => {
+      if (o == null) return;
       let op_node = this.tree.getOpNode(o.id);
       let op_obj = this.ops.getOp(op_node.name);
+
+      if (op_obj == undefined) {
+        console.error('operation not found', op_node.name);
+        return;
+      }
 
       this.inputList.push(
         {
           uid: Math.random().toString(36).substring(2, 15),
-          op_name: op_obj.meta.displayname || op_node.name,
-          inlet_name: op_obj.inlets[o.inlet]?.name || 'n/a',
-          type: op_obj.inlets[o.inlet]?.type || 'n/a',
-          value: op_node.inlets[o.inlet].toString(),
-          category_color: this.ops.getCatColor(op_obj.meta.categories[0].name) || '#000'
+          op_name: op_obj?.meta.displayname || op_node.name,
+          inlet_name: op_obj?.inlets[o.inlet]?.name || 'n/a',
+          type: op_obj?.inlets[o.inlet]?.type || 'n/a',
+          value: op_node.inlets[o.inlet]?.toString() || 'n/a',
+          category_color: this.ops.getCatColor(op_obj?.meta.categories[0].name) || '#000'
         });
     });
 
@@ -192,6 +202,15 @@ export class DraftinfocardComponent {
     } else {
       let op_node = this.tree.getOpNode(parent);
       let op_obj = this.ops.getOp(op_node.name);
+      if (op_obj == undefined) {
+        console.error('operation not found', op_node.name);
+        return {
+          uid: Math.random().toString(36).substring(2, 15),
+          op_name: 'n/a',
+          type: 'operation',
+          category_color: '#000000'
+        };
+      }
       let categories = op_obj.meta.categories;
       const color = (categories == undefined || categories.length == 0) ? '#000000' : this.ops.getCatColor(categories[0].name);
 
@@ -199,7 +218,7 @@ export class DraftinfocardComponent {
         uid: Math.random().toString(36).substring(2, 15),
         op_name: op_obj.meta.displayname || op_node.name,
         type: 'operation',
-        category_color: this.ops.getCatColor(this.ops.getOp(op_node.name).meta.categories[0].name) || '#000000'
+        category_color: this.ops.getCatColor(op_obj.meta.categories[0].name) || '#000000'
       };
     }
   }
@@ -237,7 +256,8 @@ export class DraftinfocardComponent {
       after: { name: this.nameForm.value, notes: before_notes }
     });
 
-    this.tree.getDraft(this.id).ud_name = this.nameForm.value;
+    const draft = this.tree.getDraft(this.id);
+    if (draft) draft.ud_name = this.nameForm.value ?? '';
     this.onDraftRename.emit(this.id);
     this.nameForm.markAsPristine();
 

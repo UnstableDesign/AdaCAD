@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,7 +8,7 @@ import { Cell, Draft, Interlacement, Loom, LoomSettings } from 'adacad-drafting-
 import { Drawdown, createCell, deleteDrawdownCol, deleteDrawdownRow, deleteMappingCol, deleteMappingRow, generateMappingFromPattern, getCellValue, hasCell, insertDrawdownCol, insertDrawdownRow, insertMappingCol, insertMappingRow, isUp, setHeddle, warps, wefts } from 'adacad-drafting-lib/draft';
 import { getLoomUtilByType, isInUserThreadingRange, isInUserTieupRange, isInUserTreadlingRange, numFrames, numTreadles } from 'adacad-drafting-lib/loom';
 import { BehaviorSubject, Observable, Subscription, fromEvent, of, skip } from 'rxjs';
-import { CanvasList, DraftNode, DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
+import { CanvasList, DraftEditingSource, DraftNode, DraftNodeBroadcastFlags, DraftNodeState, DraftStateChange, RenderingFlags } from '../../model/datatypes';
 import { defaults } from '../../model/defaults';
 import { FileService } from '../../provider/file.service';
 import { MaterialsService } from '../../provider/materials.service';
@@ -26,6 +26,8 @@ import { SelectionComponent } from './selection/selection.component';
   selector: 'app-draft-rendering',
   templateUrl: './draft-rendering.component.html',
   styleUrl: './draft-rendering.component.scss',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [SelectionComponent, AsyncPipe, MatButton, ReactiveFormsModule, MatInputModule, MatFormFieldModule]
 })
 
@@ -45,14 +47,14 @@ export class DraftRenderingComponent implements OnInit {
   private state = inject(StateService);
 
 
-  @ViewChild('bitmapImage') bitmap;
-  @ViewChild('selection', { read: SelectionComponent, static: true }) selection: SelectionComponent;
+  @ViewChild('bitmapImage') bitmap!: HTMLCanvasElement;
+  @ViewChild('selection', { read: SelectionComponent, static: true }) selection!: SelectionComponent;
 
   @Input('id') id: number = -1;
-  @Input('source') source: 'editor' | 'viewer' | 'mixer' | 'library';
+  @Input('source') source!: 'editor' | 'viewer' | 'mixer' | 'library';
   @Input('current_view') current_view: 'draft' | 'structure' | 'visual' | 'sim' = 'visual';
-  @Input('view_only') view_only: boolean;
-  @Input('scale') scale: number;
+  @Input('view_only') view_only!: boolean;
+  @Input('scale') scale!: number;
   @Input('oversize') oversize: boolean = false;
 
   @Output() onNewSelection = new EventEmitter();
@@ -68,25 +70,25 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-  before: DraftNodeState;
+  before!: DraftNodeState;
 
   mouse_pressed: boolean = false;
 
-  moveSubscription: Subscription;
+  moveSubscription!: Subscription;
 
+  draft_edit_source: DraftEditingSource = 'drawdown';
+  divWesy!: HTMLElement;
+  divWasy!: HTMLElement;
 
-  divWesy: HTMLElement;
-  divWasy: HTMLElement;
+  svgSelectRow!: HTMLElement;
+  svgSelectCol!: HTMLElement;
 
-  svgSelectRow: HTMLElement;
-  svgSelectCol: HTMLElement;
+  canvases!: CanvasList;;
 
-  canvases: CanvasList = null;
-
-  private lastPos: Interlacement;
+  private lastPos: Interlacement = { i: 0, j: 0 };
 
   //for copy paste
-  private tempPattern: Drawdown;
+  private tempPattern: Drawdown = [];
 
 
   /** VIEW OPTIONS */
@@ -95,12 +97,13 @@ export class DraftRenderingComponent implements OnInit {
 
   //use this to set the current width of the warp text. This will change with the warp canvas changes
   warp_text_div_width: string = '1000px';
+  cell_size: number = defaults.draft_detail_cell_size;
 
   //use this to set the current width of the warp text. This will change with the warp canvas changes
   weft_text_div_height: string = '1000px';
 
+  epi: number = defaults.loom_settings.epi;
   pencil = 'toggle'; //toggle, up, down, unset, material
-  draft_edit_source = 'drawdown'; //drawdown, loom
   use_sizes: boolean = false;
   selected_material_id: number = 0; //if material is set an pencil
 
@@ -111,24 +114,24 @@ export class DraftRenderingComponent implements OnInit {
   overTimeLimit$: Observable<boolean> = of(false);
   redrawComplete = new EventEmitter();
 
-  selected_loom_type: string = 'frame';
+  selected_loom_type: 'jacquard' | 'frame' | 'direct' = 'jacquard';
 
   //published from the draft node whenever a new draft is set. 
-  draftValueChangeSubscription: Subscription;
+  draftValueChangeSubscription!: Subscription;
 
 
   //used to determine if this is the first time the subscription is called (onLoad) vs (onUpdate)
   draftValueChangeCallCount: number = 0;
 
-  materialColorChangeSubscription: Subscription;
-  materialDiameterChangeSubscription: Subscription;
+  materialColorChangeSubscription!: Subscription;
+  materialDiameterChangeSubscription!: Subscription;
 
 
-  draftRenderingEvent$: BehaviorSubject<string>;
+  draftRenderingEvent$!: BehaviorSubject<string>;
 
   pencilChange$: BehaviorSubject<string>;
 
-  eventTargetSet$: BehaviorSubject<HTMLElement>;
+  eventTargetSet$: BehaviorSubject<HTMLElement | null>;
 
 
 
@@ -136,7 +139,7 @@ export class DraftRenderingComponent implements OnInit {
 
     this.system_codes = defaults.weft_system_codes;
     this.pencilChange$ = new BehaviorSubject<string>('toggle');
-    this.eventTargetSet$ = new BehaviorSubject<HTMLElement>(null);
+    this.eventTargetSet$ = new BehaviorSubject<HTMLElement | null>(null);
 
   }
 
@@ -151,7 +154,10 @@ export class DraftRenderingComponent implements OnInit {
     }
   }
 
-  setDraftEditSource(draft_edit_source: string) {
+  setDraftEditSource(draft_edit_source: DraftEditingSource, update_node: boolean = false) {
+    if (update_node) {
+      this.tree.setDraftEditingSource(this.id, draft_edit_source);
+    }
     this.draft_edit_source = draft_edit_source;
   }
 
@@ -179,6 +185,8 @@ export class DraftRenderingComponent implements OnInit {
 
     if (this.source == 'viewer' || this.source == 'editor') this.ignoreOversize = true;
 
+
+    console.log('draft_edit_source', this.draft_edit_source);
     this.materialColorChangeSubscription = this.ms.materialColorChange.pipe(skip(1)).subscribe(id => {
       this.forceRedraw();
     });
@@ -217,10 +225,25 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-    this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
-    this.divWasy = document.getElementById('warp-systems-text-' + this.source + '-' + this.id);
+    this.divWesy = document.getElementById('weft-systems-text-' + this.source + '-' + this.id) as HTMLElement;
+    this.divWasy = document.getElementById('warp-systems-text-' + this.source + '-' + this.id) as HTMLElement;
+    this.refreshLoomVisibility(this.tree.getLoomSettings(this.id) ?? defaults.loom_settings);
     this.refreshWarpAndWeftSystemNumbering();
     this.refreshOriginMarker();
+
+    const dn = this.tree.getNode(this.id) as DraftNode;
+
+    // #endregion
+    if (dn == null) return;
+    if (dn.draft_editing_source !== undefined) {
+      this.draft_edit_source = dn.draft_editing_source;
+    } else {
+      if (this.selected_loom_type === 'jacquard') {
+        this.draft_edit_source = 'drawdown';
+      } else {
+        this.draft_edit_source = 'loom';
+      }
+    }
 
 
   }
@@ -247,18 +270,35 @@ export class DraftRenderingComponent implements OnInit {
   }
 
 
+  getNodeSource(id: number): string {
+    let node = this.tree.getNode(id) as DraftNode;
+    if (node == null) return 'null';
+    return node.draft_editing_source as DraftEditingSource ?? 'undefined';
+  }
+
 
   setDefaultEditingMode(source: 'editor' | 'viewer' | 'library' | 'mixer') {
+
+    let node = this.tree.getNode(this.id) as DraftNode;
+
+    // #endregion
+    if (node == null) return;
+
+
     switch (source) {
       case 'editor':
         this.view_only = false;
         this.setPencil('toggle');
-
-        if (this.selected_loom_type === 'jacquard') {
-          this.setDraftEditSource('drawdown');
+        if (node.draft_editing_source !== undefined) {
+          this.setDraftEditSource(node.draft_editing_source);
         } else {
-          this.setDraftEditSource('loom');
+          if (this.selected_loom_type === 'jacquard') {
+            this.setDraftEditSource('drawdown');
+          } else {
+            this.setDraftEditSource('loom');
+          }
         }
+
         break;
       case 'viewer':
       case 'library':
@@ -271,12 +311,29 @@ export class DraftRenderingComponent implements OnInit {
         if (this.tree.hasParent(this.id)) {
           this.view_only = true;
           this.setPencil('select');
-          this.setDraftEditSource('drawdown');
+          if (node.draft_editing_source !== undefined) {
+            this.setDraftEditSource(node.draft_editing_source);
+          } else {
+            if (this.selected_loom_type === 'jacquard') {
+              this.setDraftEditSource('drawdown');
+            } else {
+              this.setDraftEditSource('loom');
+            }
+          }
           break;
         } else {
           this.view_only = false;
           this.setPencil('toggle');
-          this.setDraftEditSource('drawdown');
+
+          if (node.draft_editing_source !== undefined) {
+            this.setDraftEditSource(node.draft_editing_source);
+          } else {
+            if (this.selected_loom_type === 'jacquard') {
+              this.setDraftEditSource('drawdown');
+            } else {
+              this.setDraftEditSource('loom');
+            }
+          }
           break;
         }
     }
@@ -291,8 +348,7 @@ export class DraftRenderingComponent implements OnInit {
     if (id == -1) return;
 
     let node = this.tree.getNode(id) as DraftNode;
-    this.selected_loom_type = this.tree.getLoomSettings(this.id).type;
-
+    this.selected_loom_type = this.tree.getLoomSettings(this.id)?.type as 'jacquard' | 'frame' | 'direct' ?? 'jacquard';
 
     this.setDefaultEditingMode(this.source);
 
@@ -331,19 +387,44 @@ export class DraftRenderingComponent implements OnInit {
       this.colSystemMapping = draft !== null ? draft.colSystemMapping.slice() : [];
       this.rowShuttleMapping = draft !== null ? draft.rowShuttleMapping.slice() : [];
       this.rowSystemMapping = draft !== null ? draft.rowSystemMapping.slice() : [];
-      this.selected_loom_type = (loom_settings != null) ? loom_settings.type : 'jacquard';
+      this.selected_loom_type = (loom_settings != null) ? loom_settings.type as 'jacquard' | 'frame' | 'direct' : 'jacquard';
 
       if (draft !== null) {
 
 
         this.redraw(draft, loom, loom_settings, flags).then(el => {
           this.draftValueChangeCallCount++;
+          this.refreshLoomVisibility(loom_settings);
           this.refreshOriginMarker();
           this.refreshWarpAndWeftSystemNumbering();
           this.redrawComplete.emit(draft); // I need this so that any resulting functions (e.g. recentering, etc, can call after redrawing)
         });
       }
     });
+
+  }
+
+  refreshLoomVisibility(loom_settings: LoomSettings) {
+    if (this.source == 'mixer' || this.source == 'library') {
+      const divWaSyText = document.getElementById('warp-systems-text-' + this.source + '-' + this.id);
+      divWaSyText?.style.setProperty('display', 'none');
+
+      const divWeSyText = document.getElementById('weft-systems-text-' + this.source + '-' + this.id);
+      divWeSyText?.style.setProperty('display', 'none');
+
+
+      if (loom_settings.type !== 'jacquard') {
+        const treadlingCanvas = document.getElementById('treadling-' + this.source + '-' + this.id);
+        treadlingCanvas?.style.setProperty('display', 'flex');
+        const treadlingCanvasContainer = document.getElementById('treadling-container-' + this.source + '-' + this.id);
+        treadlingCanvasContainer?.style.setProperty('display', 'flex');
+      } else {
+        const treadlingCanvas = document.getElementById('treadling-' + this.source + '-' + this.id);
+        treadlingCanvas?.style.setProperty('display', 'none');
+        const treadlingCanvasContainer = document.getElementById('treadling-container-' + this.source + '-' + this.id);
+        treadlingCanvasContainer?.style.setProperty('display', 'none');
+      }
+    }
 
   }
 
@@ -377,10 +458,11 @@ export class DraftRenderingComponent implements OnInit {
 
     const highlightRow = document.getElementById('highlight-row-editor');
     const highlightCol = document.getElementById('highlight-col-editor');
-
+    if (highlightRow == null || highlightCol == null) return;
     let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     cell_size = cell_size / this.render.pixel_ratio;
     const parentContainer = highlightRow.parentElement;
+    if (parentContainer == null) return;
     const rect = parentContainer.getBoundingClientRect();
     //event page X is the mouse in absolute terms, rect left is the corner of the parent container
     //so event.client - rect gives us the distance of the mouse within the parent container. 
@@ -401,8 +483,8 @@ export class DraftRenderingComponent implements OnInit {
 
     const highlightRow = document.getElementById('highlight-row-editor');
     const highlightCol = document.getElementById('highlight-col-editor');
-    highlightRow.style.display = 'none';
-    highlightCol.style.display = 'none';
+    if (highlightRow) highlightRow.style.display = 'none';
+    if (highlightCol) highlightCol.style.display = 'none';
   }
 
   /**
@@ -417,9 +499,10 @@ export class DraftRenderingComponent implements OnInit {
 
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
-
+    if (loom_settings == null) return;
 
     const editing_style = this.draft_edit_source;
 
@@ -438,14 +521,14 @@ export class DraftRenderingComponent implements OnInit {
       this.incrementWeftSystem(currentPos.i);
 
     } else if (target && target.id == 'treadling-' + this.source + '-' + this.id) {
-      if (editing_style == "loom") this.drawOnTreadling(loom, loom_settings, currentPos);
+      if (editing_style == "loom" && loom != null) this.drawOnTreadling(loom, loom_settings, currentPos);
 
     } else if (target && target.id === 'tieups-' + this.source + '-' + this.id) {
       if (loom_settings.type === "direct") return;
-      if (editing_style == "loom") this.drawOnTieups(loom, loom_settings, currentPos);
+      if (editing_style == "loom" && loom != null) this.drawOnTieups(loom, loom_settings, currentPos);
 
     } else if (target && target.id === ('threading-' + this.source + '-' + this.id)) {
-      if (editing_style == "loom") this.drawOnThreading(loom, loom_settings, currentPos);
+      if (editing_style == "loom" && loom != null) this.drawOnThreading(loom, loom_settings, currentPos);
     } else {
       if (editing_style == "drawdown" || (this.source == 'mixer' && !this.tree.hasParent(this.id))) this.drawOnDrawdown(draft, loom_settings, currentPos, shift);
     }
@@ -482,7 +565,7 @@ export class DraftRenderingComponent implements OnInit {
       case 'toggle':
         this.setPosAndDraw(<HTMLElement>event.target, event.shiftKey, currentPos);
         if (this.moveSubscription) this.moveSubscription.unsubscribe();
-        this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onDrawMove(e));
+        this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onDrawMove(e as MouseEvent));
 
         break;
     }
@@ -490,13 +573,13 @@ export class DraftRenderingComponent implements OnInit {
     switch (this.pencil) {
       case 'select':
         if (this.moveSubscription) this.moveSubscription.unsubscribe();
-        this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onSelectMove(e));
+        this.moveSubscription = fromEvent(event.target, 'mousemove').subscribe(e => this.onSelectMove(e as MouseEvent));
         this.selection.onSelectStart(<HTMLElement>event.target as HTMLElement, currentPos);
         break;
     }
   }
 
-  private onSelectMove(event) {
+  private onSelectMove(event: MouseEvent) {
     const currentPos = this.getEventPosition(event);
     if (this.isSame(currentPos, this.lastPos)) return;
 
@@ -513,7 +596,7 @@ export class DraftRenderingComponent implements OnInit {
   }
 
 
-  private onDrawMove(event) {
+  private onDrawMove(event: MouseEvent) {
 
     const currentPos = this.getEventPosition(event);
     //don't call unless you've moved to a new spot
@@ -539,7 +622,8 @@ export class DraftRenderingComponent implements OnInit {
 
     switch (this.pencil) {
       case 'select':
-        this.selection.onSelectStop(true);
+        //tuned this out to allow for nicer multi-select behavior
+        // this.selection.onSelectStop(true);
         break;
       case 'up':
       case 'down':
@@ -547,7 +631,12 @@ export class DraftRenderingComponent implements OnInit {
       case 'material':
       case 'toggle':
         this.addStateChange(this.before);
-        this.updateConnectedDraftComponents(this.tree.getDraft(this.id), this.tree.getLoom(this.id), this.tree.getLoomSettings(this.id));
+        const draft = this.tree.getDraft(this.id) as Draft | null;
+        if (draft == null) return;
+        const loom = this.tree.getLoom(this.id) as Loom | null;
+        const loom_settings = this.tree.getLoomSettings(this.id) as LoomSettings | null;
+        if (loom_settings == null) return;
+        this.updateConnectedDraftComponents(draft, loom, loom_settings);
         break;
     }
 
@@ -567,8 +656,13 @@ export class DraftRenderingComponent implements OnInit {
       case 'material':
       case 'toggle':
 
+        const draft = this.tree.getDraft(this.id) as Draft | null;
+        if (draft == null) return;
+        const loom = this.tree.getLoom(this.id) as Loom | null;
+        const loom_settings = this.tree.getLoomSettings(this.id) as LoomSettings | null;
+        if (loom_settings == null) return;
         this.addStateChange(this.before);
-        this.updateConnectedDraftComponents(this.tree.getDraft(this.id), this.tree.getLoom(this.id), this.tree.getLoomSettings(this.id));
+        this.updateConnectedDraftComponents(draft, loom, loom_settings);
         break;
     }
   }
@@ -608,10 +702,10 @@ export class DraftRenderingComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
 
 
-    const frames = Math.max(numFrames(loom), ls.frames);
-    const treadles = Math.max(numTreadles(loom), ls.treadles);
-    const warps_count: number = warps(draft.drawdown);
-    const wefts_count: number = wefts(draft.drawdown);
+    const frames = (loom != null) ? Math.max(numFrames(loom), ls?.frames ?? 0) : 0;
+    const treadles = (loom != null) ? Math.max(numTreadles(loom), ls?.treadles ?? 0) : 0;
+    const warps_count: number = draft != null ? warps(draft.drawdown) : 0;
+    const wefts_count: number = draft != null ? wefts(draft.drawdown) : 0;
 
 
     const targetNameArray = target.id.split('-');
@@ -690,6 +784,7 @@ export class DraftRenderingComponent implements OnInit {
 
   private getEventPosition(event: MouseEvent): Interlacement {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return { i: -1, j: -1 };
     let cell_size = this.render.calculateRawPixelCellSize(draft, 'canvas');
     cell_size = cell_size / this.render.pixel_ratio;
     var screen_row = Math.floor(event.offsetY / (cell_size * this.scale));
@@ -713,17 +808,19 @@ export class DraftRenderingComponent implements OnInit {
    * @returns 
    */
   @HostListener('mousemove', ['$event'])
-  public movingMouse(event) {
+  public movingMouse(event: MouseEvent) {
 
     if (this.view_only) return;
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
+
     const currentPos = this.getEventPosition(event);
     if (this.source == 'editor') this.highlightRowsAndCols(draft, event, currentPos);
   }
 
 
   @HostListener('mousedown', ['$event'])
-  public onStart(event) {
+  public onStart(event: MouseEvent) {
 
     this.mouse_pressed = true;
     this.before = this.tree.getDraftNodeState(this.id);
@@ -738,7 +835,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
   @HostListener('mouseleave', ['$event'])
-  public onLeave(event) {
+  public onLeave(event: MouseEvent) {
     if (this.source == 'editor') this.removeHighlighter();
 
     const currentPos = this.getEventPosition(event);
@@ -749,7 +846,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
   @HostListener('mouseup', ['$event'])
-  public onEnd(event) {
+  public onEnd(event: MouseEvent) {
 
     this.mouse_pressed = false;
     if (this.id == -1 || this.view_only) return;
@@ -806,14 +903,14 @@ export class DraftRenderingComponent implements OnInit {
    * @param loom 
    * @param loom_settings 
    */
-  updateConnectedDraftComponents(draft: Draft, loom: Loom, loom_settings: LoomSettings) {
+  updateConnectedDraftComponents(draft: Draft, loom: Loom | null, loom_settings: LoomSettings) {
 
     if (this.draft_edit_source == 'drawdown') {
       this.tree.recomputeLoom(this.id, draft, loom_settings)
         .then(loom => {
           this.rowShuttleMapping = draft.rowShuttleMapping;
         })
-    } else {
+    } else if (loom !== null) {
       this.tree.recomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.rowShuttleMapping = draft.rowShuttleMapping;
@@ -826,6 +923,8 @@ export class DraftRenderingComponent implements OnInit {
 
   public incrementWeftSystem(i: number) {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
+
     var newSystem = this.ss.getNextWeftSystem(i, draft);
     draft.rowSystemMapping[i] = newSystem;
     this.rowSystemMapping = draft.rowSystemMapping.slice();
@@ -843,6 +942,7 @@ export class DraftRenderingComponent implements OnInit {
 
   incrementWeftMaterial(si: number) {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
 
 
     if (this.pencil == 'material') {
@@ -869,6 +969,8 @@ export class DraftRenderingComponent implements OnInit {
   incrementWarpSystem(j: number) {
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
+
     var newSystem = this.ss.getNextWarpSystem(j, draft);
     draft.colSystemMapping[j] = newSystem;
 
@@ -888,6 +990,7 @@ export class DraftRenderingComponent implements OnInit {
     const warp = col;
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     if (this.pencil == 'material') {
       draft.colShuttleMapping[warp] = this.selected_material_id;
     } else {
@@ -918,7 +1021,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
   private drawOnDrawdown(draft: Draft, loom_settings: LoomSettings, currentPos: Interlacement, shift: boolean) {
-    var val = false;
+    var val: boolean | null = false;
 
     if (this.canvases.drawdown == null || !currentPos) { return; }
 
@@ -1007,7 +1110,7 @@ export class DraftRenderingComponent implements OnInit {
     if (isInUserThreadingRange(loom, loom_settings, currentPos)) {
       var val;
       const draft = this.tree.getDraft(this.id)
-
+      if (draft == null) return;
 
       switch (this.pencil) {
         case 'up':
@@ -1029,7 +1132,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
       const utils = getLoomUtilByType(loom_settings.type);
-      if (this.pencil !== 'material') loom = (utils.updateThreading != null) ? utils.updateThreading(loom, { i: currentPos.i, j: currentPos.j, val: val }) : loom;
+      if (this.pencil !== 'material') loom = (utils.updateThreading != null) ? utils.updateThreading(loom, { i: currentPos.i, j: currentPos.j, val: val ?? false }) : loom;
       this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings);
     }
   }
@@ -1039,6 +1142,7 @@ export class DraftRenderingComponent implements OnInit {
 
     if (this.canvases.treadling == null || !currentPos) { return; }
     const draft = this.tree.getDraft(this.id)
+    if (draft == null) return;
     var val = false;
 
     if (isInUserTreadlingRange(loom, loom_settings, currentPos)) {
@@ -1105,6 +1209,7 @@ export class DraftRenderingComponent implements OnInit {
     if (this.id == -1) return;
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     const loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
 
@@ -1124,7 +1229,7 @@ export class DraftRenderingComponent implements OnInit {
         show_loom: (this.source === 'editor'),
         use_sizes: this.use_sizes
       }
-      this.render.addToQueue(draft, loom, loom_settings, this.canvases, flags, 'scale', () => {
+      this.render.addToQueue(draft, loom, loom_settings ?? defaults.loom_settings, this.canvases, flags, 'scale', () => {
       }, this.scale);
       this.refreshOriginMarker();
     }
@@ -1180,6 +1285,7 @@ export class DraftRenderingComponent implements OnInit {
   public forceRedraw() {
     if (this.id == -1) return;
     const draft = this.tree.getDraft(this.id)
+    if (draft == null) return;
     const loom = this.tree.getLoom(this.id)
     const loom_settings = this.tree.getLoomSettings(this.id);
 
@@ -1197,14 +1303,15 @@ export class DraftRenderingComponent implements OnInit {
       show_loom: (this.source === 'editor'),
       use_sizes: this.use_sizes
     }
-    this.redraw(draft, loom, loom_settings, flags);
+    this.redraw(draft, loom, loom_settings ?? defaults.loom_settings, flags);
   }
 
 
 
   //takes inputs about what to redraw
-  public redraw(draft: Draft, loom: Loom, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
+  public redraw(draft: Draft, loom: Loom | null, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
 
+    console.log("REDRAW CALLED", rf);
 
     this.isRedrawing = true;
 
@@ -1229,14 +1336,14 @@ export class DraftRenderingComponent implements OnInit {
     //if (this.oversize && this.ignoreOversize) this.ignoreOversize = false;
 
     if (draft == null) {
-      console.error("DRAFT IS NULL", this.id);
-      return;
+      return Promise.resolve(false);
     }
 
     if (this.needsRedraw(rf)) {
 
       const queueItem = this.render.addToQueue(draft, loom, loom_settings, this.canvases, rf, 'render', () => {
         this.isRedrawing = false;
+        this.refreshLoomVisibility(loom_settings);
         this.refreshOriginMarker();
         this.refreshWarpAndWeftSystemNumbering();
       })
@@ -1306,7 +1413,7 @@ export class DraftRenderingComponent implements OnInit {
 
 
 
-  public printPattern(pattern) {
+  public printPattern(pattern: Array<Array<boolean>>) {
     for (var i = 0; i < pattern.length; i++) {
       var s = "";
       for (var j = 0; j < pattern[0].length; j++) {
@@ -1336,14 +1443,16 @@ export class DraftRenderingComponent implements OnInit {
 
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
 
-    draft.drawdown = insertDrawdownRow(draft.drawdown, i, null);
+    draft.drawdown = insertDrawdownRow(draft.drawdown, i, []);
     draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, i, 1);
     draft.rowSystemMapping = insertMappingRow(draft.rowSystemMapping, i, 0);
     const utils = getLoomUtilByType(loom_settings.type);
-    loom = (utils.insertIntoTreadling != null) ? utils.insertIntoTreadling(loom, i, []) : loom;
+    loom = (utils.insertIntoTreadling != null && loom != null) ? utils.insertIntoTreadling(loom, i, []) : loom;
 
     if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
@@ -1351,7 +1460,7 @@ export class DraftRenderingComponent implements OnInit {
           this.addStateChange(before);
         })
     } else {
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.addStateChange(before);
         })
@@ -1369,9 +1478,10 @@ export class DraftRenderingComponent implements OnInit {
 
     if (this.view_only) return;
     const before = this.tree.getDraftNodeState(this.id);
-
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
     let loom = this.tree.getLoom(this.id);
 
 
@@ -1381,7 +1491,7 @@ export class DraftRenderingComponent implements OnInit {
     });
 
     const utils = getLoomUtilByType(loom_settings.type);
-    loom = (utils.insertIntoTreadling != null) ? utils.insertIntoTreadling(loom, i, loom.treadling[i].slice()) : loom;
+    loom = (utils.insertIntoTreadling != null && loom != null) ? utils.insertIntoTreadling(loom, i, loom.treadling[i].slice()) : loom;
 
     draft.drawdown = insertDrawdownRow(draft.drawdown, i, row_deep);
     draft.rowShuttleMapping = insertMappingRow(draft.rowShuttleMapping, i, draft.rowShuttleMapping[i]);
@@ -1395,9 +1505,9 @@ export class DraftRenderingComponent implements OnInit {
           this.addStateChange(before);
         })
     } else {
-      loom = (utils.insertIntoTreadling != null) ? utils.insertIntoTreadling(loom, i, loom.treadling[i].slice()) : loom;
+      loom = (utils.insertIntoTreadling != null && loom != null) ? utils.insertIntoTreadling(loom, i, loom.treadling[i].slice()) : loom;
 
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.addStateChange(before);
         })
@@ -1411,7 +1521,10 @@ export class DraftRenderingComponent implements OnInit {
     const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
+
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
     let loom = this.tree.getLoom(this.id);
 
     draft.drawdown = deleteDrawdownRow(draft.drawdown, i);
@@ -1419,7 +1532,7 @@ export class DraftRenderingComponent implements OnInit {
 
     draft.rowSystemMapping = deleteMappingRow(draft.rowSystemMapping, i)
     const utils = getLoomUtilByType(loom_settings.type);
-    loom = (utils.deleteFromTreadling != null) ? utils.deleteFromTreadling(loom, i) : loom;
+    loom = (utils.deleteFromTreadling != null && loom != null) ? utils.deleteFromTreadling(loom, i) : loom;
 
 
     if (this.draft_edit_source == 'drawdown') {
@@ -1428,7 +1541,7 @@ export class DraftRenderingComponent implements OnInit {
           this.addStateChange(before);
         })
     } else {
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.addStateChange(before);
         })
@@ -1441,14 +1554,16 @@ export class DraftRenderingComponent implements OnInit {
     const before = this.tree.getDraftNodeState(this.id);
 
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     let loom = this.tree.getLoom(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
 
-    draft.drawdown = insertDrawdownCol(draft.drawdown, j, null);
+    draft.drawdown = insertDrawdownCol(draft.drawdown, j, []);
     draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, j, 0);
     draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, j, 0);
     const utils = getLoomUtilByType(loom_settings.type);
-    loom = (utils.insertIntoThreading != null) ? utils.insertIntoThreading(loom, j, -1) : loom;
+    loom = (utils.insertIntoThreading != null && loom != null) ? utils.insertIntoThreading(loom, j, -1) : loom;
 
     if (this.draft_edit_source == 'drawdown') {
       this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
@@ -1458,7 +1573,7 @@ export class DraftRenderingComponent implements OnInit {
 
     } else {
 
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.addStateChange(before);
         })
@@ -1470,9 +1585,10 @@ export class DraftRenderingComponent implements OnInit {
   public cloneCol(j: number) {
     if (this.view_only) return;
     const before = this.tree.getDraftNodeState(this.id);
-
-    const draft = this.tree.getDraft(this.id);
+    const draft = this.tree.getDraft(this.id) as Draft | null;
+    if (draft == null) return;
     const loom_settings = this.tree.getLoomSettings(this.id);
+    if (loom_settings == null) return;
     let loom = this.tree.getLoom(this.id);
 
     const col: Array<Cell> = draft.drawdown.reduce((acc, el) => {
@@ -1483,7 +1599,7 @@ export class DraftRenderingComponent implements OnInit {
     draft.drawdown = insertDrawdownCol(draft.drawdown, j, col);
     draft.colShuttleMapping = insertMappingCol(draft.colShuttleMapping, j, draft.colShuttleMapping[j]);
     draft.colSystemMapping = insertMappingCol(draft.colSystemMapping, j, draft.colSystemMapping[j]);
-    const utils = getLoomUtilByType(loom_settings.type);
+    const utils = getLoomUtilByType(loom_settings?.type ?? 'jacquard');
 
 
     if (this.draft_edit_source == 'drawdown') {
@@ -1493,9 +1609,9 @@ export class DraftRenderingComponent implements OnInit {
         })
 
     } else {
-      loom = (utils.insertIntoThreading != null) ? utils.insertIntoThreading(loom, j, loom.threading[j]) : loom;
+      loom = (utils.insertIntoThreading != null && loom != null) ? utils.insertIntoThreading(loom, j, loom.threading[j]) : loom;
 
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
         .then(draft => {
           this.addStateChange(before);
         })
@@ -1512,22 +1628,23 @@ export class DraftRenderingComponent implements OnInit {
     const draft = this.tree.getDraft(this.id);
     const loom_settings = this.tree.getLoomSettings(this.id);
     let loom = this.tree.getLoom(this.id);
+    if (draft == null) return;
 
     draft.drawdown = deleteDrawdownCol(draft.drawdown, j);
     draft.colShuttleMapping = deleteMappingCol(draft.colShuttleMapping, j);
     draft.colSystemMapping = deleteMappingCol(draft.colSystemMapping, j);
-    const utils = getLoomUtilByType(loom_settings.type);
-    loom = (utils.deleteFromThreading != null) ? utils.deleteFromThreading(loom, j) : loom;
+    const utils = getLoomUtilByType(loom_settings?.type ?? 'jacquard');
+    loom = (utils.deleteFromThreading != null && loom != null) ? utils.deleteFromThreading(loom, j) : loom;
 
 
     if (this.draft_edit_source == 'drawdown') {
-      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings)
+      this.tree.setDraftAndRecomputeLoom(this.id, draft, loom_settings ?? defaults.loom_settings)
         .then(loom => {
           this.addStateChange(before);
         })
 
     } else {
-      this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings)
+      if (loom != null) this.tree.setLoomAndRecomputeDrawdown(this.id, loom, loom_settings ?? defaults.loom_settings)
         .then(draft => {
           this.addStateChange(before);
         })
@@ -1538,7 +1655,7 @@ export class DraftRenderingComponent implements OnInit {
 
   swapEditingStyle() {
     const loom_settings = this.tree.getLoomSettings(this.id);
-    if (loom_settings.type !== 'jacquard') {
+    if (loom_settings !== null && loom_settings.type !== 'jacquard') {
       this.selection.onSelectCancel();
     }
 
@@ -1546,6 +1663,7 @@ export class DraftRenderingComponent implements OnInit {
 
   public checkForPaint(source: string, index: number, event: any) {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     if (this.pencil == 'material' && this.mouse_pressed) {
       if (source == 'weft') draft.rowShuttleMapping[index] = this.selected_material_id;
       if (source == 'warp') draft.colShuttleMapping[index] = this.selected_material_id;
@@ -1589,6 +1707,7 @@ export class DraftRenderingComponent implements OnInit {
 
   public updateWarpSystems(pattern: Array<number>) {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     draft.colSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
     const flags: DraftNodeBroadcastFlags = {
       meta: false,
@@ -1603,6 +1722,7 @@ export class DraftRenderingComponent implements OnInit {
 
   public updateWeftSystems(pattern: Array<number>) {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     draft.rowSystemMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
     this.rowSystemMapping = draft.rowSystemMapping.slice();
     const flags: DraftNodeBroadcastFlags = {
@@ -1618,6 +1738,7 @@ export class DraftRenderingComponent implements OnInit {
 
   public updateWarpShuttles(pattern: Array<number>) {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     draft.colShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'col');
 
     const flags: DraftNodeBroadcastFlags = {
@@ -1635,6 +1756,7 @@ export class DraftRenderingComponent implements OnInit {
 
   public updateWeftShuttles(pattern: Array<number>) {
     const draft = this.tree.getDraft(this.id);
+    if (draft == null) return;
     draft.rowShuttleMapping = generateMappingFromPattern(draft.drawdown, pattern, 'row');
     const flags: DraftNodeBroadcastFlags = {
       meta: false,

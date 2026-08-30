@@ -1,12 +1,12 @@
 import { CdkDrag, CdkDragHandle, CdkDragMove, CdkDragStart } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, QueryList, Renderer2, ViewChild, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Img, Operation, OpInletValType, OpParamValType } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
-import { DraftNode, IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
+import { Bounds, DraftNode, IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { ErrorBroadcasterService } from '../../../core/provider/error-broadcaster.service';
 import { MediaService } from '../../../core/provider/media.service';
 import { OperationService } from '../../../core/provider/operation.service';
@@ -26,6 +26,7 @@ import { ParameterComponent } from './parameter/parameter.component';
   selector: 'app-operation',
   templateUrl: './operation.component.html',
   styleUrls: ['./operation.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CdkDrag, CdkDragHandle, MatButtonModule, InletComponent, MatMenu, MatMenuItem, MatTooltip, MatIconButton, MatMenuTrigger, ParameterComponent, DraftContainerComponent]
 })
 export class OperationComponent implements OnInit {
@@ -45,10 +46,10 @@ export class OperationComponent implements OnInit {
   @ViewChildren(ParameterComponent) paramsComps!: QueryList<ParameterComponent>;
   @ViewChildren(InletComponent) inletComps!: QueryList<InletComponent>;
   @ViewChildren(DraftContainerComponent) draftContainers!: QueryList<DraftContainerComponent>;
-  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+  @ViewChild(MatMenuTrigger) trigger!: MatMenuTrigger;
 
-  @Input() id: number; //generated from the tree service
-  @Input() name: string;
+  @Input() id!: number; //generated from the tree service
+  @Input() name!: string;
 
 
 
@@ -64,8 +65,8 @@ export class OperationComponent implements OnInit {
    * @param event the mousedown event
    */
 
-  @Input() default_cell: number;
-  @Input() zndx: number;
+  @Input() default_cell!: number;
+  @Input() zndx!: number;
   @Output() onConnectionRemoved = new EventEmitter<any>();
   @Output() onConnectionMove = new EventEmitter<any>();
   @Output() onConnectionStarted = new EventEmitter<any>();
@@ -91,20 +92,18 @@ export class OperationComponent implements OnInit {
   * flag to tell if this is being from a loaded from a saved file
   */
   loaded: boolean = false;
-
-  description: string;
-
-  displayname: string;
+  description: string = '';
+  displayname: string = '';
 
   tooltip: string = "select drafts to input to this operation"
 
   disable_drag: boolean = false;
 
+
   private topleft: Point = { x: 0, y: 0 };
 
-  op: Operation | DynamicOperation;
-
-  opnode: OpNode;
+  op: Operation | DynamicOperation | undefined = undefined;
+  opnode: OpNode | undefined = undefined;
 
   // has_connections_in: boolean = false;
   subdraft_visible: boolean = true;
@@ -125,15 +124,14 @@ export class OperationComponent implements OnInit {
 
   selecting_connection: boolean = false;
 
-  offset: Point = null;
-
-  previous_topleft: Point = null;
+  offset: Point = { x: 0, y: 0 };
+  previous_topleft: Point = { x: 0, y: 0 };
 
   hasError: boolean = false;
   errorStatement: string = "";
-  errorSubscription: Subscription;
+  errorSubscription!: Subscription;
 
-  recomputationSubscription: Subscription;
+  recomputationSubscription!: Subscription;
   recomputing: boolean = false;
   suppressNextAnimation: boolean = false;
 
@@ -146,9 +144,9 @@ export class OperationComponent implements OnInit {
   //   this.disable_drag = true;
   // }
 
-  checkChildrenSubscription: Subscription;
-  multiSelectListChangeSubscription: Subscription;
-  multiSelectMoveElementsSubscription: Subscription;
+  checkChildrenSubscription!: Subscription;
+  multiSelectListChangeSubscription!: Subscription;
+  multiSelectMoveElementsSubscription!: Subscription;
 
 
   constructor() {
@@ -180,13 +178,28 @@ export class OperationComponent implements OnInit {
 
   ngOnInit() {
 
-    this.op = this.operations.getOp(this.name);
+
+    if (this.name == undefined) {
+      this.description = '';
+      this.displayname = this.name;
+      this.color = '#000';
+
+
+      console.error('operation not found', this.name);
+      return;
+    }
+    const op = this.operations.getOp(this.name);
+    if (op == undefined) {
+      console.error('operation not found', this.name);
+      return;
+    }
+    this.op = op;
     this.opnode = <OpNode>this.tree.getNode(this.id);
     this.is_dynamic_op = this.operations.isDynamic(this.name);
     this.description = this.op.meta.desc ?? '';
     this.displayname = this.op.meta.displayname ?? this.name;
 
-    if (this.op.meta.categories !== undefined && this.op.meta.categories.length > 0) {
+    if (this.op !== undefined && this.op.meta.categories !== undefined && this.op.meta.categories.length > 0) {
       const active_cat = this.op.meta.categories[0];
       this.color = active_cat.color;
     }
@@ -213,13 +226,35 @@ export class OperationComponent implements OnInit {
 
   }
 
+  /**
+   * this is an explicit call to set the operation to handle the case when ngOnInit runs before 
+   * the operation has been set. 
+   * @param name 
+   */
+  setOperation(name: string) {
+    const op = this.operations.getOp(this.name);
+    if (op == undefined) return;
+    this.op = op;
+    this.name = name;
+    this.opnode = <OpNode>this.tree.getNode(this.id);
+    this.is_dynamic_op = this.operations.isDynamic(this.name);
+    this.description = this.op.meta.desc ?? '';
+    this.displayname = this.op.meta.displayname ?? this.name;
+
+    if (this.op.meta.categories !== undefined && this.op.meta.categories.length > 0) {
+      const active_cat = this.op.meta.categories[0];
+      this.color = active_cat.color;
+    }
+
+  }
+
   ngAfterViewInit() {
 
     // const children = this.tree.getDraftNodes().filter(node => this.tree.getSubdraftParent(node.id) === this.id);
     // if(children.length > 0) this.updatePositionFromChild(<SubdraftComponent>this.tree.getComponent(children[0].id));
 
     this.viewInit = true;
-    this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
+    if (this.op !== undefined && this.opnode !== undefined) this.hasInlets = this.op.inlets.length > 0 || this.opnode.inlets.length > 0;
 
     this.setPosition(this.topleft, true);
 
@@ -287,7 +322,7 @@ export class OperationComponent implements OnInit {
 
 
   setParamFromStateEvent(paramid: number, value: OpParamValType) {
-    this.paramsComps.get(paramid).setValueFromStateEvent(value);
+    this.paramsComps.get(paramid)?.setValueFromStateEvent(value);
   }
 
   getPosition(): Point {
@@ -299,11 +334,11 @@ export class OperationComponent implements OnInit {
     this.topleft = { x: pos.x, y: pos.y };
 
     if (emit) {
-      this.opnode.positionChange.next(this.topleft);
+      if (this.opnode !== undefined && this.opnode.positionChange !== undefined) this.opnode.positionChange.next(this.topleft);
       const children = this.tree.getNonCxnOutputs(this.id);
       children.forEach(child => {
         const childNode = <DraftNode | OpNode>this.tree.getNode(child);
-        childNode.positionChange.next(this.topleft);
+        if (childNode !== undefined) childNode.positionChange.next(this.topleft);
       });
     }
 
@@ -314,13 +349,13 @@ export class OperationComponent implements OnInit {
     op_container.style.left = this.topleft.x + "px";
   }
 
-  drawForPrint(canvas, cx, scale) {
+  drawForPrint(canvas: HTMLCanvasElement, cx: CanvasRenderingContext2D, scale: number) {
 
     if (canvas === undefined) return;
-    const bounds = document.getElementById('scale-' + this.id);
+    const bounds: HTMLElement | null = document.getElementById('scale-' + this.id);
 
     cx.fillStyle = "#ffffff";
-    cx.fillRect(this.topleft.x, this.topleft.y, bounds.offsetWidth, bounds.offsetHeight);
+    cx.fillRect(this.topleft.x, this.topleft.y, bounds?.offsetWidth ?? 0, bounds?.offsetHeight ?? 0);
 
     cx.fillStyle = "#666666";
     cx.font = this.scale * 2 + "px Verdana";
@@ -328,13 +363,23 @@ export class OperationComponent implements OnInit {
     let datastring: string = this.name + " // ";
     let opnode = this.tree.getOpNode(this.id);
 
-    this.op.params.forEach((p, ndx) => {
+    this.op?.params.forEach((p, ndx) => {
       datastring = datastring + p.name + ": " + opnode.params[ndx] + ", ";
     });
 
     cx.fillText(datastring, this.topleft.x + 5, this.topleft.y + 25);
 
 
+  }
+
+  getBounds(): Bounds {
+    const bounds: HTMLElement | null = document.getElementById('scale-' + this.id);
+
+    return {
+      topleft: this.topleft,
+      width: bounds?.offsetWidth ?? 0,
+      height: bounds?.offsetHeight ?? 0
+    }
   }
 
 
@@ -432,7 +477,7 @@ export class OperationComponent implements OnInit {
       let child = this.children[0];
       this.vs.setViewer(child);
     } else {
-      this.vs.setViewer(child_id);
+      this.vs.setViewer(child_id ?? -1);
     }
 
     if (e.shiftKey == true) {
@@ -472,20 +517,20 @@ export class OperationComponent implements OnInit {
   async saveAsWif() {
 
     if (this.draftContainers.length > 0) {
-      this.draftContainers.get(0).saveAsWif();
+      this.draftContainers.get(0)?.saveAsWif();
     }
 
   }
 
   async saveAsPrint() {
     if (this.draftContainers.length > 0) {
-      this.draftContainers.get(0).saveAsPrint();
+      this.draftContainers.get(0)?.saveAsPrint();
     }
   }
 
   async saveAsBmp(): Promise<any> {
     if (this.draftContainers.length > 0) {
-      this.draftContainers.get(0).saveAsBmp();
+      this.draftContainers.get(0)?.saveAsBmp();
     }
 
   }
@@ -554,7 +599,7 @@ export class OperationComponent implements OnInit {
     })
   }
 
-  connectionStarted(event) {
+  connectionStarted(event: any) {
     this.onConnectionStarted.emit(event);
 
   }
@@ -566,7 +611,7 @@ export class OperationComponent implements OnInit {
   openHelpDialog() {
 
     let regex = new RegExp(' ', 'g');
-    let op_name_format = this.op.name.replace(regex, '_');
+    let op_name_format = this.op?.name.replace(regex, '_') ?? '';
     window.open('https://docs.adacad.org/docs/reference/operations/' + op_name_format, '_blank');
 
 
@@ -595,7 +640,7 @@ export class OperationComponent implements OnInit {
       const currentParamVals = this.op.params.map((param, ndx) => {
         return {
           param: param,
-          val: this.opnode.params[ndx]
+          val: this.opnode?.params[ndx] ?? 0
         }
       })
 
@@ -614,12 +659,12 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onParamChange(obj: { id: number, value: any, type: string; }) {
-    const opnode = <OpNode>this.tree.getNode(this.id);
-    const original_inlets = this.opnode.inlets.slice();
+    const original_inlets = this.opnode?.inlets.slice();
 
     if (this.is_dynamic_op) {
 
       const opnode = <OpNode>this.tree.getNode(this.id);
+      if (opnode == undefined || this.opnode == undefined) return;
       const op = <DynamicOperation>this.operations.getOp(opnode.name);
 
       if (op.dynamic_param_id === obj.id) {
@@ -639,13 +684,13 @@ export class OperationComponent implements OnInit {
 
         this.hasInlets = opnode.inlets.length > 0;
 
-        if (opnode.name == 'imagemap' || opnode.name == 'bwimagemap') {
+        if (opnode.name === 'imagemap' || opnode.name === 'bwimagemap') {
 
           //update the width and height
           let image_param: Img = <Img>opnode.params[0];
           if (image_param.id != '') {
-            opnode.params[1] = image_param.data.width;
-            opnode.params[2] = image_param.data.height;
+            opnode.params[1] = image_param.data?.width ?? 0;
+            opnode.params[2] = image_param.data?.height ?? 0;
           }
         }
       }
@@ -659,9 +704,7 @@ export class OperationComponent implements OnInit {
     });
   }
 
-  nameChanged(id) {
-
-
+  nameChanged(id: number) {
     this.onNameChanged.emit(id);
   }
 
@@ -674,13 +717,13 @@ export class OperationComponent implements OnInit {
 
 
     const image_div = document.getElementById('param-image-' + this.id);
-    image_div.style.display = 'none';
+    if (image_div) image_div.style.display = 'none';
 
     switch (obj.data.type) {
 
       case 'image':
         if (obj.data.warning !== '') {
-          image_div.style.display = 'flex';
+          if (image_div) image_div.style.display = 'flex';
           this.filewarning = obj.warning;
         } else {
 
@@ -689,22 +732,22 @@ export class OperationComponent implements OnInit {
           obj.inlets.forEach((hex: string) => {
 
             //add any new colors
-            const ndx = opnode.inlets.findIndex(el => (<OpInletValType>el).valueOf() === hex);
+            const ndx = opnode.inlets.findIndex(el => el !== null && el.valueOf() === hex);
             if (ndx === -1) {
               opnode.inlets.push(hex);
             }
           });
 
-          const remove = [];
+          const remove: Array<number> = [];
           //now remove any inlets that no longer have values
           opnode.inlets.forEach((inlet, ndx) => {
             if (inlet === 0) return;
-            const found = obj.inlets.find(el => el === inlet);
+            const found = obj.inlets.find((el: string) => el === inlet?.toString());
             if (found === undefined) {
               remove.push(ndx);
             }
           })
-          remove.forEach(removeid => {
+          remove.forEach((removeid: number) => {
             opnode.inlets.splice(removeid, 1);
           });
 
@@ -718,11 +761,11 @@ export class OperationComponent implements OnInit {
         break;
     }
 
-    this.onOperationParamChange.emit({ id: this.id, type: obj.data.type, prior_inlet_vals: this.opnode.inlets.slice() });
+    this.onOperationParamChange.emit({ id: this.id, type: obj.data.type, prior_inlet_vals: this.opnode?.inlets?.slice() ?? [] });
 
   }
 
-  inletLoaded(obj) {
+  inletLoaded(obj: any) {
     obj.opid = this.id;
     this.onInletLoaded.emit(obj);
   }
@@ -733,27 +776,30 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onInletChange(obj: any) {
-    this.onOperationParamChange.emit({ id: this.id, type: 'inlet', prior_inlet_vals: this.opnode.inlets.slice() });
+    this.onOperationParamChange.emit({ id: this.id, type: 'inlet', prior_inlet_vals: this.opnode?.inlets?.slice() ?? [] });
   }
 
   delete() {
     const operation = this.operations.getOp(this.name);
     const opnode = this.tree.getOpNode(this.id);
+
+    const node = this.tree.getNode(this.id);
+    if (node == null) return;
     const change: OpExistenceChanged = {
       originator: 'OP',
       type: 'REMOVED',
-      node: this.tree.getNode(this.id),
+      node: node,
       inputs: this.tree.getInwardConnectionProxies(this.id),
       outputs: this.tree.getOutwardConnectionProxies(this.id)
     }
 
-    if (operation.params.find(el => el.type === 'file')) change.media = [];
+    if (operation?.params.find(el => el.type === 'file')) change.media = [];
 
-    operation.params.forEach((param, ndx) => {
+    operation?.params.forEach((param, ndx) => {
       if (param.type === 'file') {
         const media: Img = <Img>opnode.params[ndx];
         const media_instance = this.mediaService.getMedia(+media.id);
-        change.media.push(media_instance);
+        if (media_instance !== null) change.media?.push(media_instance);
       }
     });
 
@@ -771,6 +817,8 @@ export class OperationComponent implements OnInit {
 
 
 
+
+
   dragStart($event: CdkDragStart) {
     this.wasDragged = false; // Reset flag at start
 
@@ -780,7 +828,7 @@ export class OperationComponent implements OnInit {
     }
 
     this.previous_topleft = this.topleft;
-    this.offset = null;
+    this.offset = { x: 0, y: 0 };
 
 
   }
@@ -797,7 +845,7 @@ export class OperationComponent implements OnInit {
 
     let parent = document.getElementById('scrollable-container');
     let op_container = document.getElementById('scale-' + this.id);
-    let rect_palette = parent.getBoundingClientRect();
+    let rect_palette = parent?.getBoundingClientRect() ?? { x: 0, y: 0 };
 
 
     const zoom_factor = 1 / this.zs.getMixerZoom();
@@ -805,13 +853,13 @@ export class OperationComponent implements OnInit {
 
     //this gives the position of top left corner of the div relative to the palette div
     let op_topleft_inscale = {
-      x: op_container.offsetLeft,
-      y: op_container.offsetTop
+      x: op_container?.offsetLeft ?? 0,
+      y: op_container?.offsetTop ?? 0
     }
 
     let scaled_pointer = {
-      x: ($event.pointerPosition.x - rect_palette.x + parent.scrollLeft) * zoom_factor,
-      y: ($event.pointerPosition.y - rect_palette.y + parent.scrollTop) * zoom_factor,
+      x: ($event.pointerPosition.x - rect_palette.x + (parent?.scrollLeft ?? 0)) * zoom_factor,
+      y: ($event.pointerPosition.y - rect_palette.y + (parent?.scrollTop ?? 0)) * zoom_factor,
     }
 
 
@@ -851,8 +899,8 @@ export class OperationComponent implements OnInit {
 
 
     this.topleft = {
-      x: (op_container.offsetLeft < 0) ? 0 : this.topleft.x,
-      y: (op_container.offsetTop < 0) ? 0 : this.topleft.y,
+      x: (op_container?.offsetLeft ?? 0) < 0 ? 0 : this.topleft.x,
+      y: (op_container?.offsetTop ?? 0) < 0 ? 0 : this.topleft.y,
 
     }
     this.setPosition(this.topleft, true);

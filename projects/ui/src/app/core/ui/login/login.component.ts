@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroupDirective, FormsModule, NgForm, ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { ErrorStateMatcher } from '@angular/material/core';
@@ -21,6 +21,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatButton, MatDialogClose, MatFormField, MatLabel, MatInput, FormsModule, ReactiveFormsModule, MatError, MatDialogActions]
 })
 export class LoginComponent implements OnInit {
@@ -43,12 +44,13 @@ export class LoginComponent implements OnInit {
   loginGoogle() {
 
 
-    this.fb.login().then(logged_in => {
-      this.dialogRef.close('Log In Via Google Success!');
-      //consider opening the file browser here. 
-    }, not_logged_in => {
-      console.log(Error)
-    });
+    this.fb.login().then(
+      () => this.dialogRef.close('Log In Via Google Success!'),
+      (err) => {
+        console.error('LOGIN FAILED', err?.code, err?.message, err);
+        this.error = err?.code ?? 'unknown error';
+      }
+    );
 
   }
 

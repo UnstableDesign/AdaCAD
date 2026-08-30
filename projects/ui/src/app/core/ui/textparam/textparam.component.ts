@@ -1,6 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -12,6 +12,7 @@ import { StringParam } from 'adacad-drafting-lib';
   selector: 'app-textparam',
   imports: [ReactiveFormsModule, MatDialogModule, DragDropModule, MatInputModule, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, MatHint, MatLabel, MatFormField],
   templateUrl: './textparam.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './textparam.component.scss'
 })
 export class TextparamComponent {
@@ -23,12 +24,12 @@ export class TextparamComponent {
   stringparam: StringParam;
   value: string;
   fc: FormControl;
-  original: String;
+  lastSavedValue: String;
 
   constructor() {
     this.stringparam = <StringParam>this.data.param;
     this.value = <string>this.data.val;
-    this.original = this.value;
+    this.lastSavedValue = this.value;
     this.fc = new FormControl(this.value, [Validators.required, Validators.pattern(this.stringparam.regex)]);
   }
 
@@ -37,15 +38,24 @@ export class TextparamComponent {
       this.value = val ? val.replace(/[\r\n]/g, '') : val;
       this.fc.setValue(this.value, { emitEvent: false });
     });
+
+    this.dialogRef.backdropClick().subscribe(() => {
+      this.dialogRef.close(this.lastSavedValue);
+    });
   }
 
+
+
+
   save() {
+    this.lastSavedValue = this.value;
     this.onUpdate.emit(this.value);
   }
 
 
+
   close() {
-    this.dialogRef.close(this.value);
+    this.dialogRef.close(this.lastSavedValue);
   }
 
   onFileSelected(event: Event): void {

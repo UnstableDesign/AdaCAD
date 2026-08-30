@@ -1,6 +1,6 @@
 import { warps, wefts, copyDraft } from "../../draft";
 import { Sequence } from "../../sequence";
-import { getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "..";
+import { assembleDraftsAndLoomsFromOpInput, getAllDraftsAtInlet, getOpParamValById, parseDraftNames } from "..";
 import { NumParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, OpOutput } from "../types";
 import { colorEffectsOp } from "../categories";
 
@@ -97,6 +97,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
   if (base_drafts.length == 0 && materials_drafts.length == 0) return Promise.resolve([]);
 
+  const loom_info = assembleDraftsAndLoomsFromOpInput(op_inputs[0]);
 
 
   if (base_drafts.length == 0) return Promise.resolve([{ draft: materials_drafts[0] }]);
@@ -127,7 +128,7 @@ const perform = (op_params: Array<OpParamVal>, op_inputs: Array<OpInput>): Promi
 
 
 
-  return Promise.resolve([{ draft: d }]);
+  return Promise.resolve([{ draft: d, loom: loom_info[0].loom ?? undefined, loom_settings: loom_info[0].loom_settings ?? undefined } as OpOutput]);
 
 
 };

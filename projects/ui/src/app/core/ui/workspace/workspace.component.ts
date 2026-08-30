@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
@@ -16,6 +16,7 @@ import { WelcomeComponent } from '../welcome/welcome.component';
   selector: 'app-workspace',
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatDialogTitle, ReactiveFormsModule, MatLabel, CdkScrollable, MatFormField, MatHint, MatInput, MatDialogContent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatRadioGroup, MatRadioButton, MatButton, MatSlideToggle]
 })
 
@@ -40,14 +41,14 @@ export class WorkspaceComponent implements OnInit {
   originOptions: any;
   loomOptions: any;
 
-  oversizeDimForm: FormControl;
-  maxAreaForm: FormControl;
-  originOptionForm: FormControl;
-  loomTypeForm: FormControl;
-  unitsForm: FormControl;
-  hideMixerDraftsForm: FormControl;
-  showAdvancedOperationsForm: FormControl;
-  epiForm: FormControl;
+  oversizeDimForm!: FormControl;
+  maxAreaForm!: FormControl;
+  originOptionForm!: FormControl;
+  loomTypeForm!: FormControl;
+  unitsForm!: FormControl;
+  hideMixerDraftsForm!: FormControl;
+  showAdvancedOperationsForm!: FormControl;
+  epiForm!: FormControl;
 
   constructor() {
 
@@ -111,7 +112,7 @@ export class WorkspaceComponent implements OnInit {
   }
 
 
-  updateOversizeDim(value) {
+  updateOversizeDim(value: number) {
     this.ws.setOversizeRendering(value);
     this.onOversizeRenderingChange.emit();
     this.oversizeDimForm.markAsPristine();
@@ -119,7 +120,7 @@ export class WorkspaceComponent implements OnInit {
 
   }
 
-  updateMaxArea(value) {
+  updateMaxArea(value: number) {
     this.ws.setCurrentDraftSizeLimit(value);
     this.onMaxAreaChange.emit();
     this.maxAreaForm.markAsPristine();

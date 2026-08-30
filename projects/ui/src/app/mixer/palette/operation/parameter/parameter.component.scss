@@ -1,6 +1,13 @@
 @use '@angular/material' as mat;
 
 
+:host(.param) {
+    display: flex;
+    flex: 0 0 auto;
+    font-size: var(--form-field-entry-size);
+}
+
+
 .show {
     display: flex;
 }
@@ -8,8 +15,6 @@
 .hide {
     display: none;
 }
-
-
 
 
 .string-input {
@@ -69,13 +74,13 @@
     }
 
 
-    .mat-mdc-form-field-infix {
-        width: max-content;
-        min-width: 200px;
-        font-weight: bold;
-        height: var(--input-container-height);
+    // .mat-mdc-form-field-infix {
+    //     width: max-content;
+    //     min-width: 200px;
+    //     font-weight: bold;
+    //     height: var(--input-container-height);
 
-    }
+    // }
 
     @include mat.form-field-overrides((container-text-size: var(--form-field-entry-size),
             filled-input-text-color: black,
@@ -98,13 +103,6 @@
 
 }
 
-.boolean-input,
-.select_input {
-    .mat-mdc-select-value {
-        font-weight: bold;
-
-    }
-}
 
 
 
@@ -156,5 +154,24 @@
     .has_image {
         height: max-content;
         padding: 12px;
+    }
+}
+
+.select-input,
+.boolean-input {
+    .mat-mdc-form-field-infix {
+        width: auto !important;
+        min-width: max-content !important;
+    }
+
+    .mat-mdc-select-trigger,
+    .mat-mdc-select-value {
+        width: auto;
+    }
+
+    .mat-mdc-select-value,
+    .mat-mdc-select-value-text {
+        overflow: visible;
+        text-overflow: clip;
     }
 }
