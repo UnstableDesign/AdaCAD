@@ -44,7 +44,7 @@ If you have not uploaded any images, this section reads *No media uploaded to th
 
 ## c. Drafts
 
-This section lists every draft in the workspace as a grid of [draft info cards](#d-draft-info-cards). Above the grid are actions that apply to the whole collection:
+This section lists every draft in the workspace as a grid of [draft info cards](#draft-info-cards). Above the grid are actions that apply to the whole collection:
 
 - <FAIcon icon="fa-solid fa-download" size="1x" /> **Download All Drafts as Bitmaps**: saves every draft in the workspace as a bitmap file. If you have checked the box on one or more cards, this button instead reads **Download Selected Drafts as Bitmaps** and only exports those.
 - <FAIcon icon="fa-solid fa-eye-slash" size="1x" /> **Hide Selected Drafts**: hides the checked drafts. Hiding a draft removes it from this grid and from the workspace view, which is a good way to reduce clutter and speed up a large file. This button only appears once you have checked at least one card.
@@ -62,7 +62,7 @@ The materials library lists every yarn or color available to use in this workspa
 Every material has:
 
 - **name**: a label for the yarn, such as "cotton 8/2 red".
-- **color**: a color picker. This color is what gets drawn when the material is used in the [viewer's](./viewer.md) color pattern and simulation renderings, and it is the color you paint with when you use a material pencil in the [draft editor](./draft_editor.md#b-editing-tools).
+- **color**: a color picker. This color is what gets drawn when the material is used in the [viewer's](./viewer.md) color pattern and simulation renderings, and it is the color you paint with when you use a material pencil in the [draft editor](./draft_editor.md#a-editing-tools).
 - **diameter**: the thickness of the yarn in millimeters. This affects how the yarn is drawn in the simulation and in the viewer's "actual" size rendering.
 - **Add Notes**: free text for anything else you want to record about the yarn, such as a supplier or a fiber content.
 - <FAIcon icon="fa-solid fa-trash" size="1x" /> a delete button, available as long as more than one material remains.

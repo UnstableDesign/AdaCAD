@@ -11,7 +11,7 @@ import {OperationHeader} from '@site/src/components/OperationPage';
 
 ## Parameters
 
-- `pattern` - this sequence of text determines the inlets will be created, and thus, the drafts that can be assigned to different warp and weft systems on different layers. The format for this text should follow the format of [layer notation](../../glossary/layer-notation/).
+- `pattern` - this sequence of text determines the inlets will be created, and thus, the drafts that can be assigned to different warp and weft systems on different layers. The format for this text should follow the format of [layer notation](../../../glossary/layer-notation/).
 
 ## Inlets
 

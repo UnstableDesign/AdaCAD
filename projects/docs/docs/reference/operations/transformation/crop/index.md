@@ -20,7 +20,7 @@ import {OperationHeader} from '@site/src/components/OperationPage';
 To pick a section out of a draft that you might want to modify
 
 ## Additional Information
-You can also use [trim](./trim) to do the same thing using different parameters.
+You can also use [trim](../trim/) to do the same thing using different parameters.
 
 ## Developer
 adacad id: `crop`

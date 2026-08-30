@@ -22,14 +22,15 @@ const config = {
   projectName: 'AdaCAD', // Usually your repo name.
   //trailingSlash: false,
 
-  onBrokenLinks: 'warn', //throw
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: 'throw',
+  onBrokenAnchors: 'throw',
 
   markdown: {
-    mermaid: true
+    mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
   },
-  // onBrokenLinks: 'warn',
-  // onBrokenMarkdownLinks: 'ignore',
 
 
   // Even if you don't use internalization, you can use this field to set useful

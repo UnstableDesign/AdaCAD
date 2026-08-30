@@ -32,12 +32,12 @@ import {OperationHeader} from '@site/src/components/OperationPage';
 ## Application
 This provides a way to assign unique drafts to systems without considering layering. This can be particularly useful if designing compound structures that use different structures to grow different colors into visible and nonvisible regions, without necessarily making them two different layers. 
 
- Any layering can be done explicitly by the user by assigning the correct raised and lowered systems to the systems draft. Doing so typically requires assigning drafts to every possible combination of warp and weft systems and then using the [`overlay multiple`](overlay_multiple) operation to compose them into a single draft. See below for making a 2-layer draft with system `a1` on the top layer and `b1` on the bottom layer. Tabby is assigned to both layers and a single heddle lift or heddle lower is applied b1 and a2 respectively to ensure that the layers are separated.  
+ Any layering can be done explicitly by the user by assigning the correct raised and lowered systems to the systems draft. Doing so typically requires assigning drafts to every possible combination of warp and weft systems and then using the [`overlay multiple`](../overlay_multiple/) operation to compose them into a single draft. See below for making a 2-layer draft with system `a1` on the top layer and `b1` on the bottom layer. Tabby is assigned to both layers and a single heddle lift or heddle lower is applied b1 and a2 respectively to ensure that the layers are separated.  
 
 
 ![file](./assign_systems_demo.png)
 
-Note how unassigned systems will be filled with unset heddles. You can use the [`set unset`](../transformation/set_unset/) to give all of the unset heddles either a heddle left, or lowered, value.
+Note how unassigned systems will be filled with unset heddles. You can use the [`set unset`](../../transformation/set_unset/) to give all of the unset heddles either a heddle left, or lowered, value.
 
 
 

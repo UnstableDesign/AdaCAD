@@ -23,7 +23,7 @@ This collection of buttons gives you access to functions, settings, and resource
 
 :::info
 
-In earlier versions of AdaCAD, a <FAIcon icon="fa-solid fa-palette" size="1x" /> palette button on the topbar opened the materials library. Materials are now managed in the [library](./library.md#e-materials) instead.
+In earlier versions of AdaCAD, a <FAIcon icon="fa-solid fa-palette" size="1x" /> palette button on the topbar opened the materials library. Materials are now managed in the [library](./library.md#d-materials) instead.
 
 :::
 
@@ -55,7 +55,7 @@ Assigns a type of loom as the default for this workspace, so that every new draf
 Sets the unit of measurement used for density throughout the interface: **Ends per Inch** or **Ends per 10cm**.
 
 #### Warp Density
-Sets the default warp density for all drafts. This does not change how a draft looks in the [draft editor](./draft_editor.md), but it does determine the predicted width of the cloth and how the draft is drawn in the [simulation](./viewer.md#the-simulation).
+Sets the default warp density for all drafts. This does not change how a draft looks in the [draft editor](./draft_editor.md), but it does determine the predicted width of the cloth and how the draft is drawn in the [simulation](./viewer.md#simulation).
 
 #### Hide Drafts on All Operations
 The **Hide Drafts** toggle controls whether you see the draft that each operation produces, or just the operation itself. Hiding drafts saves a lot of space on the workspace, and is worth turning on if you are experiencing slowdowns.

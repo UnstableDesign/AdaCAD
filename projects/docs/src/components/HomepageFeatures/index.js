@@ -51,7 +51,7 @@ const FeatureList = [
     url: '/docs/reference/operations/',
     description: (
       <>
-        Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a>, <a href="/docs/reference/glossary">concepts</a>, <a href="/docs/reference/interface">interface features</a> and <a href="/docs/learn/tutorials">stories</a>.
+        Already using AdaCAD? Deepen your practice by exploring all of the project's <a href="/docs/reference/operations/">operations</a>, <a href="/docs/reference/glossary">concepts</a>, and <a href="/docs/reference/interface">interface features</a>.
       </>
     ),
   },
@@ -61,7 +61,7 @@ const FeatureList = [
     url: '/docs/develop/makeanoperation',
     description: (
       <>
-        AdaCAD is an open source project! If you'd like to add a feature, <a href="/develop/makeanoperation">start by adding your own operation</a>.
+        AdaCAD is an open source project! If you'd like to add a feature, <a href="/docs/develop/makeanoperation">start by adding your own operation</a>.
       </>
     ),
   }

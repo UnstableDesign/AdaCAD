@@ -22,7 +22,7 @@ If nothing is selected, the viewer reads *no draft selected, select a draft to v
 ![file](./img/viewer_modes.jpeg)
 
 - <FAIcon icon="fa-solid fa-eye" size="1x" /> **Rendering Mode**: AdaCAD offers four different ways of rendering the draft, demonstrated in the image above: 
-    - <FAIcon icon="fa-solid fa-cube" size="1x" /> **view in 3D**: offers a 3D rendering of the draft. See [the simulation](#the-simulation) below.
+    - <FAIcon icon="fa-solid fa-cube" size="1x" /> **view in 3D**: offers a 3D rendering of the draft. See [the simulation](#simulation) below.
     - <FAIcon icon="fa-solid fa-chess-board" size="1x" /> **view as draft**: draws only the draft as represented by black and white cells. 
     - <FAIcon icon="fa-solid fa-hashtag" size="1x" /> **view structure**: draws warp and weft floats that would be produced by the draft, without color so as to aid in visualizing the cloth structure. 
     - <FAIcon icon="fa-solid fa-paint-roller" size="1x" /> **view color pattern**: draws warp and weft floats that would be produced by the draft and also draws the colors that would be visible on the surface of the cloth. 
@@ -32,7 +32,7 @@ If nothing is selected, the viewer reads *no draft selected, select a draft to v
 
 - **front / back**: switches between looking at the face of the cloth and looking at its reverse. This is useful for double cloth and any other structure where the two sides differ.
 
-- **actual / standard**: controls whether the rendering uses each material's real diameter, set in the [materials library](./library.md#e-materials) and the looms warp density, set in the [draft editor](./draft_editor.md#a2-adjust-loom-and-draft-settings), or draws every yarn at the same uniform size. "Actual" gives a better sense of how a cloth woven with mixed yarn weights will really look; "standard" keeps the structure easier to read.
+- **actual / standard**: controls whether the rendering uses each material's real diameter, set in the [materials library](./library.md#d-materials) and the looms warp density, set in the [draft editor](./draft_editor.md#a2-adjust-loom-and-draft-settings), or draws every yarn at the same uniform size. "Actual" gives a better sense of how a cloth woven with mixed yarn weights will really look; "standard" keeps the structure easier to read.
 
 - <FAIcon icon="fa-solid fa-circle-info" size="1x" /> **Draft Information**: opens a small panel above the rendering showing the draft's **name**, its **dimensions** in ends by picks, and any **notes** you have written. The name and notes each have an <FAIcon icon="fa-solid fa-pen-to-square" size="1x" /> edit button that opens the **Update Draft Info** dialog.
 
@@ -57,7 +57,7 @@ Clicking <FAIcon icon="fa-solid fa-sliders" size="1x" /> **Adjust Simulation** r
 | **Pack (%)** | how tightly the picks are beaten together. A higher number would indicate a stronger beat after each pick.|
 | **Mass (g)** | an abstract value given to each "interlacement", or place where the weft crosses sides of the cloth. The simulation uses these values to determine how much interlacements should repel one another. This allows us to get teh simulation to behave similarly to how packing interlacements density creates less packed cloth. A higher map means that the interlacements will repel less. High mass, low repulsion; low mass, high replusion.   |
 | **Yarn Drooping (°)** | how far a yarn is allowed to bend away from straight as it crosses a float |
-| **Warp-Density** | the spacing of the warps, in the units set in your [workspace settings](./topbar.md#units). This starts from the density recorded for the draft in the [draft editor's loom settings](./draft_editor.md#c-adjust-loom-and-draft-settings) |
+| **Warp-Density** | the spacing of the warps, in the units set in your [workspace settings](./topbar.md#units). This starts from the density recorded for the draft in the [draft editor's loom settings](./draft_editor.md#a2-adjust-loom-and-draft-settings) |
 | **no selvedge / assume selvedge** | whether the simulation treats each pick as written, which might lead to subsequent wefts pulling out if no selvedge has been added, or assumes the weft turns at a selvedge and carries through |
 
 

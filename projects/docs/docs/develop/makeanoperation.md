@@ -193,7 +193,7 @@ To ensure interoperability, this function must take and produce inputs and outpu
 
 The perform function also returns a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) for an Array of OpOutputs. We use javascript's `Promise` because it allows us to ensure that one function completes before the next operation is performed. For this reason, you don't just return an array of drafts that you want this operation to create, but a `Promise.resolve()` that contains the array of drafts that you created. 
 
-Internally, this perform function uses the helper class [Sequence](./reference/sequence/sequence.md) to generate and manipulate values that will be turned into a draft. You can think of a OneD sequence as a row in a draft, with 1 representing a lifted heddle and 0, a lowered heddle. A TwoD sequence is a collection of rows (e.g. multiple picks in a draft). The benefit of using Sequence, rather than a 2D array of numbers, is that the Sequence class supports sequential manipulations and also supports conversion from number sequence to AdaCAD's draft and cell objects. 
+Internally, this perform function uses the helper class [Sequence](../lib-api/adacad-drafting-lib/namespaces/Sequence/index.md) to generate and manipulate values that will be turned into a draft. You can think of a OneD sequence as a row in a draft, with 1 representing a lifted heddle and 0, a lowered heddle. A TwoD sequence is a collection of rows (e.g. multiple picks in a draft). The benefit of using Sequence, rather than a 2D array of numbers, is that the Sequence class supports sequential manipulations and also supports conversion from number sequence to AdaCAD's draft and cell objects. 
 
 ```tsx
 const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
@@ -230,7 +230,7 @@ const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
 }
 ```
 
-Lastly, and most important, you package all the functions and variables you defined above into an [`Operation`](./reference/operation/operation.md) object. 
+Lastly, and most important, you package all the functions and variables you defined above into an [`Operation`](../lib-api/type-aliases/Operation.md) object. 
 
 ```tsx
 export const allup: Operation = { name, meta, params, inlets, perform, generateName, sizeCheck };

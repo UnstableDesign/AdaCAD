@@ -126,7 +126,7 @@ follow along our workshop on how AdaCAD can be used to create block threading an
 
 #### No Loom?
 
-Feel free to interpret drafts however you like. Also, every draft you make can be downloaded as a [coloring page](../../reference/interface/workspace.md#draft-nodes) 
+Feel free to interpret drafts however you like. Also, every draft you make can be downloaded as a [coloring page](../../reference/interface/topbar.md#b-application-settings-and-support) 
 
 
 

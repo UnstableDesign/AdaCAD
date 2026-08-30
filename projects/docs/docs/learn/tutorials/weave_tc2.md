@@ -1,6 +1,5 @@
 ---
 sidebar_position: 3
-tags: [Jacquard, TC2, AdaCAD 3, AdaCAD 4]
 title: Generate Files for a TC2
 
 ---
@@ -49,7 +48,7 @@ Follow along with this example in AdaCAD 4: [Drafting for Jacquard, Lesson 1](ht
 
 ## Step-By-Step (Upload to the Loom)
 
-5.  Download the draft you'd like to weave by double-clicking the draft and selecting "Download as Bitmap". This will save a bitmap where-ever your computer stores downloads from the web in a .jpg format.The default name for every draft is "drafty" so file will be named drafty.jpg. You can also give your draft and the file a custom name by selecting the draft and changing the name within the [draft viewer](../../reference/interface/viewer.md#d-view-and-download-tools) before you hit the download button.
+5.  Download the draft you'd like to weave by double-clicking the draft and selecting "Download as Bitmap". This will save a bitmap where-ever your computer stores downloads from the web in a .jpg format.The default name for every draft is "drafty" so file will be named drafty.jpg. You can also give your draft and the file a custom name by selecting the draft and changing the name within the [draft viewer](../../reference/interface/viewer.md#a-view-controls) before you hit the download button.
 
 6. Open this file using the TC2 software. When it prompts you that your file has "More than 2 colors in Pattern". Push the "Bilevel" button. 
 

@@ -14,7 +14,7 @@ import {OperationHeader} from '@site/src/components/OperationPage';
 - `draft width`: the number of warp ends in the output. Defaults to the pixel width of the image but can be adjusted to stretch or compress the image from left to right prior to assigning structures. 
 -` draft height`: the number of weft pics in the output. Defaults to the pixel height of the image but can be adjusted to stretch or compress the image from top to bottom prior to assigning structures. 
 
-:::warn
+:::warning
 AdaCAD can only accept images that have less than 100 colors. Please use another software, such as Photoshop, to reduce the color space (e.g. make an indexed color image) prior to uploading. 
 :::
 
