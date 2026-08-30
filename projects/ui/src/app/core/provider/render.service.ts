@@ -287,7 +287,7 @@ export class RenderService {
 
         weft_systems_cx.font = 1.5 * (cell_size / this.pixel_ratio) + "px Arial";
         //enable for screenshot generation: 
-        //weft_systems_cx.font = "40px Arial";
+        // weft_systems_cx.font = "40px Arial";
         weft_systems_cx.fillStyle = "#666666";
 
         weft_systems_cx.save();

@@ -23,12 +23,7 @@ const sidebars = {
       type: 'doc',
       id: 'about/research', // document ID
       label: 'Research', // sidebar label
-    },
-    {
-      type: 'doc',
-      id: 'about/faq', // document ID
-      label: 'FAQ', // sidebar label
-    },
+    }
   ],
   contributeSidebar: [{
     type: 'doc',
@@ -96,6 +91,11 @@ const sidebars = {
         'learn/tutorials/hygromorphic-linen',
         'learn/tutorials/forcepocket',
       ],
+    },
+    {
+      type: 'doc',
+      id: 'learn/faq', // document ID
+      label: 'FAQ', // sidebar label
     },
     {
       type: 'html',

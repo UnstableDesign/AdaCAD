@@ -6,9 +6,6 @@ import {ReferenceItem} from '@site/src/components/ReferenceItem';
 
 # Getting Started
 
-
-
-
 <div class="emph">
 At a high level, using AdaCAD involves the following steps: 
 </div>
@@ -48,7 +45,7 @@ This workshop will introduce you to our interface, including both the workspace 
 <ReferenceItem
   name='workshop recording'
   img={require('@site/docs/learn/getting-started/img/getting_started_video.png').default}
-  url='@site/docs/learn/workshops-and-events#getting-started-with-adacad'
+  url='/docs/learn/workshops-and-events#getting-started-with-adacad'
 >
 a recording of the virtual workshop. 
 </ReferenceItem>
@@ -72,7 +69,7 @@ Once you grasp the basics, the workflow might change based on your equipment and
 <ReferenceItem
   name='format files to weave on a TC2'
   img={require('@site/docs/learn/tutorials/img/tc2_square.jpg').default}
-  url='@site/docs/learn/tutorials/weave_TC2/'
+  url='/docs/learn/tutorials/weave_tc2'
 >
 a guide to formatting, exporting, and weaving AdaCAD files on a TC2 loom. 
 </ReferenceItem>
@@ -80,7 +77,7 @@ a guide to formatting, exporting, and weaving AdaCAD files on a TC2 loom.
 <ReferenceItem
   name='figured weaving'
   img={require('@site/docs/learn/tutorials/img/figured_square.png').default}
-  url='@site/docs/learn/tutorials/figured_weaving_tc2/'
+  url='/docs/learn/tutorials/figured_weaving_tc2'
 >
 a workshop/tutorial focused on created figured weaving drafts in AdaCAD 
 </ReferenceItem>
@@ -88,14 +85,14 @@ a workshop/tutorial focused on created figured weaving drafts in AdaCAD
 <ReferenceItem
   name='designing with multi weft/warp systems'
   img={require('@site/docs/learn/tutorials/img/multi-layer_notation1.jpeg').default}
-  url='@site/docs/learn/tutorials/multi-layer/'
+  url='/docs/learn/tutorials/multi-layer'
 >
 a tutorial for advanced weavers focused on color blending via multiple weft and warp systems. 
 </ReferenceItem>
 <ReferenceItem
   name='sharing our research weaving force sensors'
   img={require('@site/docs/learn/tutorials/img/force_pocket.jpg').default}
-  url='@site/docs/learn/tutorials/forcepocket/'
+  url='/docs/learn/tutorials/forcepocket'
 >
 a tutorial for advanced weavers focused on color blending via multiple weft and warp systems. 
 </ReferenceItem>
@@ -111,7 +108,7 @@ a tutorial for advanced weavers focused on color blending via multiple weft and 
 <ReferenceItem
   name='format files to weave on a Dobby or floor loom'
   img={require('@site/docs/learn/tutorials/img/weave_square.png').default}
-  url='@site/docs/learn/tutorials/weave_avl/'
+  url='/docs/learn/tutorials/weave_avl'
 >
 a guide to formatting, exporting, and weaving AdaCAD files as .WIF files to weave on other looms, specifically an AVL Dobby Loom. 
 </ReferenceItem>
@@ -119,12 +116,18 @@ a guide to formatting, exporting, and weaving AdaCAD files as .WIF files to weav
 <ReferenceItem
   name='designing block threading workshop'
   img={require('@site/docs/learn/tutorials/img/harness_feature.png').default}
-  url='@site/docs/learn/tutorials/block_threading/'
+  url='/docs/learn/tutorials/block_threading'
 >
 follow along our workshop on how AdaCAD can be used to create block threading and treadling patterns
 </ReferenceItem>
 
 </div>
+
+
+#### No Loom?
+
+Feel free to interpret drafts however you like. Also, every draft you make can be downloaded as a [coloring page](../../reference/interface/workspace.md#draft-nodes) 
+
 
 
 

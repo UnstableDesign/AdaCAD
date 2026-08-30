@@ -39,6 +39,7 @@ const config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+  clientModules: [require.resolve('./src/clientModules/gtagFallback.js')],
   plugins: [
     [
       'docusaurus-plugin-typedoc',
