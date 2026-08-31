@@ -26,7 +26,7 @@
       </mat-form-field>
       <mat-form-field class="material-diameter">
         <mat-label>diameter</mat-label>
-        <input matInput type="number" placeholder="Yarn Diameter (in mm)" min="0.01" max="100" step=".25"
+        <input matInput type="number" placeholder="Yarn Diameter (in mm)" min="0.01" max="100" step=".1"
           (change)="diameterChange(materialControl.get('id')?.value, materialControl.get('diameter')?.value)"
           formControlName="diameter">
         <span matTextSuffix>mm</span>
