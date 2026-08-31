@@ -610,9 +610,17 @@ export class OperationComponent implements OnInit {
 
   openHelpDialog() {
 
+    let category = '';
+    if (this.op !== undefined && this.op.meta.categories !== undefined && this.op.meta.categories.length > 0) {
+      const cat = this.op.meta.categories[0];
+      category = cat.displayname ?? '';
+    }
+
+
     let regex = new RegExp(' ', 'g');
     let op_name_format = this.op?.name.replace(regex, '_') ?? '';
-    window.open('https://docs.adacad.org/docs/reference/operations/' + op_name_format, '_blank');
+    let category_format = category.replace(regex, '_');
+    window.open('https://docs.adacad.org/docs/reference/operations/' + category_format + '/' + op_name_format, '_blank');
 
 
   }
