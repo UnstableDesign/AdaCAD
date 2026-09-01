@@ -1,10 +1,10 @@
-import { Component, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ComponentRef, EventEmitter, HostListener, OnInit, Output, ViewChild, ViewContainerRef, ViewRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AnalyzedImage, Draft, Img, Loom, LoomSettings, OpInletValType, OpParamValType, Operation, copyDraft, generateId, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib';
 import { copyLoom, copyLoomSettings } from 'adacad-drafting-lib/loom';
 import normalizeWheel from 'normalize-wheel';
 import { Subscription, fromEvent } from 'rxjs';
-import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
+import { Bounds, ConnectionExistenceChange, DraftExistenceChange, DraftNode, DraftNodeProxy, IOTuple, MoveAction, Node, NodeComponentProxy, Note, OpNode, Point } from '../../core/model/datatypes';
 import { defaults } from '../../core/model/defaults';
 import { ErrorBroadcasterService } from '../../core/provider/error-broadcaster.service';
 import { FirebaseService } from '../../core/provider/firebase.service';
@@ -65,7 +65,8 @@ export class PaletteComponent implements OnInit {
 
   subdraftSubscriptions: Array<Subscription> = [];
   operationSubscriptions: Array<Subscription> = [];
-  connectionSubscriptions: Array<Subscription> = [];
+  connectionSubscriptionsById = new Map<number, Subscription>();
+  connectionComponentRefs = new Map<number, ComponentRef<ConnectionComponent>>();
   noteSubscriptions: Array<Subscription> = [];
   stateSubscriptions: Array<Subscription> = [];
 
@@ -324,7 +325,10 @@ export class PaletteComponent implements OnInit {
 
     this.subdraftSubscriptions.forEach(element => element.unsubscribe());
     this.operationSubscriptions.forEach(element => element.unsubscribe());
-    this.connectionSubscriptions.forEach(element => element.unsubscribe());
+    this.connectionSubscriptionsById.forEach(subscription => subscription.unsubscribe());
+    this.connectionSubscriptionsById.clear();
+    this.connectionComponentRefs.forEach(componentRef => componentRef.destroy());
+    this.connectionComponentRefs.clear();
     this.noteSubscriptions.forEach(element => element.unsubscribe());
   }
 
@@ -441,10 +445,50 @@ export class PaletteComponent implements OnInit {
    */
   removeFromViewContainer(ref: ViewRef | null) {
     if (ref == null) return;
+
+    const cxn_id = this.getConnectionIdForViewRef(ref);
+    if (cxn_id !== null) {
+      this.removeConnectionView(cxn_id, ref);
+      return;
+    }
+
     const ndx: number = this.vc.indexOf(ref);
     if (ndx !== -1) this.vc.remove(ndx);
-    // else console.log('Error: view ref not found for removal', ref);
+  }
 
+  private getConnectionIdForViewRef(ref: ViewRef): number | null {
+    for (const [id, componentRef] of this.connectionComponentRefs) {
+      if (componentRef.hostView === ref) return id;
+    }
+    return null;
+  }
+
+  /**
+   * Unsubscribes palette listeners, destroys the connection component, and clears stored refs.
+   */
+  removeConnectionView(cxn_id: number, ref: ViewRef | null = null) {
+    const subscription = this.connectionSubscriptionsById.get(cxn_id);
+    if (subscription) {
+      subscription.unsubscribe();
+      this.connectionSubscriptionsById.delete(cxn_id);
+    }
+
+    const componentRef = this.connectionComponentRefs.get(cxn_id);
+    if (componentRef) {
+      componentRef.destroy();
+      this.connectionComponentRefs.delete(cxn_id);
+      return;
+    }
+
+    if (ref != null) {
+      const ndx: number = this.vc.indexOf(ref);
+      if (ndx !== -1) this.vc.remove(ndx);
+    }
+  }
+
+  private registerConnectionComponent(cxn_id: number, componentRef: ComponentRef<ConnectionComponent>) {
+    this.connectionComponentRefs.set(cxn_id, componentRef);
+    this.setConnectionSubscriptions(componentRef.instance);
   }
 
 
@@ -859,8 +903,12 @@ export class PaletteComponent implements OnInit {
   }
 
   setConnectionSubscriptions(cxn: ConnectionComponent) {
-    this.connectionSubscriptions.push(cxn.onConnectionRemoved.subscribe(this.removeConnection.bind(this)));
-
+    const existing = this.connectionSubscriptionsById.get(cxn.id);
+    existing?.unsubscribe();
+    this.connectionSubscriptionsById.set(
+      cxn.id,
+      cxn.onConnectionRemoved.subscribe(this.removeConnection.bind(this))
+    );
   }
 
   /**
@@ -970,12 +1018,11 @@ export class PaletteComponent implements OnInit {
     const node = this.tree.getNode(id);
     if (node == null) return;
     node.component = cxn.instance;
-    this.setConnectionSubscriptions(cxn.instance);
     node.ref = cxn.hostView;
 
     cxn.instance.id = id;
     cxn.instance.scale = this.zs.getMixerZoom();
-
+    this.registerConnectionComponent(id, cxn);
   }
 
 
@@ -993,10 +1040,7 @@ export class PaletteComponent implements OnInit {
     cxn.instance.id = id;
     cxn.instance.scale = this.zs.getMixerZoom();
 
-    this.setConnectionSubscriptions(cxn.instance);
-
-
-    this.connectionSubscriptions.push()
+    this.registerConnectionComponent(id, cxn);
     return { input_ids: to_input_ids, id: id };
   }
 
@@ -1911,7 +1955,7 @@ export class PaletteComponent implements OnInit {
 
     if (to !== null) {
       const to_delete = this.tree.removeConnectionNodeById(obj.id);
-      to_delete.forEach(node => this.removeFromViewContainer(node.ref));
+      to_delete.forEach(node => this.removeConnectionView(obj.id, node.ref));
     }
 
 
@@ -2293,7 +2337,7 @@ export class PaletteComponent implements OnInit {
    * @param obj with attribute id describing the operation that called this
    * @returns 
    */
-  async operationParamChanged(obj: { id: number, type?: string, prior_inlet_vals: Array<any> }) {
+  async operationParamChanged(obj: { id: number, type?: string, prior_inlet_vals: Array<any>, prior_inlet_ids: Array<IOTuple> }) {
     if (obj === null) return;
 
 
@@ -2309,9 +2353,9 @@ export class PaletteComponent implements OnInit {
     }
 
     return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)
-      .then(viewRefs => {
-        viewRefs.forEach(el => {
-          this.removeFromViewContainer(el)
+      .then(removed_connections => {
+        removed_connections.forEach(({ id, ref }) => {
+          this.removeConnectionView(id, ref);
         });
         return this.performAndUpdateDownstream(obj.id, [obj.id])
       })

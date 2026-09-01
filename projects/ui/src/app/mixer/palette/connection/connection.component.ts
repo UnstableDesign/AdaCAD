@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatMiniFabButton } from '@angular/material/button';
 import { Subscription } from 'rxjs';
 import { ConnectionExistenceChange, ConnectionNode, DraftNode, OpNode, Point } from '../../../core/model/datatypes';
@@ -14,7 +14,7 @@ import { ZoomService } from '../../../core/provider/zoom.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MatMiniFabButton]
 })
-export class ConnectionComponent implements OnInit {
+export class ConnectionComponent implements OnInit, OnDestroy {
   tree = inject(TreeService);
   private ops = inject(OperationService);
   zs = inject(ZoomService);
@@ -210,14 +210,14 @@ export class ConnectionComponent implements OnInit {
 
   }
 
-  onNgDestroy() {
-    this.upstreamSubscription.unsubscribe();
-    this.downstreamSubscription.unsubscribe();
-    this.recomputingSubscription.unsubscribe();
-    this.fromPositionChange.unsubscribe();
-    this.toPositionChange.unsubscribe();
-    this.fromDraftChangeSubscription.unsubscribe();
-
+  ngOnDestroy() {
+    this.upstreamSubscription?.unsubscribe();
+    this.downstreamSubscription?.unsubscribe();
+    this.recomputingSubscription?.unsubscribe();
+    this.fromPositionChange?.unsubscribe();
+    this.toPositionChange?.unsubscribe();
+    this.fromDraftChangeSubscription?.unsubscribe();
+    this.anim?.cancel();
   }
 
 

@@ -8,7 +8,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, ConnectionNode, DraftEditingSource, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, ConnectionNode, DraftEditingSource, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, IOTupleWithVal, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
@@ -400,44 +400,53 @@ export class TreeService {
    * before performing a dynamic op, make sure that their are no connections that are pointing to an inlet that nolonger exists
    * @param id - the object id we are checking
    * @param prior_inlet_vals the prior value of the inlets, used for reorienting connections
-   * @returns an array of viewRefs for Connections to remove.
+   * @returns connection ids and viewRefs for Connections to remove from the palette.
    */
-  sweepInlets(id: number, prior_inlet_vals: Array<any>): Promise<Array<ViewRef>> {
+  sweepInlets(id: number, prior_inlet_vals: Array<IOTupleWithVal>): Promise<Array<{ id: number, ref: ViewRef | null }>> {
 
     const opnode: OpNode = this.getOpNode(id);
+    const op_treenode: TreeNode | null = this.getTreeNode(id);
     if (!this.ops.isDynamic(opnode.name)) return Promise.resolve([]);
+    if (op_treenode == null) return Promise.resolve([]);
+
+    //PRIOR INLET VALUES may take the form:
+    //[{0, 0, tn}, {1, 'a1', tn}, {2, 'b2', tn}];
 
 
-
-    const inputs_to_op: Array<IOTuple> = this.getInputsWithNdx(id);
-
-
-
-
-    const viewRefs: Array<ViewRef> = [];
-
-    inputs_to_op.forEach((iotuple) => {
-
-      //what was the value of the inlet
-      if (prior_inlet_vals.length !== 0) {
-        let prior_val = prior_inlet_vals[iotuple.ndx];
-
-        let new_ndx = opnode.inlets.findIndex(el => {
-          let new_string = el?.toString() ?? '';
-          return new_string.includes(prior_val.toString());
-        });
-
-
-        if (new_ndx == -1) {
-          this.removeConnectionNode(iotuple.tn.inputs[0].tn.node.id, iotuple.tn.outputs[0].tn.node.id, iotuple.ndx);
-          if (iotuple.tn.node.ref !== null) viewRefs.push(iotuple.tn.node.ref);
-        } else {
-          iotuple.ndx = new_ndx;
+    //assemble list based on current values;
+    const current_inlet_vals: Array<IOTupleWithVal> = opnode.inlets.map((el, ndx) => { return { ndx: ndx, val: el, tn: null } });
+    console.log('prior_inlet_vals', prior_inlet_vals);
+    console.log('current_inlet_vals', current_inlet_vals);
+    //CURRENT INLET VALUES may take the form:
+    //[{0, 0, ?}, {1, 'b2', ?}, {2, 'a1', ?}];
+    const removed_connections: Array<{ id: number, ref: ViewRef | null }> = [];
+    prior_inlet_vals.forEach((prior_inlet) => {
+      console.log('checking prior_inlet', prior_inlet);
+      //see if there are any inlets in the current set with the same value
+      let active_inlet = current_inlet_vals.find(el => el.val === prior_inlet.val);
+      console.log('got active_inlet', active_inlet);
+      if (active_inlet === undefined) {
+        const old_cxn_tn: TreeNode | null = prior_inlet.tn;
+        if (old_cxn_tn == null) return;
+        //this inlet is no longer needed
+        console.log('removing connection node', prior_inlet);
+        console.log('removing old_cxn_tn', old_cxn_tn);
+        const cxn_id = old_cxn_tn.node.id;
+        this.removeConnectionNodeById(cxn_id);
+        removed_connections.push({ id: cxn_id, ref: old_cxn_tn.node.ref });
+      } else {
+        //this inlet is still needed, so we need to update the connection node
+        if (prior_inlet.tn !== null) {
+          console.log('updating connection node', prior_inlet, active_inlet);
+          prior_inlet.tn.outputs[0] = { tn: op_treenode, ndx: active_inlet.ndx };
+          op_treenode.inputs[active_inlet.ndx] = { tn: prior_inlet.tn, ndx: active_inlet.ndx };
         }
       }
-    })
+    });
 
-    return Promise.resolve(viewRefs);
+
+
+    return Promise.resolve(removed_connections);
 
   }
 
@@ -2692,6 +2701,13 @@ export class TreeService {
    */
   getDraftNodeState(id: number): DraftNodeState {
     const node: DraftNode = <DraftNode>this.getNode(id);
+    if (node == null) return {
+      draft: null,
+      draft_visible: false,
+      loom: null,
+      loom_settings: appDefaults.loom_settings,
+      scale: 1
+    } as DraftNodeState;
     return {
       draft: (node.draft !== null) ? copyDraft(node.draft) : null,
       draft_visible: node.visible,

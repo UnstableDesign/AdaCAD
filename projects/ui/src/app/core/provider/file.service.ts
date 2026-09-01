@@ -163,7 +163,7 @@ export class FileService {
 
               const loom = data.looms.find((loom: any) => loom.draft_id === node.node_id);
               const draft = data.drafts.find((draft: any) => draft.id === node.node_id);
-
+              if (draft == undefined) return Promise.resolve();
 
               const dn: DraftNodeProxy = {
                 node_id: (node === undefined) ? -1 : node.node_id,

@@ -29,7 +29,7 @@ export class UploadFormComponent implements OnInit {
 
 
   progress: number = 0;
-  selectedFiles!: FileList;
+  selectedFiles!: FileList | undefined;
   uploading: boolean = false;
   imageToShow: any;
   downloadid!: string;
@@ -58,7 +58,7 @@ export class UploadFormComponent implements OnInit {
           }
           this.onData.emit(obj);
           this.uploading = false;
-          this.selectedFiles = new FileList();
+          this.selectedFiles = undefined;
           this.upSvc.deleteUpload(upload.name);
 
         })
@@ -110,6 +110,7 @@ export class UploadFormComponent implements OnInit {
   upload() {
 
     this.uploading = true;
+    if (this.selectedFiles == undefined) return;
 
     console.log("uploading", this.selectedFiles, this.type);
 
@@ -124,7 +125,7 @@ export class UploadFormComponent implements OnInit {
         }
       }
     } else {
-      const first_file = this.selectedFiles.item(0);
+      const first_file = this.selectedFiles?.item(0);
       uploadList.push({ file: first_file as File, fileName: first_file?.name.split(".")[0] ?? '', fileType: first_file?.name.split(".").pop() ?? '' });
     }
 

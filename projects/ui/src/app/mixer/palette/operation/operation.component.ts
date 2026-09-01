@@ -6,7 +6,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { DynamicOperation, Img, Operation, OpInletValType, OpParamValType } from 'adacad-drafting-lib';
 import { Subscription } from 'rxjs';
-import { Bounds, DraftNode, IOTuple, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
+import { Bounds, DraftNode, IOTuple, IOTupleWithVal, OpExistenceChanged, OpNode, OpStateMove, Point } from '../../../core/model/datatypes';
 import { ErrorBroadcasterService } from '../../../core/provider/error-broadcaster.service';
 import { MediaService } from '../../../core/provider/media.service';
 import { OperationService } from '../../../core/provider/operation.service';
@@ -667,7 +667,9 @@ export class OperationComponent implements OnInit {
    * @param value 
    */
   onParamChange(obj: { id: number, value: any, type: string; }) {
-    const original_inlets = this.opnode?.inlets.slice();
+    const original_inlet_ids: Array<IOTuple> = this.tree.getInputsWithNdx(this.id);
+    const original_inlet_vals: Array<IOTupleWithVal> = original_inlet_ids.map(el => { return { ndx: el.ndx, val: this.opnode?.inlets[el.ndx] ?? -1, tn: el.tn } });
+
 
     if (this.is_dynamic_op) {
 
@@ -708,7 +710,7 @@ export class OperationComponent implements OnInit {
     this.onOperationParamChange.emit({
       id: this.id,            // Operation ID
       type: obj.type,         // Used by p5 canvas ops for canvas resets
-      prior_inlet_vals: original_inlets // Inlet state before changes
+      prior_inlet_vals: original_inlet_vals // Inlet state before changes
     });
   }
 

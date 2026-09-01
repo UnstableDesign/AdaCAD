@@ -437,6 +437,16 @@ export interface IOTuple {
 }
 
 /**
+ * this extends the IO tuple to attach the current values of the inlets. Used for sweeping dynamic inlets
+ * and reattaching old to new connections.
+ */
+export interface IOTupleWithVal {
+  tn: TreeNode | null;
+  ndx: number;
+  val: OpInletValType;
+}
+
+/**
  * A tree node stores relationships between the components created by operations
   * @param node: is a reference to the node object stored in the tree. 
   * @param parent links to the treenode that "created" this node or null if it was created by the user 
