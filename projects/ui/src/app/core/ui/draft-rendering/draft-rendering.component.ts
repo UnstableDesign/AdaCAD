@@ -186,7 +186,6 @@ export class DraftRenderingComponent implements OnInit {
     if (this.source == 'viewer' || this.source == 'editor') this.ignoreOversize = true;
 
 
-    console.log('draft_edit_source', this.draft_edit_source);
     this.materialColorChangeSubscription = this.ms.materialColorChange.pipe(skip(1)).subscribe(id => {
       this.forceRedraw();
     });
@@ -1310,8 +1309,6 @@ export class DraftRenderingComponent implements OnInit {
 
   //takes inputs about what to redraw
   public redraw(draft: Draft, loom: Loom | null, loom_settings: LoomSettings, rf: RenderingFlags): Promise<boolean> {
-
-    console.log("REDRAW CALLED", rf);
 
     this.isRedrawing = true;
 

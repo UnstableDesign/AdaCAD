@@ -491,6 +491,17 @@ export class PaletteComponent implements OnInit {
     this.setConnectionSubscriptions(componentRef.instance);
   }
 
+  private refreshRetargetedConnections(cxn_ids: Array<number>) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        cxn_ids.forEach(cxn_id => {
+          const comp = this.tree.getComponent(cxn_id) as ConnectionComponent;
+          comp?.refreshConnection();
+        });
+      });
+    });
+  }
+
 
   /**
    * adds a state to the timeline. This should be called 
@@ -2353,10 +2364,11 @@ export class PaletteComponent implements OnInit {
     }
 
     return this.tree.sweepInlets(obj.id, obj.prior_inlet_vals)
-      .then(removed_connections => {
-        removed_connections.forEach(({ id, ref }) => {
+      .then(({ removed, retargeted }) => {
+        removed.forEach(({ id, ref }) => {
           this.removeConnectionView(id, ref);
         });
+        this.refreshRetargetedConnections(retargeted);
         return this.performAndUpdateDownstream(obj.id, [obj.id])
       })
       .then(el => {

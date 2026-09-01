@@ -446,6 +446,11 @@ export interface IOTupleWithVal {
   val: OpInletValType;
 }
 
+export interface SweepInletsResult {
+  removed: Array<{ id: number, ref: ViewRef | null }>;
+  retargeted: Array<number>;
+}
+
 /**
  * A tree node stores relationships between the components created by operations
   * @param node: is a reference to the node object stored in the tree. 

@@ -8,7 +8,7 @@ import { WorkspaceService } from '../../core/provider/workspace.service';
 import { ConnectionComponent } from '../../mixer/palette/connection/connection.component';
 import { OperationComponent } from '../../mixer/palette/operation/operation.component';
 import { SubdraftComponent } from '../../mixer/palette/subdraft/subdraft.component';
-import { Bounds, ConnectionNode, DraftEditingSource, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, IOTupleWithVal, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, TreeNode, TreeNodeProxy } from '../model/datatypes';
+import { Bounds, ConnectionNode, DraftEditingSource, DraftNode, DraftNodeBroadcast, DraftNodeBroadcastFlags, DraftNodeProxy, DraftNodeState, InwardConnectionProxy, IOTuple, IOTupleWithVal, Node, NodeComponentProxy, OpComponentProxy, OpNode, OutwardConnectionProxy, SweepInletsResult, TreeNode, TreeNodeProxy } from '../model/datatypes';
 import { ErrorBroadcasterService } from './error-broadcaster.service';
 import { MediaService } from './media.service';
 import { OperationService } from './operation.service';
@@ -400,53 +400,42 @@ export class TreeService {
    * before performing a dynamic op, make sure that their are no connections that are pointing to an inlet that nolonger exists
    * @param id - the object id we are checking
    * @param prior_inlet_vals the prior value of the inlets, used for reorienting connections
-   * @returns connection ids and viewRefs for Connections to remove from the palette.
+   * @returns removed connection views and ids of connections whose inlet index was updated.
    */
-  sweepInlets(id: number, prior_inlet_vals: Array<IOTupleWithVal>): Promise<Array<{ id: number, ref: ViewRef | null }>> {
+  sweepInlets(id: number, prior_inlet_vals: Array<IOTupleWithVal>): Promise<SweepInletsResult> {
 
     const opnode: OpNode = this.getOpNode(id);
     const op_treenode: TreeNode | null = this.getTreeNode(id);
-    if (!this.ops.isDynamic(opnode.name)) return Promise.resolve([]);
-    if (op_treenode == null) return Promise.resolve([]);
+    if (!this.ops.isDynamic(opnode.name)) return Promise.resolve({ removed: [], retargeted: [] });
+    if (op_treenode == null) return Promise.resolve({ removed: [], retargeted: [] });
 
-    //PRIOR INLET VALUES may take the form:
-    //[{0, 0, tn}, {1, 'a1', tn}, {2, 'b2', tn}];
-
-
-    //assemble list based on current values;
     const current_inlet_vals: Array<IOTupleWithVal> = opnode.inlets.map((el, ndx) => { return { ndx: ndx, val: el, tn: null } });
-    console.log('prior_inlet_vals', prior_inlet_vals);
-    console.log('current_inlet_vals', current_inlet_vals);
-    //CURRENT INLET VALUES may take the form:
-    //[{0, 0, ?}, {1, 'b2', ?}, {2, 'a1', ?}];
     const removed_connections: Array<{ id: number, ref: ViewRef | null }> = [];
+    const retargeted_connections: Array<number> = [];
+
     prior_inlet_vals.forEach((prior_inlet) => {
-      console.log('checking prior_inlet', prior_inlet);
-      //see if there are any inlets in the current set with the same value
-      let active_inlet = current_inlet_vals.find(el => el.val === prior_inlet.val);
-      console.log('got active_inlet', active_inlet);
+      const active_inlet = current_inlet_vals.find(el => el.val === prior_inlet.val);
+
       if (active_inlet === undefined) {
         const old_cxn_tn: TreeNode | null = prior_inlet.tn;
         if (old_cxn_tn == null) return;
-        //this inlet is no longer needed
-        console.log('removing connection node', prior_inlet);
-        console.log('removing old_cxn_tn', old_cxn_tn);
+
         const cxn_id = old_cxn_tn.node.id;
         this.removeConnectionNodeById(cxn_id);
         removed_connections.push({ id: cxn_id, ref: old_cxn_tn.node.ref });
-      } else {
-        //this inlet is still needed, so we need to update the connection node
-        if (prior_inlet.tn !== null) {
-          console.log('updating connection node', prior_inlet, active_inlet);
-          prior_inlet.tn.outputs[0] = { tn: op_treenode, ndx: active_inlet.ndx };
-          op_treenode.inputs[active_inlet.ndx] = { tn: prior_inlet.tn, ndx: active_inlet.ndx };
-        }
+        return;
+      }
+
+      if (prior_inlet.tn === null) return;
+
+      const input_tuple = op_treenode.inputs.find(el => el.tn.node.id === prior_inlet.tn!.node.id);
+      if (input_tuple && input_tuple.ndx !== active_inlet.ndx) {
+        input_tuple.ndx = active_inlet.ndx;
+        retargeted_connections.push(prior_inlet.tn.node.id);
       }
     });
 
-
-
-    return Promise.resolve(removed_connections);
+    return Promise.resolve({ removed: removed_connections, retargeted: retargeted_connections });
 
   }
 
