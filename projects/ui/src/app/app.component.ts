@@ -2022,6 +2022,10 @@ export class AppComponent implements OnInit, OnDestroy {
         return this.fb.updateFile(so.file, this.ws.getCurrentFile());
       })
       .catch(err => {
+        if (err.includes("not logged in")) {
+          this.openSnackBar("You must be logged in to save files");
+          return;
+        }
         console.error(err);
         this.openSnackBar('ERROR: there was a problem saving this file:' + err);
         Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
