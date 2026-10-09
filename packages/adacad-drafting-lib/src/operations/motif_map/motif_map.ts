@@ -8,6 +8,7 @@ import {
     OpParamVal,
     getOpParamValById,
     NumParam,
+    BoolParam,
 } from "..";
 import { Cell, Drawdown } from "../../draft";
 import { createCell } from "../../draft/cell";
@@ -19,7 +20,7 @@ import {
     wefts,
 } from "../../draft/draft";
 import { Sequence } from "../../sequence";
-import { computeFilter, printDrawdown } from "../../utils";
+import { computeFilter } from "../../utils";
 import { defaults } from "../../utils/defaults";
 import { compoundOp } from "../categories";
 
@@ -54,19 +55,16 @@ const yspacing: NumParam = {
     max: 1000,
 };
 
-// const overlap: SelectParam = {
-//     name: "overlap",
-//     type: "select",
-//     value: "overlay",
-//     dx: "how should overlap between drafts be handled",
-//     selectlist: [
-//         { name: "overlay", value: 0 },
-//         { name: "additive", value: 1 },
-//         { name: "knockout", value: 2 }
-//     ],
-// };
+const wrap: BoolParam = {
+    name: "wrap?",
+    type: "boolean",
+    value: false,
+    truestate: "yes",
+    falsestate: "no",
+    dx: "should the motif wrap around the edges of result if we stamp on an edge?",
+};
 
-const params: OperationParam[] = [xspacing, yspacing];
+const params: OperationParam[] = [xspacing, yspacing, wrap];
 
 const motif_inlet: OperationInlet = {
     name: "motif",
@@ -93,6 +91,7 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     const maps = getAllDraftsAtInlet(op_inputs, 0);
     const xspacing = getOpParamValById(0, param_vals) as number;
     const yspacing = getOpParamValById(1, param_vals) as number;
+    const wrap = getOpParamValById(2, param_vals) as boolean;
 
     let motif = null;
     if (motifs.length == 0) {
@@ -108,10 +107,6 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     if (maps.length == 0) return Promise.resolve([]);
 
     const map = maps[0];
-    console.log("MAP");
-    printDrawdown(map.drawdown);
-    console.log("MOTIF");
-    printDrawdown(motif.drawdown);
     const map_width = warps(map.drawdown);
     const map_height = wefts(map.drawdown);
     const motif_width = warps(motif.drawdown);
@@ -120,8 +115,16 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 
 
 
-    const x_padding = (xspacing >= motif_width) ? 0 : motif_width - 1;
-    const y_padding = (yspacing >= motif_height) ? 0 : motif_height - 1;
+    let x_padding = 0;
+    let y_padding = 0;
+
+    if (!wrap) {
+        x_padding = (xspacing >= motif_width) ? 0 : motif_width - 1;
+        y_padding = (yspacing >= motif_height) ? 0 : motif_height - 1;
+    }
+
+
+
     for (let i = 0; i < (map_height * yspacing); i++) {
         const row: Array<Cell> = [];
         for (let j = 0; j < (map_width * xspacing); j++) {
@@ -168,10 +171,12 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                 //initiate stamping process
                 for (let mi = 0; mi < motif_height; ++mi) {
                     for (let mj = 0; mj < motif_width; ++mj) {
-                        const old_value = getHeddle(result, i + mi, j + mj);
+                        const i_adj = (i + mi) % wefts(result);
+                        const j_adj = (j + mj) % warps(result);
+                        const old_value = getHeddle(result, i_adj, j_adj);
                         const new_value = getHeddle(motif.drawdown, mi, mj);
                         const res = computeFilter('or', old_value, new_value);
-                        result[i + mi][j + mj] = createCell(res);
+                        result[i_adj][j_adj] = createCell(res);
                     }
                 }
             }
