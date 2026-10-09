@@ -27,12 +27,11 @@ import { compoundOp } from "../categories";
 const name = "motif_map";
 
 const meta: OpMeta = {
-    displayname: "stamp motif",
+    displayname: "stamp motif (beta)",
     advanced: true,
     categories: [compoundOp],
     authors: ["Laura Devendorf", "Etta Sandry", "Deanna Gelosi"],
-    desc: "Inspired by Etta's creation of stamps of structures that are arranged and overlapped, this operation uses a motif (a structure) and a map (a draft with black cells indicating the locations for the motif to be placed).",
-    // img: 'crackle.png'
+    desc: "In progress, inspired by Etta's creation of stamps of structures that are arranged and overlapped, this operation uses a motif (a structure) and a map (a draft with black cells indicating the locations for the motif to be placed).",
 };
 
 
@@ -58,7 +57,7 @@ const yspacing: NumParam = {
 const wrap: BoolParam = {
     name: "wrap?",
     type: "boolean",
-    value: false,
+    value: 1,
     truestate: "yes",
     falsestate: "no",
     dx: "should the motif wrap around the edges of result if we stamp on an edge?",
