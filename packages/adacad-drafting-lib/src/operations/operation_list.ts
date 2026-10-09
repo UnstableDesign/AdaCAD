@@ -41,6 +41,7 @@ export * from "./makesymmetric/makesymmetric";
 export * from "./margin/margin";
 export * from "./mask/mask";
 export * from "./motif_path/motif_path";
+export * from "./motif_map/motif_map";
 export * from "./overlay/overlay";
 export * from "./overlay_multiple/overlay_multiple";
 export * from "./random/random";
