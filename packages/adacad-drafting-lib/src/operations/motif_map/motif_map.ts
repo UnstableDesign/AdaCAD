@@ -116,8 +116,12 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     const map_height = wefts(map.drawdown);
     const motif_width = warps(motif.drawdown);
     const motif_height = wefts(motif.drawdown);
-
     const sized_map: Drawdown = [];
+
+
+
+    const x_padding = (xspacing >= motif_width) ? 0 : motif_width - 1;
+    const y_padding = (yspacing >= motif_height) ? 0 : motif_height - 1;
     for (let i = 0; i < (map_height * yspacing); i++) {
         const row: Array<Cell> = [];
         for (let j = 0; j < (map_width * xspacing); j++) {
@@ -130,14 +134,14 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         }
 
         //pad out room for a stamp placed in the last column
-        for (let j = 0; j < motif_width - 1; j++) {
+        for (let j = 0; j < x_padding; j++) {
             row.push(createCell(false));
         }
         sized_map.push(row);
     }
 
     //push the remaining set of rows we might need to fit patterns place in the last row of column
-    for (let i = 0; i < motif_height - 1; i++) {
+    for (let i = 0; i < y_padding; i++) {
         const row: Array<Cell> = [];
         for (let j = 0; j < sized_map[0].length; j++) {
             row.push(createCell(false));
@@ -155,8 +159,7 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
         result.push(row);
     }
 
-    printDrawdown(sized_map);
-    printDrawdown(result);
+
     //iterate through the sized mot
     for (let i = 0; i < wefts(sized_map); i++) {
         for (let j = 0; j < warps(sized_map); j++) {
@@ -165,7 +168,6 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
                 //initiate stamping process
                 for (let mi = 0; mi < motif_height; ++mi) {
                     for (let mj = 0; mj < motif_width; ++mj) {
-                        printDrawdown(result);
                         const old_value = getHeddle(result, i + mi, j + mj);
                         const new_value = getHeddle(motif.drawdown, mi, mj);
                         const res = computeFilter('or', old_value, new_value);

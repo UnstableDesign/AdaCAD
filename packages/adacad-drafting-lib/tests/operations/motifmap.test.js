@@ -9,8 +9,8 @@ test('testing motif_map default', async () => {
 
 
 
-    const xspacing = 1;
-    const yspacing = 1;
+    const xspacing = 2;
+    const yspacing = 2;
     const map = new Sequence.TwoD([
         [1, 0, 0, 0, 0],
         [0, 1, 0, 0, 0],
@@ -34,7 +34,9 @@ test('testing motif_map default', async () => {
     const res_warps = warps(res[0].draft.drawdown);
     const motif_warps = 2;
     const map_warps = warps(map_draft.drawdown);
-    expect(res_warps).toEqual((map_warps * xspacing) + (motif_warps - 1));
+    const x_padding = (xspacing >= motif_warps) ? 0 : motif_warps - 1;
+
+    expect(res_warps).toEqual((map_warps * xspacing) + (x_padding));
 
 
 });
