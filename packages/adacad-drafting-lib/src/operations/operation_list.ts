@@ -3,6 +3,7 @@ export * from "./apply_materials/apply_materials";
 export * from "./apply_warp_materials/apply_warp_materials";
 export * from "./apply_weft_materials/apply_weft_materials";
 export * from "./assign_systems/assign_systems";
+export * from "./aster/aster";
 export * from "./atop/atop";
 export * from "./_bindweftfloats/bindweftfloats";
 export * from "./_bindwarpfloats/bindwarpfloats";
