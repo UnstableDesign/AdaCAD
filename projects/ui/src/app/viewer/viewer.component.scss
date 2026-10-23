@@ -23,14 +23,16 @@
 }
 
 .static-controls {
+
     display: flex;
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
     width: 100%;
 }
+
 
 .sim-controls-form {
     width: 100%;
@@ -89,13 +91,13 @@
 
 
 .viewer_container {
-    padding: 16px 16px 16px 32px;
+    padding: 16px 16px 16px 16px;
     display: flex;
+    flex: 1;
     flex-direction: column;
     background-color: white;
     width: auto;
-    height: 100%;
-    overflow: hidden;
+    height: auto;
 }
 
 .viewer-controls {
@@ -103,6 +105,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    overflow: hidden;
     justify-content: space-between;
     padding: 8px 0px 24px 0px;
     align-items: center;
@@ -114,11 +117,20 @@
 
 
     .viewer-zoom-container {
-        flex: 1 0 40%;
+        flex: 1 0 200px;
 
         .mat-mdc-slider {
-            min-width: 80px !important;
+            min-width: 200px !important;
         }
+    }
+
+    .static-view-modes {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
     .viewer-extra-controls {
@@ -192,9 +204,9 @@
 
 
 .current_view {
-    height: 83%;
     background-color: whitesmoke;
     display: flex;
+    flex: 1;
     align-items: center;
     overflow: scroll;
 }

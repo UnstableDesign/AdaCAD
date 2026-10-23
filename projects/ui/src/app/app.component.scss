@@ -1,17 +1,54 @@
 @use '@angular/material' as mat;
 
 
+
 .view-container {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
 
   @include mat.toolbar-overrides((standard-height: 54px));
 
 }
+
+
+
+.header-container {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  background-color: #3f51b5;
+  overflow: hidden;
+  width: 100%;
+  z-index: 1000;
+
+}
+
+.ui-grid {
+  flex: 1 1 auto;
+  min-height: 0; // lets this row shrink below its content
+  display: flex;
+  background: white;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+
+.footer-container {
+  border-top: thin solid #3f51b5;
+  flex: 0 0 auto;
+  color: #3f51b5;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  display: flex;
+  background-color: white;
+  justify-content: space-between;
+  padding: 0px 16px;
+}
+
 
 
 
@@ -61,49 +98,33 @@
 
 
 
-.header-container {
-
-
-  display: flex;
-  flex-direction: column;
-  flex: 0 1 54px;
-  background-color: #3f51b5;
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  z-index: 1000;
-
-}
-
 .view-adjust-overlay {
-  height: 100%;
+  min-height: 0;
+  min-width: 0;
   width: 1px;
   position: absolute;
+  height: auto;
 }
 
 .ui-left {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: scroll;
 
 }
 
 .ui-right {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
 }
 
 
-.ui-grid {
-  position: relative;
-  top: 54px;
-  height: calc(100vh - 54px);
-  display: flex;
-  background: white;
-  flex-direction: row;
-  align-items: stretch;
-}
+
 
 .test {
   font-size: 12px;
@@ -120,8 +141,10 @@
   display: flex;
   flex-direction: row;
   background-color: #f0f0f0;
-  overflow: hidden;
-  height: 100%;
+  overflow: visible;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
 
 }
 
@@ -135,11 +158,13 @@
 
 .static-container {
   display: flex;
-  flex: 1 1 100%;
+  flex: 1 1 auto;
   align-items: stretch;
   flex-direction: column;
-  overflow: hidden;
   background-color: whitesmoke;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
 
   &.collapsed {
     flex: 0 1 40px;
@@ -244,21 +269,6 @@
       height: 40px));
 
 
-}
-
-.footer-container {
-  border-top: thin solid #3f51b5;
-  color: #3f51b5;
-  position: fixed;
-  width: calc(100% - 32px);
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  top: calc(100vh - 54px);
-  display: flex;
-  background-color: white;
-  justify-content: space-between;
-  padding: 0px 16px;
 }
 
 
