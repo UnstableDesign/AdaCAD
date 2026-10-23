@@ -1,12 +1,12 @@
 import { CdkDrag, CdkDragMove } from '@angular/cdk/drag-drop';
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { Subscription } from 'rxjs';
 import { ViewadjustService } from '../provider/viewadjust.service';
 
 @Component({
   selector: 'app-viewadjust',
-  imports: [CdkDrag, MatButton],
+  imports: [CdkDrag, MatIconButton],
   templateUrl: './viewadjust.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './viewadjust.component.scss'
