@@ -61,7 +61,7 @@ export class ShareComponent {
   public share_in_history!: ShareObj;
   public replace_img: boolean = false;
 
-  workspaceImg: string = '/assets/example_img/placeholder.png';
+  workspaceImg: string = '/example_img/placeholder.png';
 
   constructor() {
     const data = this.data;
