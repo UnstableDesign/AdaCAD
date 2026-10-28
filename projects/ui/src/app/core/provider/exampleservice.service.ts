@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import examples from '../../../assets/json/examples.json';
+import examples from '../../../../public/json/examples.json';
 import { Example } from '../model/datatypes';
 
 @Injectable({

@@ -1113,7 +1113,7 @@ export class AppComponent implements OnInit, OnDestroy {
   //Unlike other functions that can return a promise that is rejected with the parent funciton handling the error, the http.get makes it hard to return upon completion, instead, we just handle the failure case internally
   loadExampleAtURL(name: string) {
 
-    this.http.get('assets/examples/' + name + ".ada", { observe: 'response' })
+    this.http.get('/examples/' + name + ".ada", { observe: 'response' })
       .pipe(
         catchError(error => {
           console.error('Error occurred:', error);
