@@ -175,6 +175,7 @@ export class FirebaseService implements OnDestroy {
       })),
 
       onChildChanged(sharedFiles, this.runInZone((childsnapshot) => {
+        console.log("SHARED FILE CHANGED", childsnapshot);
 
         if (childsnapshot === undefined || childsnapshot === null) return;
         let obj: ShareObj = {
@@ -190,7 +191,7 @@ export class FirebaseService implements OnDestroy {
         }
 
         //mark this as shared in the user's list
-        if (childsnapshot.val().owner_uid == this.auth.currentUser?.uid || -1) {
+        if (childsnapshot.val().owner_uid == this.auth.currentUser?.uid) {
           const found_index = this.file_list.shared.findIndex(el => el.id === obj.id);
           if (found_index === -1) {
             this.file_list.shared.push(obj)
@@ -209,7 +210,13 @@ export class FirebaseService implements OnDestroy {
             this.file_list.public[found_index] = obj;
           }
           this.emitSharedFilesEvent(this.file_list);
-
+        } else {
+          // File was previously public; remove it from the public list
+          const before_len = this.file_list.public.length;
+          this.file_list.public = this.file_list.public.filter(el => el.id !== obj.id);
+          if (this.file_list.public.length !== before_len) {
+            this.emitSharedFilesEvent(this.file_list);
+          }
         }
 
 
@@ -220,7 +227,9 @@ export class FirebaseService implements OnDestroy {
 
         const removed_key: string = removedItem.key ?? '';
         if (removedItem.key === undefined || removedItem.key === null) return;
-        this.file_list.shared = this.file_list.shared.filter(el => el.id !== parseInt(removed_key))
+        const removed_id = parseInt(removed_key);
+        this.file_list.shared = this.file_list.shared.filter(el => el.id !== removed_id);
+        this.file_list.public = this.file_list.public.filter(el => el.id !== removed_id);
         this.emitSharedFilesEvent(this.file_list);
 
 
