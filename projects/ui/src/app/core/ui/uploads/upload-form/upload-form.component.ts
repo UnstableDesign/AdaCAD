@@ -76,7 +76,6 @@ export class UploadFormComponent implements OnInit {
 
   uploadImage(upload: Upload, file: File, type: 'image' | 'indexed_color_image'): Promise<any> {
 
-    console.log("uploading image", upload, file, type);
 
     return this.upSvc.pushUpload(upload).then(snapshot => {
 
@@ -93,13 +92,13 @@ export class UploadFormComponent implements OnInit {
 
       this.onData.emit(uploaded);
       this.uploading = false;
-      this.selectedFiles = new FileList();
+      this.selectedFiles = undefined;
 
     }).catch(e => {
       console.error("error uploading image", e);
       this.onError.emit(e);
       this.uploading = false;
-      this.selectedFiles = new FileList();
+      this.selectedFiles = undefined;
     });
   }
 
@@ -164,11 +163,11 @@ export class UploadFormComponent implements OnInit {
             res => {
               this.onData.emit();
               this.uploading = false;
-              this.selectedFiles = new FileList();
+              this.selectedFiles = undefined;
             }).catch(e => {
               this.onError.emit(e);
               this.uploading = false;
-              this.selectedFiles = new FileList();
+              this.selectedFiles = undefined;
             });
           break;
 
@@ -177,11 +176,11 @@ export class UploadFormComponent implements OnInit {
             res => {
               this.onData.emit(res);
               this.uploading = false;
-              this.selectedFiles = new FileList();
+              this.selectedFiles = undefined;
             }).catch(e => {
               this.onError.emit(e);
               this.uploading = false;
-              this.selectedFiles = new FileList();
+              this.selectedFiles = undefined;
             });
           break;
 
