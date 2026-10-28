@@ -507,12 +507,12 @@ export class FirebaseService implements OnDestroy {
     if (meta.from_share == undefined || meta.from_share == null) meta.from_share = '';
     if (meta.time == undefined || meta.time == null) meta.time = Date.now();
 
-    return set(user_path, {
+    return set(user_path, this.sanitizeForFirebase({
       name: meta.name,
       desc: meta.desc,
       timestamp: meta.time,
       from_share: meta.from_share
-    })
+    }))
       .then(success => { return Promise.resolve(true) })
       .catch(err => { return Promise.reject(err) })
   }
@@ -664,7 +664,7 @@ export class FirebaseService implements OnDestroy {
     console.log("CREATING SHARED FILE", file_id, share_data);
     const shared_ref = ref(this.db, 'shared/' + file_id);
 
-    return set(shared_ref, share_data)
+    return set(shared_ref, this.sanitizeForFirebase(share_data))
       .then(success => {
         console.log("SHARED FILE CREATED", success);
         return Promise.resolve(file_id)
@@ -687,7 +687,7 @@ export class FirebaseService implements OnDestroy {
 
     const shared_file_ref = ref(this.db, 'shared/' + fileid);
 
-    return update(shared_file_ref, share)
+    return update(shared_file_ref, this.sanitizeForFirebase(share))
       .then(success => {
         return Promise.resolve(true);
       })
