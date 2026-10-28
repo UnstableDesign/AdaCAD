@@ -310,10 +310,12 @@ export class FirebaseService implements OnDestroy {
 
     if (meta.time == undefined) meta.time = Date.now();
     meta.id = generateId(8);
-    this.writeFileData(meta.id, ada);
-    this.writeFileMetaData(meta)
-    return Promise.resolve(meta.id);
-
+    const fns = [this.writeFileData(meta.id, ada), this.writeFileMetaData(meta)];
+    return Promise.all(fns).then(success => {
+      return Promise.resolve(meta.id);
+    }).catch(err => {
+      return Promise.reject(err);
+    });
   }
 
   updateLastOpened(fileid: number): Promise<boolean> {
@@ -523,11 +525,22 @@ export class FirebaseService implements OnDestroy {
   }
 
 
+  //a variant to check if a file exists before calling getShare and throwing an error if/when it doesn't exist
+  hasSharedFile(fileid: number): Promise<boolean> {
+    console.log("CHECKING IF SHARED FILE EXISTS", fileid);
+    return get(ref(this.db, `shared/${fileid}`))
+      .then((shareobj) => {
+        console.log("SHARED FILE EXISTS", shareobj.exists());
+        return Promise.resolve(shareobj.exists());
+      }).catch(e => { return Promise.resolve(false) })
+  }
+
   /**
   * gets the share Object at a given id
   * @returns the file data
   */
   getShare(fileid: number): Promise<ShareObj> {
+    console.log("GETTING SHARED FILE", fileid);
     return get(ref(this.db, `shared/${fileid}`))
       .then((shareobj) => {
 
@@ -617,10 +630,12 @@ export class FirebaseService implements OnDestroy {
    */
   createSharedFile(file_id: string, share_data: ShareObj): Promise<string> {
 
+    console.log("CREATING SHARED FILE", file_id, share_data);
     const shared_ref = ref(this.db, 'shared/' + file_id);
 
     return set(shared_ref, share_data)
       .then(success => {
+        console.log("SHARED FILE CREATED", success);
         return Promise.resolve(file_id)
 
       })

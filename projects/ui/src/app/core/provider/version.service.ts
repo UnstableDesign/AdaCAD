@@ -15,6 +15,4 @@ export class VersionService {
     return this.version;
   }
 
-
-
 }

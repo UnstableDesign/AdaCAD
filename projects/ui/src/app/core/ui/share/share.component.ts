@@ -40,8 +40,8 @@ export class ShareComponent {
 
   private _snackBar = inject(MatSnackBar);
 
-  public shared_id: string = '';
-  public share_obj!: ShareObj;
+  public shared_id: string | null = null;
+  public share_obj: ShareObj | null = null;
 
   public defaultCreditline: string = '';
   public license: FormControl = new FormControl('by');
@@ -50,7 +50,7 @@ export class ShareComponent {
   public owner_creditline: FormControl = new FormControl('');
   public owner_url: FormControl = new FormControl('');
   public public: FormControl = new FormControl(false);
-  public share_url!: string;
+  public share_url: string | null = null;
   public has_uploaded_image: boolean = false;
 
   public licenses: Array<any> = [];
@@ -58,7 +58,7 @@ export class ShareComponent {
 
   public fc!: FormControl;
 
-  public share_in_history!: ShareObj;
+  public share_in_history: ShareObj | null = null;
   public replace_img: boolean = false;
 
   workspaceImg: string = '/example_img/placeholder.png';
@@ -70,10 +70,33 @@ export class ShareComponent {
     this.fileid = data.fileid;
     this.licenses = licenses;
 
-    // Initialize reactive form with default values
+
+
   }
 
   ngOnInit() {
+
+    const cur_file_meta = this.ws.getCurrentFile();
+    if (cur_file_meta.from_share !== undefined && cur_file_meta.from_share !== '') {
+      this.fb.hasSharedFile(+cur_file_meta.from_share)
+        .then(has_shared_file => {
+          if (has_shared_file) {
+
+            this.fb.getShare(+cur_file_meta.from_share)
+              .then(share_obj => {
+                if (share_obj.owner_uid !== this.fb.auth.currentUser?.uid) {
+                  this.share_in_history = share_obj;
+
+                }
+              });
+          } else {
+            console.log("WAS FROM SHARE THAT NO LONGER EXISTS")
+          }
+        });
+    }
+
+
+    //This window can be loaded with an existing share object that needs updating, or, it can be loaded to create a share object. 
 
     this.defaultCreditline = (this.fb.auth.currentUser) ? 'created by ' + this.fb.auth.currentUser.displayName : '';
 
@@ -82,31 +105,40 @@ export class ShareComponent {
 
     // Subscribe to form value changes - updateChange disabled on text files to prevent database writes on keystroke
     this.license.valueChanges.subscribe(() => {
+      if (this.share_obj) {
+        this.share_obj.license = this.license.value;
+      }
       this.updateChange();
     });
 
 
     this.filename.valueChanges.subscribe(() => {
-      this.share_obj.filename = this.filename.value;
-      //this.updateChange();
+      if (this.share_obj) {
+        this.share_obj.filename = this.filename.value;
+      }
     });
 
 
 
     this.desc.valueChanges.subscribe(() => {
-      this.share_obj.desc = this.desc.value;
-      //this.updateChange();
+      if (this.share_obj) {
+        this.share_obj.desc = this.desc.value;
+      }
     });
     this.owner_creditline.valueChanges.subscribe(() => {
-      this.share_obj.owner_creditline = this.owner_creditline.value;
-      // this.updateChange();
+      if (this.share_obj) {
+        this.share_obj.owner_creditline = this.owner_creditline.value;
+      }
     });
     this.owner_url.valueChanges.subscribe(() => {
-      this.share_obj.owner_url = this.owner_url.value;
-      // this.updateChange();
+      if (this.share_obj) {
+        this.share_obj.owner_url = this.owner_url.value;
+      }
     });
     this.public.valueChanges.subscribe(() => {
-      this.share_obj.public = this.public.value;
+      if (this.share_obj) {
+        this.share_obj.public = this.public.value;
+      }
       this.updateChange();
     });
 
@@ -123,26 +155,30 @@ export class ShareComponent {
     }
 
 
-    this.fb.getShare(+this.fileid)
-      .then(share_obj => {
-        if (share_obj !== undefined) {
-          this.share_obj = share_obj;
-
-          this.shared_id = this.fileid.toString();
-          this.updateSettings(share_obj);
-          this.share_url = defaults.share_url_base + this.fileid;
+    this.fb.hasSharedFile(+this.fileid)
+      .then(has_shared_file => {
+        console.log("SHARE OBJECT", has_shared_file);
+        if (has_shared_file) {
+          this.fb.getShare(+this.fileid)
+            .then(share_obj => {
+              console.log("SHARE OBJECT", share_obj);
+              this.share_obj = share_obj;
+              this.shared_id = this.fileid.toString();
+              this.updateSettings(share_obj);
+              this.share_url = defaults.share_url_base + this.fileid;
+            })
+            .catch(err => {
+              console.error("ERROR", err);
+            });
         } else {
-          this.shared_id = '';
-          this.share_obj = default_share_obj;
+          this.shared_id = null;
+          this.share_obj = null;
           this.updateSettings(default_share_obj);
-          this.share_url = defaults.share_url_base + this.fileid;
+          this.share_url = null;
         }
       }).catch(no_obj => {
         console.log("no object", no_obj);
-        this.shared_id = '';
-        this.share_obj = default_share_obj;
-        this.updateSettings(default_share_obj);
-        this.share_url = defaults.share_url_base + this.fileid;
+
       });
 
 
@@ -150,6 +186,7 @@ export class ShareComponent {
 
 
   }
+
 
 
   saveFilename() {
@@ -224,8 +261,7 @@ export class ShareComponent {
     if (this.share_obj === null) return;
 
 
-    if (this.shared_id !== '') {
-      console.log("updating shared file", this.shared_id, this.share_obj);
+    if (this.shared_id !== null) {
       this.fb.updateSharedFile(this.shared_id.toString(), this.share_obj).catch(err => {
         console.error("ERROR", err)
       });
@@ -234,7 +270,7 @@ export class ShareComponent {
 
   toggleSharing() {
 
-    if (this.shared_id !== '') {
+    if (this.shared_id !== null) {
       this.removeLink();
 
     } else {
@@ -252,12 +288,14 @@ export class ShareComponent {
 
     try {
       let int_id: number = +this.fileid;
-
       const meta = await this.fb.getFileMeta(int_id);
       const file: { json: string, file: SaveObj } = await this.file_serv.saver.ada();
+
+      //first, we need to duplicate the file, which copies the information with a new ID in both the files database and the user files
       const duplicate_id = await this.fb.duplicate(file.file, meta);
-      this.share_obj = {
-        id: +this.shared_id,
+      const shared_id = duplicate_id.toString();
+      const share_obj: ShareObj = {
+        id: +shared_id,
         license: 'by',
         filename: meta.name,
         desc: meta.desc,
@@ -266,13 +304,15 @@ export class ShareComponent {
         owner_url: '',
         public: false,
         img: 'none'
-      }
+      };
 
+      this.shared_id = shared_id;
+      this.share_obj = share_obj;
 
-      this.shared_id = duplicate_id.toString();
-      this.updateChange();
+      const shared_file = await this.fb.createSharedFile(shared_id, share_obj);
+      this.share_url = defaults.share_url_base + shared_id;
+      this.updateSettings(share_obj);
 
-      return this.fb.createSharedFile(this.shared_id, this.share_obj);
 
     }
     catch (err) {
@@ -281,23 +321,14 @@ export class ShareComponent {
 
   }
 
+  //this moves this file out of the shared list, but retains a copy in the users personal file list as filename (previously shared)
   removeLink() {
     this.fb.removeSharedFile(this.fileid).catch(err => {
       console.error("ERROR", err)
     });
-    this.shared_id = '';
-    this.share_obj = {
-      id: -1,
-      license: 'by',
-      filename: '',
-      desc: '',
-      owner_uid: 'anon',
-      owner_creditline: '',
-      owner_url: '',
-      public: false,
-      img: 'none',
-    }
-    this.updateSettings(this.share_obj);
+    this.shared_id = null;
+    this.share_obj = null;
+    this.share_url = null;
   }
 
   replaceImg() {
@@ -315,21 +346,19 @@ export class ShareComponent {
    */
   handleFile(obj: MediaInstance) {
 
-    console.log("handle file", obj);
 
     this.replace_img = false;
     this.has_uploaded_image = true;
 
     if (obj === null || obj.ref == null) return;
 
-    if (this.share_obj) this.share_obj.img = obj.ref;
-    this.updateChange();
-    // this.drawImage(obj[0].img.data);
-
-
-    this.mediaService.loadImageViaURL(-1, this.share_obj?.img ?? '').then(url => {
-      this.workspaceImg = url;
-    });
+    if (this.share_obj) {
+      this.share_obj.img = obj.ref;
+      this.updateChange();
+      this.mediaService.loadImageViaURL(-1, this.share_obj.img).then(url => {
+        this.workspaceImg = url;
+      });
+    }
 
     //we don't need to keep this around after the upload
     this.mediaService.removeInstance(obj.id);
@@ -341,43 +370,21 @@ export class ShareComponent {
 
 
 
-  // drawImage(img: SingleImage) {
-
-  //   const canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('img_preview');
-  //   const ctx = canvas.getContext('2d');
-
-  //   const max_dim = (img.width > img.height) ? img.width : img.height;
-  //   const use_width = (img.width > 400) ? img.width / max_dim * 400 : img.width;
-  //   const use_height = (img.height > 400) ? img.height / max_dim * 400 : img.height;
-
-  //   canvas.width = use_width;
-  //   canvas.height = use_height;
 
 
-
-  //   ctx.drawImage(img.image, 0, 0, img.width, img.height, 0, 0, use_width, use_height);
-
-
-  // }
-
-
-
-  updateLink() {
-    //create a share option from the settings, have it return the id, post the id to the screen. 
-
-  }
 
   copyToClipboard() {
-    navigator.clipboard.writeText(this.share_url).then(
-      () => {
-        this.openSnackBar('link copied', 'close')//on success
-      },
-      () => {
-        //on fail 
-        this.openSnackBar('could not copy link', 'close')//on success
-
-      }
-    )
+    if (this.share_url) {
+      navigator.clipboard.writeText(this.share_url).then(
+        () => {
+          this.openSnackBar('link copied', 'close')//on success
+        },
+        () => {
+          //on fail 
+          this.openSnackBar('could not copy link', 'close')//on success
+        }
+      )
+    }
 
   }
 
