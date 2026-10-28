@@ -60,7 +60,6 @@ export class NotesService {
         ref: ref,
         color: (note.color !== undefined) ? note.color : "#FFFF00",
         component: component,
-        imageurl: (note.imageurl !== undefined) ? note.imageurl : undefined,
         width: (note.width !== undefined) ? note.width : 200,
         height: (note.height !== undefined) ? note.height : 200,
       }
@@ -117,16 +116,17 @@ export class NotesService {
 
   exportForSaving(): Array<any> {
     return this.notes.map(note => {
-      return {
+      const out: any = {
         id: note.id,
-        title: note.title,
-        text: note.text,
+        title: note.title ?? '',
+        text: note.text ?? '',
         color: note.color,
         topleft: note.topleft,
-        imageurl: note.imageurl,
         width: note.width,
         height: note.height
-      }
+      };
+      if (note.imageurl !== undefined) out.imageurl = note.imageurl;
+      return out;
     });
   }
 

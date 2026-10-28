@@ -60,22 +60,22 @@
     </div>
     <mat-divider></mat-divider>
   </div>
-  }
+  } <!-- end share_in_history -->
 
   <div class="configure">
-    <p><mat-slide-toggle [checked]="shared_id !== ''" (change)="toggleSharing()">
-        @if (shared_id !== '') {
+    <p><mat-slide-toggle [checked]="shared_id" (change)="toggleSharing()">
+        @if (shared_id) {
         <span>
           Anyone can access this file with the link below
         </span>
         }
-        @if (shared_id == '') {
+        @else{
         <span>
           This file is not shared, click to turn on sharing
         </span>
         }
       </mat-slide-toggle>
-      @if (shared_id !== '') {
+      @if (shared_id && share_obj) {
     <div class="shared_file_meta">
       <div class="share_link">
         <i class="fa-solid fa-link"></i>

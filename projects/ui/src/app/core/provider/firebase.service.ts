@@ -190,7 +190,7 @@ export class FirebaseService implements OnDestroy {
         }
 
         //mark this as shared in the user's list
-        if (childsnapshot.val().owner_uid == this.auth.currentUser?.uid || -1) {
+        if (childsnapshot.val().owner_uid == this.auth.currentUser?.uid) {
           const found_index = this.file_list.shared.findIndex(el => el.id === obj.id);
           if (found_index === -1) {
             this.file_list.shared.push(obj)
@@ -209,7 +209,13 @@ export class FirebaseService implements OnDestroy {
             this.file_list.public[found_index] = obj;
           }
           this.emitSharedFilesEvent(this.file_list);
-
+        } else {
+          // File was previously public; remove it from the public list
+          const before_len = this.file_list.public.length;
+          this.file_list.public = this.file_list.public.filter(el => el.id !== obj.id);
+          if (this.file_list.public.length !== before_len) {
+            this.emitSharedFilesEvent(this.file_list);
+          }
         }
 
 
@@ -220,7 +226,9 @@ export class FirebaseService implements OnDestroy {
 
         const removed_key: string = removedItem.key ?? '';
         if (removedItem.key === undefined || removedItem.key === null) return;
-        this.file_list.shared = this.file_list.shared.filter(el => el.id !== parseInt(removed_key))
+        const removed_id = parseInt(removed_key);
+        this.file_list.shared = this.file_list.shared.filter(el => el.id !== removed_id);
+        this.file_list.public = this.file_list.public.filter(el => el.id !== removed_id);
         this.emitSharedFilesEvent(this.file_list);
 
 
@@ -310,10 +318,12 @@ export class FirebaseService implements OnDestroy {
 
     if (meta.time == undefined) meta.time = Date.now();
     meta.id = generateId(8);
-    this.writeFileData(meta.id, ada);
-    this.writeFileMetaData(meta)
-    return Promise.resolve(meta.id);
-
+    const fns = [this.writeFileData(meta.id, ada), this.writeFileMetaData(meta)];
+    return Promise.all(fns).then(success => {
+      return Promise.resolve(meta.id);
+    }).catch(err => {
+      return Promise.reject(err);
+    });
   }
 
   updateLastOpened(fileid: number): Promise<boolean> {
@@ -389,10 +399,33 @@ export class FirebaseService implements OnDestroy {
 
 
 
+  /**
+   * Firebase Realtime Database rejects undefined anywhere in update/set payloads.
+   * Recursively omit undefined object keys and replace undefined array slots with null.
+   */
+  private sanitizeForFirebase(value: any): any {
+    if (value === undefined) {
+      return null;
+    }
+    if (value === null || typeof value !== 'object') {
+      return value;
+    }
+    if (Array.isArray(value)) {
+      return value.map(el => this.sanitizeForFirebase(el));
+    }
+    const out: Record<string, any> = {};
+    for (const key of Object.keys(value)) {
+      const v = value[key];
+      if (v === undefined) continue;
+      out[key] = this.sanitizeForFirebase(v);
+    }
+    return out;
+  }
+
   private writeLowDataItems(fileid: number, partial: any): Promise<boolean> {
     const filepath_base = ref(this.db, 'filedata/' + fileid + '/ada/');
 
-    return update(filepath_base, partial)
+    return update(filepath_base, this.sanitizeForFirebase(partial))
       .then(success => { return Promise.resolve(true) })
       .catch(err => { return Promise.reject(err) })
   }
@@ -426,7 +459,7 @@ export class FirebaseService implements OnDestroy {
 
     //get a list of the current drafts
     const draft_ref = ref(this.db, 'filedata/' + fileid + '/ada/draft_nodes/');
-    return set(draft_ref, drafts)
+    return set(draft_ref, this.sanitizeForFirebase(drafts))
       .then(success => { return Promise.resolve(true) })
       .catch(err => { return Promise.reject(err) })
 
@@ -474,12 +507,12 @@ export class FirebaseService implements OnDestroy {
     if (meta.from_share == undefined || meta.from_share == null) meta.from_share = '';
     if (meta.time == undefined || meta.time == null) meta.time = Date.now();
 
-    return set(user_path, {
+    return set(user_path, this.sanitizeForFirebase({
       name: meta.name,
       desc: meta.desc,
       timestamp: meta.time,
       from_share: meta.from_share
-    })
+    }))
       .then(success => { return Promise.resolve(true) })
       .catch(err => { return Promise.reject(err) })
   }
@@ -523,11 +556,22 @@ export class FirebaseService implements OnDestroy {
   }
 
 
+  //a variant to check if a file exists before calling getShare and throwing an error if/when it doesn't exist
+  hasSharedFile(fileid: number): Promise<boolean> {
+    console.log("CHECKING IF SHARED FILE EXISTS", fileid);
+    return get(ref(this.db, `shared/${fileid}`))
+      .then((shareobj) => {
+        console.log("SHARED FILE EXISTS", shareobj.exists());
+        return Promise.resolve(shareobj.exists());
+      }).catch(e => { return Promise.resolve(false) })
+  }
+
   /**
   * gets the share Object at a given id
   * @returns the file data
   */
   getShare(fileid: number): Promise<ShareObj> {
+    console.log("GETTING SHARED FILE", fileid);
     return get(ref(this.db, `shared/${fileid}`))
       .then((shareobj) => {
 
@@ -617,10 +661,12 @@ export class FirebaseService implements OnDestroy {
    */
   createSharedFile(file_id: string, share_data: ShareObj): Promise<string> {
 
+    console.log("CREATING SHARED FILE", file_id, share_data);
     const shared_ref = ref(this.db, 'shared/' + file_id);
 
-    return set(shared_ref, share_data)
+    return set(shared_ref, this.sanitizeForFirebase(share_data))
       .then(success => {
+        console.log("SHARED FILE CREATED", success);
         return Promise.resolve(file_id)
 
       })
@@ -641,7 +687,7 @@ export class FirebaseService implements OnDestroy {
 
     const shared_file_ref = ref(this.db, 'shared/' + fileid);
 
-    return update(shared_file_ref, share)
+    return update(shared_file_ref, this.sanitizeForFirebase(share))
       .then(success => {
         return Promise.resolve(true);
       })
