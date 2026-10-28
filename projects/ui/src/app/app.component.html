@@ -45,6 +45,8 @@
           <app-download origin="menu" [ids]="(vs.showing === -1 ? [] : [vs.showing])"
             [workspaceName]="filename_form.value"></app-download>
           <button mat-menu-item [disabled]="!connection_state || !user_auth_state" (click)="saveFile()">Save</button>
+          <button mat-menu-item [disabled]="!connection_state || !user_auth_state" (click)="openSaveAsDialog()">Save
+            As</button>
           <button mat-menu-item (click)="openAboutDialog()">About</button>
 
         </mat-menu>

@@ -175,7 +175,6 @@ export class FirebaseService implements OnDestroy {
       })),
 
       onChildChanged(sharedFiles, this.runInZone((childsnapshot) => {
-        console.log("SHARED FILE CHANGED", childsnapshot);
 
         if (childsnapshot === undefined || childsnapshot === null) return;
         let obj: ShareObj = {
@@ -400,10 +399,33 @@ export class FirebaseService implements OnDestroy {
 
 
 
+  /**
+   * Firebase Realtime Database rejects undefined anywhere in update/set payloads.
+   * Recursively omit undefined object keys and replace undefined array slots with null.
+   */
+  private sanitizeForFirebase(value: any): any {
+    if (value === undefined) {
+      return null;
+    }
+    if (value === null || typeof value !== 'object') {
+      return value;
+    }
+    if (Array.isArray(value)) {
+      return value.map(el => this.sanitizeForFirebase(el));
+    }
+    const out: Record<string, any> = {};
+    for (const key of Object.keys(value)) {
+      const v = value[key];
+      if (v === undefined) continue;
+      out[key] = this.sanitizeForFirebase(v);
+    }
+    return out;
+  }
+
   private writeLowDataItems(fileid: number, partial: any): Promise<boolean> {
     const filepath_base = ref(this.db, 'filedata/' + fileid + '/ada/');
 
-    return update(filepath_base, partial)
+    return update(filepath_base, this.sanitizeForFirebase(partial))
       .then(success => { return Promise.resolve(true) })
       .catch(err => { return Promise.reject(err) })
   }
@@ -437,7 +459,7 @@ export class FirebaseService implements OnDestroy {
 
     //get a list of the current drafts
     const draft_ref = ref(this.db, 'filedata/' + fileid + '/ada/draft_nodes/');
-    return set(draft_ref, drafts)
+    return set(draft_ref, this.sanitizeForFirebase(drafts))
       .then(success => { return Promise.resolve(true) })
       .catch(err => { return Promise.reject(err) })
 

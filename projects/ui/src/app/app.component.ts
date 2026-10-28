@@ -16,7 +16,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { AnalyzedImage, Color, Img, Loom, LoomSettings, generateId, interpolate, isDraftDirty, sameOrNewerVersion } from 'adacad-drafting-lib';
 import { Draft, compressDraft, copyDraft, createCell, getDraftName, initDraftWithParams, warps, wefts } from 'adacad-drafting-lib/draft';
 import { convertLoom, copyLoom, copyLoomSettings, initLoom } from 'adacad-drafting-lib/loom';
-import { Subscription, catchError } from 'rxjs';
+import { Subscription, catchError, firstValueFrom } from 'rxjs';
 import { EventsDirective } from './core/events.directive';
 import { Bounds, DraftEditingSource, DraftNode, DraftNodeBroadcastFlags, DraftNodeProxy, DraftStateAction, FileMeta, FileMetaStateAction, FileMetaStateChange, LoadResponse, MaterialsStateAction, MediaInstance, MixerStateDeleteEvent, MixerStatePasteEvent, NodeComponentProxy, RenameAction, SaveObj, ShareObj, TreeNode, TreeNodeProxy } from './core/model/datatypes';
 import { defaults, editor_modes } from './core/model/defaults';
@@ -42,6 +42,7 @@ import { FilebrowserComponent } from './core/ui/filebrowser/filebrowser.componen
 import { LoadfileComponent } from './core/ui/loadfile/loadfile.component';
 import { LoadingComponent } from './core/ui/loading/loading.component';
 import { LoginComponent } from './core/ui/login/login.component';
+import { SaveAsComponent } from './core/ui/saveas/saveas.component';
 import { ShareComponent } from './core/ui/share/share.component';
 import { WorkspaceComponent } from './core/ui/workspace/workspace.component';
 import { ViewadjustComponent } from './core/viewadjust/viewadjust.component';
@@ -998,6 +999,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * @param shareid 
    */
   loadFromShare(shareid: number): Promise<any> {
+    console.log("LOADING FROM SHARE", shareid);
     let meta: FileMeta = {
       id: -1,
       name: '',
@@ -1345,6 +1347,7 @@ export class AppComponent implements OnInit, OnDestroy {
       width: '600px',
     });
   }
+
 
   openAboutDialog() {
     window.open('https://docs.adacad.org', '_blank');
@@ -2033,6 +2036,50 @@ export class AppComponent implements OnInit, OnDestroy {
           extra: { fileId: this.ws.getCurrentFile()?.id },
         });
       });
+  }
+
+  /**
+   * Duplicates the current workspace under a new file id, prompts for a name
+   * (default: originalName-copy), then loads the new file into the workspace.
+   */
+  async openSaveAsDialog() {
+    try {
+      const so = await this.fs.saver.ada();
+      const current = this.ws.getCurrentFile();
+      const default_name = `${current.name}-copy`;
+      const meta: FileMeta = {
+        id: current.id,
+        name: default_name,
+        desc: current.desc,
+        time: Date.now(),
+        from_share: current.from_share ?? '',
+        share_owner: current.share_owner ?? '',
+      };
+
+      await this.fb.duplicate(so.file, meta);
+
+      const dialogRef = this.dialog.open(SaveAsComponent, {
+        width: '400px',
+        data: { name: meta.name }
+      });
+
+      const chosen_name = await firstValueFrom(dialogRef.afterClosed());
+      meta.name = (chosen_name && chosen_name.trim().length > 0) ? chosen_name.trim() : default_name;
+
+      if (meta.name !== default_name) {
+        await this.fb.renameUserFile(meta);
+      }
+
+      await this.prepAndLoadFile(so.file, meta, 'db');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('not logged in') || message.includes('no current user')) {
+        this.openSnackBar('You must be logged in to save files');
+        return;
+      }
+      console.error(err);
+      this.openSnackBar('ERROR: there was a problem creating a copy of this file: ' + message);
+    }
   }
 
 
