@@ -90,7 +90,7 @@ export const getLiftPlan = (e: string, wefts: number): Array<Array<number>> => {
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
         var weft = +(line.match(/[0-9]*/) ?? 0);
-        var all_treadles = (line.match(/=[0-9]*/)?.[0]?.substring(1) ?? '');
+        var all_treadles = (line.match(/=([0-9, ]*)/)?.[1] ?? '');
         var treadle_list = all_treadles.split(',');
         for (let i = 0; i < treadle_list.length; i++) {
             if (+(treadle_list[i]) > 0) {
@@ -123,7 +123,7 @@ export const getTreadling = (e: string, wefts: number): Array<Array<number>> => 
 
     while (line.match(/[0-9]*=[0-9]*/) != null) {
         var weft = +(line.match(/[0-9]*/) ?? 0);
-        var all_treadles = (line.match(/=[0-9]*/)?.[0]?.substring(1) ?? '');
+        var all_treadles = (line.match(/=([0-9, ]*)/)?.[1] ?? '');
         var treadle_list = all_treadles.split(',');
         for (let i = 0; i < treadle_list.length; i++) {
             if (+(treadle_list[i]) > 0) {
@@ -183,7 +183,7 @@ export const getTieups = (e: string, frames: number, treadles: number): Array<Ar
         var treadle = +(line.match(/[0-9]*/) ?? 0);
         var firstFrame = +(line.match(/=[0-9]*/)?.[0]?.substring(1) ?? 0);
         tieups[firstFrame - 1][treadle - 1] = true;
-        var restOfFrames = line.match(/,[0-9]/g);
+        var restOfFrames = line.match(/,[0-9]+/g);
         if (restOfFrames != null) {
             for (var i = 0; i < restOfFrames.length; i++) {
                 var currentFrame = +(restOfFrames[i].substring(1));
