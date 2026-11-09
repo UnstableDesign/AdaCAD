@@ -1,9 +1,8 @@
 //TODO: check and resolve unecessary dependencies at the end - for now, just import the ones listed in the sample operation documentation
-import { initDraftFromDrawdown, initDraftWithParams, wefts, warps, createCell, updateWeftSystemsAndShuttles, updateWarpSystemsAndShuttles, Drawdown, getCellValue } from "../../draft";
-import { getOpParamValById, getInputDraft, getAllDraftsAtInlet, parseDraftNames, flattenParamVals} from "../../operations";
+import { initDraftFromDrawdown, wefts, warps, createCell, Drawdown, getCellValue } from "../../draft";
+import { getOpParamValById, getInputDraft, flattenParamVals} from "../../operations";
 import { transformationOp } from "../categories";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, NumParam, SelectParam, StringParam } from "../types";
-import { Sequence } from "../../sequence";
 
 
 const name = "cellular_automata";
