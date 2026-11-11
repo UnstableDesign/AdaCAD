@@ -16,8 +16,9 @@ enum wrap_mode {
 const meta: OpMeta = {
   displayname: 'cellular automata', 
   advanced: true, 
+  img: 'cellular_automata.png',
   categories: [transformationOp], 
-  desc: "Alters a draft by applying a cellular automata rule each time-step.", 
+  desc: "The cellular automata operation takes in a draft as a starting state then iteratively applies an automata rule to the drawdown according to the timestep value.", 
   authors: ['Gabrielle Partch', 'Deanna Gelosi'] 
 }
 
@@ -26,38 +27,13 @@ const timestep:NumParam = {
     name: 'timestep',
     type: 'number',
     min: 0,
-    max: 20, // TODO: test to find a realistic max value later - for now use 20 as a placeholder
+    max: 10000,
     value: 1,
-    dx: "the number of times the cellular automata rule is applied. Each iteration is applied to the previous automata state."
+    dx: "the number of iterations that the rule defined by the rulestring is applied."
 }
 
-// TODO: ask about the hardcoded increment step of 1 in parameter.component.html - projects\ui\src\app\mixer\palette\operation\parameter\parameter.component.html
-// const increment:NumParam = {
-//     name: 'timestep increment',
-//     type: 'number',
-//     min: 1,
-//     max: 100, // TODO: test to find a realistic max value later - for now use 100 as a placeholder
-//     value: 1,
-//     dx: "the increment that the timestep will increase or decrease by. Alternively, you can enter an exact timestep value."
-// }
-
-//TODO: figure out how to do the conditional part for the custom dropdown setting. For now, just use the custom text box and enter a wolfram code directly
-// const ruleset:SelectParam = {
-//     name: 'ruleset',
-//     type: 'select',
-//     selectlist: [
-//         { name: "Conway's Game of Life", value: 0 }, //B3/S23
-//         { name: '34 Life', value: 1 }, //B34/S34
-//         { name: 'Amoeba', value: 2 }, //B357/S1358
-//         { name: 'Life Without Death', value: 3 }, //B12345678/S3
-//         { name: 'custom', value: 4 }
-//     ],
-//     value: 0,
-//     dx: "the rule that determines how the next generation is calculated at each timestep."
-// }
-
 const wrapping:SelectParam = {
-    name: 'ruleset',
+    name: 'edge wrapping mode',
     type: 'select',
     selectlist: [
         { name: 'wrapped', value: 0 },
@@ -65,24 +41,24 @@ const wrapping:SelectParam = {
         { name: 'fixed dead', value: 2 }
     ],
     value: 0,
-    dx: "determines what value is used for cells that are outside the draft, the edge-cases, when calculating an iteration."
+    dx: "determines what value is used for cells that are outside the draft, the edge-cases, when calculating the next iteration. Wrapped will use the cell value on the opposite side of the grid, fixed live will always use a live value (1), and fixed dead will always use a dead value (0)."
 }
 
-const custom_ruleset:StringParam =
+const rulestring:StringParam =
 {
-  name: 'custom',
+  name: 'rulestring',
   type: 'string',
   regex: /^B[0-8]*\/S[0-8]*$/i,
   value: 'B3/S23',
-  error: 'rules must be in wolfram code format',
-  dx: 'define a custom ruleset' //TODO: come up with better description later
+  error: 'rules must be in birth/survival notation with listed values of no more than nine.',
+  dx: 'the rule that is applied to the grid on each timestep to calculate the next generation. The rule should be in birth/survival notation using the Moore neighborhood, eg listed values of no more than 9.',
 };
 
-const params: Array<OperationParam> = [timestep, wrapping, custom_ruleset];
+const params: Array<OperationParam> = [timestep, wrapping, rulestring];
 
 // DEFINE INLETS
 const draft_inlet: OperationInlet = {
-  name: 'input draft',  //a name to display on this inlet
+  name: 'draft',  //a name to display on this inlet
   type: 'static',       //pre-defined inlets will always be 'static'.
   value: null,          //if you need to access a value or identifier with this inlet, specify that here, will mostly be null
   uses: "draft",       //describes what element of the draft this operation will use. Some operations only use materials information
