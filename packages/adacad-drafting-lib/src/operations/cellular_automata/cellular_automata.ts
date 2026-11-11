@@ -1,9 +1,7 @@
-//TODO: check and resolve unecessary dependencies at the end - for now, just import the ones listed in the sample operation documentation
 import { initDraftFromDrawdown, wefts, warps, createCell, Drawdown, getCellValue } from "../../draft";
 import { getOpParamValById, getInputDraft, flattenParamVals} from "../../operations";
 import { transformationOp } from "../categories";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, NumParam, SelectParam, StringParam } from "../types";
-
 
 const name = "cellular_automata";
 
@@ -68,8 +66,11 @@ const draft_inlet: OperationInlet = {
 
 const inlets = [draft_inlet]; //push all the parameters to an array called params.
 
-
-// Parses the ruleset and returns the corresponding lookup tables to check against when calculating the next generation
+/**
+ * Parses the rulestring and returns the corresponding lookup tables to check against when calculating the next generation
+ * @param rulestring 
+ * @returns two lookup tables (arrays of 0 and 1 values) determining the neighborhood sum required for a cell to be born or survive
+ */
 const parseRule = (rulestring: string): { born: Uint8Array; survive: Uint8Array } => {
     // Capture the string of born numbers and the string of survive numbers, returning null if there are no born/survive numbers to be found
     const match = /^B([0-8]*)\/S([0-8]*)$/i.exec(rulestring);
@@ -99,7 +100,6 @@ const parseRule = (rulestring: string): { born: Uint8Array; survive: Uint8Array 
  * @returns the value of a cell after wrapping rules have been applied
  */
 const wrapGetCellValue = (current_state: Drawdown, i_idx: number, j_idx: number, mode: wrap_mode): 0 | 1 => {
-    // TODO: consider whether or not to retrieve these once inside nextGeneration and pass them down instead of retrieving once for every cell
     const height = wefts(current_state);
     const width = warps(current_state);
     const isOutside = i_idx < 0 || i_idx >= height || j_idx < 0 || j_idx >= width;
@@ -205,7 +205,7 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
     const rule: string = <string>getOpParamValById(2, param_vals);
 
     const draft = getInputDraft(op_inputs);
-    // Lookup tables for born/survive values based on the ruleset
+    // Lookup tables for born/survive values based on the rulestring
     const {born, survive} = parseRule(rule);
     
     let next_state: Drawdown = draft != null ? draft.drawdown : [];
