@@ -1,5 +1,5 @@
 import { initDraftFromDrawdown, wefts, warps, createCell, Drawdown, getCellValue } from "../../draft";
-import { getOpParamValById, getInputDraft, flattenParamVals} from "../../operations";
+import { getOpParamValById, getInputDraft, flattenParamVals, getAllDraftsAtInlet, parseDraftNames} from "../../operations";
 import { transformationOp } from "../categories";
 import { OperationParam, OperationInlet, OpParamVal, OpInput, Operation, OpMeta, NumParam, SelectParam, StringParam } from "../types";
 
@@ -217,7 +217,8 @@ const perform = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) => {
 }
 
 const generateName = (param_vals: Array<OpParamVal>, op_inputs: Array<OpInput>) : string => {
-    return 'cellular_automata(' + flattenParamVals(param_vals) + ")";
+    const drafts = getAllDraftsAtInlet(op_inputs, 0);
+    return 'cellular_automata(' + flattenParamVals(param_vals) + ',' + parseDraftNames(drafts) + ")";
 }
 
 const sizeCheck = (param_vals: Array<OpParamVal>): boolean => {
