@@ -35,12 +35,19 @@ Full Citation: Mikhaila Friske, Shanel Wu, and Laura Devendorf. 2019. AdaCAD: Cr
 ### Imagining Open-Source Ecosystems for Experimental Weaving: A Imagining Open-Source Ecosystems for Experimental Weaving: A View from the AdaCAD Project View from the AdaCAD Project 
 This paper describes and reflects on a series of activities, performed from 2024-2026, focusing on how we came to see experimental weaving as a term that can capture approaches and applications for weaving beyond common characterizations that center disciplinary affiliation or professional identity. 
 
-Full Citation: Devendorf, L., Gelosi, D.,and Sandry, E.(2026) Imagining Open-Source Ecosystems for Experimental Weaving: A View from the AdaCAD Project, in Jane Scott, Sophie Skach, and Rebecca Stewart (eds.), Textile Intersections 2026, 17-18 September 2026, London, United Kingdom. https://doi.org/10.21606/ TI-2026.127 
+Full Citation: Devendorf, L., Gelosi, D.,and Sandry, E.(2026) Imagining Open-Source Ecosystems for Experimental Weaving: A View from the AdaCAD Project, in Jane Scott, Sophie Skach, and Rebecca Stewart (eds.), Textile Intersections 2026, 17-18 September 2026, London, United Kingdom. https://doi.org/10.21606/TI-2026.127
+
+- [paper](https://doi.org/10.21606/TI-2026.127)
+- [project](https://unstable.design/projects/imagingingos/) 
 
 ### Designing with Drafts and Cross-Sections: Reflections on How Representations of Woven Structure Shape Design Practice
 This paper describes early design and development of a cross-section based design operation within AdaCAD. 
 
-Full Citation: Gelosi, D.,and Devendorf, L.(2026) Designing with Drafts and Cross-Sections: Reflections on How Representations of Woven Structure Shape Design Practice, in Jane Scott, Sophie Skach, and Rebecca Stewart (eds.), Textile Intersections 2026, 17-18 September 2026, London, United Kingdom. https://doi.org/10.21606/TI-2026.166 
+Full Citation: Gelosi, D.,and Devendorf, L.(2026) Designing with Drafts and Cross-Sections: Reflections on How Representations of Woven Structure Shape Design Practice, in Jane Scott, Sophie Skach, and Rebecca Stewart (eds.), Textile Intersections 2026, 17-18 September 2026, London, United Kingdom. https://doi.org/10.21606/TI-2026.166
+
+- [paper](https://doi.org/10.21606/TI-2026.166)
+- [project](https://unstable.design/projects/crosssections/) 
+
 
 
 ### Loom Pedals: Retooling Jacquard Weaving for Improvisational Design Workflows, TEI 2024

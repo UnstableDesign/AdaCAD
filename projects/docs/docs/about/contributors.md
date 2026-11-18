@@ -38,7 +38,7 @@ Additional Support for the Project has come from:
 - [Deanna Gelosi](https://www.deannagelosi.com/), operation development and community building. Creator of the <OpLink name="gitchsatin" /> and <OpLink name="cross_section_view" /> operations.
 - [Laura Devendorf](http://artfordorks.com/), project lead and lead developer. Creator of all operations who not attributed to anyone else. 
 - [Charlotte Bertanzetti](https://unstable.design/authors/charlotte-bertanzetti/), undergraduate research assistant and creator of the <OpLink name ="interlacing_blend" /> operation.
-- [Gabrielle Partch](https://unstable.design/authors/gabrielle-partch/), undergraduate research assistant and creator of the TBD operation.
+- [Gabrielle Partch](https://unstable.design/authors/gabrielle-partch/), undergraduate research assistant and creator of the <OpLink name="cellular_automata" /> operation.
 
 
 ## Team Alumni
@@ -67,7 +67,7 @@ As we began formalizing our project governance structure, we sought the advice o
 - [Sienna Bosch](https://siennabosch.com/) - Schacht Spindle Company
 - [Vibeke Vestby](https://digitalweaving.no/) - Digital Weaving Norway
 
-### 2027 Advisory Board Members
+<!-- ### 2027 Advisory Board Members
 - [Alex McLean](https://slab.org) - Then Try This/Sheffield Pattern Club
 - [Annet Couwenberg](https://annetcouwenberg.com) - Professor Emerita, Maryland Institute College of Art
 - [Hope Wang](https://hopewang.com) - Founder + Co-director of [LMRM](https://lmrmchicago.com)
@@ -78,7 +78,7 @@ As we began formalizing our project governance structure, we sought the advice o
 - [Marianne Fairbanks](https://mariannefairbanks.com) - Professor, Design Studies, UW Madison, [Hello Loom](https://helloloom.com)
 - [Mellanee Goodman](https://linkedin.com/in/mellanee-goodman-937409125) - Program Director, Curator and Material Specialist, Center for Craft
 - [Vibeke Vestby](https://digitalweaving.no) - Manager TC2 looms
-
+ -->
 
 ## Logo Design
 
