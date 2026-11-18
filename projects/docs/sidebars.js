@@ -21,25 +21,30 @@ const sidebars = {
     },
     {
       type: 'doc',
+      id: 'about/contributors',
+      label: 'Contributors'
+    },
+    {
+      type: 'doc',
       id: 'about/research', // document ID
       label: 'Research', // sidebar label
+    },
+    {
+      type: 'html',
+      value: 'Get Involved',
+      defaultStyle: true,
+      className: 'sidebarHeading'
+    },
+    {
+      type: 'doc',
+      label: 'Contribute',
+      id: 'about/contribute',
+    },
+    {
+      type: 'doc',
+      id: 'about/donate',
+      label: 'Donate'
     }
-  ],
-  contributeSidebar: [{
-    type: 'doc',
-    label: 'Contribute',
-    id: 'contribute/contribute',
-  },
-  {
-    type: 'doc',
-    id: 'contribute/contributors',
-    label: 'Contributors'
-  },
-  {
-    type: 'doc',
-    id: 'contribute/donate',
-    label: 'Donate'
-  }
   ],
   learnSidebar: [
     {

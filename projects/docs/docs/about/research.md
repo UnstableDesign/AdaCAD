@@ -32,6 +32,17 @@ Full Citation: Mikhaila Friske, Shanel Wu, and Laura Devendorf. 2019. AdaCAD: Cr
 
 ## Related Work
 
+### Imagining Open-Source Ecosystems for Experimental Weaving: A Imagining Open-Source Ecosystems for Experimental Weaving: A View from the AdaCAD Project View from the AdaCAD Project 
+This paper describes and reflects on a series of activities, performed from 2024-2026, focusing on how we came to see experimental weaving as a term that can capture approaches and applications for weaving beyond common characterizations that center disciplinary affiliation or professional identity. 
+
+Full Citation: Devendorf, L., Gelosi, D.,and Sandry, E.(2026) Imagining Open-Source Ecosystems for Experimental Weaving: A View from the AdaCAD Project, in Jane Scott, Sophie Skach, and Rebecca Stewart (eds.), Textile Intersections 2026, 17-18 September 2026, London, United Kingdom. https://doi.org/10.21606/ TI-2026.127 
+
+### Designing with Drafts and Cross-Sections: Reflections on How Representations of Woven Structure Shape Design Practice
+This paper describes early design and development of a cross-section based design operation within AdaCAD. 
+
+Full Citation: Gelosi, D.,and Devendorf, L.(2026) Designing with Drafts and Cross-Sections: Reflections on How Representations of Woven Structure Shape Design Practice, in Jane Scott, Sophie Skach, and Rebecca Stewart (eds.), Textile Intersections 2026, 17-18 September 2026, London, United Kingdom. https://doi.org/10.21606/TI-2026.166 
+
+
 ### Loom Pedals: Retooling Jacquard Weaving for Improvisational Design Workflows, TEI 2024
 This paper describes hardware and software extensions to AdaCAD and the TC2 looms that enable improvisational workflows. Specifically, it describes the design of pedals that connect to the loom so that someone can manipulate drafts as they weave, without having to redesign and reupload a new design file. 
 
