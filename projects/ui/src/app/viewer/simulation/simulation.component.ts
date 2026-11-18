@@ -35,13 +35,14 @@ export class SimulationComponent implements OnInit, OnDestroy {
   @Input('new_draft_flag$') new_draft_flag$!: Observable<boolean>;
   @Output() onExpanded = new EventEmitter();
 
-  renderer!: THREE.WebGLRenderer;
+  renderer: THREE.WebGLRenderer | null = null;
   scene!: THREE.Scene;
   camera!: THREE.PerspectiveCamera;
-  controls!: OrbitControls;
+  controls: OrbitControls | null = null;
   gui!: GUI;
   sim_expanded: boolean = false;
   hasFocus: boolean = false;
+  webgl_unavailable: boolean = false;
 
   simVars: SimulationVars;
   simData: SimulationData | null = null;
@@ -141,10 +142,14 @@ export class SimulationComponent implements OnInit, OnDestroy {
       if (!this.hasFocus) return;
 
       this.simVars.ms = this.ms.getShuttles();
-      if (this.simData) this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
-        this.simData = simdata;
-        this.redrawCurrentSim();
-      })
+      if (this.simData) {
+        this.sim.computeSimulationData(this.simData.draft, this.simVars)
+          .then(simdata => {
+            this.simData = simdata;
+            this.redrawCurrentSim();
+          })
+          .catch(err => this.handleSimError(err));
+      }
     });
 
 
@@ -155,6 +160,10 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
 
   ngAfterViewInit() {
+    if (this.renderer) {
+      this.updateRendererSize();
+      return;
+    }
 
     const rendering_div = document.getElementById('simulation_rendering');
     if (!rendering_div) {
@@ -162,73 +171,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const rect = rendering_div.getBoundingClientRect();
-    const width = rect.width || 400;
-    const height = rect.height || 400;
-
-
-    // this.gui = new GUI({ autoPlace: false });
-    // controls_div.appendChild(this.gui.domElement)
-
-
-    // const simulate = this.gui.add(this.simVars, 'simulate').name('Relax');
-    // simulate.onChange((value) => {
-    //   this.handleSimulateChange(value);
-    // });
-
-    // const weft_change = this.gui.add(this.simVars, 'wefts_as_written').name('Actual Paths');
-    // weft_change.onChange((value) => {
-    //   this.handleWeftAsWrittenChange(value);
-    // });
-
-    // const layers = this.gui.add(this.simVars, 'use_layers').name('Locate Layers');
-    // layers.onChange((value) => {
-    //   this.handleLayersChange(value);
-    // });
-
-    // const smoothing = this.gui.add(this.simVars, 'use_smoothing').name('Smoothing');
-    // smoothing.onChange((value) => {
-    //   this.handleSmoothingChange(value);
-    // });
-
-    // const lift_limit = this.gui.add(this.simVars, 'lift_limit', 0, 50, 1).name('Lift Limit');
-    // lift_limit.onChange((value) => {
-    //   this.handleLiftLimitChange(value);
-    // });
-
-
-    // const pack = this.gui.add(this.simVars, 'pack', 0.001, 1, .001).name('Pack');
-    // pack.onChange((value) => {
-    //   this.handlePackChange(value);
-    // });
-
-    // const time = this.gui.add(this.simVars, 'time', .0001, 1, .001).name('Time');
-    // time.onChange((value) => {
-    //   this.handleTimeChange(value);
-    // });
-
-    // const mass = this.gui.add(this.simVars, 'mass', 100, 1000, 10).name('Mass');
-    // mass.onChange((value) => {
-    //   this.handleMassChange(value);
-    // });
-
-    // const max_theta = this.gui.add(this.simVars, 'max_theta', 0, Math.PI / 2).name('Max Theta');
-    // max_theta.onChange((value) => {
-    //   this.handleMaxThetaChange(value);
-    // });
-
-
-    // const warp_spacing_change = this.gui.add(this.simVars, 'warp_spacing', .25, 25, .25).name("Warp-Density");
-    // warp_spacing_change.onChange((value) => {
-    //   this.handleWarpSpacingChange(value);
-    // });
-
-    // const layer_spacing_change = this.gui.add(this.simVars, 'layer_spacing', 0, 50, 1).name("Layer-Size");
-    // layer_spacing_change.onChange((value) => {
-    //   this.handleLayerSpacingChange(value);
-    //  });
-
-    /////
+    const { width, height } = this.getSimViewportSize();
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xf0f0f0);
@@ -237,22 +180,61 @@ export class SimulationComponent implements OnInit, OnDestroy {
     this.camera.position.set(0, 0, 5);
     this.camera.lookAt(this.scene.position);
 
+    try {
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        powerPreference: 'high-performance'
+      });
+      if (!this.renderer.getContext()) {
+        throw new Error('Error creating WebGL context.');
+      }
+    } catch (e) {
+      console.error('Error creating WebGL context.', e);
+      this.webgl_unavailable = true;
+      this.renderer?.dispose();
+      this.renderer = null;
+      return;
+    }
 
-    this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(width, height);
     rendering_div.appendChild(this.renderer.domElement);
-
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.tanFOV = Math.tan(((Math.PI / 180) * this.camera.fov / 2));
     this.originalHeight = height;
 
+    // Do not start the animation loop until sim view has focus
+  }
+
+  /** Measure the available sim viewport from the visible viewer pane (stable even while sim host is hidden). */
+  private getSimViewportSize(): { width: number, height: number } {
+    const container =
+      document.getElementById('static_draft_view')
+      ?? document.getElementById('simulation_container')
+      ?? document.getElementById('simulation_rendering');
+
+    if (!container) {
+      return { width: 400, height: 400 };
+    }
+
+    const rect = container.getBoundingClientRect();
+    return {
+      width: Math.max(1, Math.floor(rect.width)),
+      height: Math.max(1, Math.floor(rect.height))
+    };
+  }
+
+  startRenderLoop() {
+    if (!this.renderer || !this.controls || this.webgl_unavailable) return;
     this.renderer.setAnimationLoop(() => {
+      if (!this.renderer || !this.controls) return;
       this.controls.update();
       this.renderer.render(this.scene, this.camera);
     });
+  }
 
-
+  stopRenderLoop() {
+    this.renderer?.setAnimationLoop(null);
   }
 
   initSimControls() {
@@ -307,18 +289,15 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
     this.simVars.ms = this.ms.getShuttles();
 
-    if (this.simData) this.sim.computeSimulationData(this.simData.draft, this.simVars).then(simdata => {
-      this.simData = simdata;
-      this.redrawCurrentSim();
-    })
+    if (this.simData) {
+      this.sim.computeSimulationData(this.simData.draft, this.simVars)
+        .then(simdata => {
+          this.simData = simdata;
+          this.redrawCurrentSim();
+        })
+        .catch(err => this.handleSimError(err));
+    }
   }
-
-
-
-
-
-
-
 
   setDirty() {
     this.dirty = true;
@@ -328,18 +307,67 @@ export class SimulationComponent implements OnInit, OnDestroy {
     this.dirty = false;
   }
 
-
-  endSimulation() {
-
-
-    // document.body.removeChild(this.renderer.domElement);
-    if (this.scene) this.scene.clear();
-    if (this.scene && this.scene.children) this.scene.children.forEach((childMesh: any) => {
-      if (childMesh.geometry !== undefined) childMesh.geometry.dispose();
-      if (childMesh.texture !== undefined) childMesh.texture.dispose();
-      if (childMesh.material !== undefined) childMesh.material.dispose();
+  private disposeObject3D(obj: THREE.Object3D) {
+    obj.traverse((child: any) => {
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((mat: THREE.Material) => mat.dispose());
+        } else {
+          child.material.dispose();
+        }
+      }
+      if (child.texture) child.texture.dispose();
     });
+  }
 
+  /**
+   * Dispose GPU resources for scene children, then clear the scene.
+   * Keeps the WebGL renderer so a later dataset can render again.
+   */
+  endSimulation() {
+    if (!this.scene) return;
+    const children = [...this.scene.children];
+    children.forEach(child => this.disposeObject3D(child));
+    this.scene.clear();
+  }
+
+  /** Restore UI after a successful sim so a prior error does not leave the view hidden. */
+  private showSimReady() {
+    this.render_size_error = false;
+    const div_sizeerror = document.getElementById('sizeerror');
+    if (div_sizeerror) {
+      div_sizeerror.style.display = 'none';
+    }
+    const div_simulation_container = document.getElementById('simulation_container');
+    if (div_simulation_container) {
+      div_simulation_container.style.display = 'flex';
+    }
+  }
+
+  /**
+   * Clear failed/partial sim state so the next dataset can regenerate cleanly.
+   */
+  resetSimForRetry() {
+    this.simData = null;
+    this.endSimulation();
+    if (this.renderer && this.scene && this.camera) {
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  private handleSimError(err: unknown) {
+    console.error('Simulation error', err);
+    this.resetSimForRetry();
+    this.render_size_error = true;
+    const div_sizeerror = document.getElementById('sizeerror');
+    if (div_sizeerror) {
+      div_sizeerror.style.display = 'block';
+    }
+    const div_simulation_container = document.getElementById('simulation_container');
+    if (div_simulation_container) {
+      div_simulation_container.style.display = 'none';
+    }
   }
 
 
@@ -381,10 +409,15 @@ export class SimulationComponent implements OnInit, OnDestroy {
     this.id = id;
     this.hasFocus = true;
     this.subscribeToDraftUpdates(id);
+    this.updateRendererSize();
+    this.startRenderLoop();
+    if (this.renderer && this.scene && this.camera) {
+      this.renderer.render(this.scene, this.camera);
+    }
   }
 
   onFocusOut() {
-    console.log("SIM ON FOCUS OUT");
+    this.stopRenderLoop();
     this.hasFocus = false;
     this.id = -1;
   }
@@ -419,6 +452,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
 
   snapToX() {
+    if (!this.controls) return;
     this.sim.snapToX(this.controls);
   }
 
@@ -427,8 +461,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
   //redraws whatever is stored at this.simData. 
   redrawCurrentSim() {
-
-
+    if (this.webgl_unavailable || !this.renderer) return;
     if (this.simData == null) return;
     if (this.simData.draft == null) return;
     if (this.simData.topo == null) return;
@@ -437,13 +470,14 @@ export class SimulationComponent implements OnInit, OnDestroy {
     this.resetSelectionBounds(this.simData.draft);
 
     this.simVars.ms = this.ms.getShuttles(); //add this to capture color changes
-    this.sim.redraw(this.selection_bounds, this.simData, this.simVars, this.scene).then(
-      scene => {
+    this.sim.redraw(this.selection_bounds, this.simData, this.simVars, this.scene)
+      .then(scene => {
         this.scene = scene;
-        this.renderer.render(this.scene, this.camera);
+        this.showSimReady();
+        this.renderer?.render(this.scene, this.camera);
         this.resetCamera();
-      }
-    );
+      })
+      .catch(err => this.handleSimError(err));
   }
 
 
@@ -456,7 +490,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
    * @param selection the bounds of the selection or null if no selection has been made. 
    */
   recalcAndRenderSimData(draft: Draft) {
-
+    if (this.webgl_unavailable || !this.renderer) return;
 
     this.simVars.ms = this.ms.getShuttles();
 
@@ -465,34 +499,16 @@ export class SimulationComponent implements OnInit, OnDestroy {
 
     this.sim.recalcSimData(draft, this.simVars)
       .then(simdata => {
-
         this.simData = simdata;
-
-        // document.getElementById('sizeerror').style.display = "none"
-        // document.getElementById('simulation_container').style.display = "flex";
-        // this.render_size_error = false;
-        this.sim.redraw(this.selection_bounds, this.simData, this.simVars, this.scene).then(
-          scene => {
-            this.scene = scene;
-            this.renderer.render(this.scene, this.camera);
-            this.resetCamera();
-          }
-        )
-
-      }).catch(err => {
-
-        this.simData = null;
-        console.error("Gen Sim Data Returned Error", err);
-        this.render_size_error = true;
-        const div_sizeerror = document.getElementById('sizeerror');
-        if (div_sizeerror) {
-          div_sizeerror.style.display = "block";
-        }
-        const div_simulation_container = document.getElementById('simulation_container');
-        if (div_simulation_container) {
-          div_simulation_container.style.display = "none";
-        }
+        return this.sim.redraw(this.selection_bounds, this.simData, this.simVars, this.scene);
       })
+      .then(scene => {
+        this.scene = scene;
+        this.showSimReady();
+        this.renderer?.render(this.scene, this.camera);
+        this.resetCamera();
+      })
+      .catch(err => this.handleSimError(err));
   }
 
 
@@ -500,7 +516,7 @@ export class SimulationComponent implements OnInit, OnDestroy {
    * Resets the camera to center and frame the simulation scene
    */
   resetCamera() {
-    if (!this.scene || !this.camera || !this.controls) return;
+    if (this.webgl_unavailable || !this.renderer || !this.scene || !this.camera || !this.controls) return;
 
     // Calculate bounding box of all objects in the scene
     const box = new THREE.Box3();
@@ -549,16 +565,10 @@ export class SimulationComponent implements OnInit, OnDestroy {
    * Updates the renderer and camera to match the current container size
    */
   updateRendererSize() {
-    if (!this.renderer || !this.camera) return;
+    if (this.webgl_unavailable || !this.renderer || !this.camera) return;
 
-    const rendering_div = document.getElementById('simulation_rendering');
-    if (!rendering_div) return;
-
-    const rect = rendering_div.getBoundingClientRect();
-    const width = window.innerWidth - this.vas.left;
-    const height = rect.height;
-
-    if (width === 0 || height === 0) return;
+    const { width, height } = this.getSimViewportSize();
+    if (width <= 1 || height <= 1) return;
 
     // Update camera aspect ratio
     this.camera.aspect = width / height;
@@ -579,6 +589,15 @@ export class SimulationComponent implements OnInit, OnDestroy {
     if (this.materialDiameterChangeSubscription) this.materialDiameterChangeSubscription.unsubscribe();
     if (this.draftChangeSubscription) this.draftChangeSubscription.unsubscribe();
 
+    this.stopRenderLoop();
+    this.controls?.dispose();
+    this.controls = null;
+    if (this.renderer) {
+      this.renderer.dispose();
+      this.renderer.forceContextLoss();
+      this.renderer.domElement.remove();
+      this.renderer = null;
+    }
   }
 
 

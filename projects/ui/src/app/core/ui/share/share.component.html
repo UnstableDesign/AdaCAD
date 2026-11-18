@@ -31,7 +31,7 @@
           license:
         </div>
         <div class="owner_right">
-          <img class='license_history' src="/assets/img/{{share_in_history.license}}.png">
+          <img class='license_history' src="/img/{{share_in_history.license}}.png">
           <a href="https://creativecommons.org/licenses/{{share_in_history.license}}/4.0/">
             read about this license
           </a>
@@ -60,22 +60,22 @@
     </div>
     <mat-divider></mat-divider>
   </div>
-  }
+  } <!-- end share_in_history -->
 
   <div class="configure">
-    <p><mat-slide-toggle [checked]="shared_id !== ''" (change)="toggleSharing()">
-        @if (shared_id !== '') {
+    <p><mat-slide-toggle [checked]="shared_id" (change)="toggleSharing()">
+        @if (shared_id) {
         <span>
           Anyone can access this file with the link below
         </span>
         }
-        @if (shared_id == '') {
+        @else{
         <span>
           This file is not shared, click to turn on sharing
         </span>
         }
       </mat-slide-toggle>
-      @if (shared_id !== '') {
+      @if (shared_id && share_obj) {
     <div class="shared_file_meta">
       <div class="share_link">
         <i class="fa-solid fa-link"></i>
@@ -87,7 +87,7 @@
       <mat-divider></mat-divider>
       <div class="license-row">
         <div class="license-left">
-          <img class='license' src="/assets/img/{{share_obj.license}}.png">
+          <img class='license' src="/img/{{share_obj.license}}.png">
         </div>
         <div class="license-right">
           <mat-form-field class="fullwidth">

@@ -22,7 +22,7 @@ const config = {
   projectName: 'AdaCAD', // Usually your repo name.
   //trailingSlash: false,
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenAnchors: 'throw',
 
   markdown: {
@@ -138,13 +138,6 @@ const config = {
             position: 'left',
             label: 'Develop',
             className: 'develop'
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'contributeSidebar',
-            position: 'left',
-            label: 'Contribute',
-            className: 'contribute'
           },
           {
             href: 'https://discord.gg/Be7ukQcvrC',

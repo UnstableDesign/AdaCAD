@@ -10,10 +10,17 @@
 
 
 
-
+  @if (webgl_unavailable) {
+  <div class="webgl_unavailable">
+    <mat-label>WebGL Unavailable</mat-label>
+    <mat-label>This browser or device could not create a WebGL context for 3D simulation. Try enabling hardware
+      acceleration, closing other WebGL tabs, or using a different browser.</mat-label>
+  </div>
+  } @else {
   <div id="simulation_rendering" class="simulation_rendering">
 
   </div>
+  }
 
   <div id="sizeerror" class="sizeerror">
     <mat-label>Size Error</mat-label>

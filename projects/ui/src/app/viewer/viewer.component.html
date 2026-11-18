@@ -137,66 +137,67 @@
       </div>
 
 
+      <div class="static-view-modes">
+        <button [class.hidden]="vs.current_view != 'sim'" matButton="filled"
+          [color]="simControlsVisible ? 'accent' : 'primary'" (click)="toggleSimControls()"><i
+            class="fa-solid fa-sliders"></i> Adjust Simulation
+        </button>
 
-      <button [class.hidden]="vs.current_view != 'sim'" matButton="filled"
-        [color]="simControlsVisible ? 'accent' : 'primary'" (click)="toggleSimControls()"><i
-          class="fa-solid fa-sliders"></i> Adjust Simulation
-      </button>
+
+
+        <div class="toggle-group-wrapper">
+          <mat-button-toggle-group hideSingleSelectionIndicator [formControl]="visMode" appearance="standard"
+            class="collapsible-toggle-group">
+            <mat-button-toggle matTooltip="view in 3D" value="sim">
+              <i class="fa-solid fa-cube"></i>
+            </mat-button-toggle>
+            <mat-button-toggle value="draft" matTooltip="view as draft">
+              <i class="fa-solid fa-chess-board"></i>
+            </mat-button-toggle>
+            <mat-button-toggle value="structure" matTooltip="view structure">
+              <i class="fa-solid fa-hashtag"></i>
+            </mat-button-toggle>
+            <mat-button-toggle value="visual" matTooltip="view color pattern">
+              <i class="fa-solid fa-paint-roller"></i>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
 
 
 
-      <div class="toggle-group-wrapper">
-        <mat-button-toggle-group hideSingleSelectionIndicator [formControl]="visMode" appearance="standard"
-          class="collapsible-toggle-group">
-          <mat-button-toggle matTooltip="view in 3D" value="sim">
-            <i class="fa-solid fa-cube"></i>
-          </mat-button-toggle>
-          <mat-button-toggle value="draft" matTooltip="view as draft">
-            <i class="fa-solid fa-chess-board"></i>
-          </mat-button-toggle>
-          <mat-button-toggle value="structure" matTooltip="view structure">
-            <i class="fa-solid fa-hashtag"></i>
-          </mat-button-toggle>
-          <mat-button-toggle value="visual" matTooltip="view color pattern">
-            <i class="fa-solid fa-paint-roller"></i>
-          </mat-button-toggle>
-        </mat-button-toggle-group>
+
+        <div class="toggle-group-wrapper" [class.hidden]="vs.current_view == 'sim'">
+          <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
+            [formControl]="viewFace" appearance="standard" class="collapsible-toggle-group">
+            <mat-button-toggle value="front">
+              front
+            </mat-button-toggle>
+            <mat-button-toggle value="back">
+              back
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+
+
+        <div class="toggle-group-wrapper" [class.hidden]="vs.current_view == 'sim'">
+          <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
+            [formControl]="useSizes" appearance="standard" class="collapsible-toggle-group">
+            <mat-button-toggle value="actual">
+              actual
+            </mat-button-toggle>
+            <mat-button-toggle value="standard">
+              standard
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+
+
+        <button matIconButton="filled" [color]="view_controls_visible ? 'accent' : 'primary'"
+          (click)="toggleViewControls()"><i class="fa-solid fa-circle-info"></i>
+        </button>
       </div>
-
-
-
-
-      <div class="toggle-group-wrapper" [class.hidden]="vs.current_view == 'sim'">
-        <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
-          [formControl]="viewFace" appearance="standard" class="collapsible-toggle-group">
-          <mat-button-toggle value="front">
-            front
-          </mat-button-toggle>
-          <mat-button-toggle value="back">
-            back
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-
-
-
-      <div class="toggle-group-wrapper" [class.hidden]="vs.current_view == 'sim'">
-        <mat-button-toggle-group hideSingleSelectionIndicator [disabled]="visMode.value == 'sim'"
-          [formControl]="useSizes" appearance="standard" class="collapsible-toggle-group">
-          <mat-button-toggle value="actual">
-            actual
-          </mat-button-toggle>
-          <mat-button-toggle value="standard">
-            standard
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </div>
-
-
-
-      <button matIconButton="filled" [color]="view_controls_visible ? 'accent' : 'primary'"
-        (click)="toggleViewControls()"><i class="fa-solid fa-circle-info"></i>
-      </button>
     </div>
   </div>
 

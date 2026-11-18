@@ -34,9 +34,8 @@ export class ExamplesComponent implements OnDestroy {
   local_examples: any;
 
   sharedFileSubscription!: Subscription;
-  community_examples: Array<ShareObj> = [];
-  exampleImgs: Array<any> = [];
-  placeholderImg: string = '/assets/example_img/placeholder.png'
+  community_examples: Array<{ obj: ShareObj, img_src: string | null }> = [];
+  placeholderImg: string = '/example_img/placeholder.png'
 
   constructor() {
     const examples = this.examples;
@@ -48,28 +47,32 @@ export class ExamplesComponent implements OnDestroy {
 
   }
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
 
     this.sharedFileSubscription = this.fb.sharedFilesChangeEvent$.subscribe(files => {
-      this.community_examples = files.public.slice();
-      this.exampleImgs = [];
+      this.community_examples = files.public.slice().map(
+        ex => ({
+          obj: ex, img_src: null
+        }));
 
-      this.community_examples.forEach(ex => {
-        if (ex.img != "none") {
-          let img_src = (ex.img !== "none") ? this.ms.loadImageViaURL(-1, ex.img).then(url => { return url }) : '';
-          this.exampleImgs.push(img_src);
-
-        };
-
-      })
-
-
+      this.loadImages(this.community_examples);
+      console.log("community_examples", this.community_examples);
     })
 
   }
 
   ngOnDestroy(): void {
     this.sharedFileSubscription.unsubscribe();
+  }
+
+  async loadImages(examples: Array<{ obj: ShareObj, img_src: string | null }>) {
+    for (const example of examples) {
+      if (example.obj.img !== "none") {
+        example.img_src = await this.ms.loadImageViaURL(-1, example.obj.img);
+      } else {
+        example.img_src = this.placeholderImg;
+      }
+    }
   }
 
   openFileManager() {
