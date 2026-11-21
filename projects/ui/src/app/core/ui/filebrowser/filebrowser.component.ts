@@ -119,6 +119,10 @@ export class FilebrowserComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
+    
+
+
     let cur = this.ws.getCurrentFile();
     this.currently_open_id = (cur !== undefined) ? cur.id : -1;
     this.combineAndSortFiles();
